@@ -75,7 +75,8 @@ extension SphinxOnionManager{
         mediaType: String? = "file",
         threadUUID: String?,
         replyUUID: String?,
-        invoiceString: String?
+        invoiceString: String?,
+        tribeKickMember: String? = nil
     ) -> (String?, String?)? {
         
         var msg: [String: Any] = ["content": content]
@@ -98,8 +99,8 @@ extension SphinxOnionManager{
             msg["invoice"] = invoiceString
             break
         case .groupKick:
-            if let member = recipPubkey {
-                msg["member"] = content
+            if let member = tribeKickMember {
+                msg["member"] = member
             } else {
                 return nil
             }
@@ -131,7 +132,8 @@ extension SphinxOnionManager{
         mediaType: String? = nil,
         threadUUID: String?,
         replyUUID: String?,
-        invoiceString: String? = nil
+        invoiceString: String? = nil,
+        tribeKickMember: String? = nil
     ) -> TransactionMessage? {
         
         guard let seed = getAccountSeed() else {
@@ -148,7 +150,8 @@ extension SphinxOnionManager{
             mediaType: mediaType,
             threadUUID: threadUUID,
             replyUUID: replyUUID,
-            invoiceString: invoiceString
+            invoiceString: invoiceString,
+            tribeKickMember: tribeKickMember
         ) else {
             return nil
         }
@@ -430,7 +433,7 @@ extension SphinxOnionManager{
                 finalizeSentMessage(localMsg: originalMessage, remoteMsg: message)
            } else if let fromMe = message.fromMe,
                     fromMe == true,
-                    let sentTo = message.sentTo,
+                    let _ = message.sentTo,
                     let uuid = message.uuid,
                     TransactionMessage.getMessageWith(uuid: uuid) == nil,
                     //let contact = UserContact.getContactWithDisregardStatus(pubkey: sentTo),
@@ -661,7 +664,7 @@ extension SphinxOnionManager{
         
         if type == TransactionMessage.TransactionMessageType.payment.rawValue,
            let ph = message.paymentHash,
-           let invoice = TransactionMessage.getInvoiceWith(paymentHash: ph)
+           let _ = TransactionMessage.getInvoiceWith(paymentHash: ph)
         {
             newMessage.setPaymentInvoiceAsPaid()
         }
@@ -897,27 +900,35 @@ extension SphinxOnionManager{
         }
         guard let recipPubkey = (recipContact?.publicKey ?? chat.ownerPubkey) else { return  }
         
-        let rr = try! Sphinx.mute(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData(),
-            pubkey: recipPubkey,
-            muteLevel: muteLevel
-        )
-        
-        handleRunReturn(rr: rr)
+        do {
+            let rr = try Sphinx.mute(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                pubkey: recipPubkey,
+                muteLevel: muteLevel
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error setting mute level")
+        }
     }
     
     func getMuteLevels() {
         guard let seed = getAccountSeed() else{
             return
         }
-        let rr = try!  Sphinx.getMutes(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData()
-        )
-        handleRunReturn(rr: rr)
+        do {
+            let rr = try  Sphinx.getMutes(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting mute level")
+        }
     }
     
     func setReadLevel(
@@ -930,27 +941,35 @@ extension SphinxOnionManager{
         }
         guard let recipPubkey = (recipContact?.publicKey ?? chat.ownerPubkey) else { return  }
         
-        let rr = try! Sphinx.read(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData(),
-            pubkey: recipPubkey,
-            msgIdx: index
-        )
-        
-        handleRunReturn(rr: rr)
+        do {
+            let rr = try Sphinx.read(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                pubkey: recipPubkey,
+                msgIdx: index
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error setting read level")
+        }
     }
     
     func getReads(){
         guard let seed = getAccountSeed() else{
             return
         }
-        let rr = try! Sphinx.getReads(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData()
-        )
-        handleRunReturn(rr: rr)
+        do {
+            let rr = try Sphinx.getReads(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting read level")
+        }
     }
 
 }

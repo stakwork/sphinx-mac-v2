@@ -28,7 +28,7 @@ extension SphinxOnionManager{//invoices related
                 description: description ?? ""
             )
             
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
                 
             return rr.invoice
         } catch {
@@ -48,7 +48,7 @@ extension SphinxOnionManager{//invoices related
                 bolt11: invoice,
                 overpayMsat: nil
             )
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
         } catch {
             return
         }
@@ -75,7 +75,7 @@ extension SphinxOnionManager{//invoices related
                 myImg: selfContact.avatarUrl ?? "",
                 isTribe: false
             )
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
         } catch {
             return
         }

@@ -34,7 +34,7 @@ extension SphinxOnionManager{//invites related
                 tribePubkey: defaultTribePubkey
             )
             
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
         } catch {}
     }
     
@@ -84,6 +84,14 @@ extension SphinxOnionManager{//invites related
         code: String,
         nickname: String
     ) {
+        var inviteCode: String? = nil
+        do {
+            inviteCode = try codeFromInvite(inviteQr: code)
+        } catch {
+            print("Error getting code from invite")
+            return
+        }
+        
         let contact = UserContact(context: managedContext)
         contact.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
         contact.publicKey = ""//
@@ -96,7 +104,7 @@ extension SphinxOnionManager{//invites related
         contact.fromGroup = false
         contact.privatePhoto = false
         contact.tipAmount = 0
-        contact.sentInviteCode = try! codeFromInvite(inviteQr: code)
+        contact.sentInviteCode = inviteCode
         
         let invite = UserInvite(context: managedContext)
         invite.inviteString = code

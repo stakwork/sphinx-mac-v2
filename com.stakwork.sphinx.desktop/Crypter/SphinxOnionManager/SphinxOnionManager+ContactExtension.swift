@@ -80,7 +80,7 @@ extension SphinxOnionManager{//contacts related
                 theirAlias: nickname
             )
             
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
             
 //            print("INITIATED KEY EXCHANGE WITH ARGS:\(seed, getTimeWithEntropy(),loadOnionStateAsData(),recipientPubkey,"\(recipLspPubkey)_\(scid)",selfContact.avatarUrl,1000,hexCode,nickname) ")
             

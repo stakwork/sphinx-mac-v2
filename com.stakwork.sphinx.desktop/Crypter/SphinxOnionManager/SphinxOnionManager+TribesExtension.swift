@@ -41,7 +41,7 @@ extension SphinxOnionManager {
                 tribeServerPubkey: tribeServerPubkey,
                 tribeJson: tribeJSONString
             )
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
         } catch {}
     }
     
@@ -68,7 +68,7 @@ extension SphinxOnionManager {
                 isPrivate: isPrivate
             )
             DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-                self.handleRunReturn(rr: rr)
+                let _ = self.handleRunReturn(rr: rr)
             })
             
         } catch {}
@@ -153,7 +153,7 @@ extension SphinxOnionManager {
                 tribePubkey: tribeChat.ownerPubkey ?? ""
             )
             stashedCallback = completion
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
         } catch {}
     }
     
@@ -163,12 +163,13 @@ extension SphinxOnionManager {
         }
         let _ = sendMessage(
             to: nil,
-            content: pubkey,
+            content: "",
             chat: chat,
             msgType: UInt8(TransactionMessage.TransactionMessageType.groupKick.rawValue),
             recipPubkey: tribeServerPubkey,
             threadUUID: nil,
-            replyUUID: nil
+            replyUUID: nil,
+            tribeKickMember: pubkey
         )
     }
     

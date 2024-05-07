@@ -129,13 +129,17 @@ extension SphinxOnionManager {
             object: nil
         )
         
-        let rr = try! getMsgsCounts(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData()
-        )
-        
-        let _ = handleRunReturn(rr: rr)
+        do {
+            let rr = try getMsgsCounts(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting msgs count")
+        }
     }
     
     @objc func processMessageCountReceived() {
@@ -270,13 +274,17 @@ extension SphinxOnionManager {
             object: nil
         )
         
-        let rr = try! getMsgsCounts(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData()
-        )
-        
-        let _ = handleRunReturn(rr: rr)
+        do {
+            let rr = try getMsgsCounts(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting msgs count")
+        }
     }
     
     @objc func processSyncCountsReceived(){
@@ -557,14 +565,18 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
             return
         }
         
-        let rr = try! setPushToken(
-            seed: seed,
-            uniqueTime: getTimeWithEntropy(),
-            state: loadOnionStateAsData(),
-            pushToken: id
-        )
-        
-        let _ = handleRunReturn(rr: rr)
+        do {
+            let rr = try setPushToken(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                pushToken: id
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error setting push token")
+        }
     }
 
 }

@@ -124,7 +124,7 @@ extension SphinxOnionManager {
                             NotificationCenter.default.post(
                                 name: .invoiceIPaidSettled,
                                 object: nil,
-                                userInfo: dictionary
+                                userInfo: dictionary as [AnyHashable: Any]
                             )
                         }
                     }

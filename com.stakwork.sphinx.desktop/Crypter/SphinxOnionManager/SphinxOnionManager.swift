@@ -216,10 +216,12 @@ class SphinxOnionManager : NSObject {
         })
     }
 
-    func listContacts() -> String{
-        let contacts = try! Sphinx.listContacts(state: self.loadOnionStateAsData())
-        return contacts
-    }
+//    func listContacts() -> String {
+//        do {
+//            let contacts = try! Sphinx.listContacts(state: self.loadOnionStateAsData())
+//            return contacts
+//        }
+//    }
     
     func subscribeAndPublishMyTopics(
         pubkey: String,
@@ -227,16 +229,16 @@ class SphinxOnionManager : NSObject {
     ) {
         do {
             let ret = try setNetwork(network: network)
-            handleRunReturn(rr: ret)
+            let _ = handleRunReturn(rr: ret)
             
             let ret2 = try setBlockheight(blockheight: 0)
-            handleRunReturn(rr: ret2)
+            let _ = handleRunReturn(rr: ret2)
             
             guard let seed = getAccountSeed() else{
                 return
             }
             
-            let subtopic = try! Sphinx.getSubscriptionTopic(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
+            let subtopic = try Sphinx.getSubscriptionTopic(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
             
             mqtt.didReceiveMessage = { mqtt, receivedMessage, id in
                 self.isConnected = true
@@ -248,7 +250,7 @@ class SphinxOnionManager : NSObject {
             ])
             
             let ret3 = try initialSetup(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
-            handleRunReturn(rr: ret3)
+            let _ = handleRunReturn(rr: ret3)
             
             let tribeMgmtTopic = try getTribeManagementTopic(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
             
@@ -278,41 +280,36 @@ class SphinxOnionManager : NSObject {
     
     
     func createMyAccount(mnemonic: String) -> Bool {
-        do {
-            //1. Generate Seed -> Display to screen the mnemonic for backup???
-            guard let seed = getAccountSeed(mnemonic: mnemonic) else {
-                //possibly send error message?
-                return false
-            }
-            //2. Create the 0th pubkey
-            guard let pubkey = getAccountOnlyKeysendPubkey(seed: seed), let my_xpub = getAccountXpub(seed: seed) else{
-                return false
-            }
-            //3. Connect to server/broker
-            let success = connectToBroker(seed:seed, xpub: my_xpub)
-            
-            //4. Subscribe to relevant topics based on OK key
-            let idx = 0
-            
-            if success {
-                mqtt.didReceiveMessage = { mqtt, receivedMessage, id in
-                    self.isConnected = true
-                    self.processMqttMessages(message: receivedMessage)
-                }
-                
-                //subscribe to relevant topics
-                mqtt.didConnectAck = { _, _ in
-                    //self.showSuccessWithMessage("MQTT connected")
-                    print("SphinxOnionManager: MQTT Connected")
-                    print("mqtt.didConnectAck")
-                    self.subscribeAndPublishMyTopics(pubkey: pubkey, idx: idx)
-                }
-            }
-            return success
-        } catch {
-            print("error connecting to mqtt broker")
+        //1. Generate Seed -> Display to screen the mnemonic for backup???
+        guard let seed = getAccountSeed(mnemonic: mnemonic) else {
+            //possibly send error message?
             return false
         }
+        //2. Create the 0th pubkey
+        guard let pubkey = getAccountOnlyKeysendPubkey(seed: seed), let my_xpub = getAccountXpub(seed: seed) else{
+            return false
+        }
+        //3. Connect to server/broker
+        let success = connectToBroker(seed:seed, xpub: my_xpub)
+        
+        //4. Subscribe to relevant topics based on OK key
+        let idx = 0
+        
+        if success {
+            mqtt.didReceiveMessage = { mqtt, receivedMessage, id in
+                self.isConnected = true
+                self.processMqttMessages(message: receivedMessage)
+            }
+            
+            //subscribe to relevant topics
+            mqtt.didConnectAck = { _, _ in
+                //self.showSuccessWithMessage("MQTT connected")
+                print("SphinxOnionManager: MQTT Connected")
+                print("mqtt.didConnectAck")
+                self.subscribeAndPublishMyTopics(pubkey: pubkey, idx: idx)
+            }
+        }
+        return success
     }
     
     func processMqttMessages(message: CocoaMQTTMessage) {
@@ -334,7 +331,7 @@ class SphinxOnionManager : NSObject {
                 myImg: pic
             )
             
-            handleRunReturn(rr: ret4)
+            let _ = handleRunReturn(rr: ret4)
         } catch {}
     }
     
