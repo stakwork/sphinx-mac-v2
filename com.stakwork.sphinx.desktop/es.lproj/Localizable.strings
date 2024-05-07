@@ -1,0 +1,547 @@
+/*
+  Localizable.strings
+  com.stakwork.sphinx.desktop
+
+  Created by Tomas Timinskas on 13/07/2020.
+  Copyright © 2020 Sphinx. All rights reserved.
+*/
+
+//Generic
+"generic.success.title" = "Éxito";
+"generic.error.title" = "Error";
+"generic.error.message" = "Ha habido un problema. Por favor vuelva a intentarlo más tarde.";
+"generic.message.error" = "El mensaje no pudo ser encriptado correctamente por lo cual no puede ser enviado.";
+"generic.attachment.error" = "Ha habido un problema subiendo el archivo. Por favor vuelva a intentarlo más tarde.";
+"boost.error.title" = "Boost error";
+"confirm" = "Confirmar";
+"authorize" = "Autorizar";
+"warning" = "Atención";
+"done.upper" = "LISTO";
+"next.upper" = "SIGUIENTE";
+"confirm.upper" = "CONFIRMAR";
+"continue" = "continuar";
+"save.upper" = "GUARDAR";
+"cancel" = "Cancelar";
+"uploaded.progress" = "Subido: %d %%";
+"public.key" = "Clave Pública";
+"name.you" = "Tú";
+"name.unknown" = "Desconocido";
+"name.unknown.initials" = "D";
+"today" = "Hoy";
+"contact" = "Contacto";
+"profile" = "Mi Perfil";
+"transactions" = "Transacciones";
+"profile.saved" = "Los cambios en el perfil han sido guardados con éxito";
+"search" = "Buscar";
+"submit" = "Enviar";
+"finish" = "finalizar";
+"verify.upper" = "Verificar";
+"pay.upper" = "Pagar";
+"make.payment" = "Hacer el Pago";
+"expired.invoice" = "Solicitud caducada";
+
+"connected.to.node" = "Conectado al Nodo";
+"socket.disconnected" = "Actualizaciones en tiempo real\nno disponibles";
+"unable.to.connect" = "No es posible conectarse al Nodo";
+"unauthorized.error.message" = "Ha habido un problema. Por favor contacta con soporte.";
+"network.connection.lost" = "No hay conexión de red.\nPor favor verifique su red y vuelva a intentarlo.";
+"reverting.ip" = "La verificación de la nueva URL ha fallado, restaurando configuración previa...";
+"verifying.new.ip" = "Verificando la nueva URL...";
+
+//LeftMenu
+"menu.dashboard" = "Inicio";
+"menu.contacts" = "Contactos";
+"menu.profile" = "Perfil";
+
+"support.describe.problem" = "Describa su problema aquí...";
+"support.logs.copied" = "Registros copiados al portapapeles";
+"message.sent" = "Su mensaje ha sido enviado";
+
+//Dashboard
+"dashboard.tabs.friends" = "Amigos";
+"dashboard.tabs.tribes" = "Tribus";
+
+//GROUPS
+"unselect.all.upper" = "DESELECCIONAR TODOS";
+"select.all.upper" = "SELECCIONAR TODOS";
+"add.members.limit" = "Imposible agregar más de %d miembros";
+"reach.members.limit" = "Has alcanzado el límite de miembros";
+"group.image" = "Imagen del Grupo";
+"select.option" = "Por favor selecciona una opción";
+"required.fields.empty" = "Algunos de los campos obligatorios están vacíos";
+"add.contacts" = "Agregar Contactos";
+"pub.key.options-send.payment" = "Enviar Pago";
+"select.contacts" = "Seleccionar Contactos";
+"contacts.upper" = "CONTACTOS";
+"member.join.soon" = "Los nuevos miembros se unirán pronto";
+"unknown.group" = "Grupo Desconocido";
+"created.on" = "Creado: %@";
+"group.members.upper" = "MIEMBROS DE LA TRIBU";
+"tribe.pending.members.upper" = "MIEMBROS PENDIENTES DE LA TRIBU";
+"group.options" = "Opciones del Grupo";
+"edit.group" = "Editar Grupo";
+"delete.group" = "Eliminar Grupo";
+"exit.group" = "Abandonar Grupo";
+"confirm.exit.delete.group" = "¿Estás seguro que deseas abandonar y eliminar el grupo?";
+"delete.group" = "Eliminar Grupo";
+"confirm.delete.group" = "¿Estás seguro que deseas borrar este grupo?";
+"confirm.exit.delete.tribe" = "¿Estás seguro que deseas abandonar y eliminar la tribu?";
+"confirm.delete.tribe" = "¿Estás seguro que deseas borrar esta tribu?";
+"share.group.link" = "Código QR de la tribu";
+"group.link.upper" = "CÓDIGO QR DE LA TRIBU";
+"profile.image" = "Imagen de Perfil";
+"edit.group.upper" = "EDITAR GRUPO";
+"just.left.group" = "%@ ha abandonado el grupo";
+"just.left.tribe" = "%@ ha abandonado la tribu";
+"has.joined.group" = "%@ se ha unido al grupo";
+"has.joined.tribe" = "%@ se ha unido a la tribu";
+"added.to.group" = "%@ ha sido agregado al grupo";
+"tribe.kick" = "El administrador te ha\neliminado de esta tribu";
+"tribe.deleted" = "El administrador\nha eliminado esta tribu";
+"member.request" = "%@ desea\nunirse a la tribu";
+"member.request.rejected" = "El administrados \nha denegado tu solicitud";
+"member.request.approved" = "¡Bienvenido! Ya eres miembro del grupo";
+"admin.request.approved" = "Has aprobado la\nsolicitud de %@";
+"admin.request.rejected" = "Has denegado la\nsolicitud de %@";
+"waiting.admin.approval" = "Esperando aprobación del administrador";
+"deleted.tribe.title" = "Tribu eliminada";
+"deleted.tribe.description" = "El administrados ha eliminado esta tribu. Ya no podrás enviar ni recibir mensajes. Elimina y abandona la tribu desde la vista de detalles de la tribu.";
+"join.tribe" = "Unirse a la Tribu";
+"exit.tribe" = "Abandonar Tribu";
+"confirm.exit.tribe" = "¿Estás seguro que deseas abadonar esta tribu?";
+"share.group" = "Compartir código QR";
+"delete.tribe" = "Eliminar Tribu";
+"edit.tribe" = "Modificar Tribu";
+"alias.allowed-characters" = "Solo se permiten letras, números y\nguiones bajos en el alias de la tribu";
+"kick.member.title" = "Miembro de la Tribu";
+"kick.member.message" = "¿Estás seguro que deseas eliminar a este miembro de la tribu?";
+
+//SUBSCRIPTIONS
+"leave.lose.unsaved.changed" = "¿Estás seguro que deseas salir? Los cambios no guardado se perderán";
+"paused.upper" = "PAUSADO";
+"ended.upper" = "FINALIZADO";
+"active.upper" = "ACTIVO";
+"subscription.fields.required" = "Monto, intervalo de tiempo y finalización de pagos son obligatorios.";
+"confirm.delete.subscription" = "¿Estás seguro que deseas eliminar esta suscripción?";
+"amount.upper" = "MONTO";
+"time.interval.upper" = "INTERVALO DE TIEMPO";
+"end.rule.upper" = "FINALIZACIÓN";
+"total.payments" = "Cantidad de pagos:";
+"pay.until" = "Pagar hasta:";
+"already.subscribed" = "Ya estás suscripto.";
+"value.cannot.empty" = "Valor requerido";
+"subscribe.upper" = "SUSCRIBIRSE";
+
+//INVOICE DETAILS
+"x.copied.clipboard" = "%@ copiado al portapapeles";
+"payment.request" = "Solicitud de Pago";
+"copy.invoice.string" = "Copiar Texto";
+"copy.invoice.image" = "Copiar Imagen";
+
+//ADDRESS BOOK
+"new.contact" = "Nuevo Contacto";
+"save.to.contacts.upper" = "GUARDAR CONTACTO";
+"edit.contact.upper" = "EDITAR CONTACTO";
+"subscribed.upper" = "SUSCRIPTO";
+"subscribe.upper" = "SUSCRIBIRSE";
+"nickname.address.required" = "Alias y dirección son obligatorios";
+"invalid.pubkey" = "Clave Pública inválida";
+"invalid.route.hint" = "Route Hint inválido";
+"new.contact.error.alreadyExists" = "Ya existe un contacto con esta clave pública en tu lista de contactos.";
+"delete.contact" = "Eliminar contacto";
+"delete.contact.warning" = "¿Estás seguro de que quieres eliminar este contacto?";
+"mark.as.unread" = "Marcar como no leído";
+"mark.as.read" = "Marcar como leído";
+
+//INVITE
+"group.details" = "Detalles del Grupo";
+"tribe.details" = "Detalles de la Tribu";
+"add.people" = "Agregar";
+"whoops" = "Ups!";
+"welcome" = "Bienvenido";
+"welcome!" = "Bienvenido!";
+"contact.support" = "Ha habido un problema.\n\nPor favor contacta con soporte en\nsupport@stakwork.com";
+"paste.invite.text" = "Pega el código de invitación\no escanea el código QR";
+"paste.invitation.code" = "Pega el código de invitación...";
+"paste.keys" = "Pega aquí tus claves...";
+"pin" = "PIN";
+"enter.pin.upper" = "INGRESA PIN";
+"invalid.pin" = "PIN Inválido";
+"message.from.friend" = "Un mensaje\nde tu amigo...";
+"skip" = "omitir";
+"get.it.now" = "obtener ahora";
+"select.image" = "seleccionar imagen";
+"change.image" = "cambiar imagen";
+"nickname" = "Alias";
+"change.image" = "Cambiar Imagen";
+"nickname.cannot.empty" = "Debes ingresar un alias";
+"ready.use.sphinx" = "Todo listo\npara usar Sphinx!";
+"ready" = "listo";
+"ready.sphinx.text" = "Puedes enviar mensajes,\nenviar %@ sats, o recibir\nhasta %@ sats.";
+"x.sats," = "%@ sats,";
+"x.sats." = "%@ sats.";
+"invite.more.sats" = "No tienes suficientes sats para solicitar esta invitación";
+"code.copied.clipboard" = "Código copiado al portapapeles";
+"confirm.delete.keychain" = "¿Estás seguro que deseas borrar permanentemente este nodo de Keychain? Verifica no estas conectado a este nodo en otro dispositivo, ya que esta acción borrará la información haciendo que tu conexión en el otro dispositivo se pierda.";
+"error.restoring.keychain" = "Ocurrió un problema restaurando desde Keychain.";
+"share.invite.code.upper" = "COMPARTIR INVITACIÓN";
+"add.friend" = "Agregar Amigo";
+"invalid.code.pubkey" = "Parece que has ingresado una clave pública, para registrarte necesitarás un código de invitación. Obtenlo en https://sphinx.chat";
+"invalid.code.invoice" = "Parece que has ingresado una solicitud de pago, para registrarte necesitarás un código de invitación. Obtenlo en https://sphinx.chat";
+"invalid.code" = "El código ingresado no es válido, para registrarte necesitarás un código de invitación. Obtenlo en https://sphinx.chat";
+"invalid.code.claim" = "There was an error claiming this QR code. Please try again.";
+"tor.connection.failed" = "Error conectando a Tor";
+"establishing.tor.circuit" = "Estableciendo circuito con Tor...";
+"wait.tor.request" = "Por favor espera. Este proceso puede tardar algunos minutos...";
+"restore.label" = "Copia tus claves desde la\naplicación móvil y pegales aquí.";
+"signup.label" = "Pega tu código de invitación\nen Sphinx";
+"restore.label.bold" = "Copia tus claves";
+"signup.label.bold.1" = "Pega";
+"signup.label.bold.2" = "código de invitación";
+"get.started" = "Comenzar";
+"set.nickname" = "Establecer Alias";
+"set.pin" = "Establecer PIN (6 dígitos)";
+"confirm.pin" = "Confirmar PIN";
+"sphinx.on.phone" = "¿Aún no tenes Sphinx en tu teléfono?";
+"sphinx.on.phone.bold" = "Sphinx en tu teléfono";
+
+//PROFILE
+"address.copied.clipboard" = "Dirección copiada al portapapeles";
+"pin.keys.encryption" = "Ingresa tu PIN para encriptar las claves. ¡Recuérdalo! Lo necesitarás para restaurar tu cuenta en otro dispositivo.";
+"export.keys" = "Exportar Claves";
+"keys.will.copy.clipboard" = "Tus claves se copiarán al portapapeles. Guarda las claves y recuerda tu PIN antes de borrar la aplicación o toda la información se perderá.";
+"keys.copied.clipboard" = "Claves copiadas al portapapeles";
+"server.url.updated" = "La URL del servidor ha sido actualizada con éxito";
+"drag.image" = "Arrastre una imagén";
+"pubkey" = "Clave Pública";
+"route.hint" = "Pista de Ruta";
+"pubkey.upper" = "CLAVE PÚBLICA";
+
+"profile.setup-signing-device" = "Configurar Dispositivo de firma";
+"profile.configure-signing-device" = "Configurar Dispositivo de firma";
+"profile.lightning-url-title" = "URL del nodo de lightning";
+"profile.lightning-url-message" = "Ingresa la URL de tu nodo de lightning";
+"profile.lightning-url-error" = "La URL no puede ser vacía";
+"profile.lightning-port-title" = "Puerto del nodo de lightning";
+"profile.lightning-port-message" = "Ingresa el número de puerto de tu nodo de lightning";
+"profile.lightning-port-error" = "El Puerto no puede ser vacío";
+"profile.wifi-network-title" = "Red WiFi";
+"profile.wifi-network-message" = "Por favor especifica tu red WiFi";
+"profile.wifi-network-error" = "La red WiFi no puede ser vacía";
+"profile.wifi-password-title" = "Contraseña de WiFi";
+"profile.wifi-password-message" = "Ingresa la contraseña de WiFi para %@";
+"profile.wifi-password-error" = "La contraseña de WiFi no puede ser vacía";
+"profile.seed-sent-successfully" = "Seed envíado al dispositivo con éxito";
+"profile.error-sending-seed" = "Ocurrió un error enviando el seed al dispositivo";
+"profile.error-getting-hardware-public-key" = "Ocurrió un error al intentar obtener la clave pública del dispositivo";
+"profile.store-mnemonic" = "Guarda tus palabras de seguridad cuidadosamente";
+"profile.network-check-title" = "Verifica tu conexión WiFi";
+"profile.network-check-message" = "Antes de comenzar tenes que conectarte a la red WiFi \"sphinxkey\". De lo contrario no vas a poder configurar tu dispositivo. ¿Estás actualmente conectado a esta red?";
+"profile.mnemonic-copied" = "Palabras de seguridad copiadas al portapapeles";
+"profile.bitcoin-network" = "Red de Bitcoin";
+"profile.select-bitcoin-network" = "Seleccioná la red de Bitcoin";
+"profile.mnemonic-generation-title" = "Generación de palabras de seguridad";
+"profile.mnemonic-generation-description" = "Elegí la opción de tu preferencia";
+"profile.mnemonic-enter-title" = "Palabras de seguridad";
+"profile.mnemonic-enter-description" = "Ingresá 12 o 24 palabras de seguridad separadas por un espacio";
+"profile.mnemonic-enter-error" = "Las palabras ingresadas no son válidas";
+"profile.mnemonic-enter" = "Ingresá tus 12/24 palabras de seguridad";
+"profile.mnemonic-generate" = "Generar palabras de seguridad al azar";
+"profile.signer-setup-title" = "Configuración";
+"profile.signer-setup-message" = "Configurar hardware o computer signer";
+"profile.harware-option" = "Hardware";
+"profile.phone-signer-option" = "Computer Signer";
+"profile.signer-qr-code.title" = "Código QR";
+"profile.signer-qr-code.message" = "Ingresá el contenido del código QR";
+"profile.mnemonic-generate-or-import-title" = "Elige tu método de semilla";
+"profile.mnemonic-generate-prompt" = "Generar";
+"profile.mnemonic-import-prompt" = "Importar";
+"profile.mnemonic-generate-or-import-prompt" = "¿Deseas generar una nueva frase mnemotécnica o importar una existente?";
+
+//PIN
+"privacy.pin" = "PIN de Privacidad";
+"standard.pin" = "PIN Estandar";
+"enter.pin.upper" = "INGRESE PIN";
+"choose.pin.upper" = "ELIGE TU PIN";
+"confirm.pin.upper" = "CONFIRMA TU PIN";
+"pin.doesnt.match" = "El PIN no concuerda";
+"pins.do.not.match" = "Los PINS no concuerdan";
+"current.pin" = "PIN actual";
+"new.pin" = "Nuevo PIN";
+"confirm.new.pin" = "Confirme nuevo PIN";
+"pin.changed" = "Tu PIN ha sido actualizado. Por favor exporta tus claves nuevamente usando el nuevo PIN.";
+"contact.pin.error" = "No puedes usar tu PIN principal como PIN de grupo";
+"set.privacy.pin" = "Establecer PIN Privado";
+"change.privacy.pin" = "Cambiar PIN Privado";
+"privacy.pin.set" = "Su PIN Privado ha sido establecido";
+"privacy.pin.changed" = "Su PIN Privado ha sido modificado";
+"pins.must.be.different" = "Su PIN y si PIN Privado no pueden ser iguales";
+"privacy.pin.tooltip" = "Cuando la configuración de privacidad está activada, el contacto solo estará visible si se utilizó el PIN Privado para ingresar en Sphinx. Primero debes setear el PIN Privado desde el Perfil para user esta funcionalidad";
+"pin.change" = "Cambio de PIN";
+"confirm.pin.change" = "¿Estás seguro que deseas cambiar tu PIN?";
+"confirm.privacy.pin.change" = "¿Estás seguro que deseas cambiar tu PIN de Privacidad?";
+
+//HISTORY
+"error.loading.transactions" = "Ocurrió un problema cargando la lista de transacciones. Por favor vuelva a intentarlo más tarde.";
+"loading.more.transactions" = "Cargando más transacciones...";
+"transactions.failure-reason" = "Causa de la falla:";
+
+//QR CODE SCANNER
+"scan.qr.code.upper" = "ESCANEA UN CÓDIGO QR";
+"paste.invoice.subscription" = "Pega la solicitud de pago o el códido de suscripción";
+"contact.address.upper" = "DIRECCIÓN DEL CONTACTO";
+"enter.address" = "Ingresa la Dirección";
+"scan.upper" = "ESCANEAR";
+"enter.code" = "Ingresa el Código";
+"sorry" = "Lo lamentamos";
+"code.not.recognized" = "No podemos reconocer este tipo de código.";
+"expired" = "Caducado: ";
+"invoice" = "Solicitud";
+"confirm.pay.invoice" = "¿Estás seguro que deseas pagar esta solicitud?";
+"invoice.amount" = "Ingresar monto: ";
+"expiration.date" = "Fecha de expiración: ";
+"invoice.string" = "Ingresar Solicitud de Pago";
+
+
+//CHAT
+"payment.failed.upper" = "PAGO FALLIDO";
+"microphone.permission.denied" = "Has denegado los permisos de uso de micrófono. Dirigete a Configuración -> Sphinx y actívalos nuevamente para poder enviar mensajes de audio.";
+"chat.muted.message" = "La conversación está ahora silenciada. No recibirás notificaciones para las mensajes entrantes en esta conversación.";
+"pay.invitation" = "Pagar la invitación";
+"payment.failed" = "Pago fallido, inténtalo nuevamente más tarde";
+"expires.in" = "Caduca en %@ minutos";
+"expires.in.elements" = "Caduca en %@ horas y %@ minutos";
+"invoice.paid.on" = "Solicitud pagada el %@";
+"invoice.amount.paid.on" = "Solicitud de %@ sats pagada el %@";
+"media.terms.expired" = "Archivo caducado";
+"message.failed" = "Mensaje fallido";
+"invite.name" = "Invitación: %@";
+"welcome.to.sphinx" = "Bienvenido a Sphinx!";
+"loading.more.messages" = "Cargando más mensajes...";
+"message.placeholder" = "Mensaje...";
+"audio.message.cancelled" = "Mensaje de audio cancelado";
+"loading.preview" = "Cargando vista previa...";
+"title.not.available" = "Título no disponible";
+"description.not.available" = "Descripción no disponible";
+"preview.not.available" = "Vista previa no disponible";
+"text.copied.clipboard" = "Texto copiado al portapapeles";
+"link.copied.clipboard" = "Enlace copiado al portapapeles";
+"pub.key.copied.clipboard" = "Clave Públic acopiada al portapapeles";
+"call.link.copied.clipboard" = "Enlace de llamada copiado al portapapeles";
+"pubkey.copied.clipboard" = "Clave Pública copiada al portapapeles";
+"route.hint.copied.clipboard" = "Pista de Ruta copiada al portapapeles";
+"invoice.copied.clipboard" = "Invoice copiado al portapapeles";
+"fetching.old.messages" = "Cargando mensajes antiguos\nEspera, por favor...";
+"fetching.new.messages" = "Cargando mensajes nuevos\nEspera, por favor ...";
+"group.price.text" = "Precio por mensaje: %@ sat - Cantidad a retener: %@ sat";
+"join.call" = "Unirse a la Llamada";
+"decrypting.message" = "Desencriptando mensaje...";
+"encryption.error" = "Error de Encriptación";
+"cannot.load.message.data" = "Error al cargar mensaje";
+"pay.to.unlock.msg" = "Paga para desbloquear";
+"loading.paid.message" = "Cargando mensaje...";
+"copy.text" = "Copiar Texto";
+"copy.link" = "Copiar Enlace";
+"copy.pub.key" = "Copiar Clave";
+"copy.call.link" = "Copiar Enlace";
+"reply" = "Responder";
+"save.file" = "Descargar";
+"delete.message" = "Eliminar Mensaje";
+"resend.message" = "Mandar otra vez";
+"received" = "recibido/a";
+"sent" = "enviado/a";
+"message.x.deleted" = "Mensaje eliminado";
+"payment" = "Pago";
+"tribe.payment.sent" = "Pago de %@ enviado a %@";
+"tribe.payment.received" = "%@ ha enviado un pago de %@ a %@";
+"picture.capitalize" = "Imagen";
+"gif.capitalize" = "Gif";
+"video.capitalize" = "Video";
+"audio.capitalize" = "Audio";
+"paid.message.capitalize" = "Mensaje Pago";
+"message.not.supported" = "Formato no válido";
+"from.lower" = "de";
+"purchase.item.description" = "Mensaje pago";
+"item.purchased" = "Pago de artículo";
+"item.purchase.denied" = "Pago de artículo denegado";
+"confirm.purchase" = "Confirmar Compra";
+"confirm.purchase.message" = "¿Estas seguro de que quieres comprar este artículo?";
+"bot.response" = "Respuesta de Bot";
+"file" = "Archivo";
+"downloading.file" = "Descargando archivo...";
+"amount.too.low" = "Importe demasiado bajo";
+"amount.too.high" = "Importe demasiado alto";
+"link.not.supported" = "Enlace no válido";
+"bot.response.preview" = "Respuesta de Bot";
+
+"users" = "users";
+"optional.message.placeholder" = "Mensaje opcional...";
+"price.required" = "Precio requerido";
+"message.required" = "Mensaje requerido";
+"send.gif.upper" = "ENVIAR GIF";
+"find.and.share.gif" ="Buscar y enviar un gif";
+"send.image.upper" = "ENVIAR IMAGEN";
+"send.paid.message.upper" = "ENVIAR MENSAJE PAGO";
+"send.video.upper" = "ENVIAR VIDEO";
+"set.price.upper" = "PRECIO";
+"to" = "A";
+"from" = "De";
+"create.invoice" = "Crear Solicitud";
+"pay.invoice" = "Pagara Solicitud";
+"send.payment.upper" = "ENVIAR PAGO";
+"request.amount.upper" = "SOLICITAR PAGO";
+"request.payment.create.invoice" = "Solicitar Pago (Crear Pagada)";
+"balance.too.low" = "Balance demasiado bajo";
+"total" = "Total";
+"payment.successfully.sent" = "Tu pago fue enviado con éxito.";
+"memo.too.large" = "Memo demasiado largo";
+"pages" = "páginas";
+"page" = "página";
+"pdf.description" = "PDF - %@ - Página %d de %d";
+
+//OTHER
+"create.call" = "Crear Llamada";
+"select.call.mode" = "Seleccionar Tipo de Llamada";
+"audio" = "Audio";
+"video.or.audio" = "Video o Audio";
+"log.into.your.account" = "Ingresar";
+"email.cant.be.sent" = "El correo electrónico no puede ser enviado desde este dispositivo. ";
+"photo.library.denied" = "Has denegado el accesso a tu librería de fotos. Dirigete a Configuración -> Sphinx y actívalo nuevamente.";
+"item.successfully.saved" = "El/La %@ ha sido guardado/a exitosamente.";
+"error.saving.item" = "Ha habido un problema al guardar el/la %@. Por favor vuelve a intentarlo más tarde.";
+"image" = "imagen";
+"video" = "video";
+"dismiss" = "Cerrar";
+"invoice.paid" = "Solicitud pagada";
+"amount" = "Monto";
+"memo" = "Memo";
+"camera" = "Cámara";
+"photo.library" = "Librería de Fotos";
+"no.camera.available" = "No hay cámara disponible en este dispositivo";
+"redeem.sats.from" = "Canjear %d sats de:";
+"keysend.received" = "Has receibido un pago de %d sats";
+"people.message.placeholder" = "Mensaje inicial para ";
+"authorization.succeeded" = "Autorización exitosa. Por favor vuelve a la página web para completar tu pérfil.";
+"authorization.failed" = "Fallo en la autorización";
+"authorization.success" = "Felicitaciones! Has sido autorizado";
+"already.connected" = "Ya estas conectado con esta persona";
+"price.to.meet" = "Precio para conectar: ";
+"popup.authorize-with" = "¿Quieres autorizar a:";
+"popup.redeem-sats" = "Canjear %d sats de:";
+"authorization.login" = "Felicitaciones! Has iniciado sesión";
+
+"people.save-profile" = "Guardar Perfil de:";
+"people.delete-profile" = "Borrar Perfil de:";
+"people.save-failed" = "No se ha podido guardar el Perfil";
+"people.delete-failed" = "No se ha podido eliminar el Perfil";
+"people.save-succeed" = "Perfil guardado con éxito";
+"people.delete-succeed" = "Perfil borrado con éxito";
+"people.claim-on-liquid" = "Canjear tokens de:";
+"people.claim-on-liquid-succeed" = "No se ha podido canjear los tokens";
+"people.claim-on-liquid-failed" = "Tokens canjeados con éxito";
+
+
+//TRANSACTION MESSAGE
+"purchase.succeeded" = "Compra exitosa";
+"purchase.denied" = "Compra denegada";
+"processing" = "Procesando";
+"pending" = "Pendiente";
+
+//Invites
+"invite.looking.available.node" = " Buscando nodo disponible para %@...";
+"invite.payment.sent" = " Pago enviado, esperando confirmación";
+"invite.pay" = " Toca para pagar y actvar la invitación";
+"invite.ready" = " ¡Listo! Toca para compartir. Caduca en 24 horas";
+"invite.signing.on" = " %@ se está registrando";
+"invite.expired" = " Caducado";
+"invite.signup.complete" = " Registro completo";
+"new.user" = "Nuevo Usuario";
+"existing.user" = "Usuario Existente";
+"connect" = "Connectar";
+"invite.expired.title" = "Invitación caducada";
+"invite.expired.message" = "La invitación caduca en 24 horas. Por favor crea una nueva.";
+"invite.pending.title" = "Invitación pendiente";
+"invite.pending.message" = "Disculpa las demoras. Tu invitación está en proceso.";
+"invite.in.progress.title" = "Invitación en proceso";
+"invite.in.progress.message" = "%@ se está registrando.";
+"invite.pmt.in.progress.title" = "Procesando Pago";
+"invite.pmt.in.progress.message" = "Tu pago está siendo procesado.";
+
+//DESKTOP
+"message" = "Mensaje";
+"logout" = "Desconectarse";
+"logout.text" = "Estas seguro que deseas desonectarse? La información y preferencias de tu cuenta serán eliminadas.";
+"enter.code.placeholder" = "Ingresa el código...";
+"keychain.restore" = "Restaurar desde Keychain";
+"podcast.details" = "Podcast Detalles & Opciones";
+"my.lsats" = "Mis L402s";
+"code.not.supported" = "Código no soportado";
+"enter.restore.pin" = "Ingresa tu PIN";
+"share.invite.code" = "Compartir código de invitación";
+"open.conversation" = "Abre una conversación para comenzar a usar Sphinx";
+"drag.attachment" = "Arrastra una imagen o video en la conversación para enviar. Enviar y recibir pagos no esta permitido en los grupos por el momento";
+"audio.too.short" = "Audio demasiado corto";
+"resume-restoring" = "Resumiendo Restauración...";
+"restoring-progress" = "Restaurando:";
+"restoring-content" = "Restaurando contenido:";
+"restoring-messages" = "Restaurando mensajes:";
+"restoring-contacts" = "Restaurando contactos:";
+
+//PODCAST
+"episodes" = "episodios";
+"price.per.minute" = "Precio por minuto: %d sats";
+"contributed.sats" = "Contribuídos: %d sats";
+"earned.sats" = "Recibidod: %d sats";
+"sats.per.minute" = "Podcast: sats por minuto";
+"suggested.out.range" = "Monto sugerido (%d sats) por encima del máximo";
+"download" = "Descargar";
+"copy.link" = "Copiar Enlace";
+"mark.as.played" = "Marcar como leído";
+"share" = "Compartir";
+"mark.as.unplayed" = "Marcar como no leído";
+"erase.from.device" = "Borrar del despositivo";
+
+//PIN MESSAGE
+"message.pinned" = "Mensaje Fijado";
+"message.unpinned" = "Mensaje Removido";
+"pin.message" = "Fijar Mensaje";
+"unpin.message" = "Remover Mensaje";
+"pinned.message" = "Mensaje Fijado";
+
+//PIN Settings
+"never.require.pin" = "Nunca solicitar PIN";
+"always.require.pin" = "Siempre solicitar PIN";
+
+//Deeplinks
+"deeplink.issue.title" = "Problema con el Enlace";
+"deeplink.issue.message" = "Ha habido un problema con el enlace. Por favor vuelve a intentarlo más tarde.";
+
+//MACRO
+"send.giphy" = "Enviar Giphy";
+"start.audio.call" = "Iniciar llamada de audio";
+"start.video.call" = "Iniciar video llamada";
+"send.payment" = "Enviar pago";
+"request.payment" = "Solicitar pago";
+"send.emoji" = "Enviar emoji";
+"record.voice" = "Recordar mensaje de audio";
+
+//THREAD
+"more-replies" = "respuestas más";
+"thread-chat" = "Hilo";
+"threads-list" = "Lista de Hilos";
+
+//TIME
+"time.in-the-future" = "en el futuro";
+"time.moments-ago" = "momentos atras";
+"time.a-minute-ago" = "un minuto atras";
+"time.minutes-ago" = "%d minutos atras";
+"time.an-hour-ago" = "una hora atras";
+"time.hours-ago" = "%d horas atras";
+"time.yesterday" = "ayer";
+"time.days-ago" = "%d días atras";
+
+//NOTIFICATIONS
+"notification.invoice-payment.title" = "Pago de Solicitud Recibido";
+"notification.keysend.title" = "Keysend Recibido";
+"notification.amount" = "Monto:";
+"notification.memo" = "Memo:";

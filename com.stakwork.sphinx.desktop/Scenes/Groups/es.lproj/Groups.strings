@@ -1,0 +1,39 @@
+
+/* Class = "NSTextFieldCell"; title = "Time to stake: (hours)"; ObjectID = "5Mx-Tg-RiK"; */
+"5Mx-Tg-RiK.title" = "Tiempo de retención: (horas)";
+
+/* Class = "NSTextFieldCell"; title = "Price per message:"; ObjectID = "IDt-GP-9ir"; */
+"IDt-GP-9ir.title" = "Precio por mensaje:";
+
+/* Class = "NSButtonCell"; title = "JOIN TRIBE"; ObjectID = "PnB-qY-PbV"; */
+"PnB-qY-PbV.title" = "UNIRSE A LA TRIBU";
+
+/* Class = "NSTextFieldCell"; title = "Amount to stake:"; ObjectID = "RlC-nx-gKp"; */
+"RlC-nx-gKp.title" = "Monto a retener:";
+
+/* Class = "NSTextFieldCell"; title = "Price to join:"; ObjectID = "fC4-f3-yQO"; */
+"fC4-f3-yQO.title" = "Preio para unirse:";
+
+/* Class = "NSTextFieldCell"; title = "Loading Tribe info..."; ObjectID = "ubU-9I-jji"; */
+"ubU-9I-jji.title" = "Cargando información de la tribu...";
+
+"uGH-BU-eSo.title" = "GUARDAR";
+
+"vz1-9I-udo.title" = "Cargando información...";
+
+"oYj-fw-X3k.title" = "Nombre *";
+"S5M-do-OMG.title" = "Imagen";
+"4xc-dn-4c9.title" = "Descripción *";
+"R9c-DX-E9G.title" = "Etiquetas";
+"amo-6J-VEd.title" = "Precio para unirse";
+"BZI-9s-vtk.title" = "Precio por mensaje";
+"RfR-WJ-3c7.title" = "Monto a retener";
+"iio-v7-V2C.title" = "Tiempo de retención (horas)";
+"PBt-DD-vJn.title" = "Url de la aplicación";
+"pdg-dx-btt.title" = "Url de Second Brain";
+"aYx-6Y-No1.title" = "Url del Feed";
+"uTl-0t-F3h.title" = "Tipo de contenido del Feed";
+"qB7-uk-cfh.title" = "¿Mostrar en tribes.sphinx.chat?";
+"7zZ-36-zq9.title" = "¿Aprobar solicitudes de membresías?";
+
+"MlG-NU-gvK.title" = "GUARDAR TRIBU";

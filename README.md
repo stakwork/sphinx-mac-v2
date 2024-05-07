@@ -1,1 +1,14 @@
-# sphinx-mac-v2
+# Sphinx for Mac
+
+# Setup
+
+## CocoaPods
+
+This repository uses CocoaPods submodules. After cloning run:
+
+```
+pod install
+```
+
+- Set a valid API KEY for Giphy library on info.plist file
+

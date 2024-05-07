@@ -1,0 +1,9 @@
+## Build generated
+build/
+DerivedData/
+
+## Various settings
+xcuserdata/
+
+Pods/
+sphinx.xcodeproj/project.pbxproj
