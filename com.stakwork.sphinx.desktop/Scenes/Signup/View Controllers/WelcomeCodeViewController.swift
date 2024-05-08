@@ -35,14 +35,10 @@ class WelcomeCodeViewController: NSViewController {
     
     let messageBubbleHelper = NewMessageBubbleHelper()
     let userData = UserData.sharedInstance
-    
-    var isSphinxV2 = false
-    var server : Server? = nil
-    var balance : String? = nil
+    let som = SphinxOnionManager.sharedInstance
     
     static func instantiate(
-        mode: SignupHelper.SignupMode,
-        isSphinxV2: Bool = false
+        mode: SignupHelper.SignupMode
     ) -> WelcomeCodeViewController {
         let viewController = StoryboardScene.Signup.welcomeCodeViewController.instantiate()
         viewController.mode = mode
@@ -73,7 +69,13 @@ class WelcomeCodeViewController: NSViewController {
         
         let label = (isNewUser ? "signup.label" : "restore.label").localized
         let boldLabels = isNewUser ? ["signup.label.bold.1".localized, "signup.label.bold.2".localized] : ["restore.label.bold".localized]
-        leftContainerLabel.attributedStringValue = String.getAttributedText(string: label, boldStrings: boldLabels, font: NSFont(name: "Roboto-Light", size: 15.0)!, boldFont: NSFont(name: "Roboto-Bold", size: 15.0)!)
+        
+        leftContainerLabel.attributedStringValue = String.getAttributedText(
+            string: label,
+            boldStrings: boldLabels,
+            font: NSFont(name: "Roboto-Light", size: 15.0)!,
+            boldFont: NSFont(name: "Roboto-Bold", size: 15.0)!
+        )
         
         leftImageView.image = NSImage(named: isNewUser ? "newUserImage" : "existingUserImage")
     }
@@ -112,11 +114,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         if validateCode(code: code) {
             loading = true
             
-            if code.isRelayQRCode ||
-                code.isInviteCode ||
-                code.isSwarmConnectCode ||
-                code.isSwarmClaimCode
-            {
+            if code.isV2InviteCode {
                 startSignup(code: code)
             } else {
                 showPINView(encryptedKeys: code)
@@ -125,123 +123,53 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     }
     
     func startSignup(code: String) {
-        if code.isRelayQRCode {
-            let (ip, password) = code.getIPAndPassword()
-            if let ip = ip, let password = password {
-                connectToNode(ip: ip, password: password)
-            }
-        } else if code.isInviteCode {
-            signupWith(code: code)
-        } else if code.isV2InviteCode {
-            signupWith(sphinxV2Code: code)
-        } else if code.isSwarmConnectCode {
-            signupWith(swarmConnectCode: code)
-        } else if code.isSwarmClaimCode {
-            signupWith(withSwarmClaimCode: code)
-        }
+        signupWith(sphinxV2Code: code)
     }
     
-    func signupWith(swarmConnectCode:String) {
-        let splitString = swarmConnectCode.components(separatedBy: "::")
-        if splitString.count > 2 {
-            let ip = splitString[1]
-            let pubKey = splitString[2]
-            self.connectToNode(ip: ip, pubKey: pubKey)
-        }
-    }
-    
-    func signupWith(withSwarmClaimCode connectionCode:String){
-        let splitString = connectionCode.components(separatedBy: "::")
-        
-        if splitString.count > 2, let token = splitString[2].base64Decoded {
-            
-            let ip = splitString[1]
-            userData.save(ip: ip)
-            
-            continueToConnectingView(mode: .SwarmClaimUser, token: token)
-        }
-        else{
-            let errorMessage = ("invalid.code.claim").localized
-            self.messageBubbleHelper.showGenericMessageView(text: errorMessage, position: .Bottom, delay: 7, textColor: NSColor.white, backColor: NSColor.Sphinx.BadgeRed, backAlpha: 1.0, withLink: "https://sphinx.chat")
-        }
-    }
-    
-    func signupWith(code: String) {
-        API.sharedInstance.signupWithCode(inviteString: code, callback: { (invite, ip, pubkey) in
-            self.save(ip: ip, pubkey: pubkey, and: "")
-            SignupHelper.saveInviterInfo(invite: invite, code: code)
-            self.continueToConnectingView(mode: .NewUser)
-        }, errorCallback: {
-            self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
-            self.loading = false
-        })
-    }
-    
-    func signupWith(sphinxV2Code: String) {
-        SphinxOnionManager.sharedInstance.vc = self
-        SphinxOnionManager.sharedInstance.chooseImportOrGenerateSeed(completion: {success in
+    func signupWith(
+        sphinxV2Code: String
+    ) {
+        som.vc = self
+        som.chooseImportOrGenerateSeed(completion: {success in
             if (success) {
                 self.handleInviteCodeV2SignUp(code: sphinxV2Code)
             } else {
                 AlertHelper.showAlert(title: "Error redeeming invite", message: "Please try again or ask for another invite.")
             }
-            SphinxOnionManager.sharedInstance.vc = nil
+            self.som.vc = nil
         })
     }
     
     func handleInviteCodeV2SignUp(code: String){
-        if let mnemonic = UserData.sharedInstance.getMnemonic(enteredPin: SphinxOnionManager.sharedInstance.defaultInitialSignupPin),
-            SphinxOnionManager.sharedInstance.createMyAccount(mnemonic: mnemonic)
-        {
-            SphinxOnionManager.sharedInstance.redeemInvite(inviteCode: code, mnemonic: mnemonic)
-//            setupWatchdogTimer()
-//            listenForSelfContactRegistration()//get callbacks ready for sign up
-            self.signup_v2_with_test_server()
+        guard let mnemonic = UserData.sharedInstance.getMnemonic() else {
+            return
+        }
+        
+        if som.createMyAccount(mnemonic: mnemonic) {
+            som.redeemInvite(inviteCode: code, mnemonic: mnemonic)
+            signup_v2_with_test_server()
         }
     }
     
     func signup_v2_with_test_server(){
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-            let som = SphinxOnionManager.sharedInstance
-            if let contact = som.pendingContact, contact.isOwner == true {
-                som.isV2InitialSetup = true
-                self.continueToConnectingView(mode: .NewUser, isSphinxV2: true)
+            if let contact = self.som.pendingContact, contact.isOwner == true {
+                self.som.isV2InitialSetup = true
+                self.continueToConnectingView(mode: .NewUser)
             } else {
-//                self.navigationController?.popViewController(animated: true)
                 AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
             }
         })
         
     }
     
-    func connectToNode(ip: String, password: String="", pubKey:String="") {
-        save(ip: ip, pubkey: pubKey, and: password)
-
-        let invite = SignupHelper.getSupportContact()
-        SignupHelper.saveInviterInfo(invite: invite)
-        continueToConnectingView(mode: .NewUser)
-    }
-
-    func save(ip: String, pubkey: String, and password: String) {
-        UserDefaults.Keys.ownerPubKey.set(pubkey)
-        
-        userData.save(ip: ip)
-        userData.save(password: password)
-    }
-    
     func showPINView(encryptedKeys: String) {
         UserDefaults.Keys.defaultPIN.removeValue()
         pinView.doneCompletion = { pin in
-            if let keys = self.getRestoreKeys(code: encryptedKeys) {
-                self.restore(encryptedKeys: keys, with: pin)
-            }
+            
         }
         pinView.isHidden = false
         animatePinContainer(expanded: true)
-    }
-    
-    private func getRestoreKeys(code: String) -> String? {
-        return code.getRestoreKeys() ?? code.fixedRestoreCode.getRestoreKeys()
     }
     
     func animatePinContainer(expanded: Bool, completion: (() -> ())? = nil) {
@@ -268,33 +196,15 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             })
         })
     }
-
-    func restore(encryptedKeys: String, with pin: String) {
-        if let keys = SymmetricEncryptionManager.sharedInstance.decryptRestoreKeys(encryptedKeys: encryptedKeys.fixedRestoreCode, pin: pin) {
-            if EncryptionManager.sharedInstance.insertKeys(privateKey: keys[0], publicKey: keys[1]) {
-                userData.save(ip: keys[2], token: keys[3], pin: pin)
-                
-                self.continueToConnectingView(mode: .ExistingUser)
-                return
-            }
-        }
-        self.pinView.reset()
-        self.messageBubbleHelper.showGenericMessageView(text: "invalid.pin".localized, in: self.view)
-        self.loading = false
-    }
     
     func continueToConnectingView(
-        mode: SignupHelper.SignupMode,
-        token: String? = nil,
-        isSphinxV2: Bool = false
+        mode: SignupHelper.SignupMode
     ) {
         UserDefaults.Keys.lastPinDate.set(Date())
         view.window?.replaceContentBy(
             vc: WelcomeEmptyViewController.instantiate(
                 mode: mode,
-                viewMode: .Connecting,
-                token: token,
-                isSphinxV2: isSphinxV2
+                viewMode: .Connecting
             )
         )
     }
@@ -311,17 +221,7 @@ extension WelcomeCodeViewController : SignupFieldViewDelegate {
     }
     
     func validateCode(code: String) -> Bool {
-        if code.isRelayQRCode {
-            return true
-        } else if code.isRestoreKeysString || code.fixedRestoreCode.isRestoreKeysString {
-            return true
-        } else if code.isInviteCode {
-            return true
-        }
-        else if code.isSwarmConnectCode{
-            return true
-        }
-        else if code.isSwarmClaimCode{
+        if code.isV2InviteCode {
             return true
         }
         
@@ -343,19 +243,6 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     func showImportSeedView() {
         importSeedView.delegate = self
         importSeedView.isHidden = false
-    }
-    
-    @objc func handleServerNotification(n: Notification) {
-        if let server = n.userInfo?["server"] as? Server{
-            self.server = server
-            server.managedObjectContext?.saveContext()
-        }
-    }
-    
-    @objc func handleBalanceNotification(n:Notification){
-        if let balance = n.userInfo?["balance"] as? String{
-            self.balance = balance
-        }
     }
     
     

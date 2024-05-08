@@ -30,37 +30,22 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
     var continueMode: WelcomeViewMode? = .Connecting
     var viewMode: WelcomeViewMode = .Connecting
     
-    var generateTokenRetries = 0
-    var isSphinxV2 = false
-    
     var isNewUser: Bool {
         get {
             return mode == .NewUser
         }
     }
     
-    var isSwarmClaimUser : Bool{
-        get {
-            return mode == .SwarmClaimUser
-        }
-    }
-    
-    var token: String? = nil
-    
     var subView: NSView? = nil
     var doneCompletion: ((String?) -> ())? = nil
     
     static func instantiate(
         mode: SignupHelper.SignupMode,
-        viewMode: WelcomeViewMode,
-        token: String? = nil,
-        isSphinxV2: Bool = false
+        viewMode: WelcomeViewMode
     ) -> WelcomeEmptyViewController {
         let viewController = StoryboardScene.Signup.welcomeEmptyViewController.instantiate()
         viewController.mode = mode
         viewController.viewMode = viewMode
-        viewController.token = token
-        viewController.isSphinxV2 = isSphinxV2
         return viewController
     }
 
@@ -77,7 +62,7 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
         case .Welcome:
             subView = WelcomeView(frame: NSRect.zero, delegate: self)
         case .FriendMessage:
-            subView = FriendMessageView(frame: NSRect.zero, delegate: self, isSphinxV2: isSphinxV2)
+            subView = FriendMessageView(frame: NSRect.zero, delegate: self)
         }
         
         self.view.addSubview(subView!)
@@ -88,8 +73,6 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
         if viewMode == .Connecting {
             if isNewUser {
                 continueSignup()
-            } else if isSwarmClaimUser {
-                continueWithToken()
             } else {
                 continueRestore()
             }
@@ -97,104 +80,11 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
     }
     
     func continueRestore() {
-        userData.getAndSaveTransportKey(forceGet: true) { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.userData.getOrCreateHMACKey(forceGet: true) { [weak self] in
-                
-                API.sharedInstance.getWalletLocalAndRemote(callback: { local, remote in
-                    guard let self = self else { return }
-                    
-                    self.shouldContinueTo(mode: WelcomeEmptyViewController.WelcomeViewMode.Welcome.rawValue)
-                }, errorCallback: {
-                    guard let self = self else { return }
-                    
-                    self.shouldGoBackToWelcome()
-                })
-                
-            }
-        }
+        
     }
     
     func continueSignup() {
-        if isSphinxV2 {
-            self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
-        } else {
-            if connectTorIfNeeded() {
-                return
-            }
-            generateTokenAndProceed(password: userData.getPassword())
-        }
-    }
-    
-    func continueWithToken() {
-        if let token = self.token {
-            userData.continueWithToken(
-                token: token,
-                completion: { [weak self] in
-                    guard let self = self else { return }
-                    
-                    SignupHelper.step = SignupHelper.SignupStep.IPAndTokenSet.rawValue
-                    self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
-                },
-                errorCompletion: {
-                    claimQRError()
-                }
-            )
-        } else {
-            claimQRError()
-        }
-        
-        func claimQRError() {
-            let errorMessage = ("invalid.code.claim").localized
-            
-            self.messageBubbleHelper.showGenericMessageView(
-                text: errorMessage,
-                position: .Bottom,
-                delay: 7,
-                textColor: NSColor.white,
-                backColor: NSColor.Sphinx.BadgeRed,
-                backAlpha: 1.0,
-                withLink: "https://sphinx.chat"
-            )
-        }
-    }
-    
-    func generateTokenAndProceed(password: String? = nil) {
-        let token = userData.getOrCreateAuthTokenForSignup()
-        let pubkey = UserDefaults.Keys.ownerPubKey.get(defaultValue: "")
-        generateTokenAndProceed(token: token, pubkey: pubkey, password: password)
-    }
-    
-    func generateTokenAndProceed(
-        token: String,
-        pubkey: String,
-        password: String? = nil
-    ) {
-        loadingLabel.stringValue = "wait.tor.request".localized
-        generateTokenRetries = generateTokenRetries + 1
-        
-        userData.generateToken(
-            token: token,
-            pubkey: pubkey,
-            password: password,
-            completion: {
-                SignupHelper.step = SignupHelper.SignupStep.IPAndTokenSet.rawValue
-                self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
-            }, errorCompletion: {
-                self.generateTokenError(token: token, pubkey: pubkey, password: password)
-            }
-        )
-    }
-    
-    func generateTokenError(token: String, pubkey: String, password: String? = nil) {
-        if generateTokenRetries < 4 {
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-                self.generateTokenAndProceed(token: token, pubkey: pubkey, password: password)
-            })
-            return
-        }
-        shouldGoBack()
+        self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
     }
     
     func shouldGoBackToWelcome() {
@@ -247,9 +137,7 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
 
         if isNewUser {
             view.window?.replaceContentBy(
-                vc: WelcomeLightningViewController.instantiate(
-                    isSphinxV2: isSphinxV2
-                )
+                vc: WelcomeLightningViewController.instantiate()
             )
         } else {
             GroupsPinManager.sharedInstance.loginPin()

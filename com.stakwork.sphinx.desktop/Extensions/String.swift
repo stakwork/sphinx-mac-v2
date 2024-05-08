@@ -483,7 +483,7 @@ extension String {
     
     var isV2InviteCode : Bool{
         get {
-            return self.localizedStandardContains("action=i&d")
+            return self.starts(with: "sphinx.chat://?action=i&d")
         }
     }
     

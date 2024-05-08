@@ -32,16 +32,13 @@ class WelcomeLightningViewController: NSViewController {
     
     var mode : FormViewMode = .Start
     var formView: NSView? = nil
-    var isSphinxV2 = false
     
     static func instantiate(
-        mode: FormViewMode = .Start,
-        isSphinxV2: Bool = false
+        mode: FormViewMode = .Start
     ) -> WelcomeLightningViewController {
         
         let viewController = StoryboardScene.Signup.welcomeLightningViewController.instantiate()
         viewController.mode = mode
-        viewController.isSphinxV2 = isSphinxV2
         
         return viewController
     }
@@ -82,8 +79,7 @@ class WelcomeLightningViewController: NSViewController {
         case .NamePin:
             formView = NamePinView(
                 frame: NSRect.zero,
-                delegate: self,
-                isSphinxV2: isSphinxV2
+                delegate: self
             )
         case .Image:
             let nickname = (formView as? NamePinView)?.getNickname() ?? UserContact.getOwner()?.nickname
@@ -91,8 +87,7 @@ class WelcomeLightningViewController: NSViewController {
             formView = ProfileImageView(
                 frame: NSRect.zero,
                 nickname: nickname ?? "",
-                delegate: self,
-                isSphinxV2: isSphinxV2
+                delegate: self
             )
             
         case .Ready:

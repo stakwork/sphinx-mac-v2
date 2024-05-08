@@ -23,8 +23,6 @@ class NamePinView: NSView, LoadableNib {
     let messageBubbleHelper = NewMessageBubbleHelper()
     let userData = UserData.sharedInstance
     
-    var isSphinxV2 = false
-    
     var loading = false {
         didSet {
             LoadingWheelHelper.toggleLoadingWheel(loading: loading, loadingWheel: loadingWheel, color: NSColor.white, controls: [continueButton.getButton()])
@@ -50,13 +48,11 @@ class NamePinView: NSView, LoadableNib {
     
     init(
         frame frameRect: NSRect,
-        delegate: WelcomeEmptyViewDelegate,
-        isSphinxV2: Bool = false
+        delegate: WelcomeEmptyViewDelegate
     ) {
         super.init(frame: frameRect)
         
         self.delegate = delegate
-        self.isSphinxV2 = isSphinxV2
         
         loadViewFromNib()
         configureView()
@@ -94,40 +90,16 @@ extension NamePinView : SignupButtonViewDelegate {
         if !nameField.getFieldValue().isEmpty {
             loading = true
             
-            if isSphinxV2,
-                let selfContact = SphinxOnionManager.sharedInstance.pendingContact,
-                selfContact.isOwner == true
-            {
+            if let selfContact = SphinxOnionManager.sharedInstance.pendingContact, selfContact.isOwner == true {
                 let nickname = nameField.getFieldValue()
                 selfContact.nickname = nickname
                 self.goToProfilePictureView()
-            } else if !isSphinxV2 {
-                API.sharedInstance.getContacts(callback: {(contacts, _, _, _) -> () in
-                    self.insertAndUpdateOwner(contacts: contacts)
-                })
             } else {
                 showError()
             }
         } else {
             showError()
         }
-    }
-    
-    func insertAndUpdateOwner(contacts: [JSON]) {
-        let nickname = nameField.getFieldValue()
-        
-        UserContactsHelper.insertContacts(contacts: contacts)
-        UserData.sharedInstance.saveNewNodeOnKeychain()
-        
-        let id = UserData.sharedInstance.getUserId()
-        let parameters = ["alias" : nickname as AnyObject]
-        
-        API.sharedInstance.updateUser(id: id, params: parameters, callback: { contact in
-            let _ = UserContactsHelper.insertContact(contact: contact)
-            self.goToProfilePictureView()
-        }, errorCallback: {
-            self.showError()
-        })
     }
     
     func showError() {

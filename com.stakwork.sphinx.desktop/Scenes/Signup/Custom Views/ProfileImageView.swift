@@ -33,8 +33,6 @@ class ProfileImageView: NSView, LoadableNib {
         }
     }
     
-    var isSphinxV2 = false
-    
     var imageSet = false
     let messageBubbleHelper = NewMessageBubbleHelper()
     
@@ -57,13 +55,11 @@ class ProfileImageView: NSView, LoadableNib {
     init(
         frame frameRect: NSRect,
         nickname: String,
-        delegate: WelcomeEmptyViewDelegate,
-        isSphinxV2: Bool = false
+        delegate: WelcomeEmptyViewDelegate
     ) {
         super.init(frame: frameRect)
         
         self.delegate = delegate
-        self.isSphinxV2 = isSphinxV2
         
         loadViewFromNib()
         setupViews()
@@ -114,24 +110,10 @@ class ProfileImageView: NSView, LoadableNib {
     }
     
     func updateProfile(photoUrl: String) {
-        if isSphinxV2,
-           let selfContact = SphinxOnionManager.sharedInstance.pendingContact
-        {
+        if let selfContact = SphinxOnionManager.sharedInstance.pendingContact {
             selfContact.avatarUrl = photoUrl //TODO: we need to figure out where avatars actually get stored now!
             self.loading = false
             self.goToSphinxReady()
-        } else if !isSphinxV2 {
-            let id = UserData.sharedInstance.getUserId()
-            let parameters = ["photo_url" : photoUrl as AnyObject]
-            
-            API.sharedInstance.updateUser(id: id, params: parameters, callback: { contact in
-                self.loading = false
-                let _ = UserContactsHelper.insertContact(contact: contact)
-                self.goToSphinxReady()
-            }, errorCallback: {
-                self.loading = false
-                self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
-            })
         } else {
             self.loading = false
             self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)

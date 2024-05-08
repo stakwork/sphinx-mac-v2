@@ -53,11 +53,12 @@ extension SphinxOnionManager{//invites related
                 inviteQr: inviteCode
             )
             
-            handleRunReturn(rr: rr)
+            let _ = handleRunReturn(rr: rr)
             
             if let lsp = rr.lspHost {
                 self.server_IP = lsp
             }
+            
             self.stashedContactInfo = rr.inviterContactInfo
             self.stashedInitialTribe = rr.initialTribe
             self.stashedInviteCode = inviteCode
