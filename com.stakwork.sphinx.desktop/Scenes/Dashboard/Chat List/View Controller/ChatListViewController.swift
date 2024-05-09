@@ -19,6 +19,7 @@ class ChatListViewController : DashboardSplittedViewController {
     @IBOutlet weak var loadingChatsBox: NSBox!
     @IBOutlet weak var loadingChatsWheel: NSProgressIndicator!
     @IBOutlet weak var searchClearButton: NSButton!
+    @IBOutlet weak var searchIcon: NSImageView!
     @IBOutlet weak var chatListVCContainer: NSView!
     @IBOutlet weak var receiveButton: CustomButton!
     @IBOutlet weak var transactionsButton: CustomButton!
@@ -133,7 +134,12 @@ class ChatListViewController : DashboardSplittedViewController {
         transactionsButton.cursor = .pointingHand
         addContactButton.cursor = .pointingHand
         
-        searchField.setPlaceHolder(color: NSColor.Sphinx.PlaceholderText, font: NSFont(name: "Roboto-Regular", size: 14.0)!, string: "search".localized)
+        searchField.setPlaceHolder(
+            color: NSColor.Sphinx.SecondaryText,
+            font: NSFont(name: "Roboto-Regular", size: 14.0)!,
+            string: "search".localized
+        )
+        
         searchField.delegate = self
         menuListView.delegate = self
         
