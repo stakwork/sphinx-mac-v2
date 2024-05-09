@@ -46,7 +46,13 @@ class WelcomeLightningViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        continueButtonView.configureWith(title: "continue".localized.capitalized, icon: "", tag: -1, delegate: self)
+        continueButtonView.configureWith(
+            title: "continue".localized.capitalized,
+            icon: "",
+            tag: -1,
+            delegate: self
+        )
+        
         configureView()
         
         lightningNetworkImage.loadGifWith(name: "lightningNetwork")

@@ -111,7 +111,8 @@ class ProfileImageView: NSView, LoadableNib {
     
     func updateProfile(photoUrl: String) {
         if let selfContact = SphinxOnionManager.sharedInstance.pendingContact {
-            selfContact.avatarUrl = photoUrl //TODO: we need to figure out where avatars actually get stored now!
+            selfContact.avatarUrl = photoUrl
+            
             self.loading = false
             self.goToSphinxReady()
         } else {

@@ -13,7 +13,7 @@ import SwiftyJSON
     @objc optional func shouldContinueTo(mode: Int)
 }
 
-class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
+class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     
     @IBOutlet weak var viewContainer: NSView!
     
@@ -38,6 +38,9 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
     
     var subView: NSView? = nil
     var doneCompletion: ((String?) -> ())? = nil
+    
+    var selfContactFetchListener: NSFetchedResultsController<UserContact>?
+    var timeoutTimer: Timer?
     
     static func instantiate(
         mode: SignupHelper.SignupMode,
@@ -84,11 +87,11 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
     }
     
     func continueSignup() {
-        self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
+        listenForSelfContactRegistration()
+        setupTimeoutTimer()
     }
     
     func shouldGoBackToWelcome() {
-        UserDefaults.Keys.ownerPubKey.removeValue()
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
@@ -97,21 +100,11 @@ class WelcomeEmptyViewController: WelcomeTorConnectionViewController {
     }
     
     func shouldGoBack() {
-        UserDefaults.Keys.ownerPubKey.removeValue()
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
             self.view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: .NewUser))
         })
-    }
-    
-    override func onTorConnectionDone(success: Bool) {
-        if success {
-            continueProcess()
-        } else {
-            UserData.sharedInstance.clearData()
-            view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: .NewUser))
-        }
     }
 }
 
@@ -119,10 +112,6 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
     func shouldContinueTo(mode: Int) {
         let mode = WelcomeViewMode(rawValue: mode)
         continueMode = mode
-        
-        if connectTorIfNeeded() {
-            return
-        }
         
         switch (mode) {
         case .Welcome:
@@ -140,14 +129,80 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
                 vc: WelcomeLightningViewController.instantiate()
             )
         } else {
-            GroupsPinManager.sharedInstance.loginPin()
-            SignupHelper.completeSignup()
-            SphinxSocketManager.sharedInstance.connectWebsocket()
-            presentDashboard()
+//            GroupsPinManager.sharedInstance.loginPin()
+//            SignupHelper.completeSignup()
+//            SphinxSocketManager.sharedInstance.connectWebsocket()
+//            presentDashboard()
         }
     }
     
     func closeWindow() {
         self.view.window?.close()
+    }
+}
+
+extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
+    private func listenForSelfContactRegistration() {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<UserContact> = UserContact.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isOwner == true AND routeHint != nil")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "index", ascending: true)]
+        
+        selfContactFetchListener = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: managedContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        
+        selfContactFetchListener?.delegate = self
+
+        do {
+            try selfContactFetchListener?.performFetch()
+        } catch _ as NSError {
+            timeoutTimer?.invalidate()
+            selfContactFetchListener = nil
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        if let _ = controller.fetchedObjects?.first {
+            selfContactFetchListener = nil
+            
+            timeoutTimer?.invalidate()
+            timeoutTimer = nil
+            
+            finalizeSignup()
+        }
+    }
+    
+    private func setupTimeoutTimer() {
+        timeoutTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if self.selfContactFetchListener?.fetchedObjects?.first == nil {
+                DispatchQueue.main.async {
+                    self.timeoutTimer?.invalidate()
+                    self.timeoutTimer = nil
+
+                    self.shouldGoBack()
+                }
+            }
+        }
+    }
+    
+    private func finalizeSignup() {
+        let som = SphinxOnionManager.sharedInstance
+        
+        if let contact = som.pendingContact, contact.isOwner == true {
+            som.isV2InitialSetup = true
+            
+            SignupHelper.step = SignupHelper.SignupStep.OwnerCreated.rawValue
+            
+            self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
+        } else {
+            shouldGoBack()
+        }
     }
 }

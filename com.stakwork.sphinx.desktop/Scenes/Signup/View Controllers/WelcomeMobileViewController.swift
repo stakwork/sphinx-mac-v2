@@ -24,13 +24,42 @@ class WelcomeMobileViewController: CommonWelcomeViewController {
         
         let label = "sphinx.on.phone".localized
         let boldLabels = ["sphinx.on.phone.bold".localized]
-        titleLabel.attributedStringValue = String.getAttributedText(string: label, boldStrings: boldLabels, font: NSFont(name: "Roboto-Light", size: 30.0)!, boldFont: NSFont(name: "Roboto-Bold", size: 30.0)!)
         
-        getItNowButtonView.configureWith(title: "get.it.now".localized.capitalized, icon: "", tag: Buttons.GetItNow.rawValue, delegate: self)
-        getItNowButtonView.setColors(backgroundNormal: NSColor.clear, borderNormal: NSColor.white, borderWidthHover: 2.0, textNormal: NSColor.white, textHover: NSColor.white)
+        titleLabel.attributedStringValue = String.getAttributedText(
+            string: label,
+            boldStrings: boldLabels,
+            font: NSFont(name: "Roboto-Light", size: 30.0)!,
+            boldFont: NSFont(name: "Roboto-Bold", size: 30.0)!
+        )
         
-        skipButtonView.configureWith(title: "skip".localized.capitalized, icon: "", tag: Buttons.Skip.rawValue, delegate: self)
-        skipButtonView.setColors(backgroundNormal: NSColor.white, backgroundHover: NSColor.white.withAlphaComponent(0.8), backgroundPressed: NSColor.white.withAlphaComponent(0.8), textNormal: NSColor.Sphinx.PrimaryBlue)
+        getItNowButtonView.configureWith(
+            title: "get.it.now".localized.capitalized,
+            icon: "",
+            tag: Buttons.GetItNow.rawValue,
+            delegate: self
+        )
+        
+        getItNowButtonView.setColors(
+            backgroundNormal: NSColor.clear,
+            borderNormal: NSColor.white,
+            borderWidthHover: 2.0,
+            textNormal: NSColor.white,
+            textHover: NSColor.white
+        )
+        
+        skipButtonView.configureWith(
+            title: "skip".localized.capitalized,
+            icon: "",
+            tag: Buttons.Skip.rawValue,
+            delegate: self
+        )
+        
+        skipButtonView.setColors(
+            backgroundNormal: NSColor.white,
+            backgroundHover: NSColor.white.withAlphaComponent(0.8),
+            backgroundPressed: NSColor.white.withAlphaComponent(0.8),
+            textNormal: NSColor.Sphinx.PrimaryBlue
+        )
     }
     
     static func instantiate() -> WelcomeMobileViewController {
@@ -45,7 +74,6 @@ class WelcomeMobileViewController: CommonWelcomeViewController {
     }
     
     func skipButtonClicked() {
-        SphinxSocketManager.sharedInstance.connectWebsocket(forceConnect: true)
         GroupsPinManager.sharedInstance.loginPin()
         SignupHelper.completeSignup()
         view.alphaValue = 0.0

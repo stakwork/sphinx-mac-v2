@@ -89,7 +89,9 @@ class NewInviteViewController: NSViewController {
     }
     
     func configurePriceContainer(lowestPrice: Int) {
-        let localBalance = walletBalanceService.balance
+        guard let localBalance = walletBalanceService.balance else {
+            return
+        }
         if localBalance > lowestPrice && lowestPrice > 0 {
             estimatedCostLabel.stringValue = lowestPrice.formattedWithSeparator
             

@@ -135,9 +135,11 @@ class AuthorizeAppView: NSView, LoadableNib {
 extension AuthorizeAppView : NSTextFieldDelegate {
     func controlTextDidChange(_ obj: Notification) {
         if let amount = getCurrentAmount() {
-            let walletBalance = WalletBalanceService().balance
+            guard let walletBalance = WalletBalanceService().balance else {
+                return
+            }
             
-            if amount > walletBalance {
+            if amount > Int(walletBalance) {
                 NewMessageBubbleHelper().showGenericMessageView(text: "balance.too.low".localized, in: self)
                 amountTextField.stringValue = String(amountTextField.stringValue.dropLast())
                 return

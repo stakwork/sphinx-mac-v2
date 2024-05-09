@@ -46,7 +46,7 @@ extension SphinxOnionManager {
         })
         
         if let mci = rr.myContactInfo {
-            let components = mci.split(separator: "_").map({String($0)})
+//            let components = mci.split(separator: "_").map({String($0)})
             
             if let components = parseContactInfoString(fullContactInfo: mci), UserContact.getContactWithDisregardStatus(pubkey: components.0) == nil {
                 ///only add this if we don't already have a "self" contact
@@ -59,7 +59,7 @@ extension SphinxOnionManager {
         }
         
         if let balance = rr.newBalance {
-            UserData.sharedInstance.save(balance: balance)
+            self.walletBalanceService.balance = balance
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                 NotificationCenter.default.post(
@@ -133,12 +133,12 @@ extension SphinxOnionManager {
             }
         }
         
-        if let settledStatus = rr.settledStatus {
+        if let _ = rr.settledStatus {
             print("settledStatus:\(rr.settledStatus?.debugDescription ?? "")")
         }
         
-        if let error = rr.error {
-            ///Add handling
+        if let _ = rr.error {
+            print("Error handling run return object")
         }
         
         if let msgsTotalsJSON = rr.msgsCounts,
@@ -178,7 +178,7 @@ extension SphinxOnionManager {
         if let sentStatusJSON = rr.sentStatus,
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
            let tag = sentStatus.tag,
-           var cachedMessage = TransactionMessage.getMessageWith(tag: tag)
+           let cachedMessage = TransactionMessage.getMessageWith(tag: tag)
         {
             print("SENT STATUS FOUND:\(sentStatus)")
             if (sentStatus.status == "COMPLETE") {

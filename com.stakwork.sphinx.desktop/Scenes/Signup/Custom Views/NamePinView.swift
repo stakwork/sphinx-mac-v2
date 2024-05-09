@@ -67,17 +67,29 @@ class NamePinView: NSView, LoadableNib {
         continueButton.setSignupColors()
         continueButton.buttonDisabled = true
         
-        nameField.configureWith(placeHolder: "set.nickname".localized, placeHolderColor: NSColor(hex: "#3B4755"), label: "Nickname", textColor: NSColor.white, backgroundColor: NSColor(hex: "#101317"), field: .Name, delegate: self)
-        pinField.configureWith(placeHolder: "set.pin".localized, label: "set.pin".localized, field: .PIN, delegate: self)
-        confirmPinField.configureWith(placeHolder: "confirm.pin".localized, label: "confirm.pin".localized, field: .ConfirmPIN, delegate: self)
+        nameField.configureWith(
+            placeHolder: "set.nickname".localized,
+            placeHolderColor: NSColor(hex: "#3B4755"),
+            label: "Nickname",
+            textColor: NSColor.white,
+            backgroundColor: NSColor(hex: "#101317"),
+            field: .Name,
+            delegate: self
+        )
         
-        if let owner = UserContact.getOwner() {
-            nameField.set(fieldValue: owner.nickname ?? "")
-            pinField.set(fieldValue: userData.getAppPin() ?? "")
-            confirmPinField.set(fieldValue: userData.getAppPin() ?? "")
-            
-            continueButton.buttonDisabled = !isValid()
-        }
+        pinField.configureWith(
+            placeHolder: "set.pin".localized,
+            label: "set.pin".localized,
+            field: .PIN,
+            delegate: self
+        )
+        
+        confirmPinField.configureWith(
+            placeHolder: "confirm.pin".localized,
+            label: "confirm.pin".localized,
+            field: .ConfirmPIN,
+            delegate: self
+        )
     }
     
     func getNickname() -> String {
@@ -87,16 +99,17 @@ class NamePinView: NSView, LoadableNib {
 
 extension NamePinView : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
-        if !nameField.getFieldValue().isEmpty {
-            loading = true
+        if getNickname().isEmpty {
+            showError()
+        }
+        
+        loading = true
+        
+        if let selfContact = SphinxOnionManager.sharedInstance.pendingContact, selfContact.isOwner == true {
+            let nickname = nameField.getFieldValue()
+            selfContact.nickname = nickname
             
-            if let selfContact = SphinxOnionManager.sharedInstance.pendingContact, selfContact.isOwner == true {
-                let nickname = nameField.getFieldValue()
-                selfContact.nickname = nickname
-                self.goToProfilePictureView()
-            } else {
-                showError()
-            }
+            self.goToProfilePictureView()
         } else {
             showError()
         }
@@ -109,17 +122,25 @@ extension NamePinView : SignupButtonViewDelegate {
     
     func goToProfilePictureView() {
         loading = false
-        UserData.sharedInstance.save(pin: pinField.getFieldValue())
+        
         SignupHelper.step = SignupHelper.SignupStep.PINNameSet.rawValue
+        UserData.sharedInstance.save(pin: pinField.getFieldValue())
+        
         delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Image.rawValue)
     }
     
     func isValid() -> Bool {
-        return !nameField.getFieldValue().isEmpty && pinField.getFieldValue().length == 6 && confirmPinField.getFieldValue().length == 6 && pinField.getFieldValue() == confirmPinField.getFieldValue()
+        return !nameField.getFieldValue().isEmpty && 
+            pinField.getFieldValue().length == 6 &&
+            confirmPinField.getFieldValue().length == 6 &&
+            pinField.getFieldValue() == confirmPinField.getFieldValue()
     }
     
     func pinDoNotMatch() -> Bool {
-        return !nameField.getFieldValue().isEmpty && pinField.getFieldValue().length == 6 && confirmPinField.getFieldValue().length == 6 && pinField.getFieldValue() != confirmPinField.getFieldValue()
+        return !nameField.getFieldValue().isEmpty && 
+            pinField.getFieldValue().length == 6 &&
+            confirmPinField.getFieldValue().length == 6 &&
+            pinField.getFieldValue() != confirmPinField.getFieldValue()
     }
 }
 
@@ -128,7 +149,13 @@ extension NamePinView : SignupFieldViewDelegate {
         continueButton.buttonDisabled = !isValid()
         
         if pinDoNotMatch() {
-            messageBubbleHelper.showGenericMessageView(text: "pins.do.not.match".localized, delay: 3, textColor: NSColor.white, backColor: NSColor.Sphinx.BadgeRed, backAlpha: 1.0)
+            messageBubbleHelper.showGenericMessageView(
+                text: "pins.do.not.match".localized,
+                delay: 3,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.BadgeRed,
+                backAlpha: 1.0
+            )
         }
     }
     

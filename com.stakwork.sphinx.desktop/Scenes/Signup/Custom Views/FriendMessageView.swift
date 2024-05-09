@@ -50,7 +50,12 @@ class FriendMessageView: NSView, LoadableNib {
     }
     
     func configureView() {
-        continueButtonView.configureWith(title: "get.started".localized, icon: "", tag: -1, delegate: self)
+        continueButtonView.configureWith(
+            title: "get.started".localized,
+            icon: "",
+            tag: -1,
+            delegate: self
+        )
         
         if let alias = SphinxOnionManager.sharedInstance.stashedInviterAlias {
             friendName.stringValue = alias
@@ -61,10 +66,10 @@ class FriendMessageView: NSView, LoadableNib {
 extension FriendMessageView : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
         loading = true
-        createInviterContact()
+        continueToPinView()
     }
     
-    func createInviterContact() {
+    func continueToPinView() {
         SignupHelper.step = SignupHelper.SignupStep.InviterContactCreated.rawValue
         delegate?.shouldContinueTo?(mode: -1)
     }

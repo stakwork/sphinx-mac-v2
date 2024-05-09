@@ -135,7 +135,10 @@ extension CommonPaymentView : NSTextFieldDelegate {
         let totalAmount = amount * paymentViewModel.currentPayment.contacts.count
         
         let sending = paymentViewModel.currentPayment.mode == .Payment
-        let walletBalance = WalletBalanceService().balance
+        
+        guard let walletBalance = WalletBalanceService().balance else {
+            return
+        }
         
         if totalAmount > walletBalance && sending {
             NewMessageBubbleHelper().showGenericMessageView(text: "balance.too.low".localized, in: self)

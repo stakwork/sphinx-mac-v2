@@ -245,7 +245,6 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
         importSeedView.isHidden = false
     }
     
-    
     func showImportSeedView(
         network: String,
         host: String,

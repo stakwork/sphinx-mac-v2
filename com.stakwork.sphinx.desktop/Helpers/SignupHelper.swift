@@ -19,7 +19,7 @@ class SignupHelper {
     
     public enum SignupStep: Int {
         case Start
-        case IPAndTokenSet
+        case OwnerCreated
         case InviterContactCreated
         case PINNameSet
         case ImageSet

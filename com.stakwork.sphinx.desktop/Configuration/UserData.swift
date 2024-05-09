@@ -573,7 +573,7 @@ class UserData {
             composedKey: KeychainManager.KeychainKeys.balance_msats.rawValue
         ), !value.isEmpty, let intValue = Int(value)
         {
-            return intValue / 1000 //convert to sats
+            return intValue / 1000
         }
         return nil
     }

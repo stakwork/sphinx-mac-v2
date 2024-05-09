@@ -34,7 +34,7 @@ class SplashViewController: NSViewController {
         } else {
             let currentStep = SignupHelper.step
             switch(currentStep) {
-            case SignupHelper.SignupStep.IPAndTokenSet.rawValue:
+            case SignupHelper.SignupStep.OwnerCreated.rawValue:
                 presentInviteWelcomeViewController()
                 break
             case  SignupHelper.SignupStep.InviterContactCreated.rawValue:

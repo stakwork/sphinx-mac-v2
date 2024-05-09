@@ -55,14 +55,10 @@ class SphinxReady: NSView, LoadableNib {
     func loadBalances() {
         loading = true
         
-//        let (_, _) = walletBalanceService.getBalanceAll(completion: { local, remote in
-//            self.loading = false
-//            self.setAttributedTitles(local: local, remote: remote)
-//        })
-        
-        if let storedBalance = walletBalanceService.getBalance() {
+        if let storedBalance = walletBalanceService.balance {
             loading = false
-            self.setAttributedTitles(local: storedBalance, remote: 0)
+            
+            setAttributedTitles(local: Int(storedBalance), remote: 0)
         }
     }
     
@@ -77,7 +73,12 @@ class SphinxReady: NSView, LoadableNib {
         let firstSatsMsg = String(format: "x.sats,".localized, formattedLocal)
         let secondSatsMsg = String(format: "x.sats.".localized, formattedRemote)
         
-        centerLabel.attributedStringValue = String.getAttributedText(string: completeMessage, boldStrings: [firstSatsMsg, secondSatsMsg], font: normalFont, boldFont: boldFont)
+        centerLabel.attributedStringValue = String.getAttributedText(
+            string: completeMessage,
+            boldStrings: [firstSatsMsg, secondSatsMsg],
+            font: normalFont,
+            boldFont: boldFont
+        )
     }
 }
 
@@ -86,34 +87,8 @@ extension SphinxReady : SignupButtonViewDelegate {
         loading = true
         
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-            self.finishInvite()
-        })
-    }
-    
-    func finishInvite() {
-        if let inviteString: String = UserDefaults.Keys.inviteString.get() {
-            API.sharedInstance.finishInvite(inviteString: inviteString, callback: { success in
-                if success {
-                    self.finishSignup()
-                } else {
-                    self.didClickButton(tag: -1)
-                }
-            })
-        } else {
-            self.finishSignup()
-        }
-    }
-    
-    func finishSignup() {
-        let (_, _) = EncryptionManager.sharedInstance.getOrCreateKeys() {
-            self.handleInviteActions()
-        }
-    }
-    
-    func handleInviteActions() {
-        inviteActionsHelper.handleInviteActions {
             self.goToApp()
-        }
+        })
     }
     
     func goToApp() {
@@ -121,8 +96,6 @@ extension SphinxReady : SignupButtonViewDelegate {
         
         SignupHelper.resetSignupData()
         SignupHelper.step = SignupHelper.SignupStep.SphinxReady.rawValue
-        UserData.sharedInstance.saveNewNodeOnKeychain()
-        SplashViewController.runBackgroundProcesses()
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             self.delegate?.shouldContinueTo?(mode: -1)

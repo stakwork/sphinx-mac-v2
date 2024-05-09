@@ -21,21 +21,22 @@ class SphinxOnionManager : NSObject {
         return Static.instance
     }
     
+    let walletBalanceService = WalletBalanceService()
+    
     var pendingContact : UserContact? = nil
     var currentServer : Server? = nil
     var pendingInviteLookupByTag : [String:String] = [String:String]()
-    var stashedContactInfo:String?=nil
-    var stashedInitialTribe:String?=nil
-    var stashedInviteCode:String?=nil
-    var stashedInviterAlias:String?=nil
-    var watchdogTimer:Timer?=nil
+    var stashedContactInfo:String? = nil
+    var stashedInitialTribe:String? = nil
+    var stashedInviteCode:String? = nil
+    var stashedInviterAlias:String? = nil
+    var watchdogTimer:Timer? = nil
     var nextMessageBlockWasReceived = false
     var messageTimers: [String: Timer] = [:]
-
     
     var messageFetchParams : MessageFetchParams? = nil
     var newMessageSyncedListener: NSFetchedResultsController<TransactionMessage>?
-    var isV2InitialSetup:Bool=false
+    var isV2InitialSetup:Bool = false
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     var shouldPostUpdates : Bool = false
     let tribeMinEscrowSats = 3
@@ -66,7 +67,6 @@ class SphinxOnionManager : NSObject {
     let server_PORT = 1883
     let defaultTribePubkey = "032dbf9a31140897e52b66743f2c78e93cff2d5ecf6fe4814327d8912243106ff6"
     let network = "regtest"
-    
     
     func getAccountSeed(
         mnemonic: String? = nil
