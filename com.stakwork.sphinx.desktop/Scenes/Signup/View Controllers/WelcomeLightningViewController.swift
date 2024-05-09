@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class WelcomeLightningViewController: NSViewController {
+class WelcomeLightningViewController: CommonWelcomeViewController {
     
     @IBOutlet weak var leftContainer: NSView!
     @IBOutlet weak var leftContainerWidth: NSLayoutConstraint!
@@ -31,14 +31,17 @@ class WelcomeLightningViewController: NSViewController {
     }
     
     var mode : FormViewMode = .Start
+    var signupMode: SignupHelper.SignupMode = .NewUser
     var formView: NSView? = nil
     
     static func instantiate(
-        mode: FormViewMode = .Start
+        mode: FormViewMode = .Start,
+        signupMode: SignupHelper.SignupMode = .NewUser
     ) -> WelcomeLightningViewController {
         
         let viewController = StoryboardScene.Signup.welcomeLightningViewController.instantiate()
         viewController.mode = mode
+        viewController.signupMode = signupMode
         
         return viewController
     }
@@ -133,8 +136,20 @@ extension WelcomeLightningViewController : WelcomeEmptyViewDelegate {
         if let mode = FormViewMode(rawValue: mode) {
             moveToView(mode: mode, animated: true)
         } else {
-            view.window?.replaceContentBy(vc: WelcomeMobileViewController.instantiate())
+            if signupMode == .NewUser {
+                view.window?.replaceContentBy(vc: WelcomeMobileViewController.instantiate())
+            } else {
+                continueToDashboard()
+            }
         }
+    }
+    
+    func continueToDashboard() {
+        GroupsPinManager.sharedInstance.loginPin()
+        SignupHelper.completeSignup()
+        view.alphaValue = 0.0
+        
+        presentDashboard()
     }
     
     func addBubbleOnLeftContainer(mode: FormViewMode) {

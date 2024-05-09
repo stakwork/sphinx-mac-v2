@@ -83,7 +83,8 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     }
     
     func continueRestore() {
-        
+        listenForSelfContactRegistration()
+        setupTimeoutTimer()
     }
     
     func continueSignup() {
@@ -129,10 +130,9 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
                 vc: WelcomeLightningViewController.instantiate()
             )
         } else {
-//            GroupsPinManager.sharedInstance.loginPin()
-//            SignupHelper.completeSignup()
-//            SphinxSocketManager.sharedInstance.connectWebsocket()
-//            presentDashboard()
+            view.window?.replaceContentBy(
+                vc: WelcomeLightningViewController.instantiate(mode: .NamePin, signupMode: .ExistingUser)
+            )
         }
     }
     

@@ -198,9 +198,9 @@ class SphinxOnionManager : NSObject {
                 som.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
                 
                 if (som.isV2InitialSetup) {
-                    //self.contactRestoreCallback(percentage: 0)
                     som.isV2InitialSetup = false
                     som.doInitialInviteSetup()
+                    
                     som.performAccountRestore(
                         contactRestoreCallback: contactRestoreCallback,
                         messageRestoreCallback: messageRestoreCallback,

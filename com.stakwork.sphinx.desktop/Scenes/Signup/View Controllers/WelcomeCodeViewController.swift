@@ -100,10 +100,7 @@ class WelcomeCodeViewController: NSViewController {
     }
     
     @IBAction func pinBackButtonClicked(_ sender: NSButton) {
-        loading = false
-        animatePinContainer(expanded: false, completion: {
-            self.pinView.isHidden = true
-        })
+        ///Not used anymore
     }
 }
 
@@ -116,8 +113,8 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             
             if code.isV2InviteCode {
                 startSignup(code: code)
-            } else {
-                showPINView(encryptedKeys: code)
+            } else if som.isMnemonic(code: code) {
+                restoreWithCode(mnemonic: code)
             }
         }
     }
@@ -132,7 +129,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         som.vc = self
         som.chooseImportOrGenerateSeed(completion: {success in
             if (success) {
-                self.handleInviteCodeV2SignUp(code: sphinxV2Code)
+                self.handleInviteCode(code: sphinxV2Code)
             } else {
                 AlertHelper.showAlert(title: "Error redeeming invite", message: "Please try again or ask for another invite.")
             }
@@ -140,18 +137,18 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         })
     }
     
-    func handleInviteCodeV2SignUp(code: String){
+    func handleInviteCode(code: String){
         guard let mnemonic = UserData.sharedInstance.getMnemonic() else {
             return
         }
         
         if som.createMyAccount(mnemonic: mnemonic) {
             som.redeemInvite(inviteCode: code, mnemonic: mnemonic)
-            signup_v2_with_test_server()
+            continueSignupToConnecting()
         }
     }
     
-    func signup_v2_with_test_server(){
+    func continueSignupToConnecting(){
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
             if let contact = self.som.pendingContact, contact.isOwner == true {
                 self.som.isV2InitialSetup = true
@@ -160,40 +157,26 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
                 AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
             }
         })
-        
     }
     
-    func showPINView(encryptedKeys: String) {
-        UserDefaults.Keys.defaultPIN.removeValue()
-        pinView.doneCompletion = { pin in
-            
+    func restoreWithCode(
+        mnemonic: String
+    ){
+        UserData.sharedInstance.save(walletMnemonic: mnemonic)
+        
+        if let mnemonic = UserData.sharedInstance.getMnemonic(), som.createMyAccount(mnemonic: mnemonic) {
+            continueRestoreToConnecting()
         }
-        pinView.isHidden = false
-        animatePinContainer(expanded: true)
     }
     
-    func animatePinContainer(expanded: Bool, completion: (() -> ())? = nil) {
-        let windowsWidth = (view.window ?? NSApplication.shared.keyWindow)?.frame.width
-        let expectedWidth = expanded ? ((windowsWidth ?? 800) / 2) : 0
-        
-        if expectedWidth == rightContainerWidth.constant {
-            return
-        }
-        pinView.reset()
-        pinView.alphaValue = 0.0
-        rightContainer.alphaValue = 0.0
-        
-        rightContainerWidth.constant = expectedWidth
-        AnimationHelper.animateViewWith(duration: 0.5, animationsBlock: {
-            self.view.layoutSubtreeIfNeeded()
-        }, completion: {
-            AnimationHelper.animateViewWith(duration: 0.2, animationsBlock: {
-                self.rightContainer.alphaValue = expanded ? 0.0 : 1.0
-                self.pinView.alphaValue = expanded ? 1.0 : 0.0
-            }, completion: {
-                self.pinView.makeFieldFirstResponder()
-                completion?()
-            })
+    func continueRestoreToConnecting() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
+            if let contact = self.som.pendingContact, contact.isOwner == true {
+                self.som.isV2InitialSetup = true
+                self.continueToConnectingView(mode: .ExistingUser)
+            } else {
+                AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
+            }
         })
     }
     
