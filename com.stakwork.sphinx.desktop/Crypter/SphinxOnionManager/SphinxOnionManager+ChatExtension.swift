@@ -368,26 +368,13 @@ extension SphinxOnionManager{
     
     func isMessageTribeMessage(
         senderPubkey: String
-    ) -> (Bool, Chat?) {
+    ) -> Bool {
         
         var isTribe = false
-        var chat: Chat? = nil
         
         if let _ = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: senderPubkey){
             isTribe = true
         }
-        
-        return (isTribe, chat)
-    }
-    
-    func isExitedTribeMessage(senderPubkey: String) -> Bool{
-        var (isTribe, chat) = isMessageTribeMessage(senderPubkey: senderPubkey)
-        
-        if isTribe == false {
-            return false
-        }
-        
-        var lastActionIsExit = chat?.getAllMessages(limit: 1).filter({$0.type == TransactionMessage.TransactionMessageType.groupLeave.rawValue || $0.type == TransactionMessage.TransactionMessageType.groupKick.rawValue || $0.type == TransactionMessage.TransactionMessageType.groupDelete.rawValue}).count ?? 0 > 0
         
         return isTribe
     }

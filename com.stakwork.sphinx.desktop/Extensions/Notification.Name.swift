@@ -38,7 +38,6 @@ extension Notification.Name {
     static let onMQTTConnectionStatusChanged = Notification.Name("onMQTTConnectionStatusChanged")
     static let keyExchangeResponseMessageWasConstructed = Notification.Name("keyExchangeMessageWasConstructed")
     static let newContactWasRegisteredWithServer = Notification.Name("newContactWasRegisteredWithServer")
-    static let newContactKeyExchangeResponseWasReceived = Notification.Name("newContactKeyExchangeResponseWasReceived")
     static let newOnionMessageWasReceived = Notification.Name("newOnionMessageWasReceived")
     static let newTribeCreationComplete = Notification.Name("newTribeCreationComplete")
     static let newTribeMemberListRetrieved = Notification.Name("newTribeMemberListRetrieved")
@@ -46,5 +45,4 @@ extension Notification.Name {
     
     static let totalMessageCountReceived = Notification.Name("totalMessageCountReceived")
     static let inviteCodeAckReceived = Notification.Name("inviteCodeAckReceived")
-    static let userSuccessfullyEnteredPin = Notification.Name("userSuccessfullyEnteredPin")
 }

@@ -61,6 +61,8 @@ class DashboardViewController: NSViewController {
     var resizeTimer : Timer? = nil
     var escapeMonitor: Any? = nil
     
+    let som = SphinxOnionManager.sharedInstance
+    
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
         return viewController
@@ -109,23 +111,23 @@ class DashboardViewController: NSViewController {
         addPresenterVC()
         addDetailVCPresenter()
         
-        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-            self.connectToV2Server()
-        })
+        connectToServer()
     }
     
-    func connectToV2Server(){
-        if SphinxOnionManager.sharedInstance.appSessionPin == nil {
-            NotificationCenter.default.addObserver(self, selector: #selector(retryConnectV2Server), name: .userSuccessfullyEnteredPin, object: nil)
-            return
-        }
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNewKeyExchangeReceived), name: .newContactKeyExchangeResponseWasReceived, object: nil)
+    func connectToServer() {
+        som.fetchMyAccountFromState()
         
-        SphinxOnionManager.sharedInstance.connectToV2Server(
-            contactRestoreCallback: contactRestoreCallback(percentage:),
-            messageRestoreCallback: messageRestoreCallback(percentage:),
-            hideRestoreViewCallback: hideRestoreViewCallback
-        )
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.som.connectToV2Server(
+                contactRestoreCallback: self.contactRestoreCallback(percentage:),
+                messageRestoreCallback: self.messageRestoreCallback(percentage:),
+                hideRestoreViewCallback: self.hideRestoreViewCallback
+            )
+        })
     }
     
     func hideRestoreViewCallback(){
@@ -152,24 +154,11 @@ class DashboardViewController: NSViewController {
             
             self.shouldShowRestoreModal(
                 with: value,
-                label: "restoring-contacts".localized,
+                label: "restoring-messages".localized,
                 buttonEnabled: false
             )
             if value >= 100 { self.shouldHideRetoreModal() }
         }
-    }
-    
-    @objc func retryConnectV2Server(){
-        NotificationCenter.default.removeObserver(self, name: .userSuccessfullyEnteredPin, object: nil)
-        connectToV2Server()
-    }
-    
-    @objc func handleNewKeyExchangeReceived(){
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-            //slight delay to ensure new DB write goes through first
-            self.newDetailViewController?.forceReload()
-            self.listViewController?.shouldReloadContacts()
-        })
     }
     
     func addPresenterVC() {

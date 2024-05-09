@@ -41,11 +41,11 @@ extension SphinxOnionManager{//contacts related
         nickname: String? = nil,
         inviteCode: String? = nil
     ){
-        guard let (recipientPubkey, recipLspPubkey,scid) = parseContactInfoString(fullContactInfo: contactInfo) else {
+        guard let (recipientPubkey, recipLspPubkey, scid) = parseContactInfoString(fullContactInfo: contactInfo) else {
             return
         }
         if let existingContact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) {
-            AlertHelper.showAlert(title: "Error", message: "Contact already exists for \(existingContact.nickname ?? "this contact")")
+            print("Error: Contact attempting to be created already exists: \(existingContact.nickname)")
             return
         }
         
@@ -82,8 +82,6 @@ extension SphinxOnionManager{//contacts related
             
             let _ = handleRunReturn(rr: rr)
             
-//            print("INITIATED KEY EXCHANGE WITH ARGS:\(seed, getTimeWithEntropy(),loadOnionStateAsData(),recipientPubkey,"\(recipLspPubkey)_\(scid)",selfContact.avatarUrl,1000,hexCode,nickname) ")
-            
             print("INITIATED KEY EXCHANGE WITH RR:\(rr)")
             
         } catch {}
@@ -104,11 +102,12 @@ extension SphinxOnionManager{//contacts related
                 
                 let type = msg.type ?? 255
                 
-                if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue, let pubkey = csr.pubkey// incoming key exchange confirmation
-                   { // if contact exists it's a key exchange response from them or it exists already
-                    var keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(pubkey: pubkey)
+                if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue, let pubkey = csr.pubkey /// incoming key exchange confirmation
+                {
+                    /// if contact exists it's a key exchange response from them or it exists already
+                    let keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(pubkey: pubkey)
                     guard let keyExchangeContact = keyExchangeContact else{
-                        //no existing contact!
+                        ///no existing contact!
                         return
                     }
                     NotificationCenter.default.post(
@@ -134,8 +133,8 @@ extension SphinxOnionManager{//contacts related
                         userInfo: ["message": TransactionMessage()]
                     )
                     
-                } else if type == TransactionMessage.TransactionMessageType.contactKey.rawValue, // incoming key exchange request
-                        UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) == nil,//don't respond to requests if already exists
+                } else if type == TransactionMessage.TransactionMessageType.contactKey.rawValue, /// incoming key exchange request
+                        UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) == nil, ///don't respond to requests if already exists
                         let newContactRequest = createNewContact(
                             pubkey: senderPubkey,
                             nickname: csr.alias,
@@ -143,7 +142,7 @@ extension SphinxOnionManager{//contacts related
                             person: csr.person,
                             code: csr.code
                         )
-                {//new contact from a key exchange message
+                { ///new contact from a key exchange message
                     NotificationCenter.default.post(
                         Notification(
                             name: .newContactWasRegisteredWithServer,
@@ -151,6 +150,7 @@ extension SphinxOnionManager{//contacts related
                             userInfo: ["contactPubkey" : newContactRequest.publicKey as Any]
                         )
                     )
+                    
                     newContactRequest.status = UserContact.Status.Confirmed.rawValue
                     createChat(for: newContactRequest)
                     managedContext.saveContext()

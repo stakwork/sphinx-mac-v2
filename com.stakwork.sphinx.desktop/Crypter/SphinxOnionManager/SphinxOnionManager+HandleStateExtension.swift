@@ -456,6 +456,7 @@ struct GenericIncomingMessage: Mappable {
 //            self.date = innerContent.date
             self.invoice = innerContent.invoice
             self.paymentHash = innerContent.paymentHash
+            
             innerContentAmount = UInt64(innerContent.amount ?? 0)
             
             if msg.type == 33 {
@@ -463,7 +464,7 @@ struct GenericIncomingMessage: Mappable {
                 self.fullContactInfo = innerContent.fullContactInfo
             }
             
-            let (isTribe, _) = SphinxOnionManager.sharedInstance.isMessageTribeMessage(senderPubkey: self.senderPubkey ?? "")
+            let isTribe = SphinxOnionManager.sharedInstance.isMessageTribeMessage(senderPubkey: self.senderPubkey ?? "")
             
             if let timestamp = msg.timestamp,
                isTribe == false

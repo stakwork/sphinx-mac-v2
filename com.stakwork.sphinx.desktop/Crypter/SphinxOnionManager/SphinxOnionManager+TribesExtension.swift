@@ -75,29 +75,27 @@ extension SphinxOnionManager {
     }
     
     func extractHostAndTribeIdentifier(from urlString: String) -> (String, String)? {
-        guard let url = URL(string: urlString) else 
-        {
+        guard let url = URL(string: urlString) else {
             print("Invalid URL")
             return nil
         }
         
         guard let host = url.host,
-              let port = url.port else 
-        {
+              let port = url.port else {
             print("URL does not have a host")
             return nil
         }
         
         let pathComponents = url.pathComponents
         
-        guard let tribeIdentifier = pathComponents.last, tribeIdentifier != "/" else
-        {
+        guard let tribeIdentifier = pathComponents.last, tribeIdentifier != "/" else {
             print("URL does not have a tribe identifier")
             return nil
         }
         
         print("Host: \(host)")
         print("Tribe Identifier: \(tribeIdentifier)")
+        
         return ("\(host):\(port)",tribeIdentifier)
     }
     

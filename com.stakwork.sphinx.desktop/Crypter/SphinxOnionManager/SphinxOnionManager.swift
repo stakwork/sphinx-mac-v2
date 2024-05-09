@@ -182,9 +182,10 @@ class SphinxOnionManager : NSObject {
               let my_xpub = som.getAccountXpub(seed: seed) else
         {
             //possibly send error message?
-            AlertHelper.showAlert(title: "Error", message: "Could not connect to server")
+            AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
             return
         }
+        
         som.disconnectMqtt()
         
         DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
@@ -194,6 +195,7 @@ class SphinxOnionManager : NSObject {
                 AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
                 return
             }
+            
             som.mqtt.didConnectAck = {_, _ in
                 som.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
                 
@@ -266,15 +268,16 @@ class SphinxOnionManager : NSObject {
             return
         }
         do {
-            let myPubkey = try pubkeyFromSeed(
+            let _ = try pubkeyFromSeed(
                 seed: seed,
                 idx: 0,
                 time: getTimeWithEntropy(),
                 network: network
             )
 
-            let myFullAccount = try Sphinx.listContacts(state: loadOnionStateAsData())
-            print(myFullAccount)
+            let listContactsResponse = try Sphinx.listContacts(state: loadOnionStateAsData())
+            
+            print("MY LIST CONTACTS RESPONSE \(listContactsResponse)")
         } catch {}
     }
     

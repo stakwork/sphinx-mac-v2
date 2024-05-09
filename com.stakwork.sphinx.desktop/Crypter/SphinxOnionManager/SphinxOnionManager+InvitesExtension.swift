@@ -73,11 +73,13 @@ extension SphinxOnionManager{//invites related
         }
         if let stashedContactInfo = stashedContactInfo {
             self.stashedContactInfo = nil
+            
             makeFriendRequest(
                 contactInfo: stashedContactInfo,
                 inviteCode: stashedInviteCode
             )
         }
+        
         joinInitialTribe()
     }
     
