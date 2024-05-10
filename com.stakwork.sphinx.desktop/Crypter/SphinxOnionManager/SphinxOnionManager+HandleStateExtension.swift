@@ -24,31 +24,33 @@ extension SphinxOnionManager {
         var messageTagID : String? = nil
         print("handleRR rr:\(rr)")
         
+        ///Updating state map
         if let sm = rr.stateMp {
-            //update state map
+            ///update state map
             let _ = storeOnionState(inc: sm.bytes)
         }
         
+        ///New tribe creationg
         if let newTribe = rr.newTribe {
-            print(newTribe)
+            print("New Tribe created \(newTribe)")
             
-            NotificationCenter.default.post(
-                name: .newTribeCreationComplete,
-                object: nil,
-                userInfo: ["tribeJSON" : newTribe]
-            )
+            if let createTribeCallback = createTribeCallback {
+                createTribeCallback(newTribe)
+            }
         }
         
+        ///Publishing to MQTT Topics
         DelayPerformedHelper.performAfterDelay(seconds: publishDelay, completion: {
             for i in 0..<rr.topics.count{
                 self.pushRRTopic(topic: rr.topics[i], payloadData: rr.payloads[i])
             }
         })
         
+        ///Owner contact
         if let mci = rr.myContactInfo {
-//            let components = mci.split(separator: "_").map({String($0)})
-            
-            if let components = parseContactInfoString(fullContactInfo: mci), UserContact.getContactWithDisregardStatus(pubkey: components.0) == nil {
+            if let components = parseContactInfoString(
+                fullContactInfo: mci
+            ), UserContact.getContactWithDisregardStatus(pubkey: components.0) == nil {
                 ///only add this if we don't already have a "self" contact
                 createSelfContact(
                     scid: components.2,

@@ -20,7 +20,10 @@ extension SphinxOnionManager {
         return tribePubkey
     }
     
-    func createTribe(params: [String: Any]) {
+    func createTribe(
+        params: [String: Any],
+        callback: @escaping (String) -> ()
+    ) {
         guard let seed = getAccountSeed(),
               let tribeServerPubkey = getTribePubkey() else
         {
@@ -33,6 +36,8 @@ extension SphinxOnionManager {
             return
         }
         
+        self.createTribeCallback = callback
+        
         do {
             let rr = try Sphinx.createTribe(
                 seed: seed,
@@ -42,7 +47,10 @@ extension SphinxOnionManager {
                 tribeJson: tribeJSONString
             )
             let _ = handleRunReturn(rr: rr)
-        } catch {}
+        } catch {
+            self.createTribeCallback = nil
+            print("Error creating tribe")
+        }
     }
     
     func joinTribe(
@@ -114,6 +122,7 @@ extension SphinxOnionManager {
                 let qrString = "action=tribeV2&pubkey=\(pubkey)&host=\(host)"
                 var tribeInfo = GroupsManager.TribeInfo(ownerPubkey:pubkey, host: host,uuid: pubkey)
                 self.stashedInitialTribe = nil
+                
                 GroupsManager.sharedInstance.update(tribeInfo: &tribeInfo, from: groupInfo)
                 GroupsManager.sharedInstance.finalizeTribeJoin(tribeInfo: tribeInfo, qrString: qrString)
                 

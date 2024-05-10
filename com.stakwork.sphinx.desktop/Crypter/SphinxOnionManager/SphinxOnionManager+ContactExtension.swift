@@ -14,25 +14,10 @@ import SwiftyJSON
 extension SphinxOnionManager{//contacts related
     
     //MARK: Contact Add helpers
-    func saveLSPServerData(retrievedCredentials: SphinxOnionBrokerResponse) {
-        let server = Server(context: managedContext)
-
-        server.pubKey = retrievedCredentials.serverPubkey
-        server.ip = self.server_IP
-        
-        if (shouldPostUpdates) {
-            NotificationCenter.default.post(Notification(name: .onMQTTConnectionStatusChanged, object: nil, userInfo: ["server" : server]))
-        }
-        
-        self.currentServer = server
-        managedContext.saveContext()
-    }
-    
     func parseContactInfoString(
         fullContactInfo: String
     ) -> (String, String, String)? {
         let components = fullContactInfo.split(separator: "_").map({String($0)})
-        if components.count != 3 {return nil}
         return (components.count == 3) ? (components[0],components[1],components[2]) : nil
     }
     
@@ -45,7 +30,7 @@ extension SphinxOnionManager{//contacts related
             return
         }
         if let existingContact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) {
-            print("Error: Contact attempting to be created already exists: \(existingContact.nickname)")
+            print("Error: Contact attempting to be created already exists: \(String(describing: existingContact.nickname))")
             return
         }
         
@@ -89,7 +74,6 @@ extension SphinxOnionManager{//contacts related
     
     //MARK: Processes key exchange messages (friend requests) between contacts
     func processKeyExchangeMessages(rr: RunReturn) {
-        
         for msg in rr.msgs.filter({$0.type == 11 || $0.type == 10}) {
             
             print("KEY EXCHANGE MSG of Type \(String(describing: msg.type)) RECEIVED:\(msg)")
@@ -170,7 +154,6 @@ extension SphinxOnionManager{//contacts related
     
     
     //MARK: CoreData Helpers:
-    
     func createSelfContact(
         scid: String,
         serverPubkey: String,

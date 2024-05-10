@@ -23,27 +23,30 @@ class SphinxOnionManager : NSObject {
     
     let walletBalanceService = WalletBalanceService()
     
+    ///Owner for signup and restore
     var pendingContact : UserContact? = nil
-    var currentServer : Server? = nil
+    
+    ///Invite
     var pendingInviteLookupByTag : [String:String] = [String:String]()
     var stashedContactInfo:String? = nil
     var stashedInitialTribe:String? = nil
     var stashedInviteCode:String? = nil
     var stashedInviterAlias:String? = nil
+    
     var watchdogTimer:Timer? = nil
+    
     var nextMessageBlockWasReceived = false
     var messageTimers: [String: Timer] = [:]
     
     var messageFetchParams : MessageFetchParams? = nil
     var newMessageSyncedListener: NSFetchedResultsController<TransactionMessage>?
-    var isV2InitialSetup:Bool = false
-    let newMessageBubbleHelper = NewMessageBubbleHelper()
+    
+    var isV2InitialSetup: Bool = false
     var shouldPostUpdates : Bool = false
     let tribeMinEscrowSats = 3
     
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
-    let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
     
     var stashedCallback : (([String:AnyObject]) ->())? = nil
     var isConnected : Bool = false{
@@ -53,11 +56,14 @@ class SphinxOnionManager : NSObject {
     }
     
     var msgTotalCounts : MsgTotalCounts? = nil
+    
     typealias RestoreProgressCallback = (Int) -> Void
     var messageRestoreCallback : RestoreProgressCallback? = nil
     var contactRestoreCallback : RestoreProgressCallback? = nil
     var hideRestoreCallback: (() -> ())? = nil
-    var appSessionPin : String? = nil//nil
+    
+    ///Session Pin to decrypt mnemonic and seed
+    var appSessionPin : String? = nil
     var defaultInitialSignupPin : String = "111111"
     
     public static let kMessageBatchSize = 50
@@ -68,15 +74,21 @@ class SphinxOnionManager : NSObject {
     let defaultTribePubkey = "032dbf9a31140897e52b66743f2c78e93cff2d5ecf6fe4814327d8912243106ff6"
     let network = "regtest"
     
+    let newMessageBubbleHelper = NewMessageBubbleHelper()
+    let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    
+    ///Callbacks
+    var createTribeCallback: ((String) -> ())? = nil
+    
     func getAccountSeed(
         mnemonic: String? = nil
     ) -> String? {
         do {
             if let mnemonic = mnemonic { // if we have a non-default value, use it
-                let seed = try mnemonicToSeed(mnemonic: mnemonic)
+                let seed = try Sphinx.mnemonicToSeed(mnemonic: mnemonic)
                 return seed
             } else if let mnemonic = UserData.sharedInstance.getMnemonic() { //pull from memory if argument is nil
-                let seed = try mnemonicToSeed(mnemonic: mnemonic)
+                let seed = try Sphinx.mnemonicToSeed(mnemonic: mnemonic)
                 return seed
             } else {
                 return nil
@@ -90,7 +102,7 @@ class SphinxOnionManager : NSObject {
     func generateMnemonic() -> String? {
         var result : String? = nil
         do {
-            result = try mnemonicFromEntropy(
+            result = try Sphinx.mnemonicFromEntropy(
                 entropy: Data.randomBytes(length: 16).hexString
             )
             guard let result = result else {
@@ -147,9 +159,19 @@ class SphinxOnionManager : NSObject {
     ) -> Bool {
         do {
             let now = getTimeWithEntropy()
-            let sig = try rootSignMs(seed: seed, time: now, network: network)
             
-            mqtt = CocoaMQTT(clientID: xpub,host: server_IP ,port:  UInt16(server_PORT))
+            let sig = try rootSignMs(
+                seed: seed,
+                time: now,
+                network: network
+            )
+            
+            mqtt = CocoaMQTT(
+                clientID: xpub,
+                host: server_IP,
+                port: UInt16(server_PORT)
+            )
+            
             mqtt.username = now
             mqtt.password = sig
             
@@ -160,9 +182,6 @@ class SphinxOnionManager : NSObject {
             return false
         }
     }
-    
-    
-    
     
     func disconnectMqtt() {
         if let mqtt = self.mqtt {
@@ -181,7 +200,6 @@ class SphinxOnionManager : NSObject {
               let myPubkey = som.getAccountOnlyKeysendPubkey(seed: seed),
               let my_xpub = som.getAccountXpub(seed: seed) else
         {
-            //possibly send error message?
             AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
             return
         }
@@ -240,7 +258,11 @@ class SphinxOnionManager : NSObject {
                 return
             }
             
-            let subtopic = try Sphinx.getSubscriptionTopic(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
+            let subtopic = try Sphinx.getSubscriptionTopic(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
             
             mqtt.didReceiveMessage = { mqtt, receivedMessage, id in
                 self.isConnected = true
@@ -251,11 +273,19 @@ class SphinxOnionManager : NSObject {
                 (subtopic, CocoaMQTTQoS.qos1)
             ])
             
-            let ret3 = try initialSetup(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
+            let ret3 = try initialSetup(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            
             let _ = handleRunReturn(rr: ret3)
             
-            let tribeMgmtTopic = try getTribeManagementTopic(seed: seed, uniqueTime: getTimeWithEntropy(), state: loadOnionStateAsData())
-            
+            let tribeMgmtTopic = try getTribeManagementTopic(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
             
             self.mqtt.subscribe([
                 (tribeMgmtTopic, CocoaMQTTQoS.qos1)
@@ -309,6 +339,7 @@ class SphinxOnionManager : NSObject {
                 //self.showSuccessWithMessage("MQTT connected")
                 print("SphinxOnionManager: MQTT Connected")
                 print("mqtt.didConnectAck")
+                
                 self.subscribeAndPublishMyTopics(pubkey: pubkey, idx: idx)
             }
         }

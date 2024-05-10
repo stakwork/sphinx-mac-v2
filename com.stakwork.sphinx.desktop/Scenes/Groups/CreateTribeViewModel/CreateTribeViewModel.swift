@@ -147,26 +147,12 @@ class CreateTribeViewModel {
             return
         }
         
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleNewTribeNotification(_:)),
-            name: .newTribeCreationComplete,
-            object: nil
-        )
-        
-        SphinxOnionManager.sharedInstance.createTribe(params: params)
+        SphinxOnionManager.sharedInstance.createTribe(params: params, callback: handleNewTribeNotification)
     }
     
 
-    @objc func handleNewTribeNotification(_ notification: Notification) {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .newTribeCreationComplete,
-            object: nil
-        )
-        
-        if let tribeJSONString = notification.userInfo?["tribeJSON"] as? String,
-           let tribeJSON = try? tribeJSONString.toDictionary(),
+    func handleNewTribeNotification(tribeJSONString: String) {
+        if let tribeJSON = try? tribeJSONString.toDictionary(),
            let chatJSON = mapChatJSON(rawTribeJSON: tribeJSON),
            let chat = Chat.insertChat(chat: chatJSON)
         {

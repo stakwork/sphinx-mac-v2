@@ -114,32 +114,8 @@ extension SphinxOnionManager {
         self.messageRestoreCallback = messageRestoreCallback
         self.contactRestoreCallback = contactRestoreCallback
         self.hideRestoreCallback = hideRestoreViewCallback
-        setupRestore()
-    }
-    
-    func setupRestore(){
-        guard let seed = getAccountSeed() else{
-            return
-        }
         
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(processMessageCountReceived),
-            name: .totalMessageCountReceived,
-            object: nil
-        )
-        
-        do {
-            let rr = try getMsgsCounts(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData()
-            )
-            
-            let _ = handleRunReturn(rr: rr)
-        } catch {
-            print("Error getting msgs count")
-        }
+        setupSyncWith(selector: #selector(processMessageCountReceived))
     }
     
     @objc func processMessageCountReceived() {
@@ -160,7 +136,6 @@ extension SphinxOnionManager {
                 self.restoreFirstScidMessages()
             }
         })
-        
     }
     
     func doNextRestorePhase(){
@@ -259,17 +234,20 @@ extension SphinxOnionManager {
             return
         }
         messageFetchParams?.stopIndex = lastKnownMax
-        setupSync()
+        
+        setupSyncWith(selector: #selector(processSyncCountsReceived))
     }
     
-    func setupSync(){
+    func setupSyncWith(
+        selector: Selector
+    ) {
         guard let seed = getAccountSeed() else{
             return
         }
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(processSyncCountsReceived),
+            selector: selector,
             name: .totalMessageCountReceived,
             object: nil
         )
@@ -315,7 +293,6 @@ extension SphinxOnionManager {
         }
     }
 
-    
     func startAllMsgBlockFetch(
         startIndex: Int,
         indexStepSize: Int,
@@ -350,8 +327,6 @@ extension SphinxOnionManager {
             fetchDirection: fetchDirection
         )
     }
-
-
     
     func fetchMessageBlock(
         seed: String,
