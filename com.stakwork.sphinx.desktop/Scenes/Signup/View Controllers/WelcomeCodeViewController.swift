@@ -248,12 +248,13 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     
     func didTapConfirm() {
         importSeedView.isHidden = true
+        
         UserData.sharedInstance.save(walletMnemonic: importSeedView.getMnemonicWords())
         
         let code = codeField.getFieldValue()
         
         if validateCode(code: code) {
-            handleInviteCodeV2SignUp(code: code)
+            handleInviteCode(code: code)
         }
     }
     

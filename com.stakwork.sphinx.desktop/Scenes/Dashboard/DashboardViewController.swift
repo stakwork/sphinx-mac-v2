@@ -85,8 +85,6 @@ class DashboardViewController: NSViewController {
         dashboardRightSplitView.dividerStyle = .thin
         dashboardRightSplitView.setValue(NSColor.Sphinx.Divider2, forKey: "dividerColor")
         
-        SphinxSocketManager.sharedInstance.setDelegate(delegate: self)
-        
         let windowState = WindowsManager.sharedInstance.getWindowState()
         leftSplittedView.isHidden = windowState.menuCollapsed
         
@@ -261,7 +259,8 @@ class DashboardViewController: NSViewController {
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
             NSAppearance.current = self.view.effectiveAppearance
             self.listViewController?.configureHeaderAndBottomBar()
-            self.listViewController?.loadFriendAndReload()
+            
+            ///Should reload Friends and Messages
         })
     }
     
@@ -339,7 +338,7 @@ class DashboardViewController: NSViewController {
         
         NotificationCenter.default.addObserver(forName: .onInvoiceDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
             guard let vc = self else { return }
-            vc.createInvoice(n: n)
+//            vc.createInvoice(n: n)
         }
         
         NotificationCenter.default.addObserver(forName: .onShareContentDeeplink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
@@ -400,21 +399,6 @@ class DashboardViewController: NSViewController {
         }
     }
     
-    func createInvoice(n: Notification) {
-        if let query = n.userInfo?["query"] as? String {
-            if let amountString = query.getLinkValueFor(key: "amount"), let amount = Int(amountString) {
-                let params = ["amount" : amount as AnyObject]
-                
-                API.sharedInstance.createInvoice(parameters: params, callback: { (_, invoice) in
-                    if let invoice = invoice, !invoice.isEmpty {
-                        let invoiceVC = ShareInviteCodeViewController.instantiate(qrCodeString: invoice, viewMode: .Invoice)
-                        WindowsManager.sharedInstance.showInvoiceWindow(vc: invoiceVC, window: self.view.window)
-                    }
-                }, errorCallback: {})
-            }
-        }
-    }
-    
     func showDashboardModalsVC(n: Notification) {
         if let query = n.userInfo?["query"] as? String {
             for childVC in self.children {
@@ -471,17 +455,21 @@ class DashboardViewController: NSViewController {
     }
     
     func reloadData() {
-        self.chatListViewModel.loadFriends { _ in
-
-            self.chatListViewModel.syncMessages(
-                chatId: self.newDetailViewController?.chat?.id,
-                progressCallback: { (_, _) in }
-            ) { (_, _) in
-
-                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-                    appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
-                }
-            }
+//        self.chatListViewModel.loadFriends { _ in
+//
+//            self.chatListViewModel.syncMessages(
+//                chatId: self.newDetailViewController?.chat?.id,
+//                progressCallback: { (_, _) in }
+//            ) { (_, _) in
+//
+//                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+//                    appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
+//                }
+//            }
+//        }
+        
+        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+            appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
         }
     }
     
@@ -589,36 +577,16 @@ extension DashboardViewController : DashboardVCDelegate {
         chatId: Int?,
         contactId: Int?
     ) {
-        if let contactId = contactId, let contact = UserContact.getContactWith(id: contactId), contact.isPending() {
-            if let invite = contact.invite {
-                if invite.isPendingPayment() {
-                    payInvite(invite: invite)
-                    return
-                }
-
-                let (ready, title, message) = invite.getInviteStatusForAlert()
-                if ready {
-                    goToInviteCodeString(inviteCode: contact.invite?.inviteString ?? "")
-                } else {
-                    AlertHelper.showAlert(title: title, message: message)
-                }
-            }
+        if let contactId = contactId, let contact = UserContact.getContactWith(id: contactId), contact.isPending(), let invite = contact.invite {
+            goToInviteCodeString(
+                inviteCode: invite.inviteString ?? ""
+            )
         } else {
-            self.presentChatVCFor(
+            presentChatVCFor(
                 chatId: chatId,
                 contactId: contactId
             )
         }
-    }
-    
-    func payInvite(invite: UserInvite) {
-        AlertHelper.showTwoOptionsAlert(title: "pay.invitation".localized, message: "", confirm: {
-            self.chatListViewModel.payInvite(invite: invite, completion: { contact in
-                if contact == nil {
-                    AlertHelper.showAlert(title: "generic.error.title".localized, message: "payment.failed".localized)
-                }
-            })
-        })
     }
     
     func goToInviteCodeString(inviteCode: String) {
@@ -779,16 +747,6 @@ extension DashboardViewController : DashboardVCDelegate {
     }
 }
 
-extension DashboardViewController : SocketManagerDelegate {
-    func shouldShowAlert(message: String) {
-        listViewController?.shouldShowAlert(message: message)
-    }
-    
-    func didUpdateChatFromMessage(_ chat: Chat) {
-        newDetailViewController?.didUpdateChatFromMessage(chat)
-    }
-}
-
 extension DashboardViewController : MediaFullScreenDelegate {
     func willDismissView() {
         if let mediaFullScreenView = mediaFullScreenView {
@@ -812,8 +770,6 @@ extension DashboardViewController : RestoreModalViewControllerDelegate {
     
     func didFinishRestoring() {
         modalsContainerView.isHidden = true
-        
-        listViewController?.finishLoading()
     }
 }
 

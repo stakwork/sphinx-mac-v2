@@ -13,8 +13,13 @@ import SwiftyJSON
 extension API {
     typealias AppVersionsCallback = ((String) -> ())
     
-    func getAppVersions(callback: @escaping AppVersionsCallback) {
-        guard let request = getURLRequest(route: "/app_versions", method: "GET") else {
+    func getAppVersions(
+        callback: @escaping AppVersionsCallback
+    ) {
+        let url = "\(API.kHUBServerUrl)/api/v1/app_versions"
+        
+        guard let request = createRequest(url, params: nil, method: "GET") else {
+            print("Error getting app version")
             return
         }
         

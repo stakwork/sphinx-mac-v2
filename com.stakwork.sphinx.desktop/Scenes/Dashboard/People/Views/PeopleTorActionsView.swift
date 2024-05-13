@@ -192,16 +192,16 @@ class PeopleTorActionsView: CommonModalView, LoadableNib {
         parameters["asset"] = authInfo?.jsonBody["asset"].intValue as AnyObject
         parameters["memo"] = authInfo?.jsonBody["memo"].stringValue as AnyObject
         
-        API.sharedInstance.redeemBadgeTokens(
-            params: parameters,
-            callback: { success in
-                
-            if success {
-                self.showAlertAndDismiss("people.claim-on-liquid-succeed".localized)
-            } else {
-                self.showErrorAlertAndDismiss("people.claim-on-liquid-failed".localized)
-            }
-        })
+//        API.sharedInstance.redeemBadgeTokens(
+//            params: parameters,
+//            callback: { success in
+//                
+//            if success {
+//                self.showAlertAndDismiss("people.claim-on-liquid-succeed".localized)
+//            } else {
+//                self.showErrorAlertAndDismiss("people.claim-on-liquid-failed".localized)
+//            }
+//        })
     }
 
     

@@ -119,14 +119,14 @@ class UserContactsHelper {
             parameters["contact_key"] = contactKey as AnyObject
         }
         
-        API.sharedInstance.updateUser(id: contact.id, params: parameters, callback: { contact in
-            DispatchQueue.main.async {
-                let _ = self.insertContact(contact: contact, pin: pin)
-                callback(true)
-            }
-        }, errorCallback: {
-            callback(false)
-        })
+//        API.sharedInstance.updateUser(id: contact.id, params: parameters, callback: { contact in
+//            DispatchQueue.main.async {
+//                let _ = self.insertContact(contact: contact, pin: pin)
+//                callback(true)
+//            }
+//        }, errorCallback: {
+//            callback(false)
+//        })
     }
     
     public static func createContact(
@@ -156,12 +156,12 @@ class UserContactsHelper {
             parameters["contact_key"] = contactKey as AnyObject
         }
         
-        API.sharedInstance.createContact(params: parameters, callback: { contact in
-            let contactObject = self.insertContact(contact: contact, pin: pin)
-            callback(true, contactObject?.id)
-        }, errorCallback: {
-            callback(false, nil)
-        })
+//        API.sharedInstance.createContact(params: parameters, callback: { contact in
+//            let contactObject = self.insertContact(contact: contact, pin: pin)
+//            callback(true, contactObject?.id)
+//        }, errorCallback: {
+//            callback(false, nil)
+//        })
     }
     
     public static func createV2Contact(
@@ -191,18 +191,5 @@ class UserContactsHelper {
                 timer.invalidate()
             }
         }
-    }
-    
-    public static func exchangeKeys(id: Int) {
-        API.sharedInstance.exchangeKeys(id: id, callback: { _ in }, errorCallback: {})
-    }
-    
-    public static func reloadSubscriptions(contact: UserContact, callback: @escaping (Bool) -> ()) {
-        API.sharedInstance.getSubscriptionsFor(contactId: contact.id, callback: { subscriptions in
-            self.insertSubscriptions(subscriptions: subscriptions)
-            callback(true)
-        }, errorCallback: {
-            callback(false)
-        })
     }
 }

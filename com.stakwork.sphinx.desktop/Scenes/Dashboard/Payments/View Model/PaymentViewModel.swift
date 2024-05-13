@@ -72,7 +72,7 @@ class PaymentViewModel : NSObject {
             return true
         }
         
-        guard let contact = currentPayment.contacts.first else {
+        guard let _ = currentPayment.contacts.first else {
             return memo.isValidLengthMemo()
         }
         
@@ -183,46 +183,8 @@ class PaymentViewModel : NSObject {
             parameters["dimensions"] = dim as AnyObject?
         }
         
-        let contacts = currentPayment.contacts
-        
-        if contacts.count > 0 {
-            if let chat = currentPayment.chat {
-                parameters["chat_id"] = chat.id as AnyObject?
-            } else if contacts.count > 0 {
-                let contact = contacts[0]
-                parameters["contact_id"] = contact.id as AnyObject?
-            }
-            
-            if currentPayment.chat?.isGroup() ?? false {
-                parameters["contact_ids"] = contacts.map { $0.id } as AnyObject?
-            }
-            
-            if let text = currentPayment.message {
-                let encryptionManager = EncryptionManager.sharedInstance
-                let encryptedOwnMessage = encryptionManager.encryptMessageForOwner(message: text)
-                parameters["text"] = encryptedOwnMessage as AnyObject?
-                
-                if currentPayment.chat?.isGroup() ?? false {
-                    var encryptedDictionary = [String : String]()
-                    
-                    for c in contacts {
-                        let (_, encryptedContactMessage) = encryptionManager.encryptMessage(message: text, for: c)
-                        encryptedDictionary["\(c.id)"] = encryptedContactMessage
-                    }
-                    
-                    if encryptedDictionary.count > 0 {
-                        parameters["remote_text_map"] = encryptedDictionary as AnyObject?
-                    }
-                } else {
-                    let contact = contacts[0]
-                    let (_, encryptedContactMessage) = encryptionManager.encryptMessage(message: text, for: contact)
-                    parameters["remote_text"] = encryptedContactMessage as AnyObject?
-                }
-            }
-        } else {
-            if let message = currentPayment.message {
-                parameters["text"] = message as AnyObject?
-            }
+        if let message = currentPayment.message {
+            parameters["text"] = message as AnyObject?
         }
         
         return parameters

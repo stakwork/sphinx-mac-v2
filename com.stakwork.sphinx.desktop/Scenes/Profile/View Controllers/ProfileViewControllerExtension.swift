@@ -49,21 +49,6 @@ extension ProfileViewController {
         advanceTo(vc: changePivacyPinVC, title: "pin.change".localized, height: 500)
     }
     
-    func updateRelayURL() -> Bool {
-        let relayURL = serverURLField.stringValue
-        
-        if relayURL != UserData.sharedInstance.getNodeIP() {
-            urlUpdateHelper.updateRelayURL(newValue: relayURL, view: self.view, completion: relayUpdateFinished)
-            return true
-        }
-        return false
-    }
-    
-    func relayUpdateFinished() {
-        serverURLField.stringValue = UserData.sharedInstance.getNodeIP()
-        updateProfile()
-    }
-    
     func uploadImage() {
         if let imgData = self.profileImage?.sd_imageData(as: .JPEG, compressionQuality: 0.5) {
             uploadingLabel.stringValue = String(format: "uploaded.progress".localized, 0)

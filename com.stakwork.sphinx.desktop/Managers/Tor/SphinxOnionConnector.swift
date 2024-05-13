@@ -30,10 +30,7 @@ class SphinxOnionConnector : NSObject {
     var nodeIp: String? = nil
 
     func usingTor() -> Bool {
-        if let nodeIp = nodeIp {
-            return nodeIp.contains(".onion")
-        }
-        return UserData.sharedInstance.getNodeIP().contains(".onion")
+        return false
     }
 
     func isReady() -> Bool {

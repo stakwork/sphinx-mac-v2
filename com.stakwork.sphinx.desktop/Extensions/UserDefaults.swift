@@ -12,7 +12,6 @@ extension UserDefaults {
     public enum Keys {
         public static let appVersion = DefaultKey<Int>("appVersion")
         public static let lastSeenHistoryDate = DefaultKey<Date>("lastSeenHistoryDate")
-        public static let lastSeenMessagesDate = DefaultKey<Date>("lastSeenMessagesDate")
         public static let lastSeenContactsDate = DefaultKey<Date>("lastSeenContactsDate")
         public static let clearSDMemoryDate = DefaultKey<Date>("clearSDMemoryDate")
         public static let channelBalance = DefaultKey<Int>("channelBalance")
@@ -41,7 +40,6 @@ extension UserDefaults {
         public static let didShowDeleteMessageConfirmation = DefaultKey<Bool>("didShowDeleteMessageConfirmation")
         public static let paymentProcessedInvites = DefaultKey<[String]>("paymentProcessedInvites")
         public static let isRestoring = DefaultKey<Bool>("isRestoring")
-        public static let messagesFetchPage = DefaultKey<Int>("messagesFetchPage")
         public static let lastViewedMessageID = DefaultKey<Int>("lastViewedMessageID")
         public static let linkQuery = DefaultKey<String>("linkQuery")
         

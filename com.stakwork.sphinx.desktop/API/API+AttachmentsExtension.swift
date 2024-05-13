@@ -18,7 +18,11 @@ struct ImageTemplate {
     
     init() {}
     
-    init(muid: String?, width: Int?, height: Int?) {
+    init(
+        muid: String?,
+        width: Int?, 
+        height: Int?
+    ) {
         self.muid = muid
         self.width = width
         self.height = height
@@ -26,7 +30,9 @@ struct ImageTemplate {
 }
 
 extension API {
-    public func askAuthentication(callback: @escaping askAuthenticationCallback) {
+    public func askAuthentication(
+        callback: @escaping askAuthenticationCallback
+    ) {
         let url = "\(API.kAttachmentsServerUrl)/ask"
         
         guard let request = createRequest(url, params: nil, method: "GET") else {
@@ -34,7 +40,7 @@ extension API {
             return
         }
         
-        AF.request(request).responseJSON { (response) in
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 if let json = data as? NSDictionary {
@@ -50,28 +56,31 @@ extension API {
         }
     }
     
-    public func signChallenge(challenge: String, callback: @escaping signChallengeCallback) {
-        guard let request = getURLRequest(route: "/signer/\(challenge)", method: "GET") else {
-            callback(nil)
-            return
-        }
-        
-        sphinxRequest(request) { response in
-            switch response.result {
-            case .success(let data):
-                if let json = data as? NSDictionary {
-                    if let success = json["success"] as? Bool, let response = json["response"] as? NSDictionary, success {
-                        if let sig = response["sig"] as? String {
-                            callback(sig)
-                        } else {
-                            callback(nil)
-                        }
-                    }
-                }
-            case .failure(_):
-                callback(nil)
-            }
-        }
+    public func signChallenge(
+        challenge: String,
+        callback: @escaping signChallengeCallback
+    ) {
+//        guard let request = getURLRequest(route: "/signer/\(challenge)", method: "GET") else {
+//            callback(nil)
+//            return
+//        }
+//        
+//        sphinxRequest(request) { response in
+//            switch response.result {
+//            case .success(let data):
+//                if let json = data as? NSDictionary {
+//                    if let success = json["success"] as? Bool, let response = json["response"] as? NSDictionary, success {
+//                        if let sig = response["sig"] as? String {
+//                            callback(sig)
+//                        } else {
+//                            callback(nil)
+//                        }
+//                    }
+//                }
+//            case .failure(_):
+//                callback(nil)
+//            }
+//        }
     }
     
     public func verifyAuthentication(
@@ -87,7 +96,7 @@ extension API {
             return
         }
         
-        AF.request(request).responseJSON { (response) in
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 if let json = data as? NSDictionary {
@@ -103,7 +112,11 @@ extension API {
         }
     }
     
-    public func getMediaItemInfo(message: TransactionMessage, token: String, callback: @escaping MediaInfoCallback) {
+    public func getMediaItemInfo(
+        message: TransactionMessage,
+        token: String,
+        callback: @escaping MediaInfoCallback
+    ) {
         guard let muid = message.muid, !muid.isEmpty else {
             callback(message.id, nil, nil)
             return
@@ -116,7 +129,7 @@ extension API {
             return
         }
         
-        AF.request(request).responseJSON { (response) in
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 let jsonData = JSON(data)
@@ -132,7 +145,13 @@ extension API {
         }
     }
     
-    public func uploadData(attachmentObject: AttachmentObject, route: String, token: String, progressCallback: @escaping UploadProgressCallback, callback: @escaping UploadAttachmentCallback) {
+    public func uploadData(
+        attachmentObject: AttachmentObject,
+        route: String,
+        token: String,
+        progressCallback: @escaping UploadProgressCallback,
+        callback: @escaping UploadAttachmentCallback
+    ) {
         let method = HTTPMethod(rawValue: "POST")
         let url = "\(API.kAttachmentsServerUrl)/\(route)"
 
@@ -173,51 +192,11 @@ extension API {
         }
     }
     
-    public func sendAttachment(params: [String : AnyObject], callback: @escaping MessageObjectCallback, errorCallback: @escaping EmptyCallback) {
-        guard let request = getURLRequest(route: "/attachment", params: params as NSDictionary?, method: "POST") else {
-            errorCallback()
-            return
-        }
-        
-        sphinxRequest(request) { response in
-            switch response.result {
-            case .success(let data):
-                if let json = data as? NSDictionary {
-                    if let success = json["success"] as? Bool, let response = json["response"] as? NSDictionary, success {
-                        callback(JSON(response))
-                    } else {
-                        errorCallback()
-                    }
-                }
-            case .failure(_):
-                errorCallback()
-            }
-        }
-    }
-    
-    public func payAttachment(params: [String : AnyObject], callback: @escaping MessageObjectCallback, errorCallback: @escaping EmptyCallback) {
-        guard let request = getURLRequest(route: "/purchase", params: params as NSDictionary?, method: "POST") else {
-            errorCallback()
-            return
-        }
-
-        sphinxRequest(request) { response in
-            switch response.result {
-            case .success(let data):
-                if let json = data as? NSDictionary {
-                    if let success = json["success"] as? Bool, let response = json["response"] as? NSDictionary, success {
-                        callback(JSON(response))
-                    } else {
-                        errorCallback()
-                    }
-                }
-            case .failure(_):
-                errorCallback()
-            }
-        }
-    }
-    
-    public func getPaymentTemplates(token: String, callback: @escaping TemplatesCallback, errorCallback: @escaping EmptyCallback) {
+    public func getPaymentTemplates(
+        token: String,
+        callback: @escaping TemplatesCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
         let url = "\(API.kAttachmentsServerUrl)/templates"
         
         guard let request = createRequest(url, params: nil, method: "GET", token: token) else {
@@ -225,7 +204,7 @@ extension API {
             return
         }
         
-        AF.request(request).responseJSON { (response) in
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 let templatesArray = JSON(data).arrayValue

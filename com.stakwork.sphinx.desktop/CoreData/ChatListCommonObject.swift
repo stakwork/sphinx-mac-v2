@@ -27,7 +27,7 @@ public protocol ChatListCommonObject: AnyObject {
     func getColor() -> NSColor
     func shouldShowSingleImage() -> Bool
     
-    func hasEncryptionKey() -> Bool
+    func isEncrypted() -> Bool
     func subscribedToContact() -> Bool
     func isMuted() -> Bool
     func isSeen(ownerId: Int) -> Bool

@@ -98,20 +98,20 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func listLSats(completion: @escaping (Bool)->()){
-        API.sharedInstance.getLsatList(callback: {results in
-            let lsats = results["lsats"]
-            print(lsats)
-            for lsat in lsats{
-                if let json = JSON(lsat.1).rawValue as? [String:Any],
-                let lsat_object = Mapper<LSATObject>().map(JSON: json){
-                    print(lsat_object)
-                    self.lsatList.append(lsat_object)
-                }
-            }
-            completion(true)
-        }, errorCallback: {
-            completion(false)
-        })
+//        API.sharedInstance.getLsatList(callback: {results in
+//            let lsats = results["lsats"]
+//            print(lsats)
+//            for lsat in lsats{
+//                if let json = JSON(lsat.1).rawValue as? [String:Any],
+//                let lsat_object = Mapper<LSATObject>().map(JSON: json){
+//                    print(lsat_object)
+//                    self.lsatList.append(lsat_object)
+//                }
+//            }
+//            completion(true)
+//        }, errorCallback: {
+//            completion(false)
+//        })
     }
     
     func jsonStringWithObject(obj: AnyObject) -> String? {
@@ -132,7 +132,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func setTypeApplicationAndPassword(params: inout [String: AnyObject], dict: [String: AnyObject]) {
-        let password = EncryptionManager.randomString(length: 16)
+        let password = SymmetricEncryptionManager.randomString(length: 16)
         saveValue(password as AnyObject, for: "password")
         
         params["type"] = dict["type"] as AnyObject
@@ -238,11 +238,11 @@ extension WebAppHelper : WKScriptMessageHandler {
                 self.sendKeySendResponse(dict: dict, success: false)
                 return
             }
-            API.sharedInstance.sendDirectPayment(params: params, callback: { payment in
-                self.sendKeySendResponse(dict: dict, success: true)
-            }, errorCallback: { _ in
-                self.sendKeySendResponse(dict: dict, success: false)
-            })
+//            API.sharedInstance.sendDirectPayment(params: params, callback: { payment in
+//                self.sendKeySendResponse(dict: dict, success: true)
+//            }, errorCallback: { _ in
+//                self.sendKeySendResponse(dict: dict, success: false)
+//            })
         }
     }
     
@@ -281,11 +281,11 @@ extension WebAppHelper : WKScriptMessageHandler {
                     return
                 }
                 
-                API.sharedInstance.payInvoice(parameters: params, callback: { payment in
-                    self.sendPaymentResponse(dict: dict, success: true)
-                }, errorCallback: { _ in
-                    self.sendPaymentResponse(dict: dict, success: false)
-                })
+//                API.sharedInstance.payInvoice(parameters: params, callback: { payment in
+//                    self.sendPaymentResponse(dict: dict, success: true)
+//                }, errorCallback: { _ in
+//                    self.sendPaymentResponse(dict: dict, success: false)
+//                })
             } else {
                 self.sendPaymentResponse(dict: dict, success: false)
             }
@@ -354,16 +354,16 @@ extension WebAppHelper : WKScriptMessageHandler {
                     self.sendLsatResponse(dict: dict, success: false)
                     return
                 }
-                API.sharedInstance.payLsat(parameters: params, callback: { payment in
-                    var newDict = dict
-                    if let lsat = payment["lsat"].string {
-                        newDict["lsat"] = lsat as AnyObject
-                    }
-                    
-                    self.sendLsatResponse(dict: newDict, success: true)
-                }, errorCallback: {
-                    self.sendLsatResponse(dict: dict, success: false)
-                })
+//                API.sharedInstance.payLsat(parameters: params, callback: { payment in
+//                    var newDict = dict
+//                    if let lsat = payment["lsat"].string {
+//                        newDict["lsat"] = lsat as AnyObject
+//                    }
+//                    
+//                    self.sendLsatResponse(dict: newDict, success: true)
+//                }, errorCallback: {
+//                    self.sendLsatResponse(dict: dict, success: false)
+//                })
             }else{
                 self.sendLsatResponse(dict: dict, success: false)
             }
@@ -392,12 +392,12 @@ extension WebAppHelper : WKScriptMessageHandler {
                     "meta_data": metaData as AnyObject
                 ]
                 
-                API.sharedInstance.saveGraphData(parameters: params, callback: { graphData in
-                    let newDict = dict
-                    self.sendLsatResponse(dict: newDict, success: true)
-                }, errorCallback: {
-                    self.sendLsatResponse(dict: dict, success: false)
-                })
+//                API.sharedInstance.saveGraphData(parameters: params, callback: { graphData in
+//                    let newDict = dict
+//                    self.sendLsatResponse(dict: newDict, success: true)
+//                }, errorCallback: {
+//                    self.sendLsatResponse(dict: dict, success: false)
+//                })
             }
         }
     }
@@ -413,15 +413,15 @@ extension WebAppHelper : WKScriptMessageHandler {
     
     func signMessage(_ dict: [String: AnyObject]){
         if let message = dict["message"] as? String {
-            API.sharedInstance.signChallenge(challenge: message, callback: { signature in
-                var newDict = dict
-                if let signature = signature {
-                    newDict["signature"] = signature as AnyObject
-                    self.signMessageResponse(dict: newDict, success: true)
-                }else {
-                    self.signMessageResponse(dict: dict, success: false)
-                }
-            })
+//            API.sharedInstance.signChallenge(challenge: message, callback: { signature in
+//                var newDict = dict
+//                if let signature = signature {
+//                    newDict["signature"] = signature as AnyObject
+//                    self.signMessageResponse(dict: newDict, success: true)
+//                }else {
+//                    self.signMessageResponse(dict: dict, success: false)
+//                }
+//            })
         }
     }
     
@@ -429,34 +429,34 @@ extension WebAppHelper : WKScriptMessageHandler {
         if let identifier = dict["identifier"] as? String, let status = dict["status"] as? String {
             let params = ["status": status as AnyObject]
             
-            API.sharedInstance.updateLsat(identifier:identifier, parameters: params, callback: { lsat in
-                var newDict = dict
-                
-                if let lsat = lsat["lsat"].string {
-                    newDict["lsat"] = lsat as AnyObject
-                }
-                
-                self.updateLsatResponse(dict: newDict, success: true)
-            }, errorCallback: {
-                self.updateLsatResponse(dict: dict, success: false)
-            })
+//            API.sharedInstance.updateLsat(identifier:identifier, parameters: params, callback: { lsat in
+//                var newDict = dict
+//                
+//                if let lsat = lsat["lsat"].string {
+//                    newDict["lsat"] = lsat as AnyObject
+//                }
+//                
+//                self.updateLsatResponse(dict: newDict, success: true)
+//            }, errorCallback: {
+//                self.updateLsatResponse(dict: dict, success: false)
+//            })
            
         }
     }
     
     func checkForExistingLsat(completion: @escaping (Int?)->()){
-        API.sharedInstance.getActiveLsat(callback: { lsat in
-            let newDict = self.decodeLsat(lsat: lsat, dict: [:])
-            if let paymentRequest = newDict["paymentRequest"] as? String{
-                let prDecoder = PaymentRequestDecoder()
-                prDecoder.decodePaymentRequest(paymentRequest: paymentRequest)
-                let amount = prDecoder.getAmount()
-                completion(amount)
-            }
-        }, errorCallback: {
-            print("failed to retrieve and active LSAT")
-            completion(nil)
-        })
+//        API.sharedInstance.getActiveLsat(callback: { lsat in
+//            let newDict = self.decodeLsat(lsat: lsat, dict: [:])
+//            if let paymentRequest = newDict["paymentRequest"] as? String{
+//                let prDecoder = PaymentRequestDecoder()
+//                prDecoder.decodePaymentRequest(paymentRequest: paymentRequest)
+//                let amount = prDecoder.getAmount()
+//                completion(amount)
+//            }
+//        }, errorCallback: {
+//            print("failed to retrieve and active LSAT")
+//            completion(nil)
+//        })
     }
     
     func decodeLsat(lsat:JSON,dict:[String: AnyObject])->[String: AnyObject]{
@@ -488,42 +488,42 @@ extension WebAppHelper : WKScriptMessageHandler {
     
     func getActiveLsat(_ dict: [String: AnyObject]) {
         if let issuer = dict["issuer"] as? String {
-            API.sharedInstance.getActiveLsat(issuer: issuer,callback: { lsat in
-                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
-                self.getLsatResponse(dict: newDict, success: true)
-            }, errorCallback: {
-                print("failed to retrieve and active LSAT")
-                self.getLsatResponse(dict: dict, success: false)
-            })
+//            API.sharedInstance.getActiveLsat(issuer: issuer,callback: { lsat in
+//                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
+//                self.getLsatResponse(dict: newDict, success: true)
+//            }, errorCallback: {
+//                print("failed to retrieve and active LSAT")
+//                self.getLsatResponse(dict: dict, success: false)
+//            })
         } else {
-            API.sharedInstance.getActiveLsat( callback: { lsat in
-                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
-                self.getLsatResponse(dict: newDict, success: true)
-            }, errorCallback: {
-                print("failed to retrieve and active LSAT")
-                self.getLsatResponse(dict: dict, success: false)
-            })
+//            API.sharedInstance.getActiveLsat( callback: { lsat in
+//                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
+//                self.getLsatResponse(dict: newDict, success: true)
+//            }, errorCallback: {
+//                print("failed to retrieve and active LSAT")
+//                self.getLsatResponse(dict: dict, success: false)
+//            })
         }
     }
     
     func getPersonData(_ dict: [String: AnyObject]) {
-        API.sharedInstance.getPersonData(callback: { person in
-            var newDict = dict
-            
-            if let alias = person["alias"].string, let publicKey = person["publicKey"].string {
-                newDict["alias"] = alias as AnyObject
-                newDict["publicKey"] = publicKey as AnyObject
-                
-                if let photoUrl = person["photoUrl"].string {
-                    newDict["photoUrl"] = photoUrl as AnyObject
-                } else {
-                    newDict["photoUrl"] = "" as AnyObject
-                }
-            }
-            self.getPersonDataResponse(dict: newDict, success: true)
-        }, errorCallback: {
-            self.getPersonDataResponse(dict: dict, success: false)
-        })
+//        API.sharedInstance.getPersonData(callback: { person in
+//            var newDict = dict
+//            
+//            if let alias = person["alias"].string, let publicKey = person["publicKey"].string {
+//                newDict["alias"] = alias as AnyObject
+//                newDict["publicKey"] = publicKey as AnyObject
+//                
+//                if let photoUrl = person["photoUrl"].string {
+//                    newDict["photoUrl"] = photoUrl as AnyObject
+//                } else {
+//                    newDict["photoUrl"] = "" as AnyObject
+//                }
+//            }
+//            self.getPersonDataResponse(dict: newDict, success: true)
+//        }, errorCallback: {
+//            self.getPersonDataResponse(dict: dict, success: false)
+//        })
     }
     
     func getBudgetResponse(dict: [String: AnyObject], success: Bool) {

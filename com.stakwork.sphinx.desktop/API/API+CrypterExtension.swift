@@ -8,13 +8,13 @@
 
 import Foundation
 import SwiftyJSON
+import Alamofire
 
 extension API {
     func getHardwarePublicKey(
         callback: @escaping HardwarePublicKeyCallback,
         errorCallback: @escaping EmptyCallback
     ) {
-        
         let ip = "http://192.168.71.1"
 //        let ip = "http://192.168.0.25:8000"
         
@@ -27,7 +27,6 @@ extension API {
             return
         }
         
-        //NEEDS TO BE CHANGED
         sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
@@ -74,7 +73,6 @@ extension API {
             return
         }
         
-        //NEEDS TO BE CHANGED
         sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):

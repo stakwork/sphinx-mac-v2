@@ -10,43 +10,14 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-typealias ContactsResultsCallback = (([JSON], [JSON], [JSON], [JSON]) -> ())
-typealias SphinxMessagesResultsCallback = ((JSON) -> ())
-typealias SphinxHistoryResultsCallback = (([JSON]) -> ())
-typealias DirectPaymentResultsCallback = ((JSON?) -> ())
 typealias EmptyCallback = (() -> ())
-typealias BalanceCallback = ((Int) -> ())
-typealias BalancesCallback = ((Int, Int) -> ())
-typealias CreateInvoiceCallback = ((JSON?, String?) -> ())
-typealias PayInvoiceCallback = ((JSON) -> ())
-typealias MessageObjectCallback = ((JSON) -> ())
-typealias GetMessagesCallback = (([JSON], [JSON], [JSON]) -> ())
-typealias GetMessagesPaginatedCallback = ((Int, [JSON]) -> ())
-typealias GetAllMessagesCallback = (([JSON]) -> ())
-typealias DeleteMessageCallback = ((Bool, JSON) -> ())
-typealias CreateInviteCallback = ((JSON) -> ())
-typealias UpdateUserCallback = ((JSON) -> ())
 typealias UploadProgressCallback = ((Int) -> ())
 typealias UploadCallback = ((Bool, String?) -> ())
 typealias SuccessCallback = ((Bool) -> ())
-typealias CreateSubscriptionCallback = ((JSON) -> ())
-typealias GetSubscriptionsCallback = (([JSON]) -> ())
-typealias MuteChatCallback = ((JSON) -> ())
-typealias NotificationLevelCallback = ((JSON) -> ())
 typealias CreateGroupCallback = ((JSON) -> ())
-typealias LogsCallback = ((String) -> ())
 typealias TemplatesCallback = (([ImageTemplate]) -> ())
-typealias GetTransactionsCallback = (([PaymentTransaction]) -> ())
-typealias TransportKeyCallback = ((String) -> ())
-typealias HMACKeyCallback = ((String) -> ())
-typealias GetPersonDataCallback = ((JSON) -> ())
 typealias PinMessageCallback = ((String) -> ())
 typealias ErrorCallback = ((String) -> ())
-
-//HUB calls
-typealias SignupWithCodeCallback = ((JSON, String, String) -> ())
-typealias LowestPriceCallback = ((Double) -> ())
-typealias PayInviteCallback = ((JSON) -> ())
 
 //Attachments
 typealias askAuthenticationCallback = ((String?, String?) -> ())
@@ -70,6 +41,21 @@ typealias HardwareSeedCallback = ((Bool) -> ())
 //TribeMembers
 typealias ChatContactsCallback = (([JSON]) -> ())
 
+extension API {
+    enum RequestError: Swift.Error {
+        case failedToCreateRequestURL
+        case failedToCreateRequest(urlPath: String)
+        case missingResponseData
+        case decodingError(DecodingError)
+        case unknownError(Swift.Error)
+        case unexpectedResponseData
+        case failedToFetchContentFeed
+        case networkError(AFError)
+        case nodeInvoiceGenerationFailure(message: String)
+        case karmaReceiptValidationFailure(message: String)
+    }
+}
+
 class API {
     
     class var sharedInstance : API {
@@ -80,29 +66,11 @@ class API {
     }
     
     let interceptor = SphinxInterceptor()
-    
-    var onionConnector = SphinxOnionConnector.sharedInstance
-    
     var uploadRequest: UploadRequest?
-    
     var giphyRequest: DataRequest?
     var giphyRequestType: GiphyHelper.SearchType = GiphyHelper.SearchType.Gifs
     
     let messageBubbleHelper = NewMessageBubbleHelper()
-    
-    enum CancellableRequestType {
-        case contacts
-        case messages
-    }
-    
-    var lastSeenMessagesDate: Date? {
-        get {
-            return UserDefaults.Keys.lastSeenMessagesDate.get(defaultValue: nil)
-        }
-        set {
-            UserDefaults.Keys.lastSeenMessagesDate.set(newValue)
-        }
-    }
     
     public static let kTribesServerBaseURL = "https://tribes.sphinx.chat"
     
@@ -120,18 +88,6 @@ class API {
         }
     }
     
-    public static var kHUBServerUrl : String {
-        get {
-            if let inviteServerURL = UserDefaults.Keys.inviteServerURL.get(defaultValue: ""), inviteServerURL != "" {
-                return inviteServerURL
-            }
-            return "https://hub.sphinx.chat"
-        }
-        set {
-            UserDefaults.Keys.inviteServerURL.set(newValue)
-        }
-    }
-    
     public static var kVideoCallServer : String {
         get {
             if let meetingServerURL = UserDefaults.Keys.meetingServerURL.get(defaultValue: ""), meetingServerURL != "" {
@@ -144,6 +100,19 @@ class API {
         }
     }
     
+    public static var kHUBServerUrl : String {
+        get {
+            if let inviteServerURL = UserDefaults.Keys.inviteServerURL.get(defaultValue: ""), inviteServerURL != "" {
+                return inviteServerURL
+            }
+            return "https://hub.sphinx.chat"
+        }
+        set {
+            UserDefaults.Keys.inviteServerURL.set(newValue)
+        }
+    }
+
+    
     class func getUrl(route: String) -> String {
         if let url = URL(string: route), let _ = url.scheme {
             return url.absoluteString
@@ -152,78 +121,11 @@ class API {
         
     }
     
-    class func getWebsocketUrl(route: String) -> String {
-        if route.contains("://") {
-            return getUrl(route: route)
-                .replacingOccurrences(of: "https://", with: "wss://")
-                .replacingOccurrences(of: "http://", with: "ws://")
-        }
-        return "wss://\(route)"
-    }
-    
     func session() -> Alamofire.Session? {
-        if !onionConnector.usingTor() {
-            return Alamofire.Session.default
-        }
-        
-        switch (onionConnector.onionManager.state) {
-        case .connected:
-            guard let torSession = onionConnector.torSession else {
-                let appDelegate = NSApplication.shared.delegate as! AppDelegate
-                onionConnector.startTor(delegate: appDelegate)
-                return nil
-            }
-            return torSession
-        default:
-            return nil
-        }
-    }
-    
-    func getURLRequest(
-        route: String,
-        params: NSDictionary? = nil,
-        method: String,
-        additionalHeaders: [String: String] = [:]
-    ) -> URLRequest? {
-        let ip = UserData.sharedInstance.getNodeIP()
-        
-        if ip.isEmpty {
-            messageBubbleHelper.showGenericMessageView(text: "contact.support".localized, delay: 7)
-            return nil
-        }
-        
-        let url = API.getUrl(route: "\(ip)\(route)")
-        return createAuthenticatedRequest(
-            url,
-            params: params,
-            method: method,
-            additionalHeaders: additionalHeaders
-        )
-    }
-    
-    func getUnauthenticatedURLRequest(
-        route: String,
-        params: NSDictionary? = nil,
-        method: String
-    ) -> URLRequest? {
-        let ip = UserData.sharedInstance.getNodeIP()
-        
-        if ip.isEmpty {
-            messageBubbleHelper.showGenericMessageView(text: "contact.support".localized, delay: 7)
-            return nil
-        }
-        
-        let url = API.getUrl(route: "\(ip)\(route)")
-        
-        return createRequest(
-            url,
-            params: params,
-            method: method
-        )
+        return Alamofire.Session.default
     }
     
     var errorCounter = 0
-    
     let successStatusCode = 200
     let unauthorizedStatusCode = 401
     let notFoundStatusCode = 404
@@ -247,36 +149,12 @@ class API {
         unauthorizedHandledRequest(urlRequest, completionHandler: completionHandler)
     }
     
-    func cancellableRequest(
-        _ urlRequest: URLRequest,
-        type: CancellableRequestType,
-        completionHandler: @escaping (AFDataResponse<Any>) -> Void
-    ) {
-        unauthorizedHandledRequest(urlRequest) { (response) in
-            self.postConnectionStatusChange()
-            
-            completionHandler(response)
-        }
-    }
-    
     func unauthorizedHandledRequest(
         _ urlRequest: URLRequest,
         completionHandler: @escaping (AFDataResponse<Any>) -> Void
     ) {
-        
-        if onionConnector.usingTor() && !onionConnector.isReady() {
-            onionConnector.startIfNeeded()
-            return
-        }
-        
-        var mutableUrlRequest = urlRequest
-        
-        for (key, value) in UserData.sharedInstance.getAuthenticationHeader() {
-            mutableUrlRequest.setValue(value, forHTTPHeaderField: key)
-        }
-        
         session()?.request(
-            mutableUrlRequest,
+            urlRequest,
             interceptor: interceptor
         ).responseJSON { (response) in
             
@@ -286,8 +164,6 @@ class API {
             case self.successStatusCode:
                 self.connectionStatus = .Connected
             case self.unauthorizedStatusCode:
-//                self.getRelaykeys()
-                
                 self.connectionStatus = .Unauthorize
             default:
                 if response.response == nil ||
@@ -301,7 +177,6 @@ class API {
                     if self.errorCounter < 5 {
                         self.errorCounter = self.errorCounter + 1
                     } else if response.response != nil {
-//                        self.getIPFromHUB()
                         return
                     }
                     completionHandler(response)
@@ -317,68 +192,6 @@ class API {
                 completionHandler(response)
             }
         }
-    }
-    
-    func getRelaykeys() {
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-            appDelegate.getRelayKeys()
-        }
-    }
-    
-//    func getHMACKeyAndRetry(
-//        _ urlRequest: URLRequestConvertible,
-//        completionHandler: @escaping (AFDataResponse<Any>) -> Void
-//    ) -> Bool {
-//        if UserData.sharedInstance.getHmacKey() == nil {
-//            UserData.sharedInstance.getAndSaveHMACKey(completion: {
-//                let _ = self.unauthorizedHandledRequest(
-//                    urlRequest,
-//                    completionHandler: completionHandler
-//                )
-//            })
-//            return true
-//        }
-//        return false
-//    }
-    
-    func getIPFromHUB() {
-        self.errorCounter = 0
-        
-        guard let ownerPubKey = UserData.sharedInstance.getUserPubKey() else {
-            return
-        }
-        
-        let url = "\(API.kHUBServerUrl)/api/v1/nodes/\(ownerPubKey)"
-        guard let request = createRequest(url, params: nil, method: "GET") else {
-            return
-        }
-        
-        AF.request(request).responseJSON { (response) in
-            switch response.result {
-            case .success(let data):
-                if let json = data as? NSDictionary {
-                    if let status = json["status"] as? String, status == "ok" {
-                        if let object = json["object"] as? NSDictionary {
-                            if let ip = object["node_ip"] as? String, !ip.isEmpty {
-                                UserData.sharedInstance.save(ip: ip)
-                                SphinxSocketManager.sharedInstance.reconnectSocketToNewIP()
-                                self.reloadDashboard()
-                                return
-                            }
-                        }
-                    }
-                }
-                self.retryGettingIPFromHUB()
-            case .failure(_):
-                self.retryGettingIPFromHUB()
-            }
-        }
-    }
-    
-    func retryGettingIPFromHUB() {
-//        DelayPerformedHelper.performAfterDelay(seconds: 5, completion: {
-//            self.getIPFromHUB()
-//        })
     }
     
     func networksConnectionLost() {
@@ -410,10 +223,6 @@ class API {
             return nil
         }
         
-        if onionConnector.usingTor() && !onionConnector.isReady() {
-            return nil
-        }
-        
         if let nsURL = URL(string: url) {
             var request = URLRequest(url: nsURL)
             request.httpMethod = method
@@ -431,59 +240,6 @@ class API {
                 }
             }
             
-            return request
-        } else {
-            return nil
-        }
-    }
-    
-    func createAuthenticatedRequest(
-        _ url:String,
-        params:NSDictionary?,
-        method:String,
-        additionalHeaders: [String: String] = [:]
-    ) -> URLRequest? {
-        
-        if !ConnectivityHelper.isConnectedToInternet {
-            networksConnectionLost()
-            return nil
-        }
-        
-        if onionConnector.usingTor() && !onionConnector.isReady() {
-            return nil
-        }
-        
-        if let nsURL = NSURL(string: url) {
-            var request = URLRequest(url: nsURL as URL)
-            request.httpMethod = method
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-
-            for (key, value) in additionalHeaders {
-                request.setValue(value, forHTTPHeaderField: key)
-            }
-            
-            var bodyData: Data? = nil
-            
-            if let p = params {
-                do {
-                    try bodyData = JSONSerialization.data(withJSONObject: p, options: [])
-                } catch let error as NSError {
-                    print("Error: " + error.localizedDescription)
-                }
-            }
-            
-            if let bodyData = bodyData {
-                request.httpBody = bodyData
-            }
-
-            for (key, value) in UserData.sharedInstance.getHMACHeader(
-                url: nsURL as URL,
-                method: method,
-                bodyData: bodyData
-            ) {
-                request.setValue(value, forHTTPHeaderField: key)
-            }
             return request
         } else {
             return nil

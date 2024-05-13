@@ -99,7 +99,7 @@ class ChildVCContainer: NSView, LoadableNib {
         let menuSize = getMenuSize()
         containerWidth.constant = menuSize.width
         containerHeight.constant = menuSize.height
-        requestOptionContainer.isHidden = (chat?.isPrivateGroup() ?? false)
+        requestOptionContainer.isHidden = false
         
         layoutSubtreeIfNeeded()
     }
@@ -227,8 +227,10 @@ class ChildVCContainer: NSView, LoadableNib {
     }
     
     func getMenuSize() -> CGSize {
-        let isGroup = chat?.isPrivateGroup() ?? false
-        return CGSize(width: isGroup ? oneOptionMenuSize.width : menuSize.width, height: isGroup ? oneOptionMenuSize.height : menuSize.height)
+        return CGSize(
+            width: menuSize.width,
+            height: menuSize.height
+        )
     }
     
     func getSizeFor(mode: ViewMode) -> CGSize {

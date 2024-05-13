@@ -43,12 +43,12 @@ class FeedsManager : NSObject {
             let contentFeedStatus = getContentFeedStatus(for: contentFeed)
             let contentFeedStatusParams = contentFeedStatus.toJSON()
          
-            API.sharedInstance.saveContentFeedStatusToRemote(
-                params: contentFeedStatusParams,
-                feedId: feedId,
-                callback: {},
-                errorCallback: {}
-            )
+//            API.sharedInstance.saveContentFeedStatusToRemote(
+//                params: contentFeedStatusParams,
+//                feedId: feedId,
+//                callback: {},
+//                errorCallback: {}
+//            )
         }
     }
     
@@ -65,11 +65,11 @@ class FeedsManager : NSObject {
         
         let contentFeedStatusParams = contentFeedStatuses.map({ $0.toJSON() })
 
-        API.sharedInstance.saveContentFeedStatusesToRemote(
-            params: contentFeedStatusParams,
-            callback: {},
-            errorCallback: {}
-        )
+//        API.sharedInstance.saveContentFeedStatusesToRemote(
+//            params: contentFeedStatusParams,
+//            callback: {},
+//            errorCallback: {}
+//        )
     }
     
     func getContentFeedStatus(
@@ -127,20 +127,20 @@ class FeedsManager : NSObject {
         feedId: String,
         completionCallback: ((() -> ()))? = nil
     ){
-        API.sharedInstance.getContentFeedStatusFor(
-            feedId: feedId,
-            callback: { result in
-                self.restore(
-                    contentFeedStatus: result,
-                    with: CoreDataManager.sharedManager.persistentContainer.viewContext
-                ) {
-                    completionCallback?()
-                }
-            },
-            errorCallback: {
-                completionCallback?()
-            }
-        )
+//        API.sharedInstance.getContentFeedStatusFor(
+//            feedId: feedId,
+//            callback: { result in
+//                self.restore(
+//                    contentFeedStatus: result,
+//                    with: CoreDataManager.sharedManager.persistentContainer.viewContext
+//                ) {
+//                    completionCallback?()
+//                }
+//            },
+//            errorCallback: {
+//                completionCallback?()
+//            }
+//        )
     }
     
     func restoreContentFeedStatusInBackground() {
@@ -154,23 +154,23 @@ class FeedsManager : NSObject {
         progressCallback: ((Int) -> ())? = nil,
         completionCallback: (() -> ())? = nil
     ){
-        API.sharedInstance.getAllContentFeedStatuses(
-            callback: { results in
-                self.restoreFeedStatuses(
-                    from: results,
-                    progressCallback: progressCallback,
-                    completionCallback: {
-                        self.refreshFeedUI()
-                        completionCallback?()
-
-                        self.fetchNewItems()
-                    }
-                )
-            },
-            errorCallback: {
-                completionCallback?()
-            }
-        )
+//        API.sharedInstance.getAllContentFeedStatuses(
+//            callback: { results in
+//                self.restoreFeedStatuses(
+//                    from: results,
+//                    progressCallback: progressCallback,
+//                    completionCallback: {
+//                        self.refreshFeedUI()
+//                        completionCallback?()
+//
+//                        self.fetchNewItems()
+//                    }
+//                )
+//            },
+//            errorCallback: {
+//                completionCallback?()
+//            }
+//        )
     }
     
     func getRestoreProgress(totalFeeds:Int,syncedFeeds:Int)->Int{

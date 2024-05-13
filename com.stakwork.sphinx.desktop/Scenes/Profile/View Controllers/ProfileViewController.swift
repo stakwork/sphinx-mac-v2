@@ -23,7 +23,6 @@ class ProfileViewController: NSViewController {
     @IBOutlet weak var basicBox1: NSBox!
     @IBOutlet weak var basicBox2: NSBox!
     @IBOutlet weak var basicBox3: NSBox!
-    @IBOutlet weak var settingsBox1: NSBox!
     @IBOutlet weak var pinTimeoutBox: NSBox!
     @IBOutlet weak var changePinBox: NSBox!
     @IBOutlet weak var changePrivacyPinBox: NSBox!
@@ -47,7 +46,6 @@ class ProfileViewController: NSViewController {
     
     @IBOutlet weak var meetingServerField: NSTextField!
     @IBOutlet weak var meetingAmountField: NSTextField!
-    @IBOutlet weak var serverURLField: NSTextField!
     @IBOutlet weak var exportKeysButton: CustomButton!
     @IBOutlet weak var privacyPinButton: CustomButton!
     @IBOutlet weak var pinTimeoutView: PinTimeoutView!
@@ -61,7 +59,6 @@ class ProfileViewController: NSViewController {
     
     var walletBalanceService = WalletBalanceService()
     let newMessageBubbleHelper = NewMessageBubbleHelper()
-    let urlUpdateHelper = RelayURLUpdateHelper()
     
     let profile = UserContact.getOwner()
     var profileImage: NSImage? = nil
@@ -110,7 +107,6 @@ class ProfileViewController: NSViewController {
         basicBox1.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         basicBox2.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         basicBox3.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
-        settingsBox1.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         pinTimeoutBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         changePinBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         changePrivacyPinBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
@@ -134,7 +130,6 @@ class ProfileViewController: NSViewController {
         userNameField.delegate = self
         meetingServerField.delegate = self
         meetingAmountField.delegate = self
-        serverURLField.delegate = self
     }
     
     func configureProfile() {
@@ -177,8 +172,6 @@ class ProfileViewController: NSViewController {
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
             privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }
-        
-        serverURLField.stringValue = UserData.sharedInstance.getNodeIP()
     }
     
     override func viewDidAppear() {
@@ -297,10 +290,6 @@ class ProfileViewController: NSViewController {
     func updateProfile() {
         loading = true
         
-        if updateRelayURL() {
-            return
-        }
-        
         guard let profile = profile else {
             return
         }
@@ -324,14 +313,14 @@ class ProfileViewController: NSViewController {
             parameters["photo_url"] = photoUrl as AnyObject?
         }
         
-        API.sharedInstance.updateUser(id: profile.id, params: parameters, callback: { contact in
-            API.kVideoCallServer = self.meetingServerField.stringValue
-            let _ = UserContactsHelper.insertContact(contact: contact)
-            UserContact.kTipAmount = tempTip
-            self.saveFinished(success: true)
-        }, errorCallback: {
-            self.saveFinished(success: false)
-        })
+//        API.sharedInstance.updateUser(id: profile.id, params: parameters, callback: { contact in
+//            API.kVideoCallServer = self.meetingServerField.stringValue
+//            let _ = UserContactsHelper.insertContact(contact: contact)
+//            UserContact.kTipAmount = tempTip
+//            self.saveFinished(success: true)
+//        }, errorCallback: {
+//            self.saveFinished(success: false)
+//        })
     }
     
     func updatePinSettings(){

@@ -21,16 +21,9 @@ class KeychainManager {
     public static let kKeychainGroup = "8297M44YTW.sphinxV2SharedItems"
     
     enum KeychainKeys : String {
-        case pubKeys = "pub_keys"
-        case ip = "relay_ip"
-        case authToken = "relay_auth_token"
-        case transportKey = "relay_transport_key"
-        case hmacKey = "hmac_key"
         case pin = "app_pin"
         case privacyPin = "privacy_pin"
         case currentPin = "app_current_pin_macos"
-        case privateKey = "encryption_private_key"
-        case publicKey = "encryption_public_key"
         case walletMnemonic = "wallet_mnemonic"
         case balance_msats = "balance_msats"
     }
@@ -66,57 +59,6 @@ class KeychainManager {
         }
     }
     
-    func getPublicKey() -> String? {
-        return getValueFor(key: KeychainKeys.publicKey.rawValue)
-    }
-    
-    func getPrivateKey() -> String? {
-        return getValueFor(key: KeychainKeys.privateKey.rawValue)
-    }
-    
-    func getPubKeys() -> [String] {
-        do {
-            let keys = try keychain.get(KeychainManager.KeychainKeys.pubKeys.rawValue)
-            if let keys = keys, !keys.isEmpty {
-                return keys.components(separatedBy: "-")
-            }
-        } catch let error {
-            print(error.localizedDescription)
-            return []
-        }
-        return []
-    }
-    
-    func getAllValuesFor(pubKey: String) -> [String]? {
-        let ipComposedKey = getComposedKey(for: KeychainKeys.ip.rawValue, with: pubKey)
-        let tokenComposedKey = getComposedKey(for: KeychainKeys.authToken.rawValue, with: pubKey)
-        let pinComposedKey = getComposedKey(for: KeychainKeys.pin.rawValue, with: pubKey)
-        let privateKeyComposedKey = getComposedKey(for: KeychainKeys.privateKey.rawValue, with: pubKey)
-        let publicKeyComposedKey = getComposedKey(for: KeychainKeys.publicKey.rawValue, with: pubKey)
-        
-        guard let ip = getValueFor(composedKey: ipComposedKey), !ip.isEmpty else {
-            return nil
-        }
-        
-        guard let token = getValueFor(composedKey: tokenComposedKey), !token.isEmpty else {
-            return nil
-        }
-        
-        guard let pin = getValueFor(composedKey: pinComposedKey), !pin.isEmpty else {
-            return nil
-        }
-        
-        guard let privateKey = getValueFor(composedKey: privateKeyComposedKey), !privateKey.isEmpty else {
-            return nil
-        }
-        
-        guard let publicKey = getValueFor(composedKey: publicKeyComposedKey), !publicKey.isEmpty else {
-            return nil
-        }
-        
-        return [ip, token, pin, privateKey, publicKey]
-    }
-    
     func save(value: String, forKey key: String) -> Bool {
         if let key = getComposedKey(for: key) {
             return save(value: value, forComposedKey: key)
@@ -134,36 +76,6 @@ class KeychainManager {
         }
     }
     
-    func save(privateKey: String) -> Bool {
-        return save(value: privateKey, forKey: KeychainKeys.privateKey.rawValue)
-    }
-    
-    func save(publicKey: String) -> Bool {
-        return save(value: publicKey, forKey: KeychainKeys.publicKey.rawValue)
-    }
-    
-    func savePubKeys(value: String) -> Bool {
-        do {
-            try keychain.set(value, key: KeychainManager.KeychainKeys.pubKeys.rawValue)
-            return true
-        } catch let error {
-            print(error.localizedDescription)
-            return false
-        }
-    }
-    
-    func saveNewNodeFor(pubKey: String) {
-        var pubKeys = getPubKeys()
-        if pubKeys.count == 0 {
-            let _ = savePubKeys(value: pubKey)
-        } else {
-            if !pubKeys.contains(pubKey) {
-                pubKeys.append(pubKey)
-            }
-            let _ = savePubKeys(value: pubKeys.joined(separator: "-"))
-        }
-    }
-    
     func deleteValueFor(key: String) -> Bool {
         if let key = getComposedKey(for: key) {
             return deleteValueFor(composedKey: key)
@@ -178,49 +90,6 @@ class KeychainManager {
         } catch let error {
             print(error.localizedDescription)
             return false
-        }
-    }
-    
-    func deleteAll() {
-        for pk in getPubKeys() {
-            resetAllFor(pubKey: pk)
-        }
-    }
-    
-    func resetKeychainNodeWith(ip: String) {
-        for pubKey in getPubKeys() {
-            let ipComposedKey = getComposedKey(for: KeychainKeys.ip.rawValue, with: pubKey)
-            
-            if let storedIP = getValueFor(composedKey: ipComposedKey), !storedIP.isEmpty {
-                if storedIP == ip {
-                    resetAllFor(pubKey: pubKey)
-                }
-            }
-        }
-    }
-    
-    func resetAllFor(pubKey: String) {
-        let ipComposedKey = getComposedKey(for: KeychainKeys.ip.rawValue, with: pubKey)
-        let tokenComposedKey = getComposedKey(for: KeychainKeys.authToken.rawValue, with: pubKey)
-        let transportKeyComposedKey = getComposedKey(for: KeychainKeys.transportKey.rawValue, with: pubKey)
-        let hmacKeyComposedKey = getComposedKey(for: KeychainKeys.hmacKey.rawValue, with: pubKey)
-        let pinComposedKey = getComposedKey(for: KeychainKeys.pin.rawValue, with: pubKey)
-        let privateKeyComposedKey = getComposedKey(for: KeychainKeys.privateKey.rawValue, with: pubKey)
-        let publicKeyComposedKey = getComposedKey(for: KeychainKeys.publicKey.rawValue, with: pubKey)
-        
-        let _ = deleteValueFor(composedKey: ipComposedKey)
-        let _ = deleteValueFor(composedKey: tokenComposedKey)
-        let _ = deleteValueFor(composedKey: transportKeyComposedKey)
-        let _ = deleteValueFor(composedKey: hmacKeyComposedKey)
-        let _ = deleteValueFor(composedKey: pinComposedKey)
-        let _ = deleteValueFor(composedKey: privateKeyComposedKey)
-        let _ = deleteValueFor(composedKey: publicKeyComposedKey)
-        
-        var pubKeys = getPubKeys()
-        
-        if let indexOf = pubKeys.firstIndex(of: pubKey) {
-            pubKeys.remove(at: indexOf)
-            let _ = savePubKeys(value: pubKeys.joined(separator: "-"))
         }
     }
 }

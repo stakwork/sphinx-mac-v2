@@ -7,56 +7,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Keychain Restore View Controller-->
-        <scene sceneID="LAb-46-LVA">
-            <objects>
-                <viewController storyboardIdentifier="KeychainRestoreViewController" id="kKP-1P-krw" customClass="KeychainRestoreViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="paZ-RJ-Hkn">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="600"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="Hm5-wU-t6n">
-                                <rect key="frame" x="0.0" y="0.0" width="400" height="600"/>
-                                <clipView key="contentView" drawsBackground="NO" id="Lge-Qn-A5L">
-                                    <rect key="frame" x="0.0" y="0.0" width="400" height="600"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <collectionView selectable="YES" id="brl-nS-GG8">
-                                            <rect key="frame" x="0.0" y="0.0" width="400" height="600"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
-                                            <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="Txy-oo-mis">
-                                                <size key="itemSize" width="50" height="50"/>
-                                            </collectionViewFlowLayout>
-                                            <color key="primaryBackgroundColor" name="Body"/>
-                                        </collectionView>
-                                    </subviews>
-                                    <color key="backgroundColor" name="Body"/>
-                                </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="cQI-3y-AIh">
-                                    <rect key="frame" x="-100" y="-100" width="392" height="16"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </scroller>
-                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="JlD-o6-VIa">
-                                    <rect key="frame" x="234" y="1" width="15" height="143"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                </scroller>
-                            </scrollView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="Hm5-wU-t6n" secondAttribute="bottom" id="B0b-5f-Igz"/>
-                            <constraint firstAttribute="trailing" secondItem="Hm5-wU-t6n" secondAttribute="trailing" id="Kjh-Re-gnI"/>
-                            <constraint firstItem="Hm5-wU-t6n" firstAttribute="leading" secondItem="paZ-RJ-Hkn" secondAttribute="leading" id="sun-Rb-MMP"/>
-                            <constraint firstItem="Hm5-wU-t6n" firstAttribute="top" secondItem="paZ-RJ-Hkn" secondAttribute="top" id="yK2-iE-PJB"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="nodesCollectionView" destination="brl-nS-GG8" id="HZ2-X4-9cS"/>
-                    </connections>
-                </viewController>
-                <customObject id="wBb-OV-jiY" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="637" y="83"/>
-        </scene>
         <!--Share Invite Code View Controller-->
         <scene sceneID="7kz-fh-fCq">
             <objects>

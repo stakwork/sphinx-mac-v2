@@ -52,7 +52,7 @@ class GiphyHelper {
             if let giphyUI = UserDefaults.Keys.giphyUserId.get(defaultValue: ""), !giphyUI.isEmpty {
                 return giphyUI
             }
-            let giphyUI = EncryptionManager.randomString(length: 32)
+            let giphyUI = SymmetricEncryptionManager.randomString(length: 32)
             UserDefaults.Keys.giphyUserId.set(giphyUI)
             return giphyUI
         }

@@ -57,9 +57,7 @@ import WebKit
         SDImageCache.shared.config.maxMemoryCount = 100
         
         listenToSleepEvents()
-        connectTor()
-        connectMQTT()
-        getRelayKeys()
+//        connectMQTT()
         
         setInitialVC()
     }
@@ -78,13 +76,6 @@ import WebKit
             modifiedSince: Date(timeIntervalSince1970: 0),
             completionHandler: {}
         )
-    }
-    
-    func getRelayKeys() {
-        if UserData.sharedInstance.isUserLogged() {
-            UserData.sharedInstance.getAndSaveTransportKey(forceGet: true)
-            UserData.sharedInstance.getOrCreateHMACKey(forceGet: true)
-        }
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -120,15 +111,6 @@ import WebKit
         }
          
         return true
-    }
-    
-    func connectTor() {
-        if !SignupHelper.isLogged() { return }
-        
-        if !onionConnector.usingTor() {
-            return
-        }
-        onionConnector.startIfNeeded()
     }
      
     func connectMQTT() {
@@ -264,7 +246,6 @@ import WebKit
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
-        SphinxSocketManager.sharedInstance.disconnectWebsocket()
         WindowsManager.sharedInstance.saveWindowState()
         CoreDataManager.sharedManager.saveContext()
         ContactsService.sharedInstance.saveSelectedChat()
@@ -307,7 +288,6 @@ import WebKit
     
     func loadDashboard() {
         SplashViewController.runBackgroundProcesses()
-        SphinxSocketManager.sharedInstance.connectWebsocket()
         ContactsService.sharedInstance.forceUpdate()
         
         createKeyWindowWith(
@@ -333,8 +313,6 @@ import WebKit
     }
     
     @objc func reloadDataAndConnectSocket() {
-        connectTor()
-        SphinxSocketManager.sharedInstance.connectWebsocket()
         NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
     }
     
@@ -408,7 +386,6 @@ import WebKit
             keyWindow?.setFrame(frame, display: true, animate: true)
             
             ContactsService.sharedInstance.reset()
-            SphinxSocketManager.sharedInstance.clearSocket()
             UserData.sharedInstance.clearData()
             SphinxCache().removeAll()
         })
@@ -464,22 +441,21 @@ import WebKit
     }
 }
 
-extension AppDelegate : SphinxOnionConnectorDelegate {
-    func onionConnecting() {
-        newMessageBubbleHelper.showGenericMessageView(text: "establishing.tor.circuit".localized)
-    }
-    
-    func onionConnectionFinished() {
-        newMessageBubbleHelper.hideLoadingWheel()
-        
-        SphinxSocketManager.sharedInstance.reconnectSocketOnTor()
-        NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
-    }
-    
-    func onionConnectionFailed() {
-        newMessageBubbleHelper.hideLoadingWheel()
-        newMessageBubbleHelper.showGenericMessageView(text: "tor.connection.failed".localized)
-    }
-}
+//extension AppDelegate : SphinxOnionConnectorDelegate {
+//    func onionConnecting() {
+//        newMessageBubbleHelper.showGenericMessageView(text: "establishing.tor.circuit".localized)
+//    }
+//    
+//    func onionConnectionFinished() {
+//        newMessageBubbleHelper.hideLoadingWheel()
+//        
+//        NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
+//    }
+//    
+//    func onionConnectionFailed() {
+//        newMessageBubbleHelper.hideLoadingWheel()
+//        newMessageBubbleHelper.showGenericMessageView(text: "tor.connection.failed".localized)
+//    }
+//}
 
 

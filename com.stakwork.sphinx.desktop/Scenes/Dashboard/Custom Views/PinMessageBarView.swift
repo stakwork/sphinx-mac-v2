@@ -77,21 +77,21 @@ class PinMessageBarView: NSView, LoadableNib {
         pinnedMessageUUID: String,
         delegate: PinnedMessageViewDelegate
     ) {
-        API.sharedInstance.getMessageBy(
-            messageUUID: pinnedMessageUUID,
-            callback: { messageJSON in
-                if let message = TransactionMessage.insertMessage(
-                    m: messageJSON,
-                    existingMessage: TransactionMessage.getMessageWith(id: messageJSON["id"].intValue)
-                ).0 {
-                    self.setMessageAndShowView(message: message, delegate: delegate)
-                } else {
-                    self.hideView()
-                }
-            } , errorCallback: {
-                self.hideView()
-            }
-        )
+//        API.sharedInstance.getMessageBy(
+//            messageUUID: pinnedMessageUUID,
+//            callback: { messageJSON in
+//                if let message = TransactionMessage.insertMessage(
+//                    m: messageJSON,
+//                    existingMessage: TransactionMessage.getMessageWith(id: messageJSON["id"].intValue)
+//                ).0 {
+//                    self.setMessageAndShowView(message: message, delegate: delegate)
+//                } else {
+//                    self.hideView()
+//                }
+//            } , errorCallback: {
+//                self.hideView()
+//            }
+//        )
     }
     
     func setMessageAndShowView(

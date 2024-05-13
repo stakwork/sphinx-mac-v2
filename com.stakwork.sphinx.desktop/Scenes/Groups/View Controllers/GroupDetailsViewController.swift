@@ -164,16 +164,11 @@ class GroupDetailsViewController: NSViewController {
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "alias.cannot.empty".localized)
             return
         }
-        let params: [String: AnyObject] = ["my_alias" : alias as AnyObject, "my_photo_url": (photoUrl ?? "") as AnyObject]
         
-        API.sharedInstance.updateChat(chatId: chat.id, params: params, callback: {
-            self.chat.myAlias = alias
-            self.chat.myPhotoUrl = photoUrl ?? self.chat.myPhotoUrl
-            self.chat.saveChat()
-            self.finishUpdating()
-        }, errorCallback: {
-            self.finishUpdating()
-        })
+        self.chat.myAlias = alias
+        self.chat.myPhotoUrl = photoUrl ?? self.chat.myPhotoUrl
+        self.chat.saveChat()
+        self.finishUpdating()
     }
     
     func finishUpdating() {

@@ -85,56 +85,9 @@
                                                 <constraint firstItem="1G1-qL-2Sh" firstAttribute="leading" secondItem="dkS-iY-AmZ" secondAttribute="leading" id="q7z-hN-KYf"/>
                                             </constraints>
                                         </customView>
-                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="mIB-X7-RcX">
-                                            <rect key="frame" x="118" y="43" width="165" height="40"/>
-                                            <subviews>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IIL-9s-m0c">
-                                                    <rect key="frame" x="8" y="13" width="126" height="14"/>
-                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Restore from Keychain" id="Xje-kZ-oFQ">
-                                                        <font key="font" size="12" name="Roboto-Regular"/>
-                                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zW5-Fp-STN">
-                                                    <rect key="frame" x="138" y="12" width="19" height="15"/>
-                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="" id="Gh1-4O-adl">
-                                                        <font key="font" size="15" name="MaterialIcons-Regular"/>
-                                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gLd-KG-LQ7" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                                    <rect key="frame" x="0.0" y="0.0" width="165" height="40"/>
-                                                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="left" transparent="YES" inset="2" id="c0W-LK-zo7">
-                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                        <font key="font" metaFont="system"/>
-                                                    </buttonCell>
-                                                    <color key="contentTintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                                    <connections>
-                                                        <action selector="keychainRestoreButtonClicked:" target="ezZ-gy-exR" id="yPQ-Yl-L5o"/>
-                                                    </connections>
-                                                </button>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="165" id="JM6-jB-dit"/>
-                                                <constraint firstItem="zW5-Fp-STN" firstAttribute="centerY" secondItem="mIB-X7-RcX" secondAttribute="centerY" id="PUJ-kr-kJn"/>
-                                                <constraint firstAttribute="trailing" secondItem="zW5-Fp-STN" secondAttribute="trailing" constant="10" id="PUc-za-umP"/>
-                                                <constraint firstItem="IIL-9s-m0c" firstAttribute="centerY" secondItem="mIB-X7-RcX" secondAttribute="centerY" id="Wu9-fz-Tn6"/>
-                                                <constraint firstAttribute="height" constant="40" id="X6u-bg-lM9"/>
-                                                <constraint firstItem="gLd-KG-LQ7" firstAttribute="leading" secondItem="mIB-X7-RcX" secondAttribute="leading" id="YYa-Fm-XE3"/>
-                                                <constraint firstAttribute="bottom" secondItem="gLd-KG-LQ7" secondAttribute="bottom" id="aaB-O3-bFh"/>
-                                                <constraint firstItem="zW5-Fp-STN" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="IIL-9s-m0c" secondAttribute="trailing" constant="8" symbolic="YES" id="atm-jB-jiq"/>
-                                                <constraint firstItem="gLd-KG-LQ7" firstAttribute="top" secondItem="mIB-X7-RcX" secondAttribute="top" id="hjK-M6-Ll9"/>
-                                                <constraint firstItem="IIL-9s-m0c" firstAttribute="leading" secondItem="mIB-X7-RcX" secondAttribute="leading" constant="10" id="hzd-iI-Zon"/>
-                                                <constraint firstAttribute="trailing" secondItem="gLd-KG-LQ7" secondAttribute="trailing" id="s6l-Om-2gQ"/>
-                                            </constraints>
-                                        </customView>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="dkS-iY-AmZ" firstAttribute="top" secondItem="xQc-CC-NMY" secondAttribute="bottom" constant="60" id="10h-1X-UwE"/>
-                                        <constraint firstItem="mIB-X7-RcX" firstAttribute="centerX" secondItem="OFx-fP-3Xw" secondAttribute="centerX" id="42A-Du-rX3"/>
-                                        <constraint firstAttribute="bottom" secondItem="mIB-X7-RcX" secondAttribute="bottom" constant="42.5" id="4qX-fw-5ji"/>
                                         <constraint firstItem="dkS-iY-AmZ" firstAttribute="leading" secondItem="OFx-fP-3Xw" secondAttribute="leading" constant="70" id="FyL-3x-9cL"/>
                                         <constraint firstAttribute="trailing" secondItem="dkS-iY-AmZ" secondAttribute="trailing" constant="70" id="Kok-vp-BC0"/>
                                         <constraint firstItem="dkS-iY-AmZ" firstAttribute="centerY" secondItem="OFx-fP-3Xw" secondAttribute="centerY" id="OfM-7w-uEG"/>
@@ -157,8 +110,6 @@
                     </view>
                     <connections>
                         <outlet property="existingUserView" destination="1G1-qL-2Sh" id="hXK-bW-H5h"/>
-                        <outlet property="keychainButton" destination="gLd-KG-LQ7" id="axd-rV-VxR"/>
-                        <outlet property="keychainContainer" destination="mIB-X7-RcX" id="uh8-wP-0Ud"/>
                         <outlet property="leftContainer" destination="vbD-bR-uYb" id="bE4-4B-3e6"/>
                         <outlet property="newUserView" destination="z08-IH-vti" id="bQf-QT-ME2"/>
                         <outlet property="rightContainer" destination="OFx-fP-3Xw" id="srK-qj-NdZ"/>
@@ -187,7 +138,7 @@
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="existingUserImage" id="Qf0-TV-UWg"/>
                                         </imageView>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NXR-6C-tlI">
-                                            <rect key="frame" x="107" y="40" width="186" height="38"/>
+                                            <rect key="frame" x="108" y="40" width="185" height="32"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Copy your keys from your  mobile app and paste it here." id="ZaY-Zu-xZL">
                                                 <font key="font" size="14" name="Roboto-Light"/>
                                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -468,7 +419,7 @@
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" id="u2j-CT-zau"/>
                                         </imageView>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wbO-2J-UCK">
-                                            <rect key="frame" x="267" y="362" width="267" height="70"/>
+                                            <rect key="frame" x="269" y="362" width="263" height="70"/>
                                             <textFieldCell key="cell" alignment="center" id="eGy-W4-tDU">
                                                 <font key="font" size="30" name="Roboto-Regular"/>
                                                 <string key="title">You are now on the
@@ -642,7 +593,7 @@ lightning network!</string>
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="sphinxPhoneView" id="FhR-3r-cYs"/>
                                         </imageView>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mnx-fC-7uu">
-                                            <rect key="frame" x="148" y="411" width="504" height="39"/>
+                                            <rect key="frame" x="151" y="415" width="499" height="35"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Don't you have Sphinx on your phone?" id="qRn-81-yca">
                                                 <font key="font" size="30" name="Roboto-Light"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

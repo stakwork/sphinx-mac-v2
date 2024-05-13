@@ -11,13 +11,18 @@ import Alamofire
 import SwiftyJSON
 
 extension API {
-    func redeemSats(url: String, params: [String: AnyObject], callback: @escaping EmptyCallback, errorCallback: @escaping EmptyCallback){
+    func redeemSats(
+        url: String,
+        params: [String: AnyObject],
+        callback: @escaping EmptyCallback,
+        errorCallback: @escaping EmptyCallback
+    ){
         guard let request = createRequest(url, params: params as NSDictionary, method: "POST") else {
             errorCallback()
             return
         }
         
-        AF.request(request).responseJSON { (response) in
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 if let json = data as? NSDictionary {

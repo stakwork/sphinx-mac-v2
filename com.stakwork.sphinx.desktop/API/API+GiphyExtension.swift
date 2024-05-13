@@ -12,7 +12,11 @@ import SwiftyJSON
 
 extension API {
     
-    func giphyCancellableRequest(_ urlRequest: URLRequestConvertible, type: GiphyHelper.SearchType, completionHandler: @escaping (AFDataResponse<Any>) -> Void) {
+    func giphyCancellableRequest(
+        _ urlRequest: URLRequestConvertible,
+        type: GiphyHelper.SearchType,
+        completionHandler: @escaping (AFDataResponse<Any>) -> Void
+    ) {
         if let giphyRequest = giphyRequest, giphyRequestType == type {
             giphyRequest.cancel()
         }
@@ -25,13 +29,14 @@ extension API {
         giphyRequest = request
     }
     
-    func searchGiphy(type: GiphyHelper.SearchType,
-                     q: String? = nil,
-                     page: Int = 0,
-                     offset: Int = 0,
-                     callback: @escaping GiphySearchCallback,
-                     errorCallback: @escaping GiphySearchErrorCallback) {
-        
+    func searchGiphy(
+        type: GiphyHelper.SearchType,
+        q: String? = nil,
+        page: Int = 0,
+        offset: Int = 0,
+        callback: @escaping GiphySearchCallback,
+        errorCallback: @escaping GiphySearchErrorCallback
+    ) {
         let params = getParams(q: q, page: page, offset: offset)
         let endpoint = getGiphyEndpoint(type: type, q: q)
         let url = "https://api.giphy.com/v1/\(endpoint)?\(params)"
@@ -62,7 +67,11 @@ extension API {
         }
     }
     
-    func getParams(q: String? = nil, page: Int = 0, offset: Int = 0) -> String {        
+    func getParams(
+        q: String? = nil,
+        page: Int = 0,
+        offset: Int = 0
+    ) -> String {
         var params = "api_key=\(GiphyHelper.kGiphyApiKey)&limit=\(GiphyHelper.kItemsPerPage)&offset=\(offset)&random_id=\(GiphyHelper.giphyUserId)"
         
         if let q = q, !q.isEmpty {
@@ -72,7 +81,10 @@ extension API {
         return params
     }
     
-    func getGiphyEndpoint(type: GiphyHelper.SearchType, q: String? = nil) -> String {
+    func getGiphyEndpoint(
+        type: GiphyHelper.SearchType,
+        q: String? = nil
+    ) -> String {
         var content = ""
         let isSearching = q != nil && !q!.isEmpty
         let endpoint = isSearching ? "search" : "trending"
@@ -89,7 +101,10 @@ extension API {
         return "\(content)/\(endpoint)"
     }
     
-    func processGiphyResponse(results: [JSON], type: GiphyHelper.SearchType) -> [GiphyObject] {
+    func processGiphyResponse(
+        results: [JSON],
+        type: GiphyHelper.SearchType
+    ) -> [GiphyObject] {
         var giphyObjects = [GiphyObject]()
         
         for r in results {

@@ -30,7 +30,7 @@ extension ChatListViewController {
         )
         
         if loadData {
-            loadFriendAndReload()
+            ///Should reload Friends and Messages
         }
         
         if shouldSwitchChat {

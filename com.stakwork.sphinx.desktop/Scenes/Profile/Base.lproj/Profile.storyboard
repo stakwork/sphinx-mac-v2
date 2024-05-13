@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -496,7 +496,7 @@ with contacts</string>
                                                                                         <rect key="frame" x="30" y="125" width="354" height="75"/>
                                                                                         <subviews>
                                                                                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tuy-Zq-nPl">
-                                                                                                <rect key="frame" x="-2" y="36" width="105" height="14"/>
+                                                                                                <rect key="frame" x="-2" y="36" width="103" height="14"/>
                                                                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Default tip amount" id="Tci-hQ-YkV">
                                                                                                     <font key="font" size="12" name="Roboto-Regular"/>
                                                                                                     <color key="textColor" name="SecondaryText"/>
@@ -543,7 +543,7 @@ with contacts</string>
                                                                                         <rect key="frame" x="30" y="38" width="354" height="75"/>
                                                                                         <subviews>
                                                                                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Uvb-lZ-Yc2">
-                                                                                                <rect key="frame" x="-2" y="36" width="86" height="14"/>
+                                                                                                <rect key="frame" x="-2" y="36" width="85" height="14"/>
                                                                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Meeting Server" id="BkU-va-T7m">
                                                                                                     <font key="font" size="12" name="Roboto-Regular"/>
                                                                                                     <color key="textColor" name="SecondaryText"/>
@@ -608,7 +608,7 @@ with contacts</string>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                                 <subviews>
                                                                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8GY-qp-mh5">
-                                                                                        <rect key="frame" x="142" y="105" width="131" height="18"/>
+                                                                                        <rect key="frame" x="143" y="105" width="129" height="18"/>
                                                                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Sync more devices" id="RnC-xs-5Nh">
                                                                                             <font key="font" size="15" name="Roboto-Regular"/>
                                                                                             <color key="textColor" name="Text"/>
@@ -711,73 +711,8 @@ with contacts</string>
                                                                     <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
-                                                                        <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="TQS-3J-2V7">
-                                                                            <rect key="frame" x="0.0" y="445" width="414" height="100"/>
-                                                                            <view key="contentView" id="ibk-la-dP4">
-                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
-                                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                                <subviews>
-                                                                                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="0nr-Vh-3i5">
-                                                                                        <rect key="frame" x="30" y="25" width="354" height="75"/>
-                                                                                        <subviews>
-                                                                                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AE4-Bh-lxD">
-                                                                                                <rect key="frame" x="-2" y="36" width="64" height="14"/>
-                                                                                                <textFieldCell key="cell" lineBreakMode="clipping" title="Server URL" id="wRd-MN-U8t">
-                                                                                                    <font key="font" size="12" name="Roboto-Regular"/>
-                                                                                                    <color key="textColor" name="SecondaryText"/>
-                                                                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                                                                </textFieldCell>
-                                                                                            </textField>
-                                                                                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YBr-Yh-yPU">
-                                                                                                <rect key="frame" x="0.0" y="1" width="354" height="28"/>
-                                                                                                <constraints>
-                                                                                                    <constraint firstAttribute="height" constant="28" id="9dX-MB-wWc"/>
-                                                                                                </constraints>
-                                                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" drawsBackground="YES" id="hGz-Ew-n62">
-                                                                                                    <font key="font" size="17" name="Roboto-Regular"/>
-                                                                                                    <color key="textColor" name="Text"/>
-                                                                                                    <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                                                                                </textFieldCell>
-                                                                                            </textField>
-                                                                                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Ssd-Ts-dut">
-                                                                                                <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
-                                                                                                <view key="contentView" id="jTY-yq-f8y">
-                                                                                                    <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
-                                                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                                                </view>
-                                                                                                <constraints>
-                                                                                                    <constraint firstAttribute="height" constant="1" id="PSH-p0-7bc"/>
-                                                                                                </constraints>
-                                                                                                <color key="fillColor" name="LightDivider"/>
-                                                                                            </box>
-                                                                                        </subviews>
-                                                                                        <constraints>
-                                                                                            <constraint firstItem="AE4-Bh-lxD" firstAttribute="leading" secondItem="0nr-Vh-3i5" secondAttribute="leading" id="6ct-Dz-gXG"/>
-                                                                                            <constraint firstItem="AE4-Bh-lxD" firstAttribute="top" secondItem="0nr-Vh-3i5" secondAttribute="top" constant="25" id="JCe-9r-pJN"/>
-                                                                                            <constraint firstAttribute="trailing" secondItem="YBr-Yh-yPU" secondAttribute="trailing" id="Mqy-Ws-9Sj"/>
-                                                                                            <constraint firstAttribute="trailing" secondItem="Ssd-Ts-dut" secondAttribute="trailing" id="b1b-mu-ykG"/>
-                                                                                            <constraint firstItem="Ssd-Ts-dut" firstAttribute="leading" secondItem="0nr-Vh-3i5" secondAttribute="leading" id="gSV-zA-eZX"/>
-                                                                                            <constraint firstAttribute="height" constant="75" id="m3E-mu-Wf3"/>
-                                                                                            <constraint firstItem="Ssd-Ts-dut" firstAttribute="top" secondItem="YBr-Yh-yPU" secondAttribute="bottom" id="rgw-WX-liY"/>
-                                                                                            <constraint firstItem="YBr-Yh-yPU" firstAttribute="leading" secondItem="0nr-Vh-3i5" secondAttribute="leading" id="tr0-p7-wXs"/>
-                                                                                            <constraint firstAttribute="bottom" secondItem="Ssd-Ts-dut" secondAttribute="bottom" id="uTS-TB-qPH"/>
-                                                                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="AE4-Bh-lxD" secondAttribute="trailing" constant="20" symbolic="YES" id="v3d-6C-lgt"/>
-                                                                                        </constraints>
-                                                                                    </customView>
-                                                                                </subviews>
-                                                                                <constraints>
-                                                                                    <constraint firstAttribute="trailing" secondItem="0nr-Vh-3i5" secondAttribute="trailing" constant="30" id="5At-bQ-uzi"/>
-                                                                                    <constraint firstItem="0nr-Vh-3i5" firstAttribute="leading" secondItem="ibk-la-dP4" secondAttribute="leading" constant="30" id="BOw-bP-2t3"/>
-                                                                                    <constraint firstItem="0nr-Vh-3i5" firstAttribute="top" secondItem="ibk-la-dP4" secondAttribute="top" id="FeK-v1-BhA"/>
-                                                                                </constraints>
-                                                                            </view>
-                                                                            <constraints>
-                                                                                <constraint firstAttribute="height" constant="100" id="SE5-NM-NKe"/>
-                                                                            </constraints>
-                                                                            <color key="fillColor" name="Body"/>
-                                                                        </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="2tJ-IM-OLS">
-                                                                            <rect key="frame" x="0.0" y="360" width="414" height="75"/>
+                                                                            <rect key="frame" x="0.0" y="470" width="414" height="75"/>
                                                                             <view key="contentView" id="KVd-v0-Lzl">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="75"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -799,7 +734,7 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="8uj-eM-lzW">
-                                                                            <rect key="frame" x="0.0" y="270" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="380" width="414" height="80"/>
                                                                             <view key="contentView" id="87v-kh-CDL">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -831,7 +766,7 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="ihP-0B-F4g">
-                                                                            <rect key="frame" x="0.0" y="180" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="290" width="414" height="80"/>
                                                                             <view key="contentView" id="fx7-Pt-ZfE">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -863,7 +798,7 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="TFx-jf-Byq">
-                                                                            <rect key="frame" x="0.0" y="90" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="200" width="414" height="80"/>
                                                                             <view key="contentView" id="h2o-0A-9Pj">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -895,7 +830,7 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="J75-Fr-GTw">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="110" width="414" height="80"/>
                                                                             <view key="contentView" id="ErA-er-tAp">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -931,16 +866,13 @@ with contacts</string>
                                                                         <constraint firstItem="8uj-eM-lzW" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="80T-aJ-DKB"/>
                                                                         <constraint firstAttribute="trailing" secondItem="J75-Fr-GTw" secondAttribute="trailing" id="BnY-LO-a07"/>
                                                                         <constraint firstItem="J75-Fr-GTw" firstAttribute="top" secondItem="TFx-jf-Byq" secondAttribute="bottom" constant="10" id="HWQ-ZB-Ejh"/>
-                                                                        <constraint firstItem="2tJ-IM-OLS" firstAttribute="top" secondItem="TQS-3J-2V7" secondAttribute="bottom" constant="10" id="IYI-9y-djN"/>
                                                                         <constraint firstAttribute="trailing" secondItem="TFx-jf-Byq" secondAttribute="trailing" id="JsH-B0-Oiq"/>
                                                                         <constraint firstItem="8uj-eM-lzW" firstAttribute="top" secondItem="2tJ-IM-OLS" secondAttribute="bottom" constant="10" id="KmS-Ej-bEK"/>
                                                                         <constraint firstItem="2tJ-IM-OLS" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="Mae-7m-3nu"/>
-                                                                        <constraint firstItem="TQS-3J-2V7" firstAttribute="top" secondItem="76N-0s-umu" secondAttribute="top" constant="10" id="PcF-RL-wbt"/>
+                                                                        <constraint firstItem="2tJ-IM-OLS" firstAttribute="top" secondItem="76N-0s-umu" secondAttribute="top" constant="10" id="Mi9-LD-FW6"/>
                                                                         <constraint firstItem="J75-Fr-GTw" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="QhK-g8-hmd"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="TQS-3J-2V7" secondAttribute="trailing" id="TDw-90-uj3"/>
                                                                         <constraint firstItem="ihP-0B-F4g" firstAttribute="top" secondItem="8uj-eM-lzW" secondAttribute="bottom" constant="10" id="Yfo-fe-T4E"/>
                                                                         <constraint firstItem="TFx-jf-Byq" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="ZMl-z2-rRT"/>
-                                                                        <constraint firstItem="TQS-3J-2V7" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="bYH-DH-JWc"/>
                                                                         <constraint firstAttribute="trailing" secondItem="2tJ-IM-OLS" secondAttribute="trailing" id="dJ0-Xl-5Zd"/>
                                                                         <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="ihP-0B-F4g" secondAttribute="bottom" constant="10" id="dhY-jD-X4d"/>
                                                                         <constraint firstAttribute="trailing" secondItem="ihP-0B-F4g" secondAttribute="trailing" id="g78-Ny-tDD"/>
@@ -1067,8 +999,6 @@ with contacts</string>
                         <outlet property="routeHintField" destination="7s2-pE-6Si" id="kmV-JL-Fi3"/>
                         <outlet property="saveButton" destination="GFe-8w-bmv" id="8Ou-WU-Me4"/>
                         <outlet property="saveButtonContainer" destination="gGR-N3-4gZ" id="eIt-sl-loV"/>
-                        <outlet property="serverURLField" destination="YBr-Yh-yPU" id="wet-ZN-Cf1"/>
-                        <outlet property="settingsBox1" destination="TQS-3J-2V7" id="Ium-yg-dRZ"/>
                         <outlet property="settingsTabsView" destination="89d-TV-nWd" id="gQZ-jz-aam"/>
                         <outlet property="setupSignerBox" destination="TFx-jf-Byq" id="5hY-1X-z9Q"/>
                         <outlet property="sharePhotoSwitchButton" destination="7IW-7b-cKJ" id="3hZ-yw-1xh"/>

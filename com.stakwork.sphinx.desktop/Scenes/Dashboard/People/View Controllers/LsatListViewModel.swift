@@ -73,17 +73,17 @@ extension LsatListViewModel : LsatListCellDelegate{
             title: "Are you sure you want to delete this L402 credential?",
             message: "",
             confirm: {
-                print("calling delete LSAT API")
-                API.sharedInstance.deleteLsat(
-                    lsat: self.lsatList[index],
-                    callback: {
-                        NewMessageBubbleHelper().showGenericMessageView(text: "Deletion succeeded.", in: nil)
-                        self.lsatList.remove(at: index)
-                        self.tableView.reloadData()
-                    },
-                    errorCallback: {
-                        NewMessageBubbleHelper().showGenericMessageView(text: "Error deleting L402 data please try again.", in: nil)
-                    })
+                
+//                API.sharedInstance.deleteLsat(
+//                    lsat: self.lsatList[index],
+//                    callback: {
+//                        NewMessageBubbleHelper().showGenericMessageView(text: "Deletion succeeded.", in: nil)
+//                        self.lsatList.remove(at: index)
+//                        self.tableView.reloadData()
+//                    },
+//                    errorCallback: {
+//                        NewMessageBubbleHelper().showGenericMessageView(text: "Error deleting L402 data please try again.", in: nil)
+//                    })
             },
             cancel: {
                 print("cancelling deletion")

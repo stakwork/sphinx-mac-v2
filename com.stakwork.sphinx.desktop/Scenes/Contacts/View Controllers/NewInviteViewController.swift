@@ -16,13 +16,13 @@ class NewInviteViewController: NSViewController {
     @IBOutlet weak var nicknameField: NSTextField!
     @IBOutlet weak var amountField: NSTextField!
     @IBOutlet var messageTextView: PlaceHolderTextView!
-    @IBOutlet weak var estimatedCostLabel: NSTextField!
-    @IBOutlet weak var estimatedCostContainer: NSView!
     @IBOutlet weak var saveButtonContainer: NSView!
     @IBOutlet weak var saveButton: CustomButton!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
     let walletBalanceService = WalletBalanceService()
+    
+    var inviteRequestWatchdogTimer: Timer?
     
     static func instantiate(
         delegate: NewContactChatDelegate? = nil,
@@ -52,7 +52,6 @@ class NewInviteViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.estimatedCostContainer.alphaValue = 0.0
         self.view.alphaValue = 0.0
     }
     
@@ -78,53 +77,69 @@ class NewInviteViewController: NSViewController {
         messageTextView.setPlaceHolder(color: NSColor.Sphinx.PlaceholderText, font: NSFont(name: "Roboto-Regular", size: 17.0)!, string: "welcome.to.sphinx".localized, alignment: .center)
         messageTextView.font = NSFont(name: "Roboto-Regular", size: 17.0)!
         messageTextView.alignment = .center
-        
-        getLowestPrice()
-    }
-    
-    func getLowestPrice() {
-        API.sharedInstance.getLowestPrice(callback: { price in
-            self.configurePriceContainer(lowestPrice: Int(price))
-        }, errorCallback: { })
-    }
-    
-    func configurePriceContainer(lowestPrice: Int) {
-        guard let localBalance = walletBalanceService.balance else {
-            return
-        }
-        if localBalance > lowestPrice && lowestPrice > 0 {
-            estimatedCostLabel.stringValue = lowestPrice.formattedWithSeparator
-            
-            AnimationHelper.animateViewWith(duration: 0.2, animationsBlock: {
-                self.estimatedCostContainer.alphaValue = 1.0
-            })
-        } else {
-            AlertHelper.showAlert(title: "generic.error.title".localized, message: "invite.more.sats".localized)
-        }
     }
     
     @IBAction func createInvitationButtonClicked(_ sender: Any) {
-//        let nickname = nicknameField.stringValue
-////        let message = messageTextView.string.isEmpty ? "welcome.to.sphinx".localized : messageTextView.string
-//        let amount = amountField.stringValue
-//        
-//        if let amountSats = Int(amount) {
-//            loading = true
-//            
-//            if let code = SphinxOnionManager.sharedInstance.requestInviteCode(amountMsat: amountSats * 1000) {
-//                loading = false
-//                
-//                self.delegate?.shouldReloadContacts()
-//                self.dismissDelegate?.shouldDismissView()
-//                
-//                SphinxOnionManager.sharedInstance.createContactForInvite(code: code, nickname: nickname)
-//                ClipboardHelper.copyToClipboard(text: code)
-//            } else {
-//                AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
-//            }
-//        } else {
-//            AlertHelper.showAlert(title: "generic.error.title".localized, message: "amount.cannot.empty".localized)
-//        }
+        let amount = amountField.stringValue
+        
+        guard let amountSats = Int(amount) else {
+            return
+        }
+        
+        loading = true
+        inviteRequestWatchdogTimer = Timer.scheduledTimer(
+            timeInterval: 10,
+            target: self,
+            selector: #selector(watchdogTimerFired),
+            userInfo: nil,
+            repeats: false
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleInviteCodeAck(n:)),
+            name: .inviteCodeAckReceived,
+            object: nil
+        )
+        
+        SphinxOnionManager.sharedInstance.requestInviteCode(amountMsat: amountSats * 1000)
+    }
+    
+    @objc func watchdogTimerFired() {
+        // Show an alert to the user
+        loading = false
+        
+        AlertHelper.showAlert(title: "Timeout", message: "The operation has timed out. Please try again.")
+        
+        // Invalidate the timer
+        inviteRequestWatchdogTimer?.invalidate()
+        
+        // Remove the observer for invite code ACK
+        NotificationCenter.default.removeObserver(self, name: .inviteCodeAckReceived, object: nil)
+        
+        // Optionally, dismiss the view or handle the timeout appropriately
+        // self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func handleInviteCodeAck(
+        n: Notification
+    ){
+        guard let inviteCode = n.userInfo?["inviteCode"] as? String else{
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: "generic.error.message".localized
+            )
+            return
+        }
+        
+        loading = false
+        self.dismissDelegate?.shouldDismissView()
+        
+        let nickname = nicknameField.stringValue
+        SphinxOnionManager.sharedInstance.createContactForInvite(code: inviteCode, nickname: nickname)
+        ClipboardHelper.copyToClipboard(text: inviteCode)
+        
+        NotificationCenter.default.removeObserver(self, name: .inviteCodeAckReceived, object: nil)
     }
 }
 

@@ -182,19 +182,6 @@ extension TransactionMessage {
         return ""
     }
     
-    func getDecrytedMessage() -> String {
-        if let messageC = self.messageContent {
-            if messageC.isEncryptedString() {
-                let (decrypted, message) = EncryptionManager.sharedInstance.decryptMessage(message: messageC)
-                if decrypted {
-                    self.messageContent = message
-                    return message
-                }
-            }
-        }
-        return "encryption.error".localized.uppercased()
-    }
-    
     func getPaidMessageContent() -> String {
         var adjustedMC = self.messageContent ?? ""
         

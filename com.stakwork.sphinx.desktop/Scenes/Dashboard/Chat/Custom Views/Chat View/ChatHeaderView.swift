@@ -132,10 +132,6 @@ class ChatHeaderView: NSView, LoadableNib {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         lockSign.stringValue = isEncrypted ? "lock" : "lock_open"
         lockSign.isHidden = false
-        
-        if let contact = contact, !contact.hasEncryptionKey() {
-            forceKeysExchange(contactId: contact.id)
-        }
     }
     
     func configureImageOrInitials() {
@@ -267,10 +263,6 @@ class ChatHeaderView: NSView, LoadableNib {
 
         let success = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         self.boltSign.textColor = success ? HealthCheckView.kConnectedColor : HealthCheckView.kNotConnectedColor
-    }
-    
-    func forceKeysExchange(contactId: Int) {
-        UserContactsHelper.exchangeKeys(id: contactId)
     }
     
     @IBAction func threadsButtonClicked(_ sender: Any) {

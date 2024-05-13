@@ -88,14 +88,14 @@ class NotificationLevelView: NSView, LoadableNib {
     }
     
     func setChatNotificationLevel(_ level: Int) {
-        API.sharedInstance.setNotificationLevel(chatId: chat.id, level: level, callback: { chatJson in
-            if let updatedChat = Chat.insertChat(chat: chatJson) {
-                self.chat = updatedChat
-            }
-            self.configureViewFromChat()
-        }, errorCallback: {
-            self.configureViewFromChat()
-        })
+//        API.sharedInstance.setNotificationLevel(chatId: chat.id, level: level, callback: { chatJson in
+//            if let updatedChat = Chat.insertChat(chat: chatJson) {
+//                self.chat = updatedChat
+//            }
+//            self.configureViewFromChat()
+//        }, errorCallback: {
+//            self.configureViewFromChat()
+//        })
     }
     
     func configureViewFromChat() {

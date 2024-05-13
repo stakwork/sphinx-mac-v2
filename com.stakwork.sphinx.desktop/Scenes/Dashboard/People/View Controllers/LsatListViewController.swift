@@ -27,7 +27,9 @@ class LsatListViewController: NSViewController {
         self.viewModel.setupTableView(lsatsList: lsatList)
     }
     
-    static func instantiate(lsatList:[LSATObject]) -> LsatListViewController {
+    static func instantiate(
+        lsatList: [LSATObject]
+    ) -> LsatListViewController {
         let viewController = StoryboardScene.Dashboard.lsatListViewController.instantiate()
         viewController.lsatList = lsatList
         return viewController

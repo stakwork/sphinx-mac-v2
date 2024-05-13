@@ -405,15 +405,8 @@ public class UserContact: NSManagedObject {
         return getCurrentSubscription() != nil
     }
     
-    public func hasEncryptionKey() -> Bool {
-        if let contactK = self.contactKey,
-            let _ = EncryptionManager.sharedInstance.getPublicKeyFromBase64String(base64String: contactK)
-        {
-            return true
-        } else if let _ = self.contactKey {
-            return true
-        }
-        return false
+    public func isEncrypted() -> Bool {
+        return isConfirmed()
     }
     
     public func isConfirmed() -> Bool {
@@ -450,13 +443,15 @@ public class UserContact: NSManagedObject {
     }
     
     public static func updateTipAmount(amount: Int) {
-        let parameters : [String: AnyObject] = ["tip_amount" : amount as AnyObject]
+//        let parameters : [String: AnyObject] = ["tip_amount" : amount as AnyObject]
         let id = UserData.sharedInstance.getUserId()
 
         if let owner = UserContact.getOwner() {
-            API.sharedInstance.updateUser(id: id, params: parameters, callback: { success in
-                owner.tipAmount = amount
-            }, errorCallback: { })
+            owner.tipAmount = amount
+            
+//            API.sharedInstance.updateUser(id: id, params: parameters, callback: { success in
+//                owner.tipAmount = amount
+//            }, errorCallback: { })
         }
     }
 }

@@ -118,7 +118,6 @@ class ChatListViewController : DashboardSplittedViewController {
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        loadFriendAndReload()
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
             self.loadingChatList = false
         })
@@ -146,61 +145,6 @@ class ChatListViewController : DashboardSplittedViewController {
         self.view.window?.makeFirstResponder(self)
     }
     
-    func loadMessages(
-        contactsProgress: Float = 0
-    ) {
-        let restoring = chatListViewModel.isRestoring()
-        var contentProgressShare : Float = 0.0
-        
-        self.syncContentFeedStatus(
-            restoring: restoring,
-            progressCallback:  { contentProgress in
-                contentProgressShare = 0.1
-                
-                if (contentProgress >= 0 && restoring) {
-                    let contentProgress = Int(contentProgressShare * Float(contentProgress))
-                    
-                    DispatchQueue.main.async {
-                        self.delegate?.shouldShowRestoreModal(
-                            with: contentProgress + Int(contactsProgress * 100),
-                            label: "restoring-content".localized,
-                            buttonEnabled: false
-                        )
-                    }
-                }
-            },
-            completionCallback: {
-                self.chatListViewModel.syncMessages(
-                    progressCallback: { (progress, restoring) in
-
-                        DispatchQueue.main.async {
-                            
-                            if (restoring) {
-                                let messagesProgress : Int = Int(Float(progress) * (1.0 - contentProgressShare - contactsProgress))
-                                
-                                if (progress >= 0) {
-                                    self.delegate?.shouldShowRestoreModal(
-                                        with: messagesProgress + Int(contentProgressShare * 100) + Int(contactsProgress * 100),
-                                        label: "restoring-messages".localized,
-                                        buttonEnabled: true
-                                    )
-                                } else {
-                                    self.newMessageBubbleHelper.showLoadingWheel(text: "fetching.old.messages".localized)
-                                }
-                            } else {
-                                self.delegate?.shouldHideRetoreModal()
-                            }
-                        }
-                        
-                    }) { (_, _) in
-                        DispatchQueue.main.async {
-                            self.finishLoading()
-                        }
-                    }
-            }
-        )
-    }
-    
     internal func syncContentFeedStatus(
         restoring: Bool,
         progressCallback: @escaping (Int) -> (),
@@ -221,46 +165,6 @@ class ChatListViewController : DashboardSplittedViewController {
                 completionCallback()
             }
         )
-    }
-    
-    func loadFriendAndReload() {
-        
-        if chatListViewModel.isRestoring() {
-            DispatchQueue.main.async {
-                self.delegate?.shouldShowRestoreModal(
-                    with: 1,
-                    label: "restoring-contacts".localized,
-                    buttonEnabled: false
-                )
-            }
-        }
-        
-        var contactsProgressShare : Float = 0.01
-        
-        chatListViewModel.loadFriends(
-            progressCompletion: { restoring in
-                if restoring {
-                    
-                    contactsProgressShare += 0.01
-                    
-                    DispatchQueue.main.async {
-                        self.delegate?.shouldShowRestoreModal(
-                            with: Int(contactsProgressShare * 100),
-                            label: "restoring-contacts".localized,
-                            buttonEnabled: false
-                        )
-                    }
-                }
-            }
-        ) { restoring in
-            self.loadMessages(
-                contactsProgress: contactsProgressShare
-            )
-        }
-    }
-    
-    func finishLoading() {
-        newMessageBubbleHelper.hideLoadingWheel()
     }
     
     func selectRowFor(chatId: Int) {

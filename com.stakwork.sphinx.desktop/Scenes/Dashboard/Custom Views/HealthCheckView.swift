@@ -57,18 +57,13 @@ class HealthCheckView: NSView, LoadableNib {
     
     @IBAction func healthCheckButtonClicked(_ sender: Any) {
         let status = API.sharedInstance.connectionStatus
-        let socketConnected = SphinxSocketManager.sharedInstance.isConnected()
         var message: String? = nil
         
         switch(status) {
         case API.ConnectionStatus.Connecting:
             break
         case API.ConnectionStatus.Connected:
-            if socketConnected {
-                message = "connected.to.node".localized
-            } else {
-                message = "socket.disconnected".localized
-            }
+            message = "connected.to.node".localized
             break
         case API.ConnectionStatus.NotConnected:
             message = "unable.to.connect".localized

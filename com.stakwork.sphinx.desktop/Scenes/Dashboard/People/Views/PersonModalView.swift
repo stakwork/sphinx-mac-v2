@@ -148,26 +148,26 @@ class PersonModalView: CommonModalView, LoadableNib {
             let text = initialMessageField.stringValue
             let price = authInfo?.jsonBody["price_to_meet"].int ?? 0
             
-            guard let params = TransactionMessage.getMessageParams(
-                contact: contact,
-                type: TransactionMessage.TransactionMessageType.message,
-                text: text,
-                priceToMeet: price
-            ) else {
-                showErrorMessage()
-                return
-            }
-            
-            API.sharedInstance.sendMessage(params: params, callback: { m in
-                if let _ = TransactionMessage.insertMessage(
-                    m: m,
-                    existingMessage: TransactionMessage.getMessageWith(id: m["id"].intValue)
-                ).0 {
-                    self.delegate?.shouldDismissModals()
-                }
-            }, errorCallback: {
-                self.showErrorMessage()
-            })
+//            guard let params = TransactionMessage.getMessageParams(
+//                contact: contact,
+//                type: TransactionMessage.TransactionMessageType.message,
+//                text: text,
+//                priceToMeet: price
+//            ) else {
+//                showErrorMessage()
+//                return
+//            }
+//            
+//            API.sharedInstance.sendMessage(params: params, callback: { m in
+//                if let _ = TransactionMessage.insertMessage(
+//                    m: m,
+//                    existingMessage: TransactionMessage.getMessageWith(id: m["id"].intValue)
+//                ).0 {
+//                    self.delegate?.shouldDismissModals()
+//                }
+//            }, errorCallback: {
+//                self.showErrorMessage()
+//            })
         } else {
             showErrorMessage()
         }

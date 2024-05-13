@@ -48,21 +48,21 @@ class TransactionsListViewController: NSViewController {
         
         loading = true
 
-        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
-            self.setNoResultsLabel(count: transactions.count)
-            self.checkResultsLimit(count: transactions.count)
-            self.transactionsDataSource.loadTransactions(transactions: transactions)
-            self.loading = false
-        }, errorCallback: {
-            self.checkResultsLimit(count: 0)
-            self.transactionsCollectionView.alphaValue = 0.0
-            self.loading = false
-            
-            AlertHelper.showAlert(
-                title: "generic.error.title".localized,
-                message: "error.loading.transactions".localized
-            )
-        })
+//        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
+//            self.setNoResultsLabel(count: transactions.count)
+//            self.checkResultsLimit(count: transactions.count)
+//            self.transactionsDataSource.loadTransactions(transactions: transactions)
+//            self.loading = false
+//        }, errorCallback: {
+//            self.checkResultsLimit(count: 0)
+//            self.transactionsCollectionView.alphaValue = 0.0
+//            self.loading = false
+//            
+//            AlertHelper.showAlert(
+//                title: "generic.error.title".localized,
+//                message: "error.loading.transactions".localized
+//            )
+//        })
     }
     
     func setNoResultsLabel(count: Int) {
@@ -86,9 +86,9 @@ extension TransactionsListViewController : TransactionsDataSourceDelegate {
         
         page = page + 1
         
-        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
-            self.checkResultsLimit(count: transactions.count)
-            self.transactionsDataSource.addMoreTransactions(transactions: transactions)
-        }, errorCallback: { })
+//        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
+//            self.checkResultsLimit(count: transactions.count)
+//            self.transactionsDataSource.addMoreTransactions(transactions: transactions)
+//        }, errorCallback: { })
     }
 }

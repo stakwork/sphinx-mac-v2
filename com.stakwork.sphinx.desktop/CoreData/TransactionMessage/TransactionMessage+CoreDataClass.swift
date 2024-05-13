@@ -160,8 +160,6 @@ public class TransactionMessage: NSManagedObject {
         m: JSON,
         existingMessage: TransactionMessage? = nil
     ) -> (TransactionMessage?, Bool) {
-        let encryptionManager = EncryptionManager.sharedInstance
-        
         let id = m["id"].intValue
         
         if id <= 0 {
@@ -190,11 +188,7 @@ public class TransactionMessage: NSManagedObject {
         let mediaType:String? = m["media_type"].string
         let originalMuid:String? = m["original_muid"].string
         let errorMessage:String? = m["error_message"].string
-        
-        var mediaKey:String? = nil
-        if let mk = m["media_key"].string, mk != "" {
-            mediaKey = encryptionManager.decryptMessage(message: mk).1
-        }
+        var mediaKey:String? = m["media_key"].string
         
         let seen:Bool = m["seen"].boolValue
         let push:Bool = m["push"].boolValue
@@ -209,7 +203,7 @@ public class TransactionMessage: NSManagedObject {
         
         messageChat.seen = (m["chat"].dictionary)?["seen"]?.boolValue ?? messageChat.seen
         
-        let (messageEncrypted, messageContent) = encryptionManager.decryptMessage(message: m["message_content"].stringValue)
+        let (messageEncrypted, messageContent) = (false, m["message_content"].stringValue)
         let status = TransactionMessage.TransactionMessageStatus(fromRawValue: (m["status"].intValue))
         let date = Date.getDateFromString(dateString: m["date"].stringValue) ?? Date()
         let expirationDate = Date.getDateFromString(dateString: m["expiration_date"].stringValue) ?? nil

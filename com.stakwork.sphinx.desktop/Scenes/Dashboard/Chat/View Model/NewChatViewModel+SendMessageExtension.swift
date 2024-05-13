@@ -126,78 +126,10 @@ extension NewChatViewModel {
         botAmount: Int = 0,
         completion: @escaping (Bool, Chat?) -> ()
     ) {
-        let messageType = TransactionMessage.TransactionMessageType(fromRawValue: provisionalMessage?.type ?? 0)
         
-        guard let params = TransactionMessage.getMessageParams(
-            contact: contact,
-            chat: chat,
-            type: messageType,
-            text: text,
-            botAmount: botAmount,
-            replyingMessage: replyingTo,
-            threadUUID: provisionalMessage?.threadUUID
-        ) else {
-            completion(false, nil)
-            return
-        }
-        
-        sendMessage(
-            provisionalMessage: isResend ? nil : provisionalMessage,
-            params: params,
-            completion: completion
-        )
     }
 
-    func sendMessage(
-        provisionalMessage: TransactionMessage?,
-        params: [String: AnyObject],
-        completion: @escaping (Bool, Chat?) -> ()
-    ) {
-        API.sharedInstance.sendMessage(params: params, callback: { m in
-            
-            if let provisionalMessage = provisionalMessage {
-                self.chatDataSource?.replaceMediaDataForMessageWith(
-                    provisionalMessageId: provisionalMessage.id,
-                    toMessageWith: m["id"].intValue
-                )
-            }
-            
-            let provisionalMessageId = provisionalMessage?.id
-            
-            if let message = TransactionMessage.insertMessage(
-                m: m,
-                existingMessage: provisionalMessage
-            ).0 {
-                message.managedObjectContext?.saveContext()
-                message.setPaymentInvoiceAsPaid()
-                
-                self.messageSent(
-                    message: message,
-                    chat: message.chat,
-                    completion: completion
-                )
-                
-                self.deleteMessageWith(id: provisionalMessageId)
-                
-                ActionsManager.sharedInstance.trackMessageSent(message: message)
-            }
-            
-            if let podcastComment = self.podcastComment {
-                ActionsManager.sharedInstance.trackClipComment(podcastComment: podcastComment)
-            }
-            
-        }, errorCallback: {
-             if let provisionalMessage = provisionalMessage {
-                 
-                provisionalMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-                 
-                self.messageSent(
-                    message: provisionalMessage,
-                    completion: completion
-                )
-             }
-        })
-    }
+    
     
     func deleteMessageWith(
         id: Int?
@@ -259,19 +191,19 @@ extension NewChatViewModel {
         messageUUID: String,
         callback: (() -> ())?
     ) {
-        guard let params = TransactionMessage.getTribePaymentParams(
-            chat: chat,
-            messageUUID: messageUUID,
-            amount: amount,
-            text: message
-        ) else {
-            callback?()
-            return
-        }
-        
-        sendMessage(provisionalMessage: nil, params: params, completion: { (_, _) in
-            callback?()
-        })
+//        guard let params = TransactionMessage.getTribePaymentParams(
+//            chat: chat,
+//            messageUUID: messageUUID,
+//            amount: amount,
+//            text: message
+//        ) else {
+//            callback?()
+//            return
+//        }
+//        
+//        sendMessage(provisionalMessage: nil, params: params, completion: { (_, _) in
+//            callback?()
+//        })
     }
     
     func sendCallMessage(link: String) {

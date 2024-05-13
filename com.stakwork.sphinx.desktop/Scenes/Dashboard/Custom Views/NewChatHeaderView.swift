@@ -113,9 +113,11 @@ class NewChatHeaderView: NSView, LoadableNib {
     
     func hideAmount() {
         var hiddenAmount = ""
-        "\(walletBalanceService.balance)".forEach { char in
+        
+        "\(walletBalanceService.balance ?? 0)".forEach { char in
             hiddenAmount += "*"
         }
+        
         balanceLabel.stringValue = hiddenAmount
     }
     

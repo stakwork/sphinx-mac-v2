@@ -408,35 +408,35 @@ class ActionsManager {
     func syncActions(
         completion: (() -> ())? = nil
     ) {
-        if (!isTrackingEnabled()) {
-            completion?()
-            return
-        }
-        
-        let actions = ActionTrack.getUnsynced()
-        
-        guard actions.count > 0 else {
-            completion?()
-            return
-        }
-        
-        let chunkedActions = actions.chunked(into: 50)
-        
-        let dispatchSemaphore = DispatchSemaphore(value: 1)
-        
-        for chunk in chunkedActions {
-            
-            dispatchSemaphore.wait()
-            
-            API.sharedInstance.syncActions(actions: chunk, callback: { success in
-                if (success) {
-                    self.updateSyncedActions(objectIds: chunk.map { $0.objectID })
-                }
-                dispatchSemaphore.signal()
-            })
-        }
-        
-        completion?()
+//        if (!isTrackingEnabled()) {
+//            completion?()
+//            return
+//        }
+//        
+//        let actions = ActionTrack.getUnsynced()
+//        
+//        guard actions.count > 0 else {
+//            completion?()
+//            return
+//        }
+//        
+//        let chunkedActions = actions.chunked(into: 50)
+//        
+//        let dispatchSemaphore = DispatchSemaphore(value: 1)
+//        
+//        for chunk in chunkedActions {
+//            
+//            dispatchSemaphore.wait()
+//            
+//            API.sharedInstance.syncActions(actions: chunk, callback: { success in
+//                if (success) {
+//                    self.updateSyncedActions(objectIds: chunk.map { $0.objectID })
+//                }
+//                dispatchSemaphore.signal()
+//            })
+//        }
+//        
+//        completion?()
     }
     
     func updateSyncedActions(objectIds: [NSManagedObjectID]) {

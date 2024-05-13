@@ -120,11 +120,7 @@ class CommonPaymentView: NSView, LoadableNib {
     }
     
     @IBAction func backButtonClicked(_ sender: Any) {
-        if getChat()?.isPrivateGroup() ?? false {
-            delegate?.shouldGoBack()
-        } else {
-            delegate?.shouldClose()
-        }
+        delegate?.shouldClose()
     }
 }
 

@@ -131,19 +131,15 @@ class SplashViewController: NSViewController {
         view.window?.titlebarAppearsTransparent = false
         view.window?.titleVisibility = .visible
         view.window?.replaceContentBy(vc: DashboardViewController.instantiate())
-        
-        SphinxSocketManager.sharedInstance.connectWebsocket()
     }
     
     func clearAllData() {
         UserData.sharedInstance.clearData()
-        SphinxSocketManager.sharedInstance.disconnectWebsocket()
     }
     
     public static func runBackgroundProcesses() {
         DispatchQueue.global().async {
             CoreDataManager.sharedManager.deleteExpiredInvites()
-            let (_, _) = EncryptionManager.sharedInstance.getOrCreateKeys()
             AttachmentsManager.sharedInstance.runAuthentication()
         }
     }

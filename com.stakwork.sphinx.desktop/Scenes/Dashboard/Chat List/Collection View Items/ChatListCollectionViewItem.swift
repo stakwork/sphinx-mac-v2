@@ -115,7 +115,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             
             nameLabel.stringValue = chatListObject.getName()
             muteImageView.isHidden = (chatListObject.getChat()?.isMuted() ?? false) == false
-            lockSignLabel.isHidden = chatListObject.hasEncryptionKey() == false
+            lockSignLabel.isHidden = chatListObject.isEncrypted() == false
         }
         
         renderLastMessage(

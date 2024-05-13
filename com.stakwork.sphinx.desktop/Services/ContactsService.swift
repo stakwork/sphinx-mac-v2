@@ -118,10 +118,6 @@ class ContactsService: NSObject {
         configureOwnerFetchResultsController()
     }
     
-    func isRestoring() -> Bool {
-        return API.sharedInstance.lastSeenMessagesDate == nil
-    }
-    
     func reset() {
         contacts = []
         allContacts = []

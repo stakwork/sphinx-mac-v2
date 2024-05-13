@@ -401,7 +401,7 @@ public class Chat: NSManagedObject {
             self.unseenMentionsCount = 0
             
             if shouldSync && receivedUnseenMessages.count > 0 {
-                API.sharedInstance.setChatMessagesAsSeen(chatId: self.id, callback: { _ in })
+//                API.sharedInstance.setChatMessagesAsSeen(chatId: self.id, callback: { _ in })
             }
         }
         
@@ -410,14 +410,6 @@ public class Chat: NSManagedObject {
                 appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
             }
         }
-    }
-    
-    func getGroupEncrypted(text: String) -> String {
-        if let groupKey = groupKey {
-            let encryptedM = EncryptionManager.sharedInstance.encryptMessage(message: text, groupKey: groupKey)
-            return encryptedM.1
-        }
-        return text
     }
     
     func getReceivedUnseenMessages() -> [TransactionMessage] {
@@ -701,10 +693,10 @@ public class Chat: NSManagedObject {
     }
     
     func syncTribeWithServer() {
-        DispatchQueue.global().async {
-            let params: [String: AnyObject] = ["name" : self.name as AnyObject, "img": self.photoUrl as AnyObject]
-            API.sharedInstance.editGroup(id: self.id, params: params, callback: { _ in }, errorCallback: {})
-        }
+//        DispatchQueue.global().async {
+//            let params: [String: AnyObject] = ["name" : self.name as AnyObject, "img": self.photoUrl as AnyObject]
+//            API.sharedInstance.editGroup(id: self.id, params: params, callback: { _ in }, errorCallback: {})
+//        }
     }
     
     func shouldShowPrice() -> Bool {
@@ -719,26 +711,20 @@ public class Chat: NSManagedObject {
         return type == Chat.ChatType.privateGroup.rawValue || type == Chat.ChatType.publicGroup.rawValue
     }
     
-    func isPrivateGroup() -> Bool {
-        return type == Chat.ChatType.privateGroup.rawValue
-    }
-    
     func isMyPublicGroup(
         ownerPubKey: String? = nil
     ) -> Bool {
         return isPublicGroup() && isTribeICreated == true
     }
     
-    func isEncrypted() -> Bool {
-        if isPrivateGroup() {
-            return true
-        } else if isPublicGroup() {
+    public func isEncrypted() -> Bool {
+        if isPublicGroup() {
             if let _ = groupKey {
                 return true
             }
             return false
         } else if let contact = getContact() {
-            return contact.hasEncryptionKey()
+            return contact.isEncrypted()
         }
         return false
     }

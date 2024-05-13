@@ -99,15 +99,15 @@ class AuthExternalView: CommonModalView, LoadableNib {
     }
     
     func verifyExternal() {
-        API.sharedInstance.verifyExternal(callback: { success, object in
-            if let object = object, let token = object["token"] as? String, let info = object["info"] as? [String: AnyObject] {
-                self.authInfo?.token = token
-                self.authInfo?.info = info
-                self.signBase64()
-            } else {
-                self.showErrorAlert()
-            }
-        })
+//        API.sharedInstance.verifyExternal(callback: { success, object in
+//            if let object = object, let token = object["token"] as? String, let info = object["info"] as? [String: AnyObject] {
+//                self.authInfo?.token = token
+//                self.authInfo?.info = info
+//                self.signBase64()
+//            } else {
+//                self.showErrorAlert()
+//            }
+//        })
     }
     
     func takeUserToAuth() {
@@ -129,14 +129,14 @@ class AuthExternalView: CommonModalView, LoadableNib {
     }
     
     func signBase64() {
-        API.sharedInstance.signBase64(b64: "U3BoaW54IFZlcmlmaWNhdGlvbg==", callback: { sig in
-            if let sig = sig {
-                self.authInfo?.verificationSignature = sig
-                self.authorize()
-            } else {
-                self.showErrorAlert()
-            }
-        })
+//        API.sharedInstance.signBase64(b64: "U3BoaW54IFZlcmlmaWNhdGlvbg==", callback: { sig in
+//            if let sig = sig {
+//                self.authInfo?.verificationSignature = sig
+//                self.authorize()
+//            } else {
+//                self.showErrorAlert()
+//            }
+//        })
     }
     
     func authorize() {
@@ -146,7 +146,7 @@ class AuthExternalView: CommonModalView, LoadableNib {
            let token = authInfo?.token,
            var info = authInfo?.info {
             
-            info["url"] = UserData.sharedInstance.getNodeIP() as AnyObject
+//            info["url"] = UserData.sharedInstance.getNodeIP() as AnyObject
             info["verification_signature"] = verificationSignature as AnyObject
             
             API.sharedInstance.authorizeExternal(

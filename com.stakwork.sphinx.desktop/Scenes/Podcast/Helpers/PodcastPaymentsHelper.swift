@@ -111,6 +111,6 @@ class PodcastPaymentsHelper {
             params["text"] = "{\"feedID\":\(podcastId),\"itemID\":\(itemId),\"ts\":\(currentTime)}" as AnyObject
         }
         
-        API.sharedInstance.streamSats(params: params, callback: {}, errorCallback: {})
+//        API.sharedInstance.streamSats(params: params, callback: {}, errorCallback: {})
     }
 }

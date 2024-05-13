@@ -90,18 +90,18 @@ class TribeMembersDataSource : NSObject {
     func loadTribeContacts() {
         guard let id = chat?.id else { return }
         
-        API.sharedInstance.getContactsForChat(chatId: id, callback: { [weak self] c in
-            guard let self else { return }
-            
-            loading = false
-            
-            let (contacts, pendingContacts) = self.getGroupContactsFrom(contacts: c)
-            
-            self.pendingMembers.append(contentsOf: pendingContacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
-            self.members.append(contentsOf: contacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
-            
-            self.collectionView.reloadData()
-        })
+//        API.sharedInstance.getContactsForChat(chatId: id, callback: { [weak self] c in
+//            guard let self else { return }
+//            
+//            loading = false
+//            
+//            let (contacts, pendingContacts) = self.getGroupContactsFrom(contacts: c)
+//            
+//            self.pendingMembers.append(contentsOf: pendingContacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
+//            self.members.append(contentsOf: contacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
+//            
+//            self.collectionView.reloadData()
+//        })
     }
     
     
@@ -273,19 +273,19 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
             return
         }
         
-        API.sharedInstance.kickMember(chatId: chat.id, contactId: contactId, callback: { [weak self] chatJson in
-            guard let self else { return }
-            if let chat = Chat.insertChat(chat: chatJson) {
-                self.reloadContacts(chat: chat)
-                return
-            }
-            loading = false
-            showErrorAlert()
-        }, errorCallback: { [weak self] in
-            guard let self else { return }
-            loading = false
-            showErrorAlert()
-        })
+//        API.sharedInstance.kickMember(chatId: chat.id, contactId: contactId, callback: { [weak self] chatJson in
+//            guard let self else { return }
+//            if let chat = Chat.insertChat(chat: chatJson) {
+//                self.reloadContacts(chat: chat)
+//                return
+//            }
+//            loading = false
+//            showErrorAlert()
+//        }, errorCallback: { [weak self] in
+//            guard let self else { return }
+//            loading = false
+//            showErrorAlert()
+//        })
     }
     
     func approveButtonClicked(item: NSCollectionViewItem) {
@@ -331,24 +331,24 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
         action: String,
         completion: @escaping (Chat, TransactionMessage) -> ()
     ) {
-        API.sharedInstance.requestAction(messageId: message.id, contactId: message.senderId, action: action, callback: { [weak self] json in
-            guard let self else { return }
-            
-            if let chat = Chat.insertChat(
-                chat: json["chat"]
-            ), let message = TransactionMessage.insertMessage(
-                m: json["message"],
-                existingMessage: TransactionMessage.getMessageWith(id: json["id"].intValue)
-            ).0 {
-                completion(chat, message)
-                return
-            }
-            self.loading = false
-            self.showErrorAlert()
-        }, errorCallback: { [weak self] in
-            guard let self else { return }
-            self.loading = false
-            self.showErrorAlert()
-        })
+//        API.sharedInstance.requestAction(messageId: message.id, contactId: message.senderId, action: action, callback: { [weak self] json in
+//            guard let self else { return }
+//            
+//            if let chat = Chat.insertChat(
+//                chat: json["chat"]
+//            ), let message = TransactionMessage.insertMessage(
+//                m: json["message"],
+//                existingMessage: TransactionMessage.getMessageWith(id: json["id"].intValue)
+//            ).0 {
+//                completion(chat, message)
+//                return
+//            }
+//            self.loading = false
+//            self.showErrorAlert()
+//        }, errorCallback: { [weak self] in
+//            guard let self else { return }
+//            self.loading = false
+//            self.showErrorAlert()
+//        })
     }
 }

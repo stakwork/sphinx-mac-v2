@@ -25,7 +25,6 @@ class SphinxReady: NSView, LoadableNib {
     }
     
     let walletBalanceService = WalletBalanceService()
-    let inviteActionsHelper = InviteActionsHelper()
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -92,8 +91,6 @@ extension SphinxReady : SignupButtonViewDelegate {
     }
     
     func goToApp() {
-        API.sharedInstance.lastSeenMessagesDate = Date(timeIntervalSince1970: 0)
-        
         SignupHelper.resetSignupData()
         SignupHelper.step = SignupHelper.SignupStep.SphinxReady.rawValue
         

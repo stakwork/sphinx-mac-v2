@@ -60,7 +60,7 @@ class SymmetricEncryptionManager {
     }
     
     func encryptData(data: Data) -> (String, Data?) {
-        let key = EncryptionManager.randomString(length: 32)
+        let key = SymmetricEncryptionManager.randomString(length: 32)
         let encryptedData = RNCryptor.encrypt(data: data, withPassword: key)
         return (key, encryptedData)
     }
@@ -105,5 +105,16 @@ class SymmetricEncryptionManager {
             }
         }
         return nil
+    }
+    
+    public static func randomString(length: Int) -> String {
+        let uuidString = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        
+        return String(
+            Data(uuidString.utf8)
+            .base64EncodedString()
+            .replacingOccurrences(of: "=", with: "")
+            .prefix(length)
+        )
     }
 }

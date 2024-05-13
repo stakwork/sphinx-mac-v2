@@ -151,18 +151,18 @@ extension NewChatViewModel {
             return
         }
         
-        guard let params = TransactionMessage.getTribePaymentParams(
-            chat: chat,
-            messageUUID: messageUUID,
-            amount: amount,
-            text: paymentObject.message ?? ""
-        ) else {
-            callback?(false)
-            return
-        }
-        
-        sendMessage(provisionalMessage: nil, params: params, completion: { (success, _) in
-            callback?(success)
-        })
+//        guard let params = TransactionMessage.getTribePaymentParams(
+//            chat: chat,
+//            messageUUID: messageUUID,
+//            amount: amount,
+//            text: paymentObject.message ?? ""
+//        ) else {
+//            callback?(false)
+//            return
+//        }
+//        
+//        sendMessage(provisionalMessage: nil, params: params, completion: { (success, _) in
+//            callback?(success)
+//        })
     }
 }
