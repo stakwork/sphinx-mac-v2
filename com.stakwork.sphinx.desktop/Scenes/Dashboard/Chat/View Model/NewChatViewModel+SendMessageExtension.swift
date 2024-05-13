@@ -13,7 +13,7 @@ extension NewChatViewModel {
         text: String,
         type: Int,
         data: Data,
-        completion: @escaping (Bool, Chat?) -> ()
+        completion: @escaping (Bool) -> ()
     ) {
         chatDataSource?.setMediaDataForMessageWith(
             messageId: TransactionMessage.getProvisionalMessageId(),
@@ -34,79 +34,41 @@ extension NewChatViewModel {
     func shouldSendMessage(
         text: String,
         type: Int,
-        completion: @escaping (Bool, Chat?) -> ()
+        completion: @escaping (Bool) -> ()
     ) {
         var messageText = text
-        
-        if messageText.isEmpty {
-            return
-        }
         
         if let podcastComment = podcastComment {
             messageText = podcastComment.getJsonString(withComment: text) ?? text
         }
         
-        let (botAmount, wrongAmount) = isWrongBotCommandAmount(text: messageText)
+        let (_, wrongAmount) = isWrongBotCommandAmount(text: messageText)
         
         if wrongAmount {
-            completion(false, nil)
+            completion(false)
+            return
+        }
+        guard let chat = chat else{
+            completion(false)
             return
         }
         
-        let _ = createProvisionalAndSend(
-            messageText: messageText,
-            type: type,
-            botAmount: botAmount,
-            completion: completion
-        )
-    }
-    
-    func createProvisionalAndSend(
-        messageText: String,
-        type: Int,
-        botAmount: Int,
-        completion: @escaping (Bool, Chat?) -> ()
-    ) -> TransactionMessage? {
+        let tuuid = threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
         
-        let provisionalMessage = insertProvisionalMessage(
-            text: messageText,
-            type: type,
-            chat: chat
-        )
-        
-        DelayPerformedHelper.performAfterDelay(seconds: 0.2, completion: {
-            self.sendMessage(
-                provisionalMessage: provisionalMessage,
-                text: messageText,
-                botAmount: botAmount,
-                completion: completion
-            )
-        })
-        
-        return provisionalMessage
-    }
-
-    func insertProvisionalMessage(
-        text: String,
-        type: Int,
-        chat: Chat?
-    ) -> TransactionMessage? {
-        
-        let message = TransactionMessage.createProvisionalMessage(
-            messageContent: text,
-            type: type,
-            date: Date(),
+        let validMessage = SphinxOnionManager.sharedInstance.sendMessage(
+            to: contact,
+            content: text,
             chat: chat,
-            replyUUID: replyingTo?.uuid,
-            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+            msgType: UInt8(type),
+            threadUUID: tuuid,
+            replyUUID: replyingTo?.uuid
         )
         
-        if chat == nil {
-            ///Sending first message. Chat does not exist yet
-            updateSnapshotWith(message: message)
-        }
+        let _ = validMessage?.makeProvisional(chat: self.chat)
         
-        return message
+        updateSnapshotWith(message: validMessage)
+        
+        completion(validMessage != nil)
     }
     
     func updateSnapshotWith(
@@ -118,18 +80,6 @@ extension NewChatViewModel {
         
         chatDataSource?.updateSnapshotWith(message: message)
     }
-    
-    func sendMessage(
-        provisionalMessage: TransactionMessage?,
-        text: String,
-        isResend: Bool = false,
-        botAmount: Int = 0,
-        completion: @escaping (Bool, Chat?) -> ()
-    ) {
-        
-    }
-
-    
     
     func deleteMessageWith(
         id: Int?
@@ -226,7 +176,7 @@ extension NewChatViewModel {
         self.shouldSendMessage(
             text: messageText,
             type: type,
-            completion: { (_, _) in }
+            completion: { (_) in }
         )
     }
 }

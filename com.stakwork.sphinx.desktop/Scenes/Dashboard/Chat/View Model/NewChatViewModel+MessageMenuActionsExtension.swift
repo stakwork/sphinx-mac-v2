@@ -23,12 +23,12 @@ extension NewChatViewModel {
     }
     
     func shouldResendMessage(message: TransactionMessage) {
-        sendMessage(
-            provisionalMessage: message,
-            text: message.messageContent ?? "",
-            isResend: true,
-            completion: { (_, _) in }
-        )
+//        sendMessage(
+//            provisionalMessage: message,
+//            text: message.messageContent ?? "",
+//            isResend: true,
+//            completion: { (_, _) in }
+//        )
     }
     
     func shouldTogglePinState(

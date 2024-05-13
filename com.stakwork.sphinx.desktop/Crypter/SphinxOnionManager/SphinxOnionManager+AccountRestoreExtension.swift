@@ -362,13 +362,14 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
     @objc func handleFetchFirstScidMessages(n: Notification) {
         print("Got first scid message notification: \(n)")
         
-        guard let message = n.userInfo?["message"] as? TransactionMessage else {
+        guard let _ = n.userInfo?["message"] as? TransactionMessage else {
             return
         }
 
         // Increment the count for messages processed in this phase
         messageFetchParams?.messageCountForPhase += 1
-        print("First scid message count: \(messageFetchParams?.messageCountForPhase)")
+        
+        print("First scid message count: \(messageFetchParams?.messageCountForPhase ?? 0)")
 
         if let messageCount = messageFetchParams?.messageCountForPhase,
            let totalMsgCount = msgTotalCounts?.firstMessageAvailableCount,

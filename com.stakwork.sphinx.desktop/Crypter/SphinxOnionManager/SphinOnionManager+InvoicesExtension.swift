@@ -99,7 +99,6 @@ extension SphinxOnionManager{//invoices related
     }
     
     func getTransactionHistory() -> [PaymentTransaction] {
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         var history = [PaymentTransaction]()
 
         let messages = TransactionMessage.fetchTransactionMessagesForHistory()

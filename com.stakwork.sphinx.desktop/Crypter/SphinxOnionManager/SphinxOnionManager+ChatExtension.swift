@@ -139,7 +139,7 @@ extension SphinxOnionManager{
         guard let seed = getAccountSeed() else {
             return nil
         }
-        let sendAmount = chat.isConversation() ? amount : max(1, amount)  //send keysends to group
+//        let sendAmount = chat.isConversation() ? amount : max(1, amount)  //send keysends to group
         
         guard let (contentJSONString, mediaToken) = formatMsg(
             content: content,
@@ -409,7 +409,7 @@ extension SphinxOnionManager{
                 NotificationCenter.default.post(name: .newOnionMessageWasReceived,object:nil, userInfo: ["message": TransactionMessage()])
             } else if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
                       let newUUID = message.uuid,
-                      var originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
+                      let originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
             {
                 originalMessage.uuid = newUUID
                 
@@ -540,7 +540,7 @@ extension SphinxOnionManager{
                 }
             } else if isMyMessageNeedingIndexUpdate(msg: message),
                 let uuid = message.uuid,
-                var cachedMessage = TransactionMessage.getMessageWith(uuid: uuid),
+                let cachedMessage = TransactionMessage.getMessageWith(uuid: uuid),
                 let indexString = message.index,
                 let index = Int(indexString)
             { //updates index of sent message
