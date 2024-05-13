@@ -88,14 +88,20 @@ class NotificationLevelView: NSView, LoadableNib {
     }
     
     func setChatNotificationLevel(_ level: Int) {
-//        API.sharedInstance.setNotificationLevel(chatId: chat.id, level: level, callback: { chatJson in
-//            if let updatedChat = Chat.insertChat(chat: chatJson) {
-//                self.chat = updatedChat
-//            }
-//            self.configureViewFromChat()
-//        }, errorCallback: {
-//            self.configureViewFromChat()
-//        })
+        guard let chat = Chat.getChatWith(id: chat.id) else{
+            return
+        }
+        
+        SphinxOnionManager.sharedInstance.setMuteLevel(
+            muteLevel: UInt8(level),
+            chat: chat,
+            recipContact: chat.getContact()
+        )
+        
+        chat.notify = level
+        
+        self.chat = chat
+        self.configureViewFromChat()
     }
     
     func configureViewFromChat() {

@@ -877,6 +877,23 @@ extension SphinxOnionManager{
         return chat.getContact()?.publicKey ?? chat.ownerPubkey ?? nil
     }
     
+    func toggleChatSound(
+        chatId: Int,
+        muted: Bool,
+        completion: @escaping (Chat?) -> ()
+    ) {
+        guard let chat = Chat.getChatWith(id: chatId) else{
+            return
+        }
+
+        let level = muted ? Chat.NotificationLevel.MuteChat.rawValue : Chat.NotificationLevel.SeeAll.rawValue
+
+        setMuteLevel(muteLevel: UInt8(level), chat: chat, recipContact: chat.getContact())
+        chat.notify = level
+        chat.managedObjectContext?.saveContext()
+        completion(chat)
+    }
+    
     func setMuteLevel(
         muteLevel: UInt8,
         chat: Chat,

@@ -47,13 +47,13 @@ class NewChatViewModel {
         
         let currentMode = chat.isMuted()
         
-//        API.sharedInstance.toggleChatSound(chatId: chat.id, muted: !currentMode, callback: { chatJson in
-//            if let updatedChat = Chat.insertChat(chat: chatJson) {
-//                completion(updatedChat)
-//            }
-//        }, errorCallback: {
-//            completion(nil)
-//        })
+        SphinxOnionManager.sharedInstance.toggleChatSound(
+            chatId: chat.id,
+            muted: !currentMode,
+            completion: { chat in
+                completion(chat)
+            }
+        )
     }
     
     ///Leaderboard and badges

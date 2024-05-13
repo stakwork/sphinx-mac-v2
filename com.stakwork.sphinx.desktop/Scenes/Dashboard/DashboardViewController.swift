@@ -123,9 +123,15 @@ class DashboardViewController: NSViewController {
             self.som.connectToV2Server(
                 contactRestoreCallback: self.contactRestoreCallback(percentage:),
                 messageRestoreCallback: self.messageRestoreCallback(percentage:),
-                hideRestoreViewCallback: self.hideRestoreViewCallback
+                hideRestoreViewCallback: self.hideRestoreViewCallback,
+                didConnectAckCallback: self.refreshUnreadStatus
             )
         })
+    }
+    
+    func refreshUnreadStatus(){
+        SphinxOnionManager.sharedInstance.getReads()
+        SphinxOnionManager.sharedInstance.getMuteLevels()
     }
     
     func hideRestoreViewCallback(){

@@ -164,6 +164,10 @@ extension SphinxOnionManager {
         
         handleIncomingTags(rr: rr)
         
+        processReadStatus(rr: rr)
+
+        processMuteLevels(rr: rr)
+        
         if isMessageSend,
            rr.msgs.count > 0,
            let tag = rr.msgs[0].tag

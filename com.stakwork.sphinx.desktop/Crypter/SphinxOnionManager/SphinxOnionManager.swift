@@ -192,7 +192,8 @@ class SphinxOnionManager : NSObject {
     func connectToV2Server(
         contactRestoreCallback: @escaping RestoreProgressCallback,
         messageRestoreCallback: @escaping RestoreProgressCallback,
-        hideRestoreViewCallback: @escaping ()->()
+        hideRestoreViewCallback: @escaping ()->(),
+        didConnectAckCallback: (()->())? = nil
     ){
         let som = self
         
@@ -231,6 +232,10 @@ class SphinxOnionManager : NSObject {
                         hideRestoreCallback()
                     }
                     som.syncMessagesSinceLastKnownIndexHeight()
+                }
+                
+                if let didConnectAckCallback = didConnectAckCallback {
+                    didConnectAckCallback()
                 }
             }
         })
