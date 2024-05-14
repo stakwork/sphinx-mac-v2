@@ -123,8 +123,8 @@ extension NamePinView : SignupButtonViewDelegate {
     func goToProfilePictureView() {
         loading = false
         
-        SignupHelper.step = SignupHelper.SignupStep.PINNameSet.rawValue
         UserData.sharedInstance.save(pin: pinField.getFieldValue())
+        SignupHelper.step = SignupHelper.SignupStep.PINNameSet.rawValue
         
         delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Image.rawValue)
     }

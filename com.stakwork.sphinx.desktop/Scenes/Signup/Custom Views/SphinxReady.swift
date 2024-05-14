@@ -35,7 +35,10 @@ class SphinxReady: NSView, LoadableNib {
         loadViewFromNib()
     }
     
-    init(frame frameRect: NSRect, delegate: WelcomeEmptyViewDelegate) {
+    init(
+        frame frameRect: NSRect,
+        delegate: WelcomeEmptyViewDelegate
+    ) {
         super.init(frame: frameRect)
         loadViewFromNib()
         

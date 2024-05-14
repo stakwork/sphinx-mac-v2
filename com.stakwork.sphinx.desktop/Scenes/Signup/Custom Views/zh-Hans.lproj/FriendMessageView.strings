@@ -1,3 +1,9 @@
 
 /* Class = "NSTextFieldCell"; title = "A message from your friend..."; ObjectID = "Gt2-97-fdI"; */
 "Gt2-97-fdI.title" = "来自朋友的消息...";
+
+/* Class = "NSTextFieldCell"; title = "Susan Johnson"; ObjectID = "HiF-wN-XLl"; */
+"HiF-wN-XLl.title" = "Sphinx Support";
+
+/* Class = "NSTextFieldCell"; title = "TT"; ObjectID = "kLe-Hp-pAO"; */
+"kLe-Hp-pAO.title" = "SS";

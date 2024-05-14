@@ -149,15 +149,8 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     }
     
     func continueSignupToConnecting(){
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-            if let contact = self.som.pendingContact, contact.isOwner == true {
-                self.som.isV2InitialSetup = true
-                self.continueToConnectingView(mode: .NewUser)
-            } else {
-                self.loading = false
-                AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
-            }
-        })
+        self.som.isV2InitialSetup = true
+        self.continueToConnectingView(signupMode: .NewUser)
     }
     
     func restoreWithCode(
@@ -171,24 +164,18 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     }
     
     func continueRestoreToConnecting() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-            if let contact = self.som.pendingContact, contact.isOwner == true {
-                self.som.isV2InitialSetup = true
-                self.continueToConnectingView(mode: .ExistingUser)
-            } else {
-                self.loading = false
-                AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
-            }
-        })
+        self.som.isV2InitialSetup = true
+        self.continueToConnectingView(signupMode: .ExistingUser)
     }
     
     func continueToConnectingView(
-        mode: SignupHelper.SignupMode
+        signupMode: SignupHelper.SignupMode
     ) {
         UserDefaults.Keys.lastPinDate.set(Date())
+        
         view.window?.replaceContentBy(
             vc: WelcomeEmptyViewController.instantiate(
-                mode: mode,
+                signupMode: signupMode,
                 viewMode: .Connecting
             )
         )

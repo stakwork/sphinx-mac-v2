@@ -11,6 +11,7 @@ import SwiftyJSON
 
 @objc protocol WelcomeEmptyViewDelegate: AnyObject {
     @objc optional func shouldContinueTo(mode: Int)
+    @objc optional func shouldGoToDashboard()
 }
 
 class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
@@ -25,14 +26,14 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     
     let userData = UserData.sharedInstance
     let contactsService = ContactsService()
+    let som = SphinxOnionManager.sharedInstance
     
-    var mode: SignupHelper.SignupMode = .NewUser
-    var continueMode: WelcomeViewMode? = .Connecting
+    var signupMode: SignupHelper.SignupMode = .NewUser
     var viewMode: WelcomeViewMode = .Connecting
     
     var isNewUser: Bool {
         get {
-            return mode == .NewUser
+            return signupMode == .NewUser
         }
     }
     
@@ -43,11 +44,11 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     var timeoutTimer: Timer?
     
     static func instantiate(
-        mode: SignupHelper.SignupMode,
+        signupMode: SignupHelper.SignupMode,
         viewMode: WelcomeViewMode
     ) -> WelcomeEmptyViewController {
         let viewController = StoryboardScene.Signup.welcomeEmptyViewController.instantiate()
-        viewController.mode = mode
+        viewController.signupMode = signupMode
         viewController.viewMode = viewMode
         return viewController
     }
@@ -74,57 +75,38 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     
     func continueProcess() {
         if viewMode == .Connecting {
-            if isNewUser {
-                continueSignup()
-            } else {
-                continueRestore()
-            }
+            listenForSelfContactRegistration()
+            setupTimeoutTimer()
         }
-    }
-    
-    func continueRestore() {
-        listenForSelfContactRegistration()
-        setupTimeoutTimer()
-    }
-    
-    func continueSignup() {
-        listenForSelfContactRegistration()
-        setupTimeoutTimer()
-    }
-    
-    func shouldGoBackToWelcome() {
-        messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
-        
-        DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
-            self.view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: .ExistingUser))
-        })
     }
     
     func shouldGoBack() {
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
         
-        DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
-            self.view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: .NewUser))
+        DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: self.signupMode))
         })
     }
 }
 
 extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
     func shouldContinueTo(mode: Int) {
-        let mode = WelcomeViewMode(rawValue: mode)
-        continueMode = mode
+        let welcomeViewMode = WelcomeViewMode(rawValue: mode)
         
-        switch (mode) {
+        switch (welcomeViewMode) {
         case .Welcome:
-            view.window?.replaceContentBy(vc: WelcomeEmptyViewController.instantiate(mode: .ExistingUser, viewMode: mode!))
+            view.window?.replaceContentBy(vc: WelcomeEmptyViewController.instantiate(signupMode: self.signupMode, viewMode: welcomeViewMode!))
             return
         case .FriendMessage:
-            view.window?.replaceContentBy(vc: WelcomeEmptyViewController.instantiate(mode: .NewUser, viewMode: mode!))
+            view.window?.replaceContentBy(vc: WelcomeEmptyViewController.instantiate(signupMode: self.signupMode, viewMode: welcomeViewMode!))
             return
         default:
             break
         }
-
+        
         if isNewUser {
             view.window?.replaceContentBy(
                 vc: WelcomeLightningViewController.instantiate()
@@ -134,6 +116,10 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
                 vc: WelcomeLightningViewController.instantiate(mode: .NamePin, signupMode: .ExistingUser)
             )
         }
+    }
+    
+    func shouldGoToDashboard() {
+        presentDashboard()
     }
     
     func closeWindow() {
@@ -166,7 +152,10 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference
+    ) {
         if let resultController = controller as? NSFetchedResultsController<NSManagedObject>,
            let firstSection = resultController.sections?.first {
             
@@ -199,14 +188,16 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
     }
     
     private func finalizeSignup() {
-        let som = SphinxOnionManager.sharedInstance
-        
         if let contact = som.pendingContact, contact.isOwner == true {
             som.isV2InitialSetup = true
             
             SignupHelper.step = SignupHelper.SignupStep.OwnerCreated.rawValue
             
-            self.shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
+            if isNewUser {
+                shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)
+            } else {
+                shouldContinueTo(mode: -1)
+            }
         } else {
             shouldGoBack()
         }

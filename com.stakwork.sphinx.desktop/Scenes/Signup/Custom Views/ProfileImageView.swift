@@ -36,6 +36,14 @@ class ProfileImageView: NSView, LoadableNib {
     var imageSet = false
     let messageBubbleHelper = NewMessageBubbleHelper()
     
+    var signupMode: SignupHelper.SignupMode = .NewUser
+    
+    var isRestoring: Bool {
+        get {
+            return signupMode == .ExistingUser
+        }
+    }
+    
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
@@ -55,10 +63,12 @@ class ProfileImageView: NSView, LoadableNib {
     init(
         frame frameRect: NSRect,
         nickname: String,
+        signupMode: SignupHelper.SignupMode,
         delegate: WelcomeEmptyViewDelegate
     ) {
         super.init(frame: frameRect)
         
+        self.signupMode = signupMode
         self.delegate = delegate
         
         loadViewFromNib()
@@ -114,7 +124,7 @@ class ProfileImageView: NSView, LoadableNib {
             selfContact.avatarUrl = photoUrl
             
             self.loading = false
-            self.goToSphinxReady()
+            self.continueProcess()
         } else {
             self.loading = false
             self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
@@ -155,13 +165,18 @@ extension ProfileImageView : SignupButtonViewDelegate {
             loading = true
             uploadImage(image: image)
         } else {
-            goToSphinxReady()
+            continueProcess()
         }
     }
     
-    func goToSphinxReady() {
-        SignupHelper.step = SignupHelper.SignupStep.ImageSet.rawValue
-        delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Ready.rawValue)
+    func continueProcess() {
+        if isRestoring {
+            delegate?.shouldContinueTo?(mode: -1)
+        } else {
+            SignupHelper.step = SignupHelper.SignupStep.ImageSet.rawValue
+            delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Ready.rawValue)
+        }
+        
     }
 }
 

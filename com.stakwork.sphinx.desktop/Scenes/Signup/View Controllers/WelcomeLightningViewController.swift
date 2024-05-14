@@ -96,6 +96,7 @@ class WelcomeLightningViewController: CommonWelcomeViewController {
             formView = ProfileImageView(
                 frame: NSRect.zero,
                 nickname: nickname ?? "",
+                signupMode: signupMode,
                 delegate: self
             )
             
@@ -139,16 +140,21 @@ extension WelcomeLightningViewController : WelcomeEmptyViewDelegate {
             if signupMode == .NewUser {
                 view.window?.replaceContentBy(vc: WelcomeMobileViewController.instantiate())
             } else {
-                continueToDashboard()
+                continueToWelcome()
             }
         }
     }
     
-    func continueToDashboard() {
+    func continueToWelcome() {
         SignupHelper.completeSignup()
         view.alphaValue = 0.0
         
-        presentDashboard()
+        view.window?.replaceContentBy(
+            vc: WelcomeEmptyViewController.instantiate(
+                signupMode: .ExistingUser,
+                viewMode: .Welcome
+            )
+        )
     }
     
     func addBubbleOnLeftContainer(mode: FormViewMode) {

@@ -42,6 +42,6 @@ class WelcomeView: NSView, LoadableNib {
 
 extension WelcomeView : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
-        self.delegate?.shouldContinueTo?(mode: -1)
+        self.delegate?.shouldGoToDashboard?()
     }
 }

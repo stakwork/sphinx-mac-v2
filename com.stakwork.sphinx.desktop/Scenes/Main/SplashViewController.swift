@@ -73,7 +73,7 @@ class SplashViewController: NSViewController {
     
     func presentWelcomeConnectingViewController() {
         setWindowStyleMask()
-        let welcomeEmptyVC = WelcomeEmptyViewController.instantiate(mode: .NewUser, viewMode: .Connecting)
+        let welcomeEmptyVC = WelcomeEmptyViewController.instantiate(signupMode: .NewUser, viewMode: .Connecting)
         view.window?.replaceContentBy(vc: welcomeEmptyVC)
     }
     
@@ -82,7 +82,7 @@ class SplashViewController: NSViewController {
             return
         }
         setWindowStyleMask()
-        let welcomeEmptyVC = WelcomeEmptyViewController.instantiate(mode: .NewUser, viewMode: .FriendMessage)
+        let welcomeEmptyVC = WelcomeEmptyViewController.instantiate(signupMode: .NewUser, viewMode: .FriendMessage)
         view.window?.replaceContentBy(vc: welcomeEmptyVC)
     }
     

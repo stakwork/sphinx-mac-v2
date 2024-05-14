@@ -59,6 +59,10 @@ extension SphinxOnionManager{//invites related
                 self.server_IP = lsp
             }
             
+            if let initialTribe = rr.initialTribe, let (host, _) = extractHostAndTribeIdentifier(from: initialTribe) {
+                API.kTribesServer = host
+            }
+            
             self.stashedContactInfo = rr.inviterContactInfo
             self.stashedInitialTribe = rr.initialTribe
             self.stashedInviteCode = inviteCode

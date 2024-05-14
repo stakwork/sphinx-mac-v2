@@ -630,7 +630,8 @@ public class Chat: NSManagedObject {
     }
     
     func updateTribeInfo(completion: @escaping () -> ()) {
-        let host = API.kTestV2TribesServer.replacingOccurrences(of: "http://", with: "") //TODO: update if we need to handle v1 and v2
+        let host = API.kTribesServer.replacingOccurrences(of: "http://", with: "")
+        
         if let uuid = ownerPubkey,
             host.isEmpty == false,
             isPublicGroup()

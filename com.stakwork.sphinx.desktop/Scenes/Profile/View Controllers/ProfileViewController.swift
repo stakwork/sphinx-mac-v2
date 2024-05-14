@@ -219,12 +219,12 @@ class ProfileViewController: NSViewController {
         
         let pinCodeVC = EnterPinViewController.instantiate(mode: .Export, subtitle: subtitle)
         pinCodeVC.doneCompletion = { pin in
-            WindowsManager.sharedInstance.backToProfile()
-            
             if let mnemonic = UserData.sharedInstance.getMnemonic(enteredPin: pin) {
                 SphinxOnionManager.sharedInstance.vc = self
                 SphinxOnionManager.sharedInstance.showMnemonicToUser(mnemonic: mnemonic, callback: {})
                 SphinxOnionManager.sharedInstance.vc = nil
+                
+                WindowsManager.sharedInstance.backToProfile()
             } else {
                 AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
             }

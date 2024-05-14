@@ -3,10 +3,7 @@
 "Gt2-97-fdI.title" = "Isang mensahe mula sa iyong kaibigan...";
 
 /* Class = "NSTextFieldCell"; title = "Susan Johnson"; ObjectID = "HiF-wN-XLl"; */
-"HiF-wN-XLl.title" = "Susan Johnson";
-
-/* Class = "NSTextFieldCell"; title = "Welcome to Sphinx!"; ObjectID = "MCO-GD-uZt"; */
-"MCO-GD-uZt.title" = "Maligayang pagdating sa Sphinx!";
+"HiF-wN-XLl.title" = "Sphinx Support";
 
 /* Class = "NSTextFieldCell"; title = "TT"; ObjectID = "kLe-Hp-pAO"; */
-"kLe-Hp-pAO.title" = "TT";
+"kLe-Hp-pAO.title" = "SS";

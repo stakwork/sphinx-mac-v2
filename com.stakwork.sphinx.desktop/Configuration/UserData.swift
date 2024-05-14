@@ -82,7 +82,7 @@ class UserData {
     ) {
         let defaultPin : String? = !SignupHelper.isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : nil
         
-        if let pin = defaultPin ?? getAppPin(), // apply default pin if it's a sign up otherwise apply the getAppPin
+        if let pin = getAppPin() ?? defaultPin, // apply getAppPin if it exists, otherwise apply default signup pin
             let encryptedMnemonic = SymmetricEncryptionManager.sharedInstance.encryptString(text: walletMnemonic, key: pin),
             !encryptedMnemonic.isEmpty
         {
@@ -95,7 +95,7 @@ class UserData {
     ) -> String? {
         let defaultPin : String? = !SignupHelper.isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : enteredPin
         
-        if let pin = (defaultPin) ?? getAppPin(),
+        if let pin = getAppPin() ?? defaultPin,
             let encryptedMnemonic = keychainManager.getValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue),
             !encryptedMnemonic.isEmpty
         {
