@@ -193,7 +193,7 @@
 "invalid.code.invoice" = "これは請求書のようです。登録するには、https://sphinx.chatから招待コードが必要です";
 "invalid.code" = "このコードは認識できません。登録するには、https://sphinx.chatから招待コードが必要です";
 "invalid.code.claim" = "このQRコードを請求する際にエラーが発生しました。もう一度お試しください。";
-"invalid.restore.code" = "このコードは認識できません。復元するには、モバイルアプリからキーをコピーしてここに貼り付ける必要があります";
+"invalid.restore.code" = "このコードは認識されません。復元するには、ニーモニックワードを貼り付ける必要があります";
 "tor.connection.failed" = "Tor接続エラー";
 "establishing.tor.circuit" = "Tor回路を確立しています...";
 "wait.tor.request" = "お待ちください。このプロセスには数分かかる場合があります...";

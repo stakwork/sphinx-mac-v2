@@ -193,7 +193,7 @@
 "invalid.code.invoice" = "這看起來像一個發票，要註冊您需要從https://sphinx.chat獲得一個邀請碼";
 "invalid.code" = "我們不認識這個代碼，要註冊您需要從https://sphinx.chat獲得一個邀請碼";
 "invalid.code.claim" = "聲稱此QR碼時出錯。請再試一次。";
-"invalid.restore.code" = "我們不認識這個代碼，要恢復您需要從移動應用中複製您的密鑰並貼上這裡";
+"invalid.restore.code" = "我们无法识别此代码，要恢复您需要粘贴您的助记词";
 "tor.connection.failed" = "Tor連接錯誤";
 "establishing.tor.circuit" = "建立Tor電路...";
 "wait.tor.request" = "請等待。這個過程可能需要幾分鐘...";

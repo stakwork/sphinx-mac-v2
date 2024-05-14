@@ -39,7 +39,6 @@ class SphinxOnionManager : NSObject {
     var messageTimers: [String: Timer] = [:]
     
     var messageFetchParams : MessageFetchParams? = nil
-    var newMessageSyncedListener: NSFetchedResultsController<TransactionMessage>?
     
     var isV2InitialSetup: Bool = false
     var shouldPostUpdates : Bool = false

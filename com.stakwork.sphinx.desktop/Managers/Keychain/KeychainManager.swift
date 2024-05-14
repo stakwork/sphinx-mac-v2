@@ -21,9 +21,9 @@ class KeychainManager {
     public static let kKeychainGroup = "8297M44YTW.sphinxV2SharedItems"
     
     enum KeychainKeys : String {
-        case pin = "app_pin"
-        case walletMnemonic = "wallet_mnemonic"
-        case balance_msats = "balance_msats"
+        case pin = "mac.app_pin"
+        case walletMnemonic = "mac.wallet_mnemonic"
+        case balance_msats = "mac.balance_msats"
     }
     
     let keychain = Keychain(service: "sphinx-app", accessGroup: KeychainManager.kKeychainGroup).synchronizable(true)

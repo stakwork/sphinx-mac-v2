@@ -15,7 +15,7 @@ extension ProfileViewController {
             AlertHelper.showTwoOptionsAlert(title: "pin.change".localized, message: "confirm.pin.change".localized, confirm: {
                 UserData.sharedInstance.save(pin: pin)
                 
-                newMessageBubbleHelper.showGenericMessageView(
+                self.newMessageBubbleHelper.showGenericMessageView(
                     text: "pin.changed".localized,
                     in: self.view,
                     delay: 6,

@@ -192,7 +192,7 @@
 "invalid.code.invoice" = "Mukhang isang invoice ito, para mag-sign up need mo ng code ng imbitasyon mula sa https://sphinx.chat";
 "invalid.code" = "Hindi namin nakikilala ang code na ito, upang mag-sign up, need mo ng code ng imbitasyon mula sa https://sphinx.chat";
 "invalid.code.claim" = "Nagkaroon ng error sa pag-claim sa QR code na ito. Pakisubukang muli.";
-"invalid.restore.code" = "Hindi makikilala ang code na ito, upang maibalik, kakailanganin mong kopyahin ang iyong keys sa mobile app at i-paste ito dito";
+"invalid.restore.code" = "Hindi namin nakikilala ang code na ito, para maibalik kailangan mong i-paste ang iyong mga mnemonic na salita";
 "tor.connection.failed"  = "May pagkakamali  sa koneksyon ng Tor";
 "establishing.tor.circuit" = "Establishing Tor circuit...";
 "wait.tor.request"  = "Mangyaring maghintay. Maaaring tumagal ng ilang minuto ang prosesong ito...";

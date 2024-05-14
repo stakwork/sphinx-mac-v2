@@ -166,14 +166,18 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        if let _ = controller.fetchedObjects?.first {
-            selfContactFetchListener = nil
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+        if let resultController = controller as? NSFetchedResultsController<NSManagedObject>,
+           let firstSection = resultController.sections?.first {
             
-            timeoutTimer?.invalidate()
-            timeoutTimer = nil
-            
-            finalizeSignup()
+            if let _ = firstSection.objects?.first {
+                selfContactFetchListener = nil
+                
+                timeoutTimer?.invalidate()
+                timeoutTimer = nil
+                
+                finalizeSignup()
+            }
         }
     }
     
@@ -188,6 +192,8 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
 
                     self.shouldGoBack()
                 }
+            } else {
+                self.finalizeSignup()
             }
         }
     }

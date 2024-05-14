@@ -154,6 +154,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
                 self.som.isV2InitialSetup = true
                 self.continueToConnectingView(mode: .NewUser)
             } else {
+                self.loading = false
                 AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
             }
         })
@@ -175,6 +176,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
                 self.som.isV2InitialSetup = true
                 self.continueToConnectingView(mode: .ExistingUser)
             } else {
+                self.loading = false
                 AlertHelper.showAlert(title: "Error", message: "Unable to connect to Sphinx V2 Test Server")
             }
         })
@@ -205,6 +207,10 @@ extension WelcomeCodeViewController : SignupFieldViewDelegate {
     
     func validateCode(code: String) -> Bool {
         if code.isV2InviteCode {
+            return true
+        }
+        
+        if som.isMnemonic(code: code) {
             return true
         }
         
