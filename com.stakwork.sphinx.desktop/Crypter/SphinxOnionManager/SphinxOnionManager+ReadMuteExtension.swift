@@ -9,15 +9,14 @@
 import Foundation
 
 extension SphinxOnionManager {
-    func processReadStatus(rr:RunReturn){
-        if let lastRead = rr.lastRead{
-            print(lastRead)
+    func processReadStatus(rr: RunReturn){
+        if let lastRead = rr.lastRead {
             let lastReadIds = extractLastReadIds(jsonString: lastRead)
             print(lastReadIds)
-            var chatListUnreadDict = [Int:Int]()
-            for lastReadId in lastReadIds{
-                if let message = TransactionMessage.getMessageWith(id: lastReadId),
-                   let chat = message.chat{
+            
+            var chatListUnreadDict = [Int: Int]()
+            for lastReadId in lastReadIds {
+                if let message = TransactionMessage.getMessageWith(id: lastReadId), let chat = message.chat {
                     if let existingLastReadForChat = chatListUnreadDict[chat.id], lastReadId > existingLastReadForChat {
                         // Update the last read message ID if the new ID is greater than the existing one
                         chatListUnreadDict[chat.id] = lastReadId
@@ -27,13 +26,12 @@ extension SphinxOnionManager {
                     }
                 }
             }
-
             updateChatReadStatus(chatListUnreadDict: chatListUnreadDict)
         }
     }
 
-    func processMuteLevels(rr:RunReturn){
-        if let muteLevels = rr.muteLevels{
+    func processMuteLevels(rr: RunReturn) {
+        if let muteLevels = rr.muteLevels {
             let muteDict = extractMuteIds(jsonString: muteLevels)
             updateMuteLevels(pubkeyToMuteLevelDict: muteDict)
         }
@@ -41,15 +39,18 @@ extension SphinxOnionManager {
 
     func updateChatReadStatus(chatListUnreadDict: [Int: Int]) {
         for (chatId, lastReadId) in chatListUnreadDict {
-            Chat.updateMessageReadStatus(chatId: chatId, lastReadId: lastReadId)
+            Chat.updateMessageReadStatus(
+                chatId: chatId,
+                lastReadId: lastReadId
+            )
         }
     }
 
-    func updateMuteLevels(pubkeyToMuteLevelDict: [String:Any]){
-        for (pubkey, muteLevel) in pubkeyToMuteLevelDict{
+    func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {
+        for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
             let chat = UserContact.getContactWith(pubkey: pubkey)?.getChat() ?? Chat.getTribeChatWithOwnerPubkey(ownerPubkey: pubkey)
-            if let level = muteLevel as? Int,
-               (chat?.notify ?? -1) != level{
+            
+            if let level = muteLevel as? Int, (chat?.notify ?? -1) != level {
                 chat?.notify = level
                 chat?.managedObjectContext?.saveContext()
             }
@@ -57,33 +58,26 @@ extension SphinxOnionManager {
     }
 
 
-    func extractLastReadIds(jsonString:String)->[Int]{
-        if let jsonData = jsonString.data(using: .utf8) {
-            do {
-                // Parse the JSON data into a dictionary
-                if let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
-                    // Collect all values
-                    let values = jsonDict.values.compactMap({ $0 as? Int })
-                    return values
-                }
-            } catch {
-                print("Error parsing JSON: \(error)")
-            }
-        } else {
-            print("Error creating Data from jsonString")
-        }
-
-        return []
+    func extractLastReadIds(jsonString: String) -> [Int] {
+        let values = parse(jsonString: jsonString)
+        return values.values.compactMap({ $0 as? Int })
     }
 
-    func extractMuteIds(jsonString:String)->[String:Any]{
+    func extractMuteIds(jsonString: String) -> [String: Any] {
+        let values = parse(jsonString: jsonString)
+        return values
+    }
+    
+    func parse(jsonString: String) -> [String: Any] {
         if let jsonData = jsonString.data(using: .utf8) {
             do {
                 // Parse the JSON data into a dictionary
-                if let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                if let jsonDict = try JSONSerialization.jsonObject(
+                    with: jsonData,
+                    options: []
+                ) as? [String: Any] {
                     // Collect all values
-                    let values = jsonDict
-                    return values
+                    return jsonDict
                 }
             } catch {
                 print("Error parsing JSON: \(error)")

@@ -633,7 +633,6 @@ extension SphinxOnionManager{
         newMessage.chat = chat
         newMessage.replyUUID = message.replyUuid
         newMessage.threadUUID = message.threadUuid
-        newMessage.chat?.seen = false
         newMessage.senderAlias = csr?.alias
         newMessage.senderPic = csr?.photoUrl
         newMessage.mediaKey = message.mediaKey

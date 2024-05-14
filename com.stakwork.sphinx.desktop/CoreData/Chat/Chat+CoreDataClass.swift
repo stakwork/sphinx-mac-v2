@@ -422,15 +422,24 @@ public class Chat: NSManagedObject {
     ) {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "chat.id == %d", chatId)
+        
+        fetchRequest.predicate = NSPredicate(
+            format: "chat.id == %d AND seen = %@",
+            chatId,
+            NSNumber(booleanLiteral: false)
+        )
+        
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
 
         do {
             let messages = try managedContext.fetch(fetchRequest)
-            for message in messages {
+            for (index, message) in messages.enumerated() {
                 if message.id <= lastReadId {
+                    if index == 0 {
+                        message.chat?.seen = true
+                    }
                     message.seen = true
                 } else {
-                    message.seen = false
                     message.chat?.seen = false
                 }
             }
