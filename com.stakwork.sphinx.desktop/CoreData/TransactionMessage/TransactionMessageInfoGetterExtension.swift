@@ -967,7 +967,8 @@ extension TransactionMessage {
     
     func shouldAvoidShowingBubble() -> Bool {
         let groupsPinManager = GroupsPinManager.sharedInstance
-        let isStandardPIN = groupsPinManager.isStandardPIN
+//        let isStandardPIN = groupsPinManager.isStandardPIN
+        let isStandardPIN = true
         let isPrivateConversation = !(chat?.isGroup() ?? false)
         let messageSender = getMessageSender()
         

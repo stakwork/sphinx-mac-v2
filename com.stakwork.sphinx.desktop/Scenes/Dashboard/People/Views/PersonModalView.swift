@@ -118,28 +118,28 @@ class PersonModalView: CommonModalView, LoadableNib {
             let routeHint = authInfo?.jsonBody["owner_route_hint"].string ?? ""
             let contactKey = authInfo?.jsonBody["owner_contact_key"].string ?? ""
             
-            UserContactsHelper.createContact(
-                nickname: nickname,
-                pubKey: pubkey,
-                routeHint: routeHint,
-                contactKey: contactKey,
-                callback: { (success, contactId) in
-                    
-                    if let contactId = contactId, success {
-                        self.configureFetchResultsControllerFor(contactId: contactId)
-                        
-                        self.timeOutTimer = Timer.scheduledTimer(
-                            timeInterval: 30.0,
-                            target: self,
-                            selector: #selector(self.handleKeyExchangeTimeout),
-                            userInfo: nil,
-                            repeats: false
-                        )
-                        return
-                    }
-                    self.showErrorMessage()
-                }
-            )
+//            UserContactsHelper.createContact(
+//                nickname: nickname,
+//                pubKey: pubkey,
+//                routeHint: routeHint,
+//                contactKey: contactKey,
+//                callback: { (success, contactId) in
+//                    
+//                    if let contactId = contactId, success {
+//                        self.configureFetchResultsControllerFor(contactId: contactId)
+//                        
+//                        self.timeOutTimer = Timer.scheduledTimer(
+//                            timeInterval: 30.0,
+//                            target: self,
+//                            selector: #selector(self.handleKeyExchangeTimeout),
+//                            userInfo: nil,
+//                            repeats: false
+//                        )
+//                        return
+//                    }
+//                    self.showErrorMessage()
+//                }
+//            )
         }
     }
     

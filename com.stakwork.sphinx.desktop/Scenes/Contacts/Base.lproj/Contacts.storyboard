@@ -311,7 +311,7 @@
                                                 <constraint firstItem="4xw-Xl-fPh" firstAttribute="top" secondItem="N9G-aS-loT" secondAttribute="bottom" id="xhc-T6-tMP"/>
                                             </constraints>
                                         </customView>
-                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="e8F-m4-BX5" customClass="GroupPinView" customModule="Sphinx" customModuleProvider="target">
+                                        <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e8F-m4-BX5" customClass="GroupPinView" customModule="Sphinx" customModuleProvider="target">
                                             <rect key="frame" x="32" y="145" width="350" height="75"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="75" id="bqv-bx-vIn"/>

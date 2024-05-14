@@ -93,94 +93,24 @@ class UserContactsHelper {
         }
     }
     
-    public static func updateContact(
-        contact: UserContact?,
-        nickname: String? = nil,
-        routeHint: String? = nil,
-        contactKey: String? = nil,
-        pin: String? = nil,
-        callback: @escaping (Bool) -> ()
-    ) {
-        guard let contact = contact else {
-            return
-        }
-        
-        var parameters: [String : AnyObject] = [:]
-        
-        if let nickname = nickname {
-            parameters["alias"] = nickname as AnyObject
-        }
-        
-        if let routeHint = routeHint {
-            parameters["route_hint"] = routeHint as AnyObject
-        }
-        
-        if let contactKey = contactKey {
-            parameters["contact_key"] = contactKey as AnyObject
-        }
-        
-//        API.sharedInstance.updateUser(id: contact.id, params: parameters, callback: { contact in
-//            DispatchQueue.main.async {
-//                let _ = self.insertContact(contact: contact, pin: pin)
-//                callback(true)
-//            }
-//        }, errorCallback: {
-//            callback(false)
-//        })
-    }
-    
-    public static func createContact(
-        nickname: String,
-        pubKey: String,
-        routeHint: String? = nil,
-        photoUrl: String? = nil,
-        pin: String? = nil,
-        contactKey: String? = nil,
-        callback: @escaping (Bool, Int?) -> ()
-    ) {
-        
-        var parameters = [String : AnyObject]()
-        parameters["alias"] = nickname as AnyObject
-        parameters["public_key"] = pubKey as AnyObject
-        parameters["status"] = UserContact.Status.Confirmed.rawValue as AnyObject
-        
-        if let photoUrl = photoUrl {
-            parameters["photo_url"] = photoUrl as AnyObject
-        }
-        
-        if let routeHint = routeHint {
-            parameters["route_hint"] = routeHint as AnyObject
-        }
-        
-        if let contactKey = contactKey {
-            parameters["contact_key"] = contactKey as AnyObject
-        }
-        
-//        API.sharedInstance.createContact(params: parameters, callback: { contact in
-//            let contactObject = self.insertContact(contact: contact, pin: pin)
-//            callback(true, contactObject?.id)
-//        }, errorCallback: {
-//            callback(false, nil)
-//        })
-    }
-    
     public static func createV2Contact(
         nickname: String,
         pubKey: String,
         routeHint: String,
         photoUrl: String? = nil,
-        pin: String? = nil,
         contactKey: String? = nil,
         callback: @escaping (Bool, UserContact?) -> ()
     ){
         let contactInfo = pubKey + "_" + routeHint
+        
         SphinxOnionManager.sharedInstance.makeFriendRequest(
             contactInfo: contactInfo,
             nickname: nickname
         )
         
         var maxTicks = 20
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
+        
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
             if let successfulContact = UserContact.getContactWithDisregardStatus(pubkey: pubKey) {
                 callback(true, successfulContact)
                 timer.invalidate()

@@ -398,9 +398,9 @@ import WebKit
      }
     
     func logoutButtonClicked() {
-        ContactsService.sharedInstance.reset()
-        GroupsPinManager.sharedInstance.logout()
-        presentPIN()
+//        ContactsService.sharedInstance.reset()
+//        GroupsPinManager.sharedInstance.logout()
+//        presentPIN()
     }
     
     func selectItemWith(tag: Int, in menu: NSMenu) {

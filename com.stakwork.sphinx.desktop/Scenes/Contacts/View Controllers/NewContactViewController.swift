@@ -102,7 +102,7 @@ class NewContactViewController: NSViewController {
             addressField.stringValue = contact.publicKey ?? ""
             routeHintField.stringValue = contact.routeHint ?? ""
             
-            groupPinView.configureWith(view: view, contact: contact, delegate: self)
+//            groupPinView.configureWith(view: view, contact: contact, delegate: self)
         } else {
             if let pubkey = pubkey {
                 let (pk, rh) = (pubkey.isV2Pubkey) ? pubkey.v2PubkeyComponents : pubkey.pubkeyComponents
@@ -153,50 +153,47 @@ class NewContactViewController: NSViewController {
             updateProfile()
         } else if routeHintField.stringValue.isV2RouteHint {
             createV2Contact()
-        } else {
-            createContact()
         }
     }
     
     func updateProfile() {
-        guard let contact = contact else {
-            return
-        }
-        let nicknameDidChange = !userNameField.stringValue.isEmpty && userNameField.stringValue != contact.nickname
-        let routeHint = routeHintField.stringValue
-        let routeHintDidChange = routeHint != contact.routeHint
-        let pin = groupPinView.getPin()
-        
-        if !routeHint.isEmpty && !routeHint.isRouteHint && !routeHint.isV2RouteHint {
-            showErrorAlert(message: "invalid.route.hint".localized)
-        } else if contact.id > 0 && (nicknameDidChange || routeHintDidChange || groupPinView.didChangePin) {
-            UserContactsHelper.updateContact(
-                contact: contact,
-                nickname: userNameField.stringValue,
-                routeHint: routeHintField.stringValue,
-                pin: pin,
-                callback: { success in
-                    self.loading = false
-                    
-                    if success {
-                        self.delegate?.shouldReloadContacts()
-                        self.closeWindow()
-                    } else {
-                        self.showErrorAlert(message: "generic.error.message".localized)
-                    }
-                }
-            )
-        } else {
-            loading = false
-            userNameField.stringValue = contact.getName()
-        }
+//        guard let contact = contact else {
+//            return
+//        }
+//        let nicknameDidChange = !userNameField.stringValue.isEmpty && userNameField.stringValue != contact.nickname
+//        let routeHint = routeHintField.stringValue
+//        let routeHintDidChange = routeHint != contact.routeHint
+//        let pin = groupPinView.getPin()
+//        
+//        if !routeHint.isEmpty && !routeHint.isRouteHint && !routeHint.isV2RouteHint {
+//            showErrorAlert(message: "invalid.route.hint".localized)
+//        } else if contact.id > 0 && (nicknameDidChange || routeHintDidChange || groupPinView.didChangePin) {
+//            UserContactsHelper.updateContact(
+//                contact: contact,
+//                nickname: userNameField.stringValue,
+//                routeHint: routeHintField.stringValue,
+//                pin: pin,
+//                callback: { success in
+//                    self.loading = false
+//                    
+//                    if success {
+//                        self.delegate?.shouldReloadContacts()
+//                        self.closeWindow()
+//                    } else {
+//                        self.showErrorAlert(message: "generic.error.message".localized)
+//                    }
+//                }
+//            )
+//        } else {
+//            loading = false
+//            userNameField.stringValue = contact.getName()
+//        }
     }
     
     func createV2Contact(){
         let nickname = userNameField.stringValue
         let pubkey = addressField.stringValue
         let routeHint = routeHintField.stringValue
-        let pin = groupPinView.getPin()
         
         if !pubkey.isEmpty && !pubkey.isPubKey {
             showErrorAlert(message: "invalid.pubkey".localized)
@@ -205,35 +202,9 @@ class NewContactViewController: NSViewController {
         } else if nickname.isEmpty || pubkey.isEmpty {
             showErrorAlert(message: "nickname.address.required".localized)
         } else {
-            UserContactsHelper.createV2Contact(nickname: nickname, pubKey: pubkey, routeHint: routeHint,pin: pin, callback: { (success, _) in
+            UserContactsHelper.createV2Contact(nickname: nickname, pubKey: pubkey, routeHint: routeHint, callback: { (success, _) in
                 self.loading = false
                 
-                if success {
-                    self.delegate?.shouldReloadContacts()
-                    self.closeWindow()
-                } else {
-                    self.showErrorAlert(message: "generic.error.message".localized)
-                }
-            })
-        }
-    }
-
-    func createContact() {
-        let nickname = userNameField.stringValue
-        let pubkey = addressField.stringValue
-        let routeHint = routeHintField.stringValue
-        let pin = groupPinView.getPin()
-
-        if !pubkey.isEmpty && !pubkey.isPubKey {
-            showErrorAlert(message: "invalid.pubkey".localized)
-        } else if !routeHint.isEmpty && !routeHint.isRouteHint && !routeHint.isV2RouteHint {
-            showErrorAlert(message: "invalid.route.hint".localized)
-        } else if nickname.isEmpty || pubkey.isEmpty {
-            showErrorAlert(message: "nickname.address.required".localized)
-        } else {
-            UserContactsHelper.createContact(nickname: nickname, pubKey: pubkey, routeHint: routeHint, pin: pin, callback: { (success, _) in
-                self.loading = false
-
                 if success {
                     self.delegate?.shouldReloadContacts()
                     self.closeWindow()
@@ -286,15 +257,9 @@ extension NewContactViewController : NSTextFieldDelegate {
         if let contact = contact {
             let nicknameDidChange = userNameField.stringValue != contact.nickname
             let routeHintDidChange = routeHintField.stringValue != contact.routeHint
-            let pinDidChange = groupPinView.didChangePin
-            return (nicknameDidChange || routeHintDidChange || pinDidChange)
+//            let pinDidChange = groupPinView.didChangePin
+            return (nicknameDidChange || routeHintDidChange)
         }
         return false
-    }
-}
-
-extension NewContactViewController : GroupPinViewDelegate {
-    func pinDidChange() {
-        saveEnabled = shouldEnableSaveButton()
     }
 }

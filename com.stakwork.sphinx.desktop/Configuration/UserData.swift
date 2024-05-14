@@ -31,19 +31,11 @@ class UserData {
     }
     
     func getPINHours() -> Int {
-        if GroupsPinManager.sharedInstance.isStandardPIN {
-            return UserDefaults.Keys.pinHours.get(defaultValue: Constants.kMaxPinTimeoutValue)
-        } else {
-            return UserDefaults.Keys.privacyPinHours.get(defaultValue: Constants.kMaxPinTimeoutValue)
-        }
+        return UserDefaults.Keys.pinHours.get(defaultValue: Constants.kMaxPinTimeoutValue)
     }
     
     func setPINHours(hours: Int) {
-        if GroupsPinManager.sharedInstance.isStandardPIN {
-            UserDefaults.Keys.pinHours.set(hours)
-        } else {
-            UserDefaults.Keys.privacyPinHours.set(hours)
-        }
+        UserDefaults.Keys.pinHours.set(hours)
     }
     
     func getUserId() -> Int {
@@ -69,21 +61,8 @@ class UserData {
     func save(pin: String) {
         if let existingMnemonic = self.getMnemonic() {
             SphinxOnionManager.sharedInstance.appSessionPin = pin
+            
             self.save(walletMnemonic: existingMnemonic) //update mnemonic encryption
-        }
-    }
-    
-    func save(privacyPin: String) {
-        saveValueFor(value: privacyPin, for: KeychainManager.KeychainKeys.privacyPin, userDefaultKey: UserDefaults.Keys.privacyPIN)
-    }
-    
-    func save(currentSessionPin: String) {
-        saveValueFor(value: currentSessionPin, for: KeychainManager.KeychainKeys.currentPin, userDefaultKey: UserDefaults.Keys.currentSessionPin)
-    }
-    
-    func saveValueFor(value: String, for keychainKey: KeychainManager.KeychainKeys, userDefaultKey: DefaultKey<String>? = nil) {
-        if !keychainManager.save(value: value, forKey: keychainKey.rawValue) {
-            userDefaultKey?.set(value)
         }
     }
     
@@ -94,35 +73,8 @@ class UserData {
         return nil
     }
     
-    func getPrivacyPin() -> String? {
-        return getValueFor(keychainKey: KeychainManager.KeychainKeys.privacyPin, userDefaultKey: UserDefaults.Keys.privacyPIN)
-    }
-    
-    func getCurrentSessionPin() -> String {
-        return getValueFor(keychainKey: KeychainManager.KeychainKeys.currentPin, userDefaultKey: UserDefaults.Keys.currentSessionPin)
-    }
-    
     func getPassword() -> String {
         UserDefaults.Keys.nodePassword.get(defaultValue: "")
-    }
-    
-    func getValueFor(keychainKey: KeychainManager.KeychainKeys, userDefaultKey: DefaultKey<String>? = nil) -> String {
-        if let value = userDefaultKey?.get(defaultValue: ""), !value.isEmpty {
-            if keychainManager.save(value: value, forKey: keychainKey.rawValue) {
-                userDefaultKey?.removeValue()
-            }
-            return value
-        }
-        
-        if let value = keychainManager.getValueFor(key: keychainKey.rawValue), !value.isEmpty {
-            return value
-        }
-        
-        return ""
-    }
-    
-    func forcePINSyncOnKeychain() {
-        let _ = getAppPin()
     }
     
     func save(
@@ -185,6 +137,7 @@ class UserData {
     
     func clearData() {
         CoreDataManager.sharedManager.clearCoreDataStore()
+        let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue)
         UserDefaults.resetUserDefaults()
     }
 }

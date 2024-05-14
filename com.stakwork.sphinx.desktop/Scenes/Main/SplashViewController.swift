@@ -32,27 +32,28 @@ class SplashViewController: NSViewController {
         if UserData.sharedInstance.isUserLogged() {
             goToApp()
         } else {
-            let currentStep = SignupHelper.step
-            switch(currentStep) {
-            case SignupHelper.SignupStep.OwnerCreated.rawValue:
-                presentInviteWelcomeViewController()
-                break
-            case  SignupHelper.SignupStep.InviterContactCreated.rawValue:
-                presentNamePinViewController()
-                break
-            case SignupHelper.SignupStep.PINNameSet.rawValue:
-                presentProfilePictureViewController()
-                break
-            case SignupHelper.SignupStep.ImageSet.rawValue:
-                presentSphinxReadyViewController()
-                break
-            case SignupHelper.SignupStep.SphinxReady.rawValue, SignupHelper.SignupStep.SignupComplete.rawValue:
-                goToApp()
-                break
-            default:
-                presentWelcomeView()
-                break
-            }
+            presentWelcomeView()
+//            let currentStep = SignupHelper.step
+//            switch(currentStep) {
+//            case SignupHelper.SignupStep.OwnerCreated.rawValue:
+//                presentInviteWelcomeViewController()
+//                break
+//            case  SignupHelper.SignupStep.InviterContactCreated.rawValue:
+//                presentNamePinViewController()
+//                break
+//            case SignupHelper.SignupStep.PINNameSet.rawValue:
+//                presentProfilePictureViewController()
+//                break
+//            case SignupHelper.SignupStep.ImageSet.rawValue:
+//                presentSphinxReadyViewController()
+//                break
+//            case SignupHelper.SignupStep.SphinxReady.rawValue, SignupHelper.SignupStep.SignupComplete.rawValue:
+//                goToApp()
+//                break
+//            default:
+//                presentWelcomeView()
+//                break
+//            }
         }
     }
     

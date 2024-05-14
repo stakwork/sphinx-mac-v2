@@ -42,18 +42,44 @@ class ChangePinView: NSView, LoadableNib {
         confirmButtonView.configureWith(title: "confirm".localized, icon: "", tag: -1, delegate: self)
         confirmButtonView.buttonDisabled = true
         
-        oldPinFieldView.configureWith(placeHolder: "current.pin".localized, label: "current.pin".localized, backgroundColor: NSColor.Sphinx.PinFieldBackground, color: NSColor.Sphinx.Text, placeHolderColor: NSColor.Sphinx.SecondaryText, field: .OldPIN, delegate: self)
-        newPinFieldView.configureWith(placeHolder: "new.pin".localized, label: "new.pin".localized, backgroundColor: NSColor.Sphinx.PinFieldBackground, color: NSColor.Sphinx.Text, placeHolderColor: NSColor.Sphinx.SecondaryText, field: .PIN, delegate: self)
-        confirmNewPinFieldView.configureWith(placeHolder: "confirm.new.pin".localized, label: "confirm.new.pin".localized, backgroundColor: NSColor.Sphinx.PinFieldBackground, color: NSColor.Sphinx.Text, placeHolderColor: NSColor.Sphinx.SecondaryText, field: .ConfirmPIN, delegate: self)
+        oldPinFieldView.configureWith(
+            placeHolder: "current.pin".localized,
+            label: "current.pin".localized,
+            backgroundColor: NSColor.Sphinx.PinFieldBackground,
+            color: NSColor.Sphinx.Text,
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            field: .OldPIN,
+            delegate: self
+        )
+        
+        newPinFieldView.configureWith(
+            placeHolder: "new.pin".localized,
+            label: "new.pin".localized,
+            backgroundColor: NSColor.Sphinx.PinFieldBackground,
+            color: NSColor.Sphinx.Text,
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            field: .PIN,
+            delegate: self
+        )
+        
+        confirmNewPinFieldView.configureWith(
+            placeHolder: "confirm.new.pin".localized,
+            label: "confirm.new.pin".localized,
+            backgroundColor: NSColor.Sphinx.PinFieldBackground,
+            color: NSColor.Sphinx.Text,
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            field: .ConfirmPIN,
+            delegate: self
+        )
     }
     
     func set(mode: ChangePinViewController.ChangePinMode) {
         self.mode = mode
         
-        if mode == .SetPrivacy {
-            oldPinFieldView.getTextField().isEnabled = false
-            oldPinFieldView.alphaValue = 0.3
-        }
+//        if mode == .SetPrivacy {
+//            oldPinFieldView.getTextField().isEnabled = false
+//            oldPinFieldView.alphaValue = 0.3
+//        }
     }
 }
 
@@ -74,11 +100,11 @@ extension ChangePinView : SignupFieldViewDelegate {
     }
     
     func isValid() -> Bool {
-        if mode == .SetPrivacy {
-            return newPinFieldView.getFieldValue().length == 6 &&
-                   confirmNewPinFieldView.getFieldValue().length == 6 &&
-                   newPinFieldView.getFieldValue() == confirmNewPinFieldView.getFieldValue()
-        }
+//        if mode == .SetPrivacy {
+//            return newPinFieldView.getFieldValue().length == 6 &&
+//                   confirmNewPinFieldView.getFieldValue().length == 6 &&
+//                   newPinFieldView.getFieldValue() == confirmNewPinFieldView.getFieldValue()
+//        }
         
         return oldPinFieldView.getFieldValue().length == 6 &&
                newPinFieldView.getFieldValue().length == 6 &&
@@ -93,11 +119,12 @@ extension ChangePinView : SignupFieldViewDelegate {
     }
     
     func getChangingPin() -> String? {
-        if mode == .ChangeStandard {
-            return UserData.sharedInstance.getAppPin()
-        } else {
-            return UserData.sharedInstance.getPrivacyPin()
-        }
+//        if mode == .ChangeStandard {
+//            return UserData.sharedInstance.getAppPin()
+//        } else {
+//            return UserData.sharedInstance.getPrivacyPin()
+//        }
+        return UserData.sharedInstance.getAppPin()
     }
     
     func didUseTab(field: Int) {
@@ -112,11 +139,11 @@ extension ChangePinView : SignupFieldViewDelegate {
             self.window?.makeFirstResponder(confirmNewPinFieldView.getTextField())
             break
         default:
-            if mode == .SetPrivacy {
-                self.window?.makeFirstResponder(newPinFieldView.getTextField())
-            } else {
+//            if mode == .SetPrivacy {
+//                self.window?.makeFirstResponder(newPinFieldView.getTextField())
+//            } else {
                 self.window?.makeFirstResponder(oldPinFieldView.getTextField())
-            }
+//            }
             break
         }
     }

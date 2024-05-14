@@ -765,40 +765,8 @@ with contacts</string>
                                                                             </constraints>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
-                                                                        <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="ihP-0B-F4g">
-                                                                            <rect key="frame" x="0.0" y="290" width="414" height="80"/>
-                                                                            <view key="contentView" id="fx7-Pt-ZfE">
-                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
-                                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                                <subviews>
-                                                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bgY-Br-Sd8" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
-                                                                                        <buttonCell key="cell" type="square" title="Change Privacy PIN" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="ISn-bT-TNB">
-                                                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                                                            <font key="font" size="12" name="Roboto-Medium"/>
-                                                                                        </buttonCell>
-                                                                                        <color key="contentTintColor" name="PrimaryBlue"/>
-                                                                                        <constraints>
-                                                                                            <constraint firstAttribute="height" constant="80" id="dyF-32-hM9"/>
-                                                                                        </constraints>
-                                                                                        <connections>
-                                                                                            <action selector="privacyPinButtonClicked:" target="nVT-b1-Xti" id="1UF-Pd-oT7"/>
-                                                                                        </connections>
-                                                                                    </button>
-                                                                                </subviews>
-                                                                                <constraints>
-                                                                                    <constraint firstAttribute="bottom" secondItem="bgY-Br-Sd8" secondAttribute="bottom" id="8OW-RG-7i2"/>
-                                                                                    <constraint firstAttribute="trailing" secondItem="bgY-Br-Sd8" secondAttribute="trailing" id="TWt-PO-oRU"/>
-                                                                                    <constraint firstItem="bgY-Br-Sd8" firstAttribute="leading" secondItem="fx7-Pt-ZfE" secondAttribute="leading" id="cV1-w1-EYp"/>
-                                                                                </constraints>
-                                                                            </view>
-                                                                            <constraints>
-                                                                                <constraint firstAttribute="height" constant="80" id="Wrr-Hy-yjj"/>
-                                                                            </constraints>
-                                                                            <color key="fillColor" name="Body"/>
-                                                                        </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="TFx-jf-Byq">
-                                                                            <rect key="frame" x="0.0" y="200" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="290" width="414" height="80"/>
                                                                             <view key="contentView" id="h2o-0A-9Pj">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -830,7 +798,7 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="J75-Fr-GTw">
-                                                                            <rect key="frame" x="0.0" y="110" width="414" height="80"/>
+                                                                            <rect key="frame" x="0.0" y="200" width="414" height="80"/>
                                                                             <view key="contentView" id="ErA-er-tAp">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -871,13 +839,10 @@ with contacts</string>
                                                                         <constraint firstItem="2tJ-IM-OLS" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="Mae-7m-3nu"/>
                                                                         <constraint firstItem="2tJ-IM-OLS" firstAttribute="top" secondItem="76N-0s-umu" secondAttribute="top" constant="10" id="Mi9-LD-FW6"/>
                                                                         <constraint firstItem="J75-Fr-GTw" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="QhK-g8-hmd"/>
-                                                                        <constraint firstItem="ihP-0B-F4g" firstAttribute="top" secondItem="8uj-eM-lzW" secondAttribute="bottom" constant="10" id="Yfo-fe-T4E"/>
                                                                         <constraint firstItem="TFx-jf-Byq" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="ZMl-z2-rRT"/>
                                                                         <constraint firstAttribute="trailing" secondItem="2tJ-IM-OLS" secondAttribute="trailing" id="dJ0-Xl-5Zd"/>
-                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="ihP-0B-F4g" secondAttribute="bottom" constant="10" id="dhY-jD-X4d"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="ihP-0B-F4g" secondAttribute="trailing" id="g78-Ny-tDD"/>
+                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="8uj-eM-lzW" secondAttribute="bottom" constant="10" id="l8h-RS-PQa"/>
                                                                         <constraint firstAttribute="trailing" secondItem="8uj-eM-lzW" secondAttribute="trailing" id="nRg-Cy-fM1"/>
-                                                                        <constraint firstItem="ihP-0B-F4g" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="tz2-h1-Jra"/>
                                                                     </constraints>
                                                                 </view>
                                                                 <color key="fillColor" name="HeaderBG"/>
@@ -983,7 +948,6 @@ with contacts</string>
                         <outlet property="basicBox3" destination="shK-I8-JgH" id="plE-53-5Tv"/>
                         <outlet property="basicSettingsView" destination="oph-VU-pT0" id="guG-rW-QOT"/>
                         <outlet property="changePinBox" destination="8uj-eM-lzW" id="GkM-uX-pUj"/>
-                        <outlet property="changePrivacyPinBox" destination="ihP-0B-F4g" id="gOP-LS-0Un"/>
                         <outlet property="disconnectMQTTBox" destination="J75-Fr-GTw" id="90F-Fi-Tom"/>
                         <outlet property="exportKeysButton" destination="gUk-QQ-BbH" id="aNa-dZ-D8t"/>
                         <outlet property="loadingWheel" destination="4l1-GZ-hBa" id="hGP-kr-fOc"/>
@@ -992,7 +956,6 @@ with contacts</string>
                         <outlet property="nameLabel" destination="gOq-cf-1sn" id="HxU-R0-NzF"/>
                         <outlet property="pinTimeoutBox" destination="2tJ-IM-OLS" id="g61-mw-gJk"/>
                         <outlet property="pinTimeoutView" destination="ATw-6X-CCR" id="G6t-Jw-Y8E"/>
-                        <outlet property="privacyPinButton" destination="bgY-Br-Sd8" id="g6L-8R-Fz3"/>
                         <outlet property="profileImageView" destination="7F9-f5-sNH" id="SNH-gQ-2BX"/>
                         <outlet property="profilePictureDraggingView" destination="mMF-23-bgh" id="ZrQ-dm-rPS"/>
                         <outlet property="qrButton" destination="IrE-pP-Rjm" id="hR8-89-5wl"/>

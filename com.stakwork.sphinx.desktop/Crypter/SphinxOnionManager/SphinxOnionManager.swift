@@ -240,23 +240,16 @@ class SphinxOnionManager : NSObject {
             }
         })
     }
-
-//    func listContacts() -> String {
-//        do {
-//            let contacts = try! Sphinx.listContacts(state: self.loadOnionStateAsData())
-//            return contacts
-//        }
-//    }
     
     func subscribeAndPublishMyTopics(
         pubkey: String,
         idx: Int
     ) {
         do {
-            let ret = try setNetwork(network: network)
+            let ret = try Sphinx.setNetwork(network: network)
             let _ = handleRunReturn(rr: ret)
             
-            let ret2 = try setBlockheight(blockheight: 0)
+            let ret2 = try Sphinx.setBlockheight(blockheight: 0)
             let _ = handleRunReturn(rr: ret2)
             
             guard let seed = getAccountSeed() else{
@@ -278,7 +271,7 @@ class SphinxOnionManager : NSObject {
                 (subtopic, CocoaMQTTQoS.qos1)
             ])
             
-            let ret3 = try initialSetup(
+            let ret3 = try Sphinx.initialSetup(
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData()
@@ -286,7 +279,7 @@ class SphinxOnionManager : NSObject {
             
             let _ = handleRunReturn(rr: ret3)
             
-            let tribeMgmtTopic = try getTribeManagementTopic(
+            let tribeMgmtTopic = try Sphinx.getTribeManagementTopic(
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData()
@@ -303,7 +296,7 @@ class SphinxOnionManager : NSObject {
             return
         }
         do {
-            let _ = try pubkeyFromSeed(
+            let _ = try Sphinx.pubkeyFromSeed(
                 seed: seed,
                 idx: 0,
                 time: getTimeWithEntropy(),
@@ -392,7 +385,7 @@ extension SphinxOnionManager {//Sign Up UI Related:
 //        }
         
         let generateSeedCallback: (() -> ()) = {
-            guard let mneomnic = self.generateMnemonic(), let _ = self.vc as? WelcomeEmptyViewController else {
+            guard let mneomnic = self.generateMnemonic(), let _ = self.vc as? WelcomeCodeViewController else {
                 completion(false)
                 return
             }

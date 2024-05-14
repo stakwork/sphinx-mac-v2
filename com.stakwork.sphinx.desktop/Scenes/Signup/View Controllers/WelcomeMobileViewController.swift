@@ -74,7 +74,6 @@ class WelcomeMobileViewController: CommonWelcomeViewController {
     }
     
     func skipButtonClicked() {
-        GroupsPinManager.sharedInstance.loginPin()
         SignupHelper.completeSignup()
         view.alphaValue = 0.0
         

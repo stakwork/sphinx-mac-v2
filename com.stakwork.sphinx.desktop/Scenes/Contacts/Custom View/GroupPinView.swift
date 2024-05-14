@@ -37,7 +37,8 @@ class GroupPinView: NSView, LoadableNib {
         super.init(coder: coder)
         loadViewFromNib()
         
-        let privacyPinSet = GroupsPinManager.sharedInstance.isPrivacyPinSet()
+//        let privacyPinSet = GroupsPinManager.sharedInstance.isPrivacyPinSet()
+        let privacyPinSet = false
         toggle.isEnabled = privacyPinSet
         contentView.alphaValue = privacyPinSet ? 1.0 : 0.7
     }
@@ -60,14 +61,14 @@ class GroupPinView: NSView, LoadableNib {
     }
     
     @IBAction func toggleValueChanged(_ sender: NSSegmentedControl) {
-        didChangePin = true
-        
-        if let privacyPin = UserData.sharedInstance.getPrivacyPin(), !privacyPin.isEmpty {
-            let privateObject = isPrivateEnabled()
-            setObjectPrivate(pin: privateObject ? privacyPin : nil)
-        }
-        
-        delegate?.pinDidChange()
+//        didChangePin = true
+//        
+//        if let privacyPin = UserData.sharedInstance.getPrivacyPin(), !privacyPin.isEmpty {
+//            let privateObject = isPrivateEnabled()
+//            setObjectPrivate(pin: privateObject ? privacyPin : nil)
+//        }
+//        
+//        delegate?.pinDidChange()
     }
     
     func setObjectPrivate(pin: String? = nil) {
@@ -82,9 +83,9 @@ class GroupPinView: NSView, LoadableNib {
     }
     
     func getPin() -> String? {
-        if let privacyPin = UserData.sharedInstance.getPrivacyPin(), !privacyPin.isEmpty, isPrivateEnabled() {
-            return privacyPin
-        }
+//        if let privacyPin = UserData.sharedInstance.getPrivacyPin(), !privacyPin.isEmpty, isPrivateEnabled() {
+//            return privacyPin
+//        }
         return nil
     }
     

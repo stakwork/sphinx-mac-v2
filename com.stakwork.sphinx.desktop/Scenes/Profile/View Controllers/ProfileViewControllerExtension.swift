@@ -12,41 +12,22 @@ extension ProfileViewController {
     func shouldChangePIN() {
         let changePinCodeVC = ChangePinViewController.instantiate(mode: .ChangeStandard)
         changePinCodeVC.doneCompletion = { pin in
-            if pin == UserData.sharedInstance.getPrivacyPin() {
-                AlertHelper.showAlert(title: "generic.error.title".localized, message: "pins.must.be.different".localized)
-                return
-            }
             AlertHelper.showTwoOptionsAlert(title: "pin.change".localized, message: "confirm.pin.change".localized, confirm: {
-                GroupsPinManager.sharedInstance.didUpdateStandardPin(newPin: pin)
-                self.newMessageBubbleHelper.showGenericMessageView(text: "pin.changed".localized, in: self.view, delay: 6, backAlpha: 1.0)
+                UserData.sharedInstance.save(pin: pin)
+                
+                newMessageBubbleHelper.showGenericMessageView(
+                    text: "pin.changed".localized,
+                    in: self.view,
+                    delay: 6,
+                    backAlpha: 1.0
+                )
+                
                 WindowsManager.sharedInstance.backToProfile()
             }, cancel: {
                 WindowsManager.sharedInstance.backToProfile()
             })
         }
         advanceTo(vc: changePinCodeVC, title: "pin.change".localized, height: 500)
-    }
-    
-    func shouldChangePrivacyPIN() {
-        let isPrivacyPinSet = GroupsPinManager.sharedInstance.isPrivacyPinSet()
-        let mode: ChangePinViewController.ChangePinMode = isPrivacyPinSet ? .ChangePrivacy : .SetPrivacy
-        let changePivacyPinVC = ChangePinViewController.instantiate(mode: mode)
-        changePivacyPinVC.doneCompletion = { pin in
-            if pin == UserData.sharedInstance.getAppPin() {
-                AlertHelper.showAlert(title: "generic.error.title".localized, message: "pins.must.be.different".localized)
-                return
-            }
-            AlertHelper.showTwoOptionsAlert(title: "pin.change".localized, message: "confirm.privacy.pin.change".localized, confirm: {
-                GroupsPinManager.sharedInstance.didUpdatePrivacyPin(newPin: pin)
-                self.privacyPinButton.stringValue = "change.privacy.pin".localized
-                let alertLabel = (isPrivacyPinSet ? "privacy.pin.changed" : "privacy.pin.set").localized
-                self.newMessageBubbleHelper.showGenericMessageView(text: alertLabel, in: self.view, delay: 6, backAlpha: 1.0)
-                WindowsManager.sharedInstance.backToProfile()
-            }, cancel: {
-                WindowsManager.sharedInstance.backToProfile()
-            })
-        }
-        advanceTo(vc: changePivacyPinVC, title: "pin.change".localized, height: 500)
     }
     
     func uploadImage() {

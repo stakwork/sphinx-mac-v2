@@ -25,7 +25,6 @@ class ProfileViewController: NSViewController {
     @IBOutlet weak var basicBox3: NSBox!
     @IBOutlet weak var pinTimeoutBox: NSBox!
     @IBOutlet weak var changePinBox: NSBox!
-    @IBOutlet weak var changePrivacyPinBox: NSBox!
     @IBOutlet weak var setupSignerBox: NSBox!
     @IBOutlet weak var disconnectMQTTBox: NSBox!
     
@@ -47,7 +46,6 @@ class ProfileViewController: NSViewController {
     @IBOutlet weak var meetingServerField: NSTextField!
     @IBOutlet weak var meetingAmountField: NSTextField!
     @IBOutlet weak var exportKeysButton: CustomButton!
-    @IBOutlet weak var privacyPinButton: CustomButton!
     @IBOutlet weak var pinTimeoutView: PinTimeoutView!
     
     @IBOutlet weak var saveButtonContainer: NSView!
@@ -109,7 +107,6 @@ class ProfileViewController: NSViewController {
         basicBox3.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         pinTimeoutBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         changePinBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
-        changePrivacyPinBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         
         sharePhotoSwitchContainer.wantsLayer = true
         sharePhotoSwitchCircle.wantsLayer = true
@@ -125,7 +122,6 @@ class ProfileViewController: NSViewController {
         trackActionsSwitchButton.cursor = .pointingHand
         exportKeysButton.cursor = .pointingHand
         saveButton.cursor = .pointingHand
-        privacyPinButton.cursor = .pointingHand
         
         userNameField.delegate = self
         meetingServerField.delegate = self
@@ -170,7 +166,7 @@ class ProfileViewController: NSViewController {
             
             meetingServerField.stringValue = API.kVideoCallServer
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
-            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
+//            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }
     }
     
@@ -283,10 +279,6 @@ class ProfileViewController: NSViewController {
         shouldChangePIN()
     }
     
-    @IBAction func privacyPinButtonClicked(_ sender: Any) {
-        shouldChangePrivacyPIN()
-    }
-    
     func updateProfile() {
         loading = true
         
@@ -300,6 +292,7 @@ class ProfileViewController: NSViewController {
         }
         
         updatePinSettings()
+        
         UserDefaults.Keys.shouldTrackActions.set(isTrackActionsSwitchOn())
         
         var parameters = [String : AnyObject]()
@@ -313,14 +306,7 @@ class ProfileViewController: NSViewController {
             parameters["photo_url"] = photoUrl as AnyObject?
         }
         
-//        API.sharedInstance.updateUser(id: profile.id, params: parameters, callback: { contact in
-//            API.kVideoCallServer = self.meetingServerField.stringValue
-//            let _ = UserContactsHelper.insertContact(contact: contact)
-//            UserContact.kTipAmount = tempTip
-//            self.saveFinished(success: true)
-//        }, errorCallback: {
-//            self.saveFinished(success: false)
-//        })
+        ///Should update owner contact record
     }
     
     func updatePinSettings(){
