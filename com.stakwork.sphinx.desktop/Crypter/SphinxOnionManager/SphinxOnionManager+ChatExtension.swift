@@ -306,13 +306,13 @@ extension SphinxOnionManager{
                 message?.updatedAt = date
                 message?.uuid = sentUUID
                 message?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
-                message?.setAsLastMessageIfHighestIndex()
+                message?.setAsLastMessage()
                 message?.managedObjectContext?.saveContext()
                 return message
             } else if let replyUUID = replyUUID, msgType == TransactionMessage.TransactionMessageType.delete.rawValue, let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
             {
                 messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-                messageToDelete.setAsLastMessageIfHighestIndex()
+                messageToDelete.setAsLastMessage()
                 messageToDelete.managedObjectContext?.saveContext()
                 return messageToDelete
             }
@@ -424,9 +424,14 @@ extension SphinxOnionManager{
                     let _ = message.sentTo,
                     let uuid = message.uuid,
                     TransactionMessage.getMessageWith(uuid: uuid) == nil,
-                    //let contact = UserContact.getContactWithDisregardStatus(pubkey: sentTo),
                     let type = message.type,
-                    let localMsg = processGenericIncomingMessage(message: genericIncomingMessage,date: Date(),delaySave: true, type: Int(type),fromMe:true)
+                    let localMsg = processGenericIncomingMessage(
+                        message: genericIncomingMessage,
+                        date: Date(),
+                        delaySave: true,
+                        type: Int(type),
+                        fromMe: true
+                    )
             {
                 localMsg.uuid = uuid
                
@@ -490,7 +495,7 @@ extension SphinxOnionManager{
                                     groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                                     groupActionMessage.chat = chat
                                     groupActionMessage.type = Int(type)
-                                    groupActionMessage.setAsLastMessageIfHighestIndex()
+                                    groupActionMessage.setAsLastMessage()
                                     groupActionMessage.senderAlias = csr.alias
                                     groupActionMessage.senderPic = csr.photoUrl
                                     groupActionMessage.createdAt = date
@@ -631,10 +636,10 @@ extension SphinxOnionManager{
         newMessage.senderId = senderId
         newMessage.receiverId = UserContact.getSelfContact()?.id ?? 0
         newMessage.push = false
+        newMessage.chat = chat
         newMessage.seen = false
         newMessage.chat?.seen = false
         newMessage.messageContent = content
-        newMessage.chat = chat
         newMessage.replyUUID = message.replyUuid
         newMessage.threadUUID = message.threadUuid
         newMessage.senderAlias = csr?.alias
@@ -665,7 +670,7 @@ extension SphinxOnionManager{
         
         assignReceiverId(localMsg: newMessage)
         
-        newMessage.setAsLastMessageIfHighestIndex()
+        newMessage.setAsLastMessage()
         
         return newMessage
     }
