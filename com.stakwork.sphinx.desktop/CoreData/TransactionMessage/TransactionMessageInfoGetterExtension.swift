@@ -1019,8 +1019,13 @@ extension TransactionMessage {
         return hasSameSenderId && hasSameSenderAlias && hasSameSenderPicture
     }
     
-    func setAsLastMessageIfHighestIndex(){
-        if let lastMessageId = self.chat?.lastMessage?.id, lastMessageId < self.id {
+    func setAsLastMessageIfHighestIndex() {
+        guard let lastMessageId = self.chat?.lastMessage?.id else {
+            self.chat?.lastMessage = self
+            return
+        }
+        
+        if lastMessageId < self.id {
             self.chat?.lastMessage = self
         }
     }
