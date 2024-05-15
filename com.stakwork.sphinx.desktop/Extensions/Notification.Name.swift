@@ -36,12 +36,8 @@ extension Notification.Name {
     static let webViewImageClicked = Notification.Name("webViewImageClicked")
     
     static let onMQTTConnectionStatusChanged = Notification.Name("onMQTTConnectionStatusChanged")
-    static let keyExchangeResponseMessageWasConstructed = Notification.Name("keyExchangeMessageWasConstructed")
-    static let newContactWasRegisteredWithServer = Notification.Name("newContactWasRegisteredWithServer")
     static let newOnionMessageWasReceived = Notification.Name("newOnionMessageWasReceived")
-    static let newTribeMemberListRetrieved = Notification.Name("newTribeMemberListRetrieved")
     static let invoiceIPaidSettled = Notification.Name("invoiceIPaidSettled")
     
-    static let totalMessageCountReceived = Notification.Name("totalMessageCountReceived")
     static let inviteCodeAckReceived = Notification.Name("inviteCodeAckReceived")
 }

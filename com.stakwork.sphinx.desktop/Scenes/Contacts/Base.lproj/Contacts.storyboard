@@ -420,17 +420,17 @@
             <objects>
                 <viewController storyboardIdentifier="NewInviteViewController" id="uFw-BM-Bmh" customClass="NewInviteViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="k8K-QC-rjk">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="450"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="500"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Jt9-bD-1pH">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="450"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="500"/>
                                 <view key="contentView" id="EgE-H3-gqi">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="450"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="500"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OeN-5Y-GaV">
-                                            <rect key="frame" x="178" y="405" width="58" height="13"/>
+                                            <rect key="frame" x="178" y="455" width="58" height="13"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="NICKNAME" id="IDl-1s-whI">
                                                 <font key="font" metaFont="system" size="10"/>
                                                 <color key="textColor" name="Text"/>
@@ -438,7 +438,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <box boxType="custom" borderType="line" cornerRadius="5" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="hbp-LM-Bi1">
-                                            <rect key="frame" x="32" y="345" width="350" height="40"/>
+                                            <rect key="frame" x="32" y="395" width="350" height="40"/>
                                             <view key="contentView" id="1dC-qd-tgy">
                                                 <rect key="frame" x="1" y="1" width="348" height="38"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -465,22 +465,22 @@
                                             <color key="borderColor" name="LightDivider"/>
                                             <color key="fillColor" name="ProfileBG"/>
                                         </box>
-                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xFn-yb-vZv">
-                                            <rect key="frame" x="145" y="302" width="124" height="13"/>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xFn-yb-vZv">
+                                            <rect key="frame" x="145" y="352" width="124" height="13"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="AMOUNT TO GIFT (Sats)" id="E8a-E8-ISi">
                                                 <font key="font" metaFont="system" size="10"/>
                                                 <color key="textColor" name="Text"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <box ambiguous="YES" boxType="custom" borderType="line" cornerRadius="5" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="QZo-Co-0z3">
-                                            <rect key="frame" x="20" y="345" width="374" height="40"/>
-                                            <view key="contentView" ambiguous="YES" id="W5m-v2-aaD">
-                                                <rect key="frame" x="1" y="1" width="372" height="38"/>
+                                        <box boxType="custom" borderType="line" cornerRadius="5" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="QZo-Co-0z3">
+                                            <rect key="frame" x="32" y="292" width="350" height="40"/>
+                                            <view key="contentView" id="W5m-v2-aaD">
+                                                <rect key="frame" x="1" y="1" width="348" height="38"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField focusRingType="none" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B4g-f4-tTM">
-                                                        <rect key="frame" x="9" y="0.0" width="354" height="30"/>
+                                                    <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="B4g-f4-tTM">
+                                                        <rect key="frame" x="9" y="0.0" width="330" height="30"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" alignment="center" drawsBackground="YES" id="XUr-eq-IDs">
                                                             <font key="font" size="17" name="Roboto-Regular"/>
                                                             <color key="textColor" name="Text"/>
@@ -502,7 +502,7 @@
                                             <color key="fillColor" name="ProfileBG"/>
                                         </box>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YQe-Lu-Lzg">
-                                            <rect key="frame" x="153" y="302" width="109" height="13"/>
+                                            <rect key="frame" x="153" y="249" width="109" height="13"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="INCLUDE A MESSAGE" id="BaA-cg-3Wy">
                                                 <font key="font" metaFont="system" size="10"/>
                                                 <color key="textColor" name="Text"/>
@@ -510,7 +510,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <box boxType="custom" borderType="line" cornerRadius="5" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="4hS-3u-Q7z">
-                                            <rect key="frame" x="32" y="172" width="350" height="110"/>
+                                            <rect key="frame" x="32" y="119" width="350" height="110"/>
                                             <view key="contentView" id="0cb-eB-y7T">
                                                 <rect key="frame" x="1" y="1" width="348" height="108"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -557,7 +557,7 @@
                                             <color key="fillColor" name="ProfileBG"/>
                                         </box>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="Vbk-hH-7Q8">
-                                            <rect key="frame" x="207" y="97" width="175" height="50"/>
+                                            <rect key="frame" x="207" y="44" width="175" height="50"/>
                                             <subviews>
                                                 <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="25" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="GTE-uA-tin">
                                                     <rect key="frame" x="0.0" y="0.0" width="175" height="50"/>
@@ -594,21 +594,25 @@
                                                 <constraint firstItem="GTE-uA-tin" firstAttribute="top" secondItem="Vbk-hH-7Q8" secondAttribute="top" id="edp-mj-UY0"/>
                                             </constraints>
                                         </customView>
-                                        <progressIndicator hidden="YES" wantsLayer="YES" ambiguous="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="A6n-r0-PMu">
-                                            <rect key="frame" x="199" y="51" width="16" height="16"/>
+                                        <progressIndicator hidden="YES" wantsLayer="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="A6n-r0-PMu">
+                                            <rect key="frame" x="175" y="61" width="16" height="16"/>
                                         </progressIndicator>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="A6n-r0-PMu" firstAttribute="centerY" secondItem="Vbk-hH-7Q8" secondAttribute="centerY" id="0gb-Sl-0tf"/>
                                         <constraint firstItem="OeN-5Y-GaV" firstAttribute="top" secondItem="EgE-H3-gqi" secondAttribute="top" constant="32" id="64t-Hm-nLz"/>
-                                        <constraint firstItem="YQe-Lu-Lzg" firstAttribute="top" secondItem="hbp-LM-Bi1" secondAttribute="bottom" constant="30" id="7cd-pS-7kS"/>
                                         <constraint firstItem="YQe-Lu-Lzg" firstAttribute="centerX" secondItem="EgE-H3-gqi" secondAttribute="centerX" id="B3r-IQ-sOf"/>
-                                        <constraint firstItem="A6n-r0-PMu" firstAttribute="centerX" secondItem="EgE-H3-gqi" secondAttribute="centerX" id="GPP-jw-OMw"/>
+                                        <constraint firstItem="YQe-Lu-Lzg" firstAttribute="top" secondItem="QZo-Co-0z3" secondAttribute="bottom" constant="30" id="C6R-y3-VGh"/>
                                         <constraint firstItem="4hS-3u-Q7z" firstAttribute="top" secondItem="YQe-Lu-Lzg" secondAttribute="bottom" constant="20" id="Jzg-JE-dEk"/>
+                                        <constraint firstItem="xFn-yb-vZv" firstAttribute="centerX" secondItem="EgE-H3-gqi" secondAttribute="centerX" id="M6k-oP-ASp"/>
+                                        <constraint firstAttribute="trailing" secondItem="QZo-Co-0z3" secondAttribute="trailing" constant="32" id="Mhw-EO-9IE"/>
                                         <constraint firstItem="xFn-yb-vZv" firstAttribute="top" secondItem="hbp-LM-Bi1" secondAttribute="bottom" constant="30" id="OUS-AR-Z7c"/>
-                                        <constraint firstItem="YQe-Lu-Lzg" firstAttribute="top" secondItem="QZo-Co-0z3" secondAttribute="bottom" constant="30" id="QHM-oX-xSc"/>
                                         <constraint firstAttribute="trailing" secondItem="hbp-LM-Bi1" secondAttribute="trailing" constant="32" id="Umt-Qv-Hkl"/>
                                         <constraint firstItem="4hS-3u-Q7z" firstAttribute="leading" secondItem="EgE-H3-gqi" secondAttribute="leading" constant="32" id="WrQ-VW-QrZ"/>
+                                        <constraint firstItem="QZo-Co-0z3" firstAttribute="top" secondItem="xFn-yb-vZv" secondAttribute="bottom" constant="20" id="ZDd-0e-ZlQ"/>
+                                        <constraint firstItem="QZo-Co-0z3" firstAttribute="leading" secondItem="EgE-H3-gqi" secondAttribute="leading" constant="32" id="dn1-2B-cFS"/>
                                         <constraint firstItem="Vbk-hH-7Q8" firstAttribute="trailing" secondItem="4hS-3u-Q7z" secondAttribute="trailing" id="fJD-LI-ujD"/>
+                                        <constraint firstItem="Vbk-hH-7Q8" firstAttribute="leading" secondItem="A6n-r0-PMu" secondAttribute="trailing" constant="16" id="gzj-9m-uW9"/>
                                         <constraint firstItem="Vbk-hH-7Q8" firstAttribute="top" secondItem="4hS-3u-Q7z" secondAttribute="bottom" constant="25" id="hDx-yV-pSm"/>
                                         <constraint firstItem="hbp-LM-Bi1" firstAttribute="top" secondItem="OeN-5Y-GaV" secondAttribute="bottom" constant="20" id="mrq-X8-cDV"/>
                                         <constraint firstAttribute="trailing" secondItem="4hS-3u-Q7z" secondAttribute="trailing" constant="32" id="twl-Dt-SLL"/>

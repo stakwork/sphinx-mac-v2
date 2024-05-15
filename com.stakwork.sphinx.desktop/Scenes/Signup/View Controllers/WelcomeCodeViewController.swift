@@ -165,6 +165,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     
     func continueRestoreToConnecting() {
         self.som.isV2InitialSetup = true
+        self.som.isV2Restore = true
         self.continueToConnectingView(signupMode: .ExistingUser)
     }
     

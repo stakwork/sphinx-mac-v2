@@ -222,7 +222,8 @@ extension SphinxOnionManager{
                 assignReceiverId(localMsg: sentMessage)
             }
             return sentMessage
-        } catch {
+        } catch let error {
+            print("error sending msg \(error.localizedDescription)")
             return nil
         }
     }
@@ -348,8 +349,6 @@ extension SphinxOnionManager{
         localMsg.senderId = UserData.sharedInstance.getUserId()
         assignReceiverId(localMsg: localMsg)
         localMsg.managedObjectContext?.saveContext()
-        
-        NotificationCenter.default.post(name: .newOnionMessageWasReceived,object:nil, userInfo: ["message": localMsg])
     }
     
     func assignReceiverId(localMsg: TransactionMessage) {
@@ -381,22 +380,23 @@ extension SphinxOnionManager{
     
     //MARK: processes updates from general purpose messages like plaintext and attachments
     func processGenericMessages(rr: RunReturn) {
-        let filteredMsgs = rr.msgs.filter({$0.type != 11 && $0.type != 10})
+        
+        let filteredMsgs = rr.msgs.filter({ $0.type != 11 && $0.type != 10 })
         
         if filteredMsgs.count <= 0 {return}
         
         for message in filteredMsgs {
+            
             var genericIncomingMessage = GenericIncomingMessage(msg: message)
             
-            if message.type == 33 {
-                print(message)
-                print(genericIncomingMessage)
+            if Int(message.type ?? 0) == TransactionMessage.TransactionMessageType.unknown.rawValue {
+                ///Message to restore contact info
                 
                 if let fullContactInfo = genericIncomingMessage.fullContactInfo,
-                    let (recipientPubkey, recipLspPubkey,scid) = parseContactInfoString(fullContactInfo: fullContactInfo),
+                    let (recipientPubkey, recipLspPubkey, scid) = parseContactInfoString(fullContactInfo: fullContactInfo),
                     UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) == nil
                 {
-                    let pendingContact = self.createNewContact(
+                    let pendingContact = createNewContact(
                         pubkey: recipientPubkey,
                         nickname: genericIncomingMessage.alias ?? "Unknown"
                     )
@@ -406,7 +406,8 @@ extension SphinxOnionManager{
                     pendingContact?.status = UserContact.Status.Pending.rawValue
                 }
                 
-                NotificationCenter.default.post(name: .newOnionMessageWasReceived,object:nil, userInfo: ["message": TransactionMessage()])
+                firstSCIDMsgsCallback?()
+                
             } else if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
                       let newUUID = message.uuid,
                       let originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
@@ -478,6 +479,7 @@ extension SphinxOnionManager{
                     } else if type == TransactionMessage.TransactionMessageType.delete.rawValue {
                         processIncomingDeletion(message: genericIncomingMessage, date: date)
                     } else if isGroupAction(type: type), let tribePubkey = csr.pubkey {
+                        ///Restore calls here to restore tribe
                         fetchOrCreateChatWithTribe(
                             ownerPubkey: tribePubkey,
                             host: csr.host,
@@ -549,6 +551,8 @@ extension SphinxOnionManager{
                 finalizeNewMessage(index: index, newMessage: cachedMessage)
                 print(rr)
             }
+            
+            onMessageRestoredCallback?()
         }
     }
     
@@ -679,7 +683,6 @@ extension SphinxOnionManager{
     func finalizeNewMessage(index: Int, newMessage: TransactionMessage) {
         managedContext.saveContext()
         UserData.sharedInstance.setLastMessageIndex(index: index)
-        NotificationCenter.default.post(name: .newOnionMessageWasReceived,object:nil, userInfo: ["message": newMessage])
     }
     
     func processIncomingPayment(
@@ -897,7 +900,7 @@ extension SphinxOnionManager{
         muteLevel: UInt8,
         chat: Chat,
         recipContact: UserContact?
-    ){
+    ) {
         guard let seed = getAccountSeed() else{
             return
         }
@@ -938,7 +941,7 @@ extension SphinxOnionManager{
         index: UInt64,
         chat: Chat,
         recipContact: UserContact?
-    ){
+    ) {
         guard let seed = getAccountSeed() else{
             return
         }
@@ -959,7 +962,7 @@ extension SphinxOnionManager{
         }
     }
     
-    func getReads(){
+    func getReads() {
         guard let seed = getAccountSeed() else{
             return
         }

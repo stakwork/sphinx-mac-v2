@@ -41,6 +41,7 @@ class SphinxOnionManager : NSObject {
     var messageFetchParams : MessageFetchParams? = nil
     
     var isV2InitialSetup: Bool = false
+    var isV2Restore: Bool = false
     var shouldPostUpdates : Bool = false
     let tribeMinEscrowSats = 3
     
@@ -77,6 +78,11 @@ class SphinxOnionManager : NSObject {
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
     
     ///Callbacks
+    ///Restore
+    var totalMsgsCountCallback: (() -> ())? = nil
+    var firstSCIDMsgsCallback: (() -> ())? = nil
+    var onMessageRestoredCallback: (() -> ())? = nil
+    ///Create tribe
     var createTribeCallback: ((String) -> ())? = nil
     
     func getAccountSeed(
@@ -188,11 +194,10 @@ class SphinxOnionManager : NSObject {
         }
     }
 
-    func connectToV2Server(
+    func connectToServer(
         contactRestoreCallback: @escaping RestoreProgressCallback,
         messageRestoreCallback: @escaping RestoreProgressCallback,
-        hideRestoreViewCallback: @escaping ()->(),
-        didConnectAckCallback: (()->())? = nil
+        hideRestoreViewCallback: @escaping ()->()
     ){
         let som = self
         
@@ -206,7 +211,11 @@ class SphinxOnionManager : NSObject {
         
         som.disconnectMqtt()
         
-        DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
+        if (som.isV2Restore) {
+            contactRestoreCallback(2)
+        }
+        
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             let success = som.connectToBroker(seed: seed, xpub: my_xpub)
             
             if (success == false) {
@@ -220,22 +229,13 @@ class SphinxOnionManager : NSObject {
                 if (som.isV2InitialSetup) {
                     som.isV2InitialSetup = false
                     som.doInitialInviteSetup()
-                    
-                    som.performAccountRestore(
-                        contactRestoreCallback: contactRestoreCallback,
-                        messageRestoreCallback: messageRestoreCallback,
-                        hideRestoreViewCallback: hideRestoreViewCallback
-                    )
-                } else {
-                    if let hideRestoreCallback = self.hideRestoreCallback {
-                        hideRestoreCallback()
-                    }
-                    som.syncMessagesSinceLastKnownIndexHeight()
                 }
-                
-                if let didConnectAckCallback = didConnectAckCallback {
-                    didConnectAckCallback()
-                }
+                 
+                som.syncContactsAndMessages(
+                    contactRestoreCallback: som.isV2Restore ? contactRestoreCallback : { _ in },
+                    messageRestoreCallback: som.isV2Restore ? messageRestoreCallback : { _ in },
+                    hideRestoreViewCallback: hideRestoreViewCallback
+                )
             }
         })
     }

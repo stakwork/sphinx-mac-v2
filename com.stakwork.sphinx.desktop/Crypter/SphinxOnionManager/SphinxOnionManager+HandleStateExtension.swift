@@ -39,13 +39,6 @@ extension SphinxOnionManager {
             }
         }
         
-        ///Publishing to MQTT Topics
-        DelayPerformedHelper.performAfterDelay(seconds: publishDelay, completion: {
-            for i in 0..<rr.topics.count{
-                self.pushRRTopic(topic: rr.topics[i], payloadData: rr.payloads[i])
-            }
-        })
-        
         ///Owner contact
         if let mci = rr.myContactInfo {
             if let components = parseContactInfoString(
@@ -72,7 +65,7 @@ extension SphinxOnionManager {
                     )
                 )
             })
-        }
+        }        
         
         processKeyExchangeMessages(rr: rr)
         processGenericMessages(rr: rr)
@@ -148,7 +141,7 @@ extension SphinxOnionManager {
         {
             print(msgTotals) // Now you have your model populated with the JSON data
             self.msgTotalCounts = msgTotals
-            NotificationCenter.default.post(name: .totalMessageCountReceived, object: nil)
+            totalMsgsCountCallback?()
         }
         
         if let newInvite = rr.newInvite,
@@ -176,6 +169,13 @@ extension SphinxOnionManager {
         }
 
         purgeObsoleteState(keys: rr.stateToDelete)
+        
+        ///Publishing to MQTT Topics
+        DelayPerformedHelper.performAfterDelay(seconds: publishDelay, completion: {
+            for i in 0..<rr.topics.count{
+                self.pushRRTopic(topic: rr.topics[i], payloadData: rr.payloads[i])
+            }
+        })
         
         return messageTagID
     }

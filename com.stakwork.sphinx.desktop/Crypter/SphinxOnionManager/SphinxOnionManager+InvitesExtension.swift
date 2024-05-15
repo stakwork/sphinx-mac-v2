@@ -75,6 +75,7 @@ extension SphinxOnionManager{//invites related
         guard let stashedInviteCode = stashedInviteCode else{
             return
         }
+        
         if let stashedContactInfo = stashedContactInfo {
             self.stashedContactInfo = nil
             

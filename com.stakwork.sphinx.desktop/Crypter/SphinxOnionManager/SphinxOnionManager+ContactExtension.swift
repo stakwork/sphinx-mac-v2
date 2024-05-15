@@ -18,7 +18,7 @@ extension SphinxOnionManager{//contacts related
         fullContactInfo: String
     ) -> (String, String, String)? {
         let components = fullContactInfo.split(separator: "_").map({String($0)})
-        return (components.count == 3) ? (components[0],components[1],components[2]) : nil
+        return (components.count >= 3) ? (components[0],components[1],components[2]) : nil
     }
     
     func makeFriendRequest(
@@ -74,7 +74,7 @@ extension SphinxOnionManager{//contacts related
     
     //MARK: Processes key exchange messages (friend requests) between contacts
     func processKeyExchangeMessages(rr: RunReturn) {
-        for msg in rr.msgs.filter({$0.type == 11 || $0.type == 10}) {
+        for msg in rr.msgs.filter({ $0.type == 11 || $0.type == 10 }) {
             
             print("KEY EXCHANGE MSG of Type \(String(describing: msg.type)) RECEIVED:\(msg)")
             
@@ -86,36 +86,28 @@ extension SphinxOnionManager{//contacts related
                 
                 let type = msg.type ?? 255
                 
-                if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue, let pubkey = csr.pubkey /// incoming key exchange confirmation
+                if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue, 
+                    let pubkey = csr.pubkey /// incoming key exchange confirmation
                 {
                     /// if contact exists it's a key exchange response from them or it exists already
                     let keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(pubkey: pubkey)
-                    guard let keyExchangeContact = keyExchangeContact else{
-                        ///no existing contact!
+                    
+                    guard let keyExchangeContact = keyExchangeContact else {
                         return
                     }
-                    NotificationCenter.default.post(
-                        name: .newContactWasRegisteredWithServer,
-                        object: nil,
-                        userInfo: ["contactPubkey" : keyExchangeContact.publicKey as Any]
-                    )
                     
                     keyExchangeContact.nickname = csr.alias
                     keyExchangeContact.avatarUrl = csr.photoUrl
+                    keyExchangeContact.status = UserContact.Status.Confirmed.rawValue
                     
                     if keyExchangeContact.getChat() == nil {
                         createChat(for: keyExchangeContact)
                     }
                     
-                    keyExchangeContact.nickname = csr.alias
-                    keyExchangeContact.status = UserContact.Status.Confirmed.rawValue
                     CoreDataManager.sharedManager.saveContext()
                     
-                    NotificationCenter.default.post(
-                        name: .newOnionMessageWasReceived,
-                        object: nil,
-                        userInfo: ["message": TransactionMessage()]
-                    )
+                    
+                    firstSCIDMsgsCallback?()
                     
                 } else if type == TransactionMessage.TransactionMessageType.contactKey.rawValue, /// incoming key exchange request
                         UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) == nil, ///don't respond to requests if already exists
@@ -126,24 +118,13 @@ extension SphinxOnionManager{//contacts related
                             person: csr.person,
                             code: csr.code
                         )
-                { ///new contact from a key exchange message
-                    NotificationCenter.default.post(
-                        Notification(
-                            name: .newContactWasRegisteredWithServer,
-                            object: nil,
-                            userInfo: ["contactPubkey" : newContactRequest.publicKey as Any]
-                        )
-                    )
-                    
+                {
+                    ///new contact from a key exchange message
                     newContactRequest.status = UserContact.Status.Confirmed.rawValue
                     createChat(for: newContactRequest)
                     managedContext.saveContext()
                     
-                    NotificationCenter.default.post(
-                        name: .newOnionMessageWasReceived,
-                        object: nil,
-                        userInfo: ["message": TransactionMessage()]
-                    )
+                    firstSCIDMsgsCallback?()
                 }
             }
         }

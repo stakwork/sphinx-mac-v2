@@ -36,7 +36,7 @@ class AddFriendViewController: NSViewController {
         advanceTo(
             vc: inviteVC,
             identifier: "new-invite-window",
-            height: 500
+            height: 600
         )
     }
     
