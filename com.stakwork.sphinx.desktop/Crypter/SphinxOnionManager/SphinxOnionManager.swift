@@ -66,7 +66,7 @@ class SphinxOnionManager : NSObject {
     var appSessionPin : String? = nil
     var defaultInitialSignupPin : String = "111111"
     
-    public static let kMessageBatchSize = 50
+    public static let kMessageBatchSize = 250
 
     //MARK: Hardcoded Values!
     var server_IP = "34.229.52.200"

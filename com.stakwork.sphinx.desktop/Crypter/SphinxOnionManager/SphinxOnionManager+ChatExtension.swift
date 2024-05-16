@@ -399,7 +399,6 @@ extension SphinxOnionManager{
             
             if Int(message.type ?? 0) == TransactionMessage.TransactionMessageType.unknown.rawValue {
                 ///Message to restore contact info
-                
                 if let sender = message.sender,
                    let csr =  ContactServerResponse(JSONString: sender),
                    let recipientPubkey = csr.pubkey,
@@ -465,12 +464,14 @@ extension SphinxOnionManager{
                         genericIncomingMessage.senderPubkey = csr.pubkey
                         genericIncomingMessage.uuid = uuid
                         genericIncomingMessage.index = index
-                        let _ = processGenericIncomingMessage(
+                        
+                        let msg = processGenericIncomingMessage(
                             message: genericIncomingMessage,
                             date: date,
                             csr: csr,
                             type: Int(type)
                         )
+                        sendNotification(message: msg, msgsCount: filteredMsgs.count)
                     } else if type == TransactionMessage.TransactionMessageType.boost.rawValue ||
                         type == TransactionMessage.TransactionMessageType.directPayment.rawValue ||
                         type == TransactionMessage.TransactionMessageType.payment.rawValue,
@@ -481,13 +482,16 @@ extension SphinxOnionManager{
                         genericIncomingMessage.senderPubkey = csr.pubkey
                         genericIncomingMessage.uuid = uuid
                         genericIncomingMessage.index = index
-                        let _ = processIncomingPayment(
+                        
+                        let paymentMsg = processIncomingPayment(
                             message: genericIncomingMessage,
                             date: date,
                             csr: csr,
                             amount: Int(msats/1000),
                             type: Int(type)
                         )
+                        
+                        sendNotification(message: paymentMsg, msgsCount: filteredMsgs.count)
                     } else if type == TransactionMessage.TransactionMessageType.delete.rawValue {
                         processIncomingDeletion(message: genericIncomingMessage, date: date)
                     } else if isGroupAction(type: type), let tribePubkey = csr.pubkey {
@@ -520,6 +524,8 @@ extension SphinxOnionManager{
                                     if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
                                         chat.status = Chat.ChatStatus.rejected.rawValue
                                     }
+                                    
+                                    self.sendNotification(message: groupActionMessage, msgsCount: filteredMsgs.count)
                                 }
                             }
                         )
@@ -549,6 +555,8 @@ extension SphinxOnionManager{
                             newMessage.invoice = genericIncomingMessage.invoice
                             newMessage.amountMsat = NSDecimalNumber(value: Int(truncating: newMessage.amount ?? 0) * 1000)
                             newMessage.status = TransactionMessage.TransactionMessageStatus.pending.rawValue
+                            
+                            sendNotification(message: newMessage, msgsCount: filteredMsgs.count)
                         }
                         
                     }
@@ -699,14 +707,16 @@ extension SphinxOnionManager{
         csr: ContactServerResponse? = nil,
         amount: Int,
         type: Int
-    ){
-        let _ = processGenericIncomingMessage(
+    ) -> TransactionMessage? {
+        let msg = processGenericIncomingMessage(
             message: message,
             date: date,
             csr: csr,
             amount: amount,
             type: type
         )
+        
+        return msg
     }
     
     func processIncomingDeletion(message: GenericIncomingMessage, date: Date){
