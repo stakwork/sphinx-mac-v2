@@ -306,7 +306,15 @@ class ProfileViewController: NSViewController {
             parameters["photo_url"] = photoUrl as AnyObject?
         }
         
-        ///Should update owner contact record
+        if let owner = UserContact.getOwner() {
+            owner.nickname = userNameField.stringValue
+            
+            if let photoUrl = profileImageUrl, !photoUrl.isEmpty {
+                owner.avatarUrl = photoUrl
+            }
+            
+            owner.managedObjectContext?.saveContext()
+        }
     }
     
     func updatePinSettings(){
@@ -317,7 +325,7 @@ class ProfileViewController: NSViewController {
         let didChangeName = userNameField.stringValue != (profile?.nickname ?? "")
         let didChangeRouteHint = routeHintField.stringValue != (profile?.routeHint ?? "")
         let didUpdatePrivatePhoto = !isPhotoSwitchOn() != profile?.privatePhoto
-        let didUpdatePhoto = profileImageUrl != nil
+        let didUpdatePhoto = profileImageUrl != nil || profileImage != nil
         let didChangePinTimeout = UserData.sharedInstance.getPINHours() != pinTimeoutView.getPinHours()
         let actionsTrackingUpdated = isTrackActionsSwitchOn() != UserDefaults.Keys.shouldTrackActions.get(defaultValue: false)
         let didChangeTipAmount = meetingAmountField.integerValue != UserContact.kTipAmount
