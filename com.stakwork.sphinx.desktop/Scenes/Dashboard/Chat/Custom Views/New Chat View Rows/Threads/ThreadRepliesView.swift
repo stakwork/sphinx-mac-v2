@@ -62,10 +62,10 @@ class ThreadRepliesView: NSView, LoadableNib {
         messageFakeContainer.wantsLayer = true
         messageFakeContainer.layer?.masksToBounds = false
         
-        firstReplyAvatarView.setInitialLabelSize(size: 11)
+        firstReplyAvatarView.setInitialLabelSize(size: 10)
         firstReplyAvatarView.resetView()
         
-        secondReplyAvatarView.setInitialLabelSize(size: 11)
+        secondReplyAvatarView.setInitialLabelSize(size: 10)
         secondReplyAvatarView.resetView()
     }
     

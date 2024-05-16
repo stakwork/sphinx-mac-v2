@@ -30,7 +30,9 @@ class ThreadLastMessageHeader: NSView, LoadableNib {
         setup()
     }
     
-    func setup() {}
+    func setup() {
+        chatAvatarView.setInitialLabelSize(size: 10)
+    }
     
     func configureWith(
         threadLastReply: BubbleMessageLayoutState.ThreadLastReply
