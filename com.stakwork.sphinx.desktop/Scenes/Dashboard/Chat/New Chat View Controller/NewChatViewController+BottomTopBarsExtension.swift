@@ -218,6 +218,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
             newChatViewModel.shouldSendMessage(
                 text: text,
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
+                provisionalMessage: nil,
                 completion: { success in
                     completion(success)
                 }

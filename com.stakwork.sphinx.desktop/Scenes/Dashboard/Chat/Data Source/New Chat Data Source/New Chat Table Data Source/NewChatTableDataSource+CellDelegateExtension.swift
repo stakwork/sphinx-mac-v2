@@ -1093,6 +1093,10 @@ extension NewChatTableDataSource {
             }
         }
         
+        if let rowIndex = rowIndex, tableCellState == nil {
+            return (rowIndex, messageTableCellStateArray[rowIndex])
+        }
+        
         return tableCellState
     }
     

@@ -71,7 +71,7 @@ class SphinxOnionManager : NSObject {
     //MARK: Hardcoded Values!
     var server_IP = "34.229.52.200"
     let server_PORT = 1883
-    let defaultTribePubkey = "032dbf9a31140897e52b66743f2c78e93cff2d5ecf6fe4814327d8912243106ff6"
+    let defaultTribePubkey = "021efedc0a4f1c3e21804d1952b67c851c8d29cbde0c116634d008df5b6c0c05c2"
     let network = "regtest"
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()

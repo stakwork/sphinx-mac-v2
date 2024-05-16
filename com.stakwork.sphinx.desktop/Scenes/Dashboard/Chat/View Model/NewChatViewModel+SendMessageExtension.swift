@@ -27,6 +27,7 @@ extension NewChatViewModel {
         shouldSendMessage(
             text: text,
             type: type,
+            provisionalMessage: nil,
             completion: completion
         )
     }
@@ -34,6 +35,7 @@ extension NewChatViewModel {
     func shouldSendMessage(
         text: String,
         type: Int,
+        provisionalMessage: TransactionMessage?,
         completion: @escaping (Bool) -> ()
     ) {
         var messageText = text
@@ -59,6 +61,7 @@ extension NewChatViewModel {
             to: contact,
             content: text,
             chat: chat,
+            provisionalMessage: provisionalMessage,
             msgType: UInt8(type),
             threadUUID: tuuid,
             replyUUID: replyingTo?.uuid
@@ -176,6 +179,7 @@ extension NewChatViewModel {
         self.shouldSendMessage(
             text: messageText,
             type: type,
+            provisionalMessage: nil,
             completion: { (_) in }
         )
     }

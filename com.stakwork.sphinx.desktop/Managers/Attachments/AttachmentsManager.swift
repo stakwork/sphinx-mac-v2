@@ -159,6 +159,7 @@ class AttachmentsManager {
     func uploadAndSendAttachment(
         attachmentObject: AttachmentObject,
         chat: Chat?,
+        provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
     ) {
@@ -195,6 +196,7 @@ class AttachmentsManager {
                     file: fileJSON,
                     chat: chat,
                     attachmentObject: attachmentObject,
+                    provisionalMessage: provisionalMessage,
                     replyingMessage: replyingMessage,
                     threadUUID: threadUUID
                     
@@ -226,6 +228,7 @@ class AttachmentsManager {
         file: NSDictionary,
         chat: Chat?,
         attachmentObject: AttachmentObject,
+        provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
     ) {
@@ -233,6 +236,7 @@ class AttachmentsManager {
             file: file,
             attachmentObject: attachmentObject,
             chat: chat,
+            provisionalMessage: provisionalMessage,
             replyingMessage: replyingMessage,
             threadUUID: threadUUID
         )

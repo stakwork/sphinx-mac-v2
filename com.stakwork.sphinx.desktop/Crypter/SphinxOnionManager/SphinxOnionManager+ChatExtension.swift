@@ -123,6 +123,7 @@ extension SphinxOnionManager{
         to recipContact: UserContact?,
         content: String,
         chat: Chat,
+        provisionalMessage: TransactionMessage?,
         amount:Int = 0,
         shouldSendAsKeysend: Bool = false,
         msgType: UInt8 = 0,
@@ -189,6 +190,7 @@ extension SphinxOnionManager{
             let sentMessage = processNewOutgoingMessage(
                 rr: rr,
                 chat: chat,
+                provisionalMessage: provisionalMessage,
                 msgType: msgType,
                 content: content,
                 amount: amount,
@@ -248,6 +250,7 @@ extension SphinxOnionManager{
     func processNewOutgoingMessage(
         rr: RunReturn,
         chat: Chat,
+        provisionalMessage: TransactionMessage?,
         msgType: UInt8,
         content: String,
         amount: Int,
@@ -262,21 +265,25 @@ extension SphinxOnionManager{
         for msg in rr.msgs {
             if let sentUUID = msg.uuid, msgType != TransactionMessage.TransactionMessageType.delete.rawValue {
                 let date = Date()
-                let message  = TransactionMessage.createProvisionalMessage(
+                let message  = provisionalMessage ?? TransactionMessage.createProvisionalMessage(
                     messageContent: content,
                     type: Int(msgType),
                     date: date,
                     chat: chat,
-                    replyUUID: nil,
-                    threadUUID: nil
+                    replyUUID: replyUUID,
+                    threadUUID: threadUUID
                 )
                 
-                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue || msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue {
+                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue || 
+                   msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue
+                {
                     message?.amount = NSDecimalNumber(value: amount)
                     message?.mediaKey = mediaKey
                     message?.mediaToken = mediaToken
                     message?.mediaType = mediaType
-                } else if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || msgType == TransactionMessage.TransactionMessageType.attachment.rawValue {
+                } else if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || 
+                          msgType == TransactionMessage.TransactionMessageType.attachment.rawValue
+                {
                     message?.mediaKey = mediaKey
                     message?.mediaToken = mediaToken
                     message?.mediaType = mediaType
@@ -300,8 +307,6 @@ extension SphinxOnionManager{
                 }
 
                 
-                message?.replyUUID = replyUUID
-                message?.threadUUID = threadUUID
                 message?.createdAt = date
                 message?.updatedAt = date
                 message?.uuid = sentUUID
@@ -392,17 +397,17 @@ extension SphinxOnionManager{
             if Int(message.type ?? 0) == TransactionMessage.TransactionMessageType.unknown.rawValue {
                 ///Message to restore contact info
                 
-                if let fullContactInfo = genericIncomingMessage.fullContactInfo,
-                    let (recipientPubkey, recipLspPubkey, scid) = parseContactInfoString(fullContactInfo: fullContactInfo),
+                if let sender = message.sender,
+                   let csr =  ContactServerResponse(JSONString: sender),
+                   let recipientPubkey = csr.pubkey,
                     UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) == nil
                 {
                     let pendingContact = createNewContact(
                         pubkey: recipientPubkey,
-                        nickname: genericIncomingMessage.alias ?? "Unknown"
+                        nickname: genericIncomingMessage.alias ?? "Unknown",
+                        photoUrl: genericIncomingMessage.photoUrl
                     )
                     
-                    pendingContact?.scid = scid
-                    pendingContact?.routeHint = recipLspPubkey
                     pendingContact?.status = UserContact.Status.Pending.rawValue
                 }
                 
@@ -441,7 +446,6 @@ extension SphinxOnionManager{
                 }
                 
                 finalizeSentMessage(localMsg: localMsg, remoteMsg: message)
-                print("sentTo is non-nil inner block, message:\(message)")
             } else if let uuid = message.uuid, TransactionMessage.getMessageWith(uuid: uuid) == nil { // guarantee it is a new message
                 if let type = message.type,
                    let sender = message.sender,
@@ -484,7 +488,7 @@ extension SphinxOnionManager{
                     } else if type == TransactionMessage.TransactionMessageType.delete.rawValue {
                         processIncomingDeletion(message: genericIncomingMessage, date: date)
                     } else if isGroupAction(type: type), let tribePubkey = csr.pubkey {
-                        ///Restore calls here to restore tribe
+                        ///Restoring tribe
                         fetchOrCreateChatWithTribe(
                             ownerPubkey: tribePubkey,
                             host: csr.host,
@@ -507,8 +511,12 @@ extension SphinxOnionManager{
                                     if (didCreateTribe && csr.role != nil) {
                                         chat.isTribeICreated = csr.role == 0
                                     }
-                                    (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) ? (chat.status = Chat.ChatStatus.approved.rawValue) : ()
-                                    (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) ? (chat.status = Chat.ChatStatus.rejected.rawValue) : ()
+                                    if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
+                                        chat.status = Chat.ChatStatus.approved.rawValue
+                                    }
+                                    if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
+                                        chat.status = Chat.ChatStatus.rejected.rawValue
+                                    }
                                     self.finalizeNewMessage(index: groupActionMessage.id, newMessage: groupActionMessage)
                                 }
                             }
@@ -554,7 +562,6 @@ extension SphinxOnionManager{
                 cachedMessage.id = index //sync self index
                 cachedMessage.updatedAt = Date()
                 finalizeNewMessage(index: index, newMessage: cachedMessage)
-                print(rr)
             }
             
             onMessageRestoredCallback?()
@@ -754,7 +761,8 @@ extension SphinxOnionManager{
     func sendAttachment(
         file: NSDictionary,
         attachmentObject: AttachmentObject,
-        chat:Chat?,
+        chat: Chat?,
+        provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
     ) -> TransactionMessage? {
@@ -767,23 +775,22 @@ extension SphinxOnionManager{
             return nil
         }
         
-        let (_,mediaType) = attachmentObject.getFileAndMime()
+        let (_, mediaType) = attachmentObject.getFileAndMime()
         
         //Create JSON object and push through onion network
         var recipContact : UserContact? = nil
         
-        if let recipPubkey = attachmentObject.contactPubkey,
-           let contact = UserContact.getContactWithDisregardStatus(pubkey: recipPubkey)
-        {
+        if let contact = chat.getContact() {
             recipContact = contact
         }
         
         let type = (attachmentObject.paidMessage != nil) ? (TransactionMessage.TransactionMessageType.purchase.rawValue) : (TransactionMessage.TransactionMessageType.attachment.rawValue)
         
-        if let sentMessage = self.sendMessage(
+        if let sentMessage = sendMessage(
             to: recipContact,
             content: attachmentObject.text ?? "",
             chat: chat,
+            provisionalMessage: provisionalMessage,
             msgType: UInt8(type),
             muid: muid,
             recipPubkey: destinationPubkey,
@@ -820,6 +827,7 @@ extension SphinxOnionManager{
             to: contact,
             content: text,
             chat: chat,
+            provisionalMessage: nil,
             amount: amount,
             msgType: UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
             threadUUID: nil,
@@ -846,6 +854,7 @@ extension SphinxOnionManager{
             to: contact, 
             content: "",
             chat: chat,
+            provisionalMessage: nil,
             amount: amount,
             msgType: UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
             muid: muid,
@@ -873,6 +882,7 @@ extension SphinxOnionManager{
             to: contact,
             content: "",
             chat: chat,
+            provisionalMessage: nil,
             msgType: UInt8(TransactionMessage.TransactionMessageType.delete.rawValue),
             recipPubkey: pubkey,
             threadUUID: nil,

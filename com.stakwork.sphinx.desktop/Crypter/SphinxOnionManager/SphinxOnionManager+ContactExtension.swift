@@ -114,7 +114,7 @@ extension SphinxOnionManager{//contacts related
                         let newContactRequest = createNewContact(
                             pubkey: senderPubkey,
                             nickname: csr.alias,
-                            photo_url: csr.photoUrl,
+                            photoUrl: csr.photoUrl,
                             person: csr.person,
                             code: csr.code
                         )
@@ -158,7 +158,7 @@ extension SphinxOnionManager{//contacts related
     func createNewContact(
         pubkey: String,
         nickname: String? = nil,
-        photo_url: String? = nil,
+        photoUrl: String? = nil,
         person: String? = nil,
         code: String? = nil
     ) -> UserContact? {
@@ -174,7 +174,7 @@ extension SphinxOnionManager{//contacts related
         contact.fromGroup = false
         contact.privatePhoto = false
         contact.tipAmount = 0
-        contact.avatarUrl = photo_url
+        contact.avatarUrl = photoUrl
         
         return contact
     }

@@ -83,14 +83,15 @@ extension SphinxOnionManager{//invoices related
     
     
     func sendInvoiceMessage(
-        contact:UserContact,
-        chat:Chat,
-        invoiceString:String
+        contact: UserContact,
+        chat: Chat,
+        invoiceString: String
     ) {
         let _ = sendMessage(
             to: contact,
             content: "",
             chat: chat,
+            provisionalMessage: nil,
             msgType: UInt8(TransactionMessage.TransactionMessageType.invoice.rawValue),
             threadUUID: nil,
             replyUUID: nil,
