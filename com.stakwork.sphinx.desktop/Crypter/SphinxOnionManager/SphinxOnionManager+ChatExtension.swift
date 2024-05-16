@@ -140,8 +140,14 @@ extension SphinxOnionManager{
         guard let seed = getAccountSeed() else {
             return nil
         }
-//        let sendAmount = chat.isConversation() ? amount : max(1, amount)  //send keysends to group
         
+        guard let selfContact = UserContact.getSelfContact(),
+              let nickname = selfContact.nickname ?? chat.name,
+              let recipPubkey = recipPubkey ?? (recipContact?.publicKey ?? chat.ownerPubkey)
+        else {
+            return nil
+        }
+
         guard let (contentJSONString, mediaToken) = formatMsg(
             content: content,
             type: msgType,
@@ -157,10 +163,7 @@ extension SphinxOnionManager{
             return nil
         }
         
-        guard let selfContact = UserContact.getSelfContact(),
-              let nickname = selfContact.nickname ?? chat.name,
-              let recipPubkey = (recipContact?.publicKey ?? chat.ownerPubkey),
-              let contentJSONString = contentJSONString else {
+        guard let contentJSONString = contentJSONString else {
             return nil
         }
         
@@ -845,6 +848,8 @@ extension SphinxOnionManager{
         completion: @escaping (Bool, TransactionMessage?) -> ()
     ){
         let muid = params["muid"] as? String
+        let mediaType = params["media_type"] as? String
+        let content = params["text"] as? String
         
         guard let contact = chat.getContact(), let amount = params["amount"] as? Int else {
             return
@@ -852,12 +857,13 @@ extension SphinxOnionManager{
         
         if let sentMessage = self.sendMessage(
             to: contact, 
-            content: "",
+            content: content ?? "",
             chat: chat,
             provisionalMessage: nil,
             amount: amount,
             msgType: UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
             muid: muid,
+            mediaType: mediaType,
             threadUUID: nil,
             replyUUID: nil
         ) {

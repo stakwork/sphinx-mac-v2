@@ -95,7 +95,10 @@ class PaymentViewModel : NSObject {
         return true
     }
     
-    func shouldSendDirectPayment(callback: @escaping () -> (), errorCallback: @escaping (String?) -> ()) {
+    func shouldSendDirectPayment(
+        callback: @escaping () -> (),
+        errorCallback: @escaping (String?) -> ()
+    ) {
         guard let chat = currentPayment.chat else {
             errorCallback("generic.error.message".localized)
             return
@@ -103,13 +106,17 @@ class PaymentViewModel : NSObject {
         
         let parameters = getParams()
         
-        SphinxOnionManager.sharedInstance.sendDirectPaymentMessage(params: parameters, chat: chat, completion: { success, _ in
-            if (success){
-                callback()
-            } else {
-                errorCallback("generic.error.message".localized)
+        SphinxOnionManager.sharedInstance.sendDirectPaymentMessage(
+            params: parameters,
+            chat: chat,
+            completion: { success, _ in
+                if (success){
+                    callback()
+                } else {
+                    errorCallback("generic.error.message".localized)
+                }
             }
-        })
+        )
     }
     
     func shouldCreateInvoice(
