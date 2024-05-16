@@ -119,6 +119,7 @@ extension SphinxOnionManager{//invites related
         invite.status = UserInvite.Status.Ready.rawValue
         contact.invite = invite
         invite.contact = contact
+        
         managedContext.saveContext()
     }
     

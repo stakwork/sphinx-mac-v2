@@ -126,10 +126,26 @@ extension TransactionMessage {
         }
     }
     
+    static func getMaxIndex() -> Int? {
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "status != %d", TransactionMessage.TransactionMessageStatus.failed.rawValue)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = 1
+
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first?.id
+        } catch let error as NSError {
+            print("Error fetching message with max ID: \(error), \(error.userInfo)")
+            return nil
+        }
+    }
+    
     static func getMessageDeletionRequests() -> [TransactionMessage] {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "type == %d", 17) // Replace '17' with the actual type if it differs.
+        fetchRequest.predicate = NSPredicate(format: "type == %d", TransactionMessage.TransactionMessageType.delete.rawValue) // Replace '17' with the actual type if it differs.
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)] // Sorting by 'id', adjust as needed.
 
         do {

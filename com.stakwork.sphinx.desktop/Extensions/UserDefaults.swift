@@ -75,7 +75,6 @@ extension UserDefaults {
         public static let signerKeys = DefaultKey<String>("signerKeys")
         public static let onionState = DefaultKey<String>("onionState")
         public static let sequence = DefaultKey<String>("sequence")
-        public static let lastV2MessageIndex = DefaultKey<Int>("lastV2MessageIndex")
         
         public static let selectedChat = DefaultKey<String>("selectedChat")
     }

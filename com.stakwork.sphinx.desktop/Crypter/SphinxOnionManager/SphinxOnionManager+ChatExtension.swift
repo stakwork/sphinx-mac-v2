@@ -520,7 +520,6 @@ extension SphinxOnionManager{
                                     if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
                                         chat.status = Chat.ChatStatus.rejected.rawValue
                                     }
-                                    self.finalizeNewMessage(index: groupActionMessage.id, newMessage: groupActionMessage)
                                 }
                             }
                         )
@@ -550,7 +549,6 @@ extension SphinxOnionManager{
                             newMessage.invoice = genericIncomingMessage.invoice
                             newMessage.amountMsat = NSDecimalNumber(value: Int(truncating: newMessage.amount ?? 0) * 1000)
                             newMessage.status = TransactionMessage.TransactionMessageStatus.pending.rawValue
-                            finalizeNewMessage(index: newMessage.id, newMessage: newMessage)
                         }
                         
                     }
@@ -564,9 +562,9 @@ extension SphinxOnionManager{
             { //updates index of sent message
                 cachedMessage.id = index //sync self index
                 cachedMessage.updatedAt = Date()
-                finalizeNewMessage(index: index, newMessage: cachedMessage)
             }
             
+            managedContext.saveContext()
             onMessageRestoredCallback?()
         }
     }
@@ -675,7 +673,7 @@ extension SphinxOnionManager{
         }
         
         if (delaySave == false) {
-            finalizeNewMessage(index: index, newMessage: newMessage)
+            managedContext.saveContext()
         }
         
         assignReceiverId(localMsg: newMessage)
@@ -693,11 +691,6 @@ extension SphinxOnionManager{
                 msg.setPaymentInvoiceAsPaid()
             }
         }
-    }
-    
-    func finalizeNewMessage(index: Int, newMessage: TransactionMessage) {
-        managedContext.saveContext()
-        UserData.sharedInstance.setLastMessageIndex(index: index)
     }
     
     func processIncomingPayment(
@@ -966,6 +959,11 @@ extension SphinxOnionManager{
         guard let seed = getAccountSeed() else{
             return
         }
+        
+        guard let _ = mqtt else {
+            return
+        }
+        
         guard let recipPubkey = (recipContact?.publicKey ?? chat.ownerPubkey) else { return  }
         
         do {

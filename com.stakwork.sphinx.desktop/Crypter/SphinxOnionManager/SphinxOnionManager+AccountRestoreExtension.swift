@@ -111,8 +111,6 @@ extension SphinxOnionManager {
         messageRestoreCallback: RestoreProgressCallback?,
         hideRestoreViewCallback: (()->())?
     ){
-        messageFetchParams?.stopIndex = UserData.sharedInstance.getLastMessageIndex() ?? 0
-        
         self.contactRestoreCallback = contactRestoreCallback
         self.messageRestoreCallback = messageRestoreCallback
         self.hideRestoreCallback = hideRestoreViewCallback
@@ -247,7 +245,7 @@ extension SphinxOnionManager {
             messageFetchParams?.restoreInProgress = true
             let startIndex = (msgTotalCounts.totalMessageMaxIndex ?? 0)
             
-            let lastMessageIndex = UserData.sharedInstance.getLastMessageIndex() ?? 0
+            let lastMessageIndex = TransactionMessage.getMaxIndex() ?? 0
             
             let safeSpread = max(0, startIndex - lastMessageIndex)
             
@@ -473,7 +471,6 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
         // Additional logic for setting the last message index in UserData or similar actions
         if let counts = msgTotalCounts,
            let maxIndex = counts.totalMessageMaxIndex {
-            UserData.sharedInstance.setLastMessageIndex(index: maxIndex)
             resetFromRestore()
         }
     }

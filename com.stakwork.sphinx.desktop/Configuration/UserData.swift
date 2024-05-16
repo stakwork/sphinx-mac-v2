@@ -127,14 +127,6 @@ class UserData {
         return nil
     }
     
-    func setLastMessageIndex(index: Int){
-        UserDefaults.Keys.lastV2MessageIndex.set(index)
-    }
-    
-    func getLastMessageIndex() -> Int? {
-        return UserDefaults.Keys.lastV2MessageIndex.get()
-    }
-    
     func clearData() {
         CoreDataManager.sharedManager.clearCoreDataStore()
         let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue)
