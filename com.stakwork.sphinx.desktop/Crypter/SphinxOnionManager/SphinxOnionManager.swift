@@ -193,26 +193,47 @@ class SphinxOnionManager : NSObject {
             mqtt.disconnect()
         }
     }
+    
+    func reconnectToServer(
+        connectingCallback: (() -> ())? = nil,
+        hideRestoreViewCallback: (()->())? = nil
+    ) {
+        guard let mqtt = self.mqtt, mqtt.connState == .disconnected else {
+            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                ///Delay added for the loading wheel to be visible
+                hideRestoreViewCallback?()
+            })
+            return
+        }
+        connectToServer(
+            connectingCallback: connectingCallback,
+            hideRestoreViewCallback: hideRestoreViewCallback
+        )
+    }
 
     func connectToServer(
-        contactRestoreCallback: @escaping RestoreProgressCallback,
-        messageRestoreCallback: @escaping RestoreProgressCallback,
-        hideRestoreViewCallback: @escaping ()->()
+        connectingCallback: (() -> ())? = nil,
+        contactRestoreCallback: RestoreProgressCallback? = nil,
+        messageRestoreCallback: RestoreProgressCallback? = nil,
+        hideRestoreViewCallback: (()->())? = nil
     ){
         let som = self
+        
+        connectingCallback?()
         
         guard let seed = som.getAccountSeed(),
               let myPubkey = som.getAccountOnlyKeysendPubkey(seed: seed),
               let my_xpub = som.getAccountXpub(seed: seed) else
         {
             AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
+            hideRestoreViewCallback?()
             return
         }
         
         som.disconnectMqtt()
         
         if (som.isV2Restore) {
-            contactRestoreCallback(2)
+            contactRestoreCallback?(2)
         }
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
@@ -220,6 +241,7 @@ class SphinxOnionManager : NSObject {
             
             if (success == false) {
                 AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
+                hideRestoreViewCallback?()
                 return
             }
             

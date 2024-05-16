@@ -107,9 +107,9 @@ extension SphinxOnionManager {
     }
     
     func syncContactsAndMessages(
-        contactRestoreCallback: @escaping RestoreProgressCallback,
-        messageRestoreCallback: @escaping RestoreProgressCallback,
-        hideRestoreViewCallback: @escaping ()->()
+        contactRestoreCallback: RestoreProgressCallback?,
+        messageRestoreCallback: RestoreProgressCallback?,
+        hideRestoreViewCallback: (()->())?
     ){
         messageFetchParams?.stopIndex = UserData.sharedInstance.getLastMessageIndex() ?? 0
         
@@ -480,7 +480,7 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
     
     func resetFromRestore() {
         for chat in Chat.getAll() {
-            if let lastMessage = TransactionMessage.getMaxIndexMessageFor(chat: chat) {
+            if let lastMessage = TransactionMessage.getLastMessageFor(chat: chat) {
                 chat.lastMessage = lastMessage
             }
         }

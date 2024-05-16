@@ -121,6 +121,9 @@ class DashboardViewController: NSViewController {
             }
             
             self.som.connectToServer(
+                connectingCallback: {
+                    self.listViewController?.headerLoading = true
+                },
                 contactRestoreCallback: self.contactRestoreCallback(percentage:),
                 messageRestoreCallback: self.messageRestoreCallback(percentage:),
                 hideRestoreViewCallback: self.hideRestoreViewCallback
@@ -134,6 +137,8 @@ class DashboardViewController: NSViewController {
     }
     
     func hideRestoreViewCallback(){
+        listViewController?.headerLoading = false
+        
         shouldHideRetoreModal()
         refreshUnreadStatus()
     }
@@ -461,22 +466,22 @@ class DashboardViewController: NSViewController {
     }
     
     func reloadData() {
-//        self.chatListViewModel.loadFriends { _ in
-//
-//            self.chatListViewModel.syncMessages(
-//                chatId: self.newDetailViewController?.chat?.id,
-//                progressCallback: { (_, _) in }
-//            ) { (_, _) in
-//
-//                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-//                    appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
-//                }
-//            }
-//        }
+        reconnectToMQTT()
         
         if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
             appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
         }
+    }
+    
+    func reconnectToMQTT() {
+        som.reconnectToServer(
+            connectingCallback: {
+                self.listViewController?.headerLoading = true
+            },
+            hideRestoreViewCallback: {
+                self.listViewController?.headerLoading = false
+            }
+        )
     }
     
     func addEscapeMonitor() {
@@ -604,15 +609,17 @@ extension DashboardViewController : DashboardVCDelegate {
     }
     
     func reloadChatListVC() {
+        reconnectToMQTT()
+        
         if let listViewController = listViewController {
-            self.removeChildVC(child: listViewController)
+            removeChildVC(child: listViewController)
         }
         
         let chatListVCController = ChatListViewController.instantiate(
             delegate: self
         )
         
-        self.addChildVC(
+        addChildVC(
             child: chatListVCController,
             container: leftSplittedView
         )

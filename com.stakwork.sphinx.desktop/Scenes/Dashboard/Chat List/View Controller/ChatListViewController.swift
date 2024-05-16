@@ -54,6 +54,12 @@ class ChatListViewController : DashboardSplittedViewController {
         }
     }
     
+    var headerLoading = true {
+        didSet {
+            headerView.loading = headerLoading
+        }
+    }
+    
     ///Chat List VCs
     internal lazy var contactChatsContainerViewController: NewChatListViewController = {
         NewChatListViewController.instantiate(

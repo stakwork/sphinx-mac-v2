@@ -95,7 +95,7 @@ class NewChatHeaderView: NSView, LoadableNib {
         loading = true
         delegate?.refreshTapped()
         updateBalance()
-        shouldCheckAppVersions()
+//        shouldCheckAppVersions()
     }
     
     @IBAction func menuButtonTapped(_ sender: NSButton) {
@@ -122,14 +122,14 @@ class NewChatHeaderView: NSView, LoadableNib {
     }
     
     func shouldCheckAppVersions() {
-        API.sharedInstance.getAppVersions(callback: { v in
-            self.loading = false
-            let version = Int(v) ?? 0
-            let appVersion = Int(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0") ?? 0
+//        API.sharedInstance.getAppVersions(callback: { v in
+//            self.loading = false
+//            let version = Int(v) ?? 0
+//            let appVersion = Int(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0") ?? 0
 
 //            self.upgradeButton.isHidden = version <= appVersion
 //            self.upgradeBox.isHidden = version <= appVersion
-        })
+//        })
     }
     
     func listenForNotifications() {

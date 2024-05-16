@@ -28,7 +28,7 @@ extension API {
             case .success(let data):
                 if let json = data as? NSDictionary {
                     if let success = json["success"] as? Bool, let response = json["response"] as? NSDictionary, success {
-                        if let version = response["mac"] as? String {
+                        if let version = response["mac-v2"] as? String {
                             callback(version)
                             return
                         }

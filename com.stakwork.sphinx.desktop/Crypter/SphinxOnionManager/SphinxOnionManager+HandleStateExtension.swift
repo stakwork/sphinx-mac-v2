@@ -221,7 +221,7 @@ extension SphinxOnionManager {
         
         print("pushRRTopic | topic:\(topic) | payload:\(byteArray)")
         
-        self.mqtt.publish(
+        self.mqtt?.publish(
             CocoaMQTTMessage(
                 topic: topic,
                 payload: byteArray

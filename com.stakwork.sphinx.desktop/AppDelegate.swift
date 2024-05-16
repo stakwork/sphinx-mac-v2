@@ -34,6 +34,7 @@ import WebKit
     let actionsManager = ActionsManager.sharedInstance
     let feedsManager = FeedsManager.sharedInstance
     let podcastPlayerController = PodcastPlayerController.sharedInstance
+    let som = SphinxOnionManager.sharedInstance
     
     public enum SphinxMenuButton: Int {
         case Logout = 0
@@ -235,13 +236,13 @@ import WebKit
     
     @objc func sleepListener(aNotification: NSNotification) {
         if (aNotification.name == NSWorkspace.didWakeNotification) && UserData.sharedInstance.isUserLogged() {
-            connectMQTT()
+//            connectMQTT()
             SDImageCache.shared.clearMemory()
             
             unlockTimer?.invalidate()
             unlockTimer = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(reloadDataAndConnectSocket), userInfo: nil, repeats: false)
             
-            getDashboardVC()?.reloadChatListVC()
+            getDashboardVC()?.reloadChatListVC()            
         }
     }
 
@@ -262,6 +263,7 @@ import WebKit
         
         if UserData.sharedInstance.isUserLogged() && !ChatListViewModel.isRestoreRunning() {
             reloadDataAndConnectSocket()
+            som.reconnectToServer()
 //            feedsManager.restoreContentFeedStatusInBackground()
         }
     }
@@ -385,7 +387,7 @@ import WebKit
             keyWindow?.replaceContentBy(vc: SplashViewController.instantiate())
             keyWindow?.setFrame(frame, display: true, animate: true)
             
-            SphinxOnionManager.sharedInstance.disconnectMqtt()
+            self.som.disconnectMqtt()
             ContactsService.sharedInstance.reset()
             UserData.sharedInstance.clearData()
             SphinxCache().removeAll()
