@@ -19,6 +19,8 @@ public class UserContact: NSManagedObject {
     }
     
     public var lastMessage : TransactionMessage? = nil
+    public var unseenMessagesCount: Int = 0
+    
     var conversation: Chat? = nil
     
     public static var kTipAmount : Int {

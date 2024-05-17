@@ -456,7 +456,7 @@ public class Chat: NSManagedObject {
         return messages
     }
     
-    var unseenMessagesCount: Int = 0
+    public var unseenMessagesCount: Int = 0
     
     var unseenMessagesCountLabel: String {
         get {

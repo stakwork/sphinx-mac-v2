@@ -93,6 +93,7 @@ extension NewChatListViewController {
         var objectId: String
         var messageId: Int?
         var messageSeen: Bool
+        var unseenCount: Int
         var contactStatus: Int?
         var inviteStatus: Int?
         var notify: Int
@@ -102,6 +103,7 @@ extension NewChatListViewController {
             objectId: String,
             messageId: Int?,
             messageSeen: Bool,
+            unseenCount: Int,
             contactStatus: Int?,
             inviteStatus: Int?,
             notify: Int,
@@ -111,6 +113,7 @@ extension NewChatListViewController {
             self.objectId = objectId
             self.messageId = messageId
             self.messageSeen = messageSeen
+            self.unseenCount = unseenCount
             self.contactStatus = contactStatus
             self.inviteStatus = inviteStatus
             self.notify = notify
@@ -122,6 +125,7 @@ extension NewChatListViewController {
                 lhs.objectId == rhs.objectId &&
                 lhs.messageId == rhs.messageId &&
                 lhs.messageSeen == rhs.messageSeen &&
+                lhs.unseenCount == rhs.unseenCount &&
                 lhs.contactStatus == rhs.contactStatus &&
                 lhs.inviteStatus == rhs.inviteStatus &&
                 lhs.notify == rhs.notify &&
@@ -331,6 +335,7 @@ extension NewChatListViewController {
                 objectId: element.getObjectId(),
                 messageId: element.lastMessage?.id,
                 messageSeen: element.isSeen(ownerId: owner.id),
+                unseenCount: element.unseenMessagesCount,
                 contactStatus: element.getContactStatus(),
                 inviteStatus: element.getInviteStatus(),
                 notify: element.getChat()?.notify ?? Chat.NotificationLevel.SeeAll.rawValue,

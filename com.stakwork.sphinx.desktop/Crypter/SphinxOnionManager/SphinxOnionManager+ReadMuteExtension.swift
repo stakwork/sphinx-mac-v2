@@ -44,6 +44,7 @@ extension SphinxOnionManager {
                 lastReadId: lastReadId
             )
         }
+        ContactsService.sharedInstance.forceUpdate()
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {

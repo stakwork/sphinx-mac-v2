@@ -37,5 +37,6 @@ public protocol ChatListCommonObject: AnyObject {
     func getInvite() -> UserInvite?
     
     var lastMessage : TransactionMessage? { get set }
+    var unseenMessagesCount: Int { get set }
     
 }
