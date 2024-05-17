@@ -10,7 +10,7 @@ import Foundation
 import CocoaMQTT
 import SwiftyJSON
 
-extension SphinxOnionManager{
+extension SphinxOnionManager {
     
     func getChatWithTribeOrContactPubkey(
         contactPubkey: String?,
@@ -29,13 +29,22 @@ extension SphinxOnionManager{
         host: String?,
         completion: @escaping (Chat?,Bool) -> ()
     ) {
-        // First try to fetch the chat from the database.
+        if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
+            ///Tribe restore in progress
+            completion(nil, false)
+            return
+        }
+        
+        chatsFetchParams?.restoredTribesPubKeys.append(ownerPubkey)
+        
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
-            completion(chat,false)
+            ///Tribe restore found, no need to restore
+            
+            completion(chat, false)
         } else if let host = host {
-            // If not found in the database, attempt to lookup and restore.
+            ///Tribe not found in the database, attempt to lookup and restore.
             GroupsManager.sharedInstance.lookupAndRestoreTribe(pubkey: ownerPubkey, host: host) { chat in
-                completion(chat,true)
+                completion(chat, true)
             }
         } else {
             completion(nil, false)
@@ -389,9 +398,25 @@ extension SphinxOnionManager{
     //MARK: processes updates from general purpose messages like plaintext and attachments
     func processGenericMessages(rr: RunReturn) {
         
-        let filteredMsgs = rr.msgs.filter({ $0.type != 11 && $0.type != 10 })
+        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        let notAllowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+        ]
+        
+        var filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
         
         if filteredMsgs.count <= 0 {return}
+        
+        if isRestoringContactsAndTribes && rr.msgs.count > 0 {
+            let allowedTypes = [
+                UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue),
+                UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+            ]
+            
+            filteredMsgs = rr.msgs.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
+        }
         
         for message in filteredMsgs {
             
@@ -412,8 +437,6 @@ extension SphinxOnionManager{
                     
                     pendingContact?.status = UserContact.Status.Pending.rawValue
                 }
-                
-                firstSCIDMsgsCallback?()
                 
             } else if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
                       let newUUID = message.uuid,
@@ -451,7 +474,6 @@ extension SphinxOnionManager{
             } else if let uuid = message.uuid, TransactionMessage.getMessageWith(uuid: uuid) == nil { // guarantee it is a new message
                 if let type = message.type,
                    let sender = message.sender,
-                   let uuid = message.uuid,
                    let index = message.index,
                    let timestamp = message.timestamp,
                    let date = timestampToDate(timestamp: timestamp),
@@ -499,7 +521,7 @@ extension SphinxOnionManager{
                         fetchOrCreateChatWithTribe(
                             ownerPubkey: tribePubkey,
                             host: csr.host,
-                            completion: { chat,didCreateTribe  in
+                            completion: { chat, didCreateTribe  in
                                 if let chat = chat {
                                     let groupActionMessage = TransactionMessage(context: self.managedContext)
                                     groupActionMessage.uuid = uuid
@@ -562,7 +584,9 @@ extension SphinxOnionManager{
                     }
                     print("handleRunReturn message: \(message)")
                 }
-            } else if isMyMessageNeedingIndexUpdate(msg: message),
+            }
+            
+            if isMyMessageNeedingIndexUpdate(msg: message),
                 let uuid = message.uuid,
                 let cachedMessage = TransactionMessage.getMessageWith(uuid: uuid),
                 let indexString = message.index,
@@ -573,7 +597,6 @@ extension SphinxOnionManager{
             }
             
             managedContext.saveContext()
-            onMessageRestoredCallback?()
         }
     }
     

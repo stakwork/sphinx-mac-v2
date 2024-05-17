@@ -129,7 +129,12 @@ extension TransactionMessage {
     static func getMaxIndex() -> Int? {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "status != %d", TransactionMessage.TransactionMessageStatus.failed.rawValue)
+        ///Not consider group join since those messages could be restored during contacts/tribes restore
+        fetchRequest.predicate = NSPredicate(
+            format: "status != %d AND type != %d",
+            TransactionMessage.TransactionMessageStatus.failed.rawValue,
+            TransactionMessage.TransactionMessageType.groupJoin.rawValue
+        )
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         fetchRequest.fetchLimit = 1
 

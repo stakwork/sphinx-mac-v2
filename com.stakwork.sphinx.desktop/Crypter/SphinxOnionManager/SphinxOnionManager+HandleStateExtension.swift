@@ -170,6 +170,15 @@ extension SphinxOnionManager {
 
         purgeObsoleteState(keys: rr.stateToDelete)
         
+        ///Restore callbacks
+        if rr.msgs.count > 0 {
+            if let firstSCIDMsgsCallback = firstSCIDMsgsCallback {
+                firstSCIDMsgsCallback(rr.msgs)
+            } else if let onMessageRestoredCallback = onMessageRestoredCallback {
+                onMessageRestoredCallback(rr.msgs)
+            }
+        }
+        
         ///Publishing to MQTT Topics
         DelayPerformedHelper.performAfterDelay(seconds: publishDelay, completion: {
             for i in 0..<rr.topics.count{

@@ -38,6 +38,7 @@ class SphinxOnionManager : NSObject {
     var nextMessageBlockWasReceived = false
     var messageTimers: [String: Timer] = [:]
     
+    var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
     
     var isV2InitialSetup: Bool = false
@@ -66,6 +67,7 @@ class SphinxOnionManager : NSObject {
     var appSessionPin : String? = nil
     var defaultInitialSignupPin : String = "111111"
     
+    public static let kContactsBatchSize = 250
     public static let kMessageBatchSize = 250
 
     //MARK: Hardcoded Values!
@@ -80,8 +82,8 @@ class SphinxOnionManager : NSObject {
     ///Callbacks
     ///Restore
     var totalMsgsCountCallback: (() -> ())? = nil
-    var firstSCIDMsgsCallback: (() -> ())? = nil
-    var onMessageRestoredCallback: (() -> ())? = nil
+    var firstSCIDMsgsCallback: (([Msg]) -> ())? = nil
+    var onMessageRestoredCallback: (([Msg]) -> ())? = nil
     ///Create tribe
     var createTribeCallback: ((String) -> ())? = nil
     

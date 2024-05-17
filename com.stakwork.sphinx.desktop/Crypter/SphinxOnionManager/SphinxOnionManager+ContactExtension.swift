@@ -74,7 +74,12 @@ extension SphinxOnionManager{//contacts related
     
     //MARK: Processes key exchange messages (friend requests) between contacts
     func processKeyExchangeMessages(rr: RunReturn) {
-        for msg in rr.msgs.filter({ $0.type == 11 || $0.type == 10 }) {
+        let allowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+        ]
+        
+        for msg in rr.msgs.filter({ $0.type != nil && allowedTypes.contains($0.type!) }) {
             
             print("KEY EXCHANGE MSG of Type \(String(describing: msg.type)) RECEIVED:\(msg)")
             
@@ -106,9 +111,6 @@ extension SphinxOnionManager{//contacts related
                     
                     CoreDataManager.sharedManager.saveContext()
                     
-                    
-                    firstSCIDMsgsCallback?()
-                    
                 } else if type == TransactionMessage.TransactionMessageType.contactKey.rawValue, /// incoming key exchange request
                         UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) == nil, ///don't respond to requests if already exists
                         let newContactRequest = createNewContact(
@@ -123,8 +125,6 @@ extension SphinxOnionManager{//contacts related
                     newContactRequest.status = UserContact.Status.Confirmed.rawValue
                     createChat(for: newContactRequest)
                     managedContext.saveContext()
-                    
-                    firstSCIDMsgsCallback?()
                 }
             }
         }

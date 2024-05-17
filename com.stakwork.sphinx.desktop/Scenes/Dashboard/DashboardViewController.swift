@@ -137,10 +137,12 @@ class DashboardViewController: NSViewController {
     }
     
     func hideRestoreViewCallback(){
-        listViewController?.headerLoading = false
-        
-        shouldHideRetoreModal()
-        refreshUnreadStatus()
+        DispatchQueue.main.async {
+            self.listViewController?.headerLoading = false
+            
+            self.shouldHideRetoreModal()
+            self.refreshUnreadStatus()
+        }
     }
     
     func contactRestoreCallback(percentage: Int) {
