@@ -452,7 +452,7 @@
 "invite.looking.available.node" = " Buscando nodo disponible para %@...";
 "invite.payment.sent" = " Pago enviado, esperando confirmación";
 "invite.pay" = " Toca para pagar y actvar la invitación";
-"invite.ready" = " ¡Listo! Toca para compartir. Caduca en 24 horas";
+"invite.ready" = " ¡Listo! Toca para compartir.";
 "invite.signing.on" = " %@ se está registrando";
 "invite.expired" = " Caducado";
 "invite.signup.complete" = " Registro completo";
@@ -467,6 +467,7 @@
 "invite.in.progress.message" = "%@ se está registrando.";
 "invite.pmt.in.progress.title" = "Procesando Pago";
 "invite.pmt.in.progress.message" = "Tu pago está siendo procesado.";
+"contact.pending" = "Esperando aprobación";
 
 //DESKTOP
 "message" = "Mensaje";

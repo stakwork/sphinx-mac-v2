@@ -453,7 +453,7 @@
 "invite.looking.available.node" = " Looking for an available node for %@...";
 "invite.payment.sent" = " Payment sent, waiting confirmation";
 "invite.pay" = " Tap to pay and activate the invite";
-"invite.ready" = " Ready! Tap to share. Expires in 24 hrs";
+"invite.ready" = " Ready! Tap to share.";
 "invite.signing.on" = " %@ is signing on";
 "invite.expired" = " Expired";
 "invite.signup.complete" = " Signup complete";
@@ -468,6 +468,7 @@
 "invite.in.progress.message" = "%@ is signing on.";
 "invite.pmt.in.progress.title" = "Payment in progress";
 "invite.pmt.in.progress.message" = "Your payment is being processed.";
+"contact.pending" = "Waiting for approval";
 
 //DESKTOP
 "message" = "Message";

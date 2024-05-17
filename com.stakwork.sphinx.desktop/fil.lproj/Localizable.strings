@@ -448,7 +448,7 @@
 "invite.looking.available.node" = " Looking for an available node for %@...";
 "invite.payment.sent"  = "Ipinadala ang bayad, naghihintay ng kumpirmasyon";
 "invite.pay" = " Tap to pay and activate the invite";
-"invite.ready" = " Ready! Tap to share. Expires in 24 hrs";
+"invite.ready" = " handa na! I-tap para ibahagi.";
 "invite.signing.on" = " %@ is signing on";
 "invite.expired" = " Expired";
 "invite.signup.complete" = " Signup complete";
@@ -463,6 +463,7 @@
 "invite.in.progress.message"  = "Nagsa-sign on si %@.";
 "invite.pmt.in.progress.title"  = "Kasalukuyang isinasagawa ang pagbabayad";
 "invite.pmt.in.progress.message"  = "Pinoproseso ang iyong bayad.";
+"contact.pending" = "Naghihintay ng pag-apruba";
 
 //DESKTOP
 "message" = "Mensahe";

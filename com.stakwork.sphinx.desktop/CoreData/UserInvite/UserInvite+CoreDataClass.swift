@@ -109,26 +109,28 @@ public class UserInvite: NSManagedObject {
     }
     
     public func getDataForRow() -> (String, NSColor, String) {
-        let userNickname = self.contact?.nickname ?? "New user"
+//        let userNickname = self.contact?.nickname ?? "New user"
+//        
+//        switch(status) {
+//        case UserInvite.Status.Pending.rawValue:
+//            return ("error", NSColor.Sphinx.SphinxOrange, String(format: "invite.looking.available.node".localized, userNickname))
+//        case UserInvite.Status.PaymentPending.rawValue:
+//            if isPaymentProcessed() {
+//                return ("sync", NSColor.Sphinx.SecondaryText, "invite.payment.sent".localized)
+//            } else {
+//                return ("payment", NSColor.Sphinx.SecondaryText, "invite.pay".localized)
+//            }
+//        case UserInvite.Status.Ready.rawValue, UserInvite.Status.Delivered.rawValue:
+//            return ("done", NSColor.Sphinx.PrimaryGreen, "invite.ready".localized)
+//        case UserInvite.Status.InProgress.rawValue:
+//            return ("sync", NSColor.Sphinx.PrimaryBlue, String(format: "invite.signing.on".localized, userNickname))
+//        case UserInvite.Status.Expired.rawValue:
+//            return ("error", NSColor.Sphinx.PrimaryRed, "invite.expired".localized)
+//        default:
+//            return ("done", NSColor.Sphinx.PrimaryGreen, "invite.signup.complete".localized)
+//        }
         
-        switch(status) {
-        case UserInvite.Status.Pending.rawValue:
-            return ("error", NSColor.Sphinx.SphinxOrange, String(format: "invite.looking.available.node".localized, userNickname))
-        case UserInvite.Status.PaymentPending.rawValue:
-            if isPaymentProcessed() {
-                return ("sync", NSColor.Sphinx.SecondaryText, "invite.payment.sent".localized)
-            } else {
-                return ("payment", NSColor.Sphinx.SecondaryText, "invite.pay".localized)
-            }
-        case UserInvite.Status.Ready.rawValue, UserInvite.Status.Delivered.rawValue:
-            return ("done", NSColor.Sphinx.PrimaryGreen, "invite.ready".localized)
-        case UserInvite.Status.InProgress.rawValue:
-            return ("sync", NSColor.Sphinx.PrimaryBlue, String(format: "invite.signing.on".localized, userNickname))
-        case UserInvite.Status.Expired.rawValue:
-            return ("error", NSColor.Sphinx.PrimaryRed, "invite.expired".localized)
-        default:
-            return ("done", NSColor.Sphinx.PrimaryGreen, "invite.signup.complete".localized)
-        }
+        return ("done", NSColor.Sphinx.PrimaryGreen, "invite.ready".localized)
     }
     
     func setPaymentProcessed() {

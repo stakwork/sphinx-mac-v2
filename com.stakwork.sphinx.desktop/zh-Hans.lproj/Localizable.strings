@@ -448,7 +448,7 @@
 "invite.looking.available.node" = "寻找%@的可用节点...";
 "invite.payment.sent" = "支付已发送，等待确认";
 "invite.pay" = "点击支付并激活邀请";
-"invite.ready" = "准备好了！点击分享。24小时后过期";
+"invite.ready" = " 准备好！ 点击即可分享。";
 "invite.signing.on" = "%@ 正在登录";
 "invite.expired" = "已过期";
 "invite.signup.complete" = "注册完成";
@@ -463,6 +463,7 @@
 "invite.in.progress.message" = "%@ 正在登录。";
 "invite.pmt.in.progress.title" = "支付进行中";
 "invite.pmt.in.progress.message" = "您的支付正在处理中。";
+"contact.pending" = "等待批准";
 
 //DESKTOP
 "message" = "消息";

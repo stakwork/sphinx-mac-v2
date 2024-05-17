@@ -206,7 +206,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     ) {
         chatImageView.sd_cancelCurrentImageLoad()
 
-        if chatListObject.isPending() {
+        if let _ = chatListObject.getInvite(), chatListObject.isPending() {
 
             chatImageView.contentTintColor = NSColor.Sphinx.TextMessages
             chatImageView.layer?.cornerRadius = 0
@@ -291,6 +291,18 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             messageLabel.font = Constants.kNewMessagePreviewFont
             messageLabel.textColor = .Sphinx.TextMessages
             
+        } else if chatListObject.isPending() {
+            inviteIconLabel.isHidden = false
+            inviteIconLabel.stringValue = "sync"
+            failedMessageIcon.isHidden = true
+            
+            messageLabel.superview?.isHidden = false
+            dateLabel.isHidden = true
+            
+            messageLabel.font = Constants.kMessagePreviewFont
+            messageLabel.textColor = .Sphinx.SecondaryText
+            
+            messageLabel.stringValue = "contact.pending".localized
         } else {
             
             inviteIconLabel.isHidden = true

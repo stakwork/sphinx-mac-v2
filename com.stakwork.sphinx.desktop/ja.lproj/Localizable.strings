@@ -449,7 +449,7 @@
 "invite.looking.available.node" = " %@の利用可能なノードを探しています...";
 "invite.payment.sent" = " 支払いが送信され、確認を待っています";
 "invite.pay" = " タップして支払いを行い、招待を有効にします";
-"invite.ready" = " 準備完了！タップして共有します。24時間で期限切れになります";
+"invite.ready" = " 準備ができて！ タップして共有します。";
 "invite.signing.on" = " %@がサインインしています";
 "invite.expired" = " 期限切れ";
 "invite.signup.complete" = " サインアップが完了しました";
@@ -464,6 +464,7 @@
 "invite.in.progress.message" = "%@がサインインしています。";
 "invite.pmt.in.progress.title" = "支払い進行中";
 "invite.pmt.in.progress.message" = "支払いが処理されています。";
+"contact.pending" = "承認待ち";
 
 //DESKTOP
 "message" = "メッセージ";
