@@ -59,6 +59,7 @@ class ProfileViewController: NSViewController {
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
     let profile = UserContact.getOwner()
+    
     var profileImage: NSImage? = nil
     var profileImageUrl: String? = nil
     
@@ -306,15 +307,17 @@ class ProfileViewController: NSViewController {
             parameters["photo_url"] = photoUrl as AnyObject?
         }
         
-        if let owner = UserContact.getOwner() {
-            owner.nickname = userNameField.stringValue
-            
-            if let photoUrl = profileImageUrl, !photoUrl.isEmpty {
-                owner.avatarUrl = photoUrl
-            }
-            
-            owner.managedObjectContext?.saveContext()
+        profile.nickname = userNameField.stringValue
+        
+        if let photoUrl = profileImageUrl, !photoUrl.isEmpty {
+            profile.avatarUrl = photoUrl
         }
+        
+        profile.managedObjectContext?.saveContext()
+        
+        UserContact.kTipAmount = tempTip
+        
+        WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
     }
     
     func updatePinSettings(){

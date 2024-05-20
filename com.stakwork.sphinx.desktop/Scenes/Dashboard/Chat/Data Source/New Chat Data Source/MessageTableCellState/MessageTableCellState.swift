@@ -892,11 +892,19 @@ extension MessageTableCellState {
             nil
         )
         
+        let isSent = message.isOutgoing(ownerId: owner.id)
+        
         if chat.isPublicGroup() {
             senderInfo = (
                 ChatHelper.getSenderColorFor(message: message),
                 message.senderAlias ?? "Unknow",
                 message.senderPic
+            )
+        } else if isSent {
+            senderInfo = (
+                owner.getColor(),
+                owner.nickname ?? "Unknow",
+                owner.avatarUrl
             )
         } else if let contact = contact {
             senderInfo = (
@@ -918,6 +926,7 @@ extension MessageTableCellState : Hashable {
         
         return
             mutableLhs.messageToShow?.id      == mutableRhs.messageToShow?.id &&
+            mutableLhs.messageId              == mutableRhs.messageId &&
             mutableLhs.messageStatus          == mutableRhs.messageStatus &&
             mutableLhs.messageType            == mutableRhs.messageType &&
             mutableLhs.bubbleState            == mutableRhs.bubbleState &&
