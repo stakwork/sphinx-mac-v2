@@ -151,7 +151,8 @@ public class TransactionMessage: NSManagedObject {
         TransactionMessageType.purchase.rawValue,
         TransactionMessageType.purchaseAccept.rawValue,
         TransactionMessageType.purchaseDeny.rawValue,
-        TransactionMessageType.repayment.rawValue
+        TransactionMessageType.repayment.rawValue,
+        TransactionMessageType.delete.rawValue
     ]
     
     static let kCallRoomName = "/sphinx.call"
