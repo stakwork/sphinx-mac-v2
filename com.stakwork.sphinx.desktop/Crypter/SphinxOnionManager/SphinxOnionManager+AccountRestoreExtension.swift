@@ -559,12 +559,32 @@ extension SphinxOnionManager {
     }
     
     func resetFromRestore() {
+        setLastMessagesOnChats()
+        processDeletedRestoredMessages()
+        
+        CoreDataManager.sharedManager.saveContext()
+        
+        isV2InitialSetup = false
+        contactRestoreCallback = nil
+        messageRestoreCallback = nil
+        updateIsPaidAllMessages()
+        
+        if let hideRestoreCallback = hideRestoreCallback {
+            hideRestoreCallback()
+        }
+        
+        joinInitialTribe()
+    }
+    
+    func setLastMessagesOnChats() {
         for chat in Chat.getAll() {
             if let lastMessage = TransactionMessage.getLastMessageFor(chat: chat) {
                 chat.lastMessage = lastMessage
             }
         }
-        
+    }
+    
+    func processDeletedRestoredMessages() {
         for deleteRequest in TransactionMessage.getMessageDeletionRequests() {
             if let replyUUID = deleteRequest.replyUUID,
                let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
@@ -574,19 +594,6 @@ extension SphinxOnionManager {
             
             CoreDataManager.sharedManager.deleteObject(object: deleteRequest)
         }
-        
-        CoreDataManager.sharedManager.saveContext()
-        
-        self.isV2InitialSetup = false
-        self.contactRestoreCallback = nil
-        self.messageRestoreCallback = nil
-        self.updateIsPaidAllMessages() // ensure all paid invoices are marked as such
-        
-        if let hideRestoreCallback = hideRestoreCallback {
-            hideRestoreCallback()
-        }
-        
-        self.joinInitialTribe()
     }
     
     func registerDeviceID(id: String) {
