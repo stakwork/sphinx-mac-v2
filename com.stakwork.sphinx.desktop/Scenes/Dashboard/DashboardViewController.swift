@@ -798,5 +798,8 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
     func closeButtonTapped() {
         rightDetailViewMaxWidth.constant = 0
         rightDetailSplittedView.isHidden = true
+        
+        newDetailViewController?.chatBottomView.messageFieldView.isThreadOpen = false
+        newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
     }
 }

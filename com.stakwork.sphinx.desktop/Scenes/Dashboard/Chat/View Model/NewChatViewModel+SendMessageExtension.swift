@@ -50,7 +50,7 @@ extension NewChatViewModel {
             completion(false)
             return
         }
-        guard let chat = chat else{
+        guard let chat = chat else {
             completion(false)
             return
         }
