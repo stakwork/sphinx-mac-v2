@@ -199,7 +199,7 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
     }
     
     private func finalizeSignup() {
-        if let contact = som.pendingContact, contact.isOwner == true {
+        if let _ = UserContact.getOwner() {
             som.isV2InitialSetup = true
             
             SignupHelper.step = SignupHelper.SignupStep.OwnerCreated.rawValue

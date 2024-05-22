@@ -29,9 +29,6 @@ class SphinxOnionManager : NSObject {
     
     let walletBalanceService = WalletBalanceService()
     
-    ///Owner for signup and restore
-    var pendingContact : UserContact? = nil
-    
     ///Invite
     var pendingInviteLookupByTag : [String:String] = [String:String]()
     var stashedContactInfo:String? = nil

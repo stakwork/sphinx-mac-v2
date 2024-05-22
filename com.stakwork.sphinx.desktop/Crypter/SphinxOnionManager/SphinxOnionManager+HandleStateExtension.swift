@@ -106,7 +106,7 @@ extension SphinxOnionManager {
                 fullContactInfo: myContactInfo
             ), UserContact.getContactWithDisregardStatus(pubkey: components.0) == nil {
                 ///only add this if we don't already have a "self" contact
-                pendingContact = createSelfContact(
+                let _ = createSelfContact(
                     scid: components.2,
                     serverPubkey: components.1,
                     myOkKey: components.0
