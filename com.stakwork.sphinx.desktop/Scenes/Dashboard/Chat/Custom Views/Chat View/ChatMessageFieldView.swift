@@ -227,7 +227,8 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         sendButton.isEnabled = active
         attachmentsButton.isEnabled = active
-        priceTextField.isEditable = active
+//        priceTextField.isEditable = active
+        priceTextField.isEditable = false
         updatePriceTagField()
         
         alphaValue = active ? 1.0 : 0.7

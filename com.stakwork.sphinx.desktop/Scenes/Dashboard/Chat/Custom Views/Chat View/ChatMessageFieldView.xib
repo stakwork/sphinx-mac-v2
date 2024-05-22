@@ -261,7 +261,7 @@
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="90" id="g8M-au-ZBp"/>
                                                 </constraints>
-                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" alignment="center" usesSingleLineMode="YES" id="gw6-uh-cCf">
+                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" focusRingType="none" alignment="center" usesSingleLineMode="YES" id="gw6-uh-cCf">
                                                     <font key="font" size="14" name="Roboto-Regular"/>
                                                     <color key="textColor" name="Text"/>
                                                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
