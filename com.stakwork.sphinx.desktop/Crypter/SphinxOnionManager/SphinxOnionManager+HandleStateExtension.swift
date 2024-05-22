@@ -66,7 +66,7 @@ extension SphinxOnionManager {
         handleNewInvite(newInvite: rr.newInvite, messages: rr.msgs)
         
         ///Handling incoming tags
-        handleIncomingTags(rr: rr)
+        handleMessageStatusByTag(rr: rr)
         
         ///Handling read status
         handleReadStatus(rr: rr)
@@ -253,7 +253,7 @@ extension SphinxOnionManager {
         }
     }
     
-    func handleIncomingTags(rr: RunReturn) {
+    func handleMessageStatusByTag(rr: RunReturn) {
         if let sentStatusJSON = rr.sentStatus,
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
            let tag = sentStatus.tag,

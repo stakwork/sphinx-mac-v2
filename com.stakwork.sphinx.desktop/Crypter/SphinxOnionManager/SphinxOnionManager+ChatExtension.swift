@@ -218,20 +218,7 @@ extension SphinxOnionManager {
                 isSendingMessage: true
             )
             
-            if let tag = tag, let sentMessage = sentMessage {
-                sentMessage.tag = tag
-                
-                // Invalidate existing timer for this tag if it exists
-                messageTimers[tag]?.invalidate()
-               
-                // Create and store a new timer for the message
-                messageTimers[tag] = Timer.scheduledTimer(timeInterval: 10.0,
-                    target: self,
-                    selector: #selector(handleMessageTimerTimeout(_:)),
-                    userInfo: ["tag": tag],
-                    repeats: false
-                )
-                
+            if let sentMessage = sentMessage {
                 assignReceiverId(localMsg: sentMessage)
             }
             return sentMessage
@@ -239,23 +226,6 @@ extension SphinxOnionManager {
             print("error sending msg \(error.localizedDescription)")
             return nil
         }
-    }
-    
-    @objc func handleMessageTimerTimeout(
-        _ timer: Timer
-    ) {
-        if let userInfo = timer.userInfo as? [String: Any],
-           let tag = userInfo["tag"] as? String,
-           let cachedMessage = TransactionMessage.getMessageWith(tag: tag),
-           cachedMessage.status != TransactionMessage.TransactionMessageStatus.received.rawValue
-        {
-            // Logic to handle timeout, now having access to the message tag
-            print("Watchdog timer fired: Message with tag \(tag) sending timeout")
-            // Invalidate timer
-            cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-            messageTimers.removeValue(forKey: tag)
-        }
-        timer.invalidate()
     }
     
     func processNewOutgoingMessage(
@@ -273,9 +243,37 @@ extension SphinxOnionManager {
         invoiceString: String?
     ) -> TransactionMessage? {
         
+        if rr.msgs.count > 1 && msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue {
+            return processNewOutgoingPayment(
+                rr: rr,
+                chat: chat,
+                provisionalMessage: provisionalMessage,
+                msgType: msgType,
+                content: content,
+                amount: amount,
+                mediaKey: mediaKey,
+                mediaToken: mediaToken,
+                mediaType: mediaType
+            )
+        }
+        
         for msg in rr.msgs {
+            
+            if msgType == TransactionMessage.TransactionMessageType.delete.rawValue, let replyUUID = replyUUID {
+                guard let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID) else {
+                    return nil
+                }
+                messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
+                messageToDelete.setAsLastMessage()
+                messageToDelete.managedObjectContext?.saveContext()
+                
+                return messageToDelete
+            }
+            
             if let sentUUID = msg.uuid, msgType != TransactionMessage.TransactionMessageType.delete.rawValue {
+                
                 let date = Date()
+                
                 let message  = provisionalMessage ?? TransactionMessage.createProvisionalMessage(
                     messageContent: content,
                     type: Int(msgType),
@@ -285,20 +283,19 @@ extension SphinxOnionManager {
                     threadUUID: threadUUID
                 )
                 
-                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue || 
-                   msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue
-                {
+                message?.tag = msg.tag
+                
+                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue {
                     message?.amount = NSDecimalNumber(value: amount)
+                }
+                
+                if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || msgType == TransactionMessage.TransactionMessageType.attachment.rawValue {
                     message?.mediaKey = mediaKey
                     message?.mediaToken = mediaToken
                     message?.mediaType = mediaType
-                } else if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || 
-                          msgType == TransactionMessage.TransactionMessageType.attachment.rawValue
-                {
-                    message?.mediaKey = mediaKey
-                    message?.mediaToken = mediaToken
-                    message?.mediaType = mediaType
-                } else if msgType == TransactionMessage.TransactionMessageType.invoice.rawValue {
+                }
+                
+                if msgType == TransactionMessage.TransactionMessageType.invoice.rawValue {
                     guard let invoiceString = invoiceString else { return nil}
                     
                     let prd = PaymentRequestDecoder()
@@ -316,7 +313,6 @@ extension SphinxOnionManager {
                     message?.amount = NSDecimalNumber(value: amount)
                     message?.expirationDate = expiry
                 }
-
                 
                 message?.createdAt = date
                 message?.updatedAt = date
@@ -324,14 +320,52 @@ extension SphinxOnionManager {
                 message?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
                 message?.setAsLastMessage()
                 message?.managedObjectContext?.saveContext()
+                
                 return message
-            } else if let replyUUID = replyUUID, msgType == TransactionMessage.TransactionMessageType.delete.rawValue, let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
-            {
-                messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-                messageToDelete.setAsLastMessage()
-                messageToDelete.managedObjectContext?.saveContext()
-                return messageToDelete
             }
+        }
+        return nil
+    }
+    
+    func processNewOutgoingPayment(
+        rr: RunReturn,
+        chat: Chat,
+        provisionalMessage: TransactionMessage?,
+        msgType: UInt8,
+        content: String,
+        amount: Int,
+        mediaKey: String?,
+        mediaToken: String?,
+        mediaType: String?
+    ) -> TransactionMessage? {
+        
+        let paymentMsg = rr.msgs[0]
+        let paymentStatusMsg = rr.msgs[1]
+        
+        var paymentMessage: TransactionMessage? = nil
+        
+        if let sentUUID = paymentMsg.uuid {
+            let date = Date()
+            paymentMessage = provisionalMessage ?? TransactionMessage.createProvisionalMessage(
+                messageContent: content,
+                type: Int(msgType),
+                date: date,
+                chat: chat
+            )
+            
+            paymentMessage?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
+            paymentMessage?.amount = NSDecimalNumber(value: amount)
+            paymentMessage?.mediaKey = mediaKey
+            paymentMessage?.mediaToken = mediaToken
+            paymentMessage?.mediaType = mediaType
+            paymentMessage?.createdAt = date
+            paymentMessage?.updatedAt = date
+            paymentMessage?.uuid = sentUUID
+            paymentMessage?.tag = paymentStatusMsg.tag
+            paymentMessage?.setAsLastMessage()
+            paymentMessage?.managedObjectContext?.saveContext()
+            
+            return paymentMessage
         }
         return nil
     }
@@ -622,8 +656,8 @@ extension SphinxOnionManager {
                 continue
             }
             
-            contact.nickname = csr.alias
-            contact.avatarUrl = csr.photoUrl
+            contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
+            contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
             
             let isConfirmed = csr.confirmed == true
             
@@ -721,6 +755,11 @@ extension SphinxOnionManager {
         fromMe: Bool = false
     ) -> TransactionMessage? {
         let content = (type == TransactionMessage.TransactionMessageType.boost.rawValue) ? ("") : (message.content)
+        
+        if (type == TransactionMessage.TransactionMessageType.boost.rawValue) {
+            print("test")
+        }
+        
         guard let indexString = message.index,
             let index = Int(indexString),
             TransactionMessage.getMessageWith(id: index) == nil,

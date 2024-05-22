@@ -42,7 +42,6 @@ class SphinxOnionManager : NSObject {
     var watchdogTimer:Timer? = nil
     
     var nextMessageBlockWasReceived = false
-    var messageTimers: [String: Timer] = [:]
     
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
