@@ -59,6 +59,7 @@ class FriendMessageView: NSView, LoadableNib {
         
         if let alias = SphinxOnionManager.sharedInstance.stashedInviterAlias {
             friendName.stringValue = alias
+            initialsLabel.stringValue = alias.getInitialsFromName()
         }
     }
 }

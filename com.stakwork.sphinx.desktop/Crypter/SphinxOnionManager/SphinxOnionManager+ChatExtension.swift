@@ -402,13 +402,14 @@ extension SphinxOnionManager {
             return
         }
         
-        if rr.msgs.count <= 0 {
+        if rr.msgs.isEmpty {
             return
         }
         
         let notAllowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue)
         ]
         
         let filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
@@ -420,10 +421,6 @@ extension SphinxOnionManager {
         for message in filteredMsgs {
             
             var genericIncomingMessage = GenericIncomingMessage(msg: message)
-            
-            if genericIncomingMessage.senderPubkey == "02d1782596d2ccab60be41ff5d0ab4da6a3e29fc4f414533b816e45681177494fd" {
-                print("test")
-            }
             
             if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
                       let newUUID = message.uuid,
@@ -517,9 +514,12 @@ extension SphinxOnionManager {
                                     groupActionMessage.setAsLastMessage()
                                     groupActionMessage.senderAlias = csr.alias
                                     groupActionMessage.senderPic = csr.photoUrl
-                                    groupActionMessage.createdAt = date
-                                    groupActionMessage.date = date
-                                    groupActionMessage.updatedAt = date
+                                    
+                                    let innerContentDate = message.getInnerContentDate()
+                                    groupActionMessage.createdAt = innerContentDate ?? date
+                                    groupActionMessage.date = innerContentDate ?? date
+                                    groupActionMessage.updatedAt = innerContentDate ?? date
+                                    
                                     groupActionMessage.seen = false
                                     chat.seen = false
                                 
@@ -587,6 +587,10 @@ extension SphinxOnionManager {
     }
     
     func restoreContactsFrom(messages: [Msg]) {
+        if messages.isEmpty {
+            return
+        }
+        
         let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
         
         if !isRestoringContactsAndTribes {
@@ -606,8 +610,17 @@ extension SphinxOnionManager {
             else {
                 continue
             }
+            
+            if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(recipientPubkey) {
+                ///If is tribe message, then continue
+                continue
+            }
                 
             let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey)
+            
+            if contact.isOwner {
+                continue
+            }
             
             contact.nickname = csr.alias
             contact.avatarUrl = csr.photoUrl
@@ -625,6 +638,10 @@ extension SphinxOnionManager {
     }
     
     func restoreTribesFrom(messages: [Msg]) {
+        if messages.isEmpty {
+            return
+        }
+        
         let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
         
         if !isRestoringContactsAndTribes {
@@ -1144,5 +1161,25 @@ extension Data {
         }
 
         self = data
+    }
+}
+
+extension Msg {
+    func getInnerContentDate() -> Date? {
+        if let msg = self.message,
+           let innerContent = MessageInnerContent(JSONString: msg),
+           let innerContentDate = innerContent.date,
+           let date = self.timestampToDate(timestamp: UInt64(innerContentDate))
+        {
+            return date
+        }
+        return nil
+    }
+    
+    func timestampToDate(
+        timestamp: UInt64
+    ) -> Date? {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000)
+        return date
     }
 }

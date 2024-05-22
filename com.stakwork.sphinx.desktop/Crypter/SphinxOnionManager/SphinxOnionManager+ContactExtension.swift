@@ -74,13 +74,7 @@ extension SphinxOnionManager{//contacts related
     
     //MARK: Processes key exchange messages (friend requests) between contacts
     func processKeyExchangeMessages(rr: RunReturn) {
-//        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
-//        
-//        if isRestoringContactsAndTribes {
-//            return
-//        }
-        
-        if rr.msgs.count <= 0 {
+        if rr.msgs.isEmpty {
             return
         }
         
@@ -97,42 +91,30 @@ extension SphinxOnionManager{//contacts related
             
             if let sender = msg.sender,
                let csr = ContactServerResponse(JSONString: sender),
-               let senderPubkey = csr.pubkey,
-               let type = msg.type
-            {
-                /// incoming key exchange request
-                if type == TransactionMessage.TransactionMessageType.contactKey.rawValue {
-                    
-                    ///don't respond to requests if contact already exists
-                    if let _ = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) {
-                        return
+               let senderPubkey = csr.pubkey
+            {                
+                if let contact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) {
+                    if contact.isOwner {
+                        continue
                     }
                     
-                    let newContactRequest = createNewContact(
-                        pubkey: senderPubkey,
-                        nickname: csr.alias,
-                        photoUrl: csr.photoUrl,
-                        code: csr.code,
-                        status: UserContact.Status.Confirmed.rawValue
-                    )
-                    
-                    ///Create chat for contacts and save
+                    contact.status = UserContact.Status.Confirmed.rawValue
+                    contact.nickname = csr.alias
+                    contact.avatarUrl = csr.photoUrl
+                    continue
+                }
+                
+                let newContactRequest = createNewContact(
+                    pubkey: senderPubkey,
+                    nickname: csr.alias,
+                    photoUrl: csr.photoUrl,
+                    code: csr.code,
+                    status: UserContact.Status.Confirmed.rawValue
+                )
+                
+                ///Create chat for contacts and save
+                if newContactRequest.getChat() == nil {
                     createChat(for: newContactRequest)
-                   
-                /// incoming key exchange confirmation message
-                } else if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue {
-                    
-                    /// if contact exists it's a key exchange response from them or it exists already
-                    let keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(
-                        pubkey: senderPubkey,
-                        nickname: csr.alias,
-                        photoUrl: csr.photoUrl,
-                        status: UserContact.Status.Confirmed.rawValue
-                    )
-                    
-                    if keyExchangeContact.getChat() == nil {
-                        createChat(for: keyExchangeContact)
-                    }
                 }
                 
                 managedContext.saveContext()

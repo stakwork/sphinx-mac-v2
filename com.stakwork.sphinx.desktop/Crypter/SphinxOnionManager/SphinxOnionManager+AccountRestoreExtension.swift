@@ -140,7 +140,7 @@ extension SphinxOnionManager {
     }
     
     func doNextRestorePhase() {
-        guard let _ = messageFetchParams else{
+        guard let _ = messageFetchParams else {
             startMessagesRestore()
             return
         }
@@ -233,6 +233,8 @@ extension SphinxOnionManager {
                 itemsPerPage: firstBatchSize,
                 stopIndex: lastMessageIndex
             )
+        } else {
+            finishRestoration()
         }
     }
 
@@ -455,6 +457,8 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
         if let hideRestoreCallback = hideRestoreCallback {
             hideRestoreCallback()
         }
+        
+        self.joinInitialTribe()
     }
     
     func registerDeviceID(id: String) {

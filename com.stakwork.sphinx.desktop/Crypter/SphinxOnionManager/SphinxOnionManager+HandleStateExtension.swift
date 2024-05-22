@@ -40,11 +40,11 @@ extension SphinxOnionManager {
         ///Handling messages totals
         handleMessagesCount(msgsCounts: rr.msgsCounts)
         
-        ///handling contacts restore
-        restoreContactsFrom(messages: rr.msgs)
-        
         ///Handling tribes restore
         restoreTribesFrom(messages: rr.msgs)
+        
+        ///handling contacts restore
+        restoreContactsFrom(messages: rr.msgs)
         
         ///Handling messages restore
         processKeyExchangeMessages(rr: rr)
