@@ -83,12 +83,23 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     func shouldGoBack() {
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
         
+        resetUserData()
+        
         DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: { [weak self] in
             guard let self = self else {
                 return
             }
             self.view.window?.replaceContentBy(vc: WelcomeCodeViewController.instantiate(mode: self.signupMode))
         })
+    }
+    
+    func resetUserData() {
+        som.disconnectMqtt()
+        
+        SphinxOnionManager.resetSharedInstance()
+        ContactsService.sharedInstance.reset()
+        UserData.sharedInstance.clearData()
+        SphinxCache().removeAll()
     }
 }
 

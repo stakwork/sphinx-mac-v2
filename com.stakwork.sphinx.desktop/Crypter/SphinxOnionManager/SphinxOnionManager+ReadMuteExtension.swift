@@ -9,7 +9,7 @@
 import Foundation
 
 extension SphinxOnionManager {
-    func processReadStatus(rr: RunReturn){
+    func handleReadStatus(rr: RunReturn){
         if let lastRead = rr.lastRead {
             let lastReadIds = extractLastReadIds(jsonString: lastRead)
             print(lastReadIds)
@@ -30,7 +30,7 @@ extension SphinxOnionManager {
         }
     }
 
-    func processMuteLevels(rr: RunReturn) {
+    func handleMuteLevels(rr: RunReturn) {
         if let muteLevels = rr.muteLevels {
             let muteDict = extractMuteIds(jsonString: muteLevels)
             updateMuteLevels(pubkeyToMuteLevelDict: muteDict)

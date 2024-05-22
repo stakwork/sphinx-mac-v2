@@ -502,6 +502,10 @@ extension String {
         }
     }
     
+    var isMessagesFetchResponse : Bool {
+        return self.contains("res/batch")
+    }
+    
     var amountWithoutSpaces: String {
         return self.replacingOccurrences(of: " ", with: "")
     }

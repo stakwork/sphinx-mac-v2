@@ -39,7 +39,6 @@ extension SphinxOnionManager {
         
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
             ///Tribe restore found, no need to restore
-            
             completion(chat, false)
         } else if let host = host {
             ///Tribe not found in the database, attempt to lookup and restore.
@@ -216,7 +215,7 @@ extension SphinxOnionManager {
             
             let tag = handleRunReturn(
                 rr: rr,
-                isMessageSend: true
+                isSendingMessage: true
             )
             
             if let tag = tag, let sentMessage = sentMessage {
@@ -397,48 +396,36 @@ extension SphinxOnionManager {
     
     //MARK: processes updates from general purpose messages like plaintext and attachments
     func processGenericMessages(rr: RunReturn) {
-        
         let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        if isRestoringContactsAndTribes {
+            return
+        }
+        
+        if rr.msgs.count <= 0 {
+            return
+        }
         
         let notAllowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
         ]
         
-        var filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
+        let filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
         
-        if filteredMsgs.count <= 0 {return}
-        
-        if isRestoringContactsAndTribes && rr.msgs.count > 0 {
-            let allowedTypes = [
-                UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue),
-                UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
-            ]
-            
-            filteredMsgs = rr.msgs.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
-        }
+        if filteredMsgs.count <= 0 {
+            return
+        }        
         
         for message in filteredMsgs {
             
             var genericIncomingMessage = GenericIncomingMessage(msg: message)
             
-            if Int(message.type ?? 0) == TransactionMessage.TransactionMessageType.unknown.rawValue {
-                ///Message to restore contact info
-                if let sender = message.sender,
-                   let csr =  ContactServerResponse(JSONString: sender),
-                   let recipientPubkey = csr.pubkey,
-                    UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) == nil
-                {
-                    let pendingContact = createNewContact(
-                        pubkey: recipientPubkey,
-                        nickname: genericIncomingMessage.alias ?? "Unknown",
-                        photoUrl: genericIncomingMessage.photoUrl
-                    )
-                    
-                    pendingContact?.status = UserContact.Status.Pending.rawValue
-                }
-                
-            } else if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
+            if genericIncomingMessage.senderPubkey == "02d1782596d2ccab60be41ff5d0ab4da6a3e29fc4f414533b816e45681177494fd" {
+                print("test")
+            }
+            
+            if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
                       let newUUID = message.uuid,
                       let originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
             {
@@ -517,7 +504,6 @@ extension SphinxOnionManager {
                     } else if type == TransactionMessage.TransactionMessageType.delete.rawValue {
                         processIncomingDeletion(message: genericIncomingMessage, date: date)
                     } else if isGroupAction(type: type), let tribePubkey = csr.pubkey {
-                        ///Restoring tribe
                         fetchOrCreateChatWithTribe(
                             ownerPubkey: tribePubkey,
                             host: csr.host,
@@ -597,6 +583,114 @@ extension SphinxOnionManager {
             }
             
             managedContext.saveContext()
+        }
+    }
+    
+    func restoreContactsFrom(messages: [Msg]) {
+        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        if !isRestoringContactsAndTribes {
+            return
+        }
+        
+        let notAllowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+        ]
+        
+        let filteredMsgs = messages.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
+        
+        for message in filteredMsgs {
+            guard let sender = message.sender,
+               let csr =  ContactServerResponse(JSONString: sender),
+               let recipientPubkey = csr.pubkey
+            else {
+                continue
+            }
+                
+            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey)
+            
+            contact.nickname = csr.alias
+            contact.avatarUrl = csr.photoUrl
+            
+            let isConfirmed = csr.confirmed == true
+            
+            if contact.isPending() {
+                contact.status = isConfirmed ? UserContact.Status.Confirmed.rawValue : UserContact.Status.Pending.rawValue
+            }
+            
+            if contact.getChat() == nil && isConfirmed {
+                createChat(for: contact)
+            }
+        }
+    }
+    
+    func restoreTribesFrom(messages: [Msg]) {
+        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        if !isRestoringContactsAndTribes {
+            return
+        }
+        
+        let allowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+        ]
+        
+        let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
+        
+        for message in filteredMsgs {
+            ///Check for message information
+            guard let uuid = message.uuid,
+                  let index = message.index,
+                  let timestamp = message.timestamp,
+                  let type = message.type,
+                  let date = timestampToDate(timestamp: timestamp) else
+            {
+                continue
+            }
+            
+            ///Check for sender information
+            guard let sender = message.sender,
+                  let csr =  ContactServerResponse(JSONString: sender),
+                  let tribePubkey = csr.pubkey else
+            {
+                continue
+            }
+            
+            fetchOrCreateChatWithTribe(
+                ownerPubkey: tribePubkey,
+                host: csr.host,
+                completion: { [weak self] chat, didCreateTribe in
+                    guard let self = self else {
+                        return
+                    }
+                    
+                    if let chat = chat {
+                        let groupActionMessage = TransactionMessage(context: self.managedContext)
+                        groupActionMessage.uuid = uuid
+                        groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+                        groupActionMessage.chat = chat
+                        groupActionMessage.type = Int(type)
+                        groupActionMessage.setAsLastMessage()
+                        groupActionMessage.senderAlias = csr.alias
+                        groupActionMessage.senderPic = csr.photoUrl
+                        groupActionMessage.createdAt = date
+                        groupActionMessage.date = date
+                        groupActionMessage.updatedAt = date
+                        groupActionMessage.seen = false
+                        chat.seen = false
+                        
+                        if (didCreateTribe && csr.role != nil) {
+                            chat.isTribeICreated = csr.role == 0
+                        }
+                        if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
+                            chat.status = Chat.ChatStatus.approved.rawValue
+                        }
+                        if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
+                            chat.status = Chat.ChatStatus.rejected.rawValue
+                        }
+                    }
+                }
+            )
         }
     }
     

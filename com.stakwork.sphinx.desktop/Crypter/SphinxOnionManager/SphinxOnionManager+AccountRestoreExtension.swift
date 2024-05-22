@@ -280,8 +280,8 @@ extension SphinxOnionManager {
                 reverse: true
             )
             let _ = handleRunReturn(rr: rr)
-        } catch {
-            // Handle error
+        } catch let error {
+            print(error)
         }
     }
 }
@@ -322,7 +322,7 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
                 let maxRestoreIndex = maxRestoreIndex,
                 let maxRestoredIndexInt = Int(maxRestoreIndex)
             {
-                startWatchdogTimer()
+//                startWatchdogTimer()
                 
                 if maxRestoredIndexInt < scidMaxIndex {
                     ///Didn't restore max index yet. Proceed to next page

@@ -74,6 +74,18 @@ extension SphinxOnionManager{//contacts related
     
     //MARK: Processes key exchange messages (friend requests) between contacts
     func processKeyExchangeMessages(rr: RunReturn) {
+//        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+//        
+//        if isRestoringContactsAndTribes {
+//            return
+//        }
+        
+        if rr.msgs.count <= 0 {
+            return
+        }
+        
+        print("MSG COUNT: \(rr.msgs.count)")
+        
         let allowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
@@ -85,47 +97,45 @@ extension SphinxOnionManager{//contacts related
             
             if let sender = msg.sender,
                let csr = ContactServerResponse(JSONString: sender),
-               let senderPubkey = csr.pubkey
+               let senderPubkey = csr.pubkey,
+               let type = msg.type
             {
-                print(sender)
-                
-                let type = msg.type ?? 255
-                
-                if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue, 
-                    let pubkey = csr.pubkey /// incoming key exchange confirmation
-                {
-                    /// if contact exists it's a key exchange response from them or it exists already
-                    let keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(pubkey: pubkey)
+                /// incoming key exchange request
+                if type == TransactionMessage.TransactionMessageType.contactKey.rawValue {
                     
-                    guard let keyExchangeContact = keyExchangeContact else {
+                    ///don't respond to requests if contact already exists
+                    if let _ = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) {
                         return
                     }
                     
-                    keyExchangeContact.nickname = csr.alias
-                    keyExchangeContact.avatarUrl = csr.photoUrl
-                    keyExchangeContact.status = UserContact.Status.Confirmed.rawValue
+                    let newContactRequest = createNewContact(
+                        pubkey: senderPubkey,
+                        nickname: csr.alias,
+                        photoUrl: csr.photoUrl,
+                        code: csr.code,
+                        status: UserContact.Status.Confirmed.rawValue
+                    )
+                    
+                    ///Create chat for contacts and save
+                    createChat(for: newContactRequest)
+                   
+                /// incoming key exchange confirmation message
+                } else if type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue {
+                    
+                    /// if contact exists it's a key exchange response from them or it exists already
+                    let keyExchangeContact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) ?? createNewContact(
+                        pubkey: senderPubkey,
+                        nickname: csr.alias,
+                        photoUrl: csr.photoUrl,
+                        status: UserContact.Status.Confirmed.rawValue
+                    )
                     
                     if keyExchangeContact.getChat() == nil {
                         createChat(for: keyExchangeContact)
                     }
-                    
-                    CoreDataManager.sharedManager.saveContext()
-                    
-                } else if type == TransactionMessage.TransactionMessageType.contactKey.rawValue, /// incoming key exchange request
-                        UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) == nil, ///don't respond to requests if already exists
-                        let newContactRequest = createNewContact(
-                            pubkey: senderPubkey,
-                            nickname: csr.alias,
-                            photoUrl: csr.photoUrl,
-                            person: csr.person,
-                            code: csr.code
-                        )
-                {
-                    ///new contact from a key exchange message
-                    newContactRequest.status = UserContact.Status.Confirmed.rawValue
-                    createChat(for: newContactRequest)
-                    managedContext.saveContext()
                 }
+                
+                managedContext.saveContext()
             }
         }
         
@@ -139,42 +149,42 @@ extension SphinxOnionManager{//contacts related
         scid: String,
         serverPubkey: String,
         myOkKey: String
-    ){
-        self.pendingContact = UserContact(context: managedContext)
-        self.pendingContact?.scid = scid
-        self.pendingContact?.isOwner = true
-        self.pendingContact?.index = 0
-        self.pendingContact?.id = 0
-        self.pendingContact?.publicKey = myOkKey
-        self.pendingContact?.routeHint = "\(serverPubkey)_\(scid)"
-        self.pendingContact?.status = UserContact.Status.Confirmed.rawValue
-        self.pendingContact?.createdAt = Date()
-        self.pendingContact?.fromGroup = false
-        self.pendingContact?.privatePhoto = false
-        self.pendingContact?.tipAmount = 0
-        managedContext.saveContext()
+    ) -> UserContact {
+        let contact = UserContact(context: managedContext)
+        contact.scid = scid
+        contact.isOwner = true
+        contact.index = 0
+        contact.id = 0
+        contact.publicKey = myOkKey
+        contact.routeHint = "\(serverPubkey)_\(scid)"
+        contact.status = UserContact.Status.Confirmed.rawValue
+        contact.createdAt = Date()
+        contact.fromGroup = false
+        contact.privatePhoto = false
+        contact.tipAmount = 0
+        return contact
     }
     
     func createNewContact(
         pubkey: String,
         nickname: String? = nil,
         photoUrl: String? = nil,
-        person: String? = nil,
-        code: String? = nil
-    ) -> UserContact? {
+        code: String? = nil,
+        status: Int? = nil
+    ) -> UserContact {
         let contact = UserContact.getContactWithInvitCode(inviteCode: code ?? "") ?? UserContact(context: managedContext)
         contact.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
         contact.publicKey = pubkey//
         contact.isOwner = false//
         contact.nickname = nickname
         contact.createdAt = Date()
-        contact.status = UserContact.Status.Pending.rawValue
         contact.createdAt = Date()
         contact.createdAt = Date()
         contact.fromGroup = false
         contact.privatePhoto = false
         contact.tipAmount = 0
         contact.avatarUrl = photoUrl
+        contact.status = status ?? UserContact.Status.Pending.rawValue
         
         return contact
     }

@@ -261,9 +261,9 @@ import WebKit
             return
         }
         
-        if UserData.sharedInstance.isUserLogged() && !ChatListViewModel.isRestoreRunning() {
-            reloadDataAndConnectSocket()
-            som.reconnectToServer()
+        if UserData.sharedInstance.isUserLogged() {
+//            reloadDataAndConnectSocket()
+//            som.reconnectToServer()
 //            feedsManager.restoreContentFeedStatusInBackground()
         }
     }
@@ -388,6 +388,8 @@ import WebKit
             keyWindow?.setFrame(frame, display: true, animate: true)
             
             self.som.disconnectMqtt()
+            
+            SphinxOnionManager.resetSharedInstance()
             ContactsService.sharedInstance.reset()
             UserData.sharedInstance.clearData()
             SphinxCache().removeAll()

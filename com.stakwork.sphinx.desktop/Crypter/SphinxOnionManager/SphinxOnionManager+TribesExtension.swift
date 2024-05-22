@@ -160,7 +160,7 @@ extension SphinxOnionManager {
                 tribeServerPubkey: tribeServerPubkey,
                 tribePubkey: tribeChat.ownerPubkey ?? ""
             )
-            stashedCallback = completion
+            tribeMembersCallback = completion
             let _ = handleRunReturn(rr: rr)
         } catch {}
     }

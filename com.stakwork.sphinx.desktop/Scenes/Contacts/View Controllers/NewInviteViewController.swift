@@ -21,6 +21,7 @@ class NewInviteViewController: NSViewController {
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
     let walletBalanceService = WalletBalanceService()
+    let som = SphinxOnionManager.sharedInstance
     
     var inviteRequestWatchdogTimer: Timer?
     
@@ -87,6 +88,7 @@ class NewInviteViewController: NSViewController {
         }
         
         loading = true
+        
         inviteRequestWatchdogTimer = Timer.scheduledTimer(
             timeInterval: 10,
             target: self,
@@ -95,14 +97,8 @@ class NewInviteViewController: NSViewController {
             repeats: false
         )
         
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleInviteCodeAck(n:)),
-            name: .inviteCodeAckReceived,
-            object: nil
-        )
-        
-        SphinxOnionManager.sharedInstance.requestInviteCode(amountMsat: amountSats * 1000)
+        som.inviteCreationCallback = handleInviteCodeAck
+        som.requestInviteCode(amountMsat: amountSats * 1000)
     }
     
     @objc func watchdogTimerFired() {
@@ -115,16 +111,16 @@ class NewInviteViewController: NSViewController {
         inviteRequestWatchdogTimer?.invalidate()
         
         // Remove the observer for invite code ACK
-        NotificationCenter.default.removeObserver(self, name: .inviteCodeAckReceived, object: nil)
+        som.inviteCreationCallback = nil
         
         // Optionally, dismiss the view or handle the timeout appropriately
         // self.dismiss(animated: true, completion: nil)
     }
     
-    @objc func handleInviteCodeAck(
-        n: Notification
+    func handleInviteCodeAck(
+        inviteCode: String?
     ){
-        guard let inviteCode = n.userInfo?["inviteCode"] as? String else{
+        guard let inviteCode = inviteCode else {
             AlertHelper.showAlert(
                 title: "generic.error.title".localized,
                 message: "generic.error.message".localized
@@ -132,14 +128,17 @@ class NewInviteViewController: NSViewController {
             return
         }
         
-        loading = false
-        self.dismissDelegate?.shouldDismissView()
+        inviteRequestWatchdogTimer?.invalidate()
+        inviteRequestWatchdogTimer = nil
         
         let nickname = nicknameField.stringValue
-        SphinxOnionManager.sharedInstance.createContactForInvite(code: inviteCode, nickname: nickname)
+        som.createContactForInvite(code: inviteCode, nickname: nickname)
         ClipboardHelper.copyToClipboard(text: inviteCode)
         
-        NotificationCenter.default.removeObserver(self, name: .inviteCodeAckReceived, object: nil)
+        som.inviteCreationCallback = nil
+        
+        loading = false
+        dismissDelegate?.shouldDismissView()
     }
 }
 

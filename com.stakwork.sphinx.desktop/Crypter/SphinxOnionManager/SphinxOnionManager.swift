@@ -14,11 +14,17 @@ import CoreData
 
 class SphinxOnionManager : NSObject {
     
-    class var sharedInstance : SphinxOnionManager {
-        struct Static {
-            static let instance = SphinxOnionManager()
+    private static var _sharedInstance: SphinxOnionManager? = nil
+
+    static var sharedInstance: SphinxOnionManager {
+        if _sharedInstance == nil {
+            _sharedInstance = SphinxOnionManager()
         }
-        return Static.instance
+        return _sharedInstance!
+    }
+
+    static func resetSharedInstance() {
+        _sharedInstance = nil
     }
     
     let walletBalanceService = WalletBalanceService()
@@ -49,7 +55,6 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var stashedCallback : (([String:AnyObject]) ->())? = nil
     var isConnected : Bool = false{
         didSet{
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
@@ -62,19 +67,24 @@ class SphinxOnionManager : NSObject {
     var messageRestoreCallback : RestoreProgressCallback? = nil
     var contactRestoreCallback : RestoreProgressCallback? = nil
     var hideRestoreCallback: (() -> ())? = nil
+    var tribeMembersCallback : (([String: AnyObject]) -> ())? = nil
+    var inviteCreationCallback : ((String?) -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
     var appSessionPin : String? = nil
     var defaultInitialSignupPin : String = "111111"
     
     public static let kContactsBatchSize = 250
-    public static let kMessageBatchSize = 250
+    public static let kMessageBatchSize = 50
 
     //MARK: Hardcoded Values!
     var server_IP = "34.229.52.200"
     let server_PORT = 1883
     let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
     let network = "regtest"
+    
+    let kCompleteStatus = "COMPLETE"
+    let kFailedStatus = "FAILED"
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
@@ -386,8 +396,13 @@ class SphinxOnionManager : NSObject {
                 myImg: pic
             )
             
-            let _ = handleRunReturn(rr: ret4)
-        } catch {}
+            let _ = handleRunReturn(
+                rr: ret4,
+                topic: message.topic
+            )
+        } catch let error {
+            print(error)
+        }
     }
     
     func showSuccessWithMessage(_ message: String) {
