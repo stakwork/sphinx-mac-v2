@@ -80,6 +80,7 @@ class SphinxOnionManager : NSObject {
     var server_IP = "34.229.52.200"
     let server_PORT = 1883
     let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
+    
     let network = "regtest"
     
     let kCompleteStatus = "COMPLETE"

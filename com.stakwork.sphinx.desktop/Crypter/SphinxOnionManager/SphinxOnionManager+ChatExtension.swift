@@ -650,7 +650,7 @@ extension SphinxOnionManager {
                 continue
             }
                 
-            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey)
+            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey, date: message.date)
             
             if contact.isOwner {
                 continue
@@ -1220,5 +1220,14 @@ extension Msg {
     ) -> Date? {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000)
         return date
+    }
+    
+    var date: Date? {
+        get {
+            if let timestamp = self.timestamp {
+                return self.timestampToDate(timestamp: UInt64(timestamp))
+            }
+            return nil
+        }
     }
 }

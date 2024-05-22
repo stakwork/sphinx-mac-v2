@@ -109,7 +109,8 @@ extension SphinxOnionManager{//contacts related
                     nickname: csr.alias,
                     photoUrl: csr.photoUrl,
                     code: csr.code,
-                    status: UserContact.Status.Confirmed.rawValue
+                    status: UserContact.Status.Confirmed.rawValue,
+                    date: msg.date
                 )
                 
                 ///Create chat for contacts and save
@@ -152,16 +153,17 @@ extension SphinxOnionManager{//contacts related
         nickname: String? = nil,
         photoUrl: String? = nil,
         code: String? = nil,
-        status: Int? = nil
+        status: Int? = nil,
+        date: Date? = nil
     ) -> UserContact {
         let contact = UserContact.getContactWithInvitCode(inviteCode: code ?? "") ?? UserContact(context: managedContext)
         contact.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
         contact.publicKey = pubkey//
         contact.isOwner = false//
         contact.nickname = nickname
-        contact.createdAt = Date()
-        contact.createdAt = Date()
-        contact.createdAt = Date()
+        contact.createdAt = date ?? Date()
+        contact.createdAt = date ?? Date()
+        contact.createdAt = date ?? Date()
         contact.fromGroup = false
         contact.privatePhoto = false
         contact.tipAmount = 0
