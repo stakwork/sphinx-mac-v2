@@ -92,15 +92,15 @@ extension SphinxOnionManager{//contacts related
             if let sender = msg.sender,
                let csr = ContactServerResponse(JSONString: sender),
                let senderPubkey = csr.pubkey
-            {                
+            {        
                 if let contact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) {
                     if contact.isOwner {
                         continue
                     }
                     
                     contact.status = UserContact.Status.Confirmed.rawValue
-                    contact.nickname = csr.alias
-                    contact.avatarUrl = csr.photoUrl
+                    contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
+                    contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
                     continue
                 }
                 
