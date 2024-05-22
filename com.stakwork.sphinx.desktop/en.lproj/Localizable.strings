@@ -442,6 +442,9 @@
 "people.claim-on-liquid-succeed" = "Redeemed Badge Token successfully";
 "people.claim-on-liquid-failed" = "Could not Redeem Badge Token";
 
+"alert-confirm.delete-message-title" = "Confirm Deleting message";
+"alert-confirm.delete-message-message" = "Are you sure you want to delete this message? This action can not be undone";
+
 
 //TRANSACTION MESSAGE
 "purchase.succeeded" = "Purchase Succeeded";

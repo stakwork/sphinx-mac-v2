@@ -123,8 +123,30 @@ extension SphinxOnionManager {
         setupSyncWith(callback: processMessageCountReceived)
     }
     
-    @objc func processMessageCountReceived() {
-        if let msgTotalCounts = self.msgTotalCounts,
+    func setupSyncWith(
+        callback: @escaping () -> ()
+    ) {
+        guard let seed = getAccountSeed() else{
+            return
+        }
+        
+        totalMsgsCountCallback = callback
+        
+        do {
+            let rr = try getMsgsCounts(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting msgs count")
+        }
+    }
+    
+    func processMessageCountReceived() {
+        if let msgTotalCounts = msgTotalCounts,
            msgTotalCounts.hasOneValidCount()
         {
             kickOffFullRestore()
@@ -135,6 +157,7 @@ extension SphinxOnionManager {
         guard let msgTotalCounts = msgTotalCounts else {return}
         
         if let _ = msgTotalCounts.firstMessageAvailableCount {
+            
             self.restoreFirstScidMessages()
         }
     }
@@ -147,7 +170,6 @@ extension SphinxOnionManager {
         
         finishRestoration()
     }
-    
     
     func restoreFirstScidMessages(
         startIndex: Int = 0
@@ -177,6 +199,8 @@ extension SphinxOnionManager {
         lastMessageIndex: Int,
         msgCountLimit: Int
     ){
+        startWatchdogTimer()
+        
         do {
             let rr = try fetchFirstMsgsPerKey(
                 seed: seed,
@@ -189,28 +213,6 @@ extension SphinxOnionManager {
             
             let _ = handleRunReturn(rr: rr)
         } catch {}
-    }
-    
-    func setupSyncWith(
-        callback: @escaping () -> ()
-    ) {
-        guard let seed = getAccountSeed() else{
-            return
-        }
-        
-        totalMsgsCountCallback = callback
-        
-        do {
-            let rr = try getMsgsCounts(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData()
-            )
-            
-            let _ = handleRunReturn(rr: rr)
-        } catch {
-            print("Error getting msgs count")
-        }
     }
     
     func startMessagesRestore() {
@@ -256,7 +258,7 @@ extension SphinxOnionManager {
         )
         
         firstSCIDMsgsCallback = nil
-        onMessageRestoredCallback = onMessageRestored
+        onMessageRestoredCallback = handleFetchMessagesBatch
         
         fetchMessageBlock(
             seed: seed,
@@ -271,6 +273,8 @@ extension SphinxOnionManager {
         msgCountLimit: Int
     ) {
         let safeLastMsgIndex = max(lastMessageIndex, 0)
+        
+        startWatchdogTimer()
         
         do {
             let rr = try fetchMsgsBatch(
@@ -288,7 +292,7 @@ extension SphinxOnionManager {
     }
 }
 
-extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
+extension SphinxOnionManager {
     //MARK: Process all first scid messages
     func handleFetchFirstScidMessages(msgs: [Msg]) {
         guard let params = chatsFetchParams, let _ = msgTotalCounts?.firstMessageMaxIndex else {
@@ -324,8 +328,6 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
                 let maxRestoreIndex = maxRestoreIndex,
                 let maxRestoredIndexInt = Int(maxRestoreIndex)
             {
-//                startWatchdogTimer()
-                
                 if maxRestoredIndexInt < scidMaxIndex {
                     ///Didn't restore max index yet. Proceed to next page
                     restoreFirstScidMessages(startIndex: maxRestoredIndexInt)
@@ -336,9 +338,9 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
         
         doNextRestorePhase()
     }
-
     
-    func onMessageRestored(msgs: [Msg]) {
+    //MARK: Process all messages
+    func handleFetchMessagesBatch(msgs: [Msg]) {
         guard let params = messageFetchParams, let _ = msgTotalCounts?.totalMessageMaxIndex else {
             finishRestoration()
             return
@@ -391,17 +393,140 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
             msgCountLimit: params.itemsPerPage
         )
     }
+    
+    func restoreContactsFrom(messages: [Msg]) {
+        if messages.isEmpty {
+            return
+        }
+        
+        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        if !isRestoringContactsAndTribes {
+            return
+        }
+        
+        let notAllowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+        ]
+        
+        let filteredMsgs = messages.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
+        
+        for message in filteredMsgs {
+            guard let sender = message.sender,
+               let csr =  ContactServerResponse(JSONString: sender),
+               let recipientPubkey = csr.pubkey
+            else {
+                continue
+            }
+            
+            if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(recipientPubkey) {
+                ///If is tribe message, then continue
+                continue
+            }
+                
+            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey, date: message.date)
+            
+            if contact.isOwner {
+                continue
+            }
+            
+            contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
+            contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
+            
+            let isConfirmed = csr.confirmed == true
+            
+            if contact.isPending() {
+                contact.status = isConfirmed ? UserContact.Status.Confirmed.rawValue : UserContact.Status.Pending.rawValue
+            }
+            
+            if contact.getChat() == nil && isConfirmed {
+                createChat(for: contact)
+            }
+        }
+    }
+    
+    func restoreTribesFrom(messages: [Msg]) {
+        if messages.isEmpty {
+            return
+        }
+        
+        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
+        
+        if !isRestoringContactsAndTribes {
+            return
+        }
+        
+        let allowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+        ]
+        
+        let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
+        
+        for message in filteredMsgs {
+            ///Check for message information
+            guard let uuid = message.uuid,
+                  let index = message.index,
+                  let timestamp = message.timestamp,
+                  let type = message.type,
+                  let date = timestampToDate(timestamp: timestamp) else
+            {
+                continue
+            }
+            
+            ///Check for sender information
+            guard let sender = message.sender,
+                  let csr =  ContactServerResponse(JSONString: sender),
+                  let tribePubkey = csr.pubkey else
+            {
+                continue
+            }
+            
+            fetchOrCreateChatWithTribe(
+                ownerPubkey: tribePubkey,
+                host: csr.host,
+                completion: { [weak self] chat, didCreateTribe in
+                    guard let self = self else {
+                        return
+                    }
+                    
+                    if let chat = chat {
+                        let groupActionMessage = TransactionMessage(context: self.managedContext)
+                        groupActionMessage.uuid = uuid
+                        groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+                        groupActionMessage.chat = chat
+                        groupActionMessage.type = Int(type)
+                        groupActionMessage.setAsLastMessage()
+                        groupActionMessage.senderAlias = csr.alias
+                        groupActionMessage.senderPic = csr.photoUrl
+                        groupActionMessage.createdAt = date
+                        groupActionMessage.date = date
+                        groupActionMessage.updatedAt = date
+                        groupActionMessage.seen = false
+                        chat.seen = false
+                        
+                        if (didCreateTribe && csr.role != nil) {
+                            chat.isTribeICreated = csr.role == 0
+                        }
+                        if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
+                            chat.status = Chat.ChatStatus.approved.rawValue
+                        }
+                        if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
+                            chat.status = Chat.ChatStatus.rejected.rawValue
+                        }
+                    }
+                }
+            )
+        }
+    }
 
     func endWatchdogTime() {
-        // Invalidate any existing timer
         watchdogTimer?.invalidate()
+        watchdogTimer = nil
     }
     
     func startWatchdogTimer() {
-        // Invalidate any existing timer
         watchdogTimer?.invalidate()
         
-        // Start a new timer
         watchdogTimer = Timer.scheduledTimer(
             timeInterval: 10.0,
             target: self,
@@ -445,9 +570,12 @@ extension SphinxOnionManager : NSFetchedResultsControllerDelegate{
                let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
             {
                 messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-                messageToDelete.managedObjectContext?.saveContext()
             }
+            
+            CoreDataManager.sharedManager.deleteObject(object: deleteRequest)
         }
+        
+        CoreDataManager.sharedManager.saveContext()
         
         self.isV2InitialSetup = false
         self.contactRestoreCallback = nil

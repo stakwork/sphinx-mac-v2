@@ -400,6 +400,9 @@
 "page" = "página";
 "pdf.description" = "PDF - %@ - Página %d de %d";
 
+"alert-confirm.delete-message-title" = "Confirmar Mensaje eliminado";
+"alert-confirm.delete-message-message" = "¿Estas seguro de que quieres eliminar este mensaje? Esta acción no puede revertirse";
+
 //OTHER
 "create.call" = "Crear Llamada";
 "select.call.mode" = "Seleccionar Tipo de Llamada";

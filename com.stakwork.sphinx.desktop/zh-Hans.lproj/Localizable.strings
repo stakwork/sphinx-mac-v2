@@ -398,6 +398,9 @@
 "page" = "页";
 "pdf.description" = "PDF - %@ - 第%d页，共%d页";
 
+"alert-confirm.delete-message-title" = "确认删除消息";
+"alert-confirm.delete-message-message" = "您确定要删除这条消息吗？此操作不能撤销";
+
 //OTHER
 "create.call" = "创建通话";
 "select.call.mode" = "选择通话模式";

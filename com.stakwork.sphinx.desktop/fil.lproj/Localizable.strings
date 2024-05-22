@@ -437,6 +437,9 @@
 "people.claim-on-liquid-succeed"  = "Matagumpay na nakuha ang Badge Token";
 "people.claim-on-liquid-failed"  = "Hindi makuha ang Badge Token";
 
+"alert-confirm.delete-message-title" = "Kumpirmahin ang Pagtanggal ng mensahe";
+"alert-confirm.delete-message-message" = "Sigurado ka bang gusto mong tanggalin ang mensaheng ito? ang aksyon na ito ay hindi pwedeng baguhin";
+
 
 //TRANSACTION MESSAGE
 "purchase.succeeded"  = "Nagtagumpay ang Pagbili";

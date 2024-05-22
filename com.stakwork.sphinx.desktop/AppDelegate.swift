@@ -387,12 +387,12 @@ import WebKit
             keyWindow?.replaceContentBy(vc: SplashViewController.instantiate())
             keyWindow?.setFrame(frame, display: true, animate: true)
             
-            self.som.disconnectMqtt()
-            
-            SphinxOnionManager.resetSharedInstance()
-            ContactsService.sharedInstance.reset()
-            UserData.sharedInstance.clearData()
-            SphinxCache().removeAll()
+            self.som.disconnectMqtt() {
+                SphinxOnionManager.resetSharedInstance()
+                ContactsService.sharedInstance.reset()
+                UserData.sharedInstance.clearData()
+                SphinxCache().removeAll()
+            }
         })
     }
      

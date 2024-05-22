@@ -65,6 +65,7 @@ class SphinxOnionManager : NSObject {
     var hideRestoreCallback: (() -> ())? = nil
     var tribeMembersCallback : (([String: AnyObject]) -> ())? = nil
     var inviteCreationCallback : ((String?) -> ())? = nil
+    var mqttDisconnectCallback : (() -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
     var appSessionPin : String? = nil
@@ -197,8 +198,11 @@ class SphinxOnionManager : NSObject {
         }
     }
     
-    func disconnectMqtt() {
+    func disconnectMqtt(
+        callback: (() -> ())? = nil
+    ) {
         if let mqtt = self.mqtt {
+            mqttDisconnectCallback = callback
             mqtt.disconnect()
         }
     }
@@ -267,6 +271,10 @@ class SphinxOnionManager : NSObject {
                     messageRestoreCallback: som.isV2Restore ? messageRestoreCallback : { _ in },
                     hideRestoreViewCallback: hideRestoreViewCallback
                 )
+            }
+            
+            som.mqtt.didDisconnect = { _, _ in
+                self.mqttDisconnectCallback?()
             }
         })
     }

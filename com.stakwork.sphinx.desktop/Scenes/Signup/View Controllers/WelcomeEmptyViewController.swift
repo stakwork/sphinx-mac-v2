@@ -94,12 +94,12 @@ class WelcomeEmptyViewController: WelcomeErrorHandlerViewController {
     }
     
     func resetUserData() {
-        som.disconnectMqtt()
-        
-        SphinxOnionManager.resetSharedInstance()
-        ContactsService.sharedInstance.reset()
-        UserData.sharedInstance.clearData()
-        SphinxCache().removeAll()
+        som.disconnectMqtt() {
+            SphinxOnionManager.resetSharedInstance()
+            ContactsService.sharedInstance.reset()
+            UserData.sharedInstance.clearData()
+            SphinxCache().removeAll()
+        }
     }
 }
 
