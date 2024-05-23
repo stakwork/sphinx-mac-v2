@@ -204,7 +204,7 @@ class ChatListViewController : DashboardSplittedViewController {
             
             if let pubkey = n.userInfo?["pub-key"] as? String {
                 if pubkey == UserData.sharedInstance.getUserPubKey() { return }
-                let (pk, _) = pubkey.pubkeyComponents
+                let (pk, _) = pubkey.v2PubkeyComponents
                 let (existing, user) = pk.isExistingContactPubkey()
                 
                 if let user = user, existing {

@@ -251,7 +251,7 @@ extension String {
     var pubKeyMatches: [NSTextCheckingResult] {
         let textWithoutHightlights = self.replacingHightlightedChars
         let pubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}\\b")
-        let virtualPubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}:[A-F0-9a-f]{66}:[0-9]+\\b")
+        let virtualPubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+\\b")
         
         let virtualPubkeyResults = virtualPubkeyRegex?.matches(
             in: textWithoutHightlights,
@@ -402,23 +402,9 @@ extension String {
     var isPubKey : Bool {
         get {
             let pubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}$")
-            return (pubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0 || self.isVirtualPubKey
+            return (pubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0 || self.isV2Pubkey
         }
     }
-    
-    var isRouteHint : Bool {
-        get {
-            let routeHintRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}:[0-9]+$")
-            return (routeHintRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
-        }
-    }
-    
-    var isVirtualPubKey : Bool {
-         get {
-             let completePubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}:[A-F0-9a-f]{66}:[0-9]+$")
-             return (completePubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
-         }
-     }
     
     //uses _ instead of :
     var isTribeV2 : Bool {
@@ -437,16 +423,6 @@ extension String {
         get {
             let v2PubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]{18}$")
             return (v2PubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
-        }
-    }
-     
-    var pubkeyComponents : (String, String) {
-        get {
-            let components = self.components(separatedBy: ":")
-            if components.count >= 3 {
-                return (components[0], self.replacingOccurrences(of: components[0] + ":", with: ""))
-            }
-            return (self, "")
         }
     }
     
@@ -470,7 +446,7 @@ extension String {
      
     func isExistingContactPubkey() -> (Bool, UserContact?) {
         if let pubkey = self.stringFirstPubKey?.0 {
-            let (pk, _) = (pubkey.isV2Pubkey) ? pubkey.v2PubkeyComponents : pubkey.pubkeyComponents
+            let (pk, _) = (pubkey.isV2Pubkey) ? pubkey.v2PubkeyComponents : pubkey.v2PubkeyComponents
             if let contact = UserContact.getContactWith(pubkey: pk), !contact.fromGroup {
                return (true, contact)
             }

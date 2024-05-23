@@ -342,7 +342,6 @@ class SphinxOnionManager : NSObject {
             )
 
             let listContactsResponse = try Sphinx.listContacts(state: loadOnionStateAsData())
-            
             print("MY LIST CONTACTS RESPONSE \(listContactsResponse)")
         } catch {}
     }

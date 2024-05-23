@@ -101,11 +101,9 @@ class NewContactViewController: NSViewController {
             userNameField.stringValue = contact.getName()
             addressField.stringValue = contact.publicKey ?? ""
             routeHintField.stringValue = contact.routeHint ?? ""
-            
-//            groupPinView.configureWith(view: view, contact: contact, delegate: self)
         } else {
             if let pubkey = pubkey {
-                let (pk, rh) = (pubkey.isV2Pubkey) ? pubkey.v2PubkeyComponents : pubkey.pubkeyComponents
+                let (pk, rh) = pubkey.v2PubkeyComponents
                 addressField.stringValue = pk
                 routeHintField.stringValue = rh
             }
@@ -233,7 +231,7 @@ class NewContactViewController: NSViewController {
 extension NewContactViewController : NSTextFieldDelegate {
     func controlTextDidChange(_ obj: Notification) {
         if let textField = obj.object as? NSTextField, textField == addressField || textField == routeHintField {
-            if textField.stringValue.isVirtualPubKey {
+            if textField.stringValue.isV2Pubkey {
                 completePubkeyComponents(textField.stringValue)
             }
         }
@@ -241,7 +239,7 @@ extension NewContactViewController : NSTextFieldDelegate {
     }
     
     func completePubkeyComponents(_ string: String) {
-        let (pubkey, routeHint) = string.pubkeyComponents
+        let (pubkey, routeHint) = string.v2PubkeyComponents
         addressField.stringValue = pubkey
         routeHintField.stringValue = routeHint
     }

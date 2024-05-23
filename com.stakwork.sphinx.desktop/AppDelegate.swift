@@ -379,19 +379,21 @@ import WebKit
         AlertHelper.showTwoOptionsAlert(title: "logout".localized, message: "logout.text".localized, confirm: {
             self.stopListeningToMessages()
             
-            let frame = WindowsManager.sharedInstance.getCenteredFrameFor(size: CGSize(width: 800, height: 500))
-            let keyWindow = NSApplication.shared.keyWindow
-            keyWindow?.styleMask = [.titled, .miniaturizable, .fullSizeContentView]
-            keyWindow?.titleVisibility = .hidden
-            keyWindow?.titlebarAppearsTransparent = true
-            keyWindow?.replaceContentBy(vc: SplashViewController.instantiate())
-            keyWindow?.setFrame(frame, display: true, animate: true)
-            
             self.som.disconnectMqtt() {
                 SphinxOnionManager.resetSharedInstance()
                 ContactsService.sharedInstance.reset()
                 UserData.sharedInstance.clearData()
                 SphinxCache().removeAll()
+                
+                DispatchQueue.main.async {
+                    let frame = WindowsManager.sharedInstance.getCenteredFrameFor(size: CGSize(width: 800, height: 500))
+                    let keyWindow = NSApplication.shared.keyWindow
+                    keyWindow?.styleMask = [.titled, .miniaturizable, .fullSizeContentView]
+                    keyWindow?.titleVisibility = .hidden
+                    keyWindow?.titlebarAppearsTransparent = true
+                    keyWindow?.replaceContentBy(vc: SplashViewController.instantiate())
+                    keyWindow?.setFrame(frame, display: true, animate: true)
+                }
             }
         })
     }

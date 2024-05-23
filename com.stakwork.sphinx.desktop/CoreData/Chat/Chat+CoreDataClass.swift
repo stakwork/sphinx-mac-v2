@@ -756,15 +756,7 @@ public class Chat: NSManagedObject {
     }
     
     public func isEncrypted() -> Bool {
-        if isPublicGroup() {
-            if let _ = groupKey {
-                return true
-            }
-            return false
-        } else if let contact = getContact() {
-            return contact.isEncrypted()
-        }
-        return false
+        return true
     }
     
     func removedFromGroup() -> Bool {
@@ -801,7 +793,7 @@ public class Chat: NSManagedObject {
     
     func getJoinChatLink() -> String? {
         if let pubkey = self.ownerPubkey {
-            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=34.229.52.200:8801"
+            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=\(API.kTribesServer)"
         }
         return nil
     }

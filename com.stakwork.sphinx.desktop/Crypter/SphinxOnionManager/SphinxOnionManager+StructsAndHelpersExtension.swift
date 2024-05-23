@@ -10,6 +10,27 @@ import Foundation
 import ObjectMapper
 import SwiftyJSON
 
+//MARK: Helper Structs & Functions:
+
+struct SphinxOnionBrokerResponse: Mappable {
+    var scid: String?
+    var serverPubkey: String?
+    var myPubkey: String?
+
+    init?(map: Map) {}
+
+    mutating func mapping(map: Map) {
+        scid <- map["scid"]
+        serverPubkey <- map["server_pubkey"]
+    }
+}
+
+enum SphinxMsgError: Error {
+    case encodingError
+    case credentialsError //can't get access to my Private Keys/other data!
+    case contactDataError // not enough data about contact!
+}
+
 struct ContactServerResponse: Mappable {
     var pubkey: String?
     var alias: String?

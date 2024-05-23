@@ -75,6 +75,7 @@ extension SphinxOnionManager {
                 amtMsat: UInt64(joinAmountMsats),
                 isPrivate: isPrivate
             )
+            
             DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
                 let _ = self.handleRunReturn(rr: rr)
             })

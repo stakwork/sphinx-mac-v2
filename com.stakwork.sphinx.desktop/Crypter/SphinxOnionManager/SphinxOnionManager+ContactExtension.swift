@@ -11,7 +11,7 @@ import CocoaMQTT
 import ObjectMapper
 import SwiftyJSON
 
-extension SphinxOnionManager{//contacts related
+extension SphinxOnionManager {//contacts related
     
     //MARK: Contact Add helpers
     func parseContactInfoString(
@@ -214,29 +214,6 @@ extension SphinxOnionManager{//contacts related
         chat.createdAt = Date()
     }
     //MARK: END CoreData Helpers
-}
-
-
-//MARK: Helper Structs & Functions:
-
-// Parsing Helper Struct
-struct SphinxOnionBrokerResponse: Mappable {
-    var scid: String?
-    var serverPubkey: String?
-    var myPubkey: String?
-
-    init?(map: Map) {}
-
-    mutating func mapping(map: Map) {
-        scid <- map["scid"]
-        serverPubkey <- map["server_pubkey"]
-    }
-}
-
-enum SphinxMsgError: Error {
-    case encodingError
-    case credentialsError //can't get access to my Private Keys/other data!
-    case contactDataError // not enough data about contact!
 }
 
 

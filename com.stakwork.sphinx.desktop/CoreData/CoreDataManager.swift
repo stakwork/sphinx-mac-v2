@@ -100,7 +100,7 @@ class CoreDataManager {
             invite.removeFromPaymentProcessed()
         }
         
-        if let publicKey = contact.publicKey{
+        if let publicKey = contact.publicKey {
             SphinxOnionManager.sharedInstance.deleteContactFromState(pubkey: publicKey)
         }
         
