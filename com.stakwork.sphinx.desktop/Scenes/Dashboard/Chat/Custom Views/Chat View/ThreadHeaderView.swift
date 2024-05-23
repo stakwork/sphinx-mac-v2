@@ -198,7 +198,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                     
                     var substring = String(messageC[range])
                     
-                    if substring.isPubKey || substring.isV2Pubkey {
+                    if substring.isPubKey {
                         substring = substring.shareContactDeepLink
                     } else if substring.starts(with: API.kVideoCallServer) {
                         substring = substring.callLinkDeepLink

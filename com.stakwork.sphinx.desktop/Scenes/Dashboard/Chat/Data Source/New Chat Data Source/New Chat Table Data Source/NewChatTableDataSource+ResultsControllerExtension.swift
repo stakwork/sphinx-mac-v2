@@ -585,8 +585,8 @@ extension NewChatTableDataSource {
             if $0.bubbleMessageContentString?.hasPubkeyLinks == true {
                 if let link = $0.messageContent?.stringFirstLink, link.isPubKey {
                     pubkeys[$0.id] = (
-                        link.v2PubkeyComponents.0,
-                        link.v2PubkeyComponents.1
+                        link.pubkeyComponents.0,
+                        link.pubkeyComponents.1
                     )
                 }
             }

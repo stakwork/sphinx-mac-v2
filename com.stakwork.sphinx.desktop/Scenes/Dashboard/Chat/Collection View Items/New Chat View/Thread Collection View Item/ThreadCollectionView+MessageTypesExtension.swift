@@ -287,7 +287,7 @@ extension ThreadCollectionViewItem {
                         
                         var substring = String(text[range])
                         
-                        if substring.isPubKey || substring.isV2Pubkey {
+                        if substring.isPubKey {
                             substring = substring.shareContactDeepLink
                         } else if substring.starts(with: API.kVideoCallServer) {
                             substring = substring.callLinkDeepLink

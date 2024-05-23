@@ -399,34 +399,32 @@ extension String {
         }
     }
     
-    var isPubKey : Bool {
-        get {
-            let pubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}$")
-            return (pubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0 || self.isV2Pubkey
-        }
-    }
-    
-    //uses _ instead of :
     var isTribeV2 : Bool {
         return self.contains("action=tribeV2") && self.contains("pubkey=")
     }
     
-    var isV2RouteHint: Bool {
+    var isPubKey : Bool {
         get {
-            // Adjust the number inside the curly braces {18} to match the expected length of digits.
-            let v2RouteHintRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}_[0-9]{18}$")
-            return (v2RouteHintRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
+            let pubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}$")
+            return (pubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0 || self.isVirtualPubKey
         }
     }
     
-    var isV2Pubkey: Bool {
+    var isRouteHint : Bool {
         get {
-            let v2PubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]{18}$")
-            return (v2PubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
+            let routeHintRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}_[0-9]+$")
+            return (routeHintRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
         }
     }
     
-    var v2PubkeyComponents : (String, String) {
+    var isVirtualPubKey : Bool {
+        get {
+            let completePubkeyRegex = try? NSRegularExpression(pattern: "^[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+$")
+            return (completePubkeyRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []).count > 0
+        }
+    }
+    
+    var pubkeyComponents : (String, String) {
         get {
             let components = self.components(separatedBy: "_")
             if components.count >= 3 {
@@ -446,7 +444,7 @@ extension String {
      
     func isExistingContactPubkey() -> (Bool, UserContact?) {
         if let pubkey = self.stringFirstPubKey?.0 {
-            let (pk, _) = (pubkey.isV2Pubkey) ? pubkey.v2PubkeyComponents : pubkey.v2PubkeyComponents
+            let (pk, _) = pubkey.pubkeyComponents
             if let contact = UserContact.getContactWith(pubkey: pk), !contact.fromGroup {
                return (true, contact)
             }

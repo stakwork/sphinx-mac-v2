@@ -811,8 +811,8 @@ extension NewChatTableDataSource {
             if let link = link.stringFirstLink {
                 if link.isPubKey {
                     delegate?.didTapOnContactWith(
-                        pubkey: link.v2PubkeyComponents.0,
-                        and: link.v2PubkeyComponents.1
+                        pubkey: link.pubkeyComponents.0,
+                        and: link.pubkeyComponents.1
                     )
                 } else if link.isTribeJoinLink {
                     delegate?.didTapOnTribeWith(joinLink: link)

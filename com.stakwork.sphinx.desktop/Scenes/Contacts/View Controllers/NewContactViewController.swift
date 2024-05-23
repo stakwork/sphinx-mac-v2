@@ -103,7 +103,7 @@ class NewContactViewController: NSViewController {
             routeHintField.stringValue = contact.routeHint ?? ""
         } else {
             if let pubkey = pubkey {
-                let (pk, rh) = pubkey.v2PubkeyComponents
+                let (pk, rh) = pubkey.pubkeyComponents
                 addressField.stringValue = pk
                 routeHintField.stringValue = rh
             }
@@ -149,7 +149,7 @@ class NewContactViewController: NSViewController {
         loading = true
         if let _ = contact {
             updateProfile()
-        } else if routeHintField.stringValue.isV2RouteHint {
+        } else if routeHintField.stringValue.isRouteHint {
             createV2Contact()
         }
     }
@@ -195,7 +195,7 @@ class NewContactViewController: NSViewController {
         
         if !pubkey.isEmpty && !pubkey.isPubKey {
             showErrorAlert(message: "invalid.pubkey".localized)
-        } else if !routeHint.isEmpty && !routeHint.isV2RouteHint {
+        } else if !routeHint.isEmpty && !routeHint.isRouteHint {
             showErrorAlert(message: "invalid.route.hint".localized)
         } else if nickname.isEmpty || pubkey.isEmpty {
             showErrorAlert(message: "nickname.address.required".localized)
@@ -231,7 +231,7 @@ class NewContactViewController: NSViewController {
 extension NewContactViewController : NSTextFieldDelegate {
     func controlTextDidChange(_ obj: Notification) {
         if let textField = obj.object as? NSTextField, textField == addressField || textField == routeHintField {
-            if textField.stringValue.isV2Pubkey {
+            if textField.stringValue.isPubKey {
                 completePubkeyComponents(textField.stringValue)
             }
         }
@@ -239,7 +239,7 @@ extension NewContactViewController : NSTextFieldDelegate {
     }
     
     func completePubkeyComponents(_ string: String) {
-        let (pubkey, routeHint) = string.v2PubkeyComponents
+        let (pubkey, routeHint) = string.pubkeyComponents
         addressField.stringValue = pubkey
         routeHintField.stringValue = routeHint
     }
