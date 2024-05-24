@@ -235,11 +235,7 @@ import WebKit
     
     @objc func sleepListener(aNotification: NSNotification) {
         if (aNotification.name == NSWorkspace.didWakeNotification) && UserData.sharedInstance.isUserLogged() {
-//            connectMQTT()
             SDImageCache.shared.clearMemory()
-            
-            unlockTimer?.invalidate()
-            unlockTimer = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(reloadDataAndConnectSocket), userInfo: nil, repeats: false)
             
             getDashboardVC()?.reloadChatListVC()            
         }
@@ -261,9 +257,10 @@ import WebKit
         }
         
         if UserData.sharedInstance.isUserLogged() {
-            reloadDataAndConnectSocket()
             SphinxOnionManager.sharedInstance.reconnectToServer()
             feedsManager.restoreContentFeedStatusInBackground()
+            
+            NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
         }
     }
     
