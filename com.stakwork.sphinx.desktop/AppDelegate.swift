@@ -57,7 +57,6 @@ import WebKit
         SDImageCache.shared.config.maxMemoryCount = 100
         
         listenToSleepEvents()
-//        connectMQTT()
         
         setInitialVC()
     }

@@ -101,6 +101,12 @@ extension SphinxOnionManager {//contacts related
                     contact.status = UserContact.Status.Confirmed.rawValue
                     contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
                     contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
+                    
+                    ///Create chat for contact and save
+                    if contact.getChat() == nil {
+                        createChat(for: contact)
+                    }
+                    
                     continue
                 }
                 

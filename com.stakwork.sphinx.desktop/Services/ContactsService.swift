@@ -388,10 +388,6 @@ extension ContactsService : NSFetchedResultsControllerDelegate {
                 return $0.isPending() && !$1.isPending()
             }
 
-            if contact1.isPending() || contact2.isPending() {
-                return $0.isPending() && !$1.isPending()
-            }
-
             if let contact1Date = contact1.getOrderDate() {
                 if let contact2Date = contact2.getOrderDate() {
                     return contact1Date > contact2Date

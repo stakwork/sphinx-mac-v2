@@ -214,10 +214,11 @@ class SphinxOnionManager : NSObject {
         hideRestoreViewCallback: (()->())? = nil
     ) {
         guard let mqtt = self.mqtt, mqtt.connState == .disconnected else {
-            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-                ///Delay added for the loading wheel to be visible
-                hideRestoreViewCallback?()
-            })
+            self.syncContactsAndMessages(
+                contactRestoreCallback: { _ in },
+                messageRestoreCallback: { _ in },
+                hideRestoreViewCallback: hideRestoreViewCallback
+            )
             return
         }
         connectToServer(

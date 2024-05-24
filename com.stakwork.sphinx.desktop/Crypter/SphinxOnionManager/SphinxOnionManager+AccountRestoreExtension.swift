@@ -472,8 +472,6 @@ extension SphinxOnionManager {
             return nil
         })
         
-        let existingTribes = Chat.getChatTribesFor(ownerPubkeys: tribeOwnerPubKeys)
-        
         for message in filteredMsgs {
             ///Check for message information
             guard let uuid = message.uuid,
@@ -496,7 +494,6 @@ extension SphinxOnionManager {
             fetchOrCreateChatWithTribe(
                 ownerPubkey: tribePubkey,
                 host: csr.host,
-                existingTribes: existingTribes,
                 completion: { [weak self] chat, didCreateTribe in
                     guard let self = self else {
                         return
