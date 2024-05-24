@@ -639,7 +639,6 @@ public class Chat: NSManagedObject {
             API.sharedInstance.getTribeInfo(
                 host: host,
                 uuid: uuid,
-                useSSL: false, //TODO: change this
                 callback: { chatJson in
                     self.tribeInfo = GroupsManager.sharedInstance.getTribesInfoFrom(json: chatJson)
                     self.updateChatFromTribesInfo()

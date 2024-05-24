@@ -15,7 +15,7 @@ extension API {
     func getTribeInfo(
         host: String,
         uuid: String,
-        useSSL: Bool = true,
+        useSSL: Bool = false,
         callback: @escaping CreateGroupCallback,
         errorCallback: @escaping EmptyCallback
     ) {
