@@ -230,27 +230,29 @@ class SphinxOnionManager : NSObject {
         messageRestoreCallback: RestoreProgressCallback? = nil,
         hideRestoreViewCallback: (()->())? = nil
     ){
-        let som = self
-        
         connectingCallback?()
         
-        guard let seed = som.getAccountSeed(),
-              let myPubkey = som.getAccountOnlyKeysendPubkey(seed: seed),
-              let my_xpub = som.getAccountXpub(seed: seed) else
+        guard let seed = getAccountSeed(),
+              let myPubkey = getAccountOnlyKeysendPubkey(seed: seed),
+              let my_xpub = getAccountXpub(seed: seed) else
         {
             AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
             hideRestoreViewCallback?()
             return
         }
         
-        som.disconnectMqtt()
+        disconnectMqtt()
         
-        if (som.isV2Restore) {
+        if isV2Restore {
             contactRestoreCallback?(2)
         }
         
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-            let success = som.connectToBroker(seed: seed, xpub: my_xpub)
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            let success = self.connectToBroker(seed: seed, xpub: my_xpub)
             
             if (success == false) {
                 AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
@@ -258,22 +260,30 @@ class SphinxOnionManager : NSObject {
                 return
             }
             
-            som.mqtt.didConnectAck = {_, _ in
-                som.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
+            self.mqtt.didConnectAck = { [weak self] _, _ in
+                guard let self = self else {
+                    return
+                }
                 
-                if (som.isV2InitialSetup) {
-                    som.isV2InitialSetup = false
-                    som.doInitialInviteSetup()
+                self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
+                
+                if (self.isV2InitialSetup) {
+                    self.isV2InitialSetup = false
+                    self.doInitialInviteSetup()
                 }
                  
-                som.syncContactsAndMessages(
-                    contactRestoreCallback: som.isV2Restore ? contactRestoreCallback : { _ in },
-                    messageRestoreCallback: som.isV2Restore ? messageRestoreCallback : { _ in },
-                    hideRestoreViewCallback: hideRestoreViewCallback
+                self.syncContactsAndMessages(
+                    contactRestoreCallback: self.isV2Restore ? contactRestoreCallback : { _ in },
+                    messageRestoreCallback: self.isV2Restore ? messageRestoreCallback : { _ in },
+                    hideRestoreViewCallback: {
+                        self.isV2Restore = false
+                        
+                        hideRestoreViewCallback?()
+                    }
                 )
             }
             
-            som.mqtt.didDisconnect = { _, _ in
+            self.mqtt.didDisconnect = { _, _ in
                 self.mqttDisconnectCallback?()
             }
         })
