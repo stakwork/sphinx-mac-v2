@@ -451,7 +451,7 @@
 "processing" = "Procesando";
 "pending" = "Pendiente";
 
-//Invites
+//INVITES
 "invite.looking.available.node" = " Buscando nodo disponible para %@...";
 "invite.payment.sent" = " Pago enviado, esperando confirmación";
 "invite.pay" = " Toca para pagar y actvar la invitación";
