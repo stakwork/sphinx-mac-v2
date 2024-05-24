@@ -398,6 +398,9 @@
 "page" = "ページ";
 "pdf.description" = "PDF - %@ - %dページ中の%dページ";
 
+"alert-confirm.delete-message-title" = "メッセージの削除を確認";
+"alert-confirm.delete-message-message" = "このメッセージを削除してもよろしいですか？ この操作は元に戻せません";
+
 //OTHER
 "create.call" = "通話を作成";
 "select.call.mode" = "通話モードを選択";

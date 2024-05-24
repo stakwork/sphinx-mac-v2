@@ -365,7 +365,7 @@ public class UserContact: NSManagedObject {
     
     func getAddress() -> String? {
         if let address = self.publicKey, !address.isEmpty {
-            let delimiter = self.routeHint?.isV2RouteHint == false ? ":" : "_"
+            let delimiter = "_"
             let routeHint = (self.routeHint ?? "").isEmpty ? "" : "\(delimiter)\((self.routeHint ?? ""))"
             return "\(address)\(routeHint)"
         }

@@ -81,11 +81,10 @@ extension SphinxOnionManager{//invites related
             
             makeFriendRequest(
                 contactInfo: stashedContactInfo,
+                nickname: stashedInviterAlias,
                 inviteCode: stashedInviteCode
             )
         }
-        
-        joinInitialTribe()
     }
     
     func createContactForInvite(

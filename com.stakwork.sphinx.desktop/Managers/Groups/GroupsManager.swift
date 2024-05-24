@@ -500,14 +500,13 @@ class GroupsManager {
     func fetchTribeInfo(
         host: String,
         uuid: String,
-        useSSL: Bool,
+        useSSL: Bool = false,
         completion: @escaping CreateGroupCallback,
         errorCallback: @escaping EmptyCallback
     ){
         API.sharedInstance.getTribeInfo(
             host: host,
             uuid: uuid,
-            useSSL: useSSL,
             callback: { groupInfo in
                 completion(groupInfo)
             }, errorCallback: {
@@ -517,14 +516,16 @@ class GroupsManager {
     }
     
     func finalizeTribeJoin(
-        tribeInfo: TribeInfo,
-        qrString: String
+        tribeInfo: TribeInfo
     ){
-        if let pubkey = getV2Pubkey(qrString: qrString),
-           let chatJSON = getChatJSON(tribeInfo:tribeInfo),
+        if let chatJSON = getChatJSON(tribeInfo: tribeInfo),
            let routeHint = tribeInfo.ownerRouteHint,
            let chat = Chat.insertChat(chat: chatJSON)
         {
+            guard let pubkey = tribeInfo.ownerPubkey else {
+                return
+            }
+            
             let isPrivate = tribeInfo.privateTribe
             
             SphinxOnionManager.sharedInstance.joinTribe(

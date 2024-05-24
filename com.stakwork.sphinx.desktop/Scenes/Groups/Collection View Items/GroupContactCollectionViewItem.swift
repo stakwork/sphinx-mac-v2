@@ -13,6 +13,7 @@ struct GroupContact {
     var isOwner: Bool = false
     var nickname: String? = nil
     var avatarUrl: String? = nil
+    var pubkey: String? = nil
     var selected: Bool = false
     var firstOnLetter: Bool = false
     

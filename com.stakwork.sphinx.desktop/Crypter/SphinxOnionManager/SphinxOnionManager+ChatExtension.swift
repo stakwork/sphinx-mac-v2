@@ -39,7 +39,6 @@ extension SphinxOnionManager {
         
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
             ///Tribe restore found, no need to restore
-            
             completion(chat, false)
         } else if let host = host {
             ///Tribe not found in the database, attempt to lookup and restore.
@@ -199,6 +198,11 @@ extension SphinxOnionManager {
                 isTribe: isTribe
             )
             
+            let tag = handleRunReturn(
+                rr: rr,
+                isSendingMessage: true
+            )
+            
             let sentMessage = processNewOutgoingMessage(
                 rr: rr,
                 chat: chat,
@@ -211,52 +215,19 @@ extension SphinxOnionManager {
                 mediaType: mediaType,
                 replyUUID: replyUUID,
                 threadUUID: threadUUID,
-                invoiceString: invoiceString
+                invoiceString: invoiceString,
+                tag: tag
             )
             
-            let tag = handleRunReturn(
-                rr: rr,
-                isMessageSend: true
-            )
-            
-            if let tag = tag, let sentMessage = sentMessage {
-                sentMessage.tag = tag
-                
-                // Invalidate existing timer for this tag if it exists
-                messageTimers[tag]?.invalidate()
-               
-                // Create and store a new timer for the message
-                messageTimers[tag] = Timer.scheduledTimer(timeInterval: 10.0,
-                    target: self,
-                    selector: #selector(handleMessageTimerTimeout(_:)),
-                    userInfo: ["tag": tag],
-                    repeats: false
-                )
-                
+            if let sentMessage = sentMessage {
                 assignReceiverId(localMsg: sentMessage)
             }
+            
             return sentMessage
         } catch let error {
             print("error sending msg \(error.localizedDescription)")
             return nil
         }
-    }
-    
-    @objc func handleMessageTimerTimeout(
-        _ timer: Timer
-    ) {
-        if let userInfo = timer.userInfo as? [String: Any],
-           let tag = userInfo["tag"] as? String,
-           let cachedMessage = TransactionMessage.getMessageWith(tag: tag),
-           cachedMessage.status != TransactionMessage.TransactionMessageStatus.received.rawValue
-        {
-            // Logic to handle timeout, now having access to the message tag
-            print("Watchdog timer fired: Message with tag \(tag) sending timeout")
-            // Invalidate timer
-            cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-            messageTimers.removeValue(forKey: tag)
-        }
-        timer.invalidate()
     }
     
     func processNewOutgoingMessage(
@@ -271,12 +242,41 @@ extension SphinxOnionManager {
         mediaType: String?,
         replyUUID: String?,
         threadUUID: String?,
-        invoiceString: String?
+        invoiceString: String?,
+        tag: String?
     ) -> TransactionMessage? {
         
+        if rr.msgs.count > 1 && msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue {
+            return processNewOutgoingPayment(
+                rr: rr,
+                chat: chat,
+                provisionalMessage: provisionalMessage,
+                msgType: msgType,
+                content: content,
+                amount: amount,
+                mediaKey: mediaKey,
+                mediaToken: mediaToken,
+                mediaType: mediaType
+            )
+        }
+        
         for msg in rr.msgs {
+            
+            if msgType == TransactionMessage.TransactionMessageType.delete.rawValue, let replyUUID = replyUUID {
+                guard let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID) else {
+                    return nil
+                }
+                messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
+                messageToDelete.setAsLastMessage()
+                messageToDelete.managedObjectContext?.saveContext()
+                
+                return messageToDelete
+            }
+            
             if let sentUUID = msg.uuid, msgType != TransactionMessage.TransactionMessageType.delete.rawValue {
+                
                 let date = Date()
+                
                 let message  = provisionalMessage ?? TransactionMessage.createProvisionalMessage(
                     messageContent: content,
                     type: Int(msgType),
@@ -286,20 +286,19 @@ extension SphinxOnionManager {
                     threadUUID: threadUUID
                 )
                 
-                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue || 
-                   msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue
-                {
+                message?.tag = tag ?? msg.tag
+                
+                if msgType == TransactionMessage.TransactionMessageType.boost.rawValue {
                     message?.amount = NSDecimalNumber(value: amount)
+                }
+                
+                if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || msgType == TransactionMessage.TransactionMessageType.attachment.rawValue {
                     message?.mediaKey = mediaKey
                     message?.mediaToken = mediaToken
                     message?.mediaType = mediaType
-                } else if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || 
-                          msgType == TransactionMessage.TransactionMessageType.attachment.rawValue
-                {
-                    message?.mediaKey = mediaKey
-                    message?.mediaToken = mediaToken
-                    message?.mediaType = mediaType
-                } else if msgType == TransactionMessage.TransactionMessageType.invoice.rawValue {
+                }
+                
+                if msgType == TransactionMessage.TransactionMessageType.invoice.rawValue {
                     guard let invoiceString = invoiceString else { return nil}
                     
                     let prd = PaymentRequestDecoder()
@@ -317,7 +316,6 @@ extension SphinxOnionManager {
                     message?.amount = NSDecimalNumber(value: amount)
                     message?.expirationDate = expiry
                 }
-
                 
                 message?.createdAt = date
                 message?.updatedAt = date
@@ -325,14 +323,52 @@ extension SphinxOnionManager {
                 message?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
                 message?.setAsLastMessage()
                 message?.managedObjectContext?.saveContext()
+                
                 return message
-            } else if let replyUUID = replyUUID, msgType == TransactionMessage.TransactionMessageType.delete.rawValue, let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
-            {
-                messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-                messageToDelete.setAsLastMessage()
-                messageToDelete.managedObjectContext?.saveContext()
-                return messageToDelete
             }
+        }
+        return nil
+    }
+    
+    func processNewOutgoingPayment(
+        rr: RunReturn,
+        chat: Chat,
+        provisionalMessage: TransactionMessage?,
+        msgType: UInt8,
+        content: String,
+        amount: Int,
+        mediaKey: String?,
+        mediaToken: String?,
+        mediaType: String?
+    ) -> TransactionMessage? {
+        
+        let paymentMsg = rr.msgs[0]
+        let paymentStatusMsg = rr.msgs[1]
+        
+        var paymentMessage: TransactionMessage? = nil
+        
+        if let sentUUID = paymentMsg.uuid {
+            let date = Date()
+            paymentMessage = provisionalMessage ?? TransactionMessage.createProvisionalMessage(
+                messageContent: content,
+                type: Int(msgType),
+                date: date,
+                chat: chat
+            )
+            
+            paymentMessage?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
+            paymentMessage?.amount = NSDecimalNumber(value: amount)
+            paymentMessage?.mediaKey = mediaKey
+            paymentMessage?.mediaToken = mediaToken
+            paymentMessage?.mediaType = mediaType
+            paymentMessage?.createdAt = date
+            paymentMessage?.updatedAt = date
+            paymentMessage?.uuid = sentUUID
+            paymentMessage?.tag = paymentStatusMsg.tag
+            paymentMessage?.setAsLastMessage()
+            paymentMessage?.managedObjectContext?.saveContext()
+            
+            return paymentMessage
         }
         return nil
     }
@@ -363,6 +399,7 @@ extension SphinxOnionManager {
             localMsg.senderAlias = owner.nickname
             localMsg.senderPic = owner.avatarUrl
         }
+        
         localMsg.senderId = UserData.sharedInstance.getUserId()
         assignReceiverId(localMsg: localMsg)
         localMsg.managedObjectContext?.saveContext()
@@ -382,7 +419,7 @@ extension SphinxOnionManager {
         localMsg.receiverId = receiverId
     }
     
-    func isMessageTribeMessage(
+    func isTribeMessage(
         senderPubkey: String
     ) -> Bool {
         
@@ -397,233 +434,370 @@ extension SphinxOnionManager {
     
     //MARK: processes updates from general purpose messages like plaintext and attachments
     func processGenericMessages(rr: RunReturn) {
+        if rr.msgs.isEmpty {
+            return
+        }
         
         let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
         
+        if isRestoringContactsAndTribes {
+            return
+        }
+        
         let notAllowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue)
         ]
         
-        var filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
+        let filteredMsgs = rr.msgs.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
         
-        if filteredMsgs.count <= 0 {return}
-        
-        if isRestoringContactsAndTribes && rr.msgs.count > 0 {
-            let allowedTypes = [
-                UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue),
-                UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
-            ]
-            
-            filteredMsgs = rr.msgs.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
+        if filteredMsgs.isEmpty {
+            return
         }
         
         for message in filteredMsgs {
             
-            var genericIncomingMessage = GenericIncomingMessage(msg: message)
-            
-            if Int(message.type ?? 0) == TransactionMessage.TransactionMessageType.unknown.rawValue {
-                ///Message to restore contact info
-                if let sender = message.sender,
-                   let csr =  ContactServerResponse(JSONString: sender),
-                   let recipientPubkey = csr.pubkey,
-                    UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) == nil
-                {
-                    let pendingContact = createNewContact(
-                        pubkey: recipientPubkey,
-                        nickname: genericIncomingMessage.alias ?? "Unknown",
-                        photoUrl: genericIncomingMessage.photoUrl
+            if let fromMe = message.fromMe, fromMe == true {
+                
+                ///New sent message
+                processSentMessage(
+                    message: message
+                )
+                
+            } else if let uuid = message.uuid, TransactionMessage.getMessageWith(uuid: uuid) == nil {
+                
+                ///New Incoming message
+                guard let type = message.type else {
+                    continue
+                }
+                
+                if isMessageCallOrAttachment(type: type) {
+                    processIncomingMessagesAndAttachments(
+                        message: message,
+                        shouldSendPush: filteredMsgs.count < 10
                     )
-                    
-                    pendingContact?.status = UserContact.Status.Pending.rawValue
                 }
                 
-            } else if let omuuid = genericIncomingMessage.originalUuid,//update uuid if it's changing/
-                      let newUUID = message.uuid,
-                      let originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
-            {
-                originalMessage.uuid = newUUID
-                
-                if (originalMessage.status == (TransactionMessage.TransactionMessageStatus.deleted.rawValue)){
-                    originalMessage.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-                }
-                
-                finalizeSentMessage(localMsg: originalMessage, remoteMsg: message)
-           } else if let fromMe = message.fromMe,
-                    fromMe == true,
-                    let _ = message.sentTo,
-                    let uuid = message.uuid,
-                    TransactionMessage.getMessageWith(uuid: uuid) == nil,
-                    let type = message.type,
-                    let localMsg = processGenericIncomingMessage(
-                        message: genericIncomingMessage,
-                        date: Date(),
-                        delaySave: true,
-                        type: Int(type),
-                        fromMe: true
+                if isBoostOrPayment(type: type) {
+                    processIncomingPaymentsAndBoosts(
+                        message: message,
+                        shouldSendPush: filteredMsgs.count < 10
                     )
-            {
-                localMsg.uuid = uuid
-               
-                if let genericMessageMsat = genericIncomingMessage.amount{
-                    localMsg.amount = NSDecimalNumber(value:  genericMessageMsat/1000)
-                    localMsg.amountMsat = NSDecimalNumber(value: Int(truncating: (genericMessageMsat) as NSNumber))
                 }
                 
-                finalizeSentMessage(localMsg: localMsg, remoteMsg: message)
-            } else if let uuid = message.uuid, TransactionMessage.getMessageWith(uuid: uuid) == nil { // guarantee it is a new message
-                if let type = message.type,
-                   let sender = message.sender,
-                   let index = message.index,
-                   let timestamp = message.timestamp,
-                   let date = timestampToDate(timestamp: timestamp),
-                   let csr = ContactServerResponse(JSONString: sender)
-                {
-                    if type == TransactionMessage.TransactionMessageType.message.rawValue
-                        || type == TransactionMessage.TransactionMessageType.call.rawValue
-                        || type == TransactionMessage.TransactionMessageType.attachment.rawValue
-                    {
-                        genericIncomingMessage.senderPubkey = csr.pubkey
-                        genericIncomingMessage.uuid = uuid
-                        genericIncomingMessage.index = index
-                        
-                        let msg = processGenericIncomingMessage(
-                            message: genericIncomingMessage,
-                            date: date,
-                            csr: csr,
-                            type: Int(type)
-                        )
-                        sendNotification(message: msg, msgsCount: filteredMsgs.count)
-                    } else if type == TransactionMessage.TransactionMessageType.boost.rawValue ||
-                        type == TransactionMessage.TransactionMessageType.directPayment.rawValue ||
-                        type == TransactionMessage.TransactionMessageType.payment.rawValue,
-                        let index = message.index,
-                        let uuid = message.uuid
-                    {
-                        let msats = message.msat ?? 0
-                        genericIncomingMessage.senderPubkey = csr.pubkey
-                        genericIncomingMessage.uuid = uuid
-                        genericIncomingMessage.index = index
-                        
-                        let paymentMsg = processIncomingPayment(
-                            message: genericIncomingMessage,
-                            date: date,
-                            csr: csr,
-                            amount: Int(msats/1000),
-                            type: Int(type)
-                        )
-                        
-                        sendNotification(message: paymentMsg, msgsCount: filteredMsgs.count)
-                    } else if type == TransactionMessage.TransactionMessageType.delete.rawValue {
-                        processIncomingDeletion(message: genericIncomingMessage, date: date)
-                    } else if isGroupAction(type: type), let tribePubkey = csr.pubkey {
-                        ///Restoring tribe
-                        fetchOrCreateChatWithTribe(
-                            ownerPubkey: tribePubkey,
-                            host: csr.host,
-                            completion: { chat, didCreateTribe  in
-                                if let chat = chat {
-                                    let groupActionMessage = TransactionMessage(context: self.managedContext)
-                                    groupActionMessage.uuid = uuid
-                                    groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
-                                    groupActionMessage.chat = chat
-                                    groupActionMessage.type = Int(type)
-                                    groupActionMessage.setAsLastMessage()
-                                    groupActionMessage.senderAlias = csr.alias
-                                    groupActionMessage.senderPic = csr.photoUrl
-                                    groupActionMessage.createdAt = date
-                                    groupActionMessage.date = date
-                                    groupActionMessage.updatedAt = date
-                                    groupActionMessage.seen = false
-                                    chat.seen = false
-                                
-                                    if (didCreateTribe && csr.role != nil) {
-                                        chat.isTribeICreated = csr.role == 0
-                                    }
-                                    if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
-                                        chat.status = Chat.ChatStatus.approved.rawValue
-                                    }
-                                    if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
-                                        chat.status = Chat.ChatStatus.rejected.rawValue
-                                    }
-                                    
-                                    self.sendNotification(message: groupActionMessage, msgsCount: filteredMsgs.count)
-                                }
-                            }
-                        )
-                    } else if type == TransactionMessage.TransactionMessageType.invoice.rawValue,
-                            let invoice = genericIncomingMessage.invoice
-                    {
-                        genericIncomingMessage.senderPubkey = csr.pubkey
-                        genericIncomingMessage.uuid = uuid
-                        genericIncomingMessage.index = index
-                        
-                        let prd = PaymentRequestDecoder()
-                        prd.decodePaymentRequest(paymentRequest: invoice)
-                        
-                        if let expiry = prd.getExpirationDate(),
-                            let amount = prd.getAmount(),
-                            let paymentHash = try? paymentHashFromInvoice(bolt11: invoice),
-                            let newMessage = processGenericIncomingMessage(
-                                message: genericIncomingMessage,
-                                date: date,
-                                csr: csr,
-                                amount: amount,
-                                type: Int(type)
-                            )
-                        {
-                            newMessage.paymentHash = paymentHash
-                            newMessage.expirationDate = expiry
-                            newMessage.invoice = genericIncomingMessage.invoice
-                            newMessage.amountMsat = NSDecimalNumber(value: Int(truncating: newMessage.amount ?? 0) * 1000)
-                            newMessage.status = TransactionMessage.TransactionMessageStatus.pending.rawValue
-                            
-                            sendNotification(message: newMessage, msgsCount: filteredMsgs.count)
-                        }
-                        
-                    }
-                    print("handleRunReturn message: \(message)")
+                if isDelete(type: type) {
+                    processIncomingDeletion(
+                        message: message
+                    )
+                }
+                
+                if isGroupAction(type: type) {
+                    processIncomingGroupJoinMsg(
+                        message: message,
+                        shouldSendPush: filteredMsgs.count < 10
+                    )
+                }
+                
+                if isInvoice(type: type) {
+                    processIncomingInvoice(
+                        message: message,
+                        shouldSendPush: filteredMsgs.count < 10
+                    )
                 }
             }
             
-            if isMyMessageNeedingIndexUpdate(msg: message),
-                let uuid = message.uuid,
-                let cachedMessage = TransactionMessage.getMessageWith(uuid: uuid),
-                let indexString = message.index,
-                let index = Int(indexString)
-            { //updates index of sent message
-                cachedMessage.id = index //sync self index
-                cachedMessage.updatedAt = Date()
-            }
+            processIndexUpdate(message: message)
             
             managedContext.saveContext()
+        }
+    }
+    
+    func updateIsPaidAllMessages() {
+        let msgs = TransactionMessage.getAll().filter({$0.type == TransactionMessage.TransactionMessageType.payment.rawValue})
+        for msg in msgs{
+            if let ph = msg.paymentHash,
+               let _ = TransactionMessage.getInvoiceWith(paymentHash: ph){
+                msg.setPaymentInvoiceAsPaid()
+            }
+        }
+    }
+    
+    func processSentMessage(
+        message: Msg
+    ) {
+        let genericIncomingMessage = GenericIncomingMessage(msg: message)
+        
+        if let omuuid = genericIncomingMessage.originalUuid, let newUUID = message.uuid,
+           let originalMessage = TransactionMessage.getMessageWith(uuid: omuuid)
+        {
+            originalMessage.uuid = newUUID
+            
+            if (originalMessage.status == (TransactionMessage.TransactionMessageStatus.deleted.rawValue)){
+                originalMessage.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
+            }
+            
+            finalizeSentMessage(localMsg: originalMessage, remoteMsg: message)
+        }
+        
+        if let _ = message.sentTo,
+           let uuid = message.uuid,
+           let type = message.type,
+           TransactionMessage.getMessageWith(uuid: uuid) == nil
+        {
+            guard let localMsg = processGenericIncomingMessage(
+                message: genericIncomingMessage,
+                date: Date(),
+                delaySave: true,
+                type: Int(type),
+                fromMe: true
+            ) else {
+                return
+            }
+            
+            localMsg.uuid = uuid
+           
+            if let genericMessageMsat = genericIncomingMessage.amount {
+                localMsg.amount = NSDecimalNumber(value:  genericMessageMsat/1000)
+                localMsg.amountMsat = NSDecimalNumber(value: Int(truncating: (genericMessageMsat) as NSNumber))
+            }
+            
+            finalizeSentMessage(localMsg: localMsg, remoteMsg: message)
+        }
+    }
+    
+    func processIncomingMessagesAndAttachments(
+        message: Msg,
+        shouldSendPush: Bool
+    ) {
+        guard let index = message.index,
+              let uuid = message.uuid,
+              let sender = message.sender,
+              let date = message.date,
+              let type = message.type,
+              let csr = ContactServerResponse(JSONString: sender) else
+        {
+            return
+        }
+        
+        var genericIncomingMessage = GenericIncomingMessage(msg: message)
+        genericIncomingMessage.senderPubkey = csr.pubkey
+        genericIncomingMessage.uuid = uuid
+        genericIncomingMessage.index = index
+        
+        let msg = processGenericIncomingMessage(
+            message: genericIncomingMessage,
+            date: date,
+            csr: csr,
+            type: Int(type)
+        )
+        
+        if shouldSendPush {
+            sendNotification(message: msg)
+        }
+    }
+    
+    func processIncomingPaymentsAndBoosts(
+        message: Msg,
+        shouldSendPush: Bool
+    ) {
+        guard let index = message.index,
+              let uuid = message.uuid,
+              let sender = message.sender,
+              let date = message.date,
+              let type = message.type,
+              let csr = ContactServerResponse(JSONString: sender) else
+        {
+            return
+        }
+        
+        let msats = message.msat ?? 0
+        
+        var genericIncomingMessage = GenericIncomingMessage(msg: message)
+        genericIncomingMessage.senderPubkey = csr.pubkey
+        genericIncomingMessage.uuid = uuid
+        genericIncomingMessage.index = index
+        
+        let paymentMsg = processGenericIncomingMessage(
+            message: genericIncomingMessage,
+            date: date,
+            csr: csr,
+            amount: Int(msats/1000),
+            type: Int(type)
+        )
+        
+        if shouldSendPush {
+            sendNotification(message: paymentMsg)
+        }
+    }
+    
+    func processIncomingDeletion(message: Msg){
+        let genericIncomingMessage = GenericIncomingMessage(msg: message)
+        
+        if let messageToDeleteUUID = genericIncomingMessage.replyUuid {
+            if let messageToDelete = TransactionMessage.getMessageWith(uuid: messageToDeleteUUID) {
+                messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
+                
+                messageToDelete.managedObjectContext?.saveContext()
+            } else {
+                guard let sender = message.sender,
+                      let date = message.date,
+                      let type = message.type,
+                      let csr = ContactServerResponse(JSONString: sender) else
+                {
+                    return
+                }
+                
+                guard let msg = processGenericIncomingMessage(
+                    message: genericIncomingMessage,
+                    date: date,
+                    csr: csr,
+                    type: Int(type)
+                ) else {
+                    return
+                }
+                
+                msg.managedObjectContext?.saveContext()
+            }
+        }
+    }
+    
+    func processIncomingGroupJoinMsg(
+        message: Msg,
+        shouldSendPush: Bool
+    ) {
+        guard let type = message.type,
+              let sender = message.sender,
+              let index = message.index,
+              let uuid = message.uuid,
+              let date = message.date,
+              let csr = ContactServerResponse(JSONString: sender),
+              let tribePubKey = csr.pubkey else
+        {
+            return
+        }
+        
+        fetchOrCreateChatWithTribe(
+            ownerPubkey: tribePubKey,
+            host: csr.host,
+            completion: { chat, didCreateTribe  in
+                if let chat = chat {
+                    let groupActionMessage = TransactionMessage(context: self.managedContext)
+                    groupActionMessage.uuid = uuid
+                    groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+                    groupActionMessage.chat = chat
+                    groupActionMessage.type = Int(type)
+                    
+                    let innerContentDate = message.getInnerContentDate()
+                    groupActionMessage.createdAt = innerContentDate ?? date
+                    groupActionMessage.date = innerContentDate ?? date
+                    groupActionMessage.updatedAt = innerContentDate ?? date
+                    
+                    groupActionMessage.setAsLastMessage()
+                    groupActionMessage.senderAlias = csr.alias
+                    groupActionMessage.senderPic = csr.photoUrl
+                    
+                    groupActionMessage.seen = false
+                    chat.seen = false
+                
+                    if (didCreateTribe && csr.role != nil) {
+                        chat.isTribeICreated = csr.role == 0
+                    }
+                    if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
+                        chat.status = Chat.ChatStatus.approved.rawValue
+                    }
+                    if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
+                        chat.status = Chat.ChatStatus.rejected.rawValue
+                    }
+                    
+                    if shouldSendPush {
+                        self.sendNotification(message: groupActionMessage)
+                    }
+                }
+            }
+        )
+    }
+    
+    func processIncomingInvoice(
+        message: Msg,
+        shouldSendPush: Bool
+    ) {
+        guard let type = message.type,
+              let sender = message.sender,
+              let index = message.index,
+              let uuid = message.uuid,
+              let date = message.date,
+              let csr = ContactServerResponse(JSONString: sender) else
+        {
+            return
+        }
+        
+        var genericIncomingMessage = GenericIncomingMessage(msg: message)
+        
+        if let invoice = genericIncomingMessage.invoice {
+            genericIncomingMessage.senderPubkey = csr.pubkey
+            genericIncomingMessage.uuid = uuid
+            genericIncomingMessage.index = index
+            
+            let prd = PaymentRequestDecoder()
+            prd.decodePaymentRequest(paymentRequest: invoice)
+            
+            if let expiry = prd.getExpirationDate(),
+                let amount = prd.getAmount(),
+                let paymentHash = try? paymentHashFromInvoice(bolt11: invoice)
+            {
+                
+                guard let newMessage = processGenericIncomingMessage(
+                    message: genericIncomingMessage,
+                    date: date,
+                    csr: csr,
+                    amount: amount,
+                    type: Int(type)
+                ) else {
+                    return
+                }
+                
+                newMessage.paymentHash = paymentHash
+                newMessage.expirationDate = expiry
+                newMessage.invoice = genericIncomingMessage.invoice
+                newMessage.amountMsat = NSDecimalNumber(value: Int(truncating: newMessage.amount ?? 0) * 1000)
+                newMessage.status = TransactionMessage.TransactionMessageStatus.pending.rawValue
+                
+                if shouldSendPush {
+                    sendNotification(message: newMessage)
+                }
+            }
+            
         }
     }
     
     func processGenericIncomingMessage(
         message: GenericIncomingMessage,
         date: Date,
-        csr: ContactServerResponse?=nil ,
+        csr: ContactServerResponse? = nil,
         amount: Int = 0,
         delaySave: Bool = false,
         type: Int? = nil,
         fromMe: Bool = false
     ) -> TransactionMessage? {
+        
         let content = (type == TransactionMessage.TransactionMessageType.boost.rawValue) ? ("") : (message.content)
+        
         guard let indexString = message.index,
             let index = Int(indexString),
-            TransactionMessage.getMessageWith(id: index) == nil,
-             //let content = content,
-              //let amount = message.amount,
             let pubkey = message.senderPubkey,
             let uuid = message.uuid else
         {
             return nil
         }
         
+        if let _ = TransactionMessage.getMessageWith(id: index) {
+            return nil
+        }
+        
         var chat : Chat? = nil
         var senderId: Int? = nil
-        //var senderAlias : String? = nil
+        
         var isTribe = false
         
         if let contact = UserContact.getContactWithDisregardStatus(pubkey: pubkey), let oneOnOneChat = contact.getChat() {
@@ -632,6 +806,7 @@ extension SphinxOnionManager {
             senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
             
             var contactDidChange = false
+            
             if (contact.nickname != message.alias && message.alias != nil) {
                 contact.nickname = message.alias
                 contactDidChange = true
@@ -641,6 +816,7 @@ extension SphinxOnionManager {
                 contactDidChange = true
             }
             contactDidChange ? (contact.managedObjectContext?.saveContext()) :()
+            
         } else if let tribeChat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: pubkey) {
             chat = tribeChat
             senderId = tribeChat.id
@@ -650,7 +826,7 @@ extension SphinxOnionManager {
         guard let chat = chat,
               let senderId = senderId else
         {
-            return nil //error extracting proper chat data
+            return nil
         }
         
         let newMessage = TransactionMessage(context: managedContext)
@@ -669,6 +845,7 @@ extension SphinxOnionManager {
             newMessage.updatedAt = date
             newMessage.date = date
         }
+        
         newMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
         newMessage.type = type ?? TransactionMessage.TransactionMessageType.message.rawValue
         newMessage.encrypted = true
@@ -714,44 +891,17 @@ extension SphinxOnionManager {
         return newMessage
     }
     
-    func updateIsPaidAllMessages() {
-        let msgs = TransactionMessage.getAll().filter({$0.type == TransactionMessage.TransactionMessageType.payment.rawValue})
-        for msg in msgs{
-            if let ph = msg.paymentHash,
-               let _ = TransactionMessage.getInvoiceWith(paymentHash: ph){
-                msg.setPaymentInvoiceAsPaid()
-            }
+    func processIndexUpdate(message: Msg) {
+        if isMyMessageNeedingIndexUpdate(msg: message),
+            let uuid = message.uuid,
+            let cachedMessage = TransactionMessage.getMessageWith(uuid: uuid),
+            let indexString = message.index,
+            let index = Int(indexString)
+        {
+            cachedMessage.id = index //sync self index
+            cachedMessage.updatedAt = Date()
         }
     }
-    
-    func processIncomingPayment(
-        message: GenericIncomingMessage,
-        date: Date,
-        csr: ContactServerResponse? = nil,
-        amount: Int,
-        type: Int
-    ) -> TransactionMessage? {
-        let msg = processGenericIncomingMessage(
-            message: message,
-            date: date,
-            csr: csr,
-            amount: amount,
-            type: type
-        )
-        
-        return msg
-    }
-    
-    func processIncomingDeletion(message: GenericIncomingMessage, date: Date){
-        if let messageToDeleteUUID = message.replyUuid,
-           let messageToDelete = TransactionMessage.getMessageWith(uuid: messageToDeleteUUID) {
-            messageToDelete.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-            if let context = messageToDelete.managedObjectContext {
-                context.saveContext()
-            }
-        }
-    }
-    
 
     func signChallenge(challenge: String) -> String? {
         guard let seed = self.getAccountSeed() else {
@@ -1050,5 +1200,34 @@ extension Data {
         }
 
         self = data
+    }
+}
+
+extension Msg {
+    func getInnerContentDate() -> Date? {
+        if let msg = self.message,
+           let innerContent = MessageInnerContent(JSONString: msg),
+           let innerContentDate = innerContent.date,
+           let date = self.timestampToDate(timestamp: UInt64(innerContentDate))
+        {
+            return date
+        }
+        return nil
+    }
+    
+    func timestampToDate(
+        timestamp: UInt64
+    ) -> Date? {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000)
+        return date
+    }
+    
+    var date: Date? {
+        get {
+            if let timestamp = self.timestamp {
+                return self.timestampToDate(timestamp: UInt64(timestamp))
+            }
+            return nil
+        }
     }
 }

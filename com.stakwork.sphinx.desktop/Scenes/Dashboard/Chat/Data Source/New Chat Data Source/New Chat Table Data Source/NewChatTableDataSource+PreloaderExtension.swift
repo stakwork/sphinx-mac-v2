@@ -122,6 +122,12 @@ extension NewChatTableDataSource {
         scrollViewDesiredOffset = offset
         collectionViewScroll.documentYOffset = offset
         
+        if scrolledAtBottom {
+            return
+        }
+        
+        scrolledAtBottom = true
+        
         delegate?.didScrollToBottom()
     }
     

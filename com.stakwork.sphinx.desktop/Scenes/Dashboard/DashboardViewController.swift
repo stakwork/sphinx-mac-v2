@@ -61,8 +61,6 @@ class DashboardViewController: NSViewController {
     var resizeTimer : Timer? = nil
     var escapeMonitor: Any? = nil
     
-    let som = SphinxOnionManager.sharedInstance
-    
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
         return viewController
@@ -113,14 +111,14 @@ class DashboardViewController: NSViewController {
     }
     
     func connectToServer() {
-        som.fetchMyAccountFromState()
+        SphinxOnionManager.sharedInstance.fetchMyAccountFromState()
         
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
             guard let self = self else {
                 return
             }
             
-            self.som.connectToServer(
+            SphinxOnionManager.sharedInstance.connectToServer(
                 connectingCallback: {
                     self.listViewController?.headerLoading = true
                 },
@@ -132,8 +130,8 @@ class DashboardViewController: NSViewController {
     }
     
     func refreshUnreadStatus(){
-        som.getReads()
-        som.getMuteLevels()
+        SphinxOnionManager.sharedInstance.getReads()
+        SphinxOnionManager.sharedInstance.getMuteLevels()
     }
     
     func hideRestoreViewCallback(){
@@ -350,7 +348,7 @@ class DashboardViewController: NSViewController {
         }
         
         NotificationCenter.default.addObserver(forName: .onInvoiceDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
+//            guard let vc = self else { return }
 //            vc.createInvoice(n: n)
         }
         
@@ -476,7 +474,7 @@ class DashboardViewController: NSViewController {
     }
     
     func reconnectToMQTT() {
-        som.reconnectToServer(
+        SphinxOnionManager.sharedInstance.reconnectToServer(
             connectingCallback: {
                 self.listViewController?.headerLoading = true
             },
@@ -798,5 +796,8 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
     func closeButtonTapped() {
         rightDetailViewMaxWidth.constant = 0
         rightDetailSplittedView.isHidden = true
+        
+        newDetailViewController?.chatBottomView.messageFieldView.isThreadOpen = false
+        newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
     }
 }

@@ -120,14 +120,14 @@ class ProfileImageView: NSView, LoadableNib {
     }
     
     func updateProfile(photoUrl: String) {
-        if let selfContact = SphinxOnionManager.sharedInstance.pendingContact {
-            selfContact.avatarUrl = photoUrl
+        if let owner = UserContact.getOwner() {
+            owner.avatarUrl = photoUrl
             
-            self.loading = false
-            self.continueProcess()
+            loading = false
+            continueProcess()
         } else {
-            self.loading = false
-            self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
+            loading = false
+            messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
         }
     }
 }

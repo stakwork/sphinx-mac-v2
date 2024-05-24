@@ -105,11 +105,10 @@ extension NamePinView : SignupButtonViewDelegate {
         
         loading = true
         
-        if let selfContact = SphinxOnionManager.sharedInstance.pendingContact, selfContact.isOwner == true {
-            let nickname = nameField.getFieldValue()
-            selfContact.nickname = nickname
+        if let owner = UserContact.getOwner() {
+            owner.nickname = nameField.getFieldValue()
             
-            self.goToProfilePictureView()
+            goToProfilePictureView()
         } else {
             showError()
         }

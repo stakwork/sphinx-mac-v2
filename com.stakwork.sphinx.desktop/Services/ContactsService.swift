@@ -379,7 +379,11 @@ extension ContactsService : NSFetchedResultsControllerDelegate {
         let orderedObjects = objects.sorted(by: {
             let contact1 = $0 as ChatListCommonObject
             let contact2 = $1 as ChatListCommonObject
-
+            
+            if contact1.getInvite() != nil || contact2.getInvite() != nil {
+                return contact1.getInvite() != nil && $1.getInvite() == nil
+            }
+            
             if contact1.isPending() || contact2.isPending() {
                 return $0.isPending() && !$1.isPending()
             }

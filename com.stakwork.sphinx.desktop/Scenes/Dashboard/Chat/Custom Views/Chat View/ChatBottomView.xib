@@ -73,7 +73,7 @@
                         <real value="3.4028234663852886e+38"/>
                     </customSpacing>
                 </stackView>
-                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="0sR-1g-J50">
+                <box hidden="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="0sR-1g-J50">
                     <rect key="frame" x="0.0" y="59" width="835" height="1"/>
                     <view key="contentView" id="hMv-cS-UPW">
                         <rect key="frame" x="0.0" y="0.0" width="835" height="1"/>
@@ -99,7 +99,7 @@
     </objects>
     <resources>
         <namedColor name="ChatsHeaderDivider">
-            <color red="0.0" green="0.0" blue="0.0" alpha="0.10000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.0" blue="0.0" alpha="0.10000000149011612" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

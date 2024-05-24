@@ -241,17 +241,8 @@ public class Chat: NSManagedObject {
         return chats
     }
     
-    static func getAllGroups() -> [Chat] {
-        let predicate = NSPredicate(format: "type IN %@", [Chat.ChatType.privateGroup.rawValue, Chat.ChatType.publicGroup.rawValue])
-        
-//        var predicate: NSPredicate! = nil
-//        
-//        if GroupsPinManager.sharedInstance.isStandardPIN {
-//            predicate = NSPredicate(format: "type IN %@ AND pin = nil", [Chat.ChatType.privateGroup.rawValue, Chat.ChatType.publicGroup.rawValue])
-//        } else {
-//            let currentPin = GroupsPinManager.sharedInstance.currentPin
-//            predicate = NSPredicate(format: "type IN %@ AND pin = %@", [Chat.ChatType.privateGroup.rawValue, Chat.ChatType.publicGroup.rawValue], currentPin)
-//        }
+    static func getAllTribes() -> [Chat] {
+        let predicate = NSPredicate(format: "type == %d", Chat.ChatType.publicGroup.rawValue)
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "Chat")
@@ -259,20 +250,40 @@ public class Chat: NSManagedObject {
     }
     
     static func getTribeChatWithOwnerPubkey(ownerPubkey: String) -> Chat? {
-        let predicate = NSPredicate(format: "type == %d AND ownerPubkey == %@", Chat.ChatType.publicGroup.rawValue, ownerPubkey)
-        
-//        var predicate: NSPredicate! = nil
-//
-//        if GroupsPinManager.sharedInstance.isStandardPIN {
-//            predicate = NSPredicate(format: "type == %d AND pin = nil", Chat.ChatType.publicGroup.rawValue)
-//        } else {
-//            let currentPin = GroupsPinManager.sharedInstance.currentPin
-//            predicate = NSPredicate(format: "type == %d AND pin = %@", Chat.ChatType.publicGroup.rawValue, currentPin)
-//        }
+        let predicate = NSPredicate(
+            format: "type == %d AND ownerPubkey == %@",
+            Chat.ChatType.publicGroup.rawValue,
+            ownerPubkey
+        )
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "Chat").first
+        
+        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            fetchLimit: 1
+        ).first
+        
         return chat
+    }
+    
+    static func getChatTribesFor(ownerPubkeys: [String]) -> [Chat] {
+        let predicate = NSPredicate(
+            format: "type == %d AND ownerPubkey IN %@",
+            Chat.ChatType.publicGroup.rawValue,
+            ownerPubkeys
+        )
+        
+        let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        let chats : [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat"
+        )
+        
+        return chats
     }
     
     public static func getPrivateChats() -> [Chat] {
@@ -639,7 +650,6 @@ public class Chat: NSManagedObject {
             API.sharedInstance.getTribeInfo(
                 host: host,
                 uuid: uuid,
-                useSSL: false, //TODO: change this
                 callback: { chatJson in
                     self.tribeInfo = GroupsManager.sharedInstance.getTribesInfoFrom(json: chatJson)
                     self.updateChatFromTribesInfo()
@@ -756,15 +766,7 @@ public class Chat: NSManagedObject {
     }
     
     public func isEncrypted() -> Bool {
-        if isPublicGroup() {
-            if let _ = groupKey {
-                return true
-            }
-            return false
-        } else if let contact = getContact() {
-            return contact.isEncrypted()
-        }
-        return false
+        return true
     }
     
     func removedFromGroup() -> Bool {
@@ -801,7 +803,7 @@ public class Chat: NSManagedObject {
     
     func getJoinChatLink() -> String? {
         if let pubkey = self.ownerPubkey {
-            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=34.229.52.200:8801"
+            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=\(API.kTribesServer)"
         }
         return nil
     }

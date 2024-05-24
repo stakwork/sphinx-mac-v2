@@ -75,6 +75,7 @@ extension SphinxOnionManager {
                 amtMsat: UInt64(joinAmountMsats),
                 isPrivate: isPrivate
             )
+            
             DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
                 let _ = self.handleRunReturn(rr: rr)
             })
@@ -119,12 +120,11 @@ extension SphinxOnionManager {
             uuid: pubkey,
             useSSL: false,
             completion: { groupInfo in
-                let qrString = "action=tribeV2&pubkey=\(pubkey)&host=\(host)"
-                var tribeInfo = GroupsManager.TribeInfo(ownerPubkey:pubkey, host: host,uuid: pubkey)
+                var tribeInfo = GroupsManager.TribeInfo(ownerPubkey: pubkey, host: host, uuid: pubkey)
                 self.stashedInitialTribe = nil
                 
                 GroupsManager.sharedInstance.update(tribeInfo: &tribeInfo, from: groupInfo)
-                GroupsManager.sharedInstance.finalizeTribeJoin(tribeInfo: tribeInfo, qrString: qrString)
+                GroupsManager.sharedInstance.finalizeTribeJoin(tribeInfo: tribeInfo)
                 
             },
             errorCallback: {}
@@ -160,7 +160,7 @@ extension SphinxOnionManager {
                 tribeServerPubkey: tribeServerPubkey,
                 tribePubkey: tribeChat.ownerPubkey ?? ""
             )
-            stashedCallback = completion
+            tribeMembersCallback = completion
             let _ = handleRunReturn(rr: rr)
         } catch {}
     }

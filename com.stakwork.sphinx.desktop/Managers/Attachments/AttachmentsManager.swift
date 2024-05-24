@@ -175,6 +175,7 @@ class AttachmentsManager {
                 self.uploadAndSendAttachment(
                     attachmentObject: attachmentObject,
                     chat: chat,
+                    provisionalMessage: provisionalMessage,
                     replyingMessage: replyingMessage,
                     threadUUID: threadUUID
                 )

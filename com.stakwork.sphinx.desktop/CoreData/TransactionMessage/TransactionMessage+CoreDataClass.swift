@@ -151,7 +151,8 @@ public class TransactionMessage: NSManagedObject {
         TransactionMessageType.purchase.rawValue,
         TransactionMessageType.purchaseAccept.rawValue,
         TransactionMessageType.purchaseDeny.rawValue,
-        TransactionMessageType.repayment.rawValue
+        TransactionMessageType.repayment.rawValue,
+        TransactionMessageType.delete.rawValue
     ]
     
     static let kCallRoomName = "/sphinx.call"
@@ -188,7 +189,7 @@ public class TransactionMessage: NSManagedObject {
         let mediaType:String? = m["media_type"].string
         let originalMuid:String? = m["original_muid"].string
         let errorMessage:String? = m["error_message"].string
-        var mediaKey:String? = m["media_key"].string
+        let mediaKey:String? = m["media_key"].string
         
         let seen:Bool = m["seen"].boolValue
         let push:Bool = m["push"].boolValue

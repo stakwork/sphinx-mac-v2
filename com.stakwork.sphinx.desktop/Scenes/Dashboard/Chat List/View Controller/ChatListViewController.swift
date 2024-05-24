@@ -267,8 +267,7 @@ class ChatListViewController : DashboardSplittedViewController {
                     } else {
                         let joinTribeVC = JoinTribeViewController.instantiate(
                             tribeInfo: tribeInfo,
-                            delegate: self,
-                            isTribeV2: tribeLink.isTribeV2
+                            delegate: self
                         )
                         
                         WindowsManager.sharedInstance.showOnCurrentWindow(

@@ -14,17 +14,20 @@ import CoreData
 
 class SphinxOnionManager : NSObject {
     
-    class var sharedInstance : SphinxOnionManager {
-        struct Static {
-            static let instance = SphinxOnionManager()
+    private static var _sharedInstance: SphinxOnionManager? = nil
+
+    static var sharedInstance: SphinxOnionManager {
+        if _sharedInstance == nil {
+            _sharedInstance = SphinxOnionManager()
         }
-        return Static.instance
+        return _sharedInstance!
+    }
+
+    static func resetSharedInstance() {
+        _sharedInstance = nil
     }
     
     let walletBalanceService = WalletBalanceService()
-    
-    ///Owner for signup and restore
-    var pendingContact : UserContact? = nil
     
     ///Invite
     var pendingInviteLookupByTag : [String:String] = [String:String]()
@@ -36,7 +39,6 @@ class SphinxOnionManager : NSObject {
     var watchdogTimer:Timer? = nil
     
     var nextMessageBlockWasReceived = false
-    var messageTimers: [String: Timer] = [:]
     
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
@@ -49,7 +51,6 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var stashedCallback : (([String:AnyObject]) ->())? = nil
     var isConnected : Bool = false{
         didSet{
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
@@ -62,19 +63,26 @@ class SphinxOnionManager : NSObject {
     var messageRestoreCallback : RestoreProgressCallback? = nil
     var contactRestoreCallback : RestoreProgressCallback? = nil
     var hideRestoreCallback: (() -> ())? = nil
+    var tribeMembersCallback : (([String: AnyObject]) -> ())? = nil
+    var inviteCreationCallback : ((String?) -> ())? = nil
+    var mqttDisconnectCallback : (() -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
     var appSessionPin : String? = nil
     var defaultInitialSignupPin : String = "111111"
     
     public static let kContactsBatchSize = 250
-    public static let kMessageBatchSize = 250
+    public static let kMessageBatchSize = 50
 
     //MARK: Hardcoded Values!
     var server_IP = "34.229.52.200"
     let server_PORT = 1883
     let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
+    
     let network = "regtest"
+    
+    let kCompleteStatus = "COMPLETE"
+    let kFailedStatus = "FAILED"
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
@@ -190,10 +198,15 @@ class SphinxOnionManager : NSObject {
         }
     }
     
-    func disconnectMqtt() {
-        if let mqtt = self.mqtt {
-            mqtt.disconnect()
+    func disconnectMqtt(
+        callback: (() -> ())? = nil
+    ) {
+        if self.mqtt == nil || mqtt?.connState == .disconnected {
+            callback?()
+            return
         }
+        mqttDisconnectCallback = callback
+        mqtt?.disconnect()
     }
     
     func reconnectToServer(
@@ -201,10 +214,11 @@ class SphinxOnionManager : NSObject {
         hideRestoreViewCallback: (()->())? = nil
     ) {
         guard let mqtt = self.mqtt, mqtt.connState == .disconnected else {
-            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-                ///Delay added for the loading wheel to be visible
-                hideRestoreViewCallback?()
-            })
+            self.syncContactsAndMessages(
+                contactRestoreCallback: { _ in },
+                messageRestoreCallback: { _ in },
+                hideRestoreViewCallback: hideRestoreViewCallback
+            )
             return
         }
         connectToServer(
@@ -219,27 +233,29 @@ class SphinxOnionManager : NSObject {
         messageRestoreCallback: RestoreProgressCallback? = nil,
         hideRestoreViewCallback: (()->())? = nil
     ){
-        let som = self
-        
         connectingCallback?()
         
-        guard let seed = som.getAccountSeed(),
-              let myPubkey = som.getAccountOnlyKeysendPubkey(seed: seed),
-              let my_xpub = som.getAccountXpub(seed: seed) else
+        guard let seed = getAccountSeed(),
+              let myPubkey = getAccountOnlyKeysendPubkey(seed: seed),
+              let my_xpub = getAccountXpub(seed: seed) else
         {
             AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
             hideRestoreViewCallback?()
             return
         }
         
-        som.disconnectMqtt()
+        mqtt?.disconnect()
         
-        if (som.isV2Restore) {
+        if isV2Restore {
             contactRestoreCallback?(2)
         }
         
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-            let success = som.connectToBroker(seed: seed, xpub: my_xpub)
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            let success = self.connectToBroker(seed: seed, xpub: my_xpub)
             
             if (success == false) {
                 AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
@@ -247,19 +263,32 @@ class SphinxOnionManager : NSObject {
                 return
             }
             
-            som.mqtt.didConnectAck = {_, _ in
-                som.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
+            self.mqtt.didConnectAck = { [weak self] _, _ in
+                guard let self = self else {
+                    return
+                }
                 
-                if (som.isV2InitialSetup) {
-                    som.isV2InitialSetup = false
-                    som.doInitialInviteSetup()
+                self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
+                
+                if (self.isV2InitialSetup) {
+                    self.isV2InitialSetup = false
+                    self.doInitialInviteSetup()
                 }
                  
-                som.syncContactsAndMessages(
-                    contactRestoreCallback: som.isV2Restore ? contactRestoreCallback : { _ in },
-                    messageRestoreCallback: som.isV2Restore ? messageRestoreCallback : { _ in },
-                    hideRestoreViewCallback: hideRestoreViewCallback
+                self.syncContactsAndMessages(
+                    contactRestoreCallback: self.isV2Restore ? contactRestoreCallback : { _ in },
+                    messageRestoreCallback: self.isV2Restore ? messageRestoreCallback : { _ in },
+                    hideRestoreViewCallback: {
+                        self.isV2Restore = false
+                        
+                        hideRestoreViewCallback?()
+                    }
                 )
+            }
+            
+            self.mqtt.didDisconnect = { _, _ in
+                self.mqttDisconnectCallback?()
+                self.mqtt = nil
             }
         })
     }
@@ -327,7 +356,6 @@ class SphinxOnionManager : NSObject {
             )
 
             let listContactsResponse = try Sphinx.listContacts(state: loadOnionStateAsData())
-            
             print("MY LIST CONTACTS RESPONSE \(listContactsResponse)")
         } catch {}
     }
@@ -386,8 +414,13 @@ class SphinxOnionManager : NSObject {
                 myImg: pic
             )
             
-            let _ = handleRunReturn(rr: ret4)
-        } catch {}
+            let _ = handleRunReturn(
+                rr: ret4,
+                topic: message.topic
+            )
+        } catch let error {
+            print(error)
+        }
     }
     
     func showSuccessWithMessage(_ message: String) {

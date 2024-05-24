@@ -512,28 +512,8 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
     }
     
     func shouldDeleteContact(contactId: Int) {
-        DispatchQueue.global(qos: .background).async {
-//            API.sharedInstance.deleteContact(id: contactId, callback: { success in
-//                if success {
-//                    // Update the snapshot with the new data (remove the deleted contact)
-//                    if let contact = UserContact.getContactWith(id: contactId) {
-//                        
-//                        if let chat = contact.getChat(), chat.id == self.contactsService.getObjectIdForCurrentSelection().0 {
-//                            self.delegate?.shouldResetContactView(deletedContactId: contactId)
-//                        }
-//                        
-//                        CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
-//                    }
-//                } else {
-//                    // Handle the error case here
-//                    DispatchQueue.main.async {
-//                        AlertHelper.showAlert(
-//                            title: "generic.error.title".localized,
-//                            message: "generic.error.message".localized
-//                        )
-//                    }
-//                }
-//            })
+        if let contact = UserContact.getContactWith(id: contactId) {
+            CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
         }
     }
 }

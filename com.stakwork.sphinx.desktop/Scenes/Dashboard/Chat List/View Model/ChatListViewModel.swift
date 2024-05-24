@@ -11,26 +11,6 @@ import SwiftyJSON
 
 final class ChatListViewModel: NSObject {
     
-    public static var restoreRunning = false
-    
-    public static func isRestoreRunning() -> Bool {
-        return restoreRunning
-    }
-    
-    func saveObjects(
-        contacts: [JSON],
-        chats: [JSON],
-        subscriptions: [JSON],
-        invites: [JSON]
-    ) {
-        UserContactsHelper.insertObjects(
-            contacts: contacts,
-            chats: chats,
-            subscriptions: subscriptions,
-            invites: invites
-        )
-    }
-    
     func authenticateWithMemesServer() {
         AttachmentsManager.sharedInstance.runAuthentication()
     }

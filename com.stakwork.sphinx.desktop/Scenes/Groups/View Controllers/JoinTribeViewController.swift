@@ -60,7 +60,6 @@ class JoinTribeViewController: NSViewController {
     var groupsManager = GroupsManager.sharedInstance
     var tribeInfo: GroupsManager.TribeInfo! = nil
     let owner = UserContact.getOwner()
-    var isTribeV2 = false
     
     var loading = false {
         didSet {
@@ -83,13 +82,11 @@ class JoinTribeViewController: NSViewController {
     
     static func instantiate(
         tribeInfo: GroupsManager.TribeInfo,
-        delegate: NewContactChatDelegate,
-        isTribeV2: Bool
+        delegate: NewContactChatDelegate
     ) -> JoinTribeViewController {
         let viewController = StoryboardScene.Groups.joinTribeViewController.instantiate()
         viewController.tribeInfo = tribeInfo
         viewController.delegate = delegate
-        viewController.isTribeV2 = isTribeV2
         return viewController
     }
     
@@ -110,7 +107,6 @@ class JoinTribeViewController: NSViewController {
             API.sharedInstance.getTribeInfo(
                 host: tribeInfo.host,
                 uuid: tribeInfo.uuid,
-                useSSL: !isTribeV2,
                 callback: { groupInfo in
                     self.completeDataAndShow(groupInfo: groupInfo)
                 }, errorCallback: {
@@ -174,40 +170,14 @@ class JoinTribeViewController: NSViewController {
         name: String?,
         imageUrl: String?
     ) {
-//        if isTribeV2, let tribeInfo = tribeInfo {
-//            groupsManager.finalizeTribeJoin(tribeInfo: tribeInfo, qrString: qrString)
-//            self.delegate?.shouldReloadContacts()
-//            self.view.window?.close()
-//            return
-//        }
-//        
-//        guard let name = name, !name.isEmpty else {
-//            loading = false
-//            AlertHelper.showAlert(title: "generic.error.title".localized, message: "alias.cannot.empty".localized)
-//            return
-//        }
-//        
-//        if let tribeInfo = tribeInfo {
-//            var params = groupsManager.getParamsFrom(tribe: tribeInfo)
-//            params["my_alias"] = name as AnyObject
-//            params["my_photo_url"] = (imageUrl ?? "") as AnyObject
-//            
-//            API.sharedInstance.joinTribe(params: params, callback: { chatJson in
-//                if let chat = Chat.insertChat(chat: chatJson) {
-//                    chat.pricePerMessage = NSDecimalNumber(floatLiteral: Double(tribeInfo.pricePerMessage ?? 0))
-//                    chat.saveChat()
-//                    
-//                    self.delegate?.shouldReloadContacts()
-//                    WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
-//                } else {
-//                    self.showErrorAndDismiss()
-//                }
-//            }, errorCallback: {
-//                self.showErrorAndDismiss()
-//            })
-//        } else {
-//            showErrorAndDismiss()
-//        }
+        if let tribeInfo = tribeInfo {
+            groupsManager.finalizeTribeJoin(tribeInfo: tribeInfo)
+            delegate?.shouldReloadContacts()
+            view.window?.close()
+        } else {
+            loading = false
+            AlertHelper.showAlert(title: "generic.error.title".localized, message: "alias.cannot.empty".localized)
+        }
     }
 }
 

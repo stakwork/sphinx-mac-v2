@@ -12,6 +12,7 @@ import SwiftyJSON
 class TribeMembersDataSource : NSObject {
     
     var chat: Chat?
+    
     var members = [GroupContact]()
     var pendingMembers = [GroupContact]()
     
@@ -24,6 +25,8 @@ class TribeMembersDataSource : NSObject {
     
     var loadingWheel: NSProgressIndicator!
     var loadingWheelContainer: NSView!
+    
+    let som = SphinxOnionManager.sharedInstance
     
     var loading = false {
         didSet {
@@ -69,6 +72,7 @@ class TribeMembersDataSource : NSObject {
     
     func setDataAndReload(objects: Chat) {
         reloadContacts(chat: objects)
+        
         self.collectionView.allowsMultipleSelection = false
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
@@ -80,43 +84,73 @@ class TribeMembersDataSource : NSObject {
     
     func reloadContacts(chat: Chat) {
         self.chat = chat
-        self.members.removeAll()
-        self.pendingMembers.removeAll()
         
-        loadTribeContacts()
+        loading = true
+        
+        if chat.isMyPublicGroup() {
+            loadTribeContacts()
+        }
     }
-    
     
     func loadTribeContacts() {
-        guard let id = chat?.id else { return }
+        // Create a watchdog timer as a DispatchWorkItem.
+        let watchdogTimer = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            
+            self.loading = false
+            self.showErrorAlert()
+        }
         
-//        API.sharedInstance.getContactsForChat(chatId: id, callback: { [weak self] c in
-//            guard let self else { return }
-//            
-//            loading = false
-//            
-//            let (contacts, pendingContacts) = self.getGroupContactsFrom(contacts: c)
-//            
-//            self.pendingMembers.append(contentsOf: pendingContacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
-//            self.members.append(contentsOf: contacts.sorted(by: { $0.nickname ?? "name.unknown".localized < $1.nickname ?? "name.unknown".localized }))
-//            
-//            self.collectionView.reloadData()
-//        })
+        // Schedule the watchdog timer to run after 5 seconds.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: watchdogTimer)
+        
+        guard let chat = self.chat else {
+            self.loading = false
+            self.showErrorAlert()
+            return
+        }
+        
+        som.getTribeMembers(tribeChat: chat, completion: { [weak self] tribeMembers in
+            guard let self = self else { return }
+            
+            // Cancel the watchdog timer as the completion block executed successfully.
+            watchdogTimer.cancel()
+            
+            if let tribeMemberArray = tribeMembers["confirmedMembers"] as? [TribeMembersRRObject],
+               let pendingMembersArray = tribeMembers["pendingMembers"] as? [TribeMembersRRObject]
+            {
+                let contactsMap: [JSON] = tribeMemberArray.map({
+                    var contact = JSON($0.toJSON())
+                    contact["pending"] = false
+                    return contact
+                }).sorted { $0["alias"].stringValue < $1["alias"].stringValue }
+                
+                let pendingContactsMap: [JSON] = pendingMembersArray.map({
+                    var contact = JSON($0.toJSON())
+                    contact["pending"] = true
+                    return contact
+                }).sorted { $0["alias"].stringValue < $1["alias"].stringValue }
+                
+                self.members = self.getGroupContactsFrom(contacts: contactsMap)
+                self.pendingMembers = self.getGroupContactsFrom(contacts: pendingContactsMap)
+                
+                self.collectionView.reloadData()
+                self.loading = false
+            }
+        })
     }
     
-    
-    func getGroupContactsFrom(contacts: [JSON]) -> ([GroupContact], [GroupContact]) {
+    func getGroupContactsFrom(contacts: [JSON]) -> [GroupContact] {
         var groupContacts = [GroupContact]()
-        var groupPendingContacts = [GroupContact]()
         
         var lastLetter = ""
         
         for contact in  contacts {
-            let id = contact.getJSONId()
+            let id = contact.getJSONId() ?? CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: 100_000)
             let nickname = contact["alias"].stringValue
             let avatarUrl = contact["photo_url"].stringValue
-            let isOwner = contact["is_owner"].boolValue
-            let pending = contact["pending"].boolValue
+            let pubkey = contact["pubkey"].stringValue
+            let isOwner = pubkey == (UserContact.getOwner()?.publicKey ?? "-1")
             
             if let initial = nickname.first {
                 let initialString = String(initial)
@@ -126,20 +160,17 @@ class TribeMembersDataSource : NSObject {
                 groupContact.nickname = nickname
                 groupContact.avatarUrl = avatarUrl
                 groupContact.isOwner = isOwner
+                groupContact.pubkey = pubkey
                 groupContact.selected = false
                 groupContact.firstOnLetter = (initialString != lastLetter)
                 
                 lastLetter = initialString
                 
-                if pending {
-                    groupPendingContacts.append(groupContact)
-                } else {
-                    groupContacts.append(groupContact)
-                }
+                groupContacts.append(groupContact)
             }
         }
         
-        return (groupContacts, groupPendingContacts)
+        return groupContacts
     }
 }
 
@@ -165,6 +196,7 @@ extension TribeMembersDataSource : NSCollectionViewDataSource {
             withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "GroupContactListItem"),
             for: indexPath
         )
+        
         guard let _ = item as? GroupContactListItem else {return item}
         return item
     }
@@ -190,8 +222,9 @@ extension TribeMembersDataSource : NSCollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: NSCollectionView, viewForSupplementaryElementOfKind kind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) -> NSView {
+        
         let view = collectionView.makeSupplementaryView(
-            ofKind: NSCollectionView.elementKindSectionHeader,
+            ofKind: kind,
             withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "TribeMemberHeaderView"),
             for: indexPath
         ) as! TribeMemberHeaderView
@@ -251,8 +284,8 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
             confirm: {
                 self.loading = true
                 
-                if let contactId = self.members[index].id {
-                    self.didKickContact(contactId: contactId)
+                if self.members.count > index {
+                    self.didKickContact(contact: self.members[index])
                 }
             },
             cancel: {},
@@ -268,24 +301,18 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
         )
     }
     
-    func didKickContact(contactId: Int) {
-        guard let chat = chat else {
-            return
+    func didKickContact(contact: GroupContact) {
+        if let chat = chat,
+           let pubkey = contact.pubkey
+        {
+            loading = true
+            
+            som.kickTribeMember(pubkey:pubkey, chat: chat)
+            
+            reloadContacts(chat: chat)
+        } else {
+            showErrorAlert()
         }
-        
-//        API.sharedInstance.kickMember(chatId: chat.id, contactId: contactId, callback: { [weak self] chatJson in
-//            guard let self else { return }
-//            if let chat = Chat.insertChat(chat: chatJson) {
-//                self.reloadContacts(chat: chat)
-//                return
-//            }
-//            loading = false
-//            showErrorAlert()
-//        }, errorCallback: { [weak self] in
-//            guard let self else { return }
-//            loading = false
-//            showErrorAlert()
-//        })
     }
     
     func approveButtonClicked(item: NSCollectionViewItem) {
@@ -331,24 +358,6 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
         action: String,
         completion: @escaping (Chat, TransactionMessage) -> ()
     ) {
-//        API.sharedInstance.requestAction(messageId: message.id, contactId: message.senderId, action: action, callback: { [weak self] json in
-//            guard let self else { return }
-//            
-//            if let chat = Chat.insertChat(
-//                chat: json["chat"]
-//            ), let message = TransactionMessage.insertMessage(
-//                m: json["message"],
-//                existingMessage: TransactionMessage.getMessageWith(id: json["id"].intValue)
-//            ).0 {
-//                completion(chat, message)
-//                return
-//            }
-//            self.loading = false
-//            self.showErrorAlert()
-//        }, errorCallback: { [weak self] in
-//            guard let self else { return }
-//            self.loading = false
-//            self.showErrorAlert()
-//        })
+        ///Implement approve/reject from pending members list
     }
 }

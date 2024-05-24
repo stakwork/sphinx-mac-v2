@@ -88,6 +88,7 @@ class CoreDataManager {
                 MediaLoader.clearMessageMediaCache(message: message)
                 deleteObject(object: message)
             }
+            chat.deleteColor()
             deleteObject(object: chat)
         }
 
@@ -98,7 +99,12 @@ class CoreDataManager {
         if let invite = contact.invite {
             invite.removeFromPaymentProcessed()
         }
-
+        
+        if let publicKey = contact.publicKey {
+            SphinxOnionManager.sharedInstance.deleteContactFromState(pubkey: publicKey)
+        }
+        
+        contact.deleteColor()
         deleteObject(object: contact)
         saveContext()
     }

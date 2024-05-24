@@ -113,7 +113,13 @@ extension TransactionMessage {
     static func getLastMessageFor(chat: Chat) -> TransactionMessage? {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "chat == %@", chat)
+        
+        fetchRequest.predicate = NSPredicate(
+            format: "chat == %@ AND type != %d",
+            chat,
+            TransactionMessageType.delete.rawValue
+        )
+        
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
         fetchRequest.fetchLimit = 1
 

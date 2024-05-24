@@ -38,6 +38,4 @@ extension Notification.Name {
     static let onMQTTConnectionStatusChanged = Notification.Name("onMQTTConnectionStatusChanged")
     static let newOnionMessageWasReceived = Notification.Name("newOnionMessageWasReceived")
     static let invoiceIPaidSettled = Notification.Name("invoiceIPaidSettled")
-    
-    static let inviteCodeAckReceived = Notification.Name("inviteCodeAckReceived")
 }

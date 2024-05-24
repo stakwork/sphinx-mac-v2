@@ -10,12 +10,8 @@ import Foundation
 import AppKit
 
 extension SphinxOnionManager {
-    func sendNotification(message: TransactionMessage?, msgsCount: Int) {
+    func sendNotification(message: TransactionMessage?) {
         guard let message = message else {
-            return
-        }
-        
-        if msgsCount > 10 {
             return
         }
         
