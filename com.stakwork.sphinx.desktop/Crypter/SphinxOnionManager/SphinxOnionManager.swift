@@ -201,10 +201,12 @@ class SphinxOnionManager : NSObject {
     func disconnectMqtt(
         callback: (() -> ())? = nil
     ) {
-        if let mqtt = self.mqtt {
-            mqttDisconnectCallback = callback
-            mqtt.disconnect()
+        if self.mqtt == nil || mqtt?.connState == .disconnected {
+            callback?()
+            return
         }
+        mqttDisconnectCallback = callback
+        mqtt?.disconnect()
     }
     
     func reconnectToServer(
@@ -241,7 +243,7 @@ class SphinxOnionManager : NSObject {
             return
         }
         
-        disconnectMqtt()
+        mqtt?.disconnect()
         
         if isV2Restore {
             contactRestoreCallback?(2)
@@ -285,6 +287,7 @@ class SphinxOnionManager : NSObject {
             
             self.mqtt.didDisconnect = { _, _ in
                 self.mqttDisconnectCallback?()
+                self.mqtt = nil
             }
         })
     }

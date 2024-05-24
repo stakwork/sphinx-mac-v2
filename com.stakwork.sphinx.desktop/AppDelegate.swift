@@ -34,7 +34,6 @@ import WebKit
     let actionsManager = ActionsManager.sharedInstance
     let feedsManager = FeedsManager.sharedInstance
     let podcastPlayerController = PodcastPlayerController.sharedInstance
-    let som = SphinxOnionManager.sharedInstance
     
     public enum SphinxMenuButton: Int {
         case Logout = 0
@@ -262,9 +261,9 @@ import WebKit
         }
         
         if UserData.sharedInstance.isUserLogged() {
-//            reloadDataAndConnectSocket()
-//            som.reconnectToServer()
-//            feedsManager.restoreContentFeedStatusInBackground()
+            reloadDataAndConnectSocket()
+            SphinxOnionManager.sharedInstance.reconnectToServer()
+            feedsManager.restoreContentFeedStatusInBackground()
         }
     }
     
@@ -379,7 +378,7 @@ import WebKit
         AlertHelper.showTwoOptionsAlert(title: "logout".localized, message: "logout.text".localized, confirm: {
             self.stopListeningToMessages()
             
-            self.som.disconnectMqtt() {
+            SphinxOnionManager.sharedInstance.disconnectMqtt() {
                 SphinxOnionManager.resetSharedInstance()
                 ContactsService.sharedInstance.reset()
                 UserData.sharedInstance.clearData()
