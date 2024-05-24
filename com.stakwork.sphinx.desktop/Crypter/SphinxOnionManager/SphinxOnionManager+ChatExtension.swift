@@ -27,6 +27,7 @@ extension SphinxOnionManager {
     func fetchOrCreateChatWithTribe(
         ownerPubkey: String,
         host: String?,
+        existingTribes: [Chat],
         completion: @escaping (Chat?,Bool) -> ()
     ) {
         if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
@@ -37,7 +38,7 @@ extension SphinxOnionManager {
         
         chatsFetchParams?.restoredTribesPubKeys.append(ownerPubkey)
         
-        if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
+        if let chat = existingTribes.filter({ $0.ownerPubkey == ownerPubkey}).first {
             ///Tribe restore found, no need to restore
             completion(chat, false)
         } else if let host = host {
@@ -454,7 +455,13 @@ extension SphinxOnionManager {
         
         if filteredMsgs.isEmpty {
             return
-        }        
+        }    
+        
+        var existingTribes: [Chat] = []
+        
+        if filteredMsgs.count > 1 {
+            existingTribes = Chat.getAllTribes()
+        }
         
         for message in filteredMsgs {
             
@@ -495,6 +502,7 @@ extension SphinxOnionManager {
                 if isGroupAction(type: type) {
                     processIncomingGroupJoinMsg(
                         message: message,
+                        existingTribes: existingTribes,
                         shouldSendPush: filteredMsgs.count < 10
                     )
                 }
@@ -664,6 +672,7 @@ extension SphinxOnionManager {
     
     func processIncomingGroupJoinMsg(
         message: Msg,
+        existingTribes: [Chat],
         shouldSendPush: Bool
     ) {
         guard let type = message.type,
@@ -680,6 +689,7 @@ extension SphinxOnionManager {
         fetchOrCreateChatWithTribe(
             ownerPubkey: tribePubKey,
             host: csr.host,
+            existingTribes: existingTribes,
             completion: { chat, didCreateTribe  in
                 if let chat = chat {
                     let groupActionMessage = TransactionMessage(context: self.managedContext)
@@ -687,14 +697,15 @@ extension SphinxOnionManager {
                     groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                     groupActionMessage.chat = chat
                     groupActionMessage.type = Int(type)
-                    groupActionMessage.setAsLastMessage()
-                    groupActionMessage.senderAlias = csr.alias
-                    groupActionMessage.senderPic = csr.photoUrl
                     
                     let innerContentDate = message.getInnerContentDate()
                     groupActionMessage.createdAt = innerContentDate ?? date
                     groupActionMessage.date = innerContentDate ?? date
                     groupActionMessage.updatedAt = innerContentDate ?? date
+                    
+                    groupActionMessage.setAsLastMessage()
+                    groupActionMessage.senderAlias = csr.alias
+                    groupActionMessage.senderPic = csr.photoUrl
                     
                     groupActionMessage.seen = false
                     chat.seen = false

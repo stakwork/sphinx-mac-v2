@@ -462,6 +462,18 @@ extension SphinxOnionManager {
         
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
+        let tribeOwnerPubKeys = filteredMsgs.compactMap({
+            if let sender = $0.sender,
+                  let csr =  ContactServerResponse(JSONString: sender),
+                  let tribePubkey = csr.pubkey
+            {
+                return tribePubkey
+            }
+            return nil
+        })
+        
+        let existingTribes = Chat.getChatTribesFor(ownerPubkeys: tribeOwnerPubKeys)
+        
         for message in filteredMsgs {
             ///Check for message information
             guard let uuid = message.uuid,
@@ -484,6 +496,7 @@ extension SphinxOnionManager {
             fetchOrCreateChatWithTribe(
                 ownerPubkey: tribePubkey,
                 host: csr.host,
+                existingTribes: existingTribes,
                 completion: { [weak self] chat, didCreateTribe in
                     guard let self = self else {
                         return
@@ -495,12 +508,15 @@ extension SphinxOnionManager {
                         groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                         groupActionMessage.chat = chat
                         groupActionMessage.type = Int(type)
+                        
+                        let innerContentDate = message.getInnerContentDate()
+                        groupActionMessage.createdAt = innerContentDate ?? date
+                        groupActionMessage.date = innerContentDate ?? date
+                        groupActionMessage.updatedAt = innerContentDate ?? date
+                        
                         groupActionMessage.setAsLastMessage()
                         groupActionMessage.senderAlias = csr.alias
                         groupActionMessage.senderPic = csr.photoUrl
-                        groupActionMessage.createdAt = date
-                        groupActionMessage.date = date
-                        groupActionMessage.updatedAt = date
                         groupActionMessage.seen = false
                         chat.seen = false
                         
