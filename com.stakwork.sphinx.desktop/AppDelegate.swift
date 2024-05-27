@@ -258,8 +258,6 @@ import WebKit
         if UserData.sharedInstance.isUserLogged() {
             SphinxOnionManager.sharedInstance.reconnectToServer()
             feedsManager.restoreContentFeedStatusInBackground()
-            
-            NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
         }
     }
     
@@ -292,8 +290,6 @@ import WebKit
             windowState: WindowsManager.sharedInstance.getWindowState(),
             closeOther: true
         )
-        
-        setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
     }
     
     func applicationWillResignActive(_ notification: Notification) {
@@ -307,10 +303,6 @@ import WebKit
             
             CoreDataManager.sharedManager.saveContext()
         }
-    }
-    
-    @objc func reloadDataAndConnectSocket() {
-        NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
     }
     
     func setBadge(count: Int) {

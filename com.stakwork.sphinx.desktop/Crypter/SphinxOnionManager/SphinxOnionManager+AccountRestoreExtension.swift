@@ -49,6 +49,7 @@ class MessageFetchParams {
     var fetchStartIndex: Int
     var restoredItems: Int
     var stopIndex: Int
+    var direction: FetchDirection
 
     enum FetchDirection {
         case forward, backward
@@ -58,12 +59,14 @@ class MessageFetchParams {
         fetchStartIndex: Int,
         itemsPerPage: Int,
         restoredItems: Int,
-        stopIndex: Int
+        stopIndex: Int,
+        direction: FetchDirection
     ) {
         self.fetchStartIndex = fetchStartIndex
         self.itemsPerPage = itemsPerPage
         self.restoredItems = restoredItems
         self.stopIndex = stopIndex
+        self.direction = direction
     }
     
     var debugDescription: String {
@@ -233,7 +236,8 @@ extension SphinxOnionManager {
             startAllMsgBlockFetch(
                 startIndex: startIndex,
                 itemsPerPage: firstBatchSize,
-                stopIndex: lastMessageIndex
+                stopIndex: lastMessageIndex,
+                reverse: true
             )
         } else {
             finishRestoration()
@@ -243,7 +247,8 @@ extension SphinxOnionManager {
     func startAllMsgBlockFetch(
         startIndex: Int,
         itemsPerPage: Int,
-        stopIndex: Int
+        stopIndex: Int,
+        reverse: Bool
     ) {
         guard let seed = getAccountSeed() else {
             return
@@ -254,7 +259,8 @@ extension SphinxOnionManager {
             fetchStartIndex: startIndex,
             itemsPerPage: itemsPerPage,
             restoredItems: 0,
-            stopIndex: stopIndex
+            stopIndex: stopIndex,
+            direction: reverse ? .backward : .forward
         )
         
         firstSCIDMsgsCallback = nil
@@ -263,14 +269,16 @@ extension SphinxOnionManager {
         fetchMessageBlock(
             seed: seed,
             lastMessageIndex: startIndex,
-            msgCountLimit: itemsPerPage
+            msgCountLimit: itemsPerPage,
+            reverse: reverse
         )
     }
     
     func fetchMessageBlock(
         seed: String,
         lastMessageIndex: Int,
-        msgCountLimit: Int
+        msgCountLimit: Int,
+        reverse: Bool
     ) {
         let safeLastMsgIndex = max(lastMessageIndex, 0)
         
@@ -283,7 +291,7 @@ extension SphinxOnionManager {
                 state: loadOnionStateAsData(),
                 lastMsgIdx: UInt64(safeLastMsgIndex),
                 limit: UInt32(msgCountLimit),
-                reverse: true
+                reverse: reverse
             )
             let _ = handleRunReturn(rr: rr)
         } catch let error {
@@ -341,8 +349,17 @@ extension SphinxOnionManager {
     
     //MARK: Process all messages
     func handleFetchMessagesBatch(msgs: [Msg]) {
-        guard let params = messageFetchParams, let _ = msgTotalCounts?.totalMessageMaxIndex else {
+        guard let params = messageFetchParams else {
             finishRestoration()
+            return
+        }
+        
+        if params.direction == .forward {
+            handleFetchMessagesBatchInForward(msgs: msgs)
+            return
+        }
+        
+        guard let _ = msgTotalCounts?.totalMessageMaxIndex else {
             return
         }
         
@@ -390,7 +407,51 @@ extension SphinxOnionManager {
         fetchMessageBlock(
             seed: seed,
             lastMessageIndex: Int(minRestoreIndex)! - 1,
-            msgCountLimit: params.itemsPerPage
+            msgCountLimit: params.itemsPerPage,
+            reverse: true
+        )
+    }
+    
+    func handleFetchMessagesBatchInForward(msgs: [Msg]) {
+        guard let params = messageFetchParams else {
+            finishRestoration()
+            return
+        }
+        
+        let restoredMessages = msgs.filter({
+            let allowedTypes = [
+                UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue),
+                UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
+                UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+            ]
+            return !allowedTypes.contains($0.type ?? 0)
+        })
+        
+        let maxRestoreIndex = restoredMessages.min {
+            let firstIndex = Int($0.index ?? "0") ?? -1
+            let secondIndex = Int($1.index ?? "0") ?? -1
+            return firstIndex > secondIndex
+        }?.index ?? "0"
+        
+        guard let maxRestoredIndexInt = Int(maxRestoreIndex) else {
+            finishRestoration()
+            return
+        }
+        
+        if msgs.count < SphinxOnionManager.kMessageBatchSize {
+            finishRestoration()
+            return
+        }
+        
+        guard let seed = getAccountSeed() else {
+            return
+        }
+        
+        fetchMessageBlock(
+            seed: seed,
+            lastMessageIndex: maxRestoredIndexInt + 1,
+            msgCountLimit: params.itemsPerPage,
+            reverse: false
         )
     }
     
@@ -399,17 +460,13 @@ extension SphinxOnionManager {
             return
         }
         
-        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
-        
-        if !isRestoringContactsAndTribes {
-            return
-        }
-        
-        let notAllowedTypes = [
-            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+        let allowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.unknown.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
         ]
         
-        let filteredMsgs = messages.filter({ $0.type != nil && !notAllowedTypes.contains($0.type!) })
+        let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
         for message in filteredMsgs {
             guard let sender = message.sender,
@@ -424,7 +481,11 @@ extension SphinxOnionManager {
                 continue
             }
                 
-            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(pubkey: recipientPubkey, date: message.date)
+            let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(
+                pubkey: recipientPubkey,
+                code: csr.code,
+                date: message.date
+            )
             
             if contact.isOwner {
                 continue
@@ -450,27 +511,11 @@ extension SphinxOnionManager {
             return
         }
         
-        let isRestoringContactsAndTribes = firstSCIDMsgsCallback != nil
-        
-        if !isRestoringContactsAndTribes {
-            return
-        }
-        
         let allowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
         ]
         
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
-        
-        let tribeOwnerPubKeys = filteredMsgs.compactMap({
-            if let sender = $0.sender,
-                  let csr =  ContactServerResponse(JSONString: sender),
-                  let tribePubkey = csr.pubkey
-            {
-                return tribePubkey
-            }
-            return nil
-        })
         
         for message in filteredMsgs {
             ///Check for message information

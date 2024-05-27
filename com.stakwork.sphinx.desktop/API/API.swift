@@ -216,10 +216,6 @@ class API {
         NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
     }
     
-    func reloadDashboard() {
-        NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
-    }
-    
     func createRequest(
         _ url:String,
         params:NSDictionary?,
