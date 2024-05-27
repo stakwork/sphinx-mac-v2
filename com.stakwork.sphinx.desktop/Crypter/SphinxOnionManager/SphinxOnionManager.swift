@@ -250,47 +250,41 @@ class SphinxOnionManager : NSObject {
             contactRestoreCallback?(2)
         }
         
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: { [weak self] in
+        let success = connectToBroker(seed: seed, xpub: my_xpub)
+        
+        if (success == false) {
+            AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
+            hideRestoreViewCallback?()
+            return
+        }
+        
+        mqtt.didConnectAck = { [weak self] _, _ in
             guard let self = self else {
                 return
             }
             
-            let success = self.connectToBroker(seed: seed, xpub: my_xpub)
+            self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
             
-            if (success == false) {
-                AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
-                hideRestoreViewCallback?()
-                return
+            if (self.isV2InitialSetup) {
+                self.isV2InitialSetup = false
+                self.doInitialInviteSetup()
             }
-            
-            self.mqtt.didConnectAck = { [weak self] _, _ in
-                guard let self = self else {
-                    return
+             
+            self.syncContactsAndMessages(
+                contactRestoreCallback: self.isV2Restore ? contactRestoreCallback : { _ in },
+                messageRestoreCallback: self.isV2Restore ? messageRestoreCallback : { _ in },
+                hideRestoreViewCallback: {
+                    self.isV2Restore = false
+                    
+                    hideRestoreViewCallback?()
                 }
-                
-                self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
-                
-                if (self.isV2InitialSetup) {
-                    self.isV2InitialSetup = false
-                    self.doInitialInviteSetup()
-                }
-                 
-                self.syncContactsAndMessages(
-                    contactRestoreCallback: self.isV2Restore ? contactRestoreCallback : { _ in },
-                    messageRestoreCallback: self.isV2Restore ? messageRestoreCallback : { _ in },
-                    hideRestoreViewCallback: {
-                        self.isV2Restore = false
-                        
-                        hideRestoreViewCallback?()
-                    }
-                )
-            }
-            
-            self.mqtt.didDisconnect = { _, _ in
-                self.mqttDisconnectCallback?()
-                self.mqtt = nil
-            }
-        })
+            )
+        }
+        
+        self.mqtt.didDisconnect = { _, _ in
+            self.mqttDisconnectCallback?()
+            self.mqtt = nil
+        }
     }
     
     func subscribeAndPublishMyTopics(

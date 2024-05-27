@@ -113,20 +113,14 @@ class DashboardViewController: NSViewController {
     func connectToServer() {
         SphinxOnionManager.sharedInstance.fetchMyAccountFromState()
         
-        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            SphinxOnionManager.sharedInstance.connectToServer(
-                connectingCallback: {
-                    self.listViewController?.headerLoading = true
-                },
-                contactRestoreCallback: self.contactRestoreCallback(percentage:),
-                messageRestoreCallback: self.messageRestoreCallback(percentage:),
-                hideRestoreViewCallback: self.hideRestoreViewCallback
-            )
-        })
+        SphinxOnionManager.sharedInstance.connectToServer(
+            connectingCallback: {
+                self.listViewController?.headerLoading = true
+            },
+            contactRestoreCallback: self.contactRestoreCallback(percentage:),
+            messageRestoreCallback: self.messageRestoreCallback(percentage:),
+            hideRestoreViewCallback: self.hideRestoreViewCallback
+        )
     }
     
     func refreshUnreadStatus(){
