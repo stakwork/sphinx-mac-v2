@@ -169,5 +169,14 @@ extension Chat : ChatListCommonObject {
         let key = "chat-\(self.id)-color"
         NSColor.removeColorFor(key: key)
     }
+    
+    public func getUnseenMessagesCount(
+        ownerId: Int
+    ) -> Int {
+        if self.isSeen(ownerId: ownerId) == true {
+            return 0
+        }
+        return self.getChat()?.getReceivedUnseenMessagesCount() ?? 0
+    }
 }
 

@@ -9,24 +9,44 @@
 import Foundation
 
 extension SphinxOnionManager {
-    func handleReadStatus(rr: RunReturn){
+    func handleReadStatus(rr: RunReturn) {
+        var chatListUnreadDict = [Int: Int]()
+        
         if let lastRead = rr.lastRead {
-            let lastReadIds = extractLastReadIds(jsonString: lastRead)
-            print(lastReadIds)
+            let lastReadMap = parse(jsonString: lastRead)
             
-            var chatListUnreadDict = [Int: Int]()
-            for lastReadId in lastReadIds {
-                if let message = TransactionMessage.getMessageWith(id: lastReadId), let chat = message.chat {
-                    if let existingLastReadForChat = chatListUnreadDict[chat.id], lastReadId > existingLastReadForChat {
-                        // Update the last read message ID if the new ID is greater than the existing one
-                        chatListUnreadDict[chat.id] = lastReadId
-                    } else if !chatListUnreadDict.keys.contains(chat.id) {
-                        // Add the chat ID to the dictionary if it's not already there
-                        chatListUnreadDict[chat.id] = lastReadId
-                    }
+            let pubKeys = lastReadMap.compactMap({ $0.key })
+            let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys)
+            let contacts = UserContact.getContactsWith(pubkeys: pubKeys)
+            
+            for (pubKey, lastReadId) in lastReadMap {
+                guard let lastReadId = lastReadId as? Int else {
+                    continue
+                }
+                if let tribe = tribes.filter({ $0.ownerPubkey == pubKey }).first {
+                    updateLastReadIndex(
+                        chatId: tribe.id, 
+                        lastReadId: lastReadId
+                    )
+                } else if let contact = contacts.filter({ $0.publicKey == pubKey }).first, let chat = contact.getChat() {
+                    updateLastReadIndex(
+                        chatId: chat.id,
+                        lastReadId: lastReadId
+                    )
                 }
             }
             updateChatReadStatus(chatListUnreadDict: chatListUnreadDict)
+        }
+        
+        func updateLastReadIndex(
+            chatId: Int,
+            lastReadId: Int
+        ) {
+            if let existingLastReadForChat = chatListUnreadDict[chatId], lastReadId > existingLastReadForChat {
+                chatListUnreadDict[chatId] = lastReadId
+            } else if !chatListUnreadDict.keys.contains(chatId) {
+                chatListUnreadDict[chatId] = lastReadId
+            }
         }
     }
 
@@ -44,7 +64,7 @@ extension SphinxOnionManager {
                 lastReadId: lastReadId
             )
         }
-        ContactsService.sharedInstance.forceUpdate()
+        setAppBadgeCount()
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {

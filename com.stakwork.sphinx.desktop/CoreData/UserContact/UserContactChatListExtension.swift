@@ -123,4 +123,13 @@ extension UserContact : ChatListCommonObject {
     public func isGroupObject() -> Bool {
         return false
     }
+    
+    public func getUnseenMessagesCount(
+        ownerId: Int
+    ) -> Int {
+        if self.isSeen(ownerId: ownerId) == true {
+            return 0
+        }
+        return self.getChat()?.getReceivedUnseenMessagesCount() ?? 0
+    }
 }
