@@ -273,6 +273,10 @@ extension ThreadsListDataSource {
             }
         }
         
+        if let rowIndex = rowIndex, tableCellState == nil {
+            return (rowIndex, threadTableCellStateArray[rowIndex])
+        }
+        
         return tableCellState
     }
     

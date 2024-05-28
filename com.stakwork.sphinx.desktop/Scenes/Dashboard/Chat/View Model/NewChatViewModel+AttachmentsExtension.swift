@@ -17,17 +17,6 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
     ) {
         let attachmentsManager = AttachmentsManager.sharedInstance
 
-        chatDataSource?.setMediaDataForMessageWith(
-            messageId: TransactionMessage.getProvisionalMessageId(),
-            mediaData: MessageTableCellState.MediaData(
-                image: attachmentObject.image,
-                data: attachmentObject.getDecryptedData(),
-                fileInfo: attachmentObject.getFileInfo(),
-                audioInfo: attachmentObject.getAudioInfo(duration: audioDuration),
-                failed: false
-            )
-        )
-        
         if let message = TransactionMessage.createProvisionalAttachmentMessage(
             attachmentObject: attachmentObject,
             date: Date(),
@@ -35,6 +24,18 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
             replyUUID: replyingTo?.uuid,
             threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
         ) {
+            
+            chatDataSource?.setMediaDataForMessageWith(
+                messageId: message.id,
+                mediaData: MessageTableCellState.MediaData(
+                    image: attachmentObject.image,
+                    data: attachmentObject.getDecryptedData(),
+                    fileInfo: attachmentObject.getFileInfo(),
+                    audioInfo: attachmentObject.getAudioInfo(duration: audioDuration),
+                    failed: false
+                )
+            )
+            
             attachmentsManager.setData(
                 delegate: self,
                 contact: contact,

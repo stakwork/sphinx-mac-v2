@@ -411,7 +411,9 @@ public class Chat: NSManagedObject {
             self.unseenMessagesCount = 0
             self.unseenMentionsCount = 0
             
-            if let highestIndex = self.lastMessage?.id {
+            if let highestIndex = self.lastMessage?.id,
+               SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: highestIndex) == false
+            {
                 SphinxOnionManager.sharedInstance.setReadLevel(
                     index: UInt64(highestIndex),
                     chat: self,

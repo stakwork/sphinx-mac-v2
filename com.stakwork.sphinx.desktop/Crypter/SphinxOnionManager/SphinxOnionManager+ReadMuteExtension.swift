@@ -64,6 +64,7 @@ extension SphinxOnionManager {
                 lastReadId: lastReadId
             )
         }
+        CoreDataManager.sharedManager.saveContext()
         setAppBadgeCount()
     }
 

@@ -407,7 +407,7 @@ public class TransactionMessage: NSManagedObject {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
         let message = TransactionMessage(context: managedContext) as TransactionMessage
-        message.id = getProvisionalMessageId()
+        message.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
         message.type = type.rawValue
         message.senderId = UserData.sharedInstance.getUserId()
         message.receiverId = 0

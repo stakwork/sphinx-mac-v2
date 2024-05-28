@@ -16,7 +16,7 @@ extension NewChatViewModel {
         completion: @escaping (Bool) -> ()
     ) {
         chatDataSource?.setMediaDataForMessageWith(
-            messageId: TransactionMessage.getProvisionalMessageId(),
+            messageId: SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString),
             mediaData: MessageTableCellState.MediaData(
                 image: NSImage(data: data),
                 data: data,
