@@ -10,8 +10,12 @@ import Foundation
 
 extension SphinxOnionManager{//invites related
     
+    func messageIdIsFromHashed(msgId: Int) -> Bool {
+        return msgId < 0
+    }
+    
     func uniqueIntHashFromString(stringInput:String) -> Int{
-        return Int(Int32(stringInput.hashValue & 0x7FFFFFFF))
+        return -1 * Int(Int32(stringInput.hashValue & 0x7FFFFFFF))
     }
     
     func requestInviteCode(amountMsat: Int) {
