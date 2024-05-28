@@ -185,6 +185,14 @@
                                         <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hqm-EC-GJ9">
                                             <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
                                             <subviews>
+                                                <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="u6q-eV-AWJ">
+                                                    <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
+                                                    <view key="contentView" id="0OS-qd-w3o">
+                                                        <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    </view>
+                                                    <color key="fillColor" name="HeaderBG"/>
+                                                </box>
                                                 <progressIndicator maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Ktp-1E-fu0">
                                                     <rect key="frame" x="8" y="8" width="16" height="16"/>
                                                     <constraints>
@@ -196,6 +204,10 @@
                                             <constraints>
                                                 <constraint firstItem="Ktp-1E-fu0" firstAttribute="centerY" secondItem="Hqm-EC-GJ9" secondAttribute="centerY" id="6ep-Fm-NyI"/>
                                                 <constraint firstItem="Ktp-1E-fu0" firstAttribute="centerX" secondItem="Hqm-EC-GJ9" secondAttribute="centerX" id="Kx8-A0-6Hb"/>
+                                                <constraint firstAttribute="bottom" secondItem="u6q-eV-AWJ" secondAttribute="bottom" id="e1O-vI-Jru"/>
+                                                <constraint firstAttribute="trailing" secondItem="u6q-eV-AWJ" secondAttribute="trailing" id="e3W-IS-V5S"/>
+                                                <constraint firstItem="u6q-eV-AWJ" firstAttribute="top" secondItem="Hqm-EC-GJ9" secondAttribute="top" id="lFm-xM-ZEe"/>
+                                                <constraint firstItem="u6q-eV-AWJ" firstAttribute="leading" secondItem="Hqm-EC-GJ9" secondAttribute="leading" id="lxI-rQ-FvV"/>
                                             </constraints>
                                         </customView>
                                     </subviews>
