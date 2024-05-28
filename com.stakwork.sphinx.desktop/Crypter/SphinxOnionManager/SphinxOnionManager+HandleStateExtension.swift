@@ -80,6 +80,9 @@ extension SphinxOnionManager {
         ///Handling restore callbacks
         handleRestoreCallbacks(topic: topic, messages: rr.msgs)
         
+        ///Handling topics subscription
+        handleTopicsToSubscribe(topics: rr.subscriptionTopics)
+        
         ///Handling topics to publish on MQTT
         handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
         
@@ -283,6 +286,14 @@ extension SphinxOnionManager {
                 )
             }
         })
+    }
+    
+    func handleTopicsToSubscribe(topics: [String]) {
+        for topic in topics {
+            self.mqtt.subscribe([
+                (topic, CocoaMQTTQoS.qos1)
+            ])
+        }
     }
     
     func deleteContactFromState(pubkey: String) {
