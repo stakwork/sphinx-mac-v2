@@ -51,7 +51,7 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var isConnected : Bool = false{
+    var isConnected : Bool = false {
         didSet{
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
         }
@@ -299,7 +299,8 @@ class SphinxOnionManager : NSObject {
             }
         }
         
-        self.mqtt.didDisconnect = { _, _ in
+        mqtt.didDisconnect = { _, _ in
+            self.isConnected = false
             self.mqttDisconnectCallback?()
             self.mqtt = nil
         }
@@ -395,12 +396,15 @@ class SphinxOnionManager : NSObject {
                 self.processMqttMessages(message: receivedMessage)
             }
             
+            mqtt.didDisconnect = { _, _ in
+                self.isConnected = false
+                self.mqttDisconnectCallback?()
+                self.mqtt = nil
+            }
+            
             //subscribe to relevant topics
             mqtt.didConnectAck = { _, _ in
-                //self.showSuccessWithMessage("MQTT connected")
-                print("SphinxOnionManager: MQTT Connected")
-                print("mqtt.didConnectAck")
-                
+                self.isConnected = true
                 self.subscribeAndPublishMyTopics(pubkey: pubkey, idx: idx)
             }
         }

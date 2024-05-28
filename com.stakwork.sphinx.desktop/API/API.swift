@@ -208,12 +208,7 @@ class API {
         DispatchQueue.main.async {
             self.connectionStatus = .NoNetwork
             self.messageBubbleHelper.showGenericMessageView(text: "network.connection.lost".localized, delay: 3)
-            self.postConnectionStatusChange()
         }
-    }
-    
-    func postConnectionStatusChange() {
-        NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
     }
     
     func createRequest(

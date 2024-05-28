@@ -38,11 +38,19 @@ class HealthCheckView: NSView, LoadableNib {
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: .onConnectionStatusChanged, object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .onConnectionStatusChanged,
+            object: nil
+        )
     }
     
     func listenForEvents() {
-        NotificationCenter.default.addObserver(forName: .onConnectionStatusChanged, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
+        NotificationCenter.default.addObserver(
+            forName: .onConnectionStatusChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
             self?.updateConnectionSign()
         }
     }
