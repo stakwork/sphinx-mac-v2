@@ -547,7 +547,7 @@ extension SphinxOnionManager {
                     if let chat = chat {
                         let groupActionMessage = TransactionMessage(context: self.managedContext)
                         groupActionMessage.uuid = uuid
-                        groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+                        groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                         groupActionMessage.chat = chat
                         groupActionMessage.type = Int(type)
                         

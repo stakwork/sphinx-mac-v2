@@ -320,7 +320,7 @@ extension SphinxOnionManager {
                 message?.createdAt = date
                 message?.updatedAt = date
                 message?.uuid = sentUUID
-                message?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
+                message?.id = -uniqueIntHashFromString(stringInput: UUID().uuidString)
                 message?.setAsLastMessage()
                 message?.managedObjectContext?.saveContext()
                 
@@ -356,7 +356,7 @@ extension SphinxOnionManager {
                 chat: chat
             )
             
-            paymentMessage?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
+            paymentMessage?.id = -uniqueIntHashFromString(stringInput: UUID().uuidString)
             paymentMessage?.amount = NSDecimalNumber(value: amount)
             paymentMessage?.mediaKey = mediaKey
             paymentMessage?.mediaToken = mediaToken
@@ -680,11 +680,15 @@ extension SphinxOnionManager {
         fetchOrCreateChatWithTribe(
             ownerPubkey: tribePubKey,
             host: csr.host,
-            completion: { chat, didCreateTribe  in
+            completion: { [weak self] chat, didCreateTribe  in
+                guard let self = self else {
+                    return
+                }
+                
                 if let chat = chat {
                     let groupActionMessage = TransactionMessage(context: self.managedContext)
                     groupActionMessage.uuid = uuid
-                    groupActionMessage.id = Int(index) ?? self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+                    groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                     groupActionMessage.chat = chat
                     groupActionMessage.type = Int(type)
                     
