@@ -226,7 +226,7 @@ extension TransactionMessage {
     func isSeen(
         ownerId: Int
     ) -> Bool {
-        return self.isOutgoing(ownerId: ownerId) || self.seen
+        return (self.isGroupJoinMessage() == false && self.isOutgoing(ownerId: ownerId)) || self.seen
     }
     
     //Statues
