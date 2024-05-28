@@ -236,6 +236,11 @@ import WebKit
         if (aNotification.name == NSWorkspace.didWakeNotification) && UserData.sharedInstance.isUserLogged() {
             SDImageCache.shared.clearMemory()
             
+            NotificationCenter.default.post(
+                name: .onConnectionStatusChanged,
+                object: nil
+            )
+            
             getDashboardVC()?.reloadChatListVC()            
         }
     }
@@ -256,6 +261,12 @@ import WebKit
         }
         
         if UserData.sharedInstance.isUserLogged() {
+            
+            NotificationCenter.default.post(
+                name: .onConnectionStatusChanged,
+                object: nil
+            )
+            
             SphinxOnionManager.sharedInstance.reconnectToServer()
             feedsManager.restoreContentFeedStatusInBackground()
         }
