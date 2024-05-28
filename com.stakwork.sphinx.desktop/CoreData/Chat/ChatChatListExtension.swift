@@ -23,7 +23,7 @@ extension Chat : ChatListCommonObject {
     }
     
     public func isSeen(ownerId: Int) -> Bool {
-        if self.lastMessage?.isOutgoing(ownerId: ownerId) ?? true {
+        if self.lastMessage?.isGroupJoinMessage() == false && self.lastMessage?.isOutgoing(ownerId: ownerId) ?? true {
             return true
         }
         

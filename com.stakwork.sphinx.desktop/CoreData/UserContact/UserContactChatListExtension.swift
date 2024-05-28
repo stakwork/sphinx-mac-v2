@@ -41,17 +41,7 @@ extension UserContact : ChatListCommonObject {
     }
     
     public func isSeen(ownerId: Int) -> Bool {
-        let lastMessage = self.getChat()?.lastMessage
-        
-        if lastMessage?.isOutgoing(ownerId: ownerId) ?? true {
-            return true
-        }
-        
-        if lastMessage?.isSeen(ownerId: ownerId) ?? true {
-            return true
-        }
-        
-        return self.getChat()?.seen ?? true
+        return self.getChat()?.isSeen(ownerId: ownerId) ?? true
     }
     
     public func getChat() -> Chat? {
