@@ -560,6 +560,7 @@ extension SphinxOnionManager {
                         groupActionMessage.senderAlias = csr.alias
                         groupActionMessage.senderPic = csr.photoUrl
                         groupActionMessage.seen = false
+                        groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
                         chat.seen = false
                         
                         if (didCreateTribe && csr.role != nil) {

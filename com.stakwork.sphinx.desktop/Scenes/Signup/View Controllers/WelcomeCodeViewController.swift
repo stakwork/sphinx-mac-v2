@@ -142,8 +142,9 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             return
         }
         
+        som.redeemInvite(inviteCode: code, mnemonic: mnemonic)
+        
         if som.createMyAccount(mnemonic: mnemonic) {
-            som.redeemInvite(inviteCode: code, mnemonic: mnemonic)
             continueSignupToConnecting()
         }
     }

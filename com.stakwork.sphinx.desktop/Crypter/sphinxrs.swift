@@ -1769,6 +1769,15 @@ public func `setNetwork`(`network`: String) throws -> RunReturn {
     )
 }
 
+public func `setDevice`(`device`: String) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_set_device(
+        FfiConverterString.lower(`device`),$0)
+}
+    )
+}
+
 public func `setBlockheight`(`blockheight`: UInt32) throws -> RunReturn {
     return try  FfiConverterTypeRunReturn.lift(
         try rustCallWithError(FfiConverterTypeSphinxError.lift) {
@@ -2095,6 +2104,15 @@ public func `processInvite`(`seed`: String, `uniqueTime`: String, `state`: Data,
     )
 }
 
+public func `parseInvite`(`inviteQr`: String) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_parse_invite(
+        FfiConverterString.lower(`inviteQr`),$0)
+}
+    )
+}
+
 public func `codeFromInvite`(`inviteQr`: String) throws -> String {
     return try  FfiConverterString.lift(
         try rustCallWithError(FfiConverterTypeSphinxError.lift) {
@@ -2342,6 +2360,9 @@ private var initializationResult: InitializationResult {
     if (uniffi_sphinxrs_checksum_func_set_network() != 65135) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_sphinxrs_checksum_func_set_device() != 19820) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_sphinxrs_checksum_func_set_blockheight() != 43943) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -2415,6 +2436,9 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_sphinxrs_checksum_func_process_invite() != 52237) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_sphinxrs_checksum_func_parse_invite() != 20297) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_sphinxrs_checksum_func_code_from_invite() != 40279) {

@@ -137,7 +137,7 @@ extension TransactionMessage {
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         ///Not consider group join since those messages could be restored during contacts/tribes restore
         fetchRequest.predicate = NSPredicate(
-            format: "NOT (type IN %@) AND type != %d",
+            format: "NOT (status IN %@) AND type != %d",
             [
                 TransactionMessage.TransactionMessageStatus.failed.rawValue,
                 TransactionMessage.TransactionMessageStatus.pending.rawValue

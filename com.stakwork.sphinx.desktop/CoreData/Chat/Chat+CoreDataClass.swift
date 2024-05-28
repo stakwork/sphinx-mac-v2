@@ -509,16 +509,18 @@ public class Chat: NSManagedObject {
         let userId = UserData.sharedInstance.getUserId()
         
         var predicate = NSPredicate(
-            format: "senderId != %d AND seen == %@ AND chat.seen == %@",
+            format: "(senderId != %d || type == %d) AND seen == %@ AND chat.seen == %@",
             userId,
+            TransactionMessage.TransactionMessageType.groupJoin.rawValue,
             NSNumber(booleanLiteral: false),
             NSNumber(booleanLiteral: false)
         )
         
         if mentions {
             predicate = NSPredicate(
-                format: "senderId != %d AND seen == %@ AND push == %@ AND chat.seen == %@",
+                format: "(senderId != %d || type == %d) AND seen == %@ AND push == %@ AND chat.seen == %@",
                 userId,
+                TransactionMessage.TransactionMessageType.groupJoin.rawValue,
                 NSNumber(booleanLiteral: false),
                 NSNumber(booleanLiteral: true),
                 NSNumber(booleanLiteral: false)

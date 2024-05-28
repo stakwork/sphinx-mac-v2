@@ -119,6 +119,8 @@ RustBuffer uniffi_sphinxrs_fn_func_xpub_from_seed(RustBuffer seed, RustBuffer ti
 );
 RustBuffer uniffi_sphinxrs_fn_func_set_network(RustBuffer network, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_sphinxrs_fn_func_set_device(RustBuffer device, RustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_sphinxrs_fn_func_set_blockheight(uint32_t blockheight, RustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_sphinxrs_fn_func_add_contact(RustBuffer seed, RustBuffer unique_time, RustBuffer state, RustBuffer to_pubkey, RustBuffer route_hint, RustBuffer my_alias, RustBuffer my_img, uint64_t amt_msat, RustBuffer invite_code, RustBuffer their_alias, RustCallStatus *_Nonnull out_status
@@ -168,6 +170,8 @@ RustBuffer uniffi_sphinxrs_fn_func_list_tribe_members(RustBuffer seed, RustBuffe
 RustBuffer uniffi_sphinxrs_fn_func_make_invite(RustBuffer seed, RustBuffer unique_time, RustBuffer state, RustBuffer host, uint64_t amt_msat, RustBuffer my_alias, RustBuffer tribe_host, RustBuffer tribe_pubkey, RustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_sphinxrs_fn_func_process_invite(RustBuffer seed, RustBuffer unique_time, RustBuffer state, RustBuffer invite_qr, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_sphinxrs_fn_func_parse_invite(RustBuffer invite_qr, RustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_sphinxrs_fn_func_code_from_invite(RustBuffer invite_qr, RustCallStatus *_Nonnull out_status
 );
@@ -285,6 +289,9 @@ uint16_t uniffi_sphinxrs_checksum_func_xpub_from_seed(void
 uint16_t uniffi_sphinxrs_checksum_func_set_network(void
     
 );
+uint16_t uniffi_sphinxrs_checksum_func_set_device(void
+    
+);
 uint16_t uniffi_sphinxrs_checksum_func_set_blockheight(void
     
 );
@@ -358,6 +365,9 @@ uint16_t uniffi_sphinxrs_checksum_func_make_invite(void
     
 );
 uint16_t uniffi_sphinxrs_checksum_func_process_invite(void
+    
+);
+uint16_t uniffi_sphinxrs_checksum_func_parse_invite(void
     
 );
 uint16_t uniffi_sphinxrs_checksum_func_code_from_invite(void

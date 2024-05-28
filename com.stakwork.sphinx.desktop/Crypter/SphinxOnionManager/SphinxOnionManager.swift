@@ -376,7 +376,7 @@ class SphinxOnionManager : NSObject {
             return false
         }
         //3. Connect to server/broker
-        let success = connectToBroker(seed:seed, xpub: my_xpub)
+        let success = connectToBroker(seed: seed, xpub: my_xpub)
         
         //4. Subscribe to relevant topics based on OK key
         let idx = 0

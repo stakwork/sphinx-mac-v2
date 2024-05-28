@@ -703,6 +703,7 @@ extension SphinxOnionManager {
                     groupActionMessage.setAsLastMessage()
                     groupActionMessage.senderAlias = csr.alias
                     groupActionMessage.senderPic = csr.photoUrl
+                    groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
                     
                     groupActionMessage.seen = false
                     chat.seen = false

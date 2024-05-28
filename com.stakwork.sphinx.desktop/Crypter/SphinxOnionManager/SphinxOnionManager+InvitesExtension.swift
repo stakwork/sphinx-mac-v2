@@ -46,31 +46,13 @@ extension SphinxOnionManager{//invites related
         inviteCode: String,
         mnemonic: String
     ) {
-        guard let seed = getAccountSeed(mnemonic: mnemonic) else{
-            return
-        }
         do {
-            let rr = try processInvite(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData(),
-                inviteQr: inviteCode
+            let rr = try parseInvite(inviteQr: inviteCode)
+            
+            let _ = handleRunReturn(
+                rr: rr,
+                inviteCode: inviteCode
             )
-            
-            let _ = handleRunReturn(rr: rr)
-            
-            if let lsp = rr.lspHost {
-                self.server_IP = lsp
-            }
-            
-            if let initialTribe = rr.initialTribe, let (host, _) = extractHostAndTribeIdentifier(from: initialTribe) {
-                API.kTribesServer = host
-            }
-            
-            self.stashedContactInfo = rr.inviterContactInfo
-            self.stashedInitialTribe = rr.initialTribe
-            self.stashedInviteCode = inviteCode
-            self.stashedInviterAlias = rr.inviterAlias
         } catch {}
     }
     
