@@ -52,9 +52,15 @@ extension ChatMessageFieldView {
             cursorPosition: cursorPosition
         ) {
             let mentionValue = String(mention).replacingOccurrences(of: "@", with: "").lowercased()
-            self.didDetectPossibleMentions(mentionText: mentionValue)
+            self.didDetectPossibleMentions(
+                mentionText: mentionValue,
+                cursorPosition: cursorPosition
+            )
         } else {
-            self.didDetectPossibleMentions(mentionText: "")
+            self.didDetectPossibleMentions(
+                mentionText: "",
+                cursorPosition: cursorPosition
+            )
         }
     }
     
@@ -99,7 +105,8 @@ extension ChatMessageFieldView {
     }
     
     func didDetectPossibleMentions(
-        mentionText: String
+        mentionText: String,
+        cursorPosition: Int
     ) {
         let possibleMentions = self.getMentionsFrom(mentionText: mentionText)
         let suggestionObjects = possibleMentions.compactMap({
@@ -112,7 +119,11 @@ extension ChatMessageFieldView {
             return result
         })
         
-        delegate?.shouldUpdateMentionSuggestionsWith(suggestionObjects)
+        delegate?.shouldUpdateMentionSuggestionsWith(
+            suggestionObjects, 
+            text: mentionText,
+            cursorPosition: cursorPosition
+        )
     }
 }
 
@@ -250,7 +261,11 @@ extension ChatMessageFieldView {
                 return possibleMacros.contains(macroObject.displayText)
             })
             
-            delegate?.shouldUpdateMentionSuggestionsWith(localMacros.reversed())
+            delegate?.shouldUpdateMentionSuggestionsWith(
+                localMacros.reversed(),
+                text: "/",
+                cursorPosition: cursorPosition
+            )
         }
     }
     
