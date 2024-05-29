@@ -995,11 +995,10 @@ extension NewChatTableDataSource {
         
         SphinxOnionManager.sharedInstance.exitTribe(tribeChat: chat)
         
-        DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
-            CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-            
-            self.delegate?.didDeleteTribe()
-        })
+        CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+        
+        delegate?.didDeleteTribe()
+        messageBubbleHelper.hideLoadingWheel()
     }
     
     func shouldApproveMember(message: TransactionMessage) {
