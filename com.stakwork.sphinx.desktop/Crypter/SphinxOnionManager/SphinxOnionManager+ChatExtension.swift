@@ -689,7 +689,10 @@ extension SphinxOnionManager {
                 }
                 
                 if let chat = chat {
-                    let groupActionMessage = TransactionMessage(context: self.managedContext)
+                    let groupActionMessage = TransactionMessage.getMessageInstanceWith(
+                        id: Int(index),
+                        context: self.managedContext
+                    )
                     groupActionMessage.uuid = uuid
                     groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
                     groupActionMessage.chat = chat
@@ -704,8 +707,8 @@ extension SphinxOnionManager {
                     groupActionMessage.senderAlias = csr.alias
                     groupActionMessage.senderPic = csr.photoUrl
                     groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
+                    groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
                     
-                    groupActionMessage.seen = false
                     chat.seen = false
                 
                     if (didCreateTribe && csr.role != nil) {
@@ -838,7 +841,10 @@ extension SphinxOnionManager {
             return nil
         }
         
-        let newMessage = TransactionMessage(context: managedContext)
+        let newMessage = TransactionMessage.getMessageInstanceWith(
+            id: Int(index),
+            context: managedContext
+        )
         
         newMessage.id = index
         newMessage.uuid = uuid
@@ -862,7 +868,6 @@ extension SphinxOnionManager {
         newMessage.receiverId = UserContact.getSelfContact()?.id ?? 0
         newMessage.push = false
         newMessage.chat = chat
-        newMessage.seen = false
         newMessage.chat?.seen = false
         newMessage.messageContent = content
         newMessage.replyUUID = message.replyUuid

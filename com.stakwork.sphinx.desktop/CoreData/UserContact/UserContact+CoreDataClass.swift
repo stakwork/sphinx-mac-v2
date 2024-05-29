@@ -313,7 +313,7 @@ public class UserContact: NSManagedObject {
         return contact
     }
     
-    public static func getContactWithInvitCode(
+    public static func getContactWithInviteCode(
         inviteCode: String,
         managedContext: NSManagedObjectContext? = nil
     ) -> UserContact? {

@@ -241,7 +241,7 @@ import WebKit
                 object: nil
             )
             
-            getDashboardVC()?.reloadChatListVC()            
+            getDashboardVC()?.reconnectToServer()
         }
     }
 
@@ -267,7 +267,8 @@ import WebKit
                 object: nil
             )
             
-            SphinxOnionManager.sharedInstance.reconnectToServer()
+            getDashboardVC()?.reconnectToServer()
+            
             feedsManager.restoreContentFeedStatusInBackground()
         }
     }

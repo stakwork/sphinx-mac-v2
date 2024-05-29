@@ -43,19 +43,38 @@ extension SphinxOnionManager{//invites related
     }
     
     func redeemInvite(
-        inviteCode: String,
-        mnemonic: String
-    ) {
+        inviteCode: String
+    ) -> String? {
         do {
-            let rr = try parseInvite(inviteQr: inviteCode)
+            let parsedInvite = try parseInvite(inviteQr: inviteCode)
             
-            let _ = handleRunReturn(
-                rr: rr,
-                inviteCode: inviteCode
-            )
-        } catch {}
+            if let lsp = parsedInvite.lspHost {
+                self.server_IP = lsp
+            }
+            
+            if let initialTribe = parsedInvite.initialTribe, let (host, _) = extractHostAndTribeIdentifier(from: initialTribe) {
+                API.kTribesServer = host
+            }
+            
+            self.stashedInviteCode = parsedInvite.code
+            
+            if let contactInfo = parsedInvite.inviterContactInfo {
+                self.stashedContactInfo = contactInfo
+            }
+            
+            if let initialTribe = parsedInvite.initialTribe {
+                self.stashedInitialTribe = initialTribe
+            }
+            
+            if let inviterAlias = parsedInvite.inviterAlias {
+                self.stashedInviterAlias = inviterAlias
+            }
+            return parsedInvite.code
+        } catch let error {
+            print("Parse invite error \(error)")
+            return nil
+        }
     }
-    
     
     func doInitialInviteSetup() {
         guard let stashedInviteCode = stashedInviteCode else{

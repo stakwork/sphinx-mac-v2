@@ -255,6 +255,17 @@ public class TransactionMessage: NSManagedObject {
         return (updatedMessage, existingMessage == nil)
     }
     
+    static func getMessageInstanceWith(
+        id: Int?,
+        context: NSManagedObjectContext
+    ) -> TransactionMessage {
+        if let id = id, let existingMessage = TransactionMessage.getMessageWith(id: id) {
+            return existingMessage
+        } else {
+            return TransactionMessage(context: context)
+        }
+    }
+    
     static func getChat(
         m: JSON
     ) -> Chat? {

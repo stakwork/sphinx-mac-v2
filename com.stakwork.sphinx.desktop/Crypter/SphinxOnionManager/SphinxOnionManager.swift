@@ -308,7 +308,8 @@ class SphinxOnionManager : NSObject {
     
     func subscribeAndPublishMyTopics(
         pubkey: String,
-        idx: Int
+        idx: Int,
+        inviteCode: String? = nil
     ) {
         do {
             let ret = try Sphinx.setNetwork(network: network)
@@ -330,7 +331,8 @@ class SphinxOnionManager : NSObject {
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
-                device: UUID().uuidString
+                device: UUID().uuidString,
+                inviteCode: inviteCode
             )
             
             let _ = handleRunReturn(rr: ret3)
@@ -365,7 +367,10 @@ class SphinxOnionManager : NSObject {
     }
     
     
-    func createMyAccount(mnemonic: String) -> Bool {
+    func createMyAccount(
+        mnemonic: String,
+        inviteCode: String? = nil
+    ) -> Bool {
         //1. Generate Seed -> Display to screen the mnemonic for backup???
         guard let seed = getAccountSeed(mnemonic: mnemonic) else {
             //possibly send error message?
@@ -396,7 +401,11 @@ class SphinxOnionManager : NSObject {
             //subscribe to relevant topics
             mqtt.didConnectAck = { _, _ in
                 self.isConnected = true
-                self.subscribeAndPublishMyTopics(pubkey: pubkey, idx: idx)
+                self.subscribeAndPublishMyTopics(
+                    pubkey: pubkey,
+                    idx: idx,
+                    inviteCode: inviteCode
+                )
             }
         }
         return success

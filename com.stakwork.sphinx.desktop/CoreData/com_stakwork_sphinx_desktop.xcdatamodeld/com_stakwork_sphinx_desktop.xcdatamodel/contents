@@ -149,7 +149,7 @@
         <attribute name="recipientAlias" optional="YES" attributeType="String"/>
         <attribute name="recipientPic" optional="YES" attributeType="String"/>
         <attribute name="replyUUID" optional="YES" attributeType="String"/>
-        <attribute name="seen" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="seen" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="senderAlias" optional="YES" attributeType="String"/>
         <attribute name="senderId" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="senderPic" optional="YES" attributeType="String"/>

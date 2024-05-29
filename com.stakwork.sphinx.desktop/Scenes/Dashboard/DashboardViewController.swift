@@ -123,6 +123,12 @@ class DashboardViewController: NSViewController {
         )
     }
     
+    func reconnectToServer() {
+        SphinxOnionManager.sharedInstance.reconnectToServer(
+            hideRestoreViewCallback: self.hideRestoreViewCallback
+        )
+    }
+    
     func refreshUnreadStatus(){
         SphinxOnionManager.sharedInstance.getReads()
         SphinxOnionManager.sharedInstance.getMuteLevels()
