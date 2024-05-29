@@ -307,7 +307,7 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
         {
             loading = true
             
-            som.kickTribeMember(pubkey:pubkey, chat: chat)
+            som.kickTribeMember(pubkey: pubkey, chat: chat)
             
             reloadContacts(chat: chat)
         } else {
