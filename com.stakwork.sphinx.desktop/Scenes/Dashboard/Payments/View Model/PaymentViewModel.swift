@@ -72,11 +72,7 @@ class PaymentViewModel : NSObject {
             return true
         }
         
-        guard let _ = currentPayment.contacts.first else {
-            return memo.isValidLengthMemo()
-        }
-        
-        return false
+        return memo.isValidLengthMemo()
     }
     
     func validatePayment() -> Bool {

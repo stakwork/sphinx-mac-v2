@@ -630,13 +630,13 @@ extension SphinxOnionManager {
     func resetFromRestore() {
         setLastMessagesOnChats()
         processDeletedRestoredMessages()
+        updateIsPaidAllMessages()
         
         CoreDataManager.sharedManager.saveContext()
         
         isV2InitialSetup = false
         contactRestoreCallback = nil
         messageRestoreCallback = nil
-        updateIsPaidAllMessages()
         
         if let hideRestoreCallback = hideRestoreCallback {
             hideRestoreCallback()

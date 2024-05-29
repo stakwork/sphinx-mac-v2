@@ -227,7 +227,7 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
     
     func createLocalPayment(payment: JSON?) {
         if let payment = payment {
-            if let message = TransactionMessage.insertMessage(
+            if let _ = TransactionMessage.insertMessage(
                 m: payment,
                 existingMessage: TransactionMessage.getMessageWith(id: payment["id"].intValue)
             ).0 {
