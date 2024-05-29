@@ -477,7 +477,7 @@ extension String {
     }
     
     var isMessagesFetchResponse : Bool {
-        return self.contains("res/batch")
+        return self.contains("/batch") 
     }
     
     var amountWithoutSpaces: String {
@@ -943,6 +943,15 @@ extension String {
         let newRange = botIndex..<self.index(botIndex, offsetBy: range.length)
         return String(self[newRange])
    }
+    
+    func parseContactInfoString() -> (String, String, String)? {
+        let components = self.split(separator: "_").map({ String($0) })
+        return (components.count >= 3) ? (components[0], components[1], components[2]) : nil
+    }
+    
+    func toMessageInnerContent() -> MessageInnerContent? {
+        return MessageInnerContent(JSONString: self)
+    }
 }
 
 

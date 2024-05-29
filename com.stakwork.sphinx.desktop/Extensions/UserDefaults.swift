@@ -77,6 +77,7 @@ extension UserDefaults {
         public static let sequence = DefaultKey<String>("sequence")
         
         public static let selectedChat = DefaultKey<String>("selectedChat")
+        public static let deletedTribesPubKeys = DefaultKey<[String]>("deletedTribesPubKeys")
     }
 
     class func resetUserDefaults() {

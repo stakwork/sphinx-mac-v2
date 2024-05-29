@@ -101,6 +101,12 @@ struct MessageInnerContent: Mappable {
         recipientAlias  <- map["recipientAlias"]
     }
     
+    func getRouteHint() -> String? {
+        if let contactInfo = self.fullContactInfo, let (_, recipLspPubkey, scid) = contactInfo.parseContactInfoString() {
+            return "\(recipLspPubkey)_\(scid)"
+        }
+        return nil
+    }
 }
 
 

@@ -43,6 +43,15 @@ class SphinxOnionManager : NSObject {
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
     
+    var deletedTribesPubKeys: [String] {
+        get {
+            return UserDefaults.Keys.deletedTribesPubKeys.get(defaultValue: [])
+        }
+        set {
+            UserDefaults.Keys.deletedTribesPubKeys.set(newValue)
+        }
+    }
+    
     var isV2InitialSetup: Bool = false
     var isV2Restore: Bool = false
     var shouldPostUpdates : Bool = false
@@ -230,7 +239,7 @@ class SphinxOnionManager : NSObject {
         let maxIndex = TransactionMessage.getMaxIndex()
         
         startAllMsgBlockFetch(
-            startIndex: maxIndex ?? 0,
+            startIndex: (maxIndex != nil) ? maxIndex! + 1 : 0,
             itemsPerPage: SphinxOnionManager.kMessageBatchSize,
             stopIndex: 0,
             reverse: false

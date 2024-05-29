@@ -86,12 +86,17 @@ extension SphinxOnionManager {//contacts related
             if let sender = msg.sender,
                let csr = ContactServerResponse(JSONString: sender),
                let senderPubkey = csr.pubkey
-            {        
+            {
+                let routeHint: String? = msg.message?.toMessageInnerContent()?.getRouteHint()
+                
                 if let contact = UserContact.getContactWithDisregardStatus(pubkey: senderPubkey) {
                     if contact.isOwner {
                         continue
                     }
                     
+                    if let routeHint = routeHint {
+                        contact.routeHint = routeHint
+                    }
                     contact.status = UserContact.Status.Confirmed.rawValue
                     contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
                     contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
@@ -106,6 +111,7 @@ extension SphinxOnionManager {//contacts related
                 
                 let newContactRequest = createNewContact(
                     pubkey: senderPubkey,
+                    routeHint: routeHint,
                     nickname: csr.alias,
                     photoUrl: csr.photoUrl,
                     code: csr.code,
@@ -150,6 +156,7 @@ extension SphinxOnionManager {//contacts related
     
     func createNewContact(
         pubkey: String,
+        routeHint: String? = nil,
         nickname: String? = nil,
         photoUrl: String? = nil,
         code: String? = nil,
@@ -158,8 +165,9 @@ extension SphinxOnionManager {//contacts related
     ) -> UserContact {
         let contact = UserContact.getContactWithInviteCode(inviteCode: code ?? "") ?? UserContact(context: managedContext)
         contact.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
-        contact.publicKey = pubkey//
-        contact.isOwner = false//
+        contact.publicKey = pubkey
+        contact.routeHint = routeHint
+        contact.isOwner = false
         contact.nickname = nickname
         contact.createdAt = date ?? Date()
         contact.createdAt = date ?? Date()

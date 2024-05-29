@@ -340,6 +340,10 @@ class ChatHelper {
             return DeletedMessageView.kViewHeight
         }
         
+        if let _ = mutableTableCellState.groupKickSent {
+            return 0
+        }
+        
         if let _ = mutableTableCellState.groupMemberNotification {
             return GroupActionMessageView.kViewHeight
         }

@@ -127,13 +127,13 @@ struct MessageTableCellState {
         
         var lineState = InvoiceLinesState.None
         
-        if invoiceData.0 && invoiceData.1 {
-            lineState = InvoiceLinesState.Both
-        } else if invoiceData.0 {
-            lineState = InvoiceLinesState.Left
-        } else if invoiceData.1 {
-            lineState = InvoiceLinesState.Right
-        }
+//        if invoiceData.0 && invoiceData.1 {
+//            lineState = InvoiceLinesState.Both
+//        } else if invoiceData.0 {
+//            lineState = InvoiceLinesState.Left
+//        } else if invoiceData.1 {
+//            lineState = InvoiceLinesState.Right
+//        }
         
         return BubbleMessageLayoutState.InvoiceLines(
             linesState: lineState
@@ -786,6 +786,16 @@ struct MessageTableCellState {
         }
         
         return NoBubbleMessageLayoutState.GroupKickRemovedOrDeclined(message: messageString)
+    }()
+    
+    lazy var groupKickSent: NoBubbleMessageLayoutState.GroupKickSent? = {
+        
+        guard let message = message, let ownerPubKey = owner.publicKey,
+                message.isGroupKickMessage() && message.chat?.isTribeICreated == true else {
+            return nil
+        }
+        
+        return NoBubbleMessageLayoutState.GroupKickSent()
     }()
     
     lazy var groupMemberRequest: NoBubbleMessageLayoutState.GroupMemberRequest? = {

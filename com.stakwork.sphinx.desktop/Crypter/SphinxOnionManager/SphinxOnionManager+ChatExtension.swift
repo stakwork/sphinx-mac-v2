@@ -35,6 +35,12 @@ extension SphinxOnionManager {
             return
         }
         
+        if deletedTribesPubKeys.contains(ownerPubkey) {
+            ///Tribe deleted
+            completion(nil, false)
+            return
+        }
+        
         chatsFetchParams?.restoredTribesPubKeys.append(ownerPubkey)
         
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
