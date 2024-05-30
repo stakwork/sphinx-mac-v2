@@ -500,15 +500,15 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
 
     
     func initiateDeletion(contactId: Int){
-        let confirmDeletionCallback: (() -> ()) = {
-            self.shouldDeleteContact(contactId: contactId)
-        }
-                
-        AlertHelper.showTwoOptionsAlert(
-            title: "warning".localized,
-            message: "delete.contact.warning".localized,
-            confirm: confirmDeletionCallback
-        )
+//        let confirmDeletionCallback: (() -> ()) = {
+//            self.shouldDeleteContact(contactId: contactId)
+//        }
+//                
+//        AlertHelper.showTwoOptionsAlert(
+//            title: "warning".localized,
+//            message: "delete.contact.warning".localized,
+//            confirm: confirmDeletionCallback
+//        )
     }
     
     func shouldDeleteContact(contactId: Int) {
