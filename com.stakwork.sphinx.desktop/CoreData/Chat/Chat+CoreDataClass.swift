@@ -653,7 +653,7 @@ public class Chat: NSManagedObject {
     }
     
     func updateTribeInfo(completion: @escaping () -> ()) {
-        let host = API.kTribesServer.replacingOccurrences(of: "http://", with: "")
+        let host = SphinxOnionManager.sharedInstance.tribesServerIP
         
         if let uuid = ownerPubkey,
             host.isEmpty == false,
@@ -815,7 +815,7 @@ public class Chat: NSManagedObject {
     
     func getJoinChatLink() -> String? {
         if let pubkey = self.ownerPubkey {
-            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=\(API.kTribesServer)"
+            return "sphinx.chat://?action=tribeV2&pubkey=\(pubkey)&host=\(SphinxOnionManager.sharedInstance.tribesServerIP)"
         }
         return nil
     }

@@ -15,12 +15,11 @@ extension API {
     func getTribeInfo(
         host: String,
         uuid: String,
-        useSSL: Bool = false,
         callback: @escaping CreateGroupCallback,
         errorCallback: @escaping EmptyCallback
     ) {
-        var url = API.getUrl(route: "https://\(host)/tribes/\(uuid)")
-        url = useSSL ? (url) : (url.replacingOccurrences(of: "https", with: "http"))
+        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let url = API.getUrl(route: "\(hostProtocol)://\(host)/tribes/\(uuid)")
         let tribeRequest : URLRequest? = createRequest(url, params: nil, method: "GET")
         
         guard let request = tribeRequest else {

@@ -31,10 +31,10 @@ extension SphinxOnionManager{//invites related
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
-                host: self.server_IP,
+                host: serverIP,
                 amtMsat: UInt64(amountMsat),
                 myAlias: nickname,
-                tribeHost: "\(server_IP):8801",
+                tribeHost: tribesServerIP,
                 tribePubkey: defaultTribePubkey
             )
             
@@ -49,11 +49,7 @@ extension SphinxOnionManager{//invites related
             let parsedInvite = try parseInvite(inviteQr: inviteCode)
             
             if let lsp = parsedInvite.lspHost {
-                self.server_IP = lsp
-            }
-            
-            if let initialTribe = parsedInvite.initialTribe, let (host, _) = extractHostAndTribeIdentifier(from: initialTribe) {
-                API.kTribesServer = host
+                UserDefaults.Keys.serverIP.set(lsp)
             }
             
             self.stashedInviteCode = parsedInvite.code
@@ -64,6 +60,10 @@ extension SphinxOnionManager{//invites related
             
             if let initialTribe = parsedInvite.initialTribe {
                 self.stashedInitialTribe = initialTribe
+                
+                if let (host, _) = extractHostAndTribeIdentifier(from: initialTribe) {
+                    UserDefaults.Keys.tribesServerIP.set(host)
+                }
             }
             
             if let inviterAlias = parsedInvite.inviterAlias {

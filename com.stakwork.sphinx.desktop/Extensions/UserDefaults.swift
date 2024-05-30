@@ -78,6 +78,11 @@ extension UserDefaults {
         
         public static let selectedChat = DefaultKey<String>("selectedChat")
         public static let deletedTribesPubKeys = DefaultKey<[String]>("deletedTribesPubKeys")
+        
+        public static let isProductionEnv = DefaultKey<Bool>("isProductionEnv")
+        public static let serverIP = DefaultKey<String>("serverIP")
+        public static let serverPORT = DefaultKey<Int>("serverPORT")
+        public static let tribesServerIP = DefaultKey<String>("tribesServerIP")
     }
 
     class func resetUserDefaults() {

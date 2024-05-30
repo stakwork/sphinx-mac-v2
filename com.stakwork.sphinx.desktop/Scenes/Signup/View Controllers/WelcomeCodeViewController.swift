@@ -111,11 +111,33 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         if validateCode(code: code) {
             loading = true
             
-            if code.isV2InviteCode {
-                startSignup(code: code)
-            } else if som.isMnemonic(code: code) {
-                restoreWithCode(mnemonic: code)
-            }
+            askForEnvironmentWith(code: code)
+        }
+    }
+    
+    func askForEnvironmentWith(code: String) {
+        AlertHelper.showOptionsPopup(
+            title: "Network",
+            message: "Please select the network to use",
+            options: ["Bitcoin","Regtest"],
+            callbacks: [
+                {
+                    UserDefaults.Keys.isProductionEnv.set(true)
+                    self.continueWith(code: code)
+                },
+                {
+                    UserDefaults.Keys.isProductionEnv.set(false)
+                    self.continueWith(code: code)
+                }
+            ]
+        )
+    }
+    
+    func continueWith(code: String) {
+        if code.isV2InviteCode {
+            startSignup(code: code)
+        } else if som.isMnemonic(code: code) {
+            restoreWithCode(mnemonic: code)
         }
     }
     

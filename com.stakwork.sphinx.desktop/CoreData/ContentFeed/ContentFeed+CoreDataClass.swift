@@ -128,7 +128,8 @@ public class ContentFeed: NSManagedObject {
         persistingIn managedObjectContext: NSManagedObjectContext,
         then completionHandler: ((Result<ContentFeed, Error>) -> Void)? = nil
     ) {
-        let tribesServerURL = "https://\(API.kTribesServer)/feed?url=\(feedURLPath)"
+        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let tribesServerURL = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.tribesServerIP)/feed?url=\(feedURLPath)&fulltext=true"
         
         API.sharedInstance.getContentFeed(
             url: tribesServerURL,
@@ -179,7 +180,8 @@ public class ContentFeed: NSManagedObject {
         persistingIn managedObjectContext: NSManagedObjectContext,
         then completionHandler: ((Result<ContentFeed, Error>) -> Void)? = nil
     ) {
-        let tribesServerURL = "https://\(API.kTribesServer)/feed?url=\(feedURLPath)"
+        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let tribesServerURL = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.tribesServerIP)/feed?url=\(feedURLPath)&fulltext=true"
         
         API.sharedInstance.getContentFeed(
             url: tribesServerURL,

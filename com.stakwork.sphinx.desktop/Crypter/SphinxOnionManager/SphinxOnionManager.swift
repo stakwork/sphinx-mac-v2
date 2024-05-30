@@ -82,13 +82,6 @@ class SphinxOnionManager : NSObject {
     
     public static let kContactsBatchSize = 250
     public static let kMessageBatchSize = 100
-
-    //MARK: Hardcoded Values!
-    var server_IP = "34.229.52.200"
-    let server_PORT = 1883
-    let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
-    
-    let network = "regtest"
     
     let kCompleteStatus = "COMPLETE"
     let kFailedStatus = "FAILED"
@@ -96,7 +89,53 @@ class SphinxOnionManager : NSObject {
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
     
-    ///Callbacks
+    //MARK: Hardcoded Values!
+    var serverIP: String {
+        get {
+            if let storedServerIP: String = UserDefaults.Keys.serverIP.get() {
+                return storedServerIP
+            }
+            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdServerIP : kTestServerIP
+        }
+    }
+    
+    var serverPORT: UInt16 {
+        get {
+            if let storedServerPORT: Int = UserDefaults.Keys.serverPORT.get() {
+                return UInt16(storedServerPORT)
+            }
+            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdServerPort : kTestServerPort
+        }
+    }
+    
+    var tribesServerIP: String {
+        get {
+            if let storedTribesServer: String = UserDefaults.Keys.tribesServerIP.get() {
+                return storedTribesServer
+            }
+            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdV2TribesServer : kTestV2TribesServer
+        }
+    }
+    
+    let kTestServerIP = "34.229.52.200"
+    let kTestServerPort: UInt16 = 1883
+    
+    let kProdServerIP = "mqtt-broker.v2.sphinx.chat"
+    let kProdServerPort: UInt16 = 8883
+    
+    let kTestV2TribesServer = "34.229.52.200:8801"
+    let kProdV2TribesServer = "tribes.v2.sphinx.chat"
+    
+    let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
+    
+    var network: String {
+        get {
+            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "bitcoin" : "regtest"
+        }
+    }
+
+    
+    //MARK: Callbacks
     ///Restore
     var totalMsgsCountCallback: (() -> ())? = nil
     var firstSCIDMsgsCallback: (([Msg]) -> ())? = nil
@@ -192,12 +231,17 @@ class SphinxOnionManager : NSObject {
             
             mqtt = CocoaMQTT(
                 clientID: xpub,
-                host: server_IP,
-                port: UInt16(server_PORT)
+                host: serverIP,
+                port: serverPORT
             )
             
             mqtt.username = now
             mqtt.password = sig
+            
+            if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) {
+                mqtt.enableSSL = true
+                mqtt.allowUntrustCACertificate = true
+            }
             
             let success = mqtt.connect()
             print("mqtt.connect success:\(success)")

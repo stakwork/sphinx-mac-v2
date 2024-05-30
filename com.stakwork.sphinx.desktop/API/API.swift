@@ -72,20 +72,6 @@ class API {
     
     let messageBubbleHelper = NewMessageBubbleHelper()
     
-    public static let kTestV2TribesServer = "34.229.52.200:8801"
-    
-    public static var kTribesServer : String {
-        get {
-            if let tribesServerUrl = UserDefaults.Keys.tribesServerURL.get(defaultValue: ""), tribesServerUrl != "" {
-                return tribesServerUrl
-            }
-            return kTestV2TribesServer
-        }
-        set {
-            UserDefaults.Keys.tribesServerURL.set(newValue)
-        }
-    }
-    
     public static var kAttachmentsServerUrl : String {
         get {
             if let fileServerURL = UserDefaults.Keys.fileServerURL.get(defaultValue: ""), fileServerURL != "" {
