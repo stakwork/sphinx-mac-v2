@@ -219,7 +219,7 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
     }
     
     @objc func handleMyInvoicePaymentSettled(paymentHash: String) {
-        if let message = TransactionMessage.getPaymentOfInvoiceWith(paymentHash: paymentHash){
+        if let message = TransactionMessage.getInvoicePaymentWith(paymentHash: paymentHash){
             message.setPaymentInvoiceAsPaid()
             SphinxOnionManager.sharedInstance.sendPaymentOfInvoiceMessage(message: message)
         }

@@ -135,7 +135,8 @@ class PaymentViewModel : NSObject {
                 SphinxOnionManager.sharedInstance.sendInvoiceMessage(
                     contact: contact,
                     chat: chat,
-                    invoiceString: invoice
+                    invoiceString: invoice,
+                    memo: currentPayment.memo ?? ""
                 )
                 callback(nil)
             } else {
