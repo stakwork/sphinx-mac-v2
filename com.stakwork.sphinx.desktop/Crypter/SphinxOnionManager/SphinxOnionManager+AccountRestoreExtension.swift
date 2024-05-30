@@ -372,7 +372,7 @@ extension SphinxOnionManager {
             return !allowedTypes.contains($0.type ?? 0)
         })
         
-        let minRestoreIndex = restoredMessages.min {
+        let minRestoreIndex = msgs.min {
             let firstIndex = Int($0.index ?? "0") ?? -1
             let secondIndex = Int($1.index ?? "0") ?? -1
             return firstIndex < secondIndex
@@ -427,7 +427,7 @@ extension SphinxOnionManager {
             return !allowedTypes.contains($0.type ?? 0)
         })
         
-        let maxRestoreIndex = restoredMessages.min {
+        let maxRestoreIndex = msgs.min {
             let firstIndex = Int($0.index ?? "0") ?? -1
             let secondIndex = Int($1.index ?? "0") ?? -1
             return firstIndex > secondIndex
