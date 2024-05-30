@@ -181,6 +181,30 @@ extension TransactionMessage {
         }
     }
     
+    static func getMaxIndexFor(chat: Chat) -> Int? {
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        ///Not consider group join since those messages could be restored during contacts/tribes restore
+        fetchRequest.predicate = NSPredicate(
+            format: "NOT (status IN %@) AND chat = %@",
+            [
+                TransactionMessage.TransactionMessageStatus.failed.rawValue,
+                TransactionMessage.TransactionMessageStatus.pending.rawValue
+            ],
+            chat
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = 1
+
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first?.id
+        } catch let error as NSError {
+            print("Error fetching message with max ID: \(error), \(error.userInfo)")
+            return nil
+        }
+    }
+    
     static func getMessageDeletionRequests() -> [TransactionMessage] {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
