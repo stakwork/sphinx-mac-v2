@@ -58,6 +58,8 @@ extension NewChatTableDataSource {
             return
         }
         
+        scrolledAtBottom = false
+        
         DispatchQueue.main.async {
             CoreDataManager.sharedManager.saveContext()
             
