@@ -164,6 +164,8 @@ class CreateTribeViewModel {
     }
     
     func editGroup(id: Int, params: [String: AnyObject]) {
+        errorCallback?()
+        
 //        API.sharedInstance.editGroup(id: id, params: params, callback: { chatJson in
 //            if let chat = Chat.insertChat(chat: chatJson) {
 //                chat.tribeInfo = self.groupsManager.newGroupInfo

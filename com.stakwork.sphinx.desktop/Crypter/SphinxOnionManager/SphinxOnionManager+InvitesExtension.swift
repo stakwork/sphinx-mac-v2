@@ -31,7 +31,7 @@ extension SphinxOnionManager{//invites related
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
-                host: serverIP,
+                host: "\(serverIP):\(serverPORT)",
                 amtMsat: UInt64(amountMsat),
                 myAlias: nickname,
                 tribeHost: tribesServerIP,
@@ -44,12 +44,13 @@ extension SphinxOnionManager{//invites related
     
     func redeemInvite(
         inviteCode: String
-    ) -> String? {
+    ) -> (String?, Bool) {
         do {
+            var isSSL = false
             let parsedInvite = try parseInvite(inviteQr: inviteCode)
             
             if let lsp = parsedInvite.lspHost {
-                UserDefaults.Keys.serverIP.set(lsp)
+                isSSL = self.saveIPAndPortFrom(lspHost: lsp)
             }
             
             self.stashedInviteCode = parsedInvite.code
@@ -69,10 +70,10 @@ extension SphinxOnionManager{//invites related
             if let inviterAlias = parsedInvite.inviterAlias {
                 self.stashedInviterAlias = inviterAlias
             }
-            return parsedInvite.code
+            return (parsedInvite.code, isSSL)
         } catch let error {
             print("Parse invite error \(error)")
-            return nil
+            return (nil, false)
         }
     }
     
@@ -127,4 +128,18 @@ extension SphinxOnionManager{//invites related
         managedContext.saveContext()
     }
     
+    func saveIPAndPortFrom(lspHost: String) -> Bool {
+        if let components = URLComponents(string: lspHost), let port = components.port {
+            UserDefaults.Keys.serverPORT.set(port)
+            UserDefaults.Keys.serverIP.set(lspHost.replacingOccurrences(of: ":\(port)", with: ""))
+            return port == kProdServerPort
+        } else if let components = URLComponents(string: "https://\(lspHost)"), let port = components.port {
+            UserDefaults.Keys.serverPORT.set(port)
+            UserDefaults.Keys.serverIP.set(lspHost.replacingOccurrences(of: ":\(port)", with: ""))
+            return port == kProdServerPort
+        } else {
+            UserDefaults.Keys.serverIP.set(lspHost)
+            return false
+        }
+    }
 }

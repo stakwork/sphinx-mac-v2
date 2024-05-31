@@ -111,7 +111,11 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         if validateCode(code: code) {
             loading = true
             
-            askForEnvironmentWith(code: code)
+            if code.isV2InviteCode {
+                continueWith(code: code)
+            } else if som.isMnemonic(code: code) {
+                askForEnvironmentWith(code: code)
+            }
         }
     }
     
@@ -142,16 +146,10 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     }
     
     func startSignup(code: String) {
-        signupWith(sphinxV2Code: code)
-    }
-    
-    func signupWith(
-        sphinxV2Code: String
-    ) {
         som.vc = self
         som.chooseImportOrGenerateSeed(completion: {success in
             if (success) {
-                self.handleInviteCode(code: sphinxV2Code)
+                self.handleInviteCode(code: code)
             } else {
                 AlertHelper.showAlert(title: "Error redeeming invite", message: "Please try again or ask for another invite.")
             }
@@ -164,9 +162,13 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             return
         }
         
-        guard let inviteCode = som.redeemInvite(inviteCode: code) else {
+        let (inviteCode, isSSL) = som.redeemInvite(inviteCode: code)
+        
+        guard let inviteCode = inviteCode else {
             return
         }
+        
+        UserDefaults.Keys.isProductionEnv.set(isSSL)
         
         if som.createMyAccount(
             mnemonic: mnemonic,
@@ -271,7 +273,7 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     
     func didTapConfirm() {
         importSeedView.isHidden = true
-        
+                
         UserData.sharedInstance.save(walletMnemonic: importSeedView.getMnemonicWords())
         
         let code = codeField.getFieldValue()

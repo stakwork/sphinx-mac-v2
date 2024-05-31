@@ -91,8 +91,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        guard let host = url.host,
-              let port = url.port else {
+        guard let host = url.host else {
             print("URL does not have a host")
             return nil
         }
@@ -107,7 +106,11 @@ extension SphinxOnionManager {
         print("Host: \(host)")
         print("Tribe Identifier: \(tribeIdentifier)")
         
-        return ("\(host):\(port)",tribeIdentifier)
+        if let port = url.port {
+            return ("\(host):\(port)", tribeIdentifier)
+        } else {
+            return ("\(host)", tribeIdentifier)
+        }
     }
     
     func joinInitialTribe() {

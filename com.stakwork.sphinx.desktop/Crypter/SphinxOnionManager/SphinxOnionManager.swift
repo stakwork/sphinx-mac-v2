@@ -126,7 +126,7 @@ class SphinxOnionManager : NSObject {
     let kTestV2TribesServer = "34.229.52.200:8801"
     let kProdV2TribesServer = "tribes.v2.sphinx.chat"
     
-    let defaultTribePubkey = "02792ee5b9162f9a00686aaa5d5274e91fd42a141113007797b5c1872d43f78e07"
+    let defaultTribePubkey = "02033c833f9b888b5548aee7c70c3fb1c7800c9b7e6bac3ce24334a651316f7e10"
     
     var network: String {
         get {
@@ -241,6 +241,10 @@ class SphinxOnionManager : NSObject {
             if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) {
                 mqtt.enableSSL = true
                 mqtt.allowUntrustCACertificate = true
+                
+                mqtt.sslSettings = [
+                    "kCFStreamSSLPeerName": "\(serverIP)" as NSObject
+                ] as [String: NSObject]
             }
             
             let success = mqtt.connect()
@@ -352,6 +356,10 @@ class SphinxOnionManager : NSObject {
             }
         }
         
+        mqtt.didReceiveTrust = { _, _, completionHandler in
+            completionHandler(true)
+        }
+        
         mqtt.didDisconnect = { _, _ in
             self.isConnected = false
             self.mqttDisconnectCallback?()
@@ -445,10 +453,14 @@ class SphinxOnionManager : NSObject {
                 self.processMqttMessages(message: receivedMessage)
             }
             
-            mqtt.didDisconnect = { _, _ in
+            mqtt.didDisconnect = { _, error in
                 self.isConnected = false
                 self.mqttDisconnectCallback?()
                 self.mqtt = nil
+            }
+            
+            mqtt.didReceiveTrust = { _, _, completionHandler in
+                completionHandler(true)
             }
             
             //subscribe to relevant topics
