@@ -86,4 +86,41 @@ extension API {
             }
         }
     }
+    
+    func getServerConfig(
+        callback: @escaping SuccessCallback
+    ) {
+        let url = "https://config.config.sphinx.chat/api/config/bitcoin"
+        let request : URLRequest? = createRequest(url, params: nil, method: "GET")
+        
+        guard let request = request else {
+            callback(false)
+            return
+        }
+        
+        //NEEDS TO BE CHANGED
+        sphinxRequest(request) { response in
+            switch response.result {
+            case .success(let data):
+                if let dictionary = data as? NSDictionary {
+                    if let tribe = dictionary["tribe"] as? String,
+                       let tribe_host = dictionary["tribe_host"] as? String,
+                       let default_lsp = dictionary["default_lsp"] as? String
+                    {
+                        SphinxOnionManager.sharedInstance.saveConfigFrom(
+                            lspHost: default_lsp,
+                            tribeServerHost: tribe_host,
+                            defaultTribePubkey: tribe
+                        )
+                        
+                        callback(true)
+                        return
+                    }
+                }
+                callback(false)
+            case .failure(_):
+                callback(false)
+            }
+        }
+    }
 }

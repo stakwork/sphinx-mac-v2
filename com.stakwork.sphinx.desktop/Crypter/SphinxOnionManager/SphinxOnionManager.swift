@@ -97,7 +97,7 @@ class SphinxOnionManager : NSObject {
             if let storedServerIP: String = UserDefaults.Keys.serverIP.get() {
                 return storedServerIP
             }
-            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdServerIP : kTestServerIP
+            return kTestServerIP
         }
     }
     
@@ -106,7 +106,7 @@ class SphinxOnionManager : NSObject {
             if let storedServerPORT: Int = UserDefaults.Keys.serverPORT.get() {
                 return UInt16(storedServerPORT)
             }
-            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdServerPort : kTestServerPort
+            return kTestServerPort
         }
     }
     
@@ -115,20 +115,23 @@ class SphinxOnionManager : NSObject {
             if let storedTribesServer: String = UserDefaults.Keys.tribesServerIP.get() {
                 return storedTribesServer
             }
-            return UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? kProdV2TribesServer : kTestV2TribesServer
+            return kTestV2TribesServer
+        }
+    }
+    
+    var defaultTribePubkey: String? {
+        get {
+            if let defaultTribePublicKey: String = UserDefaults.Keys.defaultTribePublicKey.get() {
+                return defaultTribePublicKey
+            }
+            return UserDefaults.Keys.defaultTribePublicKey.get()
         }
     }
     
     let kTestServerIP = "34.229.52.200"
     let kTestServerPort: UInt16 = 1883
-    
-    let kProdServerIP = "mqtt-broker.v2.sphinx.chat"
     let kProdServerPort: UInt16 = 8883
-    
     let kTestV2TribesServer = "34.229.52.200:8801"
-    let kProdV2TribesServer = "tribes.v2.sphinx.chat"
-    
-    let defaultTribePubkey = "032b61b80684a6707eacce22cbb7ae125458511f6d3f9a58a4e4ba0b480b84bcfe"
     
     var network: String {
         get {

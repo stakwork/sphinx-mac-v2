@@ -127,7 +127,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             callbacks: [
                 {
                     UserDefaults.Keys.isProductionEnv.set(true)
-                    self.continueWith(code: code)
+                    self.getConfigData(code: code)
                 },
                 {
                     UserDefaults.Keys.isProductionEnv.set(false)
@@ -135,6 +135,16 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
                 }
             ]
         )
+    }
+    
+    func getConfigData(code: String) {
+        API.sharedInstance.getServerConfig() { success in
+            if success {
+                self.continueWith(code: code)
+            } else {
+                AlertHelper.showAlert(title: "Error", message: "Unable to get config from Sphinx V2 Server")
+            }
+        }
     }
     
     func continueWith(code: String) {
@@ -162,13 +172,11 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             return
         }
         
-        let (inviteCode, isSSL) = som.redeemInvite(inviteCode: code)
+        let inviteCode = som.redeemInvite(inviteCode: code)
         
         guard let inviteCode = inviteCode else {
             return
         }
-        
-        UserDefaults.Keys.isProductionEnv.set(isSSL)
         
         if som.createMyAccount(
             mnemonic: mnemonic,
