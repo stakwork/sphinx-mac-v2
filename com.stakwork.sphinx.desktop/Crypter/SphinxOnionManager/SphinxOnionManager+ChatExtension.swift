@@ -542,8 +542,7 @@ extension SphinxOnionManager {
             finalizeSentMessage(localMsg: originalMessage, remoteMsg: message)
         }
         
-        if let _ = message.sentTo,
-           let uuid = message.uuid,
+        if let uuid = message.uuid,
            let type = message.type,
            TransactionMessage.getMessageWith(uuid: uuid) == nil
         {
@@ -841,8 +840,13 @@ extension SphinxOnionManager {
         
         var isTribe = false
         
-        if let contact = UserContact.getContactWithDisregardStatus(pubkey: pubkey), let oneOnOneChat = contact.getChat() {
-            chat = oneOnOneChat
+        if let contact = UserContact.getContactWithDisregardStatus(pubkey: pubkey) {
+            
+            if let oneOnOneChat = contact.getChat() {
+                chat = oneOnOneChat
+            } else {
+                chat = createChat(for: contact)
+            }
             
             senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
             

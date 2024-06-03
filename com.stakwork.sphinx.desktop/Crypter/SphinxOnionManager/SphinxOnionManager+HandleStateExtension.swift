@@ -19,11 +19,17 @@ extension SphinxOnionManager {
         topic: String? = nil,
         inviteCode: String? = nil,
         completion: (([String:AnyObject]) ->())? = nil,
-        isSendingMessage: Bool = false
+        isSendingMessage: Bool = false,
+        skipSettleTopic: Bool = false
     ) -> String? {
         
         if let topic = topic {
             print("V2 Received topic: \(topic)")
+        }
+        
+        if !skipSettleTopic && handleSettleTopicToPush(topic: rr.settleTopic, payload: rr.settlePayload) {
+            settledRRObjects.append(rr)
+            return nil
         }
         
         ///Update state mape
@@ -197,7 +203,20 @@ extension SphinxOnionManager {
     
     func handleSettledStatus(settledStatus: String?) {
         if let settledStatus = settledStatus {
-            print("Settled Status: \(settledStatus.debugDescription)")
+            if let data = settledStatus.data(using: .utf8) {
+                do {
+                    if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
+                        if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == kCompleteStatus {
+                            if let RRObject = settledRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
+                                let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
+                            }
+                            settledRRObjects = settledRRObjects.filter({ $0.msgs.first?.index != htlcId })
+                        }
+                    }
+                } catch {
+                    print("Error decoding JSON: \(error)")
+                }
+            }
         }
     }
     
@@ -287,6 +306,25 @@ extension SphinxOnionManager {
                 )
             }
         })
+    }
+    
+    func handleSettleTopicToPush(
+        topic: String?,
+        payload: Data?
+    ) -> Bool {
+        if let topic = topic, let payload = payload {
+            
+            let byteArray: [UInt8] = [UInt8](payload)
+            
+            self.mqtt?.publish(
+                CocoaMQTTMessage(
+                    topic: topic,
+                    payload: byteArray
+                )
+            )
+            return true
+        }
+        return false
     }
     
     func handleTopicsToSubscribe(topics: [String]) {

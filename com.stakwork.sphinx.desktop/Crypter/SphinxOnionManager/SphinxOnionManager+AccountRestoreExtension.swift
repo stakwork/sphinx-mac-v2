@@ -469,6 +469,9 @@ extension SphinxOnionManager {
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
         for message in filteredMsgs {
+            
+            print("MSG of Type \(String(describing: message.type)) RECEIVED:\(message)")
+            
             guard let sender = message.sender,
                let csr =  ContactServerResponse(JSONString: sender),
                let recipientPubkey = csr.pubkey

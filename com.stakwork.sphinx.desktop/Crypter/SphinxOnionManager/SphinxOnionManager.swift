@@ -60,6 +60,8 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
+    var settledRRObjects: [RunReturn] = []
+    
     var isConnected : Bool = false {
         didSet{
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
@@ -126,7 +128,7 @@ class SphinxOnionManager : NSObject {
     let kTestV2TribesServer = "34.229.52.200:8801"
     let kProdV2TribesServer = "tribes.v2.sphinx.chat"
     
-    let defaultTribePubkey = "02033c833f9b888b5548aee7c70c3fb1c7800c9b7e6bac3ce24334a651316f7e10"
+    let defaultTribePubkey = "032b61b80684a6707eacce22cbb7ae125458511f6d3f9a58a4e4ba0b480b84bcfe"
     
     var network: String {
         get {
@@ -273,6 +275,7 @@ class SphinxOnionManager : NSObject {
         if let mqtt = self.mqtt, mqtt.connState == .connected {
             ///If onMessageRestoredCallback is not nil, then process is already running
             if onMessageRestoredCallback == nil {
+                self.getBlockHeight()
                 self.syncNewMessages()
                 return
             }
@@ -281,6 +284,23 @@ class SphinxOnionManager : NSObject {
             connectingCallback: connectingCallback,
             hideRestoreViewCallback: hideRestoreViewCallback
         )
+    }
+    
+    func getBlockHeight() {
+        guard let seed = getAccountSeed() else{
+            return
+        }
+        do {
+            let rr = try Sphinx.getBlockheight(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData()
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting block height")
+        }
     }
     
     func syncNewMessages() {
@@ -336,6 +356,8 @@ class SphinxOnionManager : NSObject {
                 self.isV2InitialSetup = false
                 self.doInitialInviteSetup()
             }
+            
+            getBlockHeight()
              
             if self.isV2Restore {
                 self.syncContactsAndMessages(

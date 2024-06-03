@@ -129,14 +129,24 @@ extension SphinxOnionManager{//invites related
     }
     
     func saveIPAndPortFrom(lspHost: String) -> Bool {
-        if let components = URLComponents(string: lspHost), let port = components.port {
-            UserDefaults.Keys.serverPORT.set(port)
-            UserDefaults.Keys.serverIP.set(lspHost.replacingOccurrences(of: ":\(port)", with: ""))
-            return port == kProdServerPort
-        } else if let components = URLComponents(string: "https://\(lspHost)"), let port = components.port {
-            UserDefaults.Keys.serverPORT.set(port)
-            UserDefaults.Keys.serverIP.set(lspHost.replacingOccurrences(of: ":\(port)", with: ""))
-            return port == kProdServerPort
+        if let components = URLComponents(string: lspHost), let host = components.host {
+            if let port = components.port {
+                UserDefaults.Keys.serverPORT.set(port)
+                UserDefaults.Keys.serverIP.set(host.replacingOccurrences(of: ":\(port)", with: ""))
+                return port == kProdServerPort
+            } else {
+                UserDefaults.Keys.serverIP.set(host)
+                return false
+            }
+        } else if let components = URLComponents(string: "https://\(lspHost)"), let host = components.host {
+            if let port = components.port {
+                UserDefaults.Keys.serverPORT.set(port)
+                UserDefaults.Keys.serverIP.set(host.replacingOccurrences(of: ":\(port)", with: ""))
+                return port == kProdServerPort
+            } else {
+                UserDefaults.Keys.serverIP.set(host)
+                return false
+            }
         } else {
             UserDefaults.Keys.serverIP.set(lspHost)
             return false
