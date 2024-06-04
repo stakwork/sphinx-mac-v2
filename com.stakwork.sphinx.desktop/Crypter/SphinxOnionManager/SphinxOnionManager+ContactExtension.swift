@@ -103,7 +103,7 @@ extension SphinxOnionManager {//contacts related
                     
                     ///Create chat for contact and save
                     if contact.getChat() == nil {
-                        createChat(for: contact)
+                        createChat(for: contact, with: msg.date)
                     }
                     
                     continue
@@ -121,7 +121,7 @@ extension SphinxOnionManager {//contacts related
                 
                 ///Create chat for contacts and save
                 if newContactRequest.getChat() == nil {
-                    createChat(for: newContactRequest)
+                    createChat(for: newContactRequest, with: msg.date)
                 }
                 
                 managedContext.saveContext()
@@ -170,8 +170,6 @@ extension SphinxOnionManager {//contacts related
         contact.isOwner = false
         contact.nickname = nickname
         contact.createdAt = date ?? Date()
-        contact.createdAt = date ?? Date()
-        contact.createdAt = date ?? Date()
         contact.fromGroup = false
         contact.privatePhoto = false
         contact.tipAmount = 0
@@ -198,7 +196,10 @@ extension SphinxOnionManager {//contacts related
         }
     }
     
-    func createChat(for contact: UserContact) -> Chat? {
+    func createChat(
+        for contact: UserContact,
+        with date: Date? = nil
+    ) -> Chat? {
         let contactID = NSNumber(value: contact.id)
         
         if let _ = Chat.getAll().filter({$0.contactIds.contains(contactID)}).first{
@@ -219,7 +220,7 @@ extension SphinxOnionManager {//contacts related
         chat.contactIds = contactIDArray
         chat.name = contact.nickname
         chat.photoUrl = contact.avatarUrl
-        chat.createdAt = Date()
+        chat.createdAt = date ?? Date()
         
         return chat
     }

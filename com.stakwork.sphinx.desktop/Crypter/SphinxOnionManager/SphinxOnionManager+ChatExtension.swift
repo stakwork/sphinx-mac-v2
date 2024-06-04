@@ -845,7 +845,7 @@ extension SphinxOnionManager {
             if let oneOnOneChat = contact.getChat() {
                 chat = oneOnOneChat
             } else {
-                chat = createChat(for: contact)
+                chat = createChat(for: contact, with: date)
             }
             
             senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
