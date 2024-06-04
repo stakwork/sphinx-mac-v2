@@ -278,6 +278,7 @@ class SphinxOnionManager : NSObject {
         if let mqtt = self.mqtt, mqtt.connState == .connected {
             ///If onMessageRestoredCallback is not nil, then process is already running
             if onMessageRestoredCallback == nil {
+                self.hideRestoreCallback = hideRestoreViewCallback
                 self.getBlockHeight()
                 self.syncNewMessages()
                 return
@@ -373,10 +374,7 @@ class SphinxOnionManager : NSObject {
                     }
                 )
             } else {
-                self.hideRestoreCallback = {
-                    hideRestoreViewCallback?()
-                }
-                
+                self.hideRestoreCallback = hideRestoreViewCallback
                 self.syncNewMessages()
             }
         }
