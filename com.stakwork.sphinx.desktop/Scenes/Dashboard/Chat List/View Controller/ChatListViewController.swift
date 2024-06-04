@@ -252,8 +252,8 @@ class ChatListViewController : DashboardSplittedViewController {
             guard let self = self else { return }
             
             if let tribeLink = n.userInfo?["tribe_link"] as? String {
-                if let tribeInfo = GroupsManager.sharedInstance.getGroupInfo(query: tribeLink), let uuid = tribeInfo.uuid {
-                    if let chat = Chat.getChatWith(uuid: uuid) {
+                if let tribeInfo = GroupsManager.sharedInstance.getGroupInfo(query: tribeLink), let ownerPubkey = tribeInfo.ownerPubkey {
+                    if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
                         
                         self.contactsService.selectedTab = .tribes
                         self.contactsService.selectedTribeId = chat.getObjectId()

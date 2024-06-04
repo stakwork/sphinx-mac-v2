@@ -99,6 +99,7 @@
 "has.joined.tribe" = "%@がトライブに参加しました";
 "added.to.group" = "%@がグループに追加されました";
 "tribe.kick" = "管理者があなたをこのトライブから削除しました";
+"tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";
 "tribe.deleted" = "管理者がこのトライブを削除しました";
 "member.request" = "%@がトライブに参加したいと考えています";
 "member.request.rejected" = "管理者があなたのリクエストを拒否しました";

@@ -99,6 +99,7 @@
 "has.joined.tribe" = "%@已加入部落";
 "added.to.group" = "%@已被添加到群組";
 "tribe.kick" = "管理員已將\n您從這個部落中移除";
+"tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";
 "tribe.deleted" = "管理員已刪除\n這個部落";
 "member.request" = "%@想要\n加入部落";
 "member.request.rejected" = "管理員\n拒絕了您的請求";

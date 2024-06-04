@@ -610,6 +610,18 @@ extension SphinxOnionManager {
         
         endWatchdogTime()
         resetFromRestore()
+        purgeObsoleteChats()
+    }
+    
+    func purgeObsoleteChats(){
+        for chat in Chat.getAll() {
+            if Chat.hasRemovalIndicators(chat: chat) {
+                if let ownerPubKey = chat.ownerPubkey {
+                    addDeletedTribePubKey(tribeOwnerPubKey: ownerPubKey)
+                }
+                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+            }
+        }
     }
     
     func resetFromRestore() {
