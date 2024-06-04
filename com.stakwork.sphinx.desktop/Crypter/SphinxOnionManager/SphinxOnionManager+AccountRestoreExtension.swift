@@ -223,7 +223,7 @@ extension SphinxOnionManager {
            msgTotalCounts.totalMessageAvailableCount ?? 0 > 0 {
             
             let startIndex = (msgTotalCounts.totalMessageMaxIndex ?? 0)
-            let lastMessageIndex = TransactionMessage.getMaxIndex() ?? 0
+            let lastMessageIndex = 0
             
             let safeSpread = max(0, startIndex - lastMessageIndex)
             let firstBatchSize = min(SphinxOnionManager.kMessageBatchSize, safeSpread) //either do max batch size or less if less is needed
@@ -327,7 +327,7 @@ extension SphinxOnionManager {
                 contactRestoreCallback(pctInt)
             }
             
-            if msgs.count < SphinxOnionManager.kContactsBatchSize {
+            if msgs.count <= 0 {
                 doNextRestorePhase()
                 return
             }
@@ -338,7 +338,7 @@ extension SphinxOnionManager {
             {
                 if maxRestoredIndexInt < scidMaxIndex {
                     ///Didn't restore max index yet. Proceed to next page
-                    restoreFirstScidMessages(startIndex: maxRestoredIndexInt)
+                    restoreFirstScidMessages(startIndex: maxRestoredIndexInt + 1)
                     return
                 }
             }
