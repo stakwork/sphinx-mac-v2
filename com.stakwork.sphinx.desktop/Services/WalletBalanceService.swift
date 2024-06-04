@@ -27,7 +27,7 @@ public final class WalletBalanceService {
     init() {}
     
     func updateBalance(labels: [NSTextField]) {
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             if let storedBalance = self.balance {
                 self.updateLabels(labels: labels, balance: storedBalance.formattedWithSeparator)
             }
