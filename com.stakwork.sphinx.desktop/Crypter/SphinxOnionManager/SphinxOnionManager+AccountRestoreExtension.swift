@@ -50,6 +50,7 @@ class MessageFetchParams {
     var restoredItems: Int
     var stopIndex: Int
     var direction: FetchDirection
+    var restoredTribesPubKeys: [String] = []
 
     enum FetchDirection {
         case forward, backward
@@ -67,6 +68,7 @@ class MessageFetchParams {
         self.restoredItems = restoredItems
         self.stopIndex = stopIndex
         self.direction = direction
+        self.restoredTribesPubKeys = []
     }
     
     var debugDescription: String {

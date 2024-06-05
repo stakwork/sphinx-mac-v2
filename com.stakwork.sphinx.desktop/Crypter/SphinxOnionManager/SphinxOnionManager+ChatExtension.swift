@@ -27,11 +27,22 @@ extension SphinxOnionManager {
     func fetchOrCreateChatWithTribe(
         ownerPubkey: String,
         host: String?,
-        completion: @escaping (Chat?,Bool) -> ()
+        completion: @escaping (Chat?, Bool) -> ()
     ) {
         if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
             ///Tribe restore in progress
             completion(nil, false)
+            return
+        }
+        
+        if (messageFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
+            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
+                    completion(chat, false)
+                } else {
+                    completion(nil, false)
+                }
+            })
             return
         }
         
@@ -42,6 +53,7 @@ extension SphinxOnionManager {
         }
         
         chatsFetchParams?.restoredTribesPubKeys.append(ownerPubkey)
+        messageFetchParams?.restoredTribesPubKeys.append(ownerPubkey)
         
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
             ///Tribe restore found, no need to restore
