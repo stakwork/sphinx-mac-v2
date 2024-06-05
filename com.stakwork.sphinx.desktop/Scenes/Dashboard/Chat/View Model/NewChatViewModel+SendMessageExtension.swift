@@ -72,6 +72,8 @@ extension NewChatViewModel {
         updateSnapshotWith(message: validMessage)
         
         completion(validMessage != nil)
+        
+        resetReply()
     }
     
     func updateSnapshotWith(

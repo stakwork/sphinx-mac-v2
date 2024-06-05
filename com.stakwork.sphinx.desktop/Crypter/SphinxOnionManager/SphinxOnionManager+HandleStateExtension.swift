@@ -48,23 +48,32 @@ extension SphinxOnionManager {
         handleMessagesCount(msgsCounts: rr.msgsCounts)
         
         ///Handling tribes restore
-        restoreTribesFrom(messages: rr.msgs)
-        
-        ///handling contacts restore
-        restoreContactsFrom(messages: rr.msgs)
-        
-        ///Handling messages restore
-        processKeyExchangeMessages(rr: rr)
-        processGenericMessages(rr: rr)
-        
-        ///Handling tribe members
-        handleTribeMembers(tribeMembers: rr.tribeMembers)
+        restoreTribesFrom(messages: rr.msgs) {
+            ///handling contacts restore
+            self.restoreContactsFrom(messages: rr.msgs)
+            
+            ///Handling messages restore
+            self.processKeyExchangeMessages(rr: rr)
+            self.processGenericMessages(rr: rr)
+            
+            ///Handling settle status
+            self.handleSettledStatus(settledStatus: rr.settledStatus)
+            
+            ///Handling incoming tags
+            self.handleMessageStatusByTag(rr: rr)
+            
+            ///Handling read status
+            self.handleReadStatus(rr: rr)
+
+            ///Handling mute levels
+            self.handleMuteLevels(rr: rr)
+            
+            ///Handling restore callbacks
+            self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
+        }
         
         ///Handling invoice paid status
         handleInvoiceSentStatus(sentStatus: rr.sentStatus)
-        
-        ///Handling settle status
-        handleSettledStatus(settledStatus: rr.settledStatus)
         
         ///Handling error
         handleError(error: rr.error)
@@ -72,20 +81,11 @@ extension SphinxOnionManager {
         ///Handling new invites
         handleNewInvite(newInvite: rr.newInvite, messages: rr.msgs)
         
-        ///Handling incoming tags
-        handleMessageStatusByTag(rr: rr)
-        
-        ///Handling read status
-        handleReadStatus(rr: rr)
-
-        ///Handling mute levels
-        handleMuteLevels(rr: rr)
+        ///Handling tribe members
+        handleTribeMembers(tribeMembers: rr.tribeMembers)
         
         ///Handling state to delete
         handleStateToDelete(stateToDelete: rr.stateToDelete)
-        
-        ///Handling restore callbacks
-        handleRestoreCallbacks(topic: topic, messages: rr.msgs)
         
         ///Handling topics subscription
         handleTopicsToSubscribe(topics: rr.subscriptionTopics)

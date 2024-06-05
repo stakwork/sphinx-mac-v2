@@ -27,28 +27,27 @@ extension SphinxOnionManager {
     func fetchOrCreateChatWithTribe(
         ownerPubkey: String,
         host: String?,
-        completion: @escaping (Chat?, Bool) -> ()
+        index: Int,
+        completion: @escaping (Chat?, Bool, Int) -> ()
     ) {
         if (chatsFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
             ///Tribe restore in progress
-            completion(nil, false)
+            completion(nil, false, index)
             return
         }
         
         if (messageFetchParams?.restoredTribesPubKeys ?? []).contains(ownerPubkey) {
-            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
-                if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
-                    completion(chat, false)
-                } else {
-                    completion(nil, false)
-                }
-            })
+            if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
+                completion(chat, false, index)
+            } else {
+                completion(nil, false, index)
+            }
             return
         }
         
         if deletedTribesPubKeys.contains(ownerPubkey) {
             ///Tribe deleted
-            completion(nil, false)
+            completion(nil, false, index)
             return
         }
         
@@ -57,14 +56,14 @@ extension SphinxOnionManager {
         
         if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
             ///Tribe restore found, no need to restore
-            completion(chat, false)
+            completion(chat, false, index)
         } else if let host = host {
             ///Tribe not found in the database, attempt to lookup and restore.
             GroupsManager.sharedInstance.lookupAndRestoreTribe(pubkey: ownerPubkey, host: host) { chat in
-                completion(chat, true)
+                completion(chat, chat != nil, index)
             }
         } else {
-            completion(nil, false)
+            completion(nil, false, index)
         }
     }
 
@@ -698,64 +697,42 @@ extension SphinxOnionManager {
         message: Msg,
         shouldSendPush: Bool
     ) {
-        guard let type = message.type,
-              let sender = message.sender,
-              let index = message.index,
-              let uuid = message.uuid,
-              let date = message.date,
-              let csr = ContactServerResponse(JSONString: sender),
-              let tribePubKey = csr.pubkey else
+        ///Check for sender information
+        guard let sender = message.sender,
+              let csr =  ContactServerResponse(JSONString: sender),
+              let tribePubkey = csr.pubkey else
         {
             return
         }
         
-        fetchOrCreateChatWithTribe(
-            ownerPubkey: tribePubKey,
-            host: csr.host,
-            completion: { [weak self] chat, didCreateTribe  in
-                guard let self = self else {
-                    return
-                }
-                
-                if let chat = chat {
-                    let groupActionMessage = TransactionMessage.getMessageInstanceWith(
-                        id: Int(index),
-                        context: self.managedContext
-                    )
-                    groupActionMessage.uuid = uuid
-                    groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
-                    groupActionMessage.chat = chat
-                    groupActionMessage.type = Int(type)
-                    
-                    let innerContentDate = message.getInnerContentDate()
-                    groupActionMessage.createdAt = innerContentDate ?? date
-                    groupActionMessage.date = innerContentDate ?? date
-                    groupActionMessage.updatedAt = innerContentDate ?? date
-                    
-                    groupActionMessage.setAsLastMessage()
-                    groupActionMessage.senderAlias = csr.alias
-                    groupActionMessage.senderPic = csr.photoUrl
-                    groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
-                    groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
-                    
-                    chat.seen = false
-                
-                    if (didCreateTribe && csr.role != nil) {
-                        chat.isTribeICreated = csr.role == 0
-                    }
-                    if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
-                        chat.status = Chat.ChatStatus.approved.rawValue
-                    }
-                    if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
-                        chat.status = Chat.ChatStatus.rejected.rawValue
+        if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: tribePubkey) {
+            restoreGroupJoinMsg(
+                message: message,
+                chat: chat,
+                didCreateTribe: false,
+                shouldSendPush: shouldSendPush
+            )
+        } else {
+            fetchOrCreateChatWithTribe(
+                ownerPubkey: tribePubkey,
+                host: csr.host,
+                index: 0,
+                completion: { [weak self] chat, didCreateTribe, ind in
+                    guard let self = self else {
+                        return
                     }
                     
-                    if shouldSendPush {
-                        self.sendNotification(message: groupActionMessage)
+                    if let chat = chat {
+                        self.restoreGroupJoinMsg(
+                            message: message,
+                            chat: chat,
+                            didCreateTribe: didCreateTribe,
+                            shouldSendPush: shouldSendPush
+                        )
                     }
                 }
-            }
-        )
+            )
+        }
     }
     
     func processIncomingInvoice(

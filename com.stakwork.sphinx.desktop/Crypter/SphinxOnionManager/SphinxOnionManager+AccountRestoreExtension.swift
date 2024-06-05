@@ -499,8 +499,12 @@ extension SphinxOnionManager {
         }
     }
     
-    func restoreTribesFrom(messages: [Msg]) {
+    func restoreTribesFrom(
+        messages: [Msg],
+        completion: @escaping () -> ()
+    ) {
         if messages.isEmpty {
+            completion()
             return
         }
 
@@ -510,68 +514,126 @@ extension SphinxOnionManager {
         
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
-        for message in filteredMsgs {
-            ///Check for message information
-            guard let uuid = message.uuid,
-                  let index = message.index,
-                  let timestamp = message.timestamp,
-                  let type = message.type,
-                  let date = timestampToDate(timestamp: timestamp) else
-            {
-                continue
-            }
+        if filteredMsgs.isEmpty {
+            completion()
+            return
+        }
+        
+        let total = filteredMsgs.count
+        var index = 0
+        
+        for (i, message) in filteredMsgs.enumerated() {
             
             ///Check for sender information
             guard let sender = message.sender,
                   let csr =  ContactServerResponse(JSONString: sender),
                   let tribePubkey = csr.pubkey else
             {
+                if index == total - 1 {
+                    completion()
+                } else {
+                    index = index + 1
+                }
                 continue
             }
             
-            fetchOrCreateChatWithTribe(
-                ownerPubkey: tribePubkey,
-                host: csr.host,
-                completion: { [weak self] chat, didCreateTribe in
-                    guard let self = self else {
-                        return
-                    }
-                    
-                    if let chat = chat {
-                        let groupActionMessage = TransactionMessage.getMessageInstanceWith(
-                            id: Int(index),
-                            context: managedContext
-                        )
-                        groupActionMessage.uuid = uuid
-                        groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
-                        groupActionMessage.chat = chat
-                        groupActionMessage.type = Int(type)
-                        
-                        let innerContentDate = message.getInnerContentDate()
-                        groupActionMessage.createdAt = innerContentDate ?? date
-                        groupActionMessage.date = innerContentDate ?? date
-                        groupActionMessage.updatedAt = innerContentDate ?? date
-                        
-                        groupActionMessage.setAsLastMessage()
-                        groupActionMessage.senderAlias = csr.alias
-                        groupActionMessage.senderPic = csr.photoUrl
-                        groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
-                        groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
-                        
-                        chat.seen = false
-                        
-                        if (didCreateTribe && csr.role != nil) {
-                            chat.isTribeICreated = csr.role == 0
-                        }
-                        if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
-                            chat.status = Chat.ChatStatus.approved.rawValue
-                        }
-                        if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
-                            chat.status = Chat.ChatStatus.rejected.rawValue
-                        }
-                    }
+            if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: tribePubkey) {
+                restoreGroupJoinMsg(
+                    message: message,
+                    chat: chat,
+                    didCreateTribe: false,
+                    shouldSendPush: false
+                )
+                if index == total - 1 {
+                    completion()
+                } else {
+                    index = index + 1
                 }
-            )
+            } else {
+                fetchOrCreateChatWithTribe(
+                    ownerPubkey: tribePubkey,
+                    host: csr.host,
+                    index: i,
+                    completion: { [weak self] chat, didCreateTribe, ind in
+                        guard let self = self else {
+                            return
+                        }
+                        if let chat = chat {
+                            self.restoreGroupJoinMsg(
+                                message: message,
+                                chat: chat,
+                                didCreateTribe: didCreateTribe,
+                                shouldSendPush: false
+                            )
+                        }
+                        
+                        if index == total - 1 {
+                            completion()
+                        } else {
+                            index = index + 1
+                        }
+                    }
+                )
+            }
+        }
+    }
+    
+    func restoreGroupJoinMsg(
+        message: Msg,
+        chat: Chat,
+        didCreateTribe: Bool,
+        shouldSendPush: Bool
+    ) {
+        guard let uuid = message.uuid,
+              let index = message.index,
+              let timestamp = message.timestamp,
+              let type = message.type,
+              let date = timestampToDate(timestamp: timestamp) else
+        {
+            return
+        }
+        
+        ///Check for sender information
+        guard let sender = message.sender,
+              let csr =  ContactServerResponse(JSONString: sender) else
+        {
+            return
+        }
+        
+        let groupActionMessage = TransactionMessage.getMessageInstanceWith(
+            id: Int(index),
+            context: managedContext
+        )
+        groupActionMessage.uuid = uuid
+        groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+        groupActionMessage.chat = chat
+        groupActionMessage.type = Int(type)
+        
+        let innerContentDate = message.getInnerContentDate()
+        groupActionMessage.createdAt = innerContentDate ?? date
+        groupActionMessage.date = innerContentDate ?? date
+        groupActionMessage.updatedAt = innerContentDate ?? date
+        
+        groupActionMessage.setAsLastMessage()
+        groupActionMessage.senderAlias = csr.alias
+        groupActionMessage.senderPic = csr.photoUrl
+        groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
+        groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+        
+        chat.seen = false
+        
+        if (didCreateTribe && csr.role != nil) {
+            chat.isTribeICreated = csr.role == 0
+        }
+        if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
+            chat.status = Chat.ChatStatus.approved.rawValue
+        }
+        if (type == TransactionMessage.TransactionMessageType.memberReject.rawValue) {
+            chat.status = Chat.ChatStatus.rejected.rawValue
+        }
+        
+        if shouldSendPush {
+            self.sendNotification(message: groupActionMessage)
         }
     }
 
