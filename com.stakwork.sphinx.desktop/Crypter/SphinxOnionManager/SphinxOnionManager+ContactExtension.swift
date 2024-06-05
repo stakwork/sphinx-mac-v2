@@ -103,7 +103,7 @@ extension SphinxOnionManager {//contacts related
                     
                     ///Create chat for contact and save
                     if contact.getChat() == nil {
-                        createChat(for: contact, with: msg.date)
+                        let _ = createChat(for: contact, with: msg.date)
                     }
                     
                     continue
@@ -121,7 +121,7 @@ extension SphinxOnionManager {//contacts related
                 
                 ///Create chat for contacts and save
                 if newContactRequest.getChat() == nil {
-                    createChat(for: newContactRequest, with: msg.date)
+                    let _ = createChat(for: newContactRequest, with: msg.date)
                 }
                 
                 managedContext.saveContext()
