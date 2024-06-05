@@ -759,7 +759,7 @@ struct MessageTableCellState {
         } else if message.isGroupLeaveMessage() {
             messageString = message.getGroupLeaveMessageText(senderAlias: senderInfo.1)
         } else if message.isApprovedRequest() {
-            messageString = "member.request.approved".localized
+            messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
         }
         
         return NoBubbleMessageLayoutState.GroupMemberNotification(message: messageString)
