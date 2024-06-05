@@ -280,7 +280,7 @@ class SphinxOnionManager : NSObject {
         hideRestoreViewCallback: (()->())? = nil
     ) {
         if let mqtt = self.mqtt, mqtt.connState == .connected {
-            ///If onMessageRestoredCallback is not nil, then process is already running
+            ///If already fetching content, then process is already running
             if !isFetchingContent() {
                 self.hideRestoreCallback = hideRestoreViewCallback
                 self.getBlockHeight()
