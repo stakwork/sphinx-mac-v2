@@ -115,7 +115,7 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         var pubkey = pubkey
         
         if let routeHint = routeHint, routeHint.isNotEmpty {
-            pubkey = "\(pubkey):\(routeHint)"
+            pubkey = "\(pubkey)_\(routeHint)"
         }
         
         let userInfo: [String: Any] = ["pub-key" : pubkey]
