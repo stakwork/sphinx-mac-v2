@@ -858,7 +858,7 @@ extension TransactionMessage {
         owner: UserContact,
         contact: UserContact?
     ) -> String {
-        if self.chat?.isMyPublicGroup(ownerPubKey: owner.publicKey) ?? false {
+        if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.rejected".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
             return "member.request.rejected".localized
@@ -869,7 +869,7 @@ extension TransactionMessage {
         owner: UserContact,
         contact: UserContact?
     ) -> String {
-        if self.chat?.isMyPublicGroup(ownerPubKey: owner.publicKey) ?? false {
+        if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.approved".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
             return "member.request.approved".localized
