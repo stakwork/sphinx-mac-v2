@@ -78,6 +78,7 @@ extension UserDefaults {
         
         public static let selectedChat = DefaultKey<String>("selectedChat")
         public static let deletedTribesPubKeys = DefaultKey<[String]>("deletedTribesPubKeys")
+        public static let maxMessageIndex = DefaultKey<Int>("maxMessageIndex")
         
         public static let isProductionEnv = DefaultKey<Bool>("isProductionEnv")
         public static let serverIP = DefaultKey<String>("serverIP")
