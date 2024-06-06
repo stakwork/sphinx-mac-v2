@@ -94,7 +94,7 @@ extension SphinxOnionManager {//contacts related
                         continue
                     }
                     
-                    if let routeHint = routeHint {
+                    if let routeHint = csr.routeHint {
                         contact.routeHint = routeHint
                     }
                     contact.status = UserContact.Status.Confirmed.rawValue

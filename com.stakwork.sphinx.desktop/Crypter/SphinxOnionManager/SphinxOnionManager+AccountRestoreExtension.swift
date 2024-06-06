@@ -468,7 +468,7 @@ extension SphinxOnionManager {
                 continue
             }
             
-            let routeHint: String? = message.message?.toMessageInnerContent()?.getRouteHint()
+            let routeHint: String? = csr.routeHint
                 
             let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(
                 pubkey: recipientPubkey,
