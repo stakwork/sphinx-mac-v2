@@ -136,6 +136,31 @@ extension TransactionMessage {
         return messages
     }
     
+    static func getAllSentConfirmedMessagesFor(
+        chat: Chat,
+        context: NSManagedObjectContext? = nil
+    ) -> [TransactionMessage] {
+        
+        let userId = UserData.sharedInstance.getUserId()
+        
+        let predicate = NSPredicate(
+            format: "chat == %@ AND status == %d AND senderId = %d",
+            chat,
+            TransactionMessage.TransactionMessageStatus.confirmed.rawValue,
+            userId
+        )
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            managedContext: context
+        )
+        
+        return messages
+    }
+    
     static func getLastMessageFor(chat: Chat) -> TransactionMessage? {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()

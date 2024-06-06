@@ -92,6 +92,8 @@ extension SphinxOnionManager {
         
         ///Handling topics to publish on MQTT
         handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
+
+        handleMessagesStatus(tags: rr.tags)
         
         return getMessageTag(messages: rr.msgs, isSendingMessage: isSendingMessage)
     }
@@ -217,6 +219,12 @@ extension SphinxOnionManager {
                     print("Error decoding JSON: \(error)")
                 }
             }
+        }
+    }
+    
+    func handleMessagesStatus(tags: String?) {
+        if let tags = tags {
+            print(tags)
         }
     }
     

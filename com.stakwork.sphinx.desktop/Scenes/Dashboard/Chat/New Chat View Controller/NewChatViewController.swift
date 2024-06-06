@@ -140,6 +140,7 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
+        fetchMessagesStatus()
     }
     
     override func viewWillDisappear() {
@@ -159,6 +160,10 @@ class NewChatViewController: DashboardSplittedViewController {
     
     override func viewDidLayout() {
         chatTableDataSource?.updateFrame()
+    }
+    
+    func fetchMessagesStatus() {
+        newChatViewModel?.fetchMessagesStatus()
     }
     
     func closeThreadAndResetEscapeMonitor() {
