@@ -20,9 +20,7 @@ class ChatHelper {
         
         if !(message.chat?.isPublicGroup() ?? false) || message.senderId == 1 {
             key = "\(message.senderId)-color"
-        }
-        
-        if let senderAlias = message.senderAlias, !senderAlias.isEmpty {
+        } else if let senderAlias = message.senderAlias, !senderAlias.isEmpty {
             key = "\(senderAlias.trim())-color"
         }
 

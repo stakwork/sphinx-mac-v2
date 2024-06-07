@@ -63,16 +63,12 @@ extension TransactionMessage {
     ) -> String {
         var alias = "name.unknown".localized
         
-        if let senderAlias = senderAlias {
+        if isOutgoing(ownerId: owner.id) {
+            return "name.you".localized
+        } else if let senderAlias = senderAlias {
             alias = senderAlias
-        } else {
-            if isIncoming(ownerId: owner.id) {
-                if let sender = (contact ?? getMessageSender()) {
-                    alias = sender.getUserName(forceNickname: forceNickname)
-                }
-            } else {
-                alias = owner.getUserName(forceNickname: forceNickname)
-            }
+        } else if let sender = (contact ?? getMessageSender()) {
+            alias = sender.getUserName(forceNickname: forceNickname)
         }
         
         if let first = alias.components(separatedBy: " ").first, minimized {

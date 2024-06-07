@@ -347,6 +347,7 @@
 "copy.pub.key" = "Copiar Clave";
 "copy.call.link" = "Copiar Enlace";
 "reply" = "Responder";
+"reply.to" = "Respondiendo a";
 "save.file" = "Descargar";
 "delete.message" = "Eliminar Mensaje";
 "resend.message" = "Mandar otra vez";

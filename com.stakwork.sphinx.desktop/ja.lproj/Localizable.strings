@@ -346,6 +346,7 @@
 "copy.pub.key" = "公開キーをコピー";
 "copy.call.link" = "通話リンクをコピー";
 "reply" = "返信";
+"reply.to" = "に返信する";
 "save.file" = "ファイルを保存";
 "delete.message" = "メッセージを削除";
 "resend.message" = "再送";
