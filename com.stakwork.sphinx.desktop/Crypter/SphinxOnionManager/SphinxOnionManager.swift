@@ -462,6 +462,11 @@ class SphinxOnionManager : NSObject {
         } catch {}
     }
     
+    func deleteOwnerFromState() {
+        if let publicKey = UserContact.getOwner()?.publicKey {
+            SphinxOnionManager.sharedInstance.deleteContactFromState(pubkey: publicKey)
+        }
+    }
     
     func createMyAccount(
         mnemonic: String,

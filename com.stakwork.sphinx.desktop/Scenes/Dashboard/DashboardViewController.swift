@@ -112,6 +112,7 @@ class DashboardViewController: NSViewController {
     
     func connectToServer() {
         SphinxOnionManager.sharedInstance.fetchMyAccountFromState()
+        SphinxOnionManager.sharedInstance.deleteOwnerFromState()
         
         SphinxOnionManager.sharedInstance.connectToServer(
             connectingCallback: {

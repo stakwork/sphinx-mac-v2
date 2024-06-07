@@ -711,10 +711,12 @@ public struct RunReturn {
     public var `muteLevels`: String?
     public var `payments`: String?
     public var `paymentsTotal`: UInt64?
+    public var `tags`: String?
+    public var `deletedMsgs`: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(`msgs`: [Msg], `msgsTotal`: UInt64?, `msgsCounts`: String?, `subscriptionTopics`: [String], `settleTopic`: String?, `settlePayload`: Data?, `topics`: [String], `payloads`: [Data], `stateMp`: Data?, `stateToDelete`: [String], `newBalance`: UInt64?, `myContactInfo`: String?, `sentStatus`: String?, `settledStatus`: String?, `error`: String?, `newTribe`: String?, `tribeMembers`: String?, `newInvite`: String?, `inviterContactInfo`: String?, `inviterAlias`: String?, `initialTribe`: String?, `lspHost`: String?, `invoice`: String?, `route`: String?, `node`: String?, `lastRead`: String?, `muteLevels`: String?, `payments`: String?, `paymentsTotal`: UInt64?) {
+    public init(`msgs`: [Msg], `msgsTotal`: UInt64?, `msgsCounts`: String?, `subscriptionTopics`: [String], `settleTopic`: String?, `settlePayload`: Data?, `topics`: [String], `payloads`: [Data], `stateMp`: Data?, `stateToDelete`: [String], `newBalance`: UInt64?, `myContactInfo`: String?, `sentStatus`: String?, `settledStatus`: String?, `error`: String?, `newTribe`: String?, `tribeMembers`: String?, `newInvite`: String?, `inviterContactInfo`: String?, `inviterAlias`: String?, `initialTribe`: String?, `lspHost`: String?, `invoice`: String?, `route`: String?, `node`: String?, `lastRead`: String?, `muteLevels`: String?, `payments`: String?, `paymentsTotal`: UInt64?, `tags`: String?, `deletedMsgs`: String?) {
         self.`msgs` = `msgs`
         self.`msgsTotal` = `msgsTotal`
         self.`msgsCounts` = `msgsCounts`
@@ -744,6 +746,8 @@ public struct RunReturn {
         self.`muteLevels` = `muteLevels`
         self.`payments` = `payments`
         self.`paymentsTotal` = `paymentsTotal`
+        self.`tags` = `tags`
+        self.`deletedMsgs` = `deletedMsgs`
     }
 }
 
@@ -837,6 +841,12 @@ extension RunReturn: Equatable, Hashable {
         if lhs.`paymentsTotal` != rhs.`paymentsTotal` {
             return false
         }
+        if lhs.`tags` != rhs.`tags` {
+            return false
+        }
+        if lhs.`deletedMsgs` != rhs.`deletedMsgs` {
+            return false
+        }
         return true
     }
 
@@ -870,6 +880,8 @@ extension RunReturn: Equatable, Hashable {
         hasher.combine(`muteLevels`)
         hasher.combine(`payments`)
         hasher.combine(`paymentsTotal`)
+        hasher.combine(`tags`)
+        hasher.combine(`deletedMsgs`)
     }
 }
 
@@ -905,7 +917,9 @@ public struct FfiConverterTypeRunReturn: FfiConverterRustBuffer {
             `lastRead`: FfiConverterOptionString.read(from: &buf), 
             `muteLevels`: FfiConverterOptionString.read(from: &buf), 
             `payments`: FfiConverterOptionString.read(from: &buf), 
-            `paymentsTotal`: FfiConverterOptionUInt64.read(from: &buf)
+            `paymentsTotal`: FfiConverterOptionUInt64.read(from: &buf), 
+            `tags`: FfiConverterOptionString.read(from: &buf), 
+            `deletedMsgs`: FfiConverterOptionString.read(from: &buf)
         )
     }
 
@@ -939,6 +953,8 @@ public struct FfiConverterTypeRunReturn: FfiConverterRustBuffer {
         FfiConverterOptionString.write(value.`muteLevels`, into: &buf)
         FfiConverterOptionString.write(value.`payments`, into: &buf)
         FfiConverterOptionUInt64.write(value.`paymentsTotal`, into: &buf)
+        FfiConverterOptionString.write(value.`tags`, into: &buf)
+        FfiConverterOptionString.write(value.`deletedMsgs`, into: &buf)
     }
 }
 
@@ -1467,6 +1483,49 @@ fileprivate struct FfiConverterOptionData: FfiConverterRustBuffer {
         case 1: return try FfiConverterData.read(from: &buf)
         default: throw UniffiInternalError.unexpectedOptionalTag
         }
+    }
+}
+
+fileprivate struct FfiConverterOptionSequenceUInt64: FfiConverterRustBuffer {
+    typealias SwiftType = [UInt64]?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterSequenceUInt64.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterSequenceUInt64.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+fileprivate struct FfiConverterSequenceUInt64: FfiConverterRustBuffer {
+    typealias SwiftType = [UInt64]
+
+    public static func write(_ value: [UInt64], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterUInt64.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [UInt64] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [UInt64]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterUInt64.read(from: &buf))
+        }
+        return seq
     }
 }
 
@@ -2368,6 +2427,58 @@ public func `fetchPayments`(`seed`: String, `uniqueTime`: String, `state`: Data,
     )
 }
 
+public func `getTags`(`seed`: String, `uniqueTime`: String, `state`: Data, `tags`: [String], `pubkey`: String?) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_get_tags(
+        FfiConverterString.lower(`seed`),
+        FfiConverterString.lower(`uniqueTime`),
+        FfiConverterData.lower(`state`),
+        FfiConverterSequenceString.lower(`tags`),
+        FfiConverterOptionString.lower(`pubkey`),$0)
+}
+    )
+}
+
+public func `deleteMsgs`(`seed`: String, `uniqueTime`: String, `state`: Data, `pubkey`: String?, `msgIdxs`: [UInt64]?) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_delete_msgs(
+        FfiConverterString.lower(`seed`),
+        FfiConverterString.lower(`uniqueTime`),
+        FfiConverterData.lower(`state`),
+        FfiConverterOptionString.lower(`pubkey`),
+        FfiConverterOptionSequenceUInt64.lower(`msgIdxs`),$0)
+}
+    )
+}
+
+public func `updateTribe`(`seed`: String, `uniqueTime`: String, `state`: Data, `tribeServerPubkey`: String, `tribeJson`: String) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_update_tribe(
+        FfiConverterString.lower(`seed`),
+        FfiConverterString.lower(`uniqueTime`),
+        FfiConverterData.lower(`state`),
+        FfiConverterString.lower(`tribeServerPubkey`),
+        FfiConverterString.lower(`tribeJson`),$0)
+}
+    )
+}
+
+public func `deleteTribe`(`seed`: String, `uniqueTime`: String, `state`: Data, `tribeServerPubkey`: String, `tribePubkey`: String) throws -> RunReturn {
+    return try  FfiConverterTypeRunReturn.lift(
+        try rustCallWithError(FfiConverterTypeSphinxError.lift) {
+    uniffi_sphinxrs_fn_func_delete_tribe(
+        FfiConverterString.lower(`seed`),
+        FfiConverterString.lower(`uniqueTime`),
+        FfiConverterData.lower(`state`),
+        FfiConverterString.lower(`tribeServerPubkey`),
+        FfiConverterString.lower(`tribePubkey`),$0)
+}
+    )
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -2585,6 +2696,18 @@ private var initializationResult: InitializationResult {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_sphinxrs_checksum_func_fetch_payments() != 58291) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_sphinxrs_checksum_func_get_tags() != 42493) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_sphinxrs_checksum_func_delete_msgs() != 39403) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_sphinxrs_checksum_func_update_tribe() != 26002) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_sphinxrs_checksum_func_delete_tribe() != 11926) {
         return InitializationResult.apiChecksumMismatch
     }
 

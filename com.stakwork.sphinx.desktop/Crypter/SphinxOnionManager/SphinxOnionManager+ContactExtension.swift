@@ -202,8 +202,12 @@ extension SphinxOnionManager {//contacts related
     ) -> Chat? {
         let contactID = NSNumber(value: contact.id)
         
-        if let _ = Chat.getAll().filter({$0.contactIds.contains(contactID)}).first{
+        if let _ = Chat.getAll().filter({$0.contactIds.contains(contactID)}).first {
             return nil //don't make duplicates
+        }
+        
+        if contact.isOwner {
+            return nil
         }
         
         let selfContactId =  0
