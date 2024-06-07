@@ -677,6 +677,10 @@ extension SphinxOnionManager {
         endWatchdogTime()
         resetFromRestore()
         purgeObsoleteChats()
+        
+        if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+            UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
+        }
     }
     
     func purgeObsoleteChats(){
