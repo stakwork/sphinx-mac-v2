@@ -63,16 +63,12 @@ extension TransactionMessage {
     ) -> String {
         var alias = "name.unknown".localized
         
-        if let senderAlias = senderAlias {
+        if isOutgoing(ownerId: owner.id) {
+            return "name.you".localized
+        } else if let senderAlias = senderAlias {
             alias = senderAlias
-        } else {
-            if isIncoming(ownerId: owner.id) {
-                if let sender = (contact ?? getMessageSender()) {
-                    alias = sender.getUserName(forceNickname: forceNickname)
-                }
-            } else {
-                alias = owner.getUserName(forceNickname: forceNickname)
-            }
+        } else if let sender = (contact ?? getMessageSender()) {
+            alias = sender.getUserName(forceNickname: forceNickname)
         }
         
         if let first = alias.components(separatedBy: " ").first, minimized {
@@ -858,7 +854,7 @@ extension TransactionMessage {
         owner: UserContact,
         contact: UserContact?
     ) -> String {
-        if self.chat?.isMyPublicGroup(ownerPubKey: owner.publicKey) ?? false {
+        if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.rejected".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
             return "member.request.rejected".localized
@@ -869,7 +865,7 @@ extension TransactionMessage {
         owner: UserContact,
         contact: UserContact?
     ) -> String {
-        if self.chat?.isMyPublicGroup(ownerPubKey: owner.publicKey) ?? false {
+        if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.approved".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
             return "member.request.approved".localized

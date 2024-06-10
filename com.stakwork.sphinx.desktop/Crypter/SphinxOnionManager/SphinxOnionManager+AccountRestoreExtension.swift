@@ -509,7 +509,8 @@ extension SphinxOnionManager {
         }
 
         let allowedTypes = [
-            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.memberApprove.rawValue),
         ]
         
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
@@ -621,10 +622,11 @@ extension SphinxOnionManager {
         groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
         
         chat.seen = false
-        
+         
         if (didCreateTribe && csr.role != nil) {
-            chat.isTribeICreated = csr.role == 0
+            chat.isTribeICreated = csr.role == 0 && message.fromMe == true
         }
+            
         if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
             chat.status = Chat.ChatStatus.approved.rawValue
         }
@@ -675,6 +677,10 @@ extension SphinxOnionManager {
         endWatchdogTime()
         resetFromRestore()
         purgeObsoleteChats()
+        
+        if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+            UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
+        }
     }
     
     func purgeObsoleteChats(){

@@ -1,68 +1,68 @@
 {
   "images" : [
     {
-      "size" : "16x16",
+      "filename" : "iconMac16x16.png",
       "idiom" : "mac",
-      "filename" : "icon-16.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "16x16"
     },
     {
-      "size" : "16x16",
+      "filename" : "iconMac32x32 1.png",
       "idiom" : "mac",
-      "filename" : "icon-32-bis.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "16x16"
     },
     {
-      "size" : "32x32",
+      "filename" : "iconMac32x32.png",
       "idiom" : "mac",
-      "filename" : "icon-32.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "32x32"
     },
     {
-      "size" : "32x32",
+      "filename" : "iconMac64x64.png",
       "idiom" : "mac",
-      "filename" : "icon-64.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "32x32"
     },
     {
-      "size" : "128x128",
+      "filename" : "iconMac128x128.png",
       "idiom" : "mac",
-      "filename" : "icon-128.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "128x128"
     },
     {
-      "size" : "128x128",
+      "filename" : "iconMac256x256 1.png",
       "idiom" : "mac",
-      "filename" : "icon-256-bis.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "128x128"
     },
     {
-      "size" : "256x256",
+      "filename" : "iconMac256x256.png",
       "idiom" : "mac",
-      "filename" : "icon-256.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "256x256"
     },
     {
-      "size" : "256x256",
+      "filename" : "iconMac512x512 1.png",
       "idiom" : "mac",
-      "filename" : "icon-512-bis.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "256x256"
     },
     {
-      "size" : "512x512",
+      "filename" : "iconMac512x512.png",
       "idiom" : "mac",
-      "filename" : "icon-512.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "512x512"
     },
     {
-      "size" : "512x512",
+      "filename" : "iconMac1024x1024.png",
       "idiom" : "mac",
-      "filename" : "icon-1024-1x.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "512x512"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   }
 }
