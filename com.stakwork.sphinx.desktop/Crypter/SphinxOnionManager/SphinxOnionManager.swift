@@ -57,6 +57,8 @@ class SphinxOnionManager : NSObject {
     var shouldPostUpdates : Bool = false
     let tribeMinEscrowSats = 3
     
+    var restoredContactInfoTracker = [String]() //[pubkey:(alias, photoUrl, photoTimestamp)]
+    
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     

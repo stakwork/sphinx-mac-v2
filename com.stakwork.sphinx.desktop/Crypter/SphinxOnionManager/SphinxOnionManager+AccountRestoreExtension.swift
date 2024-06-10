@@ -473,6 +473,8 @@ extension SphinxOnionManager {
             let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(
                 pubkey: recipientPubkey,
                 routeHint: routeHint,
+                nickname: csr.alias,
+                photoUrl: csr.photoUrl,
                 code: csr.code,
                 date: message.date
             )
@@ -484,8 +486,6 @@ extension SphinxOnionManager {
             if let routeHint = routeHint {
                 contact.routeHint = routeHint
             }
-            contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
-            contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
             
             let isConfirmed = csr.confirmed == true
             
@@ -673,6 +673,8 @@ extension SphinxOnionManager {
         
         messageFetchParams = nil
         chatsFetchParams = nil
+        
+        restoredContactInfoTracker = []
         
         endWatchdogTime()
         resetFromRestore()
