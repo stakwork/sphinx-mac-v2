@@ -54,7 +54,7 @@ extension SphinxOnionManager {//contacts related
                 routeHint: "\(recipLspPubkey)_\(scid)",
                 myAlias: (selfContact.nickname ?? nickname) ?? "",
                 myImg: selfContact.avatarUrl ?? "",
-                amtMsat: 1000,
+                amtMsat: 5000,
                 inviteCode: inviteCode,
                 theirAlias: nickname
             )
