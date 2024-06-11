@@ -111,6 +111,28 @@ struct MessageInnerContent: Mappable {
     }
 }
 
+struct MessageStatusMap: Mappable {
+    var ts: Int?
+    var status: String?
+    var tag: String?
+
+    init?(map: Map) {}
+
+    mutating func mapping(map: Map) {
+        ts          <- map["ts"]
+        status      <- map["status"]
+        tag         <- map["tag"]
+    }
+    
+    func isReceived() -> Bool {
+        return self.status == SphinxOnionManager.kCompleteStatus
+    }
+    
+    func isFailed() -> Bool {
+        return self.status == SphinxOnionManager.kFailedStatus
+    }
+}
+
 
 struct GenericIncomingMessage: Mappable {
     var content: String?

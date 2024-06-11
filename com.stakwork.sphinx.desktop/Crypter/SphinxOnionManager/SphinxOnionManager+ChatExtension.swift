@@ -1240,14 +1240,8 @@ extension SphinxOnionManager {
         }
     }
     
-    func getMessagesStatusFor(chat: Chat) {
+    func getMessagesStatusFor(tags: [String]) {
         guard let seed = getAccountSeed() else{
-            return
-        }
-        
-        let tags = TransactionMessage.getAllSentConfirmedMessagesFor(chat: chat).compactMap({ $0.tag })
-        
-        if tags.isEmpty {
             return
         }
         

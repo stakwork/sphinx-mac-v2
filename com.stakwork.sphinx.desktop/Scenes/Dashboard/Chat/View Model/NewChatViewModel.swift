@@ -56,13 +56,6 @@ class NewChatViewModel {
         )
     }
     
-    func fetchMessagesStatus() {
-        guard let chat = self.chat else {
-            return
-        }
-        SphinxOnionManager.sharedInstance.getMessagesStatusFor(chat: chat)
-    }
-    
     ///Leaderboard and badges
 //    func loadBadgesAndLeaderboard() {
 //        getChatLeaderboards()

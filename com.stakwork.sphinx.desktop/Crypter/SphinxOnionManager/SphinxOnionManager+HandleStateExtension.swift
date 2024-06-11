@@ -208,7 +208,7 @@ extension SphinxOnionManager {
             if let data = settledStatus.data(using: .utf8) {
                 do {
                     if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
-                        if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == kCompleteStatus {
+                        if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == SphinxOnionManager.kCompleteStatus {
                             if let RRObject = settledRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
                                 let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
                             }
@@ -224,7 +224,33 @@ extension SphinxOnionManager {
     
     func handleMessagesStatus(tags: String?) {
         if let tags = tags {
-            print(tags)
+            if let data = tags.data(using: .utf8) {
+                do {
+                    if let array = try JSON(data: data).array {
+                        var dictionary: [String: MessageStatusMap] = [:]
+                        
+                        for message in array {
+                            if let dictionaryObject = message.dictionaryObject, let messageStatus = MessageStatusMap(JSON: dictionaryObject) {
+                                if let tag = messageStatus.tag {
+                                    dictionary[tag] = messageStatus
+                                }
+                            }
+                        }
+                        
+                        let tags = array.compactMap({ $0["tag"].stringValue }).filter({ $0.isNotEmpty })
+                        
+                        for message in TransactionMessage.getMessagesWith(tags: tags) {
+                            if let messageStatus = dictionary[message.tag ?? ""] {
+                                message.status = messageStatus.isReceived() ? TransactionMessage.TransactionMessageStatus.received.rawValue : TransactionMessage.TransactionMessageStatus.failed.rawValue
+                            }
+                        }
+                        
+                        CoreDataManager.sharedManager.saveContext()
+                    }
+                } catch {
+                    print("Error decoding JSON: \(error)")
+                }
+            }
         }
     }
     
@@ -290,9 +316,9 @@ extension SphinxOnionManager {
            let tag = sentStatus.tag,
            let cachedMessage = TransactionMessage.getMessageWith(tag: tag)
         {
-            if (sentStatus.status == kCompleteStatus) {
+            if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
                  cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
-            } else if (sentStatus.status == kFailedStatus) {
+            } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
                 cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
             }
         }

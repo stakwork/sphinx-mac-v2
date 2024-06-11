@@ -774,6 +774,8 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     
                     self.UIUpdateIndex += 1
                     
+                    self.updateMessagesStatusesFrom(messages: self.messagesArray)
+                    
                     self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
                     self.configureBoostAndPurchaseResultsController()
                 }
@@ -787,6 +789,29 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                 self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
             }
         }
+    }
+    
+    func updateMessagesStatusesFrom(messages: [TransactionMessage]) {
+        if !messageTableCellStateArray.isEmpty && !loadingMoreItems {
+            ///Just do it the first time messages are loaded
+            return
+        }
+        
+        if messages.isEmpty {
+            return
+        }
+        
+        let confirmedMessages = messages.filter({
+            return $0.senderId == UserData.sharedInstance.getUserId() &&
+                   $0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+        })
+        let tags = confirmedMessages.compactMap({ $0.tag })
+        
+        if tags.isEmpty {
+            return
+        }
+        
+        SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
     }
     
     func resetFetchedResultsControllers() {
