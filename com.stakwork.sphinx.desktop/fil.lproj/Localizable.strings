@@ -346,6 +346,7 @@
 "copy.pub.key"  = "Kopyahin ang Pampublikong susi";
 "copy.call.link"  = "Kopyahin ang Link ng Tawag";
 "reply"  = "Sumagot";
+"reply.to" = "tumutugon sa";
 "save.file"  = "I-Save ang File";
 "delete.message"  = "Tanggalin ang Mensahe";
 "resend.message" = "Ipadala ulit";

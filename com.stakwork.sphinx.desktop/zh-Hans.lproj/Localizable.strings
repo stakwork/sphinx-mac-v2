@@ -346,6 +346,7 @@
 "copy.pub.key" = "复制公钥";
 "copy.call.link" = "复制呼叫链接";
 "reply" = "回复";
+"reply.to" = "回复";
 "save.file" = "保存文件";
 "delete.message" = "删除消息";
 "resend.message" = "重发";

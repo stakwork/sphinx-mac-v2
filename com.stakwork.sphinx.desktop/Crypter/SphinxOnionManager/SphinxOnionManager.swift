@@ -57,6 +57,8 @@ class SphinxOnionManager : NSObject {
     var shouldPostUpdates : Bool = false
     let tribeMinEscrowSats = 3
     
+    var restoredContactInfoTracker = [String]()
+    
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
@@ -124,7 +126,7 @@ class SphinxOnionManager : NSObject {
             if let defaultTribePublicKey: String = UserDefaults.Keys.defaultTribePublicKey.get() {
                 return defaultTribePublicKey
             }
-            return UserDefaults.Keys.defaultTribePublicKey.get()
+            return kTestDefaultTribe
         }
     }
     
@@ -132,6 +134,7 @@ class SphinxOnionManager : NSObject {
     let kTestServerPort: UInt16 = 1883
     let kProdServerPort: UInt16 = 8883
     let kTestV2TribesServer = "34.229.52.200:8801"
+    let kTestDefaultTribe = "0213ddd7df0077abe11d6ec9753679eeef9f444447b70f2980e44445b3f7959ad1"
     
     var network: String {
         get {
@@ -145,6 +148,16 @@ class SphinxOnionManager : NSObject {
     var totalMsgsCountCallback: (() -> ())? = nil
     var firstSCIDMsgsCallback: (([Msg]) -> ())? = nil
     var onMessageRestoredCallback: (([Msg]) -> ())? = nil
+    
+    var maxMessageIndex: Int? {
+        get {
+            if let maxMessageIndex: Int = UserDefaults.Keys.maxMessageIndex.get() {
+                return maxMessageIndex
+            }
+            return TransactionMessage.getMaxIndex()
+        }
+    }
+    
     ///Create tribe
     var createTribeCallback: ((String) -> ())? = nil
     
@@ -312,7 +325,7 @@ class SphinxOnionManager : NSObject {
     }
     
     func syncNewMessages() {
-        let maxIndex = TransactionMessage.getMaxIndex()
+        let maxIndex = maxMessageIndex
         
         startAllMsgBlockFetch(
             startIndex: (maxIndex != nil) ? maxIndex! + 1 : 0,
@@ -451,6 +464,11 @@ class SphinxOnionManager : NSObject {
         } catch {}
     }
     
+    func deleteOwnerFromState() {
+        if let publicKey = UserContact.getOwner()?.publicKey {
+            SphinxOnionManager.sharedInstance.deleteContactFromState(pubkey: publicKey)
+        }
+    }
     
     func createMyAccount(
         mnemonic: String,

@@ -54,7 +54,7 @@ extension SphinxOnionManager {//contacts related
                 routeHint: "\(recipLspPubkey)_\(scid)",
                 myAlias: (selfContact.nickname ?? nickname) ?? "",
                 myImg: selfContact.avatarUrl ?? "",
-                amtMsat: 1000,
+                amtMsat: 5000,
                 inviteCode: inviteCode,
                 theirAlias: nickname
             )
@@ -94,12 +94,17 @@ extension SphinxOnionManager {//contacts related
                         continue
                     }
                     
-                    if let routeHint = routeHint {
+                    if let routeHint = csr.routeHint {
                         contact.routeHint = routeHint
                     }
                     contact.status = UserContact.Status.Confirmed.rawValue
-                    contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
-                    contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
+                    
+                    updateContactInfoFromMessage(
+                        contact: contact,
+                        alias: csr.alias,
+                        photoUrl: csr.photoUrl,
+                        pubkey: senderPubkey
+                    )
                     
                     ///Create chat for contact and save
                     if contact.getChat() == nil {
@@ -202,8 +207,12 @@ extension SphinxOnionManager {//contacts related
     ) -> Chat? {
         let contactID = NSNumber(value: contact.id)
         
-        if let _ = Chat.getAll().filter({$0.contactIds.contains(contactID)}).first{
+        if let _ = Chat.getAll().filter({$0.contactIds.contains(contactID)}).first {
             return nil //don't make duplicates
+        }
+        
+        if contact.isOwner {
+            return nil
         }
         
         let selfContactId =  0

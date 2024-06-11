@@ -468,11 +468,13 @@ extension SphinxOnionManager {
                 continue
             }
             
-            let routeHint: String? = message.message?.toMessageInnerContent()?.getRouteHint()
+            let routeHint: String? = csr.routeHint
                 
             let contact = UserContact.getContactWithDisregardStatus(pubkey: recipientPubkey) ?? createNewContact(
                 pubkey: recipientPubkey,
                 routeHint: routeHint,
+                nickname: csr.alias,
+                photoUrl: csr.photoUrl,
                 code: csr.code,
                 date: message.date
             )
@@ -484,8 +486,6 @@ extension SphinxOnionManager {
             if let routeHint = routeHint {
                 contact.routeHint = routeHint
             }
-            contact.nickname = (csr.alias?.isEmpty == true) ? contact.nickname : csr.alias
-            contact.avatarUrl = (csr.photoUrl?.isEmpty == true) ? contact.avatarUrl : csr.photoUrl
             
             let isConfirmed = csr.confirmed == true
             
@@ -509,7 +509,8 @@ extension SphinxOnionManager {
         }
 
         let allowedTypes = [
-            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue)
+            UInt8(TransactionMessage.TransactionMessageType.groupJoin.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.memberApprove.rawValue),
         ]
         
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
@@ -621,10 +622,11 @@ extension SphinxOnionManager {
         groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
         
         chat.seen = false
-        
+         
         if (didCreateTribe && csr.role != nil) {
-            chat.isTribeICreated = csr.role == 0
+            chat.isTribeICreated = csr.role == 0 && message.fromMe == true
         }
+            
         if (type == TransactionMessage.TransactionMessageType.memberApprove.rawValue) {
             chat.status = Chat.ChatStatus.approved.rawValue
         }
@@ -672,9 +674,15 @@ extension SphinxOnionManager {
         messageFetchParams = nil
         chatsFetchParams = nil
         
+        restoredContactInfoTracker = []
+        
         endWatchdogTime()
         resetFromRestore()
         purgeObsoleteChats()
+        
+        if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+            UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
+        }
     }
     
     func purgeObsoleteChats(){

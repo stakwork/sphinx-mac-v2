@@ -33,6 +33,7 @@ enum SphinxMsgError: Error {
 
 struct ContactServerResponse: Mappable {
     var pubkey: String?
+    var routeHint: String?
     var alias: String?
     var host:String?
     var photoUrl: String?
@@ -47,6 +48,7 @@ struct ContactServerResponse: Mappable {
 
     mutating func mapping(map: Map) {
         pubkey          <- map["pubkey"]
+        routeHint       <- map["route_hint"]
         alias           <- map["alias"]
         photoUrl        <- map["photo_url"]
         person          <- map["person"]

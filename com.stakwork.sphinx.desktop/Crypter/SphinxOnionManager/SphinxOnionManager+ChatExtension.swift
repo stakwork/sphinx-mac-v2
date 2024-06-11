@@ -308,6 +308,11 @@ extension SphinxOnionManager {
                     message?.amount = NSDecimalNumber(value: amount)
                 }
                 
+                if chat.isPublicGroup(), let owner = UserContact.getOwner() {
+                    message?.senderAlias = owner.nickname
+                    message?.senderPic = owner.avatarUrl
+                }
+                
                 if msgType == TransactionMessage.TransactionMessageType.purchase.rawValue || msgType == TransactionMessage.TransactionMessageType.attachment.rawValue {
                     message?.mediaKey = mediaKey
                     message?.mediaToken = mediaToken
@@ -839,17 +844,12 @@ extension SphinxOnionManager {
             
             senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
             
-            var contactDidChange = false
-            
-            if (contact.nickname != message.alias && message.alias != nil) {
-                contact.nickname = message.alias
-                contactDidChange = true
-            }
-            if (contact.avatarUrl != message.photoUrl) {
-                contact.avatarUrl = message.photoUrl
-                contactDidChange = true
-            }
-            contactDidChange ? (contact.managedObjectContext?.saveContext()) :()
+            updateContactInfoFromMessage(
+                contact: contact,
+                alias: message.alias,
+                photoUrl: message.photoUrl,
+                pubkey: pubkey
+            )
             
         } else if let tribeChat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: pubkey) {
             chat = tribeChat
@@ -926,6 +926,33 @@ extension SphinxOnionManager {
         newMessage.setAsLastMessage()
         
         return newMessage
+    }
+    
+    func updateContactInfoFromMessage(
+            contact: UserContact,
+            alias: String?,
+            photoUrl: String?,
+            pubkey: String
+    ) {
+        if !restoredContactInfoTracker.contains(pubkey) || !isV2Restore {
+            
+            var contactDidChange = false
+            
+            if (contact.nickname != alias && alias != nil) {
+                contact.nickname = alias
+                contactDidChange = true
+            }
+            
+            if (contact.avatarUrl != photoUrl) {
+                contact.avatarUrl = photoUrl
+                contactDidChange = true
+            }
+            
+            if contactDidChange {
+                contact.managedObjectContext?.saveContext()
+                restoredContactInfoTracker.append(pubkey)
+            }
+        }
     }
     
     func processIndexUpdate(message: Msg) {
