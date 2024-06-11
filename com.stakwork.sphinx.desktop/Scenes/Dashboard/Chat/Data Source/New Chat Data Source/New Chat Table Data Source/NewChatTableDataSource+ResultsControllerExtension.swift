@@ -792,11 +792,6 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     }
     
     func updateMessagesStatusesFrom(messages: [TransactionMessage]) {
-        if !messageTableCellStateArray.isEmpty && !loadingMoreItems {
-            ///Just do it the first time messages are loaded
-            return
-        }
-        
         if messages.isEmpty {
             return
         }
@@ -810,6 +805,16 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
         if tags.isEmpty {
             return
         }
+        
+        if !messageTableCellStateArray.isEmpty {
+            if !loadingMoreItems {
+                if lastMessageTagRestored == tags.last ?? "" {
+                    return
+                }
+            }
+        }
+        
+        lastMessageTagRestored = tags.last ?? ""
         
         SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
     }
