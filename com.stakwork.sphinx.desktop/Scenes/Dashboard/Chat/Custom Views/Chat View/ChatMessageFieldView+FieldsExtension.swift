@@ -32,7 +32,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             with: replacementString ?? ""
         )
         
-        return (currentChangedString.count <= kCharacterLimit)
+        return (currentChangedString.utf8.count <= kBytesLimit)
     }
     
     func shouldSendMessage() {
