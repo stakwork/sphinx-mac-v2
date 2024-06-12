@@ -35,7 +35,7 @@ extension SphinxOnionManager {//contacts related
         }
         
         guard let seed = getAccountSeed(),
-              let selfContact = UserContact.getSelfContact() else
+              let selfContact = UserContact.getOwner() else
         {
             return
         }
@@ -57,6 +57,40 @@ extension SphinxOnionManager {//contacts related
                 amtMsat: 5000,
                 inviteCode: inviteCode,
                 theirAlias: nickname
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+            
+            print("INITIATED KEY EXCHANGE WITH RR:\(rr)")
+            
+        } catch {}
+    }
+    
+    func retryAddingContact(
+        contact: UserContact
+    ){
+        guard let pubkey = contact.publicKey, let routeHint = contact.routeHint else {
+            return
+        }
+        
+        guard let seed = getAccountSeed(),
+              let selfContact = UserContact.getOwner() else
+        {
+            return
+        }
+        
+        do {
+            let rr = try addContact(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                toPubkey: pubkey,
+                routeHint: routeHint,
+                myAlias: selfContact.nickname ?? "",
+                myImg: selfContact.avatarUrl ?? "",
+                amtMsat: 5000,
+                inviteCode: nil,
+                theirAlias: contact.nickname
             )
             
             let _ = handleRunReturn(rr: rr)

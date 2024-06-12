@@ -165,7 +165,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        guard let selfContact = UserContact.getSelfContact(),
+        guard let selfContact = UserContact.getOwner(),
               let nickname = selfContact.nickname ?? chat.name,
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
@@ -887,7 +887,7 @@ extension SphinxOnionManager {
         newMessage.type = type ?? TransactionMessage.TransactionMessageType.message.rawValue
         newMessage.encrypted = true
         newMessage.senderId = senderId
-        newMessage.receiverId = UserContact.getSelfContact()?.id ?? 0
+        newMessage.receiverId = UserContact.getOwner()?.id ?? 0
         newMessage.push = false
         newMessage.chat = chat
         newMessage.chat?.seen = false
@@ -937,7 +937,7 @@ extension SphinxOnionManager {
             
             var contactDidChange = false
             
-            if (contact.nickname != alias && alias != nil) {
+            if (contact.nickname != alias && alias != nil && alias?.isEmpty == false) {
                 contact.nickname = alias
                 contactDidChange = true
             }

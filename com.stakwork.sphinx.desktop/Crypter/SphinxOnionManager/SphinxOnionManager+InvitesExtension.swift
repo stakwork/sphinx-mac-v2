@@ -20,7 +20,7 @@ extension SphinxOnionManager{//invites related
     
     func requestInviteCode(amountMsat: Int) {
         guard let seed = getAccountSeed(),
-              let selfContact = UserContact.getSelfContact(),
+              let selfContact = UserContact.getOwner(),
               let nickname = selfContact.nickname else
         {
             return

@@ -109,6 +109,12 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     func didClickSearchButton() {
         toggleSearchMode(active: true)
     }
+    
+    func didClickRefreshButton() {
+        if let contact = self.contact {
+            SphinxOnionManager.sharedInstance.retryAddingContact(contact: contact)
+        }
+    }
 }
 
 extension NewChatViewController : GroupDetailsDelegate {

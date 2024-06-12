@@ -68,6 +68,32 @@ struct ContactServerResponse: Mappable {
     }
 }
 
+struct ListContactResponse: Mappable {
+    var version: Int?
+    var my_idx: Int?
+    var pubkey: String?
+    var lsp: String?
+    var scid: Int?
+    var contact_key: String?
+    var highest_msg_idx: Int?
+
+    init?(map: Map) {}
+
+    mutating func mapping(map: Map) {
+        version           <- map["version"]
+        my_idx            <- map["my_idx"]
+        pubkey            <- map["pubkey"]
+        lsp               <- map["lsp"]
+        scid              <- map["scid"]
+        contact_key       <- map["contact_key"]
+        highest_msg_idx   <- map["highest_msg_idx"]
+    }
+    
+    func isConfirmed() -> Bool {
+        return contact_key != nil
+    }
+}
+
 struct MessageInnerContent: Mappable {
     var content: String?
     var replyUuid: String? = nil

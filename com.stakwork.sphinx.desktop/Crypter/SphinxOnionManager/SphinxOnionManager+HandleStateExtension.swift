@@ -27,8 +27,13 @@ extension SphinxOnionManager {
             print("V2 Received topic: \(topic)")
         }
         
-        if !skipSettleTopic && handleSettleTopicToPush(topic: rr.settleTopic, payload: rr.settlePayload) {
-            settledRRObjects.append(rr)
+        if !skipSettleTopic && handleSettleAndAsyncTopicToPush(topic: rr.settleTopic, payload: rr.settlePayload) {
+            delayedRRObjects.append(rr)
+            return nil
+        }
+        
+        if !skipSettleTopic && handleSettleAndAsyncTopicToPush(topic: rr.asyncpayTopic, payload: rr.asyncpayPayload) {
+            delayedRRObjects.append(rr)
             return nil
         }
         
@@ -58,6 +63,9 @@ extension SphinxOnionManager {
             
             ///Handling settle status
             self.handleSettledStatus(settledStatus: rr.settledStatus)
+            
+            ///Handling async tag
+            self.handleAsyncTag(asyncTag: rr.asyncpayTag)
             
             ///Handling incoming tags
             self.handleMessageStatusByTag(rr: rr)
@@ -207,16 +215,25 @@ extension SphinxOnionManager {
                 do {
                     if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
                         if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == kCompleteStatus {
-                            if let RRObject = settledRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
+                            if let RRObject = delayedRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
                                 let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
                             }
-                            settledRRObjects = settledRRObjects.filter({ $0.msgs.first?.index != htlcId })
+                            delayedRRObjects = delayedRRObjects.filter({ $0.msgs.first?.index != htlcId })
                         }
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")
                 }
             }
+        }
+    }
+    
+    func handleAsyncTag(asyncTag: String?) {
+        if let asyncTag = asyncTag {
+            if let RRObject = delayedRRObjects.filter({ $0.msgs.first?.tag == asyncTag }).first {
+                let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
+            }
+            delayedRRObjects = delayedRRObjects.filter({ $0.msgs.first?.tag == asyncTag })
         }
     }
     
@@ -308,7 +325,7 @@ extension SphinxOnionManager {
         })
     }
     
-    func handleSettleTopicToPush(
+    func handleSettleAndAsyncTopicToPush(
         topic: String?,
         payload: Data?
     ) -> Bool {
