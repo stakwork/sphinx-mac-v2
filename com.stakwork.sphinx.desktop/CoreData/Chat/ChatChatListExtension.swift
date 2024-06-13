@@ -42,6 +42,10 @@ extension Chat : ChatListCommonObject {
         return nil
     }
     
+    public func isInvite() -> Bool {
+        return false
+    }
+    
     public func getObjectId() -> Int {
         return self.id
     }

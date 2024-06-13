@@ -157,6 +157,8 @@
 "delete.contact.warning" = "Sigurado ka bang nais mong tanggalin ang kontakto na ito?";
 "mark.as.unread" = "Mark as Unread";
 "mark.as.read" = "Mark as Read";
+"address-book.can-not-delete-contact-title" = "Hindi matanggal ang contact";
+"address-book.can-not-delete-contact-message" = "Hindi matatanggal ang mga kumpirmadong contact";
 
 //INVITE
 "add.people"  = "Magdagdag ng mga Tao";
@@ -317,6 +319,7 @@
 "media.terms.expired"  = "Nag-expire ang mga termino ng media";
 "message.failed"  = "Nabigo ang Mensahe";
 "invite.name"  = "Paanyaya: %@";
+"add.name" = "Idagdag: %@";
 "welcome.to.sphinx"  = "Maligayang pagdating sa Sphinx!";
 "loading.more.messages"  = "Naglo-load ng higit pang mga mensahe...";
 "message.placeholder"  = "Mensahe...";

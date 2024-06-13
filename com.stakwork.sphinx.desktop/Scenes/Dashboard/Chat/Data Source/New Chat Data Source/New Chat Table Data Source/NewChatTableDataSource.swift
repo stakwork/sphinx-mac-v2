@@ -111,6 +111,9 @@ class NewChatTableDataSource : NSObject {
     var scrollViewDesiredOffset: CGFloat? = nil
     var isFirstLoad = true
     
+    ///Messages statuses restore
+    var lastMessageTagRestored = ""
+    
     ///WebView Loading
     let webViewSemaphore = DispatchSemaphore(value: 1)
     var webViewLoadingCompletion: ((CGFloat?) -> ())? = nil

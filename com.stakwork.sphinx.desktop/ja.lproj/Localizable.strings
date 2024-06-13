@@ -158,6 +158,8 @@
 "delete.contact.warning" = "この連絡先を削除してもよろしいですか？";
 "mark.as.unread" = "未読としてマーク";
 "mark.as.read" = "読んだとしてマーク";
+"address-book.can-not-delete-contact-title" = "連絡先を削除できません";
+"address-book.can-not-delete-contact-message" = "確認済みの連絡先は削除できません";
 
 //INVITE
 "add.people" = "人を追加";
@@ -317,6 +319,7 @@
 "media.terms.expired" = "メディアの条件が期限切れです";
 "message.failed" = "メッセージ送信に失敗しました";
 "invite.name" = "招待: %@";
+"add.name" = "追加: %@";
 "welcome.to.sphinx" = "Sphinxへようこそ！";
 "loading.more.messages" = "さらにメッセージを読み込んでいます...";
 "message.placeholder" = "メッセージ...";

@@ -62,7 +62,7 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var settledRRObjects: [RunReturn] = []
+    var delayedRRObjects: [RunReturn] = []
     
     var isConnected : Bool = false {
         didSet{
@@ -87,8 +87,8 @@ class SphinxOnionManager : NSObject {
     public static let kContactsBatchSize = 100
     public static let kMessageBatchSize = 100
     
-    let kCompleteStatus = "COMPLETE"
-    let kFailedStatus = "FAILED"
+    public static let kCompleteStatus = "COMPLETE"
+    public static let kFailedStatus = "FAILED"
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
@@ -285,7 +285,7 @@ class SphinxOnionManager : NSObject {
     }
     
     func isFetchingContent() -> Bool {
-        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback == nil
+        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }
     
     func reconnectToServer(
