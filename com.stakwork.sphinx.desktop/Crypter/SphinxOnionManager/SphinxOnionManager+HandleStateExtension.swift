@@ -20,21 +20,12 @@ extension SphinxOnionManager {
         inviteCode: String? = nil,
         completion: (([String:AnyObject]) ->())? = nil,
         isSendingMessage: Bool = false,
-        skipSettleTopic: Bool = false
+        skipSettleTopic: Bool = false,
+        skipAsyncTopic: Bool = false
     ) -> String? {
         
         if let topic = topic {
             print("V2 Received topic: \(topic)")
-        }
-        
-        if !skipSettleTopic && handleSettleAndAsyncTopicToPush(topic: rr.settleTopic, payload: rr.settlePayload) {
-            delayedRRObjects.append(rr)
-            return nil
-        }
-        
-        if !skipSettleTopic && handleSettleAndAsyncTopicToPush(topic: rr.asyncpayTopic, payload: rr.asyncpayPayload) {
-            delayedRRObjects.append(rr)
-            return nil
         }
         
         ///Update state mape
@@ -52,33 +43,39 @@ extension SphinxOnionManager {
         ///Handling messages totals
         handleMessagesCount(msgsCounts: rr.msgsCounts)
         
-        ///Handling tribes restore
-        restoreTribesFrom(messages: rr.msgs) {
+        ///Handling tribes restore before messages restore
+        restoreTribesFrom(
+            rr: rr,
+            topic: topic
+        ) { rr, topic in
+            
             ///handling contacts restore
             self.restoreContactsFrom(messages: rr.msgs)
             
-            ///Handling messages restore
+            ///Handling key exchange msgs restore
             self.processKeyExchangeMessages(rr: rr)
+            
+            ///Handling generic msgs restore
             self.processGenericMessages(rr: rr)
-            
-            ///Handling settle status
-            self.handleSettledStatus(settledStatus: rr.settledStatus)
-            
-            ///Handling async tag
-            self.handleAsyncTag(asyncTag: rr.asyncpayTag)
-            
-            ///Handling incoming tags
-            self.handleMessageStatusByTag(rr: rr)
-            
-            ///Handling read status
-            self.handleReadStatus(rr: rr)
-
-            ///Handling mute levels
-            self.handleMuteLevels(rr: rr)
             
             ///Handling restore callbacks
             self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
         }
+        
+        ///Handling settle status
+        handleSettledStatus(settledStatus: rr.settledStatus)
+        
+        ///Handling async tag
+        handleAsyncTag(asyncTag: rr.asyncpayTag)
+        
+        ///Handling incoming tags
+        handleMessageStatusByTag(rr: rr)
+        
+        ///Handling read status
+        handleReadStatus(rr: rr)
+
+        ///Handling mute levels
+        handleMuteLevels(rr: rr)
         
         ///Handling invoice paid status
         handleInvoiceSentStatus(sentStatus: rr.sentStatus)
@@ -98,8 +95,33 @@ extension SphinxOnionManager {
         ///Handling topics subscription
         handleTopicsToSubscribe(topics: rr.subscriptionTopics)
         
-        ///Handling topics to publish on MQTT
-        handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
+        //Publishing to topics
+        
+        ///Handling settle topicsto publish
+        if !skipSettleTopic && handleTopicToPush(
+            topic: rr.settleTopic,
+            payload: rr.settlePayload
+        ) {
+            delayedRRObjects.append(rr)
+            return nil
+        }
+        
+        handleRegisterTopic(
+            rr: rr,
+            skipAsyncTopic: skipAsyncTopic
+        ) { rr, skipAsyncTopic in
+            ///Handling async pay topic to publish
+            if !skipAsyncTopic && self.handleTopicToPush(
+                topic: rr.asyncpayTopic,
+                payload: rr.asyncpayPayload
+            ) {
+                self.delayedRRObjects.append(rr)
+                return
+            }
+            
+            ///Handling topics to publish on MQTT
+            self.handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
+        }
         
         return getMessageTag(messages: rr.msgs, isSendingMessage: isSendingMessage)
     }
@@ -215,10 +237,21 @@ extension SphinxOnionManager {
                 do {
                     if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
                         if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == kCompleteStatus {
-                            if let RRObject = delayedRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
-                                let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
+                            if let RRObject = delayedRRObjects.filter({
+                                return $0.msgs.filter({ $0.index == htlcId }).first != nil
+                            }).first {
+                                
+                                delayedRRObjects = delayedRRObjects.filter({
+                                    return $0.msgs.filter({ $0.index == htlcId }).isEmpty
+                                })
+                                
+                                let _ = handleRunReturn(
+                                    rr: RRObject,
+                                    skipSettleTopic: true
+                                )
+                                
+                                print("handleSettledStatus")
                             }
-                            delayedRRObjects = delayedRRObjects.filter({ $0.msgs.first?.index != htlcId })
                         }
                     }
                 } catch {
@@ -230,10 +263,22 @@ extension SphinxOnionManager {
     
     func handleAsyncTag(asyncTag: String?) {
         if let asyncTag = asyncTag {
-            if let RRObject = delayedRRObjects.filter({ $0.msgs.first?.tag == asyncTag }).first {
-                let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
+            if let RRObject = delayedRRObjects.filter({
+                return $0.msgs.filter({ $0.tag == asyncTag }).first != nil
+            }).first {
+                
+                delayedRRObjects = delayedRRObjects.filter({
+                    return $0.msgs.filter({ $0.tag == asyncTag }).isEmpty
+                })
+                
+                let _ = handleRunReturn(
+                    rr: RRObject,
+                    skipSettleTopic: true,
+                    skipAsyncTopic: true
+                )
+                
+                print("handleAsyncTag")
             }
-            delayedRRObjects = delayedRRObjects.filter({ $0.msgs.first?.tag == asyncTag })
         }
     }
     
@@ -310,22 +355,15 @@ extension SphinxOnionManager {
     func handleTopicsToPush(topics: [String], payloads: [Data]) {
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
             for i in 0..<topics.count {
-                
-                let byteArray: [UInt8] = payloads.count > i ? [UInt8](payloads[i]) : [UInt8]()
-                
-                print("V2 Requested topic: \(topics[i])")
-                
-                self.mqtt?.publish(
-                    CocoaMQTTMessage(
-                        topic: topics[i],
-                        payload: byteArray
-                    )
+                let _ = self.handleTopicToPush(
+                    topic: topics[i],
+                    payload: payloads[i]
                 )
             }
         })
     }
     
-    func handleSettleAndAsyncTopicToPush(
+    func handleTopicToPush(
         topic: String?,
         payload: Data?
     ) -> Bool {
@@ -342,6 +380,31 @@ extension SphinxOnionManager {
             return true
         }
         return false
+    }
+    
+    func handleRegisterTopic(
+        rr: RunReturn,
+        skipAsyncTopic: Bool,
+        callback: @escaping (RunReturn, Bool) -> ()
+    ) {
+        if let topic = rr.registerTopic, let payload = rr.registerPayload {
+            
+            let byteArray: [UInt8] = [UInt8](payload)
+            
+            self.mqtt?.publish(
+                CocoaMQTTMessage(
+                    topic: topic,
+                    payload: byteArray
+                )
+            )
+            
+            DelayPerformedHelper.performAfterDelay(seconds: 0.25, completion: {
+                callback(rr, skipAsyncTopic)
+            })
+            
+        } else {
+            callback(rr, skipAsyncTopic)
+        }
     }
     
     func handleTopicsToSubscribe(topics: [String]) {
