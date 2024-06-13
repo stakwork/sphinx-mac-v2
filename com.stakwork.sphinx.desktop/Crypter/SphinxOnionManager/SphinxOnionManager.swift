@@ -62,7 +62,7 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var settledRRObjects: [RunReturn] = []
+    var delayedRRObjects: [RunReturn] = []
     
     var isConnected : Bool = false {
         didSet{
@@ -285,7 +285,7 @@ class SphinxOnionManager : NSObject {
     }
     
     func isFetchingContent() -> Bool {
-        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback == nil
+        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }
     
     func reconnectToServer(

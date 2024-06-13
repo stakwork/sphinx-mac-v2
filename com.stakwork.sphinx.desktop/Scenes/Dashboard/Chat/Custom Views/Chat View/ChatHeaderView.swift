@@ -17,6 +17,7 @@ protocol ChatHeaderViewDelegate : AnyObject {
     func didClickHeaderButton()
     func didClickSearchButton()
     func didClickSecondBrainAppButton()
+    func didClickRefreshButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -43,6 +44,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var headerButton: CustomButton!
     @IBOutlet weak var threadsButton: CustomButton!
     @IBOutlet weak var searchButton: CustomButton!
+    @IBOutlet weak var refreshButton: CustomButton!
     
     var chat: Chat? = nil
     var contact: UserContact? = nil
@@ -132,6 +134,7 @@ class ChatHeaderView: NSView, LoadableNib {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         lockSign.stringValue = isEncrypted ? "lock" : "lock_open"
         lockSign.isHidden = false
+        refreshButton.isHidden = isEncrypted
     }
     
     func configureImageOrInitials() {
@@ -291,5 +294,11 @@ class ChatHeaderView: NSView, LoadableNib {
     
     @IBAction func searchButtonClicked(_ sender: Any) {
         delegate?.didClickSearchButton()
+    }
+    
+    @IBAction func refreshButtonClicked(_ sender: Any) {
+        refreshButton.isHidden = true
+        
+        delegate?.didClickRefreshButton()
     }
 }

@@ -20,16 +20,12 @@ extension SphinxOnionManager {
         inviteCode: String? = nil,
         completion: (([String:AnyObject]) ->())? = nil,
         isSendingMessage: Bool = false,
-        skipSettleTopic: Bool = false
+        skipSettleTopic: Bool = false,
+        skipAsyncTopic: Bool = false
     ) -> String? {
         
         if let topic = topic {
             print("V2 Received topic: \(topic)")
-        }
-        
-        if !skipSettleTopic && handleSettleTopicToPush(topic: rr.settleTopic, payload: rr.settlePayload) {
-            settledRRObjects.append(rr)
-            return nil
         }
         
         ///Update state mape
@@ -47,30 +43,42 @@ extension SphinxOnionManager {
         ///Handling messages totals
         handleMessagesCount(msgsCounts: rr.msgsCounts)
         
-        ///Handling tribes restore
-        restoreTribesFrom(messages: rr.msgs) {
+        ///Handling tribes restore before messages restore
+        restoreTribesFrom(
+            rr: rr,
+            topic: topic
+        ) { rr, topic in
+            
             ///handling contacts restore
             self.restoreContactsFrom(messages: rr.msgs)
             
-            ///Handling messages restore
+            ///Handling key exchange msgs restore
             self.processKeyExchangeMessages(rr: rr)
+            
+            ///Handling generic msgs restore
             self.processGenericMessages(rr: rr)
             
-            ///Handling settle status
-            self.handleSettledStatus(settledStatus: rr.settledStatus)
+            ///Handling messages statused
+            self.handleMessagesStatus(tags: rr.tags)
             
             ///Handling incoming tags
             self.handleMessageStatusByTag(rr: rr)
             
             ///Handling read status
             self.handleReadStatus(rr: rr)
-
-            ///Handling mute levels
-            self.handleMuteLevels(rr: rr)
             
             ///Handling restore callbacks
             self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
         }
+        
+        ///Handling settle status
+        handleSettledStatus(settledStatus: rr.settledStatus)
+        
+        ///Handling async tag
+        handleAsyncTag(asyncTag: rr.asyncpayTag)
+
+        ///Handling mute levels
+        handleMuteLevels(rr: rr)
         
         ///Handling invoice paid status
         handleInvoiceSentStatus(sentStatus: rr.sentStatus)
@@ -90,10 +98,33 @@ extension SphinxOnionManager {
         ///Handling topics subscription
         handleTopicsToSubscribe(topics: rr.subscriptionTopics)
         
-        ///Handling topics to publish on MQTT
-        handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
-
-        handleMessagesStatus(tags: rr.tags)
+        //Publishing to topics
+        
+        ///Handling settle topicsto publish
+        if !skipSettleTopic && handleTopicToPush(
+            topic: rr.settleTopic,
+            payload: rr.settlePayload
+        ) {
+            delayedRRObjects.append(rr)
+            return nil
+        }
+        
+        handleRegisterTopic(
+            rr: rr,
+            skipAsyncTopic: skipAsyncTopic
+        ) { rr, skipAsyncTopic in
+            ///Handling async pay topic to publish
+            if !skipAsyncTopic && self.handleTopicToPush(
+                topic: rr.asyncpayTopic,
+                payload: rr.asyncpayPayload
+            ) {
+                self.delayedRRObjects.append(rr)
+                return
+            }
+            
+            ///Handling topics to publish on MQTT
+            self.handleTopicsToPush(topics: rr.topics, payloads: rr.payloads)
+        }
         
         return getMessageTag(messages: rr.msgs, isSendingMessage: isSendingMessage)
     }
@@ -142,7 +173,7 @@ extension SphinxOnionManager {
                     )
                 )
             })
-        } 
+        }
     }
     
     func handleTribeMembers(tribeMembers: String?) {
@@ -209,10 +240,19 @@ extension SphinxOnionManager {
                 do {
                     if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
                         if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == SphinxOnionManager.kCompleteStatus {
-                            if let RRObject = settledRRObjects.filter({ $0.msgs.first?.index == htlcId }).first {
-                                let _ = handleRunReturn(rr: RRObject, skipSettleTopic: true)
+                            if let RRObject = delayedRRObjects.filter({
+                                return $0.msgs.filter({ $0.index == htlcId }).first != nil
+                            }).first {
+                                
+                                delayedRRObjects = delayedRRObjects.filter({
+                                    return $0.msgs.filter({ $0.index == htlcId }).isEmpty
+                                })
+                                
+                                let _ = handleRunReturn(
+                                    rr: RRObject,
+                                    skipSettleTopic: true
+                                )
                             }
-                            settledRRObjects = settledRRObjects.filter({ $0.msgs.first?.index != htlcId })
                         }
                     }
                 } catch {
@@ -222,34 +262,21 @@ extension SphinxOnionManager {
         }
     }
     
-    func handleMessagesStatus(tags: String?) {
-        if let tags = tags {
-            if let data = tags.data(using: .utf8) {
-                do {
-                    if let array = try JSON(data: data).array {
-                        var dictionary: [String: MessageStatusMap] = [:]
-                        
-                        for message in array {
-                            if let dictionaryObject = message.dictionaryObject, let messageStatus = MessageStatusMap(JSON: dictionaryObject) {
-                                if let tag = messageStatus.tag {
-                                    dictionary[tag] = messageStatus
-                                }
-                            }
-                        }
-                        
-                        let tags = array.compactMap({ $0["tag"].stringValue }).filter({ $0.isNotEmpty })
-                        
-                        for message in TransactionMessage.getMessagesWith(tags: tags) {
-                            if let messageStatus = dictionary[message.tag ?? ""] {
-                                message.status = messageStatus.isReceived() ? TransactionMessage.TransactionMessageStatus.received.rawValue : TransactionMessage.TransactionMessageStatus.failed.rawValue
-                            }
-                        }
-                        
-                        CoreDataManager.sharedManager.saveContext()
-                    }
-                } catch {
-                    print("Error decoding JSON: \(error)")
-                }
+    func handleAsyncTag(asyncTag: String?) {
+        if let asyncTag = asyncTag {
+            if let RRObject = delayedRRObjects.filter({
+                return $0.msgs.filter({ $0.tag == asyncTag }).first != nil
+            }).first {
+                
+                delayedRRObjects = delayedRRObjects.filter({
+                    return $0.msgs.filter({ $0.tag == asyncTag }).isEmpty
+                })
+                
+                let _ = handleRunReturn(
+                    rr: RRObject,
+                    skipSettleTopic: true,
+                    skipAsyncTopic: true
+                )
             }
         }
     }
@@ -327,22 +354,15 @@ extension SphinxOnionManager {
     func handleTopicsToPush(topics: [String], payloads: [Data]) {
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
             for i in 0..<topics.count {
-                
-                let byteArray: [UInt8] = payloads.count > i ? [UInt8](payloads[i]) : [UInt8]()
-                
-                print("V2 Requested topic: \(topics[i])")
-                
-                self.mqtt?.publish(
-                    CocoaMQTTMessage(
-                        topic: topics[i],
-                        payload: byteArray
-                    )
+                let _ = self.handleTopicToPush(
+                    topic: topics[i],
+                    payload: payloads[i]
                 )
             }
         })
     }
     
-    func handleSettleTopicToPush(
+    func handleTopicToPush(
         topic: String?,
         payload: Data?
     ) -> Bool {
@@ -359,6 +379,31 @@ extension SphinxOnionManager {
             return true
         }
         return false
+    }
+    
+    func handleRegisterTopic(
+        rr: RunReturn,
+        skipAsyncTopic: Bool,
+        callback: @escaping (RunReturn, Bool) -> ()
+    ) {
+        if let topic = rr.registerTopic, let payload = rr.registerPayload {
+            
+            let byteArray: [UInt8] = [UInt8](payload)
+            
+            self.mqtt?.publish(
+                CocoaMQTTMessage(
+                    topic: topic,
+                    payload: byteArray
+                )
+            )
+            
+            DelayPerformedHelper.performAfterDelay(seconds: 0.25, completion: {
+                callback(rr, skipAsyncTopic)
+            })
+            
+        } else {
+            callback(rr, skipAsyncTopic)
+        }
     }
     
     func handleTopicsToSubscribe(topics: [String]) {
@@ -481,10 +526,42 @@ extension SphinxOnionManager {
         mutationKeys = keys
     }
     
-    func handleStateToDelete(stateToDelete: [String]){
+    func handleStateToDelete(stateToDelete:[String]){
         for key in stateToDelete {
             UserDefaults.standard.removeObject(forKey: key)
             UserDefaults.standard.synchronize()
+        }
+    }
+    
+    func handleMessagesStatus(tags: String?) {
+        if let tags = tags {
+            if let data = tags.data(using: .utf8) {
+                do {
+                    if let array = try JSON(data: data).array {
+                        var dictionary: [String: MessageStatusMap] = [:]
+
+                        for message in array {
+                            if let dictionaryObject = message.dictionaryObject, let messageStatus = MessageStatusMap(JSON: dictionaryObject) {
+                                if let tag = messageStatus.tag {
+                                    dictionary[tag] = messageStatus
+                                }
+                            }
+                        }
+
+                        let tags = array.compactMap({ $0["tag"].stringValue }).filter({ $0.isNotEmpty })
+
+                        for message in TransactionMessage.getMessagesWith(tags: tags) {
+                            if let messageStatus = dictionary[message.tag ?? ""] {
+                                message.status = messageStatus.isReceived() ? TransactionMessage.TransactionMessageStatus.received.rawValue : TransactionMessage.TransactionMessageStatus.failed.rawValue
+                            }
+                        }
+
+                        CoreDataManager.sharedManager.saveContext()
+                    }
+                } catch {
+                    print("Error decoding JSON: \(error)")
+                }
+            }
         }
     }
 

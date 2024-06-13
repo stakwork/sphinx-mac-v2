@@ -22,6 +22,7 @@
                 <outlet property="lockSign" destination="T82-4F-A3v" id="rdr-J6-a39"/>
                 <outlet property="nameLabel" destination="uGI-oR-OOS" id="80M-Bb-Zfs"/>
                 <outlet property="profileImageView" destination="cKv-Wh-FUp" id="0ot-4i-RHM"/>
+                <outlet property="refreshButton" destination="r0Z-Dq-9ia" id="mxm-0L-WcV"/>
                 <outlet property="searchButton" destination="qgt-D2-gCl" id="6Jq-th-Rnl"/>
                 <outlet property="secondBrainButton" destination="fSO-KL-ybm" id="H05-3V-5QS"/>
                 <outlet property="threadsButton" destination="XXC-Xz-jRX" id="9Ve-JN-mCC"/>
@@ -129,6 +130,21 @@
                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
+                                                <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r0Z-Dq-9ia" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
+                                                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="refreshIcon" imagePosition="only" alignment="center" inset="2" id="Yy4-sN-8yi">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" size="20" name="MaterialIcons-Regular"/>
+                                                    </buttonCell>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="NCw-DZ-bwq"/>
+                                                        <constraint firstAttribute="width" constant="20" id="hjE-oL-zPn"/>
+                                                    </constraints>
+                                                    <connections>
+                                                        <action selector="refreshButtonClicked:" target="-2" id="6q6-eT-Tnw"/>
+                                                    </connections>
+                                                </button>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="JNa-8X-CaO" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="NKc-wD-7gD"/>
@@ -138,8 +154,10 @@
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
+                                                <integer value="1000"/>
                                             </visibilityPriorities>
                                             <customSpacing>
+                                                <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
@@ -200,7 +218,7 @@
                                     </customSpacing>
                                 </stackView>
                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TUM-g0-3nc" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="732" height="60"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="354" height="60"/>
                                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" transparent="YES" imageScaling="proportionallyDown" inset="2" id="oku-zd-bBE">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" metaFont="system"/>
@@ -214,9 +232,9 @@
                                 </button>
                             </subviews>
                             <constraints>
-                                <constraint firstAttribute="trailing" secondItem="TUM-g0-3nc" secondAttribute="trailing" id="0CO-i2-LAg"/>
                                 <constraint firstItem="v9P-BL-ytY" firstAttribute="centerY" secondItem="DVp-3x-Zd0" secondAttribute="centerY" id="WW6-qC-Jt0"/>
                                 <constraint firstItem="v9P-BL-ytY" firstAttribute="leading" secondItem="DVp-3x-Zd0" secondAttribute="leading" constant="16" id="Wsy-RE-Bvj"/>
+                                <constraint firstItem="TUM-g0-3nc" firstAttribute="trailing" secondItem="JNa-8X-CaO" secondAttribute="trailing" id="XJC-mm-no2"/>
                                 <constraint firstItem="TUM-g0-3nc" firstAttribute="top" secondItem="DVp-3x-Zd0" secondAttribute="top" id="cBs-qL-kNQ"/>
                                 <constraint firstItem="TUM-g0-3nc" firstAttribute="leading" secondItem="DVp-3x-Zd0" secondAttribute="leading" id="lHW-z4-5Ce"/>
                             </constraints>
@@ -355,6 +373,7 @@
     </objects>
     <resources>
         <image name="muteOffIcon" width="18" height="18"/>
+        <image name="refreshIcon" width="32" height="32"/>
         <image name="secondBrainIcon" width="23" height="20"/>
         <image name="threadsBubble" width="22" height="20.5"/>
         <namedColor name="NewHeaderBG">

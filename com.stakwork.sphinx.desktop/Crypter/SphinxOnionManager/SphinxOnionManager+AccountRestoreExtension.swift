@@ -500,11 +500,14 @@ extension SphinxOnionManager {
     }
     
     func restoreTribesFrom(
-        messages: [Msg],
-        completion: @escaping () -> ()
+        rr: RunReturn,
+        topic: String?,
+        completion: @escaping (RunReturn, String?) -> ()
     ) {
+        let messages = rr.msgs
+        
         if messages.isEmpty {
-            completion()
+            completion(rr, topic)
             return
         }
 
@@ -516,7 +519,7 @@ extension SphinxOnionManager {
         let filteredMsgs = messages.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
         if filteredMsgs.isEmpty {
-            completion()
+            completion(rr, topic)
             return
         }
         
@@ -531,7 +534,7 @@ extension SphinxOnionManager {
                   let tribePubkey = csr.pubkey else
             {
                 if index == total - 1 {
-                    completion()
+                    completion(rr, topic)
                 } else {
                     index = index + 1
                 }
@@ -546,7 +549,7 @@ extension SphinxOnionManager {
                     shouldSendPush: false
                 )
                 if index == total - 1 {
-                    completion()
+                    completion(rr, topic)
                 } else {
                     index = index + 1
                 }
@@ -569,7 +572,7 @@ extension SphinxOnionManager {
                         }
                         
                         if index == total - 1 {
-                            completion()
+                            completion(rr, topic)
                         } else {
                             index = index + 1
                         }
@@ -659,6 +662,7 @@ extension SphinxOnionManager {
     @objc func watchdogTimerFired() {
         onMessageRestoredCallback = nil
         firstSCIDMsgsCallback = nil
+        totalMsgsCountCallback = nil
         
         messageFetchParams = nil
         chatsFetchParams = nil
@@ -670,6 +674,7 @@ extension SphinxOnionManager {
     func finishRestoration() {
         onMessageRestoredCallback = nil
         firstSCIDMsgsCallback = nil
+        totalMsgsCountCallback = nil
         
         messageFetchParams = nil
         chatsFetchParams = nil
