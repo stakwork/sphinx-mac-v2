@@ -718,7 +718,7 @@ extension SphinxOnionManager {
     
     func setLastMessagesOnChats() {
         for chat in Chat.getAll() {
-            if let lastMessage = TransactionMessage.getLastMessageFor(chat: chat) {
+            if let lastMessage = chat.getLastMessageToShow() {
                 chat.lastMessage = lastMessage
             }
         }

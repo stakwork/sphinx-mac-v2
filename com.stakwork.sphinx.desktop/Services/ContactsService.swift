@@ -239,16 +239,16 @@ extension ContactsService : NSFetchedResultsControllerDelegate {
             
             if resultController == contactsResultsController {
                 didCollectContacts = true
+                
+                if let contacts = firstSection.objects as? [UserContact] {
+                    self.allContacts = contacts
+                }
             } else if resultController == chatsResultsController {
                 didCollectChats = true
-            }
-            
-            if let contacts = firstSection.objects as? [UserContact] {
-                self.allContacts = contacts
-            }
-            
-            if let chats = firstSection.objects as? [Chat] {
-                self.chats = chats
+                
+                if let chats = firstSection.objects as? [Chat] {
+                    self.chats = chats
+                }
             }
         
             if didCollectChats && didCollectContacts {
