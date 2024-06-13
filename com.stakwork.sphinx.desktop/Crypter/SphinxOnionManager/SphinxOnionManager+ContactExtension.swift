@@ -21,6 +21,65 @@ extension SphinxOnionManager {//contacts related
         return (components.count >= 3) ? (components[0],components[1],components[2]) : nil
     }
     
+    func deleteContactMsgsFor(
+        contact: UserContact
+    ) -> Bool {
+        guard let seed = getAccountSeed() else {
+            return false
+        }
+        
+        if let chat = contact.getChat(), contact.isConfirmed() {
+            let okKeyMessages = chat.getOkKeyMessages()
+            
+            let contactKeyMsgs = okKeyMessages.filter({
+                let contactKeyTypes = [
+                    TransactionMessage.TransactionMessageType.contactKey.rawValue,
+                    TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+                ]
+                
+                return contactKeyTypes.contains($0.type)
+            })
+            
+            if contactKeyMsgs.isEmpty {
+                return false
+            }
+            
+            let indexes = okKeyMessages.compactMap({ UInt64($0.id) })
+            
+            do {
+                let rr = try Sphinx.deleteMsgs(
+                    seed: seed,
+                    uniqueTime: getTimeWithEntropy(),
+                    state: loadOnionStateAsData(),
+                    pubkey: nil,
+                    msgIdxs: indexes
+                )
+                
+                let _ = handleRunReturn(rr: rr)
+            } catch {
+                return false
+            }
+        }
+        
+        if let publicKey = contact.publicKey {
+            do {
+                let rr = try Sphinx.deleteMsgs(
+                    seed: seed,
+                    uniqueTime: getTimeWithEntropy(),
+                    state: loadOnionStateAsData(),
+                    pubkey: publicKey,
+                    msgIdxs: nil
+                )
+                
+                let _ = handleRunReturn(rr: rr)
+            } catch {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     func makeFriendRequest(
         contactInfo: String,
         nickname: String? = nil,
@@ -163,9 +222,11 @@ extension SphinxOnionManager {//contacts related
                     let _ = createChat(for: newContactRequest, with: msg.date)
                 }
                 
-                managedContext.saveContext()
+                createKeyExchangeMsgFrom(msg: msg)
             }
         }
+        
+        managedContext.saveContext()
         
     }
     

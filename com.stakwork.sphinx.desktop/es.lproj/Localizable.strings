@@ -153,6 +153,8 @@
 "delete.contact.warning" = "¿Estás seguro de que quieres eliminar este contacto?";
 "mark.as.unread" = "Marcar como no leído";
 "mark.as.read" = "Marcar como leído";
+"address-book.can-not-delete-contact-title" = "No se puede eliminar el contacto";
+"address-book.can-not-delete-contact-message" = "Los contactos confirmados no se pueden eliminar";
 
 //INVITE
 "group.details" = "Detalles del Grupo";
@@ -318,6 +320,7 @@
 "media.terms.expired" = "Archivo caducado";
 "message.failed" = "Mensaje fallido";
 "invite.name" = "Invitación: %@";
+"add.name" = "Agregar: %@";
 "welcome.to.sphinx" = "Bienvenido a Sphinx!";
 "loading.more.messages" = "Cargando más mensajes...";
 "message.placeholder" = "Mensaje...";

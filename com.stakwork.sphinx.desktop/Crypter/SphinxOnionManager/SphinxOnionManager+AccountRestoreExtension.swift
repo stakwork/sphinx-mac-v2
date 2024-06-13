@@ -496,6 +496,8 @@ extension SphinxOnionManager {
             if contact.getChat() == nil && isConfirmed {
                 let _ = createChat(for: contact, with: message.date)
             }
+            
+            createKeyExchangeMsgFrom(msg: message)
         }
     }
     
@@ -721,7 +723,7 @@ extension SphinxOnionManager {
     
     func setLastMessagesOnChats() {
         for chat in Chat.getAll() {
-            if let lastMessage = TransactionMessage.getLastMessageFor(chat: chat) {
+            if let lastMessage = chat.getLastMessageToShow() {
                 chat.lastMessage = lastMessage
             }
         }

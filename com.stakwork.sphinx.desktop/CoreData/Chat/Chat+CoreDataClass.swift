@@ -648,24 +648,55 @@ public class Chat: NSManagedObject {
         unseenMentionsCount = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: predicate, entityName: "TransactionMessage")
     }
     
-    func getLastMessageToShow() -> TransactionMessage? {
-        let sortDescriptors = [
-            NSSortDescriptor(key: "date", ascending: false),
-            NSSortDescriptor(key: "id", ascending: false)
+    func getOkKeyMessages() -> [TransactionMessage] {
+        let types = [
+            TransactionMessage.TransactionMessageType.payment.rawValue,
+            TransactionMessage.TransactionMessageType.directPayment.rawValue,
+            TransactionMessage.TransactionMessageType.purchase.rawValue,
+            TransactionMessage.TransactionMessageType.boost.rawValue,
+            TransactionMessage.TransactionMessageType.contactKey.rawValue,
+            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
         ]
+        
         let predicate = NSPredicate(
-            format: "chat == %@ AND type != %d",
+            format: "chat == %@ AND type IN %@",
             self,
-            TransactionMessage.TransactionMessageType.repayment.rawValue
-        )
-        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
-            predicate: predicate,
-            sortDescriptors: sortDescriptors,
-            entityName: "TransactionMessage",
-            fetchLimit: 1
+            types
         )
         
-        return messages.first
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors:[],
+            entityName: "TransactionMessage"
+        )
+        
+        return messages
+    }
+    
+    func getLastMessageToShow() -> TransactionMessage? {
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        
+        fetchRequest.predicate = NSPredicate(
+            format: "chat == %@ AND NOT (type IN %@)",
+            self,
+            [
+                TransactionMessage.TransactionMessageType.delete.rawValue,
+                TransactionMessage.TransactionMessageType.contactKey.rawValue,
+                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+            ]
+        )
+        
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        fetchRequest.fetchLimit = 1
+
+        do {
+            let results = try context.fetch(fetchRequest)
+            return results.first
+        } catch let error as NSError {
+            print("Error fetching message with max ID: \(error), \(error.userInfo)")
+            return nil
+        }
     }
     
     public func updateLastMessage() {
