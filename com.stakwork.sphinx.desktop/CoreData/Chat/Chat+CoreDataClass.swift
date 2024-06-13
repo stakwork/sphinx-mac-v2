@@ -648,6 +648,31 @@ public class Chat: NSManagedObject {
         unseenMentionsCount = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: predicate, entityName: "TransactionMessage")
     }
     
+    func getOkKeyMessages() -> [TransactionMessage] {
+        let types = [
+            TransactionMessage.TransactionMessageType.payment.rawValue,
+            TransactionMessage.TransactionMessageType.directPayment.rawValue,
+            TransactionMessage.TransactionMessageType.purchase.rawValue,
+            TransactionMessage.TransactionMessageType.boost.rawValue,
+            TransactionMessage.TransactionMessageType.contactKey.rawValue,
+            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+        ]
+        
+        let predicate = NSPredicate(
+            format: "chat == %@ AND type IN %@",
+            self,
+            types
+        )
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors:[],
+            entityName: "TransactionMessage"
+        )
+        
+        return messages
+    }
+    
     func getLastMessageToShow() -> TransactionMessage? {
         let sortDescriptors = [
             NSSortDescriptor(key: "date", ascending: false),

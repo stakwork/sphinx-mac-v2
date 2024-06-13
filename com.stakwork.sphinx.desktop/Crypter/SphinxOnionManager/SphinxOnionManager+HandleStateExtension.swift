@@ -308,7 +308,7 @@ extension SphinxOnionManager {
         })
     }
     
-    func handleSettleTopicToPush(
+    func handleSettleAndAsyncTopicToPush(
         topic: String?,
         payload: Data?
     ) -> Bool {

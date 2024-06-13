@@ -158,6 +158,8 @@
 "delete.contact.warning" = "您確定要刪除這個聯絡人嗎？";
 "mark.as.unread" = "標記為未讀";
 "mark.as.read" = "標記為已讀";
+"address-book.can-not-delete-contact-title" = "無法刪除聯絡人";
+"address-book.can-not-delete-contact-message" = "已確認的聯絡人無法刪除";
 
 //INVITE
 "add.people" = "添加人員";
@@ -318,6 +320,7 @@
 "media.terms.expired" = "媒體條款已過期";
 "message.failed" = "訊息失敗";
 "invite.name" = "邀請：%@";
+"add.name" = "添加: %@";
 "welcome.to.sphinx" = "歡迎來到Sphinx！";
 "loading.more.messages" = "加載更多訊息...";
 "message.placeholder" = "訊息...";

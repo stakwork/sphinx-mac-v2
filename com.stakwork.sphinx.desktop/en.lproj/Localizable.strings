@@ -159,6 +159,8 @@
 "delete.contact.warning" = "Are you sure you want to delete this contact?";
 "mark.as.unread" = "Mark as Unread";
 "mark.as.read" = "Mark as Read";
+"address-book.can-not-delete-contact-title" = "Can not delete contact";
+"address-book.can-not-delete-contact-message" = "Confirmed contacts can not be deleted";
 
 //INVITE
 "add.people" = "Add People";
@@ -321,6 +323,7 @@
 "media.terms.expired" = "Media terms expired";
 "message.failed" = "Message Failed";
 "invite.name" = "Invite: %@";
+"add.name" = "Add: %@";
 "welcome.to.sphinx" = "Welcome to Sphinx!";
 "loading.more.messages" = "Loading more messages...";
 "message.placeholder" = "Message...";

@@ -496,6 +496,8 @@ extension SphinxOnionManager {
             if contact.getChat() == nil && isConfirmed {
                 let _ = createChat(for: contact, with: message.date)
             }
+            
+            createKeyExchangeMsgFrom(msg: message)
         }
     }
     

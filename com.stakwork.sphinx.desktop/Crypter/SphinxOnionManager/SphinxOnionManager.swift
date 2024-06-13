@@ -62,7 +62,7 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var settledRRObjects: [RunReturn] = []
+    var delayedRRObjects: [RunReturn] = []
     
     var isConnected : Bool = false {
         didSet{

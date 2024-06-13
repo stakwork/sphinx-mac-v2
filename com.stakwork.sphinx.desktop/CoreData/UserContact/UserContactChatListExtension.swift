@@ -59,6 +59,10 @@ extension UserContact : ChatListCommonObject {
         return self.invite
     }
     
+    public func isInvite() -> Bool {
+        return self.invite != nil || self.sentInviteCode != nil
+    }
+    
     public func getObjectId() -> Int {
         return self.id
     }
