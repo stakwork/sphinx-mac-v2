@@ -285,7 +285,7 @@ class SphinxOnionManager : NSObject {
     }
     
     func isFetchingContent() -> Bool {
-        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback == nil
+        return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }
     
     func reconnectToServer(
