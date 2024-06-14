@@ -348,10 +348,10 @@ class DashboardViewController: NSViewController {
             vc.showDashboardModalsVC(n: n)
         }
         
-        NotificationCenter.default.addObserver(forName: .onInvoiceDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
+//        NotificationCenter.default.addObserver(forName: .onInvoiceDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
 //            guard let vc = self else { return }
 //            vc.createInvoice(n: n)
-        }
+//        }
         
         NotificationCenter.default.addObserver(forName: .onShareContentDeeplink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
             guard let vc = self else { return }
@@ -366,6 +366,11 @@ class DashboardViewController: NSViewController {
         NotificationCenter.default.addObserver(forName: .webViewImageClicked, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
             guard let vc = self else { return }
             vc.handleImageNotification(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(forName: .shouldCloseRightPanel, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
+            guard let vc = self else { return }
+            vc.closeButtonTapped()
         }
     }
     

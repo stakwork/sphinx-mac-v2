@@ -147,7 +147,10 @@ class CreateTribeViewModel {
             return
         }
         
-        SphinxOnionManager.sharedInstance.createTribe(params: params, callback: handleNewTribeNotification)
+        SphinxOnionManager.sharedInstance.createTribe(
+            params: params,
+            callback: handleNewTribeNotification
+        )
     }
     
 
@@ -165,17 +168,80 @@ class CreateTribeViewModel {
     
     func editGroup(id: Int, params: [String: AnyObject]) {
         errorCallback?()
+
+        guard let chat = Chat.getChatWith(id: id),
+              let pubkey = chat.ownerPubkey else
+        {
+            self.didFailSavingTribe()
+            return
+        }
+
+        SphinxOnionManager.sharedInstance.updateTribe(
+            params: params,
+            pubkey: pubkey,
+            id: id
+        )
         
-//        API.sharedInstance.editGroup(id: id, params: params, callback: { chatJson in
-//            if let chat = Chat.insertChat(chat: chatJson) {
-//                chat.tribeInfo = self.groupsManager.newGroupInfo
-//                self.didSuccessSavingTribe()
-//            } else {
-//                self.didFailSavingTribe()
-//            }
-//        }, errorCallback: {
-//            self.didFailSavingTribe()
-//        })
+        updateChat(
+            chat: chat,
+            withParams: params
+        )
+        
+        DelayPerformedHelper.performAfterDelay(
+            seconds: 0.5,
+            completion: {
+                self.didSuccessSavingTribe()
+            }
+        )
+    }
+    
+    func updateChat(
+        chat: Chat,
+        withParams params: [String: AnyObject]
+    ) {
+        if let escrowAmount = params["escrow_amount"] as? Int {
+            chat.escrowAmount = NSDecimalNumber(value: escrowAmount)
+        }
+        if let name = params["name"] as? String {
+            chat.name = name
+        }
+        if let tags = params["tags"] as? [String] {
+            // Assuming `tags` should be handled accordingly
+            // chat.tags = tags
+        }
+        if let privateTribe = params["private"] as? Int {
+            chat.privateTribe = privateTribe == 1
+        }
+        if let feedUrl = params["feed_url"] as? String,
+            let url = URL(string: feedUrl){
+            chat.contentFeed?.feedURL = url
+        }
+
+        if let escrowMillis = params["escrow_millis"] as? Int {
+            // Assuming you have an `escrowMillis` property in `Chat`
+            // chat.escrowMillis = escrowMillis
+        }
+        if let unlisted = params["unlisted"] as? Int {
+            chat.unlisted = unlisted == 0
+        }
+        if let appUrl = params["app_url"] as? String {
+            chat.tribeInfo?.appUrl = appUrl
+        }
+        if let img = params["img"] as? String {
+            chat.photoUrl = img
+        }
+        if let isTribe = params["is_tribe"] as? Int {
+            chat.isTribeICreated = isTribe == 1
+        }
+        if let priceToJoin = params["price_to_join"] as? Int {
+            chat.priceToJoin = NSDecimalNumber(value: priceToJoin)
+        }
+
+        if let pricePerMessage = params["price_per_message"] as? Int {
+            chat.pricePerMessage = NSDecimalNumber(value: pricePerMessage)
+        }
+
+        chat.managedObjectContext?.saveContext()
     }
     
     func didFailSavingTribe() {

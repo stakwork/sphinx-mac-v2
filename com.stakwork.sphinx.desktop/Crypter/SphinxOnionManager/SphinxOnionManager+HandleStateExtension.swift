@@ -139,6 +139,7 @@ extension SphinxOnionManager {
         if let newTribe = newTribe {
             if let createTribeCallback = createTribeCallback {
                 createTribeCallback(newTribe)
+                self.createTribeCallback = nil
             }
         }
     }

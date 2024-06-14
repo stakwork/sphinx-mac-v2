@@ -62,6 +62,12 @@ class CreateTribeViewController: NSViewController {
         
         self.viewModel = CreateTribeViewModel(chat: chat, successCallback: {
             WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
+            
+            NotificationCenter.default.post(
+                name: .shouldCloseRightPanel,
+                object: nil,
+                userInfo: nil
+            )
         }, errorCallback: {
             self.loading = false
         })
