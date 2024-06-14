@@ -22,28 +22,16 @@ extension SphinxOnionManager {//contacts related
     }
     
     func deleteContactMsgsFor(
-        contact: UserContact
+        contact: UserContact? = nil,
+        chat: Chat? = nil
     ) -> Bool {
         guard let seed = getAccountSeed() else {
             return false
         }
         
-        if let chat = contact.getChat(), contact.isConfirmed() {
+        if let chat = chat ?? contact?.getChat(), (contact == nil || contact?.isConfirmed() == true) {
+            
             let okKeyMessages = chat.getOkKeyMessages()
-            
-            let contactKeyMsgs = okKeyMessages.filter({
-                let contactKeyTypes = [
-                    TransactionMessage.TransactionMessageType.contactKey.rawValue,
-                    TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
-                ]
-                
-                return contactKeyTypes.contains($0.type)
-            })
-            
-            if contactKeyMsgs.isEmpty {
-                return false
-            }
-            
             let indexes = okKeyMessages.compactMap({ UInt64($0.id) })
             
             do {
@@ -61,7 +49,7 @@ extension SphinxOnionManager {//contacts related
             }
         }
         
-        if let publicKey = contact.publicKey {
+        if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
             do {
                 let rr = try Sphinx.deleteMsgs(
                     seed: seed,
