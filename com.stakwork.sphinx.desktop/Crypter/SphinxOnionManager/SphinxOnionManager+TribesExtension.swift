@@ -53,6 +53,37 @@ extension SphinxOnionManager {
         }
     }
     
+    func updateTribe(
+        params: [String: AnyObject],
+        pubkey: String,
+        id: Int
+    ) {
+        var finalParams = params
+        finalParams["pubkey"] = pubkey as AnyObject
+
+        guard let seed = getAccountSeed(),
+              let tribeServerPubkey = getTribePubkey(),
+              let tribeData = try? JSONSerialization.data(withJSONObject: finalParams),
+              let tribeJSONString = String(data: tribeData, encoding: .utf8) else
+        {
+            return
+        }
+
+        do {
+            let rr = try Sphinx.updateTribe(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                tribeServerPubkey: tribeServerPubkey,
+                tribeJson: tribeJSONString
+            )
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error updating tribe")
+        }
+    }
+    
     func joinTribe(
         tribePubkey: String,
         routeHint: String,

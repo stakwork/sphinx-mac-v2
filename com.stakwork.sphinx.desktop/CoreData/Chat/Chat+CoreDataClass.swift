@@ -802,12 +802,6 @@ public class Chat: NSManagedObject {
     }
     
     func updateChatFromTribesInfo() {
-        if self.isMyPublicGroup() {
-            self.pinnedMessageUUID = self.tribeInfo?.pin ?? nil
-            self.saveChat()
-            return
-        }
-        
         self.escrowAmount = NSDecimalNumber(
             integerLiteral: self.tribeInfo?.amountToStake ?? (self.escrowAmount?.intValue ?? 0)
         )
@@ -824,7 +818,6 @@ public class Chat: NSManagedObject {
         }
         
         self.saveChat()
-        self.syncTribeWithServer()
         self.checkForDeletedTribe()
     }
     
@@ -864,13 +857,6 @@ public class Chat: NSManagedObject {
     
     func hasSecondBrainApp() -> Bool {
         return tribeInfo?.secondBrainUrl != nil && tribeInfo?.secondBrainUrl?.isEmpty == false
-    }
-    
-    func syncTribeWithServer() {
-//        DispatchQueue.global().async {
-//            let params: [String: AnyObject] = ["name" : self.name as AnyObject, "img": self.photoUrl as AnyObject]
-//            API.sharedInstance.editGroup(id: self.id, params: params, callback: { _ in }, errorCallback: {})
-//        }
     }
     
     func shouldShowPrice() -> Bool {

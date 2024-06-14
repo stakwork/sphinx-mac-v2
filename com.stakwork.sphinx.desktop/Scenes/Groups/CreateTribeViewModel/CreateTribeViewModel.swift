@@ -147,7 +147,10 @@ class CreateTribeViewModel {
             return
         }
         
-        SphinxOnionManager.sharedInstance.createTribe(params: params, callback: handleNewTribeNotification)
+        SphinxOnionManager.sharedInstance.createTribe(
+            params: params,
+            callback: handleNewTribeNotification
+        )
     }
     
 
@@ -165,17 +168,40 @@ class CreateTribeViewModel {
     
     func editGroup(id: Int, params: [String: AnyObject]) {
         errorCallback?()
+
+        guard let chat = Chat.getChatWith(id: id),
+              let pubkey = chat.ownerPubkey else
+        {
+            self.didFailSavingTribe()
+            return
+        }
+
+        SphinxOnionManager.sharedInstance.updateTribe(
+            params: params,
+            pubkey: pubkey,
+            id: id
+        )
         
-//        API.sharedInstance.editGroup(id: id, params: params, callback: { chatJson in
-//            if let chat = Chat.insertChat(chat: chatJson) {
-//                chat.tribeInfo = self.groupsManager.newGroupInfo
-//                self.didSuccessSavingTribe()
-//            } else {
-//                self.didFailSavingTribe()
-//            }
-//        }, errorCallback: {
-//            self.didFailSavingTribe()
-//        })
+        updateChat(
+            chat: chat,
+            withParams: params
+        )
+        
+        DelayPerformedHelper.performAfterDelay(
+            seconds: 0.5,
+            completion: {
+                self.didSuccessSavingTribe()
+            }
+        )
+    }
+    
+    func updateChat(
+        chat: Chat,
+        withParams params: [String: AnyObject]
+    ) {
+        chat.tribeInfo = GroupsManager.sharedInstance.getTribesInfoFrom(json: JSON(params))
+        chat.updateChatFromTribesInfo()
+        chat.managedObjectContext?.saveContext()
     }
     
     func didFailSavingTribe() {
