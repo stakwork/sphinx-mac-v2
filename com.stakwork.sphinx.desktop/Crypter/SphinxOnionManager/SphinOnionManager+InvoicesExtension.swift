@@ -100,16 +100,33 @@ extension SphinxOnionManager{//invoices related
         )
     }
     
-    func getTransactionHistory() -> [PaymentTransaction] {
-        var history = [PaymentTransaction]()
-
-        let messages = TransactionMessage.fetchTransactionMessagesForHistory()
-        
-        for message in messages{
-            history.append(PaymentTransaction(fromTransactionMessage: message))
+    func getTransactionsHistory(
+        paymentsHistoryCallback: @escaping ((String?, String?) -> ()),
+        itemsPerPage: UInt32,
+        sinceTimestamp: UInt64
+    ) {
+        do {
+            let rr = try fetchPayments(
+                seed: getAccountSeed()!,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                since: sinceTimestamp * 1000,
+                limit: itemsPerPage,
+                scid: nil,
+                remoteOnly: false,
+                minMsat: 0,
+                reverse: true
+            )
+            
+            self.paymentsHistoryCallback = paymentsHistoryCallback
+            
+            let _ = handleRunReturn(rr: rr)
+        } catch let error {
+            paymentsHistoryCallback(
+                nil,
+                "Error fetching transactions history: \(error.localizedDescription)"
+            )
         }
-        
-        return history
     }
 
 }
