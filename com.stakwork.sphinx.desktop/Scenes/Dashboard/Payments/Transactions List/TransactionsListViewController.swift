@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import ObjectMapper
 
 class TransactionsListViewController: NSViewController {
     
@@ -16,9 +17,8 @@ class TransactionsListViewController: NSViewController {
     
     var transactionsDataSource : TransactionsDataSource!
     
-    var page = 1
     var didReachLimit = false
-    let itemsPerPage = 50
+    let itemsPerPage : UInt32 = 50
     
     static func instantiate() -> TransactionsListViewController {
         
@@ -47,22 +47,83 @@ class TransactionsListViewController: NSViewController {
         transactionsCollectionView.dataSource = transactionsDataSource
         
         loading = true
+        
+        SphinxOnionManager.sharedInstance.getTransactionsHistory(
+            paymentsHistoryCallback: handlePaymentHistoryCompletion,
+            itemsPerPage: itemsPerPage,
+            sinceTimestamp: UInt64(Date().timeIntervalSince1970)
+        )
+    }
+    
+    func handlePaymentHistoryCompletion(
+        jsonString: String?,
+        error: String?
+    ) {
+        if let _ = error {
+            checkResultsLimit(count: 0)
+            transactionsCollectionView.alphaValue = 0.0
+            loading = false
 
-//        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
-//            self.setNoResultsLabel(count: transactions.count)
-//            self.checkResultsLimit(count: transactions.count)
-//            self.transactionsDataSource.loadTransactions(transactions: transactions)
-//            self.loading = false
-//        }, errorCallback: {
-//            self.checkResultsLimit(count: 0)
-//            self.transactionsCollectionView.alphaValue = 0.0
-//            self.loading = false
-//            
-//            AlertHelper.showAlert(
-//                title: "generic.error.title".localized,
-//                message: "error.loading.transactions".localized
-//            )
-//        })
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: "error.loading.transactions".localized
+            )
+            return
+        }
+        
+        // 1. Pull history with messages from local DB
+        var history = [PaymentTransaction]()
+        
+        let messages = TransactionMessage.fetchTransactionMessagesForHistory()
+        
+        for message in messages {
+            history.append(PaymentTransaction(fromTransactionMessage: message))
+        }
+        
+        // 2. Collect and process remote transactions not accounted for with messages
+        if let jsonString = jsonString, let results = Mapper<PaymentTransactionFromServer>().mapArray(JSONString: jsonString) {
+            
+            let localHistoryIndices = messages.map { $0.id }
+            let localHistoryPaymentHashes = messages.compactMap { $0.paymentHash } // Ensure no nil values
+            
+            let unAccountedResults = results.filter { result in
+                let msgIdxUnaccounted = !localHistoryIndices.contains(result.msg_idx ?? -21)
+                let rhashUnaccounted = !localHistoryPaymentHashes.contains(result.rhash ?? "")
+                
+                // Check for amount and timestamp condition
+                let amountThreshold = 5000 // msats
+                let timestampThreshold: TimeInterval = 10 // seconds
+                
+                let similarTransactionExists = messages.contains { message in
+                    guard let messageAmountSats = message.amount?.intValue,
+                          let messageTimestamp = message.date?.timeIntervalSince1970 else {
+                        return false
+                    }
+                    
+                    let messageAmountMsats = messageAmountSats * 1000
+                    let resultAmountMsats = result.amt_msat ?? 0
+                    let resultTimestamp = TimeInterval(result.ts ?? 0) / 1000
+                    
+                    return resultAmountMsats > amountThreshold &&
+                           resultAmountMsats == messageAmountMsats &&
+                           abs(resultTimestamp - messageTimestamp) <= timestampThreshold
+                }
+                
+                return (msgIdxUnaccounted || rhashUnaccounted) && !similarTransactionExists
+            }
+            
+            for result in unAccountedResults {
+                let newHistory = PaymentTransaction(fromFetchedParams: result)
+                history.append(newHistory)
+            }
+        }
+        
+        history = history.sorted { $0.getDate() > $1.getDate() }
+        
+        setNoResultsLabel(count: history.count)
+        checkResultsLimit(count: history.count)
+        transactionsDataSource.loadTransactions(transactions: history)
+        loading = false
     }
     
     func setNoResultsLabel(count: Int) {
@@ -84,11 +145,18 @@ extension TransactionsListViewController : TransactionsDataSourceDelegate {
             return
         }
         
-        page = page + 1
+        guard let oldestTransaction = transactionsDataSource.transactions.last else {
+            return
+        }
         
-//        API.sharedInstance.getTransactionsList(page: page, itemsPerPage: itemsPerPage, callback: { transactions in
-//            self.checkResultsLimit(count: transactions.count)
-//            self.transactionsDataSource.addMoreTransactions(transactions: transactions)
-//        }, errorCallback: { })
+        let oldestTimestamp = UInt64(oldestTransaction.getDate().timeIntervalSince1970)
+        
+        loading = true
+        
+        SphinxOnionManager.sharedInstance.getTransactionsHistory(
+            paymentsHistoryCallback: handlePaymentHistoryCompletion,
+            itemsPerPage: itemsPerPage,
+            sinceTimestamp: oldestTimestamp
+        )
     }
 }

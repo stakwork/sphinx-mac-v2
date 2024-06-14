@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftyJSON
+import ObjectMapper
 
 class PaymentTransaction {
     
@@ -67,6 +68,25 @@ class PaymentTransaction {
         self.errorMessage = transactionMessage.errorMessage
     }
     
+    init(fromFetchedParams fetchedParams: PaymentTransactionFromServer) {
+        // Initialize properties using values from `PaymentTransactionFromServer`
+        self.type = nil
+        self.amount = (fetchedParams.amt_msat ?? 0) / 1000
+        
+        if let ts = fetchedParams.ts {
+            self.date = Date(timeIntervalSince1970: TimeInterval(ts) / 1000)
+        } else {
+            self.date = Date()
+        }
+        
+        let isIncoming = fetchedParams.msg_idx != nil //only incoming payments have an index
+        
+        self.paymentHash = fetchedParams.rhash
+        self.senderId = (isIncoming) ? -1 : 0
+        self.receiverId = (isIncoming) ? 0 : -1
+        self.paymentRequest = "unknown"
+    }
+    
     func getDirection() -> TransactionDirection {
         let userId = UserData.sharedInstance.getUserId()
         if let senderId = senderId {
@@ -122,5 +142,25 @@ class PaymentTransaction {
             }
         }
         return nil
+    }
+}
+
+class PaymentTransactionFromServer: Mappable {
+    var scid: Int64?
+    var amt_msat: Int?
+    var rhash: String?
+    var ts: Int64?
+    var remote: Bool?
+    var msg_idx: Int?
+    
+    required init?(map: Map) {}
+    
+    func mapping(map: Map) {
+        scid     <- map["scid"]
+        amt_msat <- map["amt_msat"]
+        rhash    <- map["rhash"]
+        ts       <- map["ts"]
+        remote   <- map["remote"]
+        msg_idx  <- map["msg_idx"]
     }
 }

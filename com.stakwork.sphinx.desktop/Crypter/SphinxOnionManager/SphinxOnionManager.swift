@@ -79,6 +79,7 @@ class SphinxOnionManager : NSObject {
     var tribeMembersCallback : (([String: AnyObject]) -> ())? = nil
     var inviteCreationCallback : ((String?) -> ())? = nil
     var mqttDisconnectCallback : (() -> ())? = nil
+    var paymentsHistoryCallback : ((String?, String?) -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
     var appSessionPin : String? = nil
