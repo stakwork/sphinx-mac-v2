@@ -402,6 +402,14 @@ extension NewChatViewController : ChatBottomViewDelegate {
     func shouldScrollToBottom() {
         chatCollectionView.scrollToBottom(animated: false)
     }
+    
+    func getThreadUUID() -> String? {
+        return self.newChatViewModel.replyingTo?.uuid
+    }
+    
+    func getReplyUUID() -> String? {
+        return self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID
+    }
 }
 
 extension NewChatViewController : GiphySearchViewDelegate {

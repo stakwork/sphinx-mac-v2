@@ -41,7 +41,6 @@ class ChatMessageFieldView: NSView, LoadableNib {
     @IBOutlet weak var priceCancelButtonWidthConstraint: NSLayoutConstraint!
     
     let kTextViewVerticalMargins: CGFloat = 41
-    let kCharacterLimit = 1000
     let kTextViewLineHeight: CGFloat = 19
     let kMinimumPriceFieldWidth: CGFloat = 90
     let kPriceClearButtonWidth: CGFloat = 20
