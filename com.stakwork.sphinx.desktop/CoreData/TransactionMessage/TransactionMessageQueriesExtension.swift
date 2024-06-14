@@ -98,6 +98,19 @@ extension TransactionMessage {
         return messages
     }
     
+    static func getMessagesWith(tags: [String]) -> [TransactionMessage] {
+        let predicate = NSPredicate(format: "tag IN %@", tags)
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
+        
+        return messages
+    }
+    
     static func getMessagesWith(ids: [Int]) -> [TransactionMessage] {
         let predicate = NSPredicate(format: "id IN %@", ids)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
@@ -134,28 +147,6 @@ extension TransactionMessage {
         }
         
         return messages
-    }
-    
-    static func getLastMessageFor(chat: Chat) -> TransactionMessage? {
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
-        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        
-        fetchRequest.predicate = NSPredicate(
-            format: "chat == %@ AND type != %d",
-            chat,
-            TransactionMessageType.delete.rawValue
-        )
-        
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
-        fetchRequest.fetchLimit = 1
-
-        do {
-            let results = try context.fetch(fetchRequest)
-            return results.first
-        } catch let error as NSError {
-            print("Error fetching message with max ID: \(error), \(error.userInfo)")
-            return nil
-        }
     }
     
     static func getMaxIndex() -> Int? {

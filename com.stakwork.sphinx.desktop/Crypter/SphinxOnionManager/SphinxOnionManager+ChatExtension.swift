@@ -165,7 +165,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        guard let selfContact = UserContact.getSelfContact(),
+        guard let selfContact = UserContact.getOwner(),
               let nickname = selfContact.nickname ?? chat.name,
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
@@ -887,7 +887,7 @@ extension SphinxOnionManager {
         newMessage.type = type ?? TransactionMessage.TransactionMessageType.message.rawValue
         newMessage.encrypted = true
         newMessage.senderId = senderId
-        newMessage.receiverId = UserContact.getSelfContact()?.id ?? 0
+        newMessage.receiverId = UserContact.getOwner()?.id ?? 0
         newMessage.push = false
         newMessage.chat = chat
         newMessage.chat?.seen = false
@@ -900,6 +900,7 @@ extension SphinxOnionManager {
         newMessage.mediaType = message.mediaType
         newMessage.mediaToken = message.mediaToken
         newMessage.paymentHash = message.paymentHash
+        newMessage.tag = message.tag
         
         if (type == TransactionMessage.TransactionMessageType.boost.rawValue && isTribe == true), let msgAmount = message.amount {
             newMessage.amount = NSDecimalNumber(value: msgAmount/1000)
@@ -927,6 +928,64 @@ extension SphinxOnionManager {
         return newMessage
     }
     
+    func createKeyExchangeMsgFrom(
+        msg: Msg
+    ) {
+        guard let sender = msg.sender, let csr = ContactServerResponse(JSONString: sender), let pubKey = csr.pubkey else {
+            return
+        }
+        
+        guard let contact = UserContact.getContactWithDisregardStatus(pubkey: pubKey) else {
+            return
+        }
+        
+        guard let index = msg.index, let intIndex = Int(index), let msgType = msg.type else {
+            return
+        }
+        
+        let allowedTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue)
+        ]
+        
+        if !allowedTypes.contains(msgType) {
+            return
+        }
+        
+        if let _ = TransactionMessage.getMessageWith(id: intIndex) {
+            return
+        }
+        
+        let newMessage = TransactionMessage(context: managedContext)
+        
+        newMessage.id = intIndex
+        newMessage.uuid = msg.uuid
+        
+        if let timestamp = msg.timestamp,
+           let dateFromMessage = timestampToDate(timestamp: UInt64(timestamp))
+        {
+            newMessage.createdAt = dateFromMessage
+            newMessage.updatedAt = dateFromMessage
+            newMessage.date = dateFromMessage
+        } else {
+            let date = Date()
+            newMessage.createdAt = date
+            newMessage.updatedAt = date
+            newMessage.date = date
+        }
+        
+        newMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+        newMessage.type = Int(msgType)
+        newMessage.encrypted = true
+        newMessage.senderId = contact.id
+        newMessage.push = false
+        newMessage.chat = contact.getChat()
+        newMessage.chat?.seen = false
+        newMessage.messageContent = msg.message
+        
+        managedContext.saveContext()
+    }
+    
     func updateContactInfoFromMessage(
             contact: UserContact,
             alias: String?,
@@ -937,7 +996,7 @@ extension SphinxOnionManager {
             
             var contactDidChange = false
             
-            if (contact.nickname != alias && alias != nil) {
+            if (contact.nickname != alias && alias != nil && alias?.isEmpty == false) {
                 contact.nickname = alias
                 contactDidChange = true
             }
@@ -1232,6 +1291,25 @@ extension SphinxOnionManager {
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData()
+            )
+            let _ = handleRunReturn(rr: rr)
+        } catch {
+            print("Error getting read level")
+        }
+    }
+    
+    func getMessagesStatusFor(tags: [String]) {
+        guard let seed = getAccountSeed() else{
+            return
+        }
+        
+        do {
+            let rr = try Sphinx.getTags(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                tags: tags,
+                pubkey: nil
             )
             let _ = handleRunReturn(rr: rr)
         } catch {

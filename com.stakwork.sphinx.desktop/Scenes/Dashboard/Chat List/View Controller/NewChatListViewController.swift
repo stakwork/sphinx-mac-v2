@@ -405,24 +405,24 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         contextMenu.items = []
         var newItems = [NSMenuItem]()
 
-        if let chat = chat {
-            
-            if let lastMessage = chat.lastMessage, !lastMessage.isOutgoing() {
-                let isChatRead = lastMessage.seen
-                
-                let toggleReadUnreadItem = NSMenuItem(
-                    title: isChatRead ? "mark.as.unread".localized : "mark.as.read".localized,
-                    action: #selector(self.handleMenuItemClick(_:)),
-                    keyEquivalent: ""
-                )
-                toggleReadUnreadItem.representedObject = chat
-                toggleReadUnreadItem.target = self
-                toggleReadUnreadItem.tag = RightClickedContactActions.toggleReadUnread.rawValue
-                toggleReadUnreadItem.isEnabled = true
-                
-                newItems.append(toggleReadUnreadItem)
-            }
-        }
+//        if let chat = chat {
+//            
+//            if let lastMessage = chat.lastMessage, !lastMessage.isOutgoing() {
+//                let isChatRead = lastMessage.seen
+//                
+//                let toggleReadUnreadItem = NSMenuItem(
+//                    title: isChatRead ? "mark.as.unread".localized : "mark.as.read".localized,
+//                    action: #selector(self.handleMenuItemClick(_:)),
+//                    keyEquivalent: ""
+//                )
+//                toggleReadUnreadItem.representedObject = chat
+//                toggleReadUnreadItem.target = self
+//                toggleReadUnreadItem.tag = RightClickedContactActions.toggleReadUnread.rawValue
+//                toggleReadUnreadItem.isEnabled = true
+//                
+//                newItems.append(toggleReadUnreadItem)
+//            }
+//        }
         
         if let contact = contact ?? chat?.getContact() {
             let deleteContactItem = NSMenuItem(
@@ -500,20 +500,35 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
 
     
     func initiateDeletion(contactId: Int){
-//        let confirmDeletionCallback: (() -> ()) = {
-//            self.shouldDeleteContact(contactId: contactId)
-//        }
-//                
-//        AlertHelper.showTwoOptionsAlert(
-//            title: "warning".localized,
-//            message: "delete.contact.warning".localized,
-//            confirm: confirmDeletionCallback
-//        )
+        let confirmDeletionCallback: (() -> ()) = {
+            self.shouldDeleteContact(contactId: contactId)
+        }
+                
+        AlertHelper.showTwoOptionsAlert(
+            title: "warning".localized,
+            message: "delete.contact.warning".localized,
+            confirm: confirmDeletionCallback
+        )
     }
     
     func shouldDeleteContact(contactId: Int) {
         if let contact = UserContact.getContactWith(id: contactId) {
-            CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
+            
+            let som = SphinxOnionManager.sharedInstance
+            
+            if let publicKey = contact.publicKey, publicKey.isNotEmpty {
+                if som.deleteContactMsgsFor(contact: contact) {
+                    som.deleteContactFromState(pubkey: publicKey)
+                    
+                    CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
+                    return
+                }
+            }            
         }
+        
+        AlertHelper.showAlert(
+            title: "generic.error.title".localized,
+            message: "generic.error.message".localized
+        )
     }
 }

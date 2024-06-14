@@ -265,11 +265,6 @@ public class UserContact: NSManagedObject {
         return contacts
     }
     
-    public static func getSelfContact() -> UserContact? {
-        return self.getContactWith(indices: [0]).first
-    }
-    
-    
     public static func getContactWith(
         indices: [Int],
         managedContext: NSManagedObjectContext? = nil

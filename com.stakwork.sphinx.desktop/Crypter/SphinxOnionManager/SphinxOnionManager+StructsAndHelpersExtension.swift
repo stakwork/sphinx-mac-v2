@@ -68,6 +68,32 @@ struct ContactServerResponse: Mappable {
     }
 }
 
+struct ListContactResponse: Mappable {
+    var version: Int?
+    var my_idx: Int?
+    var pubkey: String?
+    var lsp: String?
+    var scid: Int?
+    var contact_key: String?
+    var highest_msg_idx: Int?
+
+    init?(map: Map) {}
+
+    mutating func mapping(map: Map) {
+        version           <- map["version"]
+        my_idx            <- map["my_idx"]
+        pubkey            <- map["pubkey"]
+        lsp               <- map["lsp"]
+        scid              <- map["scid"]
+        contact_key       <- map["contact_key"]
+        highest_msg_idx   <- map["highest_msg_idx"]
+    }
+    
+    func isConfirmed() -> Bool {
+        return contact_key != nil
+    }
+}
+
 struct MessageInnerContent: Mappable {
     var content: String?
     var replyUuid: String? = nil
@@ -111,6 +137,28 @@ struct MessageInnerContent: Mappable {
     }
 }
 
+struct MessageStatusMap: Mappable {
+    var ts: Int?
+    var status: String?
+    var tag: String?
+
+    init?(map: Map) {}
+
+    mutating func mapping(map: Map) {
+        ts          <- map["ts"]
+        status      <- map["status"]
+        tag         <- map["tag"]
+    }
+    
+    func isReceived() -> Bool {
+        return self.status == SphinxOnionManager.kCompleteStatus
+    }
+    
+    func isFailed() -> Bool {
+        return self.status == SphinxOnionManager.kFailedStatus
+    }
+}
+
 
 struct GenericIncomingMessage: Mappable {
     var content: String?
@@ -131,6 +179,7 @@ struct GenericIncomingMessage: Mappable {
     var alias: String? = nil
     var fullContactInfo: String? = nil
     var photoUrl: String? = nil
+    var tag: String? = nil
 
     init?(map: Map) {}
     
@@ -188,6 +237,7 @@ struct GenericIncomingMessage: Mappable {
         
         self.uuid = msg.uuid
         self.index = msg.index
+        self.tag = msg.tag
     }
 
     mutating func mapping(map: Map) {
