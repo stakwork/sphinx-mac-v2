@@ -821,6 +821,11 @@ extension String {
         
         return (actualHost, port, ssl)
     }
+    
+    func byteSize() -> Int {
+        let length = self.lengthOfBytes(using: .utf8) + 360//add offset
+        return length
+    }
 }
 
 extension Character {

@@ -32,7 +32,33 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             with: replacementString ?? ""
         )
         
-        return (currentChangedString.utf8.count <= kBytesLimit)
+        let effectiveThreadUUID = delegate?.getThreadUUID()
+        let effectiveReplyUUID = delegate?.getReplyUUID()
+        
+        return isMessageWithinByteLimit(
+            message: currentChangedString,
+            replyUUID: effectiveReplyUUID,
+            threadUUID: effectiveThreadUUID
+        )
+    }
+    
+    func isMessageWithinByteLimit(
+        message: String,
+        replyUUID: String? = nil,
+        threadUUID: String? = nil,
+        byteLimit: Int = 869
+    ) -> Bool {
+        var totalMessage = message
+        
+        if let replyUUID = replyUUID {
+            totalMessage += replyUUID + "--------" //add padding to account for additional payload introduced by replyUUID
+        }
+        
+        if let threadUUID = threadUUID {
+            totalMessage += threadUUID + "-----------" //add padding to account for additional payload introduced by threadUUID
+        }
+        
+        return totalMessage.byteSize() <= byteLimit
     }
     
     func shouldSendMessage() {
