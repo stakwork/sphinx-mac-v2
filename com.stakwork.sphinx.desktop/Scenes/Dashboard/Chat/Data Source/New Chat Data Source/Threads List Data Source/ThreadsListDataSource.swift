@@ -112,8 +112,11 @@ class ThreadsListDataSource : NSObject {
 
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: false)
-            self.collectionView.alphaValue = 1.0
-            self.toggleElementsVisibility()
+            
+            DispatchQueue.main.async {
+                self.collectionView.alphaValue = 1.0
+                self.toggleElementsVisibility()
+            }
         }
     }
     

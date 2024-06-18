@@ -124,6 +124,9 @@ class NewChatTableDataSource : NSObject {
     ///Semaphore for UI update
     var UIUpdateIndex = 0
     
+    ///Data source updates queue
+    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    
     ///Constants
     static let kThreadHeaderRowIndex = -10
     

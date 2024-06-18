@@ -80,7 +80,7 @@ extension NewChatTableDataSource : AudioPlayerHelperDelegate {
                 if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
                     delegate?.shouldReloadThreadHeader()
                 } else {
-                    DispatchQueue.main.async {
+                    dataSourceQueue.sync {
                         var snapshot = self.dataSource.snapshot()
                         snapshot.reloadItems([tableCellState.1])
                         self.dataSource.apply(snapshot, animatingDifferences: true)
@@ -202,7 +202,7 @@ extension NewChatTableDataSource : PlayerDelegate {
                     )
                 )
 
-                DispatchQueue.main.async {
+                dataSourceQueue.sync {
                     var snapshot = self.dataSource.snapshot()
                     snapshot.reloadItems([tableCellState.1])
                     self.dataSource.apply(snapshot, animatingDifferences: true)

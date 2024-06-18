@@ -62,14 +62,18 @@ extension NewChatTableDataSource {
         
         DispatchQueue.main.async {
             CoreDataManager.sharedManager.saveContext()
-            
             self.saveSnapshotCurrentState()
-            self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                self.restoreScrollLastPosition()
-                self.loadingMoreItems = false
-                self.isFirstLoad = false
-                
-                completion?()
+            
+            self.dataSourceQueue.sync {
+                self.dataSource.apply(snapshot, animatingDifferences: animated) {
+                    DispatchQueue.main.async {
+                        self.restoreScrollLastPosition()
+                        self.loadingMoreItems = false
+                        self.isFirstLoad = false
+                        
+                        completion?()
+                    }
+                }
             }
         }
     }
