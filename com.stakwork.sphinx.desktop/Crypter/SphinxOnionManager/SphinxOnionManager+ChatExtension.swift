@@ -166,7 +166,7 @@ extension SphinxOnionManager {
         }
         
         guard let selfContact = UserContact.getOwner(),
-              let nickname = selfContact.nickname ?? chat.name,
+              let nickname = (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
             return nil
@@ -191,7 +191,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        let myImg = selfContact.avatarUrl ?? ""
+        let myImg = (chat.myPhotoUrl?.isNotEmpty == true ? (chat.myPhotoUrl ?? "") : (selfContact.avatarUrl ?? ""))
         
         do {
             
