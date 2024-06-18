@@ -62,9 +62,9 @@ extension NewChatTableDataSource {
         
         DispatchQueue.main.async {
             CoreDataManager.sharedManager.saveContext()
+            self.saveSnapshotCurrentState()
             
             self.dataSourceQueue.sync {
-                self.saveSnapshotCurrentState()
                 self.dataSource.apply(snapshot, animatingDifferences: animated) {
                     DispatchQueue.main.async {
                         self.restoreScrollLastPosition()
