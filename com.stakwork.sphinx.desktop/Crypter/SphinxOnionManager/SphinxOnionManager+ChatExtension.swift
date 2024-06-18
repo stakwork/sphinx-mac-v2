@@ -1001,7 +1001,7 @@ extension SphinxOnionManager {
                 contactDidChange = true
             }
             
-            if (contact.avatarUrl != photoUrl) {
+            if (contact.avatarUrl != photoUrl && photoUrl != nil && photoUrl?.isEmpty == false) {
                 contact.avatarUrl = photoUrl
                 contactDidChange = true
             }
