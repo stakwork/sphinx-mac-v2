@@ -428,12 +428,14 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                     if let height = height {
                         self.botsWebViewData[messageId] = MessageTableCellState.BotWebViewData(height: height)
                         
-                        DispatchQueue.main.async {
+                        self.dataSourceQueue.sync {
                             self.saveSnapshotCurrentState()
                             var snapshot = self.dataSource.snapshot()
                             snapshot.reloadItems([tableCellState.1])
                             self.dataSource.apply(snapshot, animatingDifferences: true) {
-                                self.restoreScrollLastPosition()
+                                DispatchQueue.main.async {
+                                    self.restoreScrollLastPosition()
+                                }
                             }
                         }
                     }
@@ -560,7 +562,7 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ) {
-            DispatchQueue.main.async {
+            dataSourceQueue.sync {
                 var snapshot = self.dataSource.snapshot()
                 snapshot.reloadItems([tableCellState.1])
                 self.dataSource.apply(snapshot, animatingDifferences: true)
@@ -588,12 +590,14 @@ extension NewChatTableDataSource {
                 bubbleWidth: bubbleWidth
             )
 
-            DispatchQueue.main.async {
+            dataSourceQueue.sync {
                 self.saveSnapshotCurrentState()
                 var snapshot = self.dataSource.snapshot()
                 snapshot.reloadItems([tableCellState.1])
                 self.dataSource.apply(snapshot, animatingDifferences: true) {
-                    self.restoreScrollLastPosition()
+                    DispatchQueue.main.async {
+                        self.restoreScrollLastPosition()
+                    }
                 }
             }
         }
@@ -612,9 +616,11 @@ extension NewChatTableDataSource {
                 if updatedUploadProgressData.progress < 100 {
                     self.uploadingProgress[messageId] = updatedUploadProgressData
                     
-                    var snapshot = self.dataSource.snapshot()
-                    snapshot.reloadItems([tableCellState.1])
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                    self.dataSourceQueue.sync {
+                        var snapshot = self.dataSource.snapshot()
+                        snapshot.reloadItems([tableCellState.1])
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                    }
                 } else {
                     self.uploadingProgress.removeValue(forKey: messageId)
                 }
@@ -643,9 +649,11 @@ extension NewChatTableDataSource {
                 if !(self.collectionView.indexPathsForVisibleItems().map { $0.item }).contains(rowIndex) {
                     return
                 }
-                var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+                self.dataSourceQueue.sync {
+                    var snapshot = self.dataSource.snapshot()
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                }
             }
         }
     }
