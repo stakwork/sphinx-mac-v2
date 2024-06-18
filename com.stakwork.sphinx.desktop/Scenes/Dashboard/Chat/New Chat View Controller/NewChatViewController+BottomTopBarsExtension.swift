@@ -135,16 +135,23 @@ extension NewChatViewController : GroupDetailsDelegate {
         let confirmDeleteLabel = (isMyPublicGroup ? "confirm.delete.tribe" : (isPublicGroup ? "confirm.exit.delete.tribe" : "confirm.exit.delete.group")).localized
         
         AlertHelper.showTwoOptionsAlert(title: deleteLabel, message: confirmDeleteLabel, confirm: {
-            SphinxOnionManager.sharedInstance.deleteTribe(tribeChat: chat)
+            let som = SphinxOnionManager.sharedInstance
             
-            DispatchQueue.main.async{
-                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+            if isMyPublicGroup {
+                som.deleteTribe(tribeChat: chat)
+            } else {
+                som.exitTribe(tribeChat: chat)
             }
             
-            DelayPerformedHelper.performAfterDelay(seconds: 1.5, completion: {
-                self.delegate?.shouldResetTribeView()
-                completion()
-            })
+            let _ = som.deleteContactMsgsFor(chat: chat)
+            
+            DispatchQueue.main.async {
+                DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
+                    CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+                    completion()
+                    self.delegate?.shouldResetTribeView()
+                }
+            }
         })
     }
 }

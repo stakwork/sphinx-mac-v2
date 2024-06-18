@@ -230,24 +230,30 @@ extension GroupDetailsViewController : MessageOptionsDelegate {
                 break
             case .Delete, .Exit:
                 delegate?.shouldExitTribeOrGroup(completion: {
-                    self.view.window?.close()
+                    NotificationCenter.default.post(
+                        name: .shouldCloseRightPanel,
+                        object: nil,
+                        userInfo: nil
+                    )
                 })
                 break
             case .Edit:
                 let createTribeVC = CreateTribeViewController.instantiate(chat: chat)
-                WindowsManager.sharedInstance
-                    .showVCOnRightPanelWindow(with: "edit.tribe".localized,
-                                                  identifier: "edit-tribe-window",
-                                                  contentVC: createTribeVC,
-                                                  shouldReplace: false)
+                WindowsManager.sharedInstance.showVCOnRightPanelWindow(
+                    with: "edit.tribe".localized,
+                    identifier: "edit-tribe-window",
+                    contentVC: createTribeVC,
+                    shouldReplace: false
+                )
                 break
             case .TribeMembers:
                 let tribeMembers = TribeMembersViewController.instantiate(chat: chat)
-                WindowsManager.sharedInstance
-                    .showVCOnRightPanelWindow(with: "tribe.member".localized,
-                                                  identifier: "tribe-members-window",
-                                                  contentVC: tribeMembers,
-                                                  shouldReplace: false)
+                WindowsManager.sharedInstance.showVCOnRightPanelWindow(
+                    with: "tribe.member".localized,
+                    identifier: "tribe-members-window",
+                    contentVC: tribeMembers,
+                    shouldReplace: false
+                )
                 break
             }
         }
