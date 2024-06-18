@@ -71,13 +71,33 @@ class GroupDetailsViewController: NSViewController {
         groupImageView.rounded = true
         groupImageView.layer?.cornerRadius = groupImageView.frame.height / 2
         
-        self.loading = true
+        loading = true
         
         optionsButton.cursor = .pointingHand
         view.window?.title = (chat.isPublicGroup() ? "tribe.details" : "group.details").localized
         
-        DelayPerformedHelper.performAfterDelay(seconds: 0.3, completion: {
-            self.setGroupInfo()
+        checkOwnerRole()
+    }
+    
+    func checkOwnerRole() {
+        // Create a watchdog timer as a DispatchWorkItem.
+        let watchdogTimer = DispatchWorkItem { [weak self] in
+            self?.setGroupInfo()
+        }
+        
+        // Schedule the watchdog timer to run after 5 seconds.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: watchdogTimer)
+        
+        SphinxOnionManager.sharedInstance.getTribeMembers(tribeChat: chat, completion: { [weak self] tribeMembers in
+            guard let self = self else { return }
+            
+            watchdogTimer.cancel()
+            
+            if let tribeMemberArray = tribeMembers["confirmedMembers"] as? [TribeMembersRRObject] {
+                self.chat?.isTribeICreated = true
+                self.chat?.managedObjectContext?.saveContext()
+                self.setGroupInfo()
+            }
         })
     }
     
