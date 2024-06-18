@@ -575,7 +575,15 @@ extension SphinxOnionManager {
 
                         for message in TransactionMessage.getMessagesWith(tags: tags) {
                             if let messageStatus = dictionary[message.tag ?? ""] {
-                                message.status = messageStatus.isReceived() ? TransactionMessage.TransactionMessageStatus.received.rawValue : TransactionMessage.TransactionMessageStatus.failed.rawValue
+                                if messageStatus.isReceived() {
+                                    if message.isInvoice() {
+                                        message.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+                                    } else {
+                                        message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                    }
+                                } else {
+                                    message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                }
                             }
                         }
 
