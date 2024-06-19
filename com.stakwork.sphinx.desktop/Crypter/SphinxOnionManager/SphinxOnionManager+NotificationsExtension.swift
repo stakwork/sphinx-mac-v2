@@ -41,6 +41,10 @@ extension SphinxOnionManager {
                 }
             }
             
+            if let tribePubKey = chat.ownerPubkey, recentlyJoinedTribePubKeys.contains(tribePubKey) {
+                return
+            }
+            
             appDelegate.sendNotification(message: message)
         }
     }

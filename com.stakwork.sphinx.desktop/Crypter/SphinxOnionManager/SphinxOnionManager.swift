@@ -52,6 +52,8 @@ class SphinxOnionManager : NSObject {
         }
     }
     
+    var recentlyJoinedTribePubKeys: [String] = []
+    
     var isV2InitialSetup: Bool = false
     var isV2Restore: Bool = false
     var shouldPostUpdates : Bool = false
