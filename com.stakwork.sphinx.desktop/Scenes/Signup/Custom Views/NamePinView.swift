@@ -67,6 +67,9 @@ class NamePinView: NSView, LoadableNib {
         continueButton.setSignupColors()
         continueButton.buttonDisabled = true
         
+        nameField.getTextField().nextKeyView = pinField.getTextField()
+        pinField.getTextField().nextKeyView = confirmPinField.getTextField()
+        
         nameField.configureWith(
             placeHolder: "set.nickname".localized,
             placeHolderColor: NSColor(hex: "#3B4755"),
