@@ -174,6 +174,9 @@
                                                         <color key="textColor" name="Text"/>
                                                         <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </textFieldCell>
+                                                    <connections>
+                                                        <outlet property="nextKeyView" destination="m1W-br-tio" id="d8e-JU-PRb"/>
+                                                    </connections>
                                                 </textField>
                                                 <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="KXq-qf-W80">
                                                     <rect key="frame" x="0.0" y="0.0" width="350" height="1"/>
@@ -222,6 +225,9 @@
                                                         <color key="textColor" name="Text"/>
                                                         <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </textFieldCell>
+                                                    <connections>
+                                                        <outlet property="nextKeyView" destination="N9G-aS-loT" id="2qB-uk-u1u"/>
+                                                    </connections>
                                                 </textField>
                                                 <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="gt7-oS-Tlv">
                                                     <rect key="frame" x="0.0" y="0.0" width="310" height="1"/>
@@ -450,6 +456,9 @@
                                                             <color key="textColor" name="Text"/>
                                                             <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </textFieldCell>
+                                                        <connections>
+                                                            <outlet property="nextKeyView" destination="B4g-f4-tTM" id="8cQ-c3-gnd"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                                 <constraints>
@@ -479,13 +488,16 @@
                                                 <rect key="frame" x="1" y="1" width="348" height="38"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="B4g-f4-tTM">
+                                                    <textField focusRingType="none" verticalHuggingPriority="750" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="B4g-f4-tTM">
                                                         <rect key="frame" x="9" y="0.0" width="330" height="30"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" alignment="center" drawsBackground="YES" id="XUr-eq-IDs">
                                                             <font key="font" size="17" name="Roboto-Regular"/>
                                                             <color key="textColor" name="Text"/>
                                                             <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                         </textFieldCell>
+                                                        <connections>
+                                                            <outlet property="nextKeyView" destination="gtG-e0-IPW" id="RT2-AH-USi"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                                 <constraints>
