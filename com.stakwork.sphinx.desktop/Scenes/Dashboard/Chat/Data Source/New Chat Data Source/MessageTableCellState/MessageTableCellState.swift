@@ -196,7 +196,7 @@ struct MessageTableCellState {
             color: ChatHelper.getSenderColorFor(message: message),
             showSent: isSent,
             showSendingIcon: isSent && message.pending() && message.isProvisional(),
-            showBoltIcon: isSent && message.isConfirmedAsReceived(),
+            showBoltIcon: message.isConfirmedAsReceived(),
             showFailedContainer: isSent && message.failed(),
             errorMessage: message.errorMessage ?? "message.failed".localized,
             showLockIcon: true,

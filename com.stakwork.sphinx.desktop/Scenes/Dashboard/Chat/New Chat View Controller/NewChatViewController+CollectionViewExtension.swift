@@ -174,12 +174,14 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
     }
     
     func shouldPayInvoiceFor(messageId: Int) {
-        if let message = self.chatTableDataSource?.messagesArray.filter({$0.id == messageId}).first as? TransactionMessage,
-           let amount = message.amount as? Int,
-           amount > 0 {
-            AlertHelper.showTwoOptionsAlert(title: "confirm".localized, message: "confirm.pay.invoice".localized, confirm: {
-                self.finalizeInvoicePayment(message: message)
-            })
+        if let message = TransactionMessage.getMessageWith(id: messageId), let amount = message.amount as? Int, amount > 0 {
+            AlertHelper.showTwoOptionsAlert(
+                title: "confirm".localized,
+                message: "confirm.pay.invoice".localized,
+                confirm: {
+                    self.finalizeInvoicePayment(message: message)
+                }
+            )
         }
     }
     
@@ -191,52 +193,13 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         let prd = PaymentRequestDecoder()
         prd.decodePaymentRequest(paymentRequest: invoice)
         
-        guard let chat = message.chat,
-              let amount = prd.getAmount(),
-              let _ = prd.getExpirationDate(),
-              let paymentHash = try? paymentHashFromInvoice(bolt11: invoice) else {
+        guard let _ = prd.getAmount() else {
             return
         }
         
-        SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice)
-        
-        let localPaymentMessage : JSON = [
-            "id": CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: 100_000) as Any,
-            "chat_id": chat.id,
-            "sender": 0,
-            "type": TransactionMessage.TransactionMessageType.payment.rawValue,
-            "amount":amount,
-            "amountMsat": amount * 1000,
-            "payment_hash": paymentHash,
-            "status": TransactionMessage.TransactionMessageStatus.confirmed.rawValue,
-            "createdAt": Date(),
-            "updatedAt": Date(),
-            "payment_request": invoice
-        ]
-        
-        createLocalPayment(payment: localPaymentMessage)
-        handleMyInvoicePaymentSettled(paymentHash: paymentHash)
-    }
-    
-    @objc func handleMyInvoicePaymentSettled(paymentHash: String) {
-        if let message = TransactionMessage.getInvoicePaymentWith(paymentHash: paymentHash){
-            message.setPaymentInvoiceAsPaid()
-            SphinxOnionManager.sharedInstance.sendPaymentOfInvoiceMessage(message: message)
-        }
-    }
-    
-    func createLocalPayment(payment: JSON?) {
-        if let payment = payment {
-            if let _ = TransactionMessage.insertMessage(
-                m: payment,
-                existingMessage: TransactionMessage.getMessageWith(id: payment["id"].intValue)
-            ).0 {
-                self.chatTableDataSource?.reloadAllVisibleRows()
-            }
-        } else {
-            AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
-            self.chatTableDataSource?.reloadAllVisibleRows()
-        }
+        SphinxOnionManager.sharedInstance.payInvoiceMessage(message: message)
+
+        chatTableDataSource?.reloadAllVisibleRows()
     }
     
     func isOnStandardMode() -> Bool {

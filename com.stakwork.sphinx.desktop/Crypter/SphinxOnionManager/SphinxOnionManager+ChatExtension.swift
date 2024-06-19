@@ -815,16 +815,6 @@ extension SphinxOnionManager {
             return nil
         }
         
-        if let paymentHash = message.paymentHash {
-            if let _ = TransactionMessage.getInvoiceWith(paymentHash: paymentHash), type == TransactionMessage.TransactionMessageType.invoice.rawValue {
-                return nil
-            }
-            
-            if let _ = TransactionMessage.getInvoicePaymentWith(paymentHash: paymentHash), type == TransactionMessage.TransactionMessageType.payment.rawValue {
-                return nil
-            }
-        }
-        
         if let _ = TransactionMessage.getMessageWith(id: index) {
             return nil
         }
