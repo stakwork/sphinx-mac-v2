@@ -173,7 +173,7 @@ class JoinTribeViewController: NSViewController {
         if let tribeInfo = tribeInfo {
             groupsManager.finalizeTribeJoin(tribeInfo: tribeInfo)
             delegate?.shouldReloadContacts()
-            view.window?.close()
+            WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
         } else {
             loading = false
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "alias.cannot.empty".localized)

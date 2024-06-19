@@ -113,7 +113,15 @@ extension SphinxOnionManager {
                 let _ = self.handleRunReturn(rr: rr)
             })
             
-        } catch {}
+            recentlyJoinedTribePubKeys.append(tribePubkey)
+            
+            DelayPerformedHelper.performAfterDelay(seconds: 5.0, completion: {
+                self.recentlyJoinedTribePubKeys = self.recentlyJoinedTribePubKeys.filter({ $0 != tribePubkey })
+            })
+            
+        } catch {
+            recentlyJoinedTribePubKeys = recentlyJoinedTribePubKeys.filter({ $0 == tribePubkey })
+        }
     }
     
     func extractHostAndTribeIdentifier(from urlString: String) -> (String, String)? {

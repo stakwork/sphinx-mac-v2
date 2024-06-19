@@ -1001,12 +1001,17 @@ extension NewChatTableDataSource {
         
         messageBubbleHelper.showLoadingWheel()
         
-        SphinxOnionManager.sharedInstance.exitTribe(tribeChat: chat)
+        let som = SphinxOnionManager.sharedInstance
+        som.exitTribe(tribeChat: chat)
+        let _ = som.deleteContactMsgsFor(chat: chat)
         
-        CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-        
-        delegate?.didDeleteTribe()
-        messageBubbleHelper.hideLoadingWheel()
+        DispatchQueue.main.async {
+            DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
+                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+                self.delegate?.didDeleteTribe()
+                self.messageBubbleHelper.hideLoadingWheel()
+            }
+        }
     }
     
     func shouldApproveMember(message: TransactionMessage) {
