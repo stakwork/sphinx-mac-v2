@@ -683,18 +683,26 @@ public class Chat: NSManagedObject {
         return messages
     }
     
-    func getLastMessageToShow() -> TransactionMessage? {
+    func getLastMessageToShow(
+        includeContactKeyTypes: Bool = false
+    ) -> TransactionMessage? {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        
+        var typeToExclude = [
+            TransactionMessage.TransactionMessageType.delete.rawValue,
+            TransactionMessage.TransactionMessageType.contactKey.rawValue,
+            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+        ]
+        
+        if includeContactKeyTypes {
+            typeToExclude = [TransactionMessage.TransactionMessageType.delete.rawValue]
+        }
         
         fetchRequest.predicate = NSPredicate(
             format: "chat == %@ AND NOT (type IN %@)",
             self,
-            [
-                TransactionMessage.TransactionMessageType.delete.rawValue,
-                TransactionMessage.TransactionMessageType.contactKey.rawValue,
-                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
-            ]
+            typeToExclude
         )
         
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]

@@ -722,11 +722,37 @@ extension SphinxOnionManager {
     }
     
     func setLastMessagesOnChats() {
+        if !isV2Restore {
+            return
+        }
+        
         for chat in Chat.getAll() {
-            if let lastMessage = chat.getLastMessageToShow() {
-                chat.lastMessage = lastMessage
+            if let lastMessage = chat.getLastMessageToShow(includeContactKeyTypes: true) {
+                if
+                    lastMessage.type == TransactionMessage.TransactionMessageType.contactKey.rawValue ||
+                    lastMessage.type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue 
+                {
+                    setChatAsSeenWith(message: lastMessage, and: chat)
+                } else {
+                    chat.lastMessage = lastMessage
+                }
             }
         }
+    }
+    
+    func setChatAsSeenWith(
+        message: TransactionMessage,
+        and chat: Chat
+    ) {
+        message.seen = true
+        chat.seen = true
+        chat.lastMessage = nil
+        
+        SphinxOnionManager.sharedInstance.setReadLevel(
+            index: UInt64(message.id),
+            chat: chat,
+            recipContact: chat.getContact()
+        )
     }
     
     func processDeletedRestoredMessages() {
