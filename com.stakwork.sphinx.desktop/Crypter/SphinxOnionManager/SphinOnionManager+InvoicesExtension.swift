@@ -54,13 +54,12 @@ extension SphinxOnionManager{//invoices related
         }
     }
     
-    func sendPaymentOfInvoiceMessage(message: TransactionMessage) {
-        guard message.type == TransactionMessage.TransactionMessageType.payment.rawValue,
+    func payInvoiceMessage(message: TransactionMessage) {
+        guard message.type == TransactionMessage.TransactionMessageType.invoice.rawValue,
               let invoice = message.invoice,
               let seed = getAccountSeed(),
-              let selfContact = UserContact.getOwner(),
-              let chat = message.chat,
-              let nickname = selfContact.nickname ?? chat.name else
+              let owner = UserContact.getOwner(),
+              let nickname = owner.nickname else
         {
             return
         }
@@ -72,7 +71,7 @@ extension SphinxOnionManager{//invoices related
                 state: loadOnionStateAsData(),
                 bolt11: invoice,
                 myAlias: nickname,
-                myImg: selfContact.avatarUrl ?? "",
+                myImg: owner.avatarUrl ?? "",
                 isTribe: false
             )
             let _ = handleRunReturn(rr: rr)
