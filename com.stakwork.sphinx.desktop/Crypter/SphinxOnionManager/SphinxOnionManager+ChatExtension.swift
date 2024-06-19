@@ -831,6 +831,7 @@ extension SphinxOnionManager {
         
         var chat : Chat? = nil
         var senderId: Int? = nil
+        var receiverId: Int? = nil
         
         var isTribe = false
         
@@ -842,23 +843,42 @@ extension SphinxOnionManager {
                 chat = createChat(for: contact, with: date)
             }
             
-            senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
+            senderId = fromMe ? (UserData.sharedInstance.getUserId()) : contact.id
+            receiverId = (fromMe == true) ? contact.id : (UserData.sharedInstance.getUserId())
             
-            updateContactInfoFromMessage(
-                contact: contact,
-                alias: message.alias,
-                photoUrl: message.photoUrl,
-                pubkey: pubkey
-            )
+            if fromMe {
+                if let owner = UserContact.getOwner(), let pubKey = owner.publicKey {
+                    updateContactInfoFromMessage(
+                        contact: owner,
+                        alias: message.alias,
+                        photoUrl: message.photoUrl,
+                        pubkey: pubKey
+                    )
+                }
+            } else {
+                updateContactInfoFromMessage(
+                    contact: contact,
+                    alias: message.alias,
+                    photoUrl: message.photoUrl,
+                    pubkey: pubkey
+                )
+            }
             
         } else if let tribeChat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: pubkey) {
             chat = tribeChat
             senderId = tribeChat.id
             isTribe = true
+            
+            if fromMe == false, let replyUuid = message.replyUuid, let localReplyMsgRecord = TransactionMessage.getMessageWith(uuid: replyUuid) {
+                receiverId = localReplyMsgRecord.senderId
+            } else {
+                receiverId = tribeChat.id
+            }
         }
         
         guard let chat = chat,
-              let senderId = senderId else
+              let senderId = senderId,
+              let receiverId = receiverId else
         {
             return nil
         }
@@ -887,7 +907,7 @@ extension SphinxOnionManager {
         newMessage.type = type ?? TransactionMessage.TransactionMessageType.message.rawValue
         newMessage.encrypted = true
         newMessage.senderId = senderId
-        newMessage.receiverId = UserContact.getOwner()?.id ?? 0
+        newMessage.receiverId = receiverId
         newMessage.push = false
         newMessage.chat = chat
         newMessage.chat?.seen = false
@@ -1001,7 +1021,7 @@ extension SphinxOnionManager {
                 contactDidChange = true
             }
             
-            if (contact.avatarUrl != photoUrl && photoUrl != nil && photoUrl?.isEmpty == false) {
+            if (contact.avatarUrl != photoUrl) {
                 contact.avatarUrl = photoUrl
                 contactDidChange = true
             }
