@@ -1003,11 +1003,12 @@ extension SphinxOnionManager {
             photoUrl: String?,
             pubkey: String
     ) {
+        ///Proceed if it's not restore process or it's restore but it's first time updating this contact from most recent message
         if !restoredContactInfoTracker.contains(pubkey) || !isV2Restore {
             
             var contactDidChange = false
             
-            if (contact.nickname != alias && alias != nil && alias?.isEmpty == false) {
+            if (alias != nil && alias?.isEmpty == false && contact.nickname != alias) {
                 contact.nickname = alias
                 contactDidChange = true
             }
@@ -1019,6 +1020,10 @@ extension SphinxOnionManager {
             
             if contactDidChange {
                 contact.managedObjectContext?.saveContext()
+            }
+            
+            ///If contact was updated with a non empty alias (from a non corrupted record), then add pubkey to prevent future updates during restore
+            if alias != nil && alias?.isEmpty == false && isV2Restore {
                 restoredContactInfoTracker.append(pubkey)
             }
         }
