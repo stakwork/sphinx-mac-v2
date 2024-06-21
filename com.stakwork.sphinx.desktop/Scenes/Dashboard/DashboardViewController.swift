@@ -165,7 +165,7 @@ class DashboardViewController: NSViewController {
             self.shouldShowRestoreModal(
                 with: value,
                 label: "restoring-messages".localized,
-                buttonEnabled: false
+                buttonEnabled: true
             )
             if value >= 100 { self.shouldHideRetoreModal() }
         }
@@ -785,6 +785,7 @@ extension DashboardViewController : RestoreModalViewControllerDelegate {
     func didFinishRestoreManually() {
         chatListViewModel.finishRestoring()
         showFinishingRestore()
+        SphinxOnionManager.sharedInstance.attempFinishResotoration()
     }
     
     func didFinishRestoring() {
