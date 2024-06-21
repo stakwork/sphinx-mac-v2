@@ -692,6 +692,11 @@ extension SphinxOnionManager {
         }
     }
     
+    func attempFinishResotoration() {
+        messageFetchParams = nil
+        chatsFetchParams = nil
+    }
+    
     func purgeObsoleteChats(){
         for chat in Chat.getAll() {
             if Chat.hasRemovalIndicators(chat: chat) {

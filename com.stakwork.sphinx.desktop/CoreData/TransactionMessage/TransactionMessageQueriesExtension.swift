@@ -378,25 +378,30 @@ extension TransactionMessage {
     
     static func getReceivedUnseenMessagesCount() -> Int {
         let userId = UserData.sharedInstance.getUserId()
-        
+
         let predicate = NSPredicate(
-            format:
-                "(senderId != %d || type == %d) AND seen == %@ AND chat != nil AND id >= 0 AND chat.seen == %@ AND (chat.notify == %d OR (chat.notify == %d AND push == %@))",
+            format: "(senderId != %d || type == %d) AND NOT (type IN %@) AND seen == %@ AND chat != null AND id >= 0 AND chat.seen == %@ AND (chat.notify == %d OR (chat.notify == %d AND push == %@))",
             userId,
             TransactionMessage.TransactionMessageType.groupJoin.rawValue,
+            [
+                TransactionMessage.TransactionMessageType.unknown.rawValue,
+                TransactionMessage.TransactionMessageType.contactKey.rawValue,
+                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+            ],
             NSNumber(booleanLiteral: false),
             NSNumber(booleanLiteral: false),
             Chat.NotificationLevel.SeeAll.rawValue,
             Chat.NotificationLevel.OnlyMentions.rawValue,
             NSNumber(booleanLiteral: true)
         )
-        
-        let messagesCount = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(
+
+        let messages:[TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
+            sortDescriptors: [],
             entityName: "TransactionMessage"
         )
 
-        return messagesCount
+        return messages.count
     }
     
     static func getRecentGiphyMessages() -> [TransactionMessage] {

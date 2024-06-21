@@ -582,21 +582,33 @@ public class Chat: NSManagedObject {
         let userId = UserData.sharedInstance.getUserId()
         
         var predicate = NSPredicate(
-            format: "(senderId != %d || type == %d) AND seen == %@ AND chat.seen == %@",
+            format: "(senderId != %d || type == %d) AND seen == %@ AND chat.seen == %@ AND NOT (type IN %@)",
             userId,
             TransactionMessage.TransactionMessageType.groupJoin.rawValue,
             NSNumber(booleanLiteral: false),
-            NSNumber(booleanLiteral: false)
+            NSNumber(booleanLiteral: false),
+            [
+                TransactionMessage.TransactionMessageType.delete.rawValue,
+                TransactionMessage.TransactionMessageType.contactKey.rawValue,
+                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+                TransactionMessage.TransactionMessageType.unknown.rawValue
+            ]
         )
         
         if mentions {
             predicate = NSPredicate(
-                format: "(senderId != %d || type == %d) AND seen == %@ AND push == %@ AND chat.seen == %@",
+                format: "(senderId != %d || type == %d) AND seen == %@ AND push == %@ AND chat.seen == %@ AND NOT (type IN %@)",
                 userId,
                 TransactionMessage.TransactionMessageType.groupJoin.rawValue,
                 NSNumber(booleanLiteral: false),
                 NSNumber(booleanLiteral: true),
-                NSNumber(booleanLiteral: false)
+                NSNumber(booleanLiteral: false),
+                [
+                    TransactionMessage.TransactionMessageType.delete.rawValue,
+                    TransactionMessage.TransactionMessageType.contactKey.rawValue,
+                    TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+                    TransactionMessage.TransactionMessageType.unknown.rawValue
+                ]
             )
         }
         
@@ -633,7 +645,8 @@ public class Chat: NSManagedObject {
             [
                 TransactionMessage.TransactionMessageType.delete.rawValue,
                 TransactionMessage.TransactionMessageType.contactKey.rawValue,
-                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+                TransactionMessage.TransactionMessageType.unknown.rawValue
             ]
         )
         unseenMessagesCount = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: predicate, entityName: "TransactionMessage")
@@ -652,7 +665,8 @@ public class Chat: NSManagedObject {
             [
                 TransactionMessage.TransactionMessageType.delete.rawValue,
                 TransactionMessage.TransactionMessageType.contactKey.rawValue,
-                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+                TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+                TransactionMessage.TransactionMessageType.unknown.rawValue
             ]
         )
         unseenMentionsCount = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: predicate, entityName: "TransactionMessage")
@@ -692,7 +706,8 @@ public class Chat: NSManagedObject {
         var typeToExclude = [
             TransactionMessage.TransactionMessageType.delete.rawValue,
             TransactionMessage.TransactionMessageType.contactKey.rawValue,
-            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+            TransactionMessage.TransactionMessageType.unknown.rawValue
         ]
         
         if includeContactKeyTypes {

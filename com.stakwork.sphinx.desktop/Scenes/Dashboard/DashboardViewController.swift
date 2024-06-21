@@ -116,7 +116,9 @@ class DashboardViewController: NSViewController {
         
         SphinxOnionManager.sharedInstance.connectToServer(
             connectingCallback: {
-                self.listViewController?.headerLoading = true
+                DispatchQueue.main.async {
+                    self.listViewController?.headerLoading = true
+                }
             },
             contactRestoreCallback: self.contactRestoreCallback(percentage:),
             messageRestoreCallback: self.messageRestoreCallback(percentage:),
@@ -482,10 +484,14 @@ class DashboardViewController: NSViewController {
     func reconnectToMQTT() {
         SphinxOnionManager.sharedInstance.reconnectToServer(
             connectingCallback: {
-                self.listViewController?.headerLoading = true
+                DispatchQueue.main.async {
+                    self.listViewController?.headerLoading = true
+                }
             },
             hideRestoreViewCallback: {
-                self.listViewController?.headerLoading = false
+                DispatchQueue.main.async {
+                    self.listViewController?.headerLoading = false
+                }
             }
         )
     }
@@ -785,6 +791,7 @@ extension DashboardViewController : RestoreModalViewControllerDelegate {
     func didFinishRestoreManually() {
         chatListViewModel.finishRestoring()
         showFinishingRestore()
+        SphinxOnionManager.sharedInstance.attempFinishResotoration()
     }
     
     func didFinishRestoring() {
