@@ -185,10 +185,12 @@ struct GenericIncomingMessage: Mappable {
     
     init(msg: Msg) {
         
-        if let fromMe = msg.fromMe, fromMe == true, let sentTo = msg.sentTo {
-            self.senderPubkey = sentTo
-        } else if let sender = msg.sender, let csr = ContactServerResponse(JSONString: sender) {
-            self.senderPubkey = csr.pubkey
+        if let sender = msg.sender, let csr = ContactServerResponse(JSONString: sender) {
+            if let fromMe = msg.fromMe, fromMe == true, let sentTo = msg.sentTo {
+                self.senderPubkey = sentTo
+            } else {
+                self.senderPubkey = csr.pubkey
+            }
             self.photoUrl = csr.photoUrl
             self.alias = csr.alias
         }
