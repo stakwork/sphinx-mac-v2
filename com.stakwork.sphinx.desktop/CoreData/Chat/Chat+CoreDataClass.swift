@@ -692,7 +692,8 @@ public class Chat: NSManagedObject {
         var typeToExclude = [
             TransactionMessage.TransactionMessageType.delete.rawValue,
             TransactionMessage.TransactionMessageType.contactKey.rawValue,
-            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue
+            TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
+            TransactionMessage.TransactionMessageType.unknown.rawValue
         ]
         
         if includeContactKeyTypes {
