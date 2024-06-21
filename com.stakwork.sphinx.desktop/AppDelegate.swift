@@ -59,6 +59,8 @@ import WebKit
         listenToSleepEvents()
         
         setInitialVC()
+        
+        NetworkMonitor.shared.startMonitoring()
     }
     
     func clearWebkitCache() {

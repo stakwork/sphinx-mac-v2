@@ -86,8 +86,7 @@ class DashboardViewController: NSViewController {
         let windowState = WindowsManager.sharedInstance.getWindowState()
         leftSplittedView.isHidden = windowState.menuCollapsed
         
-        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.themeChangedNotification(notification:)), name: .onInterfaceThemeChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleImageNotification(_:)), name: .webViewImageClicked, object: nil)
+        setupObservers()
         
         listenForResize()
         addEscapeMonitor()
@@ -108,6 +107,16 @@ class DashboardViewController: NSViewController {
         addDetailVCPresenter()
         
         connectToServer()
+    }
+    
+    func setupObservers(){
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.themeChangedNotification(notification:)), name: .onInterfaceThemeChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleImageNotification(_:)), name: .webViewImageClicked, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .connectedToInternet, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .disconnectedFromInternet, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didConnectToInternet), name: .connectedToInternet, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didDisconnectFromInternet), name: .disconnectedFromInternet, object: nil)
     }
     
     func connectToServer() {
@@ -131,6 +140,16 @@ class DashboardViewController: NSViewController {
             hideRestoreViewCallback: self.hideRestoreViewCallback
         )
     }
+    
+    @objc private func didConnectToInternet() {
+        self.connectToServer()
+    }
+
+    @objc private func didDisconnectFromInternet() {
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+//            AlertHelper.showAlert(title: "socket.disconnected".localized, message: "")
+//        })
+    } 
     
     func refreshUnreadStatus(){
         SphinxOnionManager.sharedInstance.getReads()

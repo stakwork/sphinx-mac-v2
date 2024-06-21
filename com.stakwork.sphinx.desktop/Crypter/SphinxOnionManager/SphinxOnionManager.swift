@@ -37,6 +37,7 @@ class SphinxOnionManager : NSObject {
     var stashedInviterAlias:String? = nil
     
     var watchdogTimer:Timer? = nil
+    var sendTimeoutTimers: [String: Timer] = [:]
     
     var nextMessageBlockWasReceived = false
     
