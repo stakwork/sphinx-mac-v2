@@ -401,6 +401,7 @@ extension SphinxOnionManager {
                 message?.uuid = sentUUID
                 message?.id = -uniqueIntHashFromString(stringInput: UUID().uuidString)
                 message?.setAsLastMessage()
+                message?.muid = TransactionMessage.getMUIDFrom(mediaToken: mediaToken)
                 message?.managedObjectContext?.saveContext()
                 
                 return message
