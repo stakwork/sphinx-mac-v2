@@ -869,7 +869,7 @@ extension SphinxOnionManager {
         else if (newMessage.type == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue),
                 let mediaToken = newMessage.mediaToken,
                 let muid = TransactionMessage.getMUIDFrom(mediaToken: mediaToken),
-                let receivedEncryptedMessage = TransactionMessage.getAll().filter({$0.type == 6 && $0.mediaToken == mediaToken}).first,
+                let receivedEncryptedMessage = TransactionMessage.getMessageEncryptedMessageWith(mediaToken: mediaToken),
                 let mediaKey = newMessage.mediaKey{
             receivedEncryptedMessage.mediaKey = mediaKey
             receivedEncryptedMessage.muid = muid
