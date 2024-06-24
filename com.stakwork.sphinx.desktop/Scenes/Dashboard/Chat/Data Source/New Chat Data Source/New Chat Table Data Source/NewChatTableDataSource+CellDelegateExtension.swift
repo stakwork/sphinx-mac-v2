@@ -617,8 +617,10 @@ extension NewChatTableDataSource {
                     
                     self.dataSourceQueue.sync {
                         var snapshot = self.dataSource.snapshot()
-                        snapshot.reloadItems([tableCellState.1])
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        if snapshot.indexOfItem(tableCellState.1) != nil {
+                            snapshot.reloadItems([tableCellState.1])
+                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                        }
                     }
                 } else {
                     self.uploadingProgress.removeValue(forKey: messageId)

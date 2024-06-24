@@ -808,8 +808,6 @@ extension SphinxOnionManager {
     ){
         guard let type = message.type,
               let sender = message.sender,
-              let index = message.index,
-              let uuid = message.uuid,
               let date = message.date,
               let csr = ContactServerResponse(JSONString: sender) else
         {
@@ -1048,6 +1046,7 @@ extension SphinxOnionManager {
         newMessage.mediaToken = message.mediaToken
         newMessage.paymentHash = message.paymentHash
         newMessage.tag = message.tag
+        
         
         if (type == TransactionMessage.TransactionMessageType.boost.rawValue && isTribe == true), let msgAmount = message.amount {
             newMessage.amount = NSDecimalNumber(value: msgAmount/1000)
