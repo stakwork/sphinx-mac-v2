@@ -141,18 +141,27 @@ extension SphinxOnionManager {
             msg["mediaKey"] = mediaKey
             msg["mediaType"] = mediaType
             
-            if(Int(type) == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue) ||
-                (Int(type) == TransactionMessage.TransactionMessageType.purchaseDeny.rawValue){//reference mediaToken made by sender of encrypted message we are paying for
+            if Int(type) == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue ||
+               Int(type) == TransactionMessage.TransactionMessageType.purchaseDeny.rawValue
+            {
+                ///reference mediaToken made by sender of encrypted message we are paying for
                 mt = paidAttachmentMediaToken
-            }
-            else{//create a media token corresponding to attachment (paid or unpaid)
+            } else {
+                ///create a media token corresponding to attachment (paid or unpaid)
                 mt = loadMediaToken(recipPubkey: recipPubkey, muid: muid, price: purchaseItemAmount)
             }
             msg["mediaToken"] = mt
-            //adjustments for paid messages
-            if let _ = purchaseItemAmount{
-                msg.removeValue(forKey: "content")
-                (isTribe) ? () : (msg.removeValue(forKey: "mediaKey"))//withhold key for purchases
+            
+            if let _ = purchaseItemAmount {
+                ///Remove content if it's a paid text message
+                if mediaType == "sphinx/text" {
+                    msg.removeValue(forKey: "content")
+                }
+                
+                ///Remove mediaKey if it's a conversation, otherwise send it since tribe admin will custodial it
+                if !isTribe {
+                    msg.removeValue(forKey: "mediaKey")
+                }
             }
             break
         case .purchase:
@@ -222,6 +231,7 @@ extension SphinxOnionManager {
             content: content,
             type: msgType,
             muid: muid,
+            purchaseItemAmount: purchaseAmount,
             recipPubkey: recipPubkey,
             mediaKey: mediaKey,
             mediaType: mediaType,
@@ -1258,6 +1268,7 @@ extension SphinxOnionManager {
             content: attachmentObject.text ?? "",
             chat: chat,
             provisionalMessage: provisionalMessage,
+            purchaseAmount: purchaseAmt,
             msgType: UInt8(type),
             muid: muid,
             mediaKey: mk,
