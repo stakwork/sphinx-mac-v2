@@ -229,6 +229,7 @@ extension SphinxOnionManager {
             replyUUID: replyUUID,
             invoiceString: invoiceString,
             tribeKickMember: tribeKickMember, 
+            paidAttachmentMediaToken: paidAttachmentMediaToken,
             isTribe: isTribe
         ) else {
             return nil
