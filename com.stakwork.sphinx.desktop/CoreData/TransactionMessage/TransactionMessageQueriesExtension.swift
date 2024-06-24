@@ -64,7 +64,7 @@ extension TransactionMessage {
         return messages
     }
     
-    static func getMessageWith(muid: String) -> TransactionMessage? {
+    static func getMessageWith(muid: String, managedContext:NSManagedObjectContext?=nil) -> TransactionMessage? {
         let predicate = NSPredicate(format: "muid == %@", muid)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         
