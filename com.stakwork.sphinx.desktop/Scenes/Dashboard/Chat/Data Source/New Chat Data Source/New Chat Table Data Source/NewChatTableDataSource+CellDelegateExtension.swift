@@ -550,25 +550,24 @@ extension NewChatTableDataSource {
         messageId: Int,
         with updatedCachedMedia: MessageTableCellState.MediaData
     ) {
-        
         mediaCached[messageId] = updatedCachedMedia
-        
+
         if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
             delegate?.shouldReloadThreadHeader()
             return
         }
-        
-        if let tableCellState = getTableCellStateFor(
-            messageId: messageId,
-            and: rowIndex
-        ) {
+
+        if let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex) {
             dataSourceQueue.sync {
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+                if snapshot.indexOfItem(tableCellState.1) != nil {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                }
             }
         }
     }
+
     
     func updateMessageTableCellStateFor(
         rowIndex: Int,
