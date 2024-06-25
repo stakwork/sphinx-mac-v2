@@ -105,12 +105,14 @@ extension API {
                 if let dictionary = data as? NSDictionary {
                     if let tribe = dictionary["tribe"] as? String,
                        let tribe_host = dictionary["tribe_host"] as? String,
-                       let default_lsp = dictionary["default_lsp"] as? String
+                       let default_lsp = dictionary["default_lsp"] as? String,
+                       let router_url = dictionary["ROUTER_URL"] as? String
                     {
                         SphinxOnionManager.sharedInstance.saveConfigFrom(
                             lspHost: default_lsp,
                             tribeServerHost: tribe_host,
-                            defaultTribePubkey: tribe
+                            defaultTribePubkey: tribe,
+                            router_url: router_url
                         )
                         
                         callback(true)
