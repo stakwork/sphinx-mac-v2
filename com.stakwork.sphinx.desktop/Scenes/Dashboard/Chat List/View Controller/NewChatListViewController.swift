@@ -517,7 +517,7 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
             let som = SphinxOnionManager.sharedInstance
             
             if let publicKey = contact.publicKey, publicKey.isNotEmpty {
-                if som.deleteContactMsgsFor(contact: contact) {
+                if som.deleteContactOrChatMsgsFor(contact: contact) {
                     som.deleteContactFromState(pubkey: publicKey)
                     
                     CoreDataManager.sharedManager.deleteContactObjectsFor(contact)

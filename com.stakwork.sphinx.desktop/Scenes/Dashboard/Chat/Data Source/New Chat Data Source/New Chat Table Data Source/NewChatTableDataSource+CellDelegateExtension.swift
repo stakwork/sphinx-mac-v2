@@ -1003,7 +1003,7 @@ extension NewChatTableDataSource {
         
         let som = SphinxOnionManager.sharedInstance
         som.exitTribe(tribeChat: chat)
-        let _ = som.deleteContactMsgsFor(chat: chat)
+        let _ = som.deleteContactOrChatMsgsFor(chat: chat)
         
         DispatchQueue.main.async {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
