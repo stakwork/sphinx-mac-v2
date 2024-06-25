@@ -431,10 +431,13 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                         self.dataSourceQueue.sync {
                             self.saveSnapshotCurrentState()
                             var snapshot = self.dataSource.snapshot()
-                            snapshot.reloadItems([tableCellState.1])
-                            self.dataSource.apply(snapshot, animatingDifferences: true) {
-                                DispatchQueue.main.async {
-                                    self.restoreScrollLastPosition()
+                            
+                            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                                snapshot.reloadItems([tableCellState.1])
+                                self.dataSource.apply(snapshot, animatingDifferences: true) {
+                                    DispatchQueue.main.async {
+                                        self.restoreScrollLastPosition()
+                                    }
                                 }
                             }
                         }
@@ -564,8 +567,11 @@ extension NewChatTableDataSource {
         ) {
             dataSourceQueue.sync {
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                }
             }
         }
     }
@@ -593,10 +599,13 @@ extension NewChatTableDataSource {
             dataSourceQueue.sync {
                 self.saveSnapshotCurrentState()
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true) {
-                    DispatchQueue.main.async {
-                        self.restoreScrollLastPosition()
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true) {
+                        DispatchQueue.main.async {
+                            self.restoreScrollLastPosition()
+                        }
                     }
                 }
             }
@@ -618,8 +627,11 @@ extension NewChatTableDataSource {
                     
                     self.dataSourceQueue.sync {
                         var snapshot = self.dataSource.snapshot()
-                        snapshot.reloadItems([tableCellState.1])
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        
+                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                            snapshot.reloadItems([tableCellState.1])
+                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                        }
                     }
                 } else {
                     self.uploadingProgress.removeValue(forKey: messageId)
@@ -651,8 +663,11 @@ extension NewChatTableDataSource {
                 }
                 self.dataSourceQueue.sync {
                     var snapshot = self.dataSource.snapshot()
-                    snapshot.reloadItems([tableCellState.1])
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                    
+                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                        snapshot.reloadItems([tableCellState.1])
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                    }
                 }
             }
         }
