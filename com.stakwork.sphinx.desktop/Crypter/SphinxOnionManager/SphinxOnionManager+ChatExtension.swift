@@ -139,6 +139,7 @@ extension SphinxOnionManager {
         case .attachment, .directPayment, .purchaseAccept, .purchaseDeny:
             
             msg["mediaKey"] = mediaKey
+            msg["mediaKeyForSelf"] = mediaKey
             msg["mediaType"] = mediaType
             
             if Int(type) == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue ||
@@ -803,11 +804,11 @@ extension SphinxOnionManager {
         }
     }
     
-    func processIncomingPaidMessageEvent(
-        message: Msg
-    ){
+    func processIncomingPaidMessageEvent(message: Msg) {
         guard let type = message.type,
               let sender = message.sender,
+              let _ = message.index,
+              let _ = message.uuid,
               let date = message.date,
               let csr = ContactServerResponse(JSONString: sender) else
         {
@@ -827,16 +828,22 @@ extension SphinxOnionManager {
             return
         }
         
-        if(newMessage.type == TransactionMessage.TransactionMessageType.purchase.rawValue),//process purchase attempt
+        ///process purchase attempt
+        if newMessage.type == TransactionMessage.TransactionMessageType.purchase.rawValue,
           let mediaToken = newMessage.mediaToken,
           let muid = TransactionMessage.getMUIDFrom(mediaToken: mediaToken),
-          let encryptedAttachmentMessage = TransactionMessage.getMessageWith(muid: muid,managedContext: self.managedContext),
+          let encryptedAttachmentMessage = TransactionMessage.getAttachmentMessageWith(muid: muid, managedContext: self.managedContext),
           let purchaseMinAmount = encryptedAttachmentMessage.getAttachmentPrice(),
           let chat = newMessage.chat,
-          let mediaKey = encryptedAttachmentMessage.mediaKey{
-            var sentMessage : TransactionMessage? = nil
-            if(purchaseMinAmount <= Int(newMessage.amount ?? 0)){ //purchase of media received with sufficient amount
-                sendMessage(
+          let mediaKey = encryptedAttachmentMessage.mediaKey
+        {
+            if chat.isPublicGroup() {
+                return
+            }
+            
+            if purchaseMinAmount <= Int(truncating: newMessage.amount ?? 0) {
+                ///purchase of media received with sufficient amount
+                let _ = sendMessage(
                     to: chat.getContact(),
                     content: "",
                     chat: chat,
@@ -847,10 +854,11 @@ extension SphinxOnionManager {
                     replyUUID: nil,
                     paidAttachmentMediaToken: mediaToken
                 )
-            }
-            else{//purchase of media received but amount insufficient
+            } else {
+                ///purchase of media received but amount insufficient
                 let refundAmount = max(newMessage.amount as! Int - SphinxOnionManager.kRoutingOffset, 0)
-                sendMessage(
+                
+                let _ = sendMessage(
                     to: chat.getContact(),
                     content: "",
                     chat: chat,
@@ -862,15 +870,6 @@ extension SphinxOnionManager {
                     paidAttachmentMediaToken: mediaToken
                 )
             }
-            newMessage.muid = muid
-        }
-        else if (newMessage.type == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue),
-                let mediaToken = newMessage.mediaToken,
-                let muid = TransactionMessage.getMUIDFrom(mediaToken: mediaToken),
-                let receivedEncryptedMessage = TransactionMessage.getMessageEncryptedMessageWith(mediaToken: mediaToken),
-                let mediaKey = newMessage.mediaKey{
-            receivedEncryptedMessage.mediaKey = mediaKey
-            receivedEncryptedMessage.muid = muid
             newMessage.muid = muid
         }
     }
@@ -1044,6 +1043,7 @@ extension SphinxOnionManager {
         newMessage.mediaKey = message.mediaKey
         newMessage.mediaType = message.mediaType
         newMessage.mediaToken = message.mediaToken
+        newMessage.muid = TransactionMessage.getMUIDFrom(mediaToken: message.mediaToken)
         newMessage.paymentHash = message.paymentHash
         newMessage.tag = message.tag
         
