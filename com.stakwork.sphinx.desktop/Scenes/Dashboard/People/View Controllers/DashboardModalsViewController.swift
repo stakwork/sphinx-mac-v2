@@ -35,6 +35,7 @@ class DashboardModalsViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        SphinxOnionManager.sharedInstance.updateRoutingInfo()
     }
     
     private func hideAllModals() {

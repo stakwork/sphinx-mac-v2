@@ -60,6 +60,10 @@ import WebKit
         
         setInitialVC()
     }
+     
+     func applicationDidBecomeActive(_ notification: Notification) {
+         SphinxOnionManager.sharedInstance.updateRoutingInfo()
+     }
     
     func clearWebkitCache() {
         URLCache.shared.removeAllCachedResponses()

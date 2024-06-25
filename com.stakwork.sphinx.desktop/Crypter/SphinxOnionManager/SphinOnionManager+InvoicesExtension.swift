@@ -10,6 +10,22 @@ import Foundation
 
 extension SphinxOnionManager{//invoices related
     
+    func updateRoutingInfo(){
+        API.sharedInstance.fetchRoutingInfo(callback: { result in
+            guard let result = result else{
+                return
+            }
+            do{
+                let rr = try addNode(node: result)
+                self.handleRunReturn(rr: rr)
+            }
+            catch(let error){
+                print(error)
+                //could not update router info. Throw alert?
+            }
+        })
+    }
+    
     func createInvoice(
         amountMsat: Int,
         description: String? = nil

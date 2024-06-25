@@ -182,7 +182,17 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             mnemonic: mnemonic,
             inviteCode: inviteCode
         ) {
-            continueSignupToConnecting()
+            fetchServerConfig()
+        }
+    }
+    
+    func fetchServerConfig(){
+        API.sharedInstance.getServerConfig() { success in
+            if success {
+                self.continueSignupToConnecting()
+            } else {
+                AlertHelper.showAlert(title: "Error", message: "Unable to get config from Sphinx V2 Server")
+            }
         }
     }
     
