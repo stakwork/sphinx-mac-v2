@@ -249,8 +249,11 @@ extension ThreadsListDataSource {
             
             DispatchQueue.main.async {
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                }
             }
         }
     }
