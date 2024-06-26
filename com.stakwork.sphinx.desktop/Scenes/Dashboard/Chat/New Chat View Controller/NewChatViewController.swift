@@ -229,7 +229,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func setupViews() {
-        draggingView.setup()
+        draggingView.setup(delegate: self)
         setupCollectionView()
     }
     

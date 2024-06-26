@@ -12,9 +12,15 @@ protocol DraggingViewDelegate: AnyObject {
     func imageDragged(image: NSImage)
 }
 
+protocol ChatDraggingViewDelegate: AnyObject {
+    func attachmentAdded()
+    func attachmentRemoved()
+}
+
 class DraggingDestinationView: NSView, LoadableNib {
     
     weak var delegate: DraggingViewDelegate?
+    weak var chatDeleate: ChatDraggingViewDelegate?
     
     @IBOutlet var contentView: NSView!
     @IBOutlet weak var draggingContainer: NSView!
@@ -90,11 +96,17 @@ class DraggingDestinationView: NSView, LoadableNib {
         }
     }
     
-    func setup() {
+    func setup(
+        delegate: ChatDraggingViewDelegate? = nil
+    ) {
         reset()
         resetView()
         
         registerForDraggedTypes(acceptableTypes)
+        
+        if let delegate = delegate {
+            self.chatDeleate = delegate
+        }
     }
     
     func reset() {
@@ -102,6 +114,8 @@ class DraggingDestinationView: NSView, LoadableNib {
         mediaData = nil
         mediaType = nil
         giphyObject = nil
+        
+        chatDeleate?.attachmentRemoved()
     }
     
     func addImagePreviewView() {
@@ -169,8 +183,11 @@ class DraggingDestinationView: NSView, LoadableNib {
             delegate.imageDragged(image: image)
         } else {
             addImagePreviewView()
+            
             imagePreview?.showImageWith(image: image, size: self.frame.size)
             imagePreview?.isHidden = false
+            
+            chatDeleate?.attachmentAdded()
         }
     }
     
