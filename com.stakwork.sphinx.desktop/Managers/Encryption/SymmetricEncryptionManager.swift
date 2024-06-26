@@ -60,7 +60,7 @@ class SymmetricEncryptionManager {
     }
     
     func encryptData(data: Data) -> (String, Data?) {
-        let key = SymmetricEncryptionManager.randomString(length: 32)
+        let key = Nonce(length: 32).hexString
         let encryptedData = RNCryptor.encrypt(data: data, withPassword: key)
         return (key, encryptedData)
     }
