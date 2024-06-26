@@ -36,7 +36,8 @@ class SphinxOnionManager : NSObject {
     var stashedInviteCode:String? = nil
     var stashedInviterAlias:String? = nil
     
-    var watchdogTimer:Timer? = nil
+    var watchdogTimer: Timer? = nil
+    var reconnectionTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
     
     var nextMessageBlockWasReceived = false
@@ -296,7 +297,7 @@ class SphinxOnionManager : NSObject {
         connectingCallback: (() -> ())? = nil,
         hideRestoreViewCallback: (()->())? = nil
     ) {
-        if let mqtt = self.mqtt, mqtt.connState == .connected {
+        if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             ///If already fetching content, then process is already running
             if !isFetchingContent() {
                 self.hideRestoreCallback = hideRestoreViewCallback
@@ -375,6 +376,9 @@ class SphinxOnionManager : NSObject {
                 return
             }
             
+            self.endReconnectionTimer()
+            self.isConnected = true
+            
             self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
             
             if (self.isV2InitialSetup) {
@@ -408,7 +412,39 @@ class SphinxOnionManager : NSObject {
             self.isConnected = false
             self.mqttDisconnectCallback?()
             self.mqtt = nil
+            self.startReconnectionTimer()
         }
+    }
+    
+    func endReconnectionTimer() {
+        reconnectionTimer?.invalidate()
+        reconnectionTimer = nil
+    }
+    
+    func startReconnectionTimer(
+        delay: Double = 0.5
+    ) {
+        reconnectionTimer?.invalidate()
+        
+        reconnectionTimer = Timer.scheduledTimer(
+            timeInterval: delay,
+            target: self,
+            selector: #selector(reconnectionTimerFired),
+            userInfo: nil,
+            repeats: false
+        )
+    }
+    
+    @objc func reconnectionTimerFired() {
+        if !NetworkMonitor.shared.isConnected {
+            return
+        }
+        
+        connectToServer(
+            contactRestoreCallback: self.contactRestoreCallback,
+            messageRestoreCallback: self.messageRestoreCallback,
+            hideRestoreViewCallback: self.hideRestoreCallback
+        )
     }
     
     func subscribeAndPublishMyTopics(

@@ -11,6 +11,7 @@ import Cocoa
 
 
 class NetworkMonitor {
+    
     static let shared = NetworkMonitor()
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue.global(qos: .background)
