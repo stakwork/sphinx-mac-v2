@@ -872,7 +872,7 @@ extension SphinxOnionManager {
                 return
             }
             
-            if purchaseMinAmount <= Int(truncating: newMessage.amount ?? 0) {
+            if Int(truncating: newMessage.amount ?? 0) + SphinxOnionManager.kRoutingOffset >= purchaseMinAmount {
                 ///purchase of media received with sufficient amount
                 let _ = sendMessage(
                     to: chat.getContact(),
@@ -887,14 +887,12 @@ extension SphinxOnionManager {
                 )
             } else {
                 ///purchase of media received but amount insufficient
-                let refundAmount = max(newMessage.amount as! Int - SphinxOnionManager.kRoutingOffset, 0)
-                
                 let _ = sendMessage(
                     to: chat.getContact(),
                     content: "",
                     chat: chat,
                     provisionalMessage: nil,
-                    amount: refundAmount,
+                    amount: (newMessage.amount as? Int) ?? 0,
                     msgType: UInt8(TransactionMessage.TransactionMessageType.purchaseDeny.rawValue),
                     threadUUID: nil,
                     replyUUID: nil,
@@ -1249,14 +1247,12 @@ extension SphinxOnionManager {
             return
         }
          
-        let finalAmt = price + SphinxOnionManager.kRoutingOffset
-        
         let _ = sendMessage(
             to: message.chat?.getContact(),
             content: "",
             chat: chat,
             provisionalMessage: nil,
-            amount: finalAmt,
+            amount: price,
             msgType: UInt8(TransactionMessage.TransactionMessageType.purchase.rawValue),
             muid: message.muid,
             threadUUID: nil,
