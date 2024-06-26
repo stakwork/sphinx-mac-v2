@@ -967,7 +967,7 @@
                                                                                     </view>
                                                                                 </box>
                                                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="NL7-Ka-pQ0" customClass="DraggingDestinationView" customModule="Sphinx" customModuleProvider="target">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="779"/>
+                                                                                    <rect key="frame" x="0.0" y="60" width="600" height="719"/>
                                                                                 </customView>
                                                                                 <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wD4-1y-bkn" customClass="ChildVCContainer" customModule="Sphinx" customModuleProvider="target">
                                                                                     <rect key="frame" x="0.0" y="50" width="600" height="729"/>
@@ -1058,11 +1058,11 @@
                                                                                 <constraint firstItem="X86-z6-O1z" firstAttribute="leading" secondItem="hrp-5k-g3S" secondAttribute="leading" id="3NF-cF-tgz"/>
                                                                                 <constraint firstAttribute="trailing" secondItem="X86-z6-O1z" secondAttribute="trailing" id="9OY-v0-gCf"/>
                                                                                 <constraint firstItem="dgH-Af-a01" firstAttribute="top" secondItem="hrp-5k-g3S" secondAttribute="top" constant="8" id="9U9-Mt-eA3"/>
+                                                                                <constraint firstItem="VsO-VQ-Xhc" firstAttribute="top" secondItem="NL7-Ka-pQ0" secondAttribute="bottom" id="Gsw-tY-hGX"/>
                                                                                 <constraint firstItem="X86-z6-O1z" firstAttribute="bottom" secondItem="VsO-VQ-Xhc" secondAttribute="top" id="HLU-vw-sfa"/>
                                                                                 <constraint firstItem="YNj-1S-7Oo" firstAttribute="leading" secondItem="hrp-5k-g3S" secondAttribute="leading" id="MTR-SZ-YyY"/>
                                                                                 <constraint firstItem="VsO-VQ-Xhc" firstAttribute="leading" secondItem="hrp-5k-g3S" secondAttribute="leading" id="MUa-xG-zEo"/>
                                                                                 <constraint firstItem="dgH-Af-a01" firstAttribute="leading" secondItem="hrp-5k-g3S" secondAttribute="leading" constant="-8" id="R8j-Qp-qxr"/>
-                                                                                <constraint firstAttribute="bottom" secondItem="NL7-Ka-pQ0" secondAttribute="bottom" id="T87-IE-P4F"/>
                                                                                 <constraint firstItem="wD4-1y-bkn" firstAttribute="leading" secondItem="hrp-5k-g3S" secondAttribute="leading" id="Uwk-B7-iEf"/>
                                                                                 <constraint firstItem="X86-z6-O1z" firstAttribute="top" secondItem="hrp-5k-g3S" secondAttribute="top" id="Xbw-fu-14U"/>
                                                                                 <constraint firstItem="wD4-1y-bkn" firstAttribute="bottom" secondItem="VsO-VQ-Xhc" secondAttribute="top" constant="10" id="aOw-iS-AZo"/>

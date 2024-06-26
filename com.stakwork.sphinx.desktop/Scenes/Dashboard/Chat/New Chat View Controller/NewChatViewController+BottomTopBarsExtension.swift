@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Cocoa
 
 extension NewChatViewController {
     func setMessageFieldActive() {
@@ -496,5 +497,15 @@ extension NewChatViewController : NewChatViewControllerDelegate {
 extension NewChatViewController : ThreadsListViewControllerDelegate {
     func didSelectThreadWith(uuid: String) {
         showThread(threadID: uuid)
+    }
+}
+
+extension NewChatViewController : ChatDraggingViewDelegate {
+    func attachmentAdded() {
+        chatBottomView.toggleAttachmentAdded(true)
+    }
+    
+    func attachmentRemoved() {
+        chatBottomView.toggleAttachmentAdded(false)
     }
 }

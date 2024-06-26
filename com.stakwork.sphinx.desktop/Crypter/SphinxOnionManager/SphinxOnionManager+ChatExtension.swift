@@ -16,10 +16,12 @@ extension SphinxOnionManager {
         type:UInt8
     )-> Bool{
         let intType = Int(type)
-        return (intType == TransactionMessage.TransactionMessageType.purchase.rawValue ||
-                intType == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue ||
-                intType == TransactionMessage.TransactionMessageType.purchaseDeny.rawValue
-                )
+        
+        return (
+            intType == TransactionMessage.TransactionMessageType.purchase.rawValue ||
+            intType == TransactionMessage.TransactionMessageType.purchaseAccept.rawValue ||
+            intType == TransactionMessage.TransactionMessageType.purchaseDeny.rawValue
+        )
     }
     
     func getChatWithTribeOrContactPubkey(
@@ -844,7 +846,7 @@ extension SphinxOnionManager {
             return
         }
         
-        var genericIncomingMessage = GenericIncomingMessage(msg: message)
+        let genericIncomingMessage = GenericIncomingMessage(msg: message)
         
         guard let newMessage = processGenericIncomingMessage(
             message: genericIncomingMessage,
