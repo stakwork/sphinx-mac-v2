@@ -687,6 +687,8 @@ extension SphinxOnionManager {
         resetFromRestore()
         purgeObsoleteChats()
         
+        restoreSentPaidMediaKeys()
+        
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
             UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
         }
@@ -789,6 +791,18 @@ extension SphinxOnionManager {
             let _ = handleRunReturn(rr: rr)
         } catch {
             print("Error setting push token")
+        }
+    }
+    
+    func restoreSentPaidMediaKeys(){
+        var stillEncryptedSentPaid = TransactionMessage.getAllStillEncrypted()
+        for message in stillEncryptedSentPaid{
+            if let mt = message.mediaToken,
+               let purchaseAcceptMessage = TransactionMessage.getPurchaseAcceptWith(mediaToken: mt),
+               let mk = purchaseAcceptMessage.mediaKey{
+                message.mediaKey = mk
+                message.managedObjectContext?.saveContext()
+            }
         }
     }
 

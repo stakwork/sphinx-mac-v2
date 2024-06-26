@@ -64,8 +64,55 @@ extension TransactionMessage {
         return messages
     }
     
-    static func getMessageWith(muid: String) -> TransactionMessage? {
-        let predicate = NSPredicate(format: "muid == %@", muid)
+    static func getAllStillEncrypted() -> [TransactionMessage] {
+        let predicate = NSPredicate(format: "type == %d AND mediaToken != nil AND mediaKey == nil", TransactionMessage.TransactionMessageType.attachment.rawValue)
+        
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
+        
+        return messages
+    }
+    
+    static func getPurchaseAcceptWith(mediaToken: String) -> TransactionMessage? {
+        // Corrected the format specifier for the integer type field
+        let predicate = NSPredicate(format: "type == %d AND mediaToken == %@", TransactionMessage.TransactionMessageType.purchaseAccept.rawValue, mediaToken)
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
+        
+        return message
+    }
+
+    
+    static func getAttachmentMessageWith(muid: String, managedContext:NSManagedObjectContext?=nil) -> TransactionMessage? {
+        let predicate = NSPredicate(
+            format: "type == %d AND muid == %@",
+            TransactionMessage.TransactionMessageType.attachment.rawValue,
+            muid
+        )
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            managedContext: managedContext
+        )
+        
+        return message
+    }
+    
+    static func getMessageEncryptedMessageWith(mediaToken:String) -> TransactionMessage?{
+        let predicate = NSPredicate(format: "mediaToken == %@", mediaToken)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         
         let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(

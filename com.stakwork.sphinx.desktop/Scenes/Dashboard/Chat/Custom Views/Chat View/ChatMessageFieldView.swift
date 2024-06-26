@@ -153,7 +153,8 @@ class ChatMessageFieldView: NSView, LoadableNib {
         priceTextField.color = priceTextField.stringValue.isEmpty ? NSColor.Sphinx.SecondaryText : NSColor.Sphinx.PrimaryText
         priceTextField.formatter = IntegerValueFormatter()
         priceTextField.delegate = self
-        priceTextField.isEditable = false
+        priceTextField.isEditable = true
+        priceTextField.isEnabled = true // Ensure the text field is enabled
     }
     
     func setupAttachmentButton() {
@@ -226,8 +227,8 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         sendButton.isEnabled = active
         attachmentsButton.isEnabled = active
-//        priceTextField.isEditable = active
-        priceTextField.isEditable = false
+        priceTextField.isEditable = active
+        priceTextField.isEnabled = active // Ensure the text field is enabled
         updatePriceTagField()
         
         alphaValue = active ? 1.0 : 0.7
