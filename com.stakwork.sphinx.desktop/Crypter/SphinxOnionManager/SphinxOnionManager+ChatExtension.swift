@@ -431,7 +431,7 @@ extension SphinxOnionManager {
                 message?.createdAt = date
                 message?.updatedAt = date
                 message?.uuid = sentUUID
-                message?.id = -uniqueIntHashFromString(stringInput: UUID().uuidString)
+                message?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
                 message?.setAsLastMessage()
                 message?.muid = TransactionMessage.getMUIDFrom(mediaToken: mediaToken)
                 message?.managedObjectContext?.saveContext()
@@ -468,7 +468,7 @@ extension SphinxOnionManager {
                 chat: chat
             )
             
-            paymentMessage?.id = -uniqueIntHashFromString(stringInput: UUID().uuidString)
+            paymentMessage?.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
             paymentMessage?.amount = NSDecimalNumber(value: amount)
             paymentMessage?.mediaKey = mediaKey
             paymentMessage?.mediaToken = mediaToken

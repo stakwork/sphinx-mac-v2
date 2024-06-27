@@ -611,7 +611,7 @@ extension SphinxOnionManager {
             context: managedContext
         )
         groupActionMessage.uuid = uuid
-        groupActionMessage.id = Int(index) ?? -self.uniqueIntHashFromString(stringInput: UUID().uuidString)
+        groupActionMessage.id = Int(index) ?? uniqueIntHashFromString(stringInput: UUID().uuidString)
         groupActionMessage.chat = chat
         groupActionMessage.type = Int(type)
         
@@ -686,8 +686,6 @@ extension SphinxOnionManager {
         endWatchdogTime()
         resetFromRestore()
         purgeObsoleteChats()
-        
-        restoreSentPaidMediaKeys()
         
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
             UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
@@ -793,17 +791,4 @@ extension SphinxOnionManager {
             print("Error setting push token")
         }
     }
-    
-    func restoreSentPaidMediaKeys(){
-        var stillEncryptedSentPaid = TransactionMessage.getAllStillEncrypted()
-        for message in stillEncryptedSentPaid{
-            if let mt = message.mediaToken,
-               let purchaseAcceptMessage = TransactionMessage.getPurchaseAcceptWith(mediaToken: mt),
-               let mk = purchaseAcceptMessage.mediaKey{
-                message.mediaKey = mk
-                message.managedObjectContext?.saveContext()
-            }
-        }
-    }
-
 }
