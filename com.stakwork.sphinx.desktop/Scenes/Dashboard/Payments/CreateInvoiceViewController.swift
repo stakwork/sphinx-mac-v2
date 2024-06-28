@@ -47,7 +47,7 @@ class CreateInvoiceViewController : PaymentInvoiceFormViewController {
         createPaymentRequest()
     }
     
-    func createPaymentRequest() {
+    func createPaymentRequest() {        
         paymentViewModel.shouldCreateInvoice(callback: { invoice in
             if let invoice = invoice {
                 let amount = self.paymentViewModel.currentPayment.amount ?? -1
