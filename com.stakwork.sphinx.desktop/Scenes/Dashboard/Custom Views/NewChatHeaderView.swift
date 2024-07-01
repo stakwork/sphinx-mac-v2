@@ -12,6 +12,7 @@ protocol NewChatHeaderViewDelegate: AnyObject {
     func refreshTapped()
     func menuTapped(_ frame: CGRect)
     func profileButtonClicked()
+    func qrButtonTapped()
 }
 
 class NewChatHeaderView: NSView, LoadableNib {
@@ -30,6 +31,7 @@ class NewChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var reloadButton: CustomButton!
     @IBOutlet weak var menuButton: CustomButton!
     @IBOutlet weak var balanceButton: CustomButton!
+    @IBOutlet weak var qrCodeButton: CustomButton!
     
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     @IBOutlet weak var loadingWheelContainer: NSView!
@@ -113,6 +115,7 @@ class NewChatHeaderView: NSView, LoadableNib {
         reloadButton.cursor = .pointingHand
         menuButton.cursor = .pointingHand
         balanceButton.cursor = .pointingHand
+        qrCodeButton.cursor = .pointingHand
         
         profileImageView.wantsLayer = true
         profileImageView.rounded = true
@@ -133,6 +136,10 @@ class NewChatHeaderView: NSView, LoadableNib {
     @IBAction func toggleHideBalance(_ sender: NSButton) {
         hideBalance = !hideBalance
         hideBalance ? hideAmount() : updateBalance()
+    }
+    
+    @IBAction func qrcodeButtonTapped(_ sender: NSButton) {
+        delegate?.qrButtonTapped()
     }
     
     @IBAction func profileButtonClicked(_ sender: Any) {
