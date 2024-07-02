@@ -1005,7 +1005,8 @@ extension SphinxOnionManager {
                         contact: owner,
                         alias: message.alias,
                         photoUrl: message.photoUrl,
-                        pubkey: pubKey
+                        pubkey: pubKey,
+                        isOwner: true
                     )
                 }
             } else {
@@ -1163,32 +1164,54 @@ extension SphinxOnionManager {
     }
     
     func updateContactInfoFromMessage(
-            contact: UserContact,
-            alias: String?,
-            photoUrl: String?,
-            pubkey: String
+        contact: UserContact,
+        alias: String?,
+        photoUrl: String?,
+        pubkey: String,
+        isOwner: Bool = false
     ) {
-        ///Proceed if it's not restore process or it's restore but it's first time updating this contact from most recent message
-        if !restoredContactInfoTracker.contains(pubkey) || !isV2Restore {
+        ///Avoid updating it again since it was already updated from most recent messahe
+        if restoredContactInfoTracker.contains(pubkey) && isV2Restore {
+            return
+        }
+        
+        var contactDidChange = false
+        
+        if isOwner && isV2Restore {
+            ///Just update Owner during restore if  nickname or photo Url was not set during restore and last message has a valid one
+            if (
+                (contact.nickname == nil || contact.nickname?.isEmpty == true) &&
+                alias != nil &&
+                alias?.isEmpty == false
+            ) {
+                contact.nickname = alias
+                contactDidChange = true
+            }
             
-            var contactDidChange = false
-            
+            if (
+                (contact.avatarUrl == nil || contact.avatarUrl?.isEmpty == true) &&
+                photoUrl != nil &&
+                photoUrl?.isEmpty == false
+            ) {
+                contact.avatarUrl = photoUrl
+                contactDidChange = true
+            }
+        } else {
             if (alias != nil && alias?.isEmpty == false && contact.nickname != alias) {
                 contact.nickname = alias
                 contactDidChange = true
             }
             
-            if (contact.avatarUrl != photoUrl) {
+            if (photoUrl != nil && photoUrl?.isEmpty == false && contact.avatarUrl != photoUrl) {
                 contact.avatarUrl = photoUrl
                 contactDidChange = true
             }
+        }
+        
+        if contactDidChange {
+            contact.managedObjectContext?.saveContext()
             
-            if contactDidChange {
-                contact.managedObjectContext?.saveContext()
-            }
-            
-            ///If contact was updated with a non empty alias (from a non corrupted record), then add pubkey to prevent future updates during restore
-            if alias != nil && alias?.isEmpty == false && isV2Restore {
+            if isV2Restore {
                 restoredContactInfoTracker.append(pubkey)
             }
         }
