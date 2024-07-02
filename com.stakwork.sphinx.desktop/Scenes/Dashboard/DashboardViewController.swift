@@ -29,6 +29,8 @@ class DashboardViewController: NSViewController {
     @IBOutlet weak var presenterBackButton: CustomButton!
     @IBOutlet weak var presenterCloseButton: CustomButton!
     @IBOutlet weak var presenterViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var presenterViewWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var presenterHeaderView: NSBox!
     
     weak var presenter: DashboardPresenterViewController?
     var presenterBackHandler: (() -> ())? = nil
