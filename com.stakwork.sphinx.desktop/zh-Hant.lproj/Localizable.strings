@@ -169,7 +169,7 @@
 "contact.support" = "出了點問題。\n\n請聯繫我們的支援團隊\nsupport@stakwork.com";
 "paste.invite.text" = "貼上邀請文本\n或掃描QR碼";
 "paste.invitation.code" = "貼上您的邀請碼...";
-"paste.keys" = "貼上您的密鑰...";
+"paste.keys" = "貼上您的助記詞...";
 "pin" = "PIN碼";
 "enter.pin.upper" = "輸入PIN碼";
 "invalid.pin" = "無效的PIN碼";
@@ -200,9 +200,9 @@
 "tor.connection.failed" = "Tor連接錯誤";
 "establishing.tor.circuit" = "建立Tor電路...";
 "wait.tor.request" = "請等待。這個過程可能需要幾分鐘...";
-"restore.label" = "從您的\n移動應用複製您的密鑰並貼上這裡。";
+"restore.label" = "從您的行動應用程式複製您的助記詞並將其貼到此處。";
 "signup.label" = "將您的邀請碼\n貼到Sphinx中";
-"restore.label.bold" = "複製您的密鑰";
+"restore.label.bold" = "複製您的助記詞";
 "signup.label.bold.1" = "貼上";
 "signup.label.bold.2" = "邀請碼";
 "get.started" = "開始";
@@ -215,9 +215,9 @@
 
 //PROFILE
 "address.copied.clipboard" = "地址已複製到剪貼簿";
-"pin.keys.encryption" = "輸入您的PIN碼以加密您的密鑰。當在其他設備上恢復帳戶時，您將需要它。";
-"export.keys" = "導出密鑰";
-"keys.will.copy.clipboard" = "您的密鑰將被複製到剪貼簿。在刪除應用之前保存此字符串並記住您的pin，否則所有數據都將丟失。";
+"pin.keys.encryption" = "輸入您的 PIN 碼以存取您的助記詞";
+"export.keys" = "匯出種子短語";
+"keys.will.copy.clipboard" = "您的助記詞將複製到剪貼簿。安全地保存此字串，否則所有資料都將遺失。";
 "keys.copied.clipboard" = "導出的密鑰已複製到剪貼簿";
 "server.url.updated" = "服務器URL成功更新";
 "drag.image" = "拖動圖片";
@@ -277,7 +277,7 @@
 "current.pin" = "舊PIN碼";
 "new.pin" = "新PIN碼";
 "confirm.new.pin" = "確認新PIN碼";
-"pin.changed" = "您的PIN碼已更新。請使用這個新PIN碼重新導出您的密鑰。";
+"pin.changed" = "您的 PIN 碼已更新";
 "contact.pin.error" = "您不能使用您的主PIN碼作為群組PIN碼";
 "set.privacy.pin" = "設置隱私PIN碼";
 "change.privacy.pin" = "更改隱私PIN碼";

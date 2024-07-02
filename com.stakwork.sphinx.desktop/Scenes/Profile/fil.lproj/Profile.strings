@@ -15,16 +15,16 @@
 "JQz-vv-8Tw.title" = "Baguhin ang PIN";
 
 /* Class = "NSTextFieldCell"; title = "Track actions"; ObjectID = "Pmy-Ba-4bp"; */
-"Pmy-Ba-4bp.title" = "Track actions";
+"Pmy-Ba-4bp.title" = "Subaybayan ang mga aksyon";
 
 /* Class = "NSTextFieldCell"; title = "Sync more devices"; ObjectID = "RnC-xs-5Nh"; */
-"RnC-xs-5Nh.title" = "Sync more devices";
+"RnC-xs-5Nh.title" = "Mag-sync ng higit pang mga device";
 
 /* Class = "NSTextFieldCell"; title = "Default tip amount"; ObjectID = "Tci-hQ-YkV"; */
-"Tci-hQ-YkV.title" = "Default tip amount";
+"Tci-hQ-YkV.title" = "Default na halaga ng tip";
 
 /* Class = "NSTextFieldCell"; title = "Meeting Server"; ObjectID = "Uvb-lZ-Yc2"; */
-"Uvb-lZ-Yc2.title" = "Meeting Server";
+"Uvb-lZ-Yc2.title" = "Server ng Pulong";
 
 /* Class = "NSTextFieldCell"; title = "-"; ObjectID = "bzD-P8-zhu"; */
 "bzD-P8-zhu.title" = "-";
@@ -36,24 +36,24 @@
 "gvM-01-89w.title" = "Address";
 
 /* Class = "NSButtonCell"; title = "Backup your key"; ObjectID = "hwD-l5-buT"; */
-"hwD-l5-buT.title" = "Backup your key";
+"hwD-l5-buT.title" = "I-backup ang iyong seed phrase";
 
 /* Class = "NSTextFieldCell"; title = "Route Hint"; ObjectID = "lhX-D8-z6l"; */
-"lhX-D8-z6l.title" = "Route Hint";
+"lhX-D8-z6l.title" = "Pahiwatig ng Ruta";
 
 /* Class = "NSTextFieldCell"; title = "Share my profile photo\nwith contacts"; ObjectID = "pmw-w3-a0T"; */
-"pmw-w3-a0T.title" = "Share my profile photo\nwith contacts";
+"pmw-w3-a0T.title" = "Ibahagi ang aking larawan sa profile\nmay mga contact";
 
 /* Class = "NSButtonCell"; title = "Save changes"; ObjectID = "qhk-bW-FZv"; */
-"qhk-bW-FZv.title" = "Save changes";
+"qhk-bW-FZv.title" = "I-save";
 
 /* Class = "NSTextFieldCell"; title = "Server URL"; ObjectID = "wRd-MN-U8t"; */
-"wRd-MN-U8t.title" = "Server URL";
+"wRd-MN-U8t.title" = "URL ng server";
 
-"JQz-vv-8Tw.title" = "Change PIN";
+"JQz-vv-8Tw.title" = "Baguhin ang PIN";
 
-"ISn-bT-TNB.title" = "Change Privacy PIN";
+"ISn-bT-TNB.title" = "Baguhin ang Privacy PIN";
 
 "GQo-KW-3sa.title" = "Setup Signer";
 
-"lmK-Cf-g9b.title" = "Disconnect MQTT";
+"lmK-Cf-g9b.title" = "Idiskonekta ang MQTT";

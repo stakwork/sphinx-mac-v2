@@ -170,7 +170,7 @@
 "contact.support" = "Something went wrong.\n\nPlease contact our support at\nsupport@stakwork.com";
 "paste.invite.text" = "Paste the invitation text\nor scan the QR code";
 "paste.invitation.code" = "Paste your invitation code...";
-"paste.keys" = "Paste your keys...";
+"paste.keys" = "Paste your seed phrase...";
 "pin" = "PIN";
 "enter.pin.upper" = "ENTER PIN";
 "invalid.pin" = "Invalid PIN";
@@ -203,9 +203,9 @@
 "tor.connection.failed" = "Tor connection error";
 "establishing.tor.circuit" = "Establishing Tor circuit...";
 "wait.tor.request" = "Please wait. This process could take a few minutes...";
-"restore.label" = "Copy your keys from your\nmobile app and paste it here.";
+"restore.label" = "Copy your seed phrase from your\nmobile app and paste it here.";
 "signup.label" = "Paste your invitation code\ninto Sphinx";
-"restore.label.bold" = "Copy your keys";
+"restore.label.bold" = "Copy your seed phrase";
 "signup.label.bold.1" = "Paste";
 "signup.label.bold.2" = "invitation code";
 "get.started" = "Get Started";
@@ -218,10 +218,10 @@
 
 //PROFILE
 "address.copied.clipboard" = "Address copied to clipboard";
-"pin.keys.encryption" = "Enter your PIN to encrypt your keys. You will need it when restoring account on other device.";
-"export.keys" = "Export Keys";
-"keys.will.copy.clipboard" = "Your keys will be copied to the clipboard. Save this string & remember your pin before deleting the app or all data will be lost.";
-"keys.copied.clipboard" = "Export keys copied to clipboard";
+"pin.keys.encryption" = "Enter your PIN to access your seed phrase";
+"export.keys" = "Export Seed Phrase";
+"keys.will.copy.clipboard" = "Your seed phrase will be copied to the clipboard. Save this string securely or all data will be lost.";
+"keys.copied.clipboard" = "Seed Phrase copied to clipboard";
 "server.url.updated" = "Server URL successfully updated";
 "drag.image" = "Drag Image";
 "pubkey" = "Public Key";
@@ -280,7 +280,7 @@
 "current.pin" = "Old PIN";
 "new.pin" = "New PIN";
 "confirm.new.pin" = "Confirm new PIN";
-"pin.changed" = "Your PIN has been updated. Please re-export your keys using this new PIN.";
+"pin.changed" = "Your PIN has been updated";
 "contact.pin.error" = "You can't use your main PIN as group PIN";
 "set.privacy.pin" = "Set Privacy PIN";
 "change.privacy.pin" = "Change Privacy PIN";

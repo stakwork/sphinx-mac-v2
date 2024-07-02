@@ -39,7 +39,7 @@
 "gvM-01-89w.title" = "アドレス";
 
 /* Class = "NSButtonCell"; title = "Backup your key"; ObjectID = "hwD-l5-buT"; */
-"hwD-l5-buT.title" = "キーをバックアップ";
+"hwD-l5-buT.title" = "シードフレーズをバックアップする";
 
 /* Class = "NSTextFieldCell"; title = "Route Hint"; ObjectID = "lhX-D8-z6l"; */
 "lhX-D8-z6l.title" = "ルートヒント";

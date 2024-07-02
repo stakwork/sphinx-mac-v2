@@ -169,7 +169,7 @@
 "contact.support" = "問題が発生しました。\n\nsupport@stakwork.comまでサポートに連絡してください。";
 "paste.invite.text" = "招待テキストを貼り付ける\nまたはQRコードをスキャンする";
 "paste.invitation.code" = "招待コードを貼り付けてください...";
-"paste.keys" = "キーを貼り付けてください...";
+"paste.keys" = "シードフレーズを貼り付けます...";
 "pin" = "PIN";
 "enter.pin.upper" = "PINを入力";
 "invalid.pin" = "無効なPIN";
@@ -200,9 +200,9 @@
 "tor.connection.failed" = "Tor接続エラー";
 "establishing.tor.circuit" = "Tor回路を確立しています...";
 "wait.tor.request" = "お待ちください。このプロセスには数分かかる場合があります...";
-"restore.label" = "モバイルアプリからキーをコピーしてここに貼り付けてください。";
+"restore.label" = "モバイル アプリからシード フレーズをコピーしてここに貼り付けます。";
 "signup.label" = "Sphinxに招待コードを貼り付けてください";
-"restore.label.bold" = "キーをコピー";
+"restore.label.bold" = "モバイル アプリからシー";
 "signup.label.bold.1" = "貼り付け";
 "signup.label.bold.2" = "招待コード";
 "get.started" = "始める";
@@ -214,9 +214,9 @@
 
 //PROFILE
 "address.copied.clipboard" = "アドレスをクリップボードにコピーしました";
-"pin.keys.encryption" = "他のデバイスでアカウントを復元する際に必要となるPINを入力して、キーを暗号化してください。";
-"export.keys" = "キーをエクスポート";
-"keys.will.copy.clipboard" = "キーがクリップボードにコピーされます。この文字列を保存し、アプリを削除する前にPINを覚えておいてください。そうしないと、すべてのデータが失われます。";
+"pin.keys.encryption" = "PINを入力してシードフレーズにアクセスしてください";
+"export.keys" = "シードフレーズをエクスポート";
+"keys.will.copy.clipboard" = "シードフレーズがクリップボードにコピーされます。この文字列を安全に保存しないと、すべてのデータが失われます。";
 "keys.copied.clipboard" = "エクスポートキーをクリップボードにコピーしました";
 "server.url.updated" = "サーバーURLが正常に更新されました";
 "drag.image" = "画像をドラッグ";
@@ -276,7 +276,7 @@
 "current.pin" = "旧PIN";
 "new.pin" = "新PIN";
 "confirm.new.pin" = "新しいPINを確認";
-"pin.changed" = "PINが更新されました。この新しいPINを使用してキーを再エクスポートしてください。";
+"pin.changed" = "PINが更新されました";
 "contact.pin.error" = "グループPINとしてメインPINを使用することはできません";
 "set.privacy.pin" = "プライバシーPINを設定";
 "change.privacy.pin" = "プライバシーPINを変更";
