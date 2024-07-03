@@ -127,8 +127,8 @@ class PaymentViewModel : NSObject {
         
         if let paymentAmount = currentPayment.amount,
            let invoice = SphinxOnionManager.sharedInstance.createInvoice(
-            amountMsat: paymentAmount * 1000,
-            description: currentPayment.memo ?? ""
+                amountMsat: paymentAmount * 1000,
+                description: currentPayment.memo ?? ""
            )
         {
             if let contact = currentPayment.contacts.first, let chat = currentPayment.chat {

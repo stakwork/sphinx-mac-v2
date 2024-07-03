@@ -34,44 +34,47 @@ class DisplayInvoiceVC : NSViewController{
     
     
     override func viewDidLoad() {
-        if let qrString = qrString{
+        if let qrString = qrString {
             qrCodeImageView.image = NSImage.qrCode(from: qrString, size: qrCodeImageView.frame.size)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-                self.view.bringSubviewToFront(self.qrCodeImageView)
-                self.view.bringSubviewToFront(self.shareInvoiceStringButton)
-                self.view.bringSubviewToFront(self.shareQRImageButton)
-                self.shareInvoiceStringButton.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(self.copyInvoiceText)))
-                self.shareQRImageButton.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(self.copyInvoiceImage)))
-                self.invoiceStringDisplay.stringValue = qrString
-                var amountText = ""
-                if let amount = self.amount
-                {
-                    amountText = "\(String(amount)) sats"
-                    self.view.bringSubviewToFront(self.amountTextField)
-                }
-                self.amountTextField.stringValue = amountText
-                self.view.bringSubviewToFront(self.invoiceStringDisplay)
-            })
+            
+            self.shareInvoiceStringButton.addGestureRecognizer(
+                NSClickGestureRecognizer(target: self, action: #selector(self.copyInvoiceText))
+            )
+            
+            self.shareQRImageButton.addGestureRecognizer(
+                NSClickGestureRecognizer(target: self, action: #selector(self.copyInvoiceImage))
+            )
+            
+            self.invoiceStringDisplay.stringValue = qrString
+            
+            var amountText = ""
+            
+            if let amount = self.amount {
+                amountText = "\("notification.amount".localized) \(String(amount)) sats"
+                self.view.bringSubviewToFront(self.amountTextField)
+            }
+            
+            self.amountTextField.stringValue = amountText
             
         }
-        self.view.setBackgroundColor(color: NSColor.Sphinx.Body)
+        
         self.addLocalization()
     }
     
-    func addLocalization(){
+    func addLocalization() {
         codeStringLabel.title = "copy.invoice.string".localized
         codeImageLabel.title = "copy.invoice.image".localized
     }
     
-    @objc func copyInvoiceImage(){
-        if let image = self.view.bitmapImage(){
+    @objc func copyInvoiceImage() {
+        if let image = self.view.bitmapImage() {
             ClipboardHelper.addImageToClipboard(image: image)
         }
         
     }
     
-    @objc func copyInvoiceText(){
-        if let qrString = qrString{
+    @objc func copyInvoiceText() {
+        if let qrString = qrString {
             ClipboardHelper.copyToClipboard(text: qrString)
         }
     }

@@ -40,4 +40,7 @@ extension Notification.Name {
     static let invoiceIPaidSettled = Notification.Name("invoiceIPaidSettled")
     
     static let shouldCloseRightPanel = Notification.Name("shouldCloseRightPanel")
+    
+    static let connectedToInternet = Notification.Name("connectedToInternet")
+    static let disconnectedFromInternet = Notification.Name("disconnectedFromInternet")
 }

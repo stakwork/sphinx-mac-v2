@@ -73,6 +73,8 @@ internal enum StoryboardScene {
         internal static let threadsListViewController = SceneType<ThreadsListViewController>(storyboard: Dashboard.self, identifier: "ThreadsListViewController")
         
         internal static let jitsiCallWebViewController = SceneType<JitsiCallWebViewController>(storyboard: Dashboard.self, identifier: "JitsiCallWebViewController")
+        
+        internal static let newShareQrCodeViewController = SceneType<NewShareQrCodeViewController>(storyboard: Dashboard.self, identifier: "NewShareQrCodeViewController")
     }
     
     internal enum Groups: StoryboardType {

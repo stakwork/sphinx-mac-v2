@@ -23,12 +23,17 @@ extension NewChatViewModel {
     }
     
     func shouldResendMessage(message: TransactionMessage) {
-//        sendMessage(
-//            provisionalMessage: message,
-//            text: message.messageContent ?? "",
-//            isResend: true,
-//            completion: { (_, _) in }
-//        )
+        guard let chat = message.chat else{
+            return
+        }
+        
+        let _ = SphinxOnionManager.sharedInstance.sendMessage(
+            to: message.chat?.getContact(),
+            content: message.messageContent ?? "",
+            chat: chat, provisionalMessage: message,
+            threadUUID: message.threadUUID,
+            replyUUID: message.replyUUID
+        )
     }
     
     func shouldTogglePinState(

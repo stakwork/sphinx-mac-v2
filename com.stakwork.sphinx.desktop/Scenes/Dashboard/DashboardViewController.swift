@@ -29,6 +29,8 @@ class DashboardViewController: NSViewController {
     @IBOutlet weak var presenterBackButton: CustomButton!
     @IBOutlet weak var presenterCloseButton: CustomButton!
     @IBOutlet weak var presenterViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var presenterViewWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var presenterHeaderView: NSBox!
     
     weak var presenter: DashboardPresenterViewController?
     var presenterBackHandler: (() -> ())? = nil
@@ -86,8 +88,7 @@ class DashboardViewController: NSViewController {
         let windowState = WindowsManager.sharedInstance.getWindowState()
         leftSplittedView.isHidden = windowState.menuCollapsed
         
-        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.themeChangedNotification(notification:)), name: .onInterfaceThemeChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleImageNotification(_:)), name: .webViewImageClicked, object: nil)
+        setupObservers()
         
         listenForResize()
         addEscapeMonitor()
@@ -108,6 +109,16 @@ class DashboardViewController: NSViewController {
         addDetailVCPresenter()
         
         connectToServer()
+    }
+    
+    func setupObservers(){
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.themeChangedNotification(notification:)), name: .onInterfaceThemeChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleImageNotification(_:)), name: .webViewImageClicked, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .connectedToInternet, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .disconnectedFromInternet, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(didConnectToInternet), name: .connectedToInternet, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didDisconnectFromInternet), name: .disconnectedFromInternet, object: nil)
     }
     
     func connectToServer() {
@@ -131,6 +142,14 @@ class DashboardViewController: NSViewController {
             hideRestoreViewCallback: self.hideRestoreViewCallback
         )
     }
+    
+    @objc private func didConnectToInternet() {
+        self.reconnectToServer()
+    }
+
+    @objc private func didDisconnectFromInternet() {
+        SphinxOnionManager.sharedInstance.isConnected = false
+    } 
     
     func refreshUnreadStatus(){
         SphinxOnionManager.sharedInstance.getReads()

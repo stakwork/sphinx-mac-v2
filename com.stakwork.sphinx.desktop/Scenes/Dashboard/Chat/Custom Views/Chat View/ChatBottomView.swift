@@ -179,6 +179,10 @@ class ChatBottomView: NSView, LoadableNib {
     func recordingProgress(minutes: String, seconds: String) {
         messageFieldView.recordingProgress(minutes: minutes, seconds: seconds)
     }
+    
+    func toggleAttachmentAdded(_ attachmentAdded: Bool) {
+        messageFieldView.toggleAttachmentAdded(attachmentAdded)
+    }
 }
 
 //Search Mode

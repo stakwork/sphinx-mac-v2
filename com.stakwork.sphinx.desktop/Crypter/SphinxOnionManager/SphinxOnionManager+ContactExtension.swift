@@ -21,7 +21,7 @@ extension SphinxOnionManager {//contacts related
         return (components.count >= 3) ? (components[0],components[1],components[2]) : nil
     }
     
-    func deleteContactMsgsFor(
+    func deleteContactOrChatMsgsFor(
         contact: UserContact? = nil,
         chat: Chat? = nil
     ) -> Bool {
@@ -44,9 +44,7 @@ extension SphinxOnionManager {//contacts related
                 )
                 
                 let _ = handleRunReturn(rr: rr)
-            } catch {
-                return false
-            }
+            } catch {}
         }
         
         if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
@@ -60,9 +58,7 @@ extension SphinxOnionManager {//contacts related
                 )
                 
                 let _ = handleRunReturn(rr: rr)
-            } catch {
-                return false
-            }
+            } catch {}
         }
         
         return true

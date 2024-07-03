@@ -90,10 +90,10 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func textDidChange(_ notification: Notification) {
-        micButton.isHidden = !messageTextView.string.isEmpty
-        priceContainer.isHidden = messageTextView.string.isEmpty || isThread
-        sendButton.isHidden = messageTextView.string.isEmpty
         priceTextField.stringValue = messageTextView.string.isEmpty ? "" : priceTextField.stringValue
+        
+        toggleSendMicButton()
+        togglePriceContainer()
         
         updateColor()
         
@@ -121,6 +121,22 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
 //        if chatCollectionView.shouldScrollToBottom() {
 //            chatCollectionView.scrollToBottom(animated: false)
 //        }
+    }
+    
+    func togglePriceContainer() {
+        priceContainer.isHidden = isThread || (!isAttachmentAdded && messageTextView.string.isEmpty)
+    }
+    
+    func toggleSendMicButton() {
+        sendButton.isHidden = messageTextView.string.isEmpty && priceTextField.stringValue.isEmpty && !isAttachmentAdded
+        micButton.isHidden = !sendButton.isHidden
+    }
+    
+    func toggleAttachmentAdded(_ attachmentAdded: Bool) {
+        isAttachmentAdded = attachmentAdded
+        
+        togglePriceContainer()
+        toggleSendMicButton()
     }
     
     func updateColor() {

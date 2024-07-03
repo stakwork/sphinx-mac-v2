@@ -166,7 +166,7 @@
 "contact.support" = "Ha habido un problema.\n\nPor favor contacta con soporte en\nsupport@stakwork.com";
 "paste.invite.text" = "Pega el código de invitación\no escanea el código QR";
 "paste.invitation.code" = "Pega el código de invitación...";
-"paste.keys" = "Pega aquí tus claves...";
+"paste.keys" = "Pega aquí tus palabras claves...";
 "pin" = "PIN";
 "enter.pin.upper" = "INGRESA PIN";
 "invalid.pin" = "PIN Inválido";
@@ -197,9 +197,9 @@
 "tor.connection.failed" = "Error conectando a Tor";
 "establishing.tor.circuit" = "Estableciendo circuito con Tor...";
 "wait.tor.request" = "Por favor espera. Este proceso puede tardar algunos minutos...";
-"restore.label" = "Copia tus claves desde la\naplicación móvil y pegales aquí.";
+"restore.label" = "Copia tus palabras claves desde la\naplicación móvil y pegales aquí.";
 "signup.label" = "Pega tu código de invitación\nen Sphinx";
-"restore.label.bold" = "Copia tus claves";
+"restore.label.bold" = "Copia tus palabras claves";
 "signup.label.bold.1" = "Pega";
 "signup.label.bold.2" = "código de invitación";
 "get.started" = "Comenzar";
@@ -211,9 +211,9 @@
 
 //PROFILE
 "address.copied.clipboard" = "Dirección copiada al portapapeles";
-"pin.keys.encryption" = "Ingresa tu PIN para encriptar las claves. ¡Recuérdalo! Lo necesitarás para restaurar tu cuenta en otro dispositivo.";
-"export.keys" = "Exportar Claves";
-"keys.will.copy.clipboard" = "Tus claves se copiarán al portapapeles. Guarda las claves y recuerda tu PIN antes de borrar la aplicación o toda la información se perderá.";
+"pin.keys.encryption" = "Ingresa tu PIN para acceder a tus palabras claves.";
+"export.keys" = "Exportar Palabras Claves";
+"keys.will.copy.clipboard" = "Tus palabras claves se copiarán al portapapeles. Guarda las claves de forma segura o toda la información se perderá.";
 "keys.copied.clipboard" = "Claves copiadas al portapapeles";
 "server.url.updated" = "La URL del servidor ha sido actualizada con éxito";
 "drag.image" = "Arrastre una imagén";
@@ -273,7 +273,7 @@
 "current.pin" = "PIN actual";
 "new.pin" = "Nuevo PIN";
 "confirm.new.pin" = "Confirme nuevo PIN";
-"pin.changed" = "Tu PIN ha sido actualizado. Por favor exporta tus claves nuevamente usando el nuevo PIN.";
+"pin.changed" = "Tu PIN ha sido actualizado.";
 "contact.pin.error" = "No puedes usar tu PIN principal como PIN de grupo";
 "set.privacy.pin" = "Establecer PIN Privado";
 "change.privacy.pin" = "Cambiar PIN Privado";

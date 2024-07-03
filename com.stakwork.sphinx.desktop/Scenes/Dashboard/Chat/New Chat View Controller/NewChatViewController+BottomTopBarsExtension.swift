@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Cocoa
 
 extension NewChatViewController {
     func setMessageFieldActive() {
@@ -143,7 +144,7 @@ extension NewChatViewController : GroupDetailsDelegate {
                 som.exitTribe(tribeChat: chat)
             }
             
-            let _ = som.deleteContactMsgsFor(chat: chat)
+            let _ = som.deleteContactOrChatMsgsFor(chat: chat)
             
             DispatchQueue.main.async {
                 DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
@@ -496,5 +497,15 @@ extension NewChatViewController : NewChatViewControllerDelegate {
 extension NewChatViewController : ThreadsListViewControllerDelegate {
     func didSelectThreadWith(uuid: String) {
         showThread(threadID: uuid)
+    }
+}
+
+extension NewChatViewController : ChatDraggingViewDelegate {
+    func attachmentAdded() {
+        chatBottomView.toggleAttachmentAdded(true)
+    }
+    
+    func attachmentRemoved() {
+        chatBottomView.toggleAttachmentAdded(false)
     }
 }

@@ -515,6 +515,7 @@
 		47DE1C3D2A6AF6F10029597B /* ShimmeringSentMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C3C2A6AF6F10029597B /* ShimmeringSentMessageView.xib */; };
 		47DE1C3F2A6AFA070029597B /* ChatShimmeringView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1C3E2A6AFA070029597B /* ChatShimmeringView.swift */; };
 		47DE1C412A6AFA0F0029597B /* ChatShimmeringView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C402A6AFA0F0029597B /* ChatShimmeringView.xib */; };
+		47E117932C33442B006D34EA /* NewShareQRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */; };
 		47E19DD42BB1FD1700A0E596 /* WordsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD32BB1FD1700A0E596 /* WordsList.swift */; };
 		47E19DD72BB1FE0100A0E596 /* SphinxOnionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */; };
 		47E19DD92BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD82BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift */; };
@@ -614,6 +615,7 @@
 		CE326B51294A179200821A53 /* ChatMentionAutocompleteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE326B4F294A179200821A53 /* ChatMentionAutocompleteCell.swift */; };
 		CE326B52294A179200821A53 /* ChatMentionAutocompleteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE326B50294A179200821A53 /* ChatMentionAutocompleteCell.xib */; };
 		CE38D91329E0823800F271CD /* DisplayInvoiceVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE38D91229E0823800F271CD /* DisplayInvoiceVC.swift */; };
+		CE4FF5452C26138700AA4DCE /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE4FF5442C26138700AA4DCE /* NetworkMonitor.swift */; };
 		CE6BF5CA29E5BA38009BCFDE /* SendPaymentForInvoiceVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6BF5C929E5BA38009BCFDE /* SendPaymentForInvoiceVC.swift */; };
 		CE9BA45F29D76A8E000C8837 /* PodcastDetailSelectionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9BA45E29D76A8E000C8837 /* PodcastDetailSelectionVM.swift */; };
 		CE9BA46229D772BD000C8837 /* PodcastDetailActionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9BA46029D772BD000C8837 /* PodcastDetailActionCell.swift */; };
@@ -1427,6 +1429,7 @@
 		47DE1C3C2A6AF6F10029597B /* ShimmeringSentMessageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShimmeringSentMessageView.xib; sourceTree = "<group>"; };
 		47DE1C3E2A6AFA070029597B /* ChatShimmeringView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatShimmeringView.swift; sourceTree = "<group>"; };
 		47DE1C402A6AFA0F0029597B /* ChatShimmeringView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatShimmeringView.xib; sourceTree = "<group>"; };
+		47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewShareQRCodeViewController.swift; sourceTree = "<group>"; };
 		47E19DD32BB1FD1700A0E596 /* WordsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsList.swift; sourceTree = "<group>"; };
 		47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManager.swift; sourceTree = "<group>"; };
 		47E19DD82BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinOnionManager+InvoicesExtension.swift"; sourceTree = "<group>"; };
@@ -1537,6 +1540,7 @@
 		CE326B4F294A179200821A53 /* ChatMentionAutocompleteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMentionAutocompleteCell.swift; sourceTree = "<group>"; };
 		CE326B50294A179200821A53 /* ChatMentionAutocompleteCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatMentionAutocompleteCell.xib; sourceTree = "<group>"; };
 		CE38D91229E0823800F271CD /* DisplayInvoiceVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayInvoiceVC.swift; sourceTree = "<group>"; };
+		CE4FF5442C26138700AA4DCE /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		CE59E70F2A004BF30089D496 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/NewEpisodeAlertView.strings; sourceTree = "<group>"; };
 		CE59E7102A004BF30089D496 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/Podcast.strings; sourceTree = "<group>"; };
 		CE59E7112A004BF30089D496 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/Contacts.strings; sourceTree = "<group>"; };
@@ -1841,6 +1845,7 @@
 			isa = PBXGroup;
 			children = (
 				473437AE24DB12E000950F25 /* ContactViewController.swift */,
+				47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -2050,6 +2055,7 @@
 				478F07D724E45E2A00EE32A3 /* Giphy */,
 				47E771302472CA2700C9CFEB /* Audio */,
 				475B68672991A1A2000EF29C /* FeedBoostHelper.swift */,
+				CE4FF5442C26138700AA4DCE /* NetworkMonitor.swift */,
 				4744FA572469905100C5FD94 /* SignupHelper.swift */,
 				4744FA732469A4BA00C5FD94 /* DelayPerformerHelper.swift */,
 				4744FAA82469CF1A00C5FD94 /* PaymentRequestDecoder.swift */,
@@ -4211,6 +4217,7 @@
 				47EB025929B21D9D0032CFB5 /* VoIPRequestMessage.swift in Sources */,
 				4744FA952469CA3900C5FD94 /* TransactionMessageQueriesExtension.swift in Sources */,
 				4702BCF2248FE6B700EE9394 /* NSImage.swift in Sources */,
+				CE4FF5452C26138700AA4DCE /* NetworkMonitor.swift in Sources */,
 				479751EF246DBF2B00D2106B /* ChatListCollectionViewItem.swift in Sources */,
 				479751BD246C540A00D2106B /* NewMessageBubbleHelper.swift in Sources */,
 				47E19DDD2BB1FE1B00A0E596 /* SphinxOnionManager+InvitesExtension.swift in Sources */,
@@ -4314,6 +4321,7 @@
 				4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */,
 				47F8824B25656CB0002A7E71 /* SocketTypes.swift in Sources */,
 				475B681829915D01000EF29C /* ContentFeed+Computeds.swift in Sources */,
+				47E117932C33442B006D34EA /* NewShareQRCodeViewController.swift in Sources */,
 				475B681929915D01000EF29C /* ContentFeed+CoreDataProperties.swift in Sources */,
 				4744FA582469905100C5FD94 /* SignupHelper.swift in Sources */,
 				938209E02BD88E3C000A9ED8 /* NewMenuItemDataSource.swift in Sources */,
@@ -5122,7 +5130,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 25;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -5158,7 +5166,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 25;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;

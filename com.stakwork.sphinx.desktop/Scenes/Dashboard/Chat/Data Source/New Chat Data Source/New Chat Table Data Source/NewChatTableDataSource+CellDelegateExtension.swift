@@ -431,10 +431,13 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                         self.dataSourceQueue.sync {
                             self.saveSnapshotCurrentState()
                             var snapshot = self.dataSource.snapshot()
-                            snapshot.reloadItems([tableCellState.1])
-                            self.dataSource.apply(snapshot, animatingDifferences: true) {
-                                DispatchQueue.main.async {
-                                    self.restoreScrollLastPosition()
+                            
+                            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                                snapshot.reloadItems([tableCellState.1])
+                                self.dataSource.apply(snapshot, animatingDifferences: true) {
+                                    DispatchQueue.main.async {
+                                        self.restoreScrollLastPosition()
+                                    }
                                 }
                             }
                         }
@@ -550,25 +553,25 @@ extension NewChatTableDataSource {
         messageId: Int,
         with updatedCachedMedia: MessageTableCellState.MediaData
     ) {
-        
         mediaCached[messageId] = updatedCachedMedia
-        
+
         if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
             delegate?.shouldReloadThreadHeader()
             return
         }
-        
-        if let tableCellState = getTableCellStateFor(
-            messageId: messageId,
-            and: rowIndex
-        ) {
+
+        if let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex) {
             dataSourceQueue.sync {
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                }
             }
         }
     }
+
     
     func updateMessageTableCellStateFor(
         rowIndex: Int,
@@ -593,10 +596,13 @@ extension NewChatTableDataSource {
             dataSourceQueue.sync {
                 self.saveSnapshotCurrentState()
                 var snapshot = self.dataSource.snapshot()
-                snapshot.reloadItems([tableCellState.1])
-                self.dataSource.apply(snapshot, animatingDifferences: true) {
-                    DispatchQueue.main.async {
-                        self.restoreScrollLastPosition()
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    snapshot.reloadItems([tableCellState.1])
+                    self.dataSource.apply(snapshot, animatingDifferences: true) {
+                        DispatchQueue.main.async {
+                            self.restoreScrollLastPosition()
+                        }
                     }
                 }
             }
@@ -618,8 +624,11 @@ extension NewChatTableDataSource {
                     
                     self.dataSourceQueue.sync {
                         var snapshot = self.dataSource.snapshot()
-                        snapshot.reloadItems([tableCellState.1])
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+
+                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                            snapshot.reloadItems([tableCellState.1])
+                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                        }
                     }
                 } else {
                     self.uploadingProgress.removeValue(forKey: messageId)
@@ -651,8 +660,11 @@ extension NewChatTableDataSource {
                 }
                 self.dataSourceQueue.sync {
                     var snapshot = self.dataSource.snapshot()
-                    snapshot.reloadItems([tableCellState.1])
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                    
+                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                        snapshot.reloadItems([tableCellState.1])
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                    }
                 }
             }
         }
@@ -1003,7 +1015,7 @@ extension NewChatTableDataSource {
         
         let som = SphinxOnionManager.sharedInstance
         som.exitTribe(tribeChat: chat)
-        let _ = som.deleteContactMsgsFor(chat: chat)
+        let _ = som.deleteContactOrChatMsgsFor(chat: chat)
         
         DispatchQueue.main.async {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5) {

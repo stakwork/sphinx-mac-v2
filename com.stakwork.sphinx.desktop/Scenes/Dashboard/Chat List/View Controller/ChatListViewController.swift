@@ -315,6 +315,22 @@ extension ChatListViewController: NewContactDismissDelegate {
 }
 
 extension ChatListViewController: NewChatHeaderViewDelegate {
+    func qrButtonTapped() {
+        guard let shareInviteCodeVC = getQRCodeVC() else {
+            return
+        }
+        
+        navigateToNewVC(
+            vc: shareInviteCodeVC,
+            title: "",
+            identifier: "share-pub-key-window",
+            hideDivider: true,
+            height: 496,
+            width: 312,
+            hideHeaderView: true
+        )
+    }
+    
     func refreshTapped() {
         NotificationCenter.default.post(name: .shouldUpdateDashboard, object: nil)
     }
@@ -332,11 +348,16 @@ extension ChatListViewController: NewChatHeaderViewDelegate {
 extension ChatListViewController: NewMenuListViewDelegate {
     func buttonClicked(id: Int) {
         let vcInfo = getViewControllerToLoadInfo(vcId: id)
-        navigateToNewVC(vc: vcInfo.0,
-                        title: vcInfo.1,
-                        identifier: vcInfo.2,
-                        hideDivider: vcInfo.3,
-                        height: vcInfo.4)
+        
+        navigateToNewVC(
+            vc: vcInfo.0,
+            title: vcInfo.1,
+            identifier: vcInfo.2,
+            hideDivider: vcInfo.3,
+            height: vcInfo.4,
+            width: vcInfo.5,
+            hideHeaderView: vcInfo.6
+        )
     }
     
     func closeButtonTapped() {
@@ -349,64 +370,120 @@ extension ChatListViewController: NewMenuListViewDelegate {
 extension ChatListViewController: NewMenuItemDataSourceDelegate {
     func itemSelected(at index: Int) {
         let vcInfo = getViewControllerToLoadInfo(vcId: index)
-        navigateToNewVC(vc: vcInfo.0,
-                        title: vcInfo.1,
-                        identifier: vcInfo.2,
-                        hideDivider: vcInfo.3,
-                        height: vcInfo.4)
+        
+        navigateToNewVC(
+            vc: vcInfo.0,
+            title: vcInfo.1,
+            identifier: vcInfo.2,
+            hideDivider: vcInfo.3,
+            height: vcInfo.4,
+            hideHeaderView: vcInfo.6
+        )
     }
     
-    func getViewControllerToLoadInfo(vcId: Int) -> (NSViewController, String, String, Bool, CGFloat?){
+    func getViewControllerToLoadInfo(vcId: Int) -> (NSViewController, String, String, Bool, CGFloat?, CGFloat?, Bool){
         switch vcId {
         case 0:
-            return (ProfileViewController.instantiate(),
-                    "profile".localized,
-                    "profile-window",
-                    false, nil)
+            return (
+                ProfileViewController.instantiate(),
+                "profile".localized,
+                "profile-window",
+                false, 
+                nil,
+                nil,
+                false
+            )
         case 1:
-            return (AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
-                    "new.contact".localized,
-                    "add-contact-window",
-                    true,
-                    500)
+            return (
+                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
+                "new.contact".localized,
+                "add-contact-window",
+                true,
+                500,
+                nil,
+                false
+            )
         case 2:
-            return (TransactionsListViewController.instantiate(),
-                    "transactions".localized,
-                    "transactions-window",
-                    false,
-                    nil)
+            return (
+                TransactionsListViewController.instantiate(),
+                "transactions".localized,
+                "transactions-window",
+                false,
+                nil,
+                nil,
+                false
+            )
         case 3:
-            return (CreateInvoiceViewController.instantiate(
-                        childVCDelegate: self,
-                        viewModel: PaymentViewModel(mode: .Request),
-                        delegate: self,
-                        mode: .Window
-                    ),
-                    "create.invoice".localized,
-                    "create-invoice-window",
-                    true,
-                    500)
+            return (
+                CreateInvoiceViewController.instantiate(
+                    childVCDelegate: self,
+                    viewModel: PaymentViewModel(mode: .Request),
+                    delegate: self,
+                    mode: .Window
+                ),
+                "create.invoice".localized,
+                "create-invoice-window",
+                true,
+                500,
+                nil,
+                false
+            )
         case 4:
-            return (SendPaymentForInvoiceVC.instantiate(),
-                    "pay.invoice".localized,
-                    "send-payment-window",
-                    true,
-                    447)
+            return (
+                SendPaymentForInvoiceVC.instantiate(),
+                "pay.invoice".localized,
+                "send-payment-window",
+                true,
+                447,
+                nil,
+                false
+            )
         case 6:
-            return (AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
-                    "new.contact".localized,
-                    "add-contact-window",
-                    true,
-                    500)
+            return (
+                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
+                "new.contact".localized,
+                "add-contact-window",
+                true,
+                500,
+                nil,
+                false
+            )
         case 7:
-            return (CreateTribeViewController.instantiate(),
-                    "Create Tribe",
-                    "create-tribe-window",
-                    false,
-                    nil)
+            return (
+                CreateTribeViewController.instantiate(),
+                "Create Tribe",
+                "create-tribe-window",
+                false,
+                nil,
+                nil,
+                false
+            )
+        case 8:
+            guard let shareInviteCodeVC = getQRCodeVC() else {
+                return (NSViewController(), "pubkey.upper".localized.localizedCapitalized, "", true, nil, nil, false)
+            }
+            return (
+                shareInviteCodeVC,
+                "",
+                "create-tribe-window",
+                true,
+                496,
+                312,
+                true
+            )
+            
         default:
-            return (NSViewController(), "", "", false, nil)
+            return (NSViewController(), "", "", false, nil, nil, false)
         }
+    }
+    
+    func getQRCodeVC() -> NewShareQrCodeViewController? {
+        guard let profile = UserContact.getOwner(), let address = profile.getAddress(), !address.isEmpty else {
+            return nil
+        }
+        
+        let shareQrCodeVC = NewShareQrCodeViewController.instantiate(profile: profile, delegate: self)
+        return shareQrCodeVC
     }
     
     func navigateToNewVC(
@@ -414,7 +491,9 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
         title: String,
         identifier: String,
         hideDivider: Bool = false,
-        height: CGFloat? = nil
+        height: CGFloat? = nil,
+        width: CGFloat? = nil,
+        hideHeaderView: Bool = false
     ) {
         closeButtonTapped()
         
@@ -424,10 +503,11 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
             contentVC: vc,
             hideDivider: hideDivider,
             hideBackButton: true,
-            replacingVC: true,
-            height: height
+            replacingVC: false,
+            height: height,
+            width: width,
+            hideHeaderView: hideHeaderView
         )
-        
     }
 }
 

@@ -36,7 +36,9 @@ class SphinxOnionManager : NSObject {
     var stashedInviteCode:String? = nil
     var stashedInviterAlias:String? = nil
     
-    var watchdogTimer:Timer? = nil
+    var watchdogTimer: Timer? = nil
+    var reconnectionTimer: Timer? = nil
+    var sendTimeoutTimers: [String: Timer] = [:]
     
     var nextMessageBlockWasReceived = false
     
@@ -92,6 +94,7 @@ class SphinxOnionManager : NSObject {
     
     public static let kCompleteStatus = "COMPLETE"
     public static let kFailedStatus = "FAILED"
+    public static let kRoutingOffset = 3
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
@@ -305,7 +308,7 @@ class SphinxOnionManager : NSObject {
         connectingCallback: (() -> ())? = nil,
         hideRestoreViewCallback: (()->())? = nil
     ) {
-        if let mqtt = self.mqtt, mqtt.connState == .connected {
+        if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             ///If already fetching content, then process is already running
             if !isFetchingContent() {
                 self.hideRestoreCallback = hideRestoreViewCallback
@@ -360,7 +363,6 @@ class SphinxOnionManager : NSObject {
               let myPubkey = getAccountOnlyKeysendPubkey(seed: seed),
               let my_xpub = getAccountXpub(seed: seed) else
         {
-            AlertHelper.showAlert(title: "Error", message: "Could not get Account seed and xPubKey")
             hideRestoreViewCallback?()
             return
         }
@@ -374,7 +376,6 @@ class SphinxOnionManager : NSObject {
         let success = connectToBroker(seed: seed, xpub: my_xpub)
         
         if (success == false) {
-            AlertHelper.showAlert(title: "Error", message: "Could not connect to MQTT Broker.")
             hideRestoreViewCallback?()
             return
         }
@@ -383,6 +384,9 @@ class SphinxOnionManager : NSObject {
             guard let self = self else {
                 return
             }
+            
+            self.endReconnectionTimer()
+            self.isConnected = true
             
             self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
             
@@ -417,7 +421,39 @@ class SphinxOnionManager : NSObject {
             self.isConnected = false
             self.mqttDisconnectCallback?()
             self.mqtt = nil
+            self.startReconnectionTimer()
         }
+    }
+    
+    func endReconnectionTimer() {
+        reconnectionTimer?.invalidate()
+        reconnectionTimer = nil
+    }
+    
+    func startReconnectionTimer(
+        delay: Double = 0.5
+    ) {
+        reconnectionTimer?.invalidate()
+        
+        reconnectionTimer = Timer.scheduledTimer(
+            timeInterval: delay,
+            target: self,
+            selector: #selector(reconnectionTimerFired),
+            userInfo: nil,
+            repeats: false
+        )
+    }
+    
+    @objc func reconnectionTimerFired() {
+        if !NetworkMonitor.shared.isConnected {
+            return
+        }
+        
+        connectToServer(
+            contactRestoreCallback: self.contactRestoreCallback,
+            messageRestoreCallback: self.messageRestoreCallback,
+            hideRestoreViewCallback: self.hideRestoreCallback
+        )
     }
     
     func subscribeAndPublishMyTopics(
