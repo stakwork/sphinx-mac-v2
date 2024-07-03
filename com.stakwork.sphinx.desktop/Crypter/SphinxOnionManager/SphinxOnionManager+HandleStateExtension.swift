@@ -55,6 +55,9 @@ extension SphinxOnionManager {
             ///Handling key exchange msgs restore
             self.processKeyExchangeMessages(rr: rr)
             
+            ///Handling invoice paid
+            self.processInvoicePaid(rr: rr)
+            
             ///Handling generic msgs restore
             self.processGenericMessages(rr: rr)
             

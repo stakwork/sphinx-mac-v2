@@ -544,6 +544,19 @@ extension SphinxOnionManager {
         return isTribe
     }
     
+    func processInvoicePaid(rr: RunReturn) {
+        if let _ = rr.settleTopic, let _ = rr.settlePayload {
+            let paymentHashes = rr.msgs.compactMap({ $0.paymentHash })
+            for paymentHash in paymentHashes {
+                NotificationCenter.default.post(
+                    name: .sentInvoiceSettled,
+                    object: nil,
+                    userInfo: ["paymentHash": paymentHash]
+                )
+            }
+        }
+    }
+    
     //MARK: processes updates from general purpose messages like plaintext and attachments
     func processGenericMessages(rr: RunReturn) {
         if rr.msgs.isEmpty {
