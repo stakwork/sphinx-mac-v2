@@ -1341,15 +1341,51 @@ extension SphinxOnionManager {
     //MARK: Payments related
     func sendBoostReply(
         params: [String: AnyObject],
+        chat: Chat,
+        completion: @escaping (TransactionMessage?) -> ()
+    ) {
+        guard let _ = params["reply_uuid"] as? String,
+              let contact = chat.getContact(),
+              let _ = params["text"] as? String,
+              let pubkey = contact.publicKey,
+              let amount = params["amount"] as? Int else 
+        {
+            completion(nil)
+            return
+        }
+        
+        checkAndFetchRouteTo(
+            publicKey: pubkey,
+            amtMsat: amount * 1000
+        ) { success in
+            if success {
+                let message = self.finalizeSendBoostReply(
+                    params: params,
+                    chat: chat
+                )
+                completion(message)
+            } else {
+                AlertHelper.showAlert(
+                    title: "Routing Error",
+                    message: "There was an error routing please try again."
+                )
+                completion(nil)
+            }
+        }
+    }
+    
+    func finalizeSendBoostReply(
+        params: [String: AnyObject],
         chat:Chat
     ) -> TransactionMessage? {
-        let contact = chat.getContact()
         
         guard let replyUUID = params["reply_uuid"] as? String,
-        let text = params["text"] as? String,
-        let amount = params["amount"] as? Int else{
+            let contact = chat.getContact(),
+            let text = params["text"] as? String,
+            let amount = params["amount"] as? Int else{
             return nil
         }
+        
         if let sentMessage = self.sendMessage(
             to: contact,
             content: text,
@@ -1359,35 +1395,65 @@ extension SphinxOnionManager {
             msgType: UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
             threadUUID: nil,
             replyUUID: replyUUID
-        ){
-            print(sentMessage)
+        ) {
             return sentMessage
         }
         return nil
     }
     
     func sendDirectPaymentMessage(
-        params: [String: Any],
+        amount: Int,
+        muid: String?,
+        content: String?,
         chat: Chat,
         completion: @escaping (Bool, TransactionMessage?) -> ()
     ){
-        let muid = params["muid"] as? String
-        let mediaType = params["media_type"] as? String
-        let content = params["text"] as? String
+        guard let contact = chat.getContact(),
+              let pubkey = contact.publicKey else
+        {
+            return
+        }
         
-        guard let contact = chat.getContact(), let amount = params["amount"] as? Int else {
+        checkAndFetchRouteTo(
+            publicKey: pubkey,
+            amtMsat: amount * 1000
+        ) { success in
+            if(success){
+                self.finalizeDirectPayment(
+                    amount: amount,
+                    muid: muid,
+                    content: content,
+                    chat: chat,
+                    completion: { success, message in
+                        completion(success,message)
+                    }
+                )
+            } else {
+                completion(false,nil)
+            }
+        }
+    }
+    
+    func finalizeDirectPayment(
+        amount: Int,
+        muid: String?,
+        content: String?,
+        chat: Chat,
+        completion: @escaping (Bool, TransactionMessage?) -> ()
+    ){
+        guard let contact = chat.getContact() else {
             return
         }
         
         if let sentMessage = self.sendMessage(
-            to: contact, 
+            to: contact,
             content: content ?? "",
             chat: chat,
             provisionalMessage: nil,
             amount: amount,
             msgType: UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
             muid: muid,
-            mediaType: mediaType,
+            mediaType: "image/png",
             threadUUID: nil,
             replyUUID: nil
         ) {

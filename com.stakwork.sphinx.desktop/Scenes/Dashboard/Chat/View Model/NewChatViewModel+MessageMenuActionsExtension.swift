@@ -14,12 +14,15 @@ extension NewChatViewModel {
             contact: contact,
             chat: chat,
             replyingMessage: message
-        ),
-        let chat = chat else {
+        ), let chat = chat else {
             return
         }
         
-        let _ = SphinxOnionManager.sharedInstance.sendBoostReply(params: params, chat: chat)
+        SphinxOnionManager.sharedInstance.sendBoostReply(
+            params: params,
+            chat: chat,
+            completion: { _ in}
+        )
     }
     
     func shouldResendMessage(message: TransactionMessage) {
@@ -41,9 +44,9 @@ extension NewChatViewModel {
         pin: Bool,
         callback: @escaping (Bool) -> ()
     ) {
-        guard let chat = self.chat else {
-            return
-        }
+//        guard let chat = self.chat else {
+//            return
+//        }
         
 //        API.sharedInstance.pinChatMessage(
 //            messageUUID: (pin ? message.uuid : "_"),

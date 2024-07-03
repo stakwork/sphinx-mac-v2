@@ -100,10 +100,17 @@ class PaymentViewModel : NSObject {
             return
         }
         
+        guard let amount = currentPayment.amount else {
+            errorCallback("generic.error.message".localized)
+            return
+        }
+        
         let parameters = getParams()
         
         SphinxOnionManager.sharedInstance.sendDirectPaymentMessage(
-            params: parameters,
+            amount: amount,
+            muid: currentPayment.muid,
+            content: currentPayment.message,
             chat: chat,
             completion: { success, _ in
                 if (success){

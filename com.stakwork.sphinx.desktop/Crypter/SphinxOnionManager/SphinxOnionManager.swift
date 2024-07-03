@@ -145,6 +145,15 @@ class SphinxOnionManager : NSObject {
         }
     }
     
+    var routerPubkey: String? {
+        get {
+            if let routerPubkey: String = UserDefaults.Keys.routerPubkey.get() {
+                return routerPubkey
+            }
+            return nil
+        }
+    }
+    
     let kTestServerIP = "34.229.52.200"
     let kTestServerPort: UInt16 = 1883
     let kProdServerPort: UInt16 = 8883
