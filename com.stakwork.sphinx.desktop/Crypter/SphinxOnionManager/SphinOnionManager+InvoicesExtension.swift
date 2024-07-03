@@ -245,6 +245,54 @@ extension SphinxOnionManager{
         )
     }
     
+    func keysend(
+        pubkey: String,
+        amt: Int,
+        completion: @escaping (Bool) -> ()
+    ) {
+        checkAndFetchRouteTo(
+            publicKey: pubkey,
+            amtMsat: amt * 1000
+        ) { success in
+            if success {
+                if self.finalizeKeysend(
+                    pubkey: pubkey,
+                    amt: amt * 1000
+                ) {
+                    completion(true)
+                } else {
+                    completion(false)
+                }
+            } else {
+                completion(false)
+            }
+        }
+        
+    }
+    
+    func finalizeKeysend(
+        pubkey: String,
+        amt: Int
+    ) -> Bool {
+        guard let seed = getAccountSeed() else{
+            return false
+        }
+        do {
+            let rr = try Sphinx.keysend(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                to: pubkey,
+                state: loadOnionStateAsData(),
+                amtMsat: UInt64(amt),
+                data: nil
+            )
+            let _ = handleRunReturn(rr: rr)
+            return true
+        } catch {
+            return false
+        }
+    }
+    
     func getTransactionsHistory(
         paymentsHistoryCallback: @escaping ((String?, String?) -> ()),
         itemsPerPage: UInt32,
