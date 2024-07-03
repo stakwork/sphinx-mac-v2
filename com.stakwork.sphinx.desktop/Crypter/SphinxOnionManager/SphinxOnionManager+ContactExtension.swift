@@ -312,7 +312,26 @@ extension SphinxOnionManager {//contacts related
         
         return chat
     }
-    //MARK: END CoreData Helpers
+    
+    func requiresManualRouting(
+        publicKey: String
+    ) -> Bool {
+        guard let contact = publicKey.isExistingContactPubkey().1 else {
+            ///requires routing if it's not a contact in our db
+            return true
+        }
+        
+        guard let myLSPPubkey = UserContact.getOwner()?.routeHint?.split(separator: "_")[0] else {
+            return true
+        }
+        
+        guard let contactLSPPubkey = contact.routeHint?.split(separator: "_")[0] else {
+            return true
+        }
+        
+        ///require routing if we're not on the same LSP
+        return myLSPPubkey != contactLSPPubkey
+    }
 }
 
 
