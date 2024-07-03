@@ -137,12 +137,28 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
         )
     }
     
-    func getConfigData(code: String) {
+    func getConfigData(
+        code: String? = nil
+    ) {
+        if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) == false {
+            continueSignupToConnecting()
+            return
+        }
+        
         API.sharedInstance.getServerConfig() { success in
             if success {
-                self.continueWith(code: code)
+                if let code = code {
+                    self.continueWith(code: code)
+                } else {
+                    self.continueSignupToConnecting()
+                }
             } else {
-                AlertHelper.showAlert(title: "Error", message: "Unable to get config from Sphinx V2 Server")
+                self.view.window?.replaceContentBy(vc: WelcomeInitialViewController.instantiate())
+                
+                AlertHelper.showAlert(
+                    title: "Error",
+                    message: "Unable to get config from Sphinx V2 Server"
+                )
             }
         }
     }
@@ -161,7 +177,10 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             if (success) {
                 self.handleInviteCode(code: code)
             } else {
-                AlertHelper.showAlert(title: "Error redeeming invite", message: "Please try again or ask for another invite.")
+                AlertHelper.showAlert(
+                    title: "Error redeeming invite",
+                    message: "Please try again or ask for another invite."
+                )
             }
             self.som.vc = nil
         })
@@ -182,17 +201,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             mnemonic: mnemonic,
             inviteCode: inviteCode
         ) {
-            fetchServerConfig()
-        }
-    }
-    
-    func fetchServerConfig(){
-        API.sharedInstance.getServerConfig() { success in
-            if success {
-                self.continueSignupToConnecting()
-            } else {
-                AlertHelper.showAlert(title: "Error", message: "Unable to get config from Sphinx V2 Server")
-            }
+            getConfigData()
         }
     }
     

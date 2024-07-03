@@ -62,10 +62,6 @@ import WebKit
         
         NetworkMonitor.shared.startMonitoring()
     }
-     
-     func applicationDidBecomeActive(_ notification: Notification) {
-         SphinxOnionManager.sharedInstance.updateRoutingInfo()
-     }
     
     func clearWebkitCache() {
         URLCache.shared.removeAllCachedResponses()
