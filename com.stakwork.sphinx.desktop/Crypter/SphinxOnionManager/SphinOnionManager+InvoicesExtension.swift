@@ -104,19 +104,21 @@ extension SphinxOnionManager{
         }
     }
     
+    func getInvoiceDetails(invoice: String) -> ParseInvoiceResult? {
+        do {
+            let rawInvoiceDetails = try parseInvoice(invoiceJson: invoice)
+            let parsedInvoiceDetails = ParseInvoiceResult(JSONString: rawInvoiceDetails)
+            return parsedInvoiceDetails
+        } catch {
+            return nil
+        }
+    }
+    
     func payInvoice(
         invoice: String,
         overPayAmountMsat: UInt64? = nil
     ) {
-        ///get pubkey from invoice
-        var rawInvoiceResult = ""
-        do {
-            rawInvoiceResult = try parseInvoice(invoiceJson: invoice)
-        } catch {
-            return
-        }
-        
-        guard let invoiceDict = ParseInvoiceResult(JSONString: rawInvoiceResult),
+        guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
@@ -167,16 +169,9 @@ extension SphinxOnionManager{
     func payInvoiceMessage(
         message: TransactionMessage
     ) {
-        var rawInvoiceResult = ""
-        
-        do {
-            rawInvoiceResult = try parseInvoice(invoiceJson: message.invoice ?? "")
-        } catch {
-            return
-        }
-        
-        guard message.type == TransactionMessage.TransactionMessageType.invoice.rawValue,
-              let invoiceDict = ParseInvoiceResult(JSONString: rawInvoiceResult),
+        guard let invoiceDict = getInvoiceDetails(invoice: message.invoice ?? ""),
+              let owner = UserContact.getOwner(),
+              let _ = owner.nickname,
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {

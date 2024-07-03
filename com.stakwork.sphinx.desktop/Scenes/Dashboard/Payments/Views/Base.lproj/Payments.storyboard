@@ -34,6 +34,33 @@
                                 </constraints>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="extraIcon" id="066-dH-VQL"/>
                             </imageView>
+                            <box boxType="custom" borderType="line" borderWidth="4" cornerRadius="5" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="K4J-Rs-G8d">
+                                <rect key="frame" x="155" y="450" width="91" height="45"/>
+                                <view key="contentView" id="HvC-xI-9kH">
+                                    <rect key="frame" x="4" y="4" width="83" height="37"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FWE-w8-fVb">
+                                            <rect key="frame" x="2" y="0.0" width="79" height="37"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="PAID" id="I2h-0d-nky">
+                                                <font key="font" size="30" name="Montserrat-Bold"/>
+                                                <color key="textColor" name="PrimaryGreen"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="FWE-w8-fVb" firstAttribute="centerX" secondItem="HvC-xI-9kH" secondAttribute="centerX" id="B4f-39-6n9"/>
+                                        <constraint firstItem="FWE-w8-fVb" firstAttribute="centerY" secondItem="HvC-xI-9kH" secondAttribute="centerY" id="DSJ-qy-Dyc"/>
+                                        <constraint firstAttribute="bottom" secondItem="FWE-w8-fVb" secondAttribute="bottom" id="JOn-qf-ADI"/>
+                                        <constraint firstItem="FWE-w8-fVb" firstAttribute="top" secondItem="HvC-xI-9kH" secondAttribute="top" id="fOW-6L-Zxr"/>
+                                        <constraint firstAttribute="trailing" secondItem="FWE-w8-fVb" secondAttribute="trailing" constant="4" id="p1t-lD-WGj"/>
+                                        <constraint firstItem="FWE-w8-fVb" firstAttribute="leading" secondItem="HvC-xI-9kH" secondAttribute="leading" constant="4" id="tRy-Ye-hD3"/>
+                                    </constraints>
+                                </view>
+                                <color key="borderColor" name="PrimaryGreen"/>
+                                <color key="fillColor" name="Body"/>
+                            </box>
                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LId-FC-mhF">
                                 <rect key="frame" x="30" y="207" width="340" height="91"/>
                                 <textFieldCell key="cell" alignment="center" id="wNu-2z-sZt">
@@ -146,6 +173,7 @@ Receive Invoice Details</string>
                             <constraint firstAttribute="trailing" secondItem="LId-FC-mhF" secondAttribute="trailing" constant="32" id="3pz-GA-EM8"/>
                             <constraint firstItem="gc5-Pf-cC8" firstAttribute="centerX" secondItem="tOy-S4-hL0" secondAttribute="centerX" id="4Ok-Nh-K7W"/>
                             <constraint firstAttribute="bottom" secondItem="4HU-9Q-GFs" secondAttribute="bottom" constant="32" id="HIq-Dk-Bei"/>
+                            <constraint firstItem="K4J-Rs-G8d" firstAttribute="centerX" secondItem="gc5-Pf-cC8" secondAttribute="centerX" id="Hkv-y2-8ZW"/>
                             <constraint firstItem="quZ-Sv-9fI" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" constant="20" id="SVK-JP-Gg0"/>
                             <constraint firstItem="qkc-tl-sN7" firstAttribute="leading" secondItem="tOy-S4-hL0" secondAttribute="leading" constant="32" id="cLL-t8-SP9"/>
                             <constraint firstItem="quZ-Sv-9fI" firstAttribute="centerX" secondItem="gc5-Pf-cC8" secondAttribute="centerX" id="ey9-5s-i9j"/>
@@ -153,6 +181,7 @@ Receive Invoice Details</string>
                             <constraint firstItem="4HU-9Q-GFs" firstAttribute="leading" secondItem="qkc-tl-sN7" secondAttribute="leading" id="m1G-uC-0YE"/>
                             <constraint firstItem="LId-FC-mhF" firstAttribute="top" secondItem="gc5-Pf-cC8" secondAttribute="bottom" constant="24" id="oII-BV-O6G"/>
                             <constraint firstItem="LId-FC-mhF" firstAttribute="leading" secondItem="tOy-S4-hL0" secondAttribute="leading" constant="32" id="qEE-ck-bAu"/>
+                            <constraint firstItem="K4J-Rs-G8d" firstAttribute="centerY" secondItem="gc5-Pf-cC8" secondAttribute="centerY" id="sqV-1a-FJu"/>
                             <constraint firstItem="qkc-tl-sN7" firstAttribute="centerX" secondItem="tOy-S4-hL0" secondAttribute="centerX" id="trN-sl-Ybg"/>
                             <constraint firstItem="gc5-Pf-cC8" firstAttribute="top" secondItem="quZ-Sv-9fI" secondAttribute="bottom" constant="20" id="veC-mw-jfH"/>
                             <constraint firstItem="4HU-9Q-GFs" firstAttribute="trailing" secondItem="qkc-tl-sN7" secondAttribute="trailing" id="ze1-tF-laI"/>
@@ -163,6 +192,7 @@ Receive Invoice Details</string>
                         <outlet property="codeImageLabel" destination="dy9-Sq-zAd" id="xtF-Ke-VLZ"/>
                         <outlet property="codeStringLabel" destination="tA6-sn-INu" id="CXV-uP-VWc"/>
                         <outlet property="invoiceStringDisplay" destination="LId-FC-mhF" id="5gR-m7-gEW"/>
+                        <outlet property="paidLabelContainer" destination="K4J-Rs-G8d" id="6yU-jH-cCi"/>
                         <outlet property="qrCodeImageView" destination="gc5-Pf-cC8" id="xLI-pn-ZcM"/>
                         <outlet property="shareInvoiceStringButton" destination="4HU-9Q-GFs" id="oxL-j8-Xjw"/>
                         <outlet property="shareQRImageButton" destination="qkc-tl-sN7" id="rtu-xT-I8M"/>
@@ -561,6 +591,9 @@ Receive Invoice Details</string>
         </namedColor>
         <namedColor name="PrimaryBlue">
             <color red="0.38039215686274508" green="0.54117647058823526" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryGreen">
+            <color red="0.28627450980392155" green="0.78823529411764703" blue="0.59607843137254901" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="SecondaryText">
             <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -18,9 +18,20 @@ class DisplayInvoiceVC : NSViewController{
     @IBOutlet weak var amountTextField: NSTextField!
     @IBOutlet weak var codeStringLabel: VerticallyCenteredButtonCell!
     @IBOutlet weak var codeImageLabel: VerticallyCenteredButtonCell!
+    @IBOutlet weak var paidLabelContainer: NSBox!
     
     var qrString : String? = nil
     var amount : Int? = nil
+    
+    var currentInvoicePaymentHash: String? {
+        if let invoice = qrString,
+           let parsedInvoiceDetails = SphinxOnionManager.sharedInstance.getInvoiceDetails(invoice: invoice),
+           let paymentHash = parsedInvoiceDetails.paymentHash
+        {
+            return paymentHash
+        }
+        return nil
+    }
     
     static func instantiate(
         qrCodeString:String,
@@ -34,6 +45,8 @@ class DisplayInvoiceVC : NSViewController{
     
     
     override func viewDidLoad() {
+        paidLabelContainer.alphaValue = 0.0
+        
         if let qrString = qrString {
             qrCodeImageView.image = NSImage.qrCode(from: qrString, size: qrCodeImageView.frame.size)
             
@@ -59,6 +72,27 @@ class DisplayInvoiceVC : NSViewController{
         }
         
         self.addLocalization()
+        
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .sentInvoiceSettled,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handlePaidInvoiceNotification),
+            name: .sentInvoiceSettled,
+            object: nil
+        )
+    }
+    
+    override func viewDidDisappear() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .sentInvoiceSettled,
+            object: nil
+        )
     }
     
     func addLocalization() {
@@ -66,11 +100,25 @@ class DisplayInvoiceVC : NSViewController{
         codeImageLabel.title = "copy.invoice.image".localized
     }
     
+    @objc func handlePaidInvoiceNotification(n: Notification) {
+        if let receivedPaymentHash = n.userInfo?["paymentHash"] as? String,
+           let currentInvoicePaymentHash = currentInvoicePaymentHash,
+           currentInvoicePaymentHash == receivedPaymentHash
+        {
+            togglePaidContainer()
+        }
+    }
+    
+    func togglePaidContainer() {
+        AnimationHelper.animateViewWith(duration: 0.1, animationsBlock: {
+            self.paidLabelContainer.alphaValue = 1.0
+        }, completion: {})
+    }
+    
     @objc func copyInvoiceImage() {
         if let image = self.view.bitmapImage() {
             ClipboardHelper.addImageToClipboard(image: image)
         }
-        
     }
     
     @objc func copyInvoiceText() {
