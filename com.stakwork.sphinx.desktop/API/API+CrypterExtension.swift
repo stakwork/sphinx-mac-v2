@@ -87,6 +87,35 @@ extension API {
         }
     }
     
+    func fetchRoutingInfo(
+        callback: @escaping UpdateRoutingInfoCallback
+    ) {
+        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let url = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.routerUrl)/api/node"
+        let request : URLRequest? = createRequest(url, params: nil, method: "GET")
+        
+        guard let request = request else {
+            callback(nil)
+            return
+        }
+        
+        sphinxRequest(request) { response in
+            switch response.result {
+            case .success(let data):
+                if let data = data as? NSDictionary {
+                    let json = JSON(data)
+                    let resultString = json.rawString()
+                    callback(resultString)
+                }
+                else{
+                    callback(nil)
+                }
+            case .failure(_):
+                callback(nil)
+            }
+        }
+    }
+    
     func getServerConfig(
         callback: @escaping SuccessCallback
     ) {
@@ -110,7 +139,8 @@ extension API {
                         SphinxOnionManager.sharedInstance.saveConfigFrom(
                             lspHost: default_lsp,
                             tribeServerHost: tribe_host,
-                            defaultTribePubkey: tribe
+                            defaultTribePubkey: tribe,
+                            routerUrl: dictionary["router"] as? String
                         )
                         
                         callback(true)

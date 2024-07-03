@@ -34,7 +34,7 @@ class DashboardModalsViewController: NSViewController {
     }
     
     override func viewDidLoad() {
-        super.viewDidLoad()
+        super.viewDidLoad()        
     }
     
     private func hideAllModals() {

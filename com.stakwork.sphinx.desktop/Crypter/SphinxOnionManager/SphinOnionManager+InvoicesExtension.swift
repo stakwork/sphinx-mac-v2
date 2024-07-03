@@ -8,8 +8,23 @@
 
 import Foundation
 
-extension SphinxOnionManager{//invoices related
+extension SphinxOnionManager{
+    //Routing
+    func updateRoutingInfo() {
+        API.sharedInstance.fetchRoutingInfo(
+            callback: { result in
+                guard let result = result else {
+                    return
+                }
+                do {
+                    let rr = try addNode(node: result)
+                    let _ = self.handleRunReturn(rr: rr)
+                } catch {}
+            }
+        )
+    }
     
+    //invoices related
     func createInvoice(
         amountMsat: Int,
         description: String? = nil
