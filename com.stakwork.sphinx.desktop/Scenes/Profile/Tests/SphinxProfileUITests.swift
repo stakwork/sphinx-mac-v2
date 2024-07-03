@@ -67,8 +67,8 @@ final class SphinxUITests: XCTestCase {
         tipTextField.typeKey(.delete, modifierFlags:[])
         tipTextField.typeText(newTipAmount)
         
-        //MARK: Backup your key
-        profileWindow/*@START_MENU_TOKEN@*/.buttons["Backup your key"]/*[[".groups.buttons[\"Backup your key\"]",".buttons[\"Backup your key\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.click()
+        //MARK: Backup your seed phrase
+        profileWindow.buttons["Backup your seed phrase"].click()
         let xcuiBackupClosewindowButton = app.windows["Enter Restore PIN"].buttons[XCUIIdentifierCloseWindow]
         xcuiBackupClosewindowButton.click()
         
@@ -162,7 +162,7 @@ final class SphinxUITests: XCTestCase {
     }
     
     func testProfileViewBackupYourKeys() {
-        let backupButton = app.windows["Profile"]/*@START_MENU_TOKEN@*/.buttons["Backup your key"]/*[[".groups.buttons[\"Backup your key\"]",".buttons[\"Backup your key\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/
+        let backupButton = app.windows["Profile"].buttons["Backup your seed phrase"]
         backupButton.click()
         let secureField = app.windows["Enter Restore PIN"].windows["SecureFields"].secureTextFields["SecureFields"]
             secureField.click()

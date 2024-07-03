@@ -169,7 +169,7 @@
 "contact.support" = "出了点问题。\n\n请联系我们的支持团队\nsupport@stakwork.com";
 "paste.invite.text" = "粘贴邀请文本\n或扫描二维码";
 "paste.invitation.code" = "粘贴您的邀请码...";
-"paste.keys" = "粘贴您的密钥...";
+"paste.keys" = "粘贴你的种子短语...";
 "pin" = "PIN码";
 "enter.pin.upper" = "输入PIN码";
 "invalid.pin" = "无效的PIN码";
@@ -200,9 +200,9 @@
 "tor.connection.failed" = "Tor连接失败";
 "establishing.tor.circuit" = "建立Tor电路...";
 "wait.tor.request" = "请稍候。这个过程可能需要几分钟...";
-"restore.label" = "从您的\n移动应用复制您的密钥并粘贴在这里。";
+"restore.label" = "从您的移动应用程序复制您的种子短语并将其粘贴到这里。";
 "signup.label" = "将您的邀请码\n粘贴到Sphinx";
-"restore.label.bold" = "复制您的密钥";
+"restore.label.bold" = "复制您的种子短语";
 "signup.label.bold.1" = "粘贴";
 "signup.label.bold.2" = "邀请码";
 "get.started" = "开始";
@@ -214,9 +214,9 @@
 
 //PROFILE
 "address.copied.clipboard" = "地址已复制到剪贴板";
-"pin.keys.encryption" = "输入您的PIN码以加密您的密钥。当您在其他设备上恢复账户时，将需要它。";
-"export.keys" = "导出密钥";
-"keys.will.copy.clipboard" = "您的密钥将被复制到剪贴板。保存此字符串&在删除应用前记住您的PIN码，否则所有数据将丢失。";
+"pin.keys.encryption" = "输入你的 PIN 码以访问你的种子短语";
+"export.keys" = "导出种子短语";
+"keys.will.copy.clipboard" = "您的种子短语将被复制到剪贴板。请安全保存此字符串，否则所有数据将丢失。";
 "keys.copied.clipboard" = "导出的密钥已复制到剪贴板";
 "server.url.updated" = "服务器URL成功更新";
 "drag.image" = "拖动图片";
@@ -276,7 +276,7 @@
 "current.pin" = "旧PIN码";
 "new.pin" = "新PIN码";
 "confirm.new.pin" = "确认新PIN码";
-"pin.changed" = "您的PIN码已更新。请使用这个新PIN码重新导出您的密钥。";
+"pin.changed" = "您的 PIN 码已更新";
 "contact.pin.error" = "您不能使用您的主PIN码作为群组PIN码";
 "set.privacy.pin" = "设置隐私PIN码";
 "change.privacy.pin" = "更改隐私PIN码";

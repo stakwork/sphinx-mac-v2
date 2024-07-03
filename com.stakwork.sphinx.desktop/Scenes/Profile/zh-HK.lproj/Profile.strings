@@ -38,7 +38,7 @@
 "gvM-01-89w.title" = "地址";
 
 /* Class = "NSButtonCell"; title = "Backup your key"; ObjectID = "hwD-l5-buT"; */
-"hwD-l5-buT.title" = "備份你的密鑰";
+"hwD-l5-buT.title" = "備份您的助記詞";
 
 /* Class = "NSTextFieldCell"; title = "Route Hint"; ObjectID = "lhX-D8-z6l"; */
 "lhX-D8-z6l.title" = "路由提示";

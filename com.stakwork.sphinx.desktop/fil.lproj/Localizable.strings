@@ -168,7 +168,7 @@
 "contact.support"  = "Nagkaproblema. Mangyaring makipag-ugnayan sa aming suporta sa support@stakwork.com";
 "paste.invite.text" = "I-paste ang text ng imbitasyon\no i-scan ang QR code";
 "paste.invitation.code" = "I-paste ang iyong invitation code...";
-"paste.keys"  = "Idikit ang iyong mga susi...";
+"paste.keys"  = "Idikit ang iyong seed phrase...";
 "pin" = "PIN";
 "enter.pin.upper"  = "ENTER PIN";
 "invalid.pin"  = "Di-wastong PIN";
@@ -199,9 +199,9 @@
 "tor.connection.failed"  = "May pagkakamali  sa koneksyon ng Tor";
 "establishing.tor.circuit" = "Establishing Tor circuit...";
 "wait.tor.request"  = "Mangyaring maghintay. Maaaring tumagal ng ilang minuto ang prosesong ito...";
-"restore.label" = "Copy your keys from your\nmobile app and paste it here.";
+"restore.label" = "Kopyahin ang iyong seed na parirala mula sa\niyong mobile app at i-paste ito dito.";
 "signup.label" = "Paste your invitation code\ninto Sphinx";
-"restore.label.bold"  = "Kopyahin ang iyong mga susi";
+"restore.label.bold"  = "Kopyahin ang iyong seed";
 "signup.label.bold.1"  = "Idikit";
 "signup.label.bold.2" = "invitation code";
 "get.started"  = "Get Started";
@@ -214,9 +214,9 @@
 
 //PROFILE
 "address.copied.clipboard"  = "Nakopya ang address sa clipboard";
-"pin.keys.encryption"  = "Ilagay ang iyong PIN para i-encrypt ang iyong mga susi. Kakailanganin mo ito kapag ibinabalik ang account sa ibang aparato.";
-"export.keys"  = "Mga Susi sa Pag-export";
-"keys.will.copy.clipboard"  = "Kokopyahin ang iyong mga susi sa clipboard. I-save ang string na ito at tandaan ang iyong pin bago burahin ang app o mawawala ang lahat ng data.";
+"pin.keys.encryption"  = "Ilagay ang iyong PIN para ma-access ang iyong seed phrase";
+"export.keys"  = "I-export ang Parirala ng Binhi";
+"keys.will.copy.clipboard"  = "Ang iyong seed na parirala ay makokopya sa clipboard. I-save ang string na ito nang secure o mawawala ang lahat ng data.";
 "keys.copied.clipboard"  = "I-export ang mga key na kinopya sa clipboard";
 "server.url.updated"  = "Matagumpay na na-update ang URL ng server";
 "drag.image" = "I-Drag ang  Image";
@@ -276,7 +276,7 @@
 "current.pin" = "Lumang PIN";
 "new.pin" = "Bagong PIN";
 "confirm.new.pin" = "Kumpirmahin ang bagong PIN";
-"pin.changed"  = "Na-update na ang iyong PIN. Mangyaring muling i-export ang iyong mga susi gamit ang bagong PIN.";
+"pin.changed"  = "Na-update na ang iyong PIN";
 "contact.pin.error"  = "Hindi mo magagamit ang iyong pangunahing PIN bilang PIN ng grupo";
 "set.privacy.pin"  = "Itakda ang Privacy PIN";
 "change.privacy.pin"  = "Baguhin ang Privacy PIN";
