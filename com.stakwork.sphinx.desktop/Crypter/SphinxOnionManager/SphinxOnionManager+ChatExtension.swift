@@ -1183,6 +1183,7 @@ extension SphinxOnionManager {
         pubkey: String,
         isOwner: Bool = false
     ) {
+        
         ///Avoid updating it again since it was already updated from most recent messahe
         if restoredContactInfoTracker.contains(pubkey) && isV2Restore {
             return
@@ -1223,10 +1224,10 @@ extension SphinxOnionManager {
         
         if contactDidChange {
             contact.managedObjectContext?.saveContext()
-            
-            if isV2Restore {
-                restoredContactInfoTracker.append(pubkey)
-            }
+        }
+        
+        if isV2Restore {
+            restoredContactInfoTracker.append(pubkey)
         }
     }
     
