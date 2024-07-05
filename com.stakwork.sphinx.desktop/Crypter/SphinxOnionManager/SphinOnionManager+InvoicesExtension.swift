@@ -7,6 +7,7 @@
 
 
 import Foundation
+import SwiftyJSON
 
 extension SphinxOnionManager{
     //Routing
@@ -39,6 +40,11 @@ extension SphinxOnionManager{
                 amtMsat: amtMsat,
                 callback: { results in
                     if let results = results {
+                        if JSON(results).arrayValue.isEmpty == true {
+                            completion(true)
+                            return
+                        }
+                        
                         do {
                             let rr =  try Sphinx.concatRoute(
                                 state: self.loadOnionStateAsData(),
