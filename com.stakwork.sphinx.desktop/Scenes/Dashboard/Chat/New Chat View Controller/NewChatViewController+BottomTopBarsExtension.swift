@@ -209,7 +209,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
             
             if let attachmentObject = attachmentObject {
                 newChatViewModel.insertProvisionalAttachmentMessageAndUpload(
-                    attachmentObject: attachmentObject, chat: chat
+                    attachmentObject: attachmentObject, 
+                    chat: chat
                 )
             } else {
                 messageBubbleHelper.showGenericMessageView(
@@ -411,12 +412,17 @@ extension NewChatViewController : ChatBottomViewDelegate {
         chatCollectionView.scrollToBottom(animated: false)
     }
     
-    func getThreadUUID() -> String? {
-        return self.newChatViewModel.replyingTo?.uuid
-    }
-    
-    func getReplyUUID() -> String? {
-        return self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID
+    func isMessageLengthValid(
+        text: String
+    ) -> Bool {
+        let sendingAttachment = draggingView.isSendingMedia()
+        
+        return SphinxOnionManager.sharedInstance.isMessageLengthValid(
+            text: text,
+            sendingAttachment: sendingAttachment,
+            threadUUID: self.newChatViewModel.replyingTo?.uuid,
+            replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID
+        )
     }
 }
 

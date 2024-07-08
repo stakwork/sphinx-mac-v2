@@ -171,6 +171,8 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         if isAtBottom {
             shouldScrollToBottom()
         }
+        
+        setMessageFieldActive()
     }
     
     func shouldPayInvoiceFor(messageId: Int) {

@@ -120,10 +120,11 @@ extension SphinxOnionManager {
         content: String,
         type: UInt8,
         muid: String? = nil,
-        purchaseItemAmount:Int?=nil,
+        purchaseItemAmount:Int? = nil,
         recipPubkey: String? = nil,
         mediaKey: String? = nil,
         mediaType: String? = "file",
+        mediaToken: String? = nil,
         threadUUID: String?,
         replyUUID: String?,
         invoiceString: String?,
@@ -153,7 +154,7 @@ extension SphinxOnionManager {
                 ///create a media token corresponding to attachment (paid or unpaid)
                 mt = loadMediaToken(recipPubkey: recipPubkey, muid: muid, price: purchaseItemAmount)
             }
-            msg["mediaToken"] = mt
+            msg["mediaToken"] = mt ?? mediaToken
             
             if let _ = purchaseItemAmount {
                 ///Remove content if it's a paid text message
@@ -301,7 +302,7 @@ extension SphinxOnionManager {
             }
             
             if let sentMessageUUID = sentMessage?.uuid {
-                startSendTimeoutTimer(for: sentMessageUUID)
+                startSendTimeoutTimer(for: sentMessageUUID, msgType: msgType)
             }
             
             return sentMessage
@@ -311,7 +312,49 @@ extension SphinxOnionManager {
         }
     }
     
-    func startSendTimeoutTimer(for messageUUID: String) {
+    func isMessageLengthValid(
+        text: String,
+        sendingAttachment: Bool,
+        threadUUID: String?,
+        replyUUID: String?
+    ) -> Bool {
+        let contentBytes: Int = 18
+        let attachmentBytes: Int = 389
+        let replyBytes: Int = 84
+        let threadBytes: Int = 84
+        
+        var bytes = text.byteSize() + contentBytes
+        
+        if sendingAttachment {
+            bytes += attachmentBytes
+        }
+        
+        if replyUUID != nil {
+            bytes += replyBytes
+        }
+        
+        if threadUUID != nil {
+            bytes += threadBytes
+        }
+        
+        return bytes <= 869
+    }
+    
+    func startSendTimeoutTimer(
+        for messageUUID: String,
+        msgType: UInt8
+    ) {
+        let keySendTypes = [
+            UInt8(TransactionMessage.TransactionMessageType.payment.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.keysend.rawValue),
+        ]
+        
+        if keySendTypes.contains(msgType) {
+            return
+        }
+        
         sendTimeoutTimers[messageUUID]?.invalidate() // Invalidate any existing timer for this UUID
 
         let timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] timer in
@@ -1359,12 +1402,21 @@ extension SphinxOnionManager {
         completion: @escaping (TransactionMessage?) -> ()
     ) {
         guard let _ = params["reply_uuid"] as? String,
-              let contact = chat.getContact(),
               let _ = params["text"] as? String,
-              let pubkey = contact.publicKey,
-              let amount = params["amount"] as? Int else 
+              let pubkey = chat.getContact()?.publicKey ?? chat.ownerPubkey,
+              let amount = params["amount"] as? Int else
         {
             completion(nil)
+            return
+        }
+        
+        if chat.isPublicGroup(), let _ = chat.ownerPubkey {
+            ///If it's a tribe and I'm already in, then there's a route
+            let message = self.finalizeSendBoostReply(
+                params: params,
+                chat: chat
+            )
+            completion(message)
             return
         }
         
@@ -1394,14 +1446,14 @@ extension SphinxOnionManager {
     ) -> TransactionMessage? {
         
         guard let replyUUID = params["reply_uuid"] as? String,
-            let contact = chat.getContact(),
             let text = params["text"] as? String,
-            let amount = params["amount"] as? Int else{
+            let amount = params["amount"] as? Int else
+        {
             return nil
         }
         
         if let sentMessage = self.sendMessage(
-            to: contact,
+            to: chat.getContact(),
             content: text,
             chat: chat,
             provisionalMessage: nil,
