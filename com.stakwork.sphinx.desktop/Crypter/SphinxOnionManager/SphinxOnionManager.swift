@@ -666,5 +666,103 @@ extension SphinxOnionManager {//Sign Up UI Related:
             }
         )
     }
+    
+    func processPeopleAuthChallenge(
+        urlString: String,
+        completion: @escaping ((String, String, String, [String: AnyObject])?) -> ()
+    ) {
+        guard let seed = getAccountSeed(),
+              let owner = UserContact.getOwner(),
+              let pubkey = owner.publicKey,
+              let routeHint = owner.routeHint,
+              let alias = owner.nickname else {
+            completion(nil)
+            return
+        }
+
+        let photoUrl = owner.avatarUrl ?? ""
+
+        func requestNewChallenge(host: String, completion: @escaping (String?) -> ()) {
+            API.sharedInstance.askAuthentication(host: host, callback: { _, challenge in
+                completion(challenge)
+            })
+        }
+
+        func authorizeWithChallenge(host: String, challenge: String, completion: @escaping (Bool, String, [String: AnyObject]?) -> ()) {
+            do {
+                let idx: UInt64 = 0
+                let token = try signedTimestamp(seed: seed, idx: idx, time: self.getTimeWithEntropy(), network: self.network)
+                let sig = try signBase64(seed: seed, idx: idx, time: self.getTimeWithEntropy(), network: self.network, msg: challenge)
+
+                let params: [String: AnyObject] = [
+                    "pubkey": pubkey as AnyObject,
+                    "alias": alias as AnyObject,
+                    "photo_url": photoUrl as AnyObject,
+                    "route_hint": routeHint as AnyObject,
+                    "price_to_meet": 1 as AnyObject,
+                    "verification_signature": sig as AnyObject
+                ]
+
+                API.sharedInstance.authorizeExternal(host: host, challenge: challenge, token: token, params: params, callback: { success in
+                    completion(success, token, params)
+                })
+            } catch {
+                completion(false, "", nil)
+            }
+        }
+
+        if var components = URLComponents(string: urlString) {
+            var queryParams: [String: String] = [:]
+
+            components.queryItems?.forEach { queryItem in
+                queryParams[queryItem.name] = queryItem.value
+            }
+
+            if let host = queryParams["host"] {
+                if let challenge = queryParams["challenge"] {
+                    // Attempt authorization with existing challenge
+                    authorizeWithChallenge(host: host, challenge: challenge) { success, token, params in
+                        if success {
+                            completion((host, challenge, token, params!))
+                        } else {
+                            // If authorization fails, request a new challenge and try again
+                            requestNewChallenge(host: host) { newChallenge in
+                                guard let newChallenge = newChallenge else {
+                                    completion(nil)
+                                    return
+                                }
+                                authorizeWithChallenge(host: host, challenge: newChallenge) { newSuccess, newToken, newParams in
+                                    if newSuccess {
+                                        completion((host, newChallenge, newToken, newParams!))
+                                    } else {
+                                        completion(nil)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // If no challenge present, request a new one
+                    requestNewChallenge(host: host) { newChallenge in
+                        guard let newChallenge = newChallenge else {
+                            completion(nil)
+                            return
+                        }
+                        authorizeWithChallenge(host: host, challenge: newChallenge) { success, token, params in
+                            if success {
+                                completion((host, newChallenge, token, params!))
+                            } else {
+                                completion(nil)
+                            }
+                        }
+                    }
+                }
+            } else {
+                completion(nil)
+            }
+        } else {
+            completion(nil)
+        }
+    }
 }
 

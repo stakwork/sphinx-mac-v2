@@ -30,6 +30,30 @@ struct ImageTemplate {
 }
 
 extension API {
+    public func askAuthentication(host:String,callback: @escaping askAuthenticationCallback) {
+        let url = "https://\(host)/ask"
+                
+        guard let request = createRequest(url, params: nil, method: "GET") else {
+            callback(nil, nil)
+            return
+        }
+        
+        AF.request(request).responseJSON { (response) in
+            switch response.result {
+            case .success(let data):
+                if let json = data as? NSDictionary {
+                    if let ts = json["ts"] as? String, let challenge = json["challenge"] as? String {
+                        callback(ts, challenge)
+                    } else {
+                        callback(nil, nil)
+                    }
+                }
+            case .failure(_):
+                callback(nil, nil)
+            }
+        }
+    }
+    
     public func askAuthentication(
         callback: @escaping askAuthenticationCallback
     ) {
