@@ -28,6 +28,7 @@ extension SphinxOnionManager {
             print("V2 Received topic: \(topic)")
         }
         
+        ///If re-processing delayed RR Object then all inside this IF has been run already. Then skip
         if !skipSettleTopic && !skipAsyncTopic {
             ///Update state mape
             updateStateMap(stateMap: rr.stateMp)
