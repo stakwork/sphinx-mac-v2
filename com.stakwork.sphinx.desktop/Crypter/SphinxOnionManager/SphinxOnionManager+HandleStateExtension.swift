@@ -28,103 +28,112 @@ extension SphinxOnionManager {
             print("V2 Received topic: \(topic)")
         }
         
-        ///Update state mape
-        updateStateMap(stateMap: rr.stateMp)
-        
-        ///Handling new tribe crated
-        handleTribeCreation(newTribe: rr.newTribe)
-        
-        ///Handling owner contact
-        handleOwnerContact(myContactInfo: rr.myContactInfo)
-        
-        ///Handling balance update
-        handleBalanceUpdate(newBalance: rr.newBalance)
-        
-        ///Handling messages totals
-        handleMessagesCount(msgsCounts: rr.msgsCounts)
-        
-        ///Handling tribes restore before messages restore
-        restoreTribesFrom(
-            rr: rr,
-            topic: topic
-        ) { rr, topic in
+        if !skipSettleTopic && !skipAsyncTopic {
+            ///Update state mape
+            updateStateMap(stateMap: rr.stateMp)
             
-            ///handling contacts restore
-            self.restoreContactsFrom(messages: rr.msgs)
+            ///Handling new tribe crated
+            handleTribeCreation(newTribe: rr.newTribe)
             
-            ///Handling key exchange msgs restore
-            self.processKeyExchangeMessages(rr: rr)
+            ///Handling owner contact
+            handleOwnerContact(myContactInfo: rr.myContactInfo)
             
-            ///Handling invoice paid
-            self.processInvoicePaid(rr: rr)
+            ///Handling balance update
+            handleBalanceUpdate(newBalance: rr.newBalance)
             
-            ///Handling generic msgs restore
-            self.processGenericMessages(rr: rr)
+            ///Handling messages totals
+            handleMessagesCount(msgsCounts: rr.msgsCounts)
             
-            ///Handling messages statused
-            self.handleMessagesStatus(tags: rr.tags)
+            ///Handling tribes restore before messages restore
+            restoreTribesFrom(
+                rr: rr,
+                topic: topic
+            ) { rr, topic in
+                
+                ///handling contacts restore
+                self.restoreContactsFrom(messages: rr.msgs)
+                
+                ///Handling key exchange msgs restore
+                self.processKeyExchangeMessages(rr: rr)
+                
+                ///Handling invoice paid
+                self.processInvoicePaid(rr: rr)
+                
+                ///Handling generic msgs restore
+                self.processGenericMessages(rr: rr)
+                
+                ///Handling messages statused
+                self.handleMessagesStatus(tags: rr.tags)
+                
+                ///Handling incoming tags
+                self.handleMessageStatusByTag(rr: rr)
+                
+                ///Handling read status
+                self.handleReadStatus(rr: rr)
+                
+                ///Handling restore callbacks
+                self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
+            }
             
-            ///Handling incoming tags
-            self.handleMessageStatusByTag(rr: rr)
+            ///Handling settle status
+            handleSettledStatus(settledStatus: rr.settledStatus)
             
-            ///Handling read status
-            self.handleReadStatus(rr: rr)
-            
-            ///Handling restore callbacks
-            self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
-        }
-        
-        ///Handling settle status
-        handleSettledStatus(settledStatus: rr.settledStatus)
-        
-        ///Handling async tag
-        handleAsyncTag(asyncTag: rr.asyncpayTag)
+            ///Handling async tag
+            handleAsyncTag(asyncTag: rr.asyncpayTag)
 
-        ///Handling mute levels
-        handleMuteLevels(rr: rr)
-        
-        ///Handling invoice paid status
-        handleInvoiceSentStatus(sentStatus: rr.sentStatus)
-        
-        ///Handling error
-        handleError(error: rr.error)
-        
-        ///Handling new invites
-        handleNewInvite(newInvite: rr.newInvite, messages: rr.msgs)
-        
-        ///Handling tribe members
-        handleTribeMembers(tribeMembers: rr.tribeMembers)
-        
-        ///Handling state to delete
-        handleStateToDelete(stateToDelete: rr.stateToDelete)
-        
-        ///Handling Payment History
-        handlePaymentsHistory(payments: rr.payments)
-        
-        ///Handling topics subscription
-        handleTopicsToSubscribe(topics: rr.subscriptionTopics)
-        
+            ///Handling mute levels
+            handleMuteLevels(rr: rr)
+            
+            ///Handling invoice paid status
+            handleInvoiceSentStatus(sentStatus: rr.sentStatus)
+            
+            ///Handling error
+            handleError(error: rr.error)
+            
+            ///Handling new invites
+            handleNewInvite(newInvite: rr.newInvite, messages: rr.msgs)
+            
+            ///Handling tribe members
+            handleTribeMembers(tribeMembers: rr.tribeMembers)
+            
+            ///Handling state to delete
+            handleStateToDelete(stateToDelete: rr.stateToDelete)
+            
+            ///Handling Payment History
+            handlePaymentsHistory(payments: rr.payments)
+            
+            ///Handling topics subscription
+            handleTopicsToSubscribe(topics: rr.subscriptionTopics)
+        }
+            
         //Publishing to topics
-        
-        ///Handling settle topicsto publish
+        ///Handling settle topics to publish
         if !skipSettleTopic && handleTopicToPush(
             topic: rr.settleTopic,
             payload: rr.settlePayload
         ) {
-            delayedRRObjects.append(rr)
+            let lastKey = delayedRRObjects.keys.max() ?? 0
+            delayedRRObjects[lastKey + 1] = rr
+            
+            startDelayedRRTimeoutTimer(for: lastKey + 1)
             return nil
         }
         
+        ///Handling register topics to publish
         handleRegisterTopic(
             rr: rr,
             skipAsyncTopic: skipAsyncTopic
         ) { rr, skipAsyncTopic in
-            ///Handling async pay topic to publish
+            
+            ///Handling async pay topics to publish
             if !skipAsyncTopic && self.handleTopicToPush(
                 topic: rr.asyncpayTopic,
                 payload: rr.asyncpayPayload
             ) {
-                self.delayedRRObjects.append(rr)
+                let lastKey = self.delayedRRObjects.keys.min() ?? 0
+                self.delayedRRObjects[lastKey - 1] = rr
+                
+                self.startDelayedRRTimeoutTimer(for: lastKey - 1)
                 return
             }
             
@@ -257,16 +266,15 @@ extension SphinxOnionManager {
                 do {
                     if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
                         if let htlcId = dictionary["htlc_id"] as? String, let settleStatus = dictionary["status"] as? String, settleStatus == SphinxOnionManager.kCompleteStatus {
+                            
                             if let RRObject = delayedRRObjects.filter({
-                                return $0.msgs.filter({ $0.index == htlcId }).first != nil
+                                return $0.value.msgs.filter({ $0.index == htlcId }).first != nil
                             }).first {
                                 
-                                delayedRRObjects = delayedRRObjects.filter({
-                                    return $0.msgs.filter({ $0.index == htlcId }).isEmpty
-                                })
+                                delayedRRObjects.removeValue(forKey: RRObject.key)
                                 
                                 let _ = handleRunReturn(
-                                    rr: RRObject,
+                                    rr: RRObject.value,
                                     skipSettleTopic: true
                                 )
                             }
@@ -282,19 +290,47 @@ extension SphinxOnionManager {
     func handleAsyncTag(asyncTag: String?) {
         if let asyncTag = asyncTag {
             if let RRObject = delayedRRObjects.filter({
-                return $0.msgs.filter({ $0.tag == asyncTag }).first != nil
+                return $0.value.msgs.filter({ $0.tag == asyncTag }).first != nil
             }).first {
                 
-                delayedRRObjects = delayedRRObjects.filter({
-                    return $0.msgs.filter({ $0.tag == asyncTag }).isEmpty
-                })
+                delayedRRObjects.removeValue(forKey: RRObject.key)
                 
                 let _ = handleRunReturn(
-                    rr: RRObject,
+                    rr: RRObject.value,
                     skipSettleTopic: true,
                     skipAsyncTopic: true
                 )
             }
+        }
+    }
+    
+    func startDelayedRRTimeoutTimer(
+        for key: Int
+    ) {
+        delayedRRTimers[key]?.invalidate()
+
+        let timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] timer in
+            self?.handleDelayedRRTimeout(for: key)
+        }
+        
+        delayedRRTimers[key] = timer
+    }
+
+    func handleDelayedRRTimeout(
+        for key: Int
+    ) {
+        guard let object = delayedRRObjects[key] else {
+            return
+        }
+        
+        delayedRRObjects.removeValue(forKey: key)
+        
+        if key < 0 {
+            let _ = handleRunReturn(
+                rr: object,
+                skipSettleTopic: true,
+                skipAsyncTopic: true
+            )
         }
     }
     

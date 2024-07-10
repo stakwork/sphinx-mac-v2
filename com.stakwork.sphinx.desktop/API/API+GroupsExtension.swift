@@ -19,7 +19,8 @@ extension API {
         errorCallback: @escaping EmptyCallback
     ) {
         let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
-        let url = API.getUrl(route: "\(hostProtocol)://\(host)/tribes/\(uuid)")
+        let finalHost = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? host : SphinxOnionManager.sharedInstance.kTestV2TribesServer
+        let url = API.getUrl(route: "\(hostProtocol)://\(finalHost)/tribes/\(uuid)")
         let tribeRequest : URLRequest? = createRequest(url, params: nil, method: "GET")
         
         guard let request = tribeRequest else {
