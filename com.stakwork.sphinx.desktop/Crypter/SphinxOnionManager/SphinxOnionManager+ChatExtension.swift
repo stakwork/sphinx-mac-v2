@@ -344,14 +344,15 @@ extension SphinxOnionManager {
         for messageUUID: String,
         msgType: UInt8
     ) {
-        let keySendTypes = [
+        let excludedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.payment.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.keysend.rawValue),
+            UInt8(TransactionMessage.TransactionMessageType.delete.rawValue),
         ]
         
-        if keySendTypes.contains(msgType) {
+        if excludedTypes.contains(msgType) {
             return
         }
         
