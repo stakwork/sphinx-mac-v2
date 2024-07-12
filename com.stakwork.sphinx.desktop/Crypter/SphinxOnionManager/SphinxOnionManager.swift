@@ -66,7 +66,10 @@ class SphinxOnionManager : NSObject {
     var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
     
-    var delayedRRObjects: [RunReturn] = []
+    var delayedRRObjects: [Int: RunReturn] = [:]
+    var delayedRRTimers: [Int: Timer] = [:]
+    var pingsMap: [String: String] = [:]
+    var readyForPing = false
     
     var isConnected : Bool = false {
         didSet{
@@ -154,10 +157,10 @@ class SphinxOnionManager : NSObject {
         }
     }
     
-    let kTestServerIP = "34.229.52.200"
+    let kTestServerIP = "75.101.247.127"
     let kTestServerPort: UInt16 = 1883
     let kProdServerPort: UInt16 = 8883
-    let kTestV2TribesServer = "34.229.52.200:8801"
+    let kTestV2TribesServer = "75.101.247.127:8801"
     let kTestDefaultTribe = "0213ddd7df0077abe11d6ec9753679eeef9f444447b70f2980e44445b3f7959ad1"
     let kTestRouterUrl = "mixer.router1.sphinx.chat"
     
@@ -566,6 +569,7 @@ class SphinxOnionManager : NSObject {
             //subscribe to relevant topics
             mqtt.didConnectAck = { _, _ in
                 self.isConnected = true
+                
                 self.subscribeAndPublishMyTopics(
                     pubkey: pubkey,
                     idx: idx,
@@ -580,6 +584,10 @@ class SphinxOnionManager : NSObject {
         guard let seed = getAccountSeed() else{
             return
         }
+        if !readyForPing && message.topic.contains("ping") {
+            return
+        }
+        
         do {
             let owner = UserContact.getOwner()
             let alias = owner?.nickname ?? ""
@@ -600,7 +608,7 @@ class SphinxOnionManager : NSObject {
                 topic: message.topic
             )
         } catch let error {
-            print(error)
+            print("Handle error \(error)")
         }
     }
     
