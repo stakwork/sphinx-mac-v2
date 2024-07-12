@@ -109,7 +109,11 @@ RustBuffer uniffi_sphinxrs_fn_func_peel_payment_msg(RustBuffer seed, uint64_t id
 );
 RustBuffer uniffi_sphinxrs_fn_func_sign_ms(RustBuffer seed, uint64_t idx, RustBuffer time, RustBuffer network, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_sphinxrs_fn_func_signed_timestamp(RustBuffer seed, uint64_t idx, RustBuffer time, RustBuffer network, RustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_sphinxrs_fn_func_sign_bytes(RustBuffer seed, uint64_t idx, RustBuffer time, RustBuffer network, RustBuffer msg, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_sphinxrs_fn_func_sign_base64(RustBuffer seed, uint64_t idx, RustBuffer time, RustBuffer network, RustBuffer msg, RustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_sphinxrs_fn_func_pubkey_from_seed(RustBuffer seed, uint64_t idx, RustBuffer time, RustBuffer network, RustCallStatus *_Nonnull out_status
 );
@@ -211,6 +215,10 @@ RustBuffer uniffi_sphinxrs_fn_func_add_node(RustBuffer node, RustCallStatus *_No
 );
 RustBuffer uniffi_sphinxrs_fn_func_concat_route(RustBuffer state, RustBuffer end_hops, RustBuffer router_pubkey, uint64_t amt_msat, RustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_sphinxrs_fn_func_ping_done(RustBuffer seed, RustBuffer unique_time, RustBuffer state, uint64_t ping_ts, RustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_sphinxrs_fn_func_fetch_pings(RustBuffer seed, RustBuffer unique_time, RustBuffer state, RustCallStatus *_Nonnull out_status
+);
 RustBuffer ffi_sphinxrs_rustbuffer_alloc(int32_t size, RustCallStatus *_Nonnull out_status
 );
 RustBuffer ffi_sphinxrs_rustbuffer_from_bytes(ForeignBytes bytes, RustCallStatus *_Nonnull out_status
@@ -288,7 +296,13 @@ uint16_t uniffi_sphinxrs_checksum_func_peel_payment_msg(void
 uint16_t uniffi_sphinxrs_checksum_func_sign_ms(void
     
 );
+uint16_t uniffi_sphinxrs_checksum_func_signed_timestamp(void
+    
+);
 uint16_t uniffi_sphinxrs_checksum_func_sign_bytes(void
+    
+);
+uint16_t uniffi_sphinxrs_checksum_func_sign_base64(void
     
 );
 uint16_t uniffi_sphinxrs_checksum_func_pubkey_from_seed(void
@@ -439,6 +453,12 @@ uint16_t uniffi_sphinxrs_checksum_func_add_node(void
     
 );
 uint16_t uniffi_sphinxrs_checksum_func_concat_route(void
+    
+);
+uint16_t uniffi_sphinxrs_checksum_func_ping_done(void
+    
+);
+uint16_t uniffi_sphinxrs_checksum_func_fetch_pings(void
     
 );
 uint32_t ffi_sphinxrs_uniffi_contract_version(void

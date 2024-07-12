@@ -68,6 +68,8 @@ class SphinxOnionManager : NSObject {
     
     var delayedRRObjects: [Int: RunReturn] = [:]
     var delayedRRTimers: [Int: Timer] = [:]
+    var pingsMap: [String: String] = [:]
+    var readyForPing = false
     
     var isConnected : Bool = false {
         didSet{
@@ -567,6 +569,7 @@ class SphinxOnionManager : NSObject {
             //subscribe to relevant topics
             mqtt.didConnectAck = { _, _ in
                 self.isConnected = true
+                
                 self.subscribeAndPublishMyTopics(
                     pubkey: pubkey,
                     idx: idx,
@@ -581,6 +584,10 @@ class SphinxOnionManager : NSObject {
         guard let seed = getAccountSeed() else{
             return
         }
+        if !readyForPing && message.topic.contains("ping") {
+            return
+        }
+        
         do {
             let owner = UserContact.getOwner()
             let alias = owner?.nickname ?? ""
@@ -601,7 +608,7 @@ class SphinxOnionManager : NSObject {
                 topic: message.topic
             )
         } catch let error {
-            print(error)
+            print("Handle error \(error)")
         }
     }
     

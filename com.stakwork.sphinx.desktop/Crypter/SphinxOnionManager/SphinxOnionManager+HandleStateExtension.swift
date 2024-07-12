@@ -72,6 +72,12 @@ extension SphinxOnionManager {
                 ///Handling read status
                 self.handleReadStatus(rr: rr)
                 
+                ///Handling ping done
+                self.handlePingDone(
+                    msgs: rr.msgs,
+                    settleTopic: rr.settleTopic
+                )
+                
                 ///Handling restore callbacks
                 self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
             }
@@ -81,6 +87,9 @@ extension SphinxOnionManager {
             
             ///Handling async tag
             handleAsyncTag(asyncTag: rr.asyncpayTag)
+            
+            ///Handling pings
+            handlePing(ping: rr.ping)
 
             ///Handling mute levels
             handleMuteLevels(rr: rr)
@@ -305,6 +314,39 @@ extension SphinxOnionManager {
         }
     }
     
+    func handlePing(ping: String?) {
+        if let ping = ping {
+            if let (paymentHash, timestamp) = ping.pingComponents {
+                pingsMap[paymentHash] = timestamp
+            }
+        }
+    }
+    
+    func handlePingDone(
+        msgs: [Msg],
+        settleTopic: String?
+    ) {
+        guard let seed = getAccountSeed() else {
+            return
+        }
+        
+        for paymentHash in msgs.filter({ $0.paymentHash != nil && $0.paymentHash?.isEmpty == false }).compactMap({ $0.paymentHash! }) {
+            if let timestamp = pingsMap[paymentHash], let intTimestamp = UInt64(timestamp) {
+                do {
+                    let rr = try Sphinx.pingDone(
+                        seed: seed,
+                        uniqueTime: getTimeWithEntropy(),
+                        state: loadOnionStateAsData(),
+                        pingTs: intTimestamp
+                    )
+                    let _ = handleRunReturn(rr: rr)
+                } catch {
+                    print("Error calling ping done")
+                }
+            }
+        }
+    }
+    
     func startDelayedRRTimeoutTimer(
         for key: Int
     ) {
@@ -430,7 +472,6 @@ extension SphinxOnionManager {
         payload: Data?
     ) -> Bool {
         if let topic = topic, let payload = payload {
-            
             let byteArray: [UInt8] = [UInt8](payload)
             
             self.mqtt?.publish(
@@ -450,7 +491,6 @@ extension SphinxOnionManager {
         callback: @escaping (RunReturn, Bool) -> ()
     ) {
         if let topic = rr.registerTopic, let payload = rr.registerPayload {
-            
             let byteArray: [UInt8] = [UInt8](payload)
             
             self.mqtt?.publish(
