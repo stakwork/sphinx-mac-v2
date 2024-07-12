@@ -40,7 +40,12 @@ extension SphinxOnionManager{
                 amtMsat: amtMsat,
                 callback: { results in
                     if let results = results {
-                        if JSON(results).arrayValue.isEmpty == true {
+                        var resultsArray = []
+                        do {
+                            resultsArray = try results.toArray()
+                        } catch {}
+                            
+                        if resultsArray.isEmpty {
                             completion(true)
                             return
                         }
