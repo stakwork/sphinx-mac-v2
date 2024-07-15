@@ -31,40 +31,16 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             in: affectedCharRange,
             with: replacementString ?? ""
         )
-        
-        let effectiveThreadUUID = delegate?.getThreadUUID()
-        let effectiveReplyUUID = delegate?.getReplyUUID()
-        
-        return isMessageWithinByteLimit(
-            message: currentChangedString,
-            replyUUID: effectiveReplyUUID,
-            threadUUID: effectiveThreadUUID
-        )
-    }
-    
-    func isMessageWithinByteLimit(
-        message: String,
-        replyUUID: String? = nil,
-        threadUUID: String? = nil,
-        byteLimit: Int = 869
-    ) -> Bool {
-        var totalMessage = message
-        
-        if let replyUUID = replyUUID {
-            totalMessage += replyUUID + "--------" //add padding to account for additional payload introduced by replyUUID
-        }
-        
-        if let threadUUID = threadUUID {
-            totalMessage += threadUUID + "-----------" //add padding to account for additional payload introduced by threadUUID
-        }
-        
-        return totalMessage.byteSize() <= byteLimit
+                
+        return delegate?.isMessageLengthValid(text: currentChangedString) ?? true
     }
     
     func shouldSendMessage() {
         if sendButton.isEnabled {
+            let text = messageTextView.string.trim()
+            
             delegate?.shouldSendMessage(
-                text: messageTextView.string.trim(),
+                text: text,
                 price: Int(priceTextField.stringValue) ?? 0,
                 completion: { success in
                     if !success {
@@ -72,6 +48,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                             title: "generic.error.title".localized,
                             message: "generic.message.error".localized
                         )
+                        self.messageTextView.string = text
                     }
                 }
             )

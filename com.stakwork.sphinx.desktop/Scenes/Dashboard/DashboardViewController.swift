@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import UserNotifications
 
 class DashboardViewController: NSViewController {
     
@@ -109,6 +110,7 @@ class DashboardViewController: NSViewController {
         addDetailVCPresenter()
         
         connectToServer()
+        askForNotificationsPermission()
     }
     
     func setupObservers(){
@@ -119,6 +121,12 @@ class DashboardViewController: NSViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(didConnectToInternet), name: .connectedToInternet, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didDisconnectFromInternet), name: .disconnectedFromInternet, object: nil)
+    }
+    
+    func askForNotificationsPermission() {
+        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+            appDelegate.askForNotificationsPermission()
+        }
     }
     
     func connectToServer() {

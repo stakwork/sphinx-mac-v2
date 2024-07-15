@@ -826,6 +826,19 @@ extension String {
         let length = self.lengthOfBytes(using: .utf8) + 360//add offset
         return length
     }
+    
+    var pingComponents: (String, String)? {
+        get {
+            let components = self.components(separatedBy: ":")
+            if components.count > 1 {
+                let paymentHash = components[0]
+                let timestamp = components[1]
+                
+                return (paymentHash, timestamp)
+            }
+            return nil
+        }
+    }
 }
 
 extension Character {
