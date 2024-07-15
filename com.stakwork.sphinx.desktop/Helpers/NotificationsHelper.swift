@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 class NotificationsHelper : NSObject {
     
@@ -30,6 +31,8 @@ class NotificationsHelper : NSObject {
     }
     
     var sounds = [Sound]()
+    
+    let cache = SphinxCache()
     
     override init() {
         super.init()
@@ -149,31 +152,62 @@ class NotificationsHelper : NSObject {
                UserDefaults.Keys.notificationType.get(defaultValue: 0) == NotificationType.BannerAndSound.rawValue
     }
     
+    func askForNotificationsPermission() {
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) {
+            (_, _) in
+        }
+        
+        setMessageNotificationCategory()
+    }
+    
+    func setMessageNotificationCategory() {
+        let replyAction = UNTextInputNotificationAction(
+            identifier: "REPLY_ACTION",
+            title: "Reply",
+            options: [],
+            textInputButtonTitle: "Send",
+            textInputPlaceholder: "message.placeholder".localized
+        )
+        
+        let category = UNNotificationCategory(
+            identifier: "MESSAGE_CATEGORY",
+            actions: [replyAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+    }
+    
     func createNotificationFrom(
         title: String,
         subtitle: String? = nil,
         text: String
-    ) -> NSUserNotification? {
-        let notification = NSUserNotification()
-        
+    ) -> UNMutableNotificationContent? {
+        let notification = UNMutableNotificationContent()
         notification.title = title
-        
         if let subtitle = subtitle {
             notification.subtitle = subtitle
         }
-        
-        notification.informativeText = text
+        notification.body = text
+        notification.sound = UNNotificationSound.default
         
         return notification
     }
     
-    func createNotificationFrom(_ message: TransactionMessage) -> NSUserNotification? {
+    func createNotificationFrom(
+        _ message: TransactionMessage
+    ) -> UNMutableNotificationContent? {
+        
+        setMessageNotificationCategory()
+        
         guard let owner = UserContact.getOwner() else {
             return nil
         }
         
         if shouldShowBanner() {
-            let notification = NSUserNotification()
+            let notification = UNMutableNotificationContent()
             
             let chatName = message.chat?.name ?? ""
             let chatId = message.chat?.id ?? -1
@@ -192,21 +226,38 @@ class NotificationsHelper : NSObject {
             )
             
             if message.chat?.isPublicGroup() ?? false {
-                notification.title = message.chat?.getName() ?? ""
+                notification.title = chatName
                 notification.subtitle = senderNickName
             } else {
                 notification.title = senderNickName
             }
             
-            notification.informativeText = messageDescription
+            notification.body = messageDescription
             notification.userInfo = ["chat-id" : chatId]
-            notification.hasReplyButton = true
-            notification.responsePlaceholder = "message.placeholder".localized
+//            notification.categoryIdentifier = "MESSAGE_CATEGORY"
 
-            if let sender = sender, let cachedImage = sender.getCachedImage() {
-                notification.contentImage = cachedImage
-            } else if let chat = message.chat, let cachedImage = chat.getCachedImage() {
-                notification.contentImage = cachedImage
+            if let sender = sender, let cachedImage = sender.getCachedImage(), let url = saveImageToDisk(image: cachedImage, name: "notificationImage") {
+                do {
+                    let attachment = try UNNotificationAttachment(
+                        identifier: "image",
+                        url: url,
+                        options: [UNNotificationAttachmentOptionsTypeHintKey: kUTTypePNG as String]
+                    )
+                    notification.attachments = [attachment]
+                } catch let error {
+                    print("The attachment was not loaded.")
+                }
+            } else if let chat = message.chat, let cachedImage = chat.getCachedImage(), let url = saveImageToDisk(image: cachedImage, name: "notificationImage") {
+                do {
+                    let attachment = try UNNotificationAttachment(
+                        identifier: "image",
+                        url: url,
+                        options: [UNNotificationAttachmentOptionsTypeHintKey: kUTTypePNG as String]
+                    )
+                    notification.attachments = [attachment]
+                } catch {
+                    print("The attachment was not loaded.")
+                }
             }
             
             return notification
@@ -214,26 +265,66 @@ class NotificationsHelper : NSObject {
         return nil
     }
     
-    func sendNotification(_ notification: NSUserNotification) {
-        NSUserNotificationCenter.default.delegate = self
-        NSUserNotificationCenter.default.deliver(notification)
+    func saveImageToDisk(image: NSImage, name: String) -> URL? {
+        guard let resizedImage = resizeImage(image: image, maxSize: CGSize(width: 512, height: 512)),
+                  let tiffData = resizedImage.tiffRepresentation,
+                  let bitmap = NSBitmapImageRep(data: tiffData),
+                  let pngData = bitmap.representation(using: .png, properties: [:]) else { return nil }
+        
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).png")
+        do {
+            try pngData.write(to: fileURL)
+            print("Image saved to \(fileURL)")
+            return fileURL
+        } catch {
+            print("Failed to write image data to disk: \(error)")
+            return nil
+        }
+    }
+    
+    func resizeImage(image: NSImage, maxSize: CGSize) -> NSImage? {
+        let aspectRatio = image.size.width / image.size.height
+        var newSize = maxSize
+        
+        if aspectRatio > 1 {
+            newSize.height = maxSize.width / aspectRatio
+        } else {
+            newSize.width = maxSize.height * aspectRatio
+        }
+        
+        let newImage = NSImage(size: newSize)
+        newImage.lockFocus()
+        image.draw(in: NSRect(origin: .zero, size: newSize), from: NSRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
+        newImage.unlockFocus()
+        return newImage
+    }
+    
+    func sendNotification(_ notification: UNMutableNotificationContent) {
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error adding notification: \(error)")
+            }
+        }
     }
 }
 
-extension NotificationsHelper : NSUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-        if let chatId = notification.userInfo?["chat-id"] as? Int, chatId >= 0 {
-            switch (notification.activationType) {
-            case .contentsClicked:
-                NotificationCenter.default.post(name: .chatNotificationClicked, object: nil, userInfo: notification.userInfo)
-                break
-            case .replied:
-                guard let message = notification.response?.string, message.length > 0 else { return }
-                let userInfo: [String: Any] = ["chat-id" : chatId, "message" : message.trunc(length: 500)]
+extension NotificationsHelper : UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        let notification = response.notification.request.content
+        
+        if let chatId = notification.userInfo["chat-id"] as? Int {
+            if response.actionIdentifier == "REPLY_ACTION" {
+                if let textResponse = response as? UNTextInputNotificationResponse {
+                    let replyText = textResponse.userText
+                    let userInfo: [String: Any] = ["chat-id" : chatId, "message" : replyText.trunc(length: 500)]
+                    NotificationCenter.default.post(name: .chatNotificationClicked, object: nil, userInfo: userInfo)
+                }
+            } else {
+                let userInfo: [String: Any] = ["chat-id" : chatId]
                 NotificationCenter.default.post(name: .chatNotificationClicked, object: nil, userInfo: userInfo)
-                break
-            default:
-                break
             }
         }
     }

@@ -447,6 +447,10 @@ import WebKit
             NotificationCenter.default.post(name: .shouldReloadViews, object: nil)
         }
     }
+     
+     func askForNotificationsPermission() {
+         notificationsHelper.askForNotificationsPermission()
+     }
 }
 
 //extension AppDelegate : SphinxOnionConnectorDelegate {
