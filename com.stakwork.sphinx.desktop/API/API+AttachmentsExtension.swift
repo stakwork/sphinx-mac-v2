@@ -30,7 +30,10 @@ struct ImageTemplate {
 }
 
 extension API {
-    public func askAuthentication(host:String,callback: @escaping askAuthenticationCallback) {
+    public func askAuthentication(
+        host: String,
+        callback: @escaping askAuthenticationCallback
+    ) {
         let url = "https://\(host)/ask"
                 
         guard let request = createRequest(url, params: nil, method: "GET") else {

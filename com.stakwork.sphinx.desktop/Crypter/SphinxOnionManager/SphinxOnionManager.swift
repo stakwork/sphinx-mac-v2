@@ -675,24 +675,45 @@ extension SphinxOnionManager {//Sign Up UI Related:
               let owner = UserContact.getOwner(),
               let pubkey = owner.publicKey,
               let routeHint = owner.routeHint,
-              let alias = owner.nickname else {
+              let alias = owner.nickname else 
+        {
             completion(nil)
             return
         }
 
         let photoUrl = owner.avatarUrl ?? ""
 
-        func requestNewChallenge(host: String, completion: @escaping (String?) -> ()) {
+        func requestNewChallenge(
+            host: String,
+            completion: @escaping (String?) -> ()
+        ) {
             API.sharedInstance.askAuthentication(host: host, callback: { _, challenge in
                 completion(challenge)
             })
         }
 
-        func authorizeWithChallenge(host: String, challenge: String, completion: @escaping (Bool, String, [String: AnyObject]?) -> ()) {
+        func authorizeWithChallenge(
+            host: String,
+            challenge: String,
+            completion: @escaping (Bool, String, [String: AnyObject]?) -> ()
+        ) {
             do {
                 let idx: UInt64 = 0
-                let token = try signedTimestamp(seed: seed, idx: idx, time: self.getTimeWithEntropy(), network: self.network)
-                let sig = try signBase64(seed: seed, idx: idx, time: self.getTimeWithEntropy(), network: self.network, msg: challenge)
+                
+                let token = try Sphinx.signedTimestamp(
+                    seed: seed,
+                    idx: idx,
+                    time: getTimeWithEntropy(),
+                    network: network
+                )
+                
+                let sig = try Sphinx.signBase64(
+                    seed: seed,
+                    idx: idx,
+                    time: getTimeWithEntropy(),
+                    network: network,
+                    msg: challenge
+                )
 
                 let params: [String: AnyObject] = [
                     "pubkey": pubkey as AnyObject,
@@ -703,9 +724,15 @@ extension SphinxOnionManager {//Sign Up UI Related:
                     "verification_signature": sig as AnyObject
                 ]
 
-                API.sharedInstance.authorizeExternal(host: host, challenge: challenge, token: token, params: params, callback: { success in
-                    completion(success, token, params)
-                })
+                API.sharedInstance.authorizeExternal(
+                    host: host,
+                    challenge: challenge,
+                    token: token,
+                    params: params,
+                    callback: { success in
+                        completion(success, token, params)
+                    }
+                )
             } catch {
                 completion(false, "", nil)
             }
