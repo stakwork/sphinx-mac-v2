@@ -53,7 +53,7 @@ extension NewChatViewController : PinnedMessageViewDelegate {
         messageId: Int,
         pin: Bool
     ) {
-        guard let chat = self.chat else {
+        guard let _ = self.chat else {
             return
         }
         
@@ -61,20 +61,14 @@ extension NewChatViewController : PinnedMessageViewDelegate {
             return
         }
         
-//        API.sharedInstance.pinChatMessage(
-//            messageUUID: (pin ? message.uuid : "_"),
-//            chatId: chat.id,
-//            callback: { pinnedMessageUUID in
-//                self.chat?.pinnedMessageUUID = pinnedMessageUUID
-//                self.chat?.saveChat()
-//                
-//                self.configurePinnedMessageView()
-//                self.showPinStatePopupFor(mode: pin ? .MessagePinned : .MessageUnpinned)
-//            },
-//            errorCallback: {
-//                AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
-//            }
-//        )
+        newChatViewModel.shouldTogglePinState(message: message, pin: pin, callback: { success in
+            if success {
+                self.configurePinnedMessageView()
+                self.showPinStatePopupFor(mode: pin ? .MessagePinned : .MessageUnpinned)
+            } else {
+                AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+            }
+        })
     }
     
     func showPinStatePopupFor(

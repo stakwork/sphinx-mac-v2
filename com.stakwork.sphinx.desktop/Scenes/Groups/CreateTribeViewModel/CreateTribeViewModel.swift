@@ -176,16 +176,17 @@ class CreateTribeViewModel {
             return
         }
 
-        SphinxOnionManager.sharedInstance.updateTribe(
+        let success = SphinxOnionManager.sharedInstance.updateTribe(
             params: params,
-            pubkey: pubkey,
-            id: id
+            pubkey: pubkey
         )
         
-        updateChat(
-            chat: chat,
-            withParams: params
-        )
+        if success {
+            updateChat(
+                chat: chat,
+                withParams: params
+            )
+        }
         
         DelayPerformedHelper.performAfterDelay(
             seconds: 0.5,

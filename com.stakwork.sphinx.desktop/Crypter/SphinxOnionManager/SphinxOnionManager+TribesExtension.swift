@@ -55,9 +55,8 @@ extension SphinxOnionManager {
     
     func updateTribe(
         params: [String: AnyObject],
-        pubkey: String,
-        id: Int
-    ) {
+        pubkey: String
+    ) -> Bool {
         var finalParams = params
         finalParams["pubkey"] = pubkey as AnyObject
 
@@ -66,7 +65,7 @@ extension SphinxOnionManager {
               let tribeData = try? JSONSerialization.data(withJSONObject: finalParams),
               let tribeJSONString = String(data: tribeData, encoding: .utf8) else
         {
-            return
+            return false
         }
 
         do {
@@ -79,8 +78,11 @@ extension SphinxOnionManager {
             )
             
             let _ = handleRunReturn(rr: rr)
+            
+            return true
         } catch {
             print("Error updating tribe")
+            return false
         }
     }
     

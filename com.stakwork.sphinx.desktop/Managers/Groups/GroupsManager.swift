@@ -276,6 +276,7 @@ class GroupsManager {
         parameters["price_per_message"] = (newGroupInfo.pricePerMessage ?? 0) as AnyObject
         parameters["price_to_join"] = (newGroupInfo.priceToJoin ?? 0) as AnyObject
         parameters["escrow_amount"] = (newGroupInfo.amountToStake ?? 0) as AnyObject
+        parameters["pin"] = (newGroupInfo.pin ?? nil) as AnyObject
         
         let escrowMillis = (newGroupInfo.timeToStake ?? 0).millisFromHours
         parameters["escrow_millis"] = escrowMillis as AnyObject
