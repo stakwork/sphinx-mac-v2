@@ -193,7 +193,7 @@ class NewChatViewController: DashboardSplittedViewController {
                     self.pinMessageDetailView.shouldDismissView()
                     return nil
                 } else if self.viewMode == .Search {
-                    self.toggleSearchMode(active: false)
+                    self.didTapSearchCancelButton()
                     return nil
                 }
             } else if event.modifierFlags.contains(.command) && event.characters?.uppercased() == "F" {
