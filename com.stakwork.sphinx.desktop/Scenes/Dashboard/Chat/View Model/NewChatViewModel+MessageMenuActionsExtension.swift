@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 extension NewChatViewModel {
     func shouldBoostMessage(message: TransactionMessage) {
@@ -44,23 +45,44 @@ extension NewChatViewModel {
         pin: Bool,
         callback: @escaping (Bool) -> ()
     ) {
-//        guard let chat = self.chat else {
-//            return
-//        }
+        guard let chat = self.chat,
+              let pubkey = chat.ownerPubkey else 
+        {
+            return
+        }
         
-//        API.sharedInstance.pinChatMessage(
-//            messageUUID: (pin ? message.uuid : "_"),
-//            chatId: chat.id,
-//            callback: { pinnedMessageUUID in
-//                self.chat?.pinnedMessageUUID = pinnedMessageUUID
-//                self.chat?.saveChat()
-//                
-//                callback(true)
-//            },
-//            errorCallback: {
-//                callback(false)
-//            }
-//        )
+        let groupsManager = GroupsManager()
+        
+        guard let tribeInfo = chat.tribeInfo else {
+            return
+        }
+        groupsManager.newGroupInfo = tribeInfo
+        groupsManager.newGroupInfo.pin = pin ? message.uuid : nil
+        
+        let params = groupsManager.getNewGroupParams()
+        
+        let success = SphinxOnionManager.sharedInstance.updateTribe(
+            params: params,
+            pubkey: pubkey
+        )
+        
+        if success {
+            updateChat(
+                chat: chat,
+                withParams: params
+            )
+        }
+        
+        callback(success)
+    }
+
+    func updateChat(
+        chat: Chat,
+        withParams params: [String: AnyObject]
+    ) {
+        chat.tribeInfo = GroupsManager.sharedInstance.getTribesInfoFrom(json: JSON(params))
+        chat.updateChatFromTribesInfo()
+        chat.managedObjectContext?.saveContext()
     }
 }
 

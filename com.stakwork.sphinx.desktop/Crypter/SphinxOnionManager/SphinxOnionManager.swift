@@ -324,7 +324,6 @@ class SphinxOnionManager : NSObject {
             ///If already fetching content, then process is already running
             if !isFetchingContent() {
                 self.hideRestoreCallback = hideRestoreViewCallback
-                self.getBlockHeight()
                 self.syncNewMessages()
             }
             return
@@ -333,23 +332,6 @@ class SphinxOnionManager : NSObject {
             connectingCallback: connectingCallback,
             hideRestoreViewCallback: hideRestoreViewCallback
         )
-    }
-    
-    func getBlockHeight() {
-        guard let seed = getAccountSeed() else{
-            return
-        }
-        do {
-            let rr = try Sphinx.getBlockheight(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData()
-            )
-            
-            let _ = handleRunReturn(rr: rr)
-        } catch {
-            print("Error getting block height")
-        }
     }
     
     func syncNewMessages() {
@@ -406,8 +388,6 @@ class SphinxOnionManager : NSObject {
                 self.isV2InitialSetup = false
                 self.doInitialInviteSetup()
             }
-            
-            getBlockHeight()
              
             if self.isV2Restore {
                 self.syncContactsAndMessages(
