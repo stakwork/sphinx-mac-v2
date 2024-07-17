@@ -99,15 +99,31 @@ class AuthExternalView: CommonModalView, LoadableNib {
     }
     
     func verifyExternal() {
-//        API.sharedInstance.verifyExternal(callback: { success, object in
-//            if let object = object, let token = object["token"] as? String, let info = object["info"] as? [String: AnyObject] {
-//                self.authInfo?.token = token
-//                self.authInfo?.info = info
-//                self.signBase64()
-//            } else {
-//                self.showErrorAlert()
-//            }
-//        })
+        if let query = self.query {
+            SphinxOnionManager.sharedInstance.processPeopleAuthChallenge(
+                urlString: query,
+                completion: { authParams in
+                    if authParams != nil {
+                        self.authInfo?.host = authParams!.0
+                        self.authInfo?.challenge = authParams!.1
+                        self.authInfo?.token = authParams!.2
+                        self.authInfo?.verificationSignature = authParams!.3["verification_signature"] as? String
+                    }
+                    self.authorizationDone(
+                        success: authParams != nil,
+                        host: self.authInfo?.host ?? ""
+                    )
+            })
+        } else {
+            AlertHelper.showAlert(
+                title: "Error",
+                message: "Could not parse auth request"
+            )
+            authorizationDone(
+                success: false,
+                host: self.authInfo?.host ?? ""
+            )
+        }
     }
     
     func takeUserToAuth() {
@@ -125,41 +141,6 @@ class AuthExternalView: CommonModalView, LoadableNib {
         if let url = URL(string: urlString) {
             delegate?.shouldDismissModals()
             NSWorkspace.shared.open(url)
-        }
-    }
-    
-    func signBase64() {
-//        API.sharedInstance.signBase64(b64: "U3BoaW54IFZlcmlmaWNhdGlvbg==", callback: { sig in
-//            if let sig = sig {
-//                self.authInfo?.verificationSignature = sig
-//                self.authorize()
-//            } else {
-//                self.showErrorAlert()
-//            }
-//        })
-    }
-    
-    func authorize() {
-        if let host = authInfo?.host,
-           let challenge = authInfo?.challenge,
-           let verificationSignature = authInfo?.verificationSignature,
-           let token = authInfo?.token,
-           var info = authInfo?.info {
-            
-//            info["url"] = UserData.sharedInstance.getNodeIP() as AnyObject
-            info["verification_signature"] = verificationSignature as AnyObject
-            
-            API.sharedInstance.authorizeExternal(
-                host: host,
-                challenge: challenge,
-                token: token,
-                params: info,
-                callback: { success in
-                    self.authorizationDone(success: success, host: host)
-                }
-            )
-        } else {
-            showErrorAlert()
         }
     }
     
