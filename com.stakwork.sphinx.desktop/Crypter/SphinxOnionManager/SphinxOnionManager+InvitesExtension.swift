@@ -18,12 +18,12 @@ extension SphinxOnionManager{//invites related
         return -1 * Int(Int32(stringInput.hashValue & 0x7FFFFFFF))
     }
     
-    func requestInviteCode(amountMsat: Int) {
+    func requestInviteCode(amountMsat: Int) -> (Bool, String?) {
         guard let seed = getAccountSeed(),
               let selfContact = UserContact.getOwner(),
               let nickname = selfContact.nickname else
         {
-            return
+            return (false, nil)
         }
         
         do {
@@ -39,7 +39,10 @@ extension SphinxOnionManager{//invites related
             )
             
             let _ = handleRunReturn(rr: rr)
-        } catch {}
+            return (true, nil)
+        } catch let error {
+            return (false, (error as? SphinxError).debugDescription)
+        }
     }
     
     func redeemInvite(

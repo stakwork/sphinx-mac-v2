@@ -142,6 +142,9 @@ class SphinxOnionManager : NSObject {
     var defaultTribePubkey: String? {
         get {
             if let defaultTribePublicKey: String = UserDefaults.Keys.defaultTribePublicKey.get() {
+                if defaultTribePublicKey.isEmpty {
+                    return nil
+                }
                 return defaultTribePublicKey
             }
             return kTestDefaultTribe
