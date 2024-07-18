@@ -13,7 +13,7 @@ import AVFoundation
 @objc protocol AttachmentsManagerDelegate: AnyObject {
     @objc optional func didUpdateUploadProgress(progress: Int, provisionalMessageId: Int)
     @objc optional func didFailSendingMessage(provisionalMessage: TransactionMessage?)
-    @objc optional func didFailSendingAttachment(provisionalMessage: TransactionMessage?)
+    @objc optional func didFailSendingAttachment(provisionalMessage: TransactionMessage?, errorMessage: String)
     @objc optional func didSuccessSendingAttachment(message: TransactionMessage, image: NSImage?, provisionalMessageId: Int)
     @objc optional func didSuccessUploadingImage(url: String)
 }
@@ -137,7 +137,7 @@ class AttachmentsManager {
                 self.uploadPublicImage(attachmentObject: attachmentObject)
             }, errorCompletion: {
                 UserDefaults.Keys.attachmentsToken.removeValue()
-                self.uploadFailed()
+                self.uploadFailed(errorMessage: "Could not authenticate with Memes server")
             })
             return
         }
@@ -181,7 +181,7 @@ class AttachmentsManager {
                 )
             }, errorCompletion: {
                 UserDefaults.Keys.attachmentsToken.removeValue()
-                self.uploadFailed()
+                self.uploadFailed(errorMessage: "Could not authenticate with Memes server")
             })
             return
         }
@@ -193,15 +193,18 @@ class AttachmentsManager {
         
         if let _ = attachmentObject.data {
             uploadData(attachmentObject: attachmentObject, token: token) { fileJSON, AttachmentObject in
-                self.sendAttachment(
+                let (msg, errorMessage) = self.sendAttachment(
                     file: fileJSON,
                     chat: chat,
                     attachmentObject: attachmentObject,
                     provisionalMessage: provisionalMessage,
                     replyingMessage: replyingMessage,
                     threadUUID: threadUUID
-                    
                 )
+                
+                if let errorMessage = errorMessage, msg == nil {
+                    self.uploadFailed(errorMessage: errorMessage)
+                }
             }
         }
     }
@@ -220,7 +223,7 @@ class AttachmentsManager {
                 self.uploadedImage = attachmentObject.image
                 completion(fileJSON, attachmentObject)
             } else {
-                self.uploadFailed()
+                self.uploadFailed(errorMessage: "Failed to upload data to Memes server")
             }
         })
     }
@@ -232,8 +235,8 @@ class AttachmentsManager {
         provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
-    ) {
-        let _ = SphinxOnionManager.sharedInstance.sendAttachment(
+    ) -> (TransactionMessage?, String?) {
+        return SphinxOnionManager.sharedInstance.sendAttachment(
             file: file,
             attachmentObject: attachmentObject,
             chat: chat,
@@ -292,9 +295,9 @@ class AttachmentsManager {
         }
     }
     
-    func uploadFailed() {
+    func uploadFailed(errorMessage: String) {
         uploading = false
-        delegate?.didFailSendingAttachment?(provisionalMessage: provisionalMessage)
+        delegate?.didFailSendingAttachment?(provisionalMessage: provisionalMessage, errorMessage: errorMessage)
     }
     
     func uploadSucceed(message: TransactionMessage) {
