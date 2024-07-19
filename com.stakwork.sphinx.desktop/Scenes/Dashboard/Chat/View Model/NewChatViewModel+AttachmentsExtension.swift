@@ -98,11 +98,14 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         )
     }
     
-    func didFailSendingAttachment(provisionalMessage: TransactionMessage?) {
+    func didFailSendingAttachment(
+        provisionalMessage: TransactionMessage?,
+        errorMessage: String
+    ) {
         if let provisionalMessage = provisionalMessage {
             CoreDataManager.sharedManager.deleteObject(object: provisionalMessage)
             
-            AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+            AlertHelper.showAlert(title: "generic.error.title".localized, message: errorMessage)
         }
     }
 }

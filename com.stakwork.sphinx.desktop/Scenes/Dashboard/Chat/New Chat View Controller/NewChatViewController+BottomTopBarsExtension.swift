@@ -225,7 +225,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 text: text,
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
                 data: data,
-                completion: { success in
+                completion: { (success, _) in
                     completion(success)
                 }
             )
@@ -234,7 +234,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 text: text,
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
                 provisionalMessage: nil,
-                completion: { success in
+                completion: { (success, _) in
                     completion(success)
                 }
             )
