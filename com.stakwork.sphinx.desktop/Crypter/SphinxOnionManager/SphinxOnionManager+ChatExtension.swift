@@ -218,17 +218,17 @@ extension SphinxOnionManager {
         invoiceString: String? = nil,
         tribeKickMember: String? = nil,
         paidAttachmentMediaToken:String? = nil
-    ) -> TransactionMessage? {
+    ) -> (TransactionMessage?, String?) {
         
         guard let seed = getAccountSeed() else {
-            return nil
+            return (nil, "Account seed not found")
         }
         
         guard let selfContact = UserContact.getOwner(),
               let nickname = (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
-            return nil
+            return (nil, "Owner not found")
         }
         let isTribe = recipContact == nil
         guard let (contentJSONString, mediaToken) = formatMsg(
@@ -246,11 +246,11 @@ extension SphinxOnionManager {
             paidAttachmentMediaToken: paidAttachmentMediaToken,
             isTribe: isTribe
         ) else {
-            return nil
+            return (nil, "Msg json format issue")
         }
         
         guard let contentJSONString = contentJSONString else {
-            return nil
+            return (nil, "Msg json format issue")
         }
         
         let myImg = (chat.myPhotoUrl?.isNotEmpty == true ? (chat.myPhotoUrl ?? "") : (selfContact.avatarUrl ?? ""))
@@ -305,10 +305,10 @@ extension SphinxOnionManager {
                 startSendTimeoutTimer(for: sentMessageUUID, msgType: msgType)
             }
             
-            return sentMessage
+            return (sentMessage, nil)
         } catch let error {
             print("error sending msg \(error.localizedDescription)")
-            return nil
+            return (nil, "Send msg error \(error)")
         }
     }
     
@@ -1350,13 +1350,13 @@ extension SphinxOnionManager {
         provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
-    ) -> TransactionMessage? {
+    ) -> (TransactionMessage?, String?) {
         
         guard let muid = file["muid"] as? String,
             let chat = chat,
             let mk = attachmentObject.mediaKey else
         {
-            return nil
+            return (nil, "MUID or mediaKey not found")
         }
         
         let (_, mediaType) = attachmentObject.getFileAndMime()
@@ -1371,7 +1371,7 @@ extension SphinxOnionManager {
         let type = (TransactionMessage.TransactionMessageType.attachment.rawValue)
         let purchaseAmt = (attachmentObject.price > 0) ? (attachmentObject.price) : nil
         
-        if let sentMessage = sendMessage(
+        let (sentMessage, errorMessage) = sendMessage(
             to: recipContact,
             content: attachmentObject.text ?? "",
             chat: chat,
@@ -1383,17 +1383,19 @@ extension SphinxOnionManager {
             mediaType: mediaType,
             threadUUID:threadUUID,
             replyUUID: replyingMessage?.uuid
-        ){
+        )
+        
+        if let sentMessage = sentMessage {
             if (type == TransactionMessage.TransactionMessageType.attachment.rawValue) {
                 AttachmentsManager.sharedInstance.cacheImageAndMediaData(message: sentMessage, attachmentObject: attachmentObject)
             } else if (type == TransactionMessage.TransactionMessageType.purchase.rawValue) {
                 print(sentMessage)
             }
             
-            return sentMessage
+            return (sentMessage, nil)
         }
         
-        return nil
+        return (nil, errorMessage ?? "generic.error.message".localized)
     }
     
     //MARK: Payments related
@@ -1453,7 +1455,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        if let sentMessage = self.sendMessage(
+        let (sentMessage, _) = self.sendMessage(
             to: chat.getContact(),
             content: text,
             chat: chat,
@@ -1462,10 +1464,9 @@ extension SphinxOnionManager {
             msgType: UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
             threadUUID: nil,
             replyUUID: replyUUID
-        ) {
-            return sentMessage
-        }
-        return nil
+        )
+        
+        return sentMessage
     }
     
     func sendDirectPaymentMessage(
@@ -1523,7 +1524,7 @@ extension SphinxOnionManager {
             mediaType: "image/png",
             threadUUID: nil,
             replyUUID: nil
-        ) {
+        ).0 {
             SphinxOnionManager.sharedInstance.assignReceiverId(localMsg: sentMessage)
             sentMessage.managedObjectContext?.saveContext()
             completion(true, sentMessage)
