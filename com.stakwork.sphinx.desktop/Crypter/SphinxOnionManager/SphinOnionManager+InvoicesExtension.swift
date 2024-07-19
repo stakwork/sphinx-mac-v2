@@ -127,13 +127,14 @@ extension SphinxOnionManager{
     
     func payInvoice(
         invoice: String,
-        overPayAmountMsat: UInt64? = nil
-    ) {
+        overPayAmountMsat: UInt64? = nil,
+        callback: ((Bool, String?) -> ())? = nil
+    ){
         guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
-            ///no pubkey so we can't route!
+            callback?(false, "Pubkey not found")
             return
         }
         
@@ -146,12 +147,14 @@ extension SphinxOnionManager{
                     invoice: invoice,
                     amount: overPayAmountMsat ?? UInt64(amount)
                 )
+                callback?(true, nil)
             } else {
                 ///error getting route info
                 AlertHelper.showAlert(
                     title: "Routing Error",
                     message: "Could not find a route to the target. Please try again."
                 )
+                callback?(false, "Could not find a route to the target. Please try again.")
             }
         }
     }
@@ -325,6 +328,15 @@ extension SphinxOnionManager{
                 nil,
                 "Error fetching transactions history: \(error.localizedDescription)"
             )
+        }
+    }
+    
+    func getIdFromMacaroon(macaroon: String) -> (String?, String?) {
+        do {
+            let identifier = try idFromMacaroon(macaroon: macaroon)
+            return (identifier, nil)
+        } catch let error {
+            return (nil, (error as? SphinxError).debugDescription)
         }
     }
 

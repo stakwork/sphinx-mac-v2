@@ -518,6 +518,7 @@
 		47DE1C412A6AFA0F0029597B /* ChatShimmeringView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C402A6AFA0F0029597B /* ChatShimmeringView.xib */; };
 		47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */; };
 		47DF91552C4AA34C00E8128A /* LSat+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */; };
+		47DF91572C4AA99300E8128A /* LSat+FetchUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DF91562C4AA99300E8128A /* LSat+FetchUtils.swift */; };
 		47E117932C33442B006D34EA /* NewShareQRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */; };
 		47E19DD42BB1FD1700A0E596 /* WordsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD32BB1FD1700A0E596 /* WordsList.swift */; };
 		47E19DD72BB1FE0100A0E596 /* SphinxOnionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */; };
@@ -1436,6 +1437,7 @@
 		47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 2.xcdatamodel"; sourceTree = "<group>"; };
 		47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSat+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSat+CoreDataClass.swift"; sourceTree = "<group>"; };
+		47DF91562C4AA99300E8128A /* LSat+FetchUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSat+FetchUtils.swift"; sourceTree = "<group>"; };
 		47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewShareQRCodeViewController.swift; sourceTree = "<group>"; };
 		47E19DD32BB1FD1700A0E596 /* WordsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsList.swift; sourceTree = "<group>"; };
 		47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManager.swift; sourceTree = "<group>"; };
@@ -3252,6 +3254,7 @@
 			children = (
 				47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */,
 				47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */,
+				47DF91562C4AA99300E8128A /* LSat+FetchUtils.swift */,
 			);
 			path = LSat;
 			sourceTree = "<group>";
@@ -3949,6 +3952,7 @@
 				47D03DE4250BB9F40077A968 /* NewInviteViewController.swift in Sources */,
 				473E1F3C2AC46DEB00DC1CDC /* ThreadCollectionView+DelegatesExtension.swift in Sources */,
 				CE6BF5CA29E5BA38009BCFDE /* SendPaymentForInvoiceVC.swift in Sources */,
+				47DF91572C4AA99300E8128A /* LSat+FetchUtils.swift in Sources */,
 				47FEE2092A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift in Sources */,
 				47DE1C202A697FC60029597B /* NewMessageCollectionViewItem+DelegatesExtension.swift in Sources */,
 				4708C2032A55C0DE00274AD4 /* Chat+FetchUtils.swift in Sources */,

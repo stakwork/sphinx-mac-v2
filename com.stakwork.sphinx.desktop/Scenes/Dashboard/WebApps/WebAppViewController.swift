@@ -50,35 +50,6 @@ class WebAppViewController: NSViewController {
         loadPage()
     }
     
-    func checkForLSAT(){
-        webAppHelper.checkForExistingLsat(completion: { amount in
-            print(amount ?? 0)
-        })
-    }
-    
-    @objc func showLsatList(){
-        NewMessageBubbleHelper().showGenericMessageView(text: "Retrieving your L402s...", in: nil)
-        
-        webAppHelper.listLSats(completion: { success in
-            if(success){
-                let viewController = LsatListViewController.instantiate(lsatList: self.webAppHelper.lsatList)
-                
-                WindowsManager.sharedInstance.showNewWindow(
-                    with: "my.lsats".localized,
-                    size: CGSize(width: 480, height: 600),
-                    centeredIn: self.view.window,
-                    contentVC: viewController
-                )
-                print(self.webAppHelper.lsatList)
-            }
-            else{
-                NewMessageBubbleHelper().showGenericMessageView(text: "Error loading L402 data please try again.", in: nil)
-            }
-        })
-        
-    }
-    
-    
     override func viewDidAppear() {
         super.viewDidAppear()
         

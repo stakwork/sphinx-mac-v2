@@ -16,7 +16,7 @@ extension LSat {
     }
 
     @NSManaged public var identifier: String
-    @NSManaged public var macarron: String
+    @NSManaged public var macaroon: String
     @NSManaged public var paymentRequest: String
     @NSManaged public var preimage: String?
     @NSManaged public var issuer: String?

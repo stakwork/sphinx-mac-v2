@@ -15,8 +15,40 @@ protocol WebAppHelperDelegate : NSObject{
     func setBudget(budget:Int)
 }
 
-class WebAppHelper : NSObject {
+struct LSatInProgress {
+    var paymentRequest: String
+    var issuer: String
+    var macaroon: String
+    var identifier: String?
+    var paymentHash: String?
+    var publicKey: String?
+    var preimage: String?
+    var metadata: String?
+    var paths: String?
+    var dict: [String: AnyObject]
     
+    init(
+        paymentRequest: String,
+        issuer: String,
+        macaroon: String,
+        dict: [String: AnyObject]
+    ) {
+        self.paymentRequest = paymentRequest
+        self.issuer = issuer
+        self.macaroon = macaroon
+        self.dict = dict
+    }
+    
+    func isValid() -> Bool {
+        return
+            identifier != nil && identifier!.isNotEmpty &&
+            paymentHash != nil && paymentHash!.isNotEmpty &&
+            publicKey != nil && publicKey!.isNotEmpty &&
+            preimage != nil && preimage!.isNotEmpty
+    }
+}
+
+class WebAppHelper : NSObject {
     
     public let messageHandler = "sphinx"
     
@@ -28,6 +60,9 @@ class WebAppHelper : NSObject {
     var delegate : WebAppHelperDelegate? = nil
     
     var lsatList = [LSATObject]()
+    
+    var lsatInProgress: LSatInProgress? = nil
+    var lsatTimer: Timer? = nil
     
     func setWebView(
         _ webView: WKWebView,
@@ -95,23 +130,6 @@ extension WebAppHelper : WKScriptMessageHandler {
                 }
             }
         }
-    }
-    
-    func listLSats(completion: @escaping (Bool)->()){
-//        API.sharedInstance.getLsatList(callback: {results in
-//            let lsats = results["lsats"]
-//            print(lsats)
-//            for lsat in lsats{
-//                if let json = JSON(lsat.1).rawValue as? [String:Any],
-//                let lsat_object = Mapper<LSATObject>().map(JSON: json){
-//                    print(lsat_object)
-//                    self.lsatList.append(lsat_object)
-//                }
-//            }
-//            completion(true)
-//        }, errorCallback: {
-//            completion(false)
-//        })
     }
     
     func jsonStringWithObject(obj: AnyObject) -> String? {
@@ -232,17 +250,21 @@ extension WebAppHelper : WKScriptMessageHandler {
     
     func sendKeySend(_ dict: [String: AnyObject]) {
         if let dest = dict["dest"] as? String, let amt = dict["amt"] as? Int {
-            let params = getParams(pubKey: dest, amount: amt)
-            let canPay: DarwinBoolean = checkCanPay(amount: amt)
-            if(canPay == false){
+            if !checkCanPay(amount: amt) {
                 self.sendKeySendResponse(dict: dict, success: false)
                 return
             }
-//            API.sharedInstance.sendDirectPayment(params: params, callback: { payment in
-//                self.sendKeySendResponse(dict: dict, success: true)
-//            }, errorCallback: { _ in
-//                self.sendKeySendResponse(dict: dict, success: false)
-//            })
+            
+            SphinxOnionManager.sharedInstance.keysend(
+                pubkey: dest,
+                amt: amt
+            ) { success in
+                if success {
+                    self.sendKeySendResponse(dict: dict, success: true)
+                } else {
+                    self.sendKeySendResponse(dict: dict, success: false)
+                }
+            }
         }
     }
     
@@ -266,26 +288,28 @@ extension WebAppHelper : WKScriptMessageHandler {
     func sendPayment(_ dict: [String: AnyObject]) {
         if let paymentRequest = dict["paymentRequest"] as? String {
             
-            let params = ["payment_request": paymentRequest as AnyObject]
-            
             let prDecoder = PaymentRequestDecoder()
             prDecoder.decodePaymentRequest(paymentRequest: paymentRequest)
             
             let amount = prDecoder.getAmount()
             
             if let amount = amount {
-                let canPay: DarwinBoolean = checkCanPay(amount: amount)
                 
-                if (canPay == false) {
+                if !checkCanPay(amount: amount) {
                     self.sendPaymentResponse(dict: dict, success: false)
                     return
                 }
                 
-//                API.sharedInstance.payInvoice(parameters: params, callback: { payment in
-//                    self.sendPaymentResponse(dict: dict, success: true)
-//                }, errorCallback: { _ in
-//                    self.sendPaymentResponse(dict: dict, success: false)
-//                })
+                SphinxOnionManager.sharedInstance.payInvoice(
+                    invoice: paymentRequest,
+                    callback: { success, errorMsg in
+                        if success {
+                            self.sendPaymentResponse(dict: dict, success: true)
+                        } else {
+                            self.sendPaymentResponse(dict: dict, success: false)
+                        }
+                    }
+                )
             } else {
                 self.sendPaymentResponse(dict: dict, success: false)
             }
@@ -339,9 +363,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func saveLSAT(_ dict: [String: AnyObject]) {
-        if let paymentRequest = dict["paymentRequest"] as? String, let macaroon = dict["macaroon"] as? String, let issuer = dict["issuer"] as? String {
-            
-            let params = ["paymentRequest": paymentRequest as AnyObject, "macaroon": macaroon as AnyObject, "issuer": issuer as AnyObject]
+        if let paymentRequest = dict["paymentRequest"] as? String, let _ = dict["macaroon"] as? String {
             
             let prDecoder = PaymentRequestDecoder()
             prDecoder.decodePaymentRequest(paymentRequest: paymentRequest)
@@ -349,23 +371,135 @@ extension WebAppHelper : WKScriptMessageHandler {
             let amount = prDecoder.getAmount()
             
             if let amount = amount {
-                let canPay: DarwinBoolean = checkCanPay(amount: amount)
-                if (canPay == false) {
-                    self.sendLsatResponse(dict: dict, success: false)
+                if !checkCanPay(amount: amount) {
+                    sendLsatResponse(dict: dict, success: false)
                     return
                 }
-//                API.sharedInstance.payLsat(parameters: params, callback: { payment in
-//                    var newDict = dict
-//                    if let lsat = payment["lsat"].string {
-//                        newDict["lsat"] = lsat as AnyObject
-//                    }
-//                    
-//                    self.sendLsatResponse(dict: newDict, success: true)
-//                }, errorCallback: {
-//                    self.sendLsatResponse(dict: dict, success: false)
-//                })
-            }else{
-                self.sendLsatResponse(dict: dict, success: false)
+                saveLSatFrom(dict: dict)
+            } else {
+                sendLsatResponse(dict: dict, success: false)
+            }
+        }
+    }
+    
+    func saveLSatFrom(
+        dict: [String: AnyObject]
+    ){
+        guard let paymentRequest = dict["paymentRequest"] as? String,
+              let macaroon = dict["macaroon"] as? String,
+              let issuer = dict["issuer"] as? String else
+        {
+            self.sendLsatResponse(dict: dict, success: false)
+            print("Missing required LSAT data.")
+            return
+        }
+        
+        lsatInProgress = LSatInProgress(
+            paymentRequest: paymentRequest,
+            issuer: issuer,
+            macaroon: macaroon,
+            dict: dict
+        )
+        
+        let (identifier, error) = SphinxOnionManager.sharedInstance.getIdFromMacaroon(macaroon: macaroon)
+        
+        guard let identifier = identifier else {
+            self.sendLsatResponse(dict: dict, success: false)
+            print("Error getting identifier from Macarron: \(error ?? "").")
+            return
+        }
+        
+        lsatInProgress?.identifier = identifier
+        
+        if let _ = LSat.getLSatWith(identifier: identifier) {
+            self.sendLsatResponse(dict: dict, success: false)
+            print("Could not save LSat. LSat already exists.")
+            return
+        }
+        
+        guard let parsedInvoise = SphinxOnionManager.sharedInstance.getInvoiceDetails(invoice: paymentRequest) else {
+            self.sendLsatResponse(dict: dict, success: false)
+            print("Error parsing payment request")
+            return
+        }
+        
+        guard let paymentH = parsedInvoise.paymentHash, let pubkey = parsedInvoise.pubkey else {
+            self.sendLsatResponse(dict: dict, success: false)
+            print("Payment hash or Public Key couldn't be parsed.")
+            return
+        }
+        
+        lsatInProgress?.paymentHash = paymentH
+        lsatInProgress?.publicKey = pubkey
+        
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .invoiceIPaidSettled,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handlePaidInvoiceNotification),
+            name: .invoiceIPaidSettled,
+            object: nil
+        )
+        
+        startLsatTimer()
+        
+        SphinxOnionManager.sharedInstance.payInvoice(
+            invoice: paymentRequest,
+            callback: { success, errorMsg in
+                if let _ = errorMsg, !success {
+                    self.endLsatTime()
+                }
+            }
+        )
+    }
+    
+    func endLsatTime() {
+        lsatTimer?.invalidate()
+        lsatTimer = nil
+    }
+    
+    func startLsatTimer() {
+        lsatTimer?.invalidate()
+        
+        lsatTimer = Timer.scheduledTimer(
+            timeInterval: 7.0,
+            target: self,
+            selector: #selector(lsatTimerFired),
+            userInfo: nil,
+            repeats: false
+        )
+    }
+    
+    @objc func lsatTimerFired() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .invoiceIPaidSettled,
+            object: nil
+        )
+        endLsatTime()
+        lsatInProgress = nil
+    }
+    
+    @objc func handlePaidInvoiceNotification(n: Notification) {
+        if let paymentHash = n.userInfo?["payment_hash"] as? String,
+           let preimage = n.userInfo?["preimage"] as? String,
+           paymentHash == lsatInProgress?.paymentHash
+        {
+            lsatInProgress?.preimage = preimage
+            
+            if let lsatInProgress = lsatInProgress, lsatInProgress.isValid() {
+                LSat.saveObjectFrom(lsatIP: lsatInProgress)
+                
+                var newDict = lsatInProgress.dict
+                newDict["lsat"] = "LSAT \(lsatInProgress.macaroon):\(lsatInProgress.preimage ?? "")" as AnyObject
+
+                self.sendLsatResponse(dict: newDict, success: true)
+                
+                self.lsatInProgress = nil
             }
         }
     }
@@ -386,7 +520,6 @@ extension WebAppHelper : WKScriptMessageHandler {
         if let data = dict["data"] {
             if let type = data["type"] as? Int, let metaData = data["metaData"] as? AnyObject {
                 
-            
                 let params = [
                     "type": type as AnyObject,
                     "meta_data": metaData as AnyObject
@@ -402,7 +535,6 @@ extension WebAppHelper : WKScriptMessageHandler {
         }
     }
     
-    //Sign Message
     func signMessageResponse(dict: [String: AnyObject], success: Bool) {
         var params: [String: AnyObject] = [:]
         setTypeApplicationAndPassword(params: &params, dict: dict)
@@ -413,73 +545,56 @@ extension WebAppHelper : WKScriptMessageHandler {
     
     func signMessage(_ dict: [String: AnyObject]){
         if let message = dict["message"] as? String {
-//            API.sharedInstance.signChallenge(challenge: message, callback: { signature in
-//                var newDict = dict
-//                if let signature = signature {
-//                    newDict["signature"] = signature as AnyObject
-//                    self.signMessageResponse(dict: newDict, success: true)
-//                }else {
-//                    self.signMessageResponse(dict: dict, success: false)
-//                }
-//            })
+            guard let signature = SphinxOnionManager.sharedInstance.signChallenge(
+                challenge: message
+            ) else {
+                self.signMessageResponse(dict: dict, success: false)
+                return
+            }
+            
+            var newDict = dict
+            newDict["signature"] = signature as AnyObject
+            self.signMessageResponse(dict: newDict, success: true)
         }
     }
     
     func updateLsat(_ dict: [String: AnyObject]) {
         if let identifier = dict["identifier"] as? String, let status = dict["status"] as? String {
-            let params = ["status": status as AnyObject]
             
-//            API.sharedInstance.updateLsat(identifier:identifier, parameters: params, callback: { lsat in
-//                var newDict = dict
-//                
-//                if let lsat = lsat["lsat"].string {
-//                    newDict["lsat"] = lsat as AnyObject
-//                }
-//                
-//                self.updateLsatResponse(dict: newDict, success: true)
-//            }, errorCallback: {
-//                self.updateLsatResponse(dict: dict, success: false)
-//            })
-           
+            guard let lsat = LSat.getLSatWith(identifier: identifier) else {
+                updateLsatResponse(dict: dict, success: false)
+                return
+            }
+            
+            if status == "expired" {
+                lsat.status = LSat.LSatStatus.expired.rawValue
+                lsat.managedObjectContext?.saveContext()
+                
+                var newDict = dict
+                newDict["lsat"] = "LSAT \(lsat.macaroon):\(lsat.preimage ?? "")" as AnyObject
+                
+                updateLsatResponse(dict: newDict, success: true)
+            }
         }
     }
     
-    func checkForExistingLsat(completion: @escaping (Int?)->()){
-//        API.sharedInstance.getActiveLsat(callback: { lsat in
-//            let newDict = self.decodeLsat(lsat: lsat, dict: [:])
-//            if let paymentRequest = newDict["paymentRequest"] as? String{
-//                let prDecoder = PaymentRequestDecoder()
-//                prDecoder.decodePaymentRequest(paymentRequest: paymentRequest)
-//                let amount = prDecoder.getAmount()
-//                completion(amount)
-//            }
-//        }, errorCallback: {
-//            print("failed to retrieve and active LSAT")
-//            completion(nil)
-//        })
-    }
-    
-    func decodeLsat(lsat:JSON,dict:[String: AnyObject])->[String: AnyObject]{
+    func decodeLsat(
+        lsat: LSat,
+        dict: [String: AnyObject]
+    ) -> [String: AnyObject] {
         var newDict = dict
-        if let macaroon = lsat["macaroon"].string,
-            let identifier = lsat["identifier"].string,
-            let preimage = lsat["preimage"].string,
-            let paymentRequest = lsat["paymentRequest"].string,
-            let issuer = lsat["issuer"].string,
-            let status = lsat["status"].number{
-            
-            newDict["macaroon"] = macaroon as AnyObject
-            newDict["identifier"] = identifier as AnyObject
+        
+        if let preimage = lsat.preimage {
+            newDict["macaroon"] = lsat.macaroon as AnyObject
+            newDict["identifier"] = lsat.identifier as AnyObject
             newDict["preimage"] = preimage as AnyObject
-            newDict["paymentRequest"] = paymentRequest as AnyObject
+            newDict["paymentRequest"] = lsat.paymentRequest as AnyObject
+            newDict["issuer"] = (lsat.issuer ?? "") as AnyObject
+            newDict["status"] = lsat.status as AnyObject
             
-            
-            newDict["issuer"] = issuer as AnyObject
-            newDict["status"] = status as AnyObject
-            if let paths = lsat["paths"].string {
+            if let paths = lsat.paths {
                 newDict["paths"] = paths as AnyObject
-            }
-            else {
+            } else {
                 newDict["paths"] = "" as AnyObject
             }
         }
@@ -488,21 +603,21 @@ extension WebAppHelper : WKScriptMessageHandler {
     
     func getActiveLsat(_ dict: [String: AnyObject]) {
         if let issuer = dict["issuer"] as? String {
-//            API.sharedInstance.getActiveLsat(issuer: issuer,callback: { lsat in
-//                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
-//                self.getLsatResponse(dict: newDict, success: true)
-//            }, errorCallback: {
-//                print("failed to retrieve and active LSAT")
-//                self.getLsatResponse(dict: dict, success: false)
-//            })
+            if let activeLSat = LSat.getActiveLSat(issuer: issuer) {
+                let newDict = decodeLsat(lsat: activeLSat, dict: dict)
+                getLsatResponse(dict: newDict, success: true)
+            } else {
+                print("failed to retrieve and active LSAT")
+                getLsatResponse(dict: dict, success: false)
+            }
         } else {
-//            API.sharedInstance.getActiveLsat( callback: { lsat in
-//                let newDict = self.decodeLsat(lsat: lsat, dict: dict)
-//                self.getLsatResponse(dict: newDict, success: true)
-//            }, errorCallback: {
-//                print("failed to retrieve and active LSAT")
-//                self.getLsatResponse(dict: dict, success: false)
-//            })
+            if let activeLSat = LSat.getActiveLSat() {
+                let newDict = decodeLsat(lsat: activeLSat, dict: dict)
+                getLsatResponse(dict: newDict, success: true)
+            } else {
+                print("failed to retrieve and active LSAT")
+                getLsatResponse(dict: dict, success: false)
+            }
         }
     }
     
@@ -568,7 +683,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     
-    func checkCanPay(amount: Int) -> DarwinBoolean {
+    func checkCanPay(amount: Int) -> Bool {
         let savedBudget: Int? = getValue(withKey: "budget")
         
         if ((savedBudget ?? 0) < amount || amount == -1) {
