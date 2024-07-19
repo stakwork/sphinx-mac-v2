@@ -827,14 +827,18 @@ extension String {
         return length
     }
     
-    var pingComponents: (String, String)? {
+    var pingComponents: (String, String, String?)? {
         get {
             let components = self.components(separatedBy: ":")
             if components.count > 1 {
                 let paymentHash = components[0]
                 let timestamp = components[1]
                 
-                return (paymentHash, timestamp)
+                if components.count > 2 {
+                    let tag = components[2]
+                    return (paymentHash, timestamp, tag)
+                }
+                return (paymentHash, timestamp, nil)
             }
             return nil
         }
