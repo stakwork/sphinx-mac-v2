@@ -516,6 +516,8 @@
 		47DE1C3D2A6AF6F10029597B /* ShimmeringSentMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C3C2A6AF6F10029597B /* ShimmeringSentMessageView.xib */; };
 		47DE1C3F2A6AFA070029597B /* ChatShimmeringView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1C3E2A6AFA070029597B /* ChatShimmeringView.swift */; };
 		47DE1C412A6AFA0F0029597B /* ChatShimmeringView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C402A6AFA0F0029597B /* ChatShimmeringView.xib */; };
+		47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */; };
+		47DF91552C4AA34C00E8128A /* LSat+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */; };
 		47E117932C33442B006D34EA /* NewShareQRCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */; };
 		47E19DD42BB1FD1700A0E596 /* WordsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD32BB1FD1700A0E596 /* WordsList.swift */; };
 		47E19DD72BB1FE0100A0E596 /* SphinxOnionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */; };
@@ -1431,6 +1433,9 @@
 		47DE1C3C2A6AF6F10029597B /* ShimmeringSentMessageView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShimmeringSentMessageView.xib; sourceTree = "<group>"; };
 		47DE1C3E2A6AFA070029597B /* ChatShimmeringView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatShimmeringView.swift; sourceTree = "<group>"; };
 		47DE1C402A6AFA0F0029597B /* ChatShimmeringView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatShimmeringView.xib; sourceTree = "<group>"; };
+		47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 2.xcdatamodel"; sourceTree = "<group>"; };
+		47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSat+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSat+CoreDataClass.swift"; sourceTree = "<group>"; };
 		47E117922C33442B006D34EA /* NewShareQRCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewShareQRCodeViewController.swift; sourceTree = "<group>"; };
 		47E19DD32BB1FD1700A0E596 /* WordsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsList.swift; sourceTree = "<group>"; };
 		47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManager.swift; sourceTree = "<group>"; };
@@ -2111,6 +2116,7 @@
 		4744FA782469C55A00C5FD94 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				47DF91512C4AA32900E8128A /* LSat */,
 				475B72172BB1CC19003AD969 /* Server */,
 				475B67FD29915C65000EF29C /* Podcast */,
 				475B67FC29915C4C000EF29C /* Actions */,
@@ -3241,6 +3247,15 @@
 			path = Shimmering;
 			sourceTree = "<group>";
 		};
+		47DF91512C4AA32900E8128A /* LSat */ = {
+			isa = PBXGroup;
+			children = (
+				47DF91522C4AA34000E8128A /* LSat+CoreDataProperties.swift */,
+				47DF91542C4AA34C00E8128A /* LSat+CoreDataClass.swift */,
+			);
+			path = LSat;
+			sourceTree = "<group>";
+		};
 		47E19DD52BB1FDF300A0E596 /* SphinxOnionManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -4134,6 +4149,7 @@
 				4744FAA52469CE6D00C5FD94 /* Data.swift in Sources */,
 				479751FA246DE61A00D2106B /* ContactsService.swift in Sources */,
 				CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */,
+				47DF91552C4AA34C00E8128A /* LSat+CoreDataClass.swift in Sources */,
 				4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */,
 				479751FE246EE0AE00D2106B /* DashboardSplittedViewController.swift in Sources */,
 				4797E7582785F3AD0080B966 /* DashboardModalsViewController.swift in Sources */,
@@ -4304,6 +4320,7 @@
 				47E19DD92BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift in Sources */,
 				478ED58425D47C4900940132 /* ConnectingView.swift in Sources */,
 				475723AB247ED3AC001ADC7E /* AudioPlayerHelper.swift in Sources */,
+				47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */,
 				474568002515148A00D66268 /* URL.swift in Sources */,
 				47C52C4827F61ADF007B43E2 /* HMACSigningManager.swift in Sources */,
 				4705D3A127A06597009C0729 /* RestoreProgressView.swift in Sources */,
@@ -5333,9 +5350,10 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */;
+			currentVersion = 47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
