@@ -23,8 +23,6 @@ class NewInviteViewController: NSViewController {
     let walletBalanceService = WalletBalanceService()
     let som = SphinxOnionManager.sharedInstance
     
-    var inviteRequestWatchdogTimer: Timer?
-    
     static func instantiate(
         delegate: NewContactChatDelegate? = nil,
         dismissDelegate: NewContactDismissDelegate? = nil
@@ -89,32 +87,25 @@ class NewInviteViewController: NSViewController {
         
         loading = true
         
-        inviteRequestWatchdogTimer = Timer.scheduledTimer(
-            timeInterval: 10,
-            target: self,
-            selector: #selector(watchdogTimerFired),
-            userInfo: nil,
-            repeats: false
-        )
-        
         som.inviteCreationCallback = handleInviteCodeAck
-        som.requestInviteCode(amountMsat: amountSats * 1000)
+        let (success, errorMsg) = som.requestInviteCode(amountMsat: amountSats * 1000)
+        
+        if !success {
+            inviteFailed(error: errorMsg)
+        }
     }
     
-    @objc func watchdogTimerFired() {
+    func inviteFailed(error: String?) {
         // Show an alert to the user
         loading = false
         
-        AlertHelper.showAlert(title: "Timeout", message: "The operation has timed out. Please try again.")
-        
-        // Invalidate the timer
-        inviteRequestWatchdogTimer?.invalidate()
+        AlertHelper.showAlert(
+            title: "Invite Error",
+            message: (error != nil) ? "Error: \(error!)" : "There was an error creating the invite"
+        )
         
         // Remove the observer for invite code ACK
         som.inviteCreationCallback = nil
-        
-        // Optionally, dismiss the view or handle the timeout appropriately
-        // self.dismiss(animated: true, completion: nil)
     }
     
     func handleInviteCodeAck(
@@ -127,9 +118,6 @@ class NewInviteViewController: NSViewController {
             )
             return
         }
-        
-        inviteRequestWatchdogTimer?.invalidate()
-        inviteRequestWatchdogTimer = nil
         
         let nickname = nicknameField.stringValue
         som.createContactForInvite(code: inviteCode, nickname: nickname)
