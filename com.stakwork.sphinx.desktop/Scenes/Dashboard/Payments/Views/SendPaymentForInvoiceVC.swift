@@ -22,6 +22,7 @@ class SendPaymentForInvoiceVC:NSViewController{
     @IBOutlet weak var payInvoiceButton: NSView!
     @IBOutlet weak var closeButton: NSButton!
     @IBOutlet weak var invoiceStringTitle: NSTextField!
+    @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
     @IBOutlet weak var verifyButton: CustomButton!
     @IBOutlet weak var payButton: CustomButton!
@@ -35,9 +36,13 @@ class SendPaymentForInvoiceVC:NSViewController{
     
     let prDecoder = PaymentRequestDecoder()
     
-    static func instantiate(
-
-    ) -> SendPaymentForInvoiceVC {
+    var loading = false {
+        didSet {
+            LoadingWheelHelper.toggleLoadingWheel(loading: loading, loadingWheel: loadingWheel, color: NSColor.Sphinx.Text, controls: [payButton])
+        }
+    }
+    
+    static func instantiate() -> SendPaymentForInvoiceVC {
         let viewController = StoryboardScene.Payments.sendPaymentVC.instantiate()
         return viewController
     }
@@ -134,10 +139,24 @@ class SendPaymentForInvoiceVC:NSViewController{
             return
         }
         
+        loading = true
+        
         let prd = PaymentRequestDecoder()
         prd.decodePaymentRequest(paymentRequest: invoice)
         
-        SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice)
+        SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice) { (success, errorMsg) in
+            self.loading = false
+            
+            if success {
+                self.animatePaymentContainer(show: false)
+                WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
+            } else {
+                AlertHelper.showAlert(
+                    title: "generic.error.title".localized,
+                    message: errorMsg ?? "generic.error.message".localized
+                )
+            }
+        }
     }
     
     @IBAction func closeTapped(_ sender: Any) {

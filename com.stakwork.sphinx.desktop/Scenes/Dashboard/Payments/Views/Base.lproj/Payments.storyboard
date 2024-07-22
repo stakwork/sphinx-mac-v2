@@ -486,6 +486,9 @@ Receive Invoice Details</string>
                                             <constraint firstAttribute="height" constant="36" id="z0r-oI-di8"/>
                                         </constraints>
                                     </customView>
+                                    <progressIndicator hidden="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="O25-aY-GlK">
+                                        <rect key="frame" x="301" y="26" width="16" height="16"/>
+                                    </progressIndicator>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="grQ-lX-LdM" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                                         <rect key="frame" x="412" y="162" width="30" height="30"/>
                                         <buttonCell key="cell" type="bevel" title="close" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="GF6-UA-JAl">
@@ -517,10 +520,12 @@ Receive Invoice Details</string>
                                     <constraint firstItem="5XW-Ko-YAi" firstAttribute="leading" secondItem="AMt-sw-PeH" secondAttribute="leading" id="WLH-To-poO"/>
                                     <constraint firstItem="JRX-De-thN" firstAttribute="top" secondItem="lDK-bz-j0p" secondAttribute="top" id="YEW-Gr-Cal"/>
                                     <constraint firstItem="PdM-4D-YUS" firstAttribute="centerY" secondItem="AMt-sw-PeH" secondAttribute="centerY" id="arR-ze-2G6"/>
+                                    <constraint firstItem="O25-aY-GlK" firstAttribute="centerY" secondItem="zQr-ov-k4r" secondAttribute="centerY" id="coF-Vz-GpV"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="mM6-Or-Bks" secondAttribute="trailing" constant="20" symbolic="YES" id="h7I-YV-aLF"/>
                                     <constraint firstItem="PdM-4D-YUS" firstAttribute="leading" secondItem="AMt-sw-PeH" secondAttribute="trailing" constant="8" id="kWV-FW-8fe"/>
                                     <constraint firstItem="w4U-a9-HSp" firstAttribute="leading" secondItem="5XW-Ko-YAi" secondAttribute="leading" id="kxL-KC-WQK"/>
                                     <constraint firstAttribute="trailing" secondItem="JRX-De-thN" secondAttribute="trailing" id="mKu-KT-6O7"/>
+                                    <constraint firstItem="O25-aY-GlK" firstAttribute="leading" secondItem="zQr-ov-k4r" secondAttribute="trailing" constant="16" id="qNn-k4-kky"/>
                                     <constraint firstItem="AMt-sw-PeH" firstAttribute="top" secondItem="lDK-bz-j0p" secondAttribute="top" constant="32" id="rGE-MM-4Za"/>
                                     <constraint firstItem="zQr-ov-k4r" firstAttribute="centerX" secondItem="lDK-bz-j0p" secondAttribute="centerX" id="slY-UV-rfK"/>
                                     <constraint firstItem="AMt-sw-PeH" firstAttribute="leading" secondItem="lDK-bz-j0p" secondAttribute="leading" constant="32" id="tHO-BB-PVZ"/>
@@ -559,6 +564,7 @@ Receive Invoice Details</string>
                         <outlet property="invoiceAmountTitle" destination="AMt-sw-PeH" id="UNU-Gy-ssZ"/>
                         <outlet property="invoiceDetailsCloseButton" destination="grQ-lX-LdM" id="B7R-nG-xzH"/>
                         <outlet property="invoiceStringTitle" destination="iM0-Ip-iyu" id="3fD-Sl-zEY"/>
+                        <outlet property="loadingWheel" destination="O25-aY-GlK" id="TgT-at-FZD"/>
                         <outlet property="memoTitle" destination="w4U-a9-HSp" id="Tko-Xu-BIE"/>
                         <outlet property="payButton" destination="BnU-bY-NLS" id="vho-mA-hry"/>
                         <outlet property="payInvoiceButton" destination="zQr-ov-k4r" id="8sh-B9-uW5"/>
