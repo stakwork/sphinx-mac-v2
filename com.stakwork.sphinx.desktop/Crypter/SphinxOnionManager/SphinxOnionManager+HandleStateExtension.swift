@@ -74,8 +74,7 @@ extension SphinxOnionManager {
                 
                 ///Handling ping done
                 self.handlePingDone(
-                    msgs: rr.msgs,
-                    settleTopic: rr.settleTopic
+                    msgs: rr.msgs
                 )
                 
                 ///Handling restore callbacks
@@ -316,16 +315,25 @@ extension SphinxOnionManager {
     
     func handlePing(ping: String?) {
         if let ping = ping {
-            if let (paymentHash, timestamp) = ping.pingComponents {
-                pingsMap[paymentHash] = timestamp
+            if let (paymentHash, timestamp, tag) = ping.pingComponents {
+                if paymentHash != "_" {
+                    pingsMap[paymentHash] = timestamp
+                }
+                
+                if let tag = tag {
+                    pingsMap[tag] = timestamp
+                }
             }
         }
     }
     
     func handlePingDone(
-        msgs: [Msg],
-        settleTopic: String?
+        msgs: [Msg]
     ) {
+        if msgs.isEmpty {
+            return
+        }
+        
         guard let seed = getAccountSeed() else {
             return
         }
@@ -340,6 +348,7 @@ extension SphinxOnionManager {
                         pingTs: intTimestamp
                     )
                     let _ = handleRunReturn(rr: rr)
+                    removeFromPingsMapWith(paymentHash)
                 } catch {
                     print("Error calling ping done")
                 }
@@ -380,6 +389,40 @@ extension SphinxOnionManager {
     func handleError(error: String?) {
         if let error = error {
             print("Run return object error: \(error)")
+            
+            if error.contains("async pay not found") {
+                for tag in pingsMap.keys {
+                    if error.contains(tag) {
+                        guard let seed = getAccountSeed() else {
+                            return
+                        }
+                        
+                        if let timestamp = pingsMap[tag], let intTimestamp = UInt64(timestamp) {
+                            do {
+                                let rr = try Sphinx.pingDone(
+                                    seed: seed,
+                                    uniqueTime: getTimeWithEntropy(),
+                                    state: loadOnionStateAsData(),
+                                    pingTs: intTimestamp
+                                )
+                                let _ = handleRunReturn(rr: rr)
+                                removeFromPingsMapWith(tag)
+                            } catch {
+                                print("Error calling ping done")
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func removeFromPingsMapWith(_ key: String) {
+        if let value = pingsMap[key] {
+            for (key, _) in pingsMap.filter({ $0.value == value }) {
+                pingsMap.removeValue(forKey: key)
+            }
         }
     }
     
