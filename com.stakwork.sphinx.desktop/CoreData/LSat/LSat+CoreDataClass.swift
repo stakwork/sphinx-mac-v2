@@ -64,7 +64,7 @@ public class LSat: NSManagedObject {
         
         let LSat: LSat? = CoreDataManager.sharedManager.getObjectOfTypeWith(
             predicate: predicate,
-            sortDescriptors: [],
+            sortDescriptors: [NSSortDescriptor(key: "createdAt", ascending: false)],
             entityName: "LSat",
             managedContext: managedContext
         )
@@ -85,6 +85,7 @@ public class LSat: NSManagedObject {
         lsat.identifier = lsatIP.identifier!
         lsat.preimage = lsatIP.preimage!
         lsat.status = LSatStatus.active.rawValue
+        lsat.createdAt = Date()
         
         managedContext.saveContext()
     }
