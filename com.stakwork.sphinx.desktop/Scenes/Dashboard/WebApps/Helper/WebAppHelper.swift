@@ -531,6 +531,8 @@ extension WebAppHelper : WKScriptMessageHandler {
 //                }, errorCallback: {
 //                    self.sendLsatResponse(dict: dict, success: false)
 //                })
+                
+                self.sendLsatResponse(dict: dict, success: false)
             }
         }
     }
@@ -622,23 +624,17 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func getPersonData(_ dict: [String: AnyObject]) {
-//        API.sharedInstance.getPersonData(callback: { person in
-//            var newDict = dict
-//            
-//            if let alias = person["alias"].string, let publicKey = person["publicKey"].string {
-//                newDict["alias"] = alias as AnyObject
-//                newDict["publicKey"] = publicKey as AnyObject
-//                
-//                if let photoUrl = person["photoUrl"].string {
-//                    newDict["photoUrl"] = photoUrl as AnyObject
-//                } else {
-//                    newDict["photoUrl"] = "" as AnyObject
-//                }
-//            }
-//            self.getPersonDataResponse(dict: newDict, success: true)
-//        }, errorCallback: {
-//            self.getPersonDataResponse(dict: dict, success: false)
-//        })
+        func getPersonData(_ dict: [String: AnyObject]) {
+            if let ownerContact = UserContact.getOwner() {
+                var newDict = dict
+                newDict["alias"] = ownerContact.nickname as AnyObject
+                newDict["publicKey"] = ownerContact.publicKey as AnyObject
+                newDict["photoUrl"] = ownerContact.getPhotoUrl() as AnyObject
+                getPersonDataResponse(dict: newDict, success: true)
+            } else {
+                getPersonDataResponse(dict: dict, success: false)
+            }
+        }
     }
     
     func getBudgetResponse(dict: [String: AnyObject], success: Bool) {
