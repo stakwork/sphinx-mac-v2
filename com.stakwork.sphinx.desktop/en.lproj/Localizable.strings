@@ -151,7 +151,7 @@
 "edit.contact.upper" = "EDIT CONTACT";
 "subscribed.upper" = "SUBSCRIBED";
 "subscribe.upper" = "SUBSCRIBE";
-"nickname.address.required" = "Nickname and Address are required.";
+"nickname.address.required" = "Nickname, Address and Route Hint are required.";
 "invalid.pubkey" = "Invalid Public Key";
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "A contact with this public key already exists in your Address Book.";
