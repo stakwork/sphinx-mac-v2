@@ -147,9 +147,10 @@ class NewContactViewController: NSViewController {
     
     @IBAction func saveButtonClicked(_ sender: Any) {
         loading = true
+        
         if let _ = contact {
             updateProfile()
-        } else if routeHintField.stringValue.isRouteHint {
+        } else {
             createV2Contact()
         }
     }
@@ -197,7 +198,7 @@ class NewContactViewController: NSViewController {
             showErrorAlert(message: "invalid.pubkey".localized)
         } else if !routeHint.isEmpty && !routeHint.isRouteHint {
             showErrorAlert(message: "invalid.route.hint".localized)
-        } else if nickname.isEmpty || pubkey.isEmpty {
+        } else if nickname.isEmpty || pubkey.isEmpty || routeHint.isEmpty {
             showErrorAlert(message: "nickname.address.required".localized)
         } else {
             UserContactsHelper.createV2Contact(nickname: nickname, pubKey: pubkey, routeHint: routeHint, callback: { (success, _) in
@@ -248,7 +249,9 @@ extension NewContactViewController : NSTextFieldDelegate {
         if let _ = contact {
             return didChangeContact()
         }
-        return userNameField.stringValue != "" && addressField.stringValue != ""
+        return userNameField.stringValue.isNotEmpty &&
+               addressField.stringValue.isNotEmpty &&
+               routeHintField.stringValue.isNotEmpty
     }
     
     func didChangeContact() -> Bool {

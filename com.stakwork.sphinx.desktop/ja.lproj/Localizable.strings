@@ -150,7 +150,7 @@
 "edit.contact.upper" = "連絡先を編集";
 "subscribed.upper" = "購読済み";
 "subscribe.upper" = "購読";
-"nickname.address.required" = "ニックネームとアドレスが必要です。";
+"nickname.address.required" = "ニックネーム、住所、ルートヒントは必須です。";
 "invalid.pubkey" = "無効な公開キー";
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "この公開キーの連絡先が既にあなたのアドレス帳に存在します。";
