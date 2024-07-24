@@ -420,6 +420,7 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="3MA-oV-p7J"/>
                                     <constraint firstAttribute="width" secondItem="wQ2-xh-hFf" secondAttribute="height" multiplier="1:1" id="Cia-E8-dd8"/>
+                                    <constraint firstAttribute="width" secondItem="wQ2-xh-hFf" secondAttribute="height" multiplier="1:1" id="grm-cD-aNz"/>
                                 </constraints>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="eXk-ze-Vw9"/>
                             </imageView>
@@ -517,7 +518,6 @@
                             <constraint firstItem="aKy-KO-itE" firstAttribute="centerX" secondItem="nRb-B5-BWf" secondAttribute="centerX" id="YMj-dd-U4O"/>
                             <constraint firstItem="fMy-vz-7jS" firstAttribute="top" secondItem="aKy-KO-itE" secondAttribute="bottom" constant="20" id="flC-La-Csh"/>
                             <constraint firstItem="fMy-vz-7jS" firstAttribute="centerX" secondItem="nRb-B5-BWf" secondAttribute="centerX" id="ft3-LA-m4H"/>
-                            <constraint firstItem="wQ2-xh-hFf" firstAttribute="width" secondItem="wQ2-xh-hFf" secondAttribute="height" multiplier="1:1" id="grm-cD-aNz"/>
                             <constraint firstItem="E2S-yt-lXm" firstAttribute="centerX" secondItem="nRb-B5-BWf" secondAttribute="centerX" id="kJi-tA-20G"/>
                             <constraint firstAttribute="bottom" secondItem="YgU-Fi-1zZ" secondAttribute="bottom" id="kYJ-qM-ZC6"/>
                             <constraint firstItem="E2S-yt-lXm" firstAttribute="top" secondItem="wQ2-xh-hFf" secondAttribute="bottom" constant="28" id="l5n-ay-wmd"/>

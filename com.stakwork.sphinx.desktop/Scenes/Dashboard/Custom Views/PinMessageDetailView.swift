@@ -17,7 +17,7 @@ class PinMessageDetailView: NSView, LoadableNib {
     @IBOutlet weak var backgroundBox: NSBox!
     @IBOutlet weak var avatarView: ChatSmallAvatarView!
     @IBOutlet weak var usernameLabel: NSTextField!
-    @IBOutlet weak var messageLabel: NSTextField!
+    @IBOutlet weak var messageLabel: MessageTextField!
     @IBOutlet weak var arrowView: NSView!
     @IBOutlet weak var unpinButtonContainer: NSView!
     @IBOutlet weak var unpinButton: CustomButton!
@@ -33,16 +33,22 @@ class PinMessageDetailView: NSView, LoadableNib {
         super.init(coder: coder)
         loadViewFromNib()
         
-        drawArrow()
-        addClickEvent()
+        configureView()
     }
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         loadViewFromNib()
         
+        configureView()
+    }
+    
+    func configureView() {
         unpinButton.cursor = .pointingHand
         containerButton.cursor = .pointingHand
+        
+        messageLabel.setSelectionColor(color: NSColor.getTextSelectionColor())
+        messageLabel.allowsEditingTextAttributes = true
         
         drawArrow()
         addClickEvent()
@@ -108,10 +114,109 @@ class PinMessageDetailView: NSView, LoadableNib {
                 usernameLabel.textColor = ChatHelper.getSenderColorFor(message: message)
             }
             
-            messageLabel.stringValue = message.bubbleMessageContentString ?? ""
             unpinButtonContainer.isHidden = message.chat?.isMyPublicGroup() == false
             
+            if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
+                configureWith(
+                    messageContent: BubbleMessageLayoutState.MessageContent(
+                        text: messageContent.replacingHightlightedChars,
+                        font: NSFont(name: "Roboto-Light", size: 15.0)!,
+                        highlightedFont: NSFont(name: "Roboto-Light", size: 15.0)!,
+                        linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
+                        highlightedMatches: messageContent.highlightedMatches,
+                        shouldLoadPaidText: false
+                    )
+                )
+            } else {
+                messageLabel.stringValue = message.bubbleMessageContentString ?? ""
+            }
+            
             self.isHidden = false
+        }
+    }
+    
+    func configureWith(
+        messageContent: BubbleMessageLayoutState.MessageContent?
+    ) {
+        if let messageContent = messageContent {
+            if messageContent.linkMatches.isEmpty && messageContent.highlightedMatches.isEmpty {
+                messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
+
+                messageLabel.stringValue = messageContent.text ?? ""
+                messageLabel.font = messageContent.font
+            } else {
+                let messageC = messageContent.text ?? ""
+                let attributedString = NSMutableAttributedString(string: messageC)
+                
+                attributedString.addAttributes(
+                    [
+                        NSAttributedString.Key.font: messageContent.font,
+                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
+                    ]
+                    , range: messageC.nsRange
+                )
+                
+                ///Highlighted text formatting
+                let highlightedNsRanges = messageContent.highlightedMatches.map {
+                    return $0.range
+                }
+                
+                for (index, nsRange) in highlightedNsRanges.enumerated() {
+                    
+                    ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                    ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
+                    let substractionNeeded = index * 2
+                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 2)
+                    
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
+                            NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
+                            NSAttributedString.Key.font: messageContent.highlightedFont
+                        ],
+                        range: adaptedRange
+                    )
+                }
+
+                ///Links formatting
+                var nsRanges = messageContent.linkMatches.map {
+                    return $0.range
+                }
+                
+                nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
+
+                for nsRange in nsRanges {
+                    
+                    if let text = messageContent.text, let range = Range(nsRange, in: text) {
+                        
+                        var substring = String(text[range])
+                        
+                        if substring.isPubKey {
+                            substring = substring.shareContactDeepLink
+                        } else if substring.starts(with: API.kVideoCallServer) {
+                            substring = substring.callLinkDeepLink
+                        } else if !substring.isTribeJoinLink {
+                            substring = substring.withProtocol(protocolString: "http")
+                        }
+                         
+                        if let url = URL(string: substring)  {
+                            attributedString.addAttributes(
+                                [
+                                    NSAttributedString.Key.link: url,
+                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                                    NSAttributedString.Key.font: messageContent.font
+                                ],
+                                range: nsRange
+                            )
+
+                        }
+                    }
+                }
+                
+                messageLabel.attributedStringValue = attributedString
+                messageLabel.isEnabled = true
+            }
         }
     }
     
