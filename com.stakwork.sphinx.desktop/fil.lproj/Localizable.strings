@@ -149,7 +149,7 @@
 "edit.contact.upper"  = "EDIT CONTACT";
 "subscribed.upper"  = "SUBSCRIBED";
 "subscribe.upper"  = "SUBSCRIBE";
-"nickname.address.required"  = "Kinakailangan ang Palayaw at Address.";
+"nickname.address.required"  = "Kinakailangan ang palayaw, Address at Pahiwatig ng Ruta.";
 "invalid.pubkey"  = "Di-wastong pampublikong Susi";
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "Ang isang contact na may public key na ito ay nag e-exists  sa iyong Address Book.";

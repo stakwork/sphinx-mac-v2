@@ -150,7 +150,7 @@
 "edit.contact.upper" = "編輯聯絡人";
 "subscribed.upper" = "已訂閱";
 "subscribe.upper" = "訂閱";
-"nickname.address.required" = "暱稱和地址是必填的。";
+"nickname.address.required" = "暱稱、地址和路線提示為必填項。";
 "invalid.pubkey" = "無效的公鑰";
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "您的地址簿中已存在此公鑰的聯絡人。";
