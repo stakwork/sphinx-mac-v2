@@ -57,7 +57,7 @@
                                         <rect key="frame" x="0.0" y="189" width="400" height="60"/>
                                         <subviews>
                                             <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="5" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gR9-A4-e5F">
-                                                <rect key="frame" x="132" y="0.0" width="137" height="40"/>
+                                                <rect key="frame" x="131" y="0.0" width="138" height="40"/>
                                                 <subviews>
                                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jju-48-tZ2">
                                                         <rect key="frame" x="-2" y="10" width="24" height="20"/>
@@ -68,7 +68,7 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jt0-vG-eUF">
-                                                        <rect key="frame" x="23" y="11" width="116" height="18"/>
+                                                        <rect key="frame" x="23" y="11" width="117" height="18"/>
                                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Pinned Message" id="WYy-Mn-DRx">
                                                             <font key="font" size="15" name="Roboto-Bold"/>
                                                             <color key="textColor" name="Text"/>
@@ -116,14 +116,14 @@
                                                 </textFieldCell>
                                             </textField>
                                             <box boxType="custom" borderType="none" cornerRadius="4" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="FwG-ds-BBA">
-                                                <rect key="frame" x="60" y="12" width="154" height="50"/>
+                                                <rect key="frame" x="60" y="12" width="153" height="50"/>
                                                 <view key="contentView" id="LmM-Rk-5Lu">
-                                                    <rect key="frame" x="0.0" y="0.0" width="154" height="50"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="153" height="50"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
-                                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jar-q7-f1c">
-                                                            <rect key="frame" x="14" y="16" width="126" height="18"/>
-                                                            <textFieldCell key="cell" title="This is a message" id="kr9-cA-LNR">
+                                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jar-q7-f1c" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
+                                                            <rect key="frame" x="14" y="16" width="125" height="18"/>
+                                                            <textFieldCell key="cell" selectable="YES" title="This is a message" id="kr9-cA-LNR">
                                                                 <font key="font" size="15" name="Roboto-Regular"/>
                                                                 <color key="textColor" name="Text"/>
                                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
