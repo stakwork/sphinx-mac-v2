@@ -148,11 +148,11 @@ extension SphinxOnionManager{
             amtMsat: Int(overPayAmountMsat ?? UInt64(amount))
         ) { success in
             if success {
-                self.finalizePayInvoice(
+                let (success, errorMsg) = self.finalizePayInvoice(
                     invoice: invoice,
                     amount: overPayAmountMsat ?? UInt64(amount)
                 )
-                callback?(true, nil)
+                callback?(success, errorMsg)
             } else {
                 ///error getting route info
                 AlertHelper.showAlert(
@@ -167,9 +167,9 @@ extension SphinxOnionManager{
     func finalizePayInvoice(
         invoice: String,
         amount: UInt64
-    ) {
+    ) -> (Bool, String?) {
         guard let seed = getAccountSeed() else{
-            return
+            return (false, "Account seed not found")
         }
         do {
             let rr = try Sphinx.payInvoice(
@@ -180,8 +180,9 @@ extension SphinxOnionManager{
                 overpayMsat: amount
             )
             let _ = handleRunReturn(rr: rr)
-        } catch {
-            return
+            return (true, nil)
+        } catch let error {
+            return (false, (error as? SphinxError).debugDescription)
         }
     }
     
