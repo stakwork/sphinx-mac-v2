@@ -4,7 +4,7 @@
 /* Class = "NSTextFieldCell"; title = "User Name"; ObjectID = "bfZ-y3-PQn"; */
 "bfZ-y3-PQn.title" = "ニックネーム *";
 
-"aRB-lU-d5K.title" = "ルートヒント";
+"aRB-lU-d5K.title" = "ルートヒント *";
 
 /* Class = "NSButtonCell"; title = "SAVE TO CONTACTS"; ObjectID = "qpE-NU-eH4"; */
 "qpE-NU-eH4.title" = "連絡先に保存";

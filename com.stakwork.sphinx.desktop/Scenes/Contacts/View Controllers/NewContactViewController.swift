@@ -241,8 +241,12 @@ extension NewContactViewController : NSTextFieldDelegate {
     
     func completePubkeyComponents(_ string: String) {
         let (pubkey, routeHint) = string.pubkeyComponents
+        
         addressField.stringValue = pubkey
-        routeHintField.stringValue = routeHint
+        
+        if routeHint.isNotEmpty {
+            routeHintField.stringValue = routeHint
+        }
     }
     
     func shouldEnableSaveButton() -> Bool {
@@ -250,8 +254,8 @@ extension NewContactViewController : NSTextFieldDelegate {
             return didChangeContact()
         }
         return userNameField.stringValue.isNotEmpty &&
-               addressField.stringValue.isNotEmpty &&
-               routeHintField.stringValue.isNotEmpty
+               addressField.stringValue.isNotEmpty && addressField.stringValue.isPubKey == true &&
+               routeHintField.stringValue.isNotEmpty && routeHintField.stringValue.isRouteHint == true
     }
     
     func didChangeContact() -> Bool {
