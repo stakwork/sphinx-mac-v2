@@ -703,8 +703,8 @@ extension SphinxOnionManager {
                                     } else {
                                         message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
                                     }
-                                } else {
-                                    message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                } else if messageStatus.isFailed() {
+                                    message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                                 }
                             }
                         }
