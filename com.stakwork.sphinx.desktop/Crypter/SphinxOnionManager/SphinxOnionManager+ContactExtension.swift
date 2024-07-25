@@ -314,14 +314,20 @@ extension SphinxOnionManager {//contacts related
     }
     
     func requiresManualRouting(
-        publicKey: String
+        publicKey: String,
+        routeHint: String? = nil
     ) -> Bool {
-        guard let contact = publicKey.isExistingContactPubkey().1 else {
-            ///requires routing if it's not a contact in our db
+        guard let myLSPPubkey = UserContact.getOwner()?.routeHint?.split(separator: "_")[0] else {
             return true
         }
         
-        guard let myLSPPubkey = UserContact.getOwner()?.routeHint?.split(separator: "_")[0] else {
+        if let routeHint = routeHint, routeHint.split(separator: "_").count > 0 {
+            let routeHintLSPPubkey = routeHint.split(separator: "_")[0]
+            return myLSPPubkey != routeHintLSPPubkey
+        }
+        
+        guard let contact = publicKey.isExistingContactPubkey().1 else {
+            ///requires routing if it's not a contact in our db
             return true
         }
         

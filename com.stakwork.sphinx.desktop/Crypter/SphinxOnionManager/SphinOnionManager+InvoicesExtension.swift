@@ -72,10 +72,14 @@ extension SphinxOnionManager{
     
     func checkAndFetchRouteTo(
         publicKey: String,
+        routeHint: String? = nil,
         amtMsat: Int,
         callback: @escaping (Bool) -> ()
     ) {
-        if requiresManualRouting(publicKey: publicKey) {
+        if requiresManualRouting(
+            publicKey: publicKey,
+            routeHint: routeHint
+        ) {
             fetchRoutingInfoFor(
                 pubkey: publicKey,
                 amtMsat: amtMsat,
@@ -139,6 +143,7 @@ extension SphinxOnionManager{
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
+            routeHint: invoiceDict.hopHints?.last,
             amtMsat: Int(overPayAmountMsat ?? UInt64(amount))
         ) { success in
             if success {
@@ -191,6 +196,7 @@ extension SphinxOnionManager{
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
+            routeHint: invoiceDict.hopHints?.last,
             amtMsat: Int(UInt64(amount))
         ) { success in
             if success {
@@ -253,16 +259,19 @@ extension SphinxOnionManager{
     
     func keysend(
         pubkey: String,
+        routeHint: String? = nil,
         amt: Int,
         completion: @escaping (Bool) -> ()
     ) {
         checkAndFetchRouteTo(
             publicKey: pubkey,
+            routeHint: routeHint,
             amtMsat: amt * 1000
         ) { success in
             if success {
                 if self.finalizeKeysend(
                     pubkey: pubkey,
+                    routeHint: routeHint,
                     amt: amt * 1000
                 ) {
                     completion(true)
@@ -278,6 +287,7 @@ extension SphinxOnionManager{
     
     func finalizeKeysend(
         pubkey: String,
+        routeHint: String? = nil,
         amt: Int
     ) -> Bool {
         guard let seed = getAccountSeed() else{
@@ -290,7 +300,8 @@ extension SphinxOnionManager{
                 to: pubkey,
                 state: loadOnionStateAsData(),
                 amtMsat: UInt64(amt),
-                data: nil
+                data: nil,
+                routeHint: routeHint
             )
             let _ = handleRunReturn(rr: rr)
             return true

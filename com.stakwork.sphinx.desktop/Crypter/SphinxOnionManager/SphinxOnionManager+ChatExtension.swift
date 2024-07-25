@@ -1404,9 +1404,12 @@ extension SphinxOnionManager {
         chat: Chat,
         completion: @escaping (TransactionMessage?) -> ()
     ) {
+        let pubkey = chat.getContact()?.publicKey ?? chat.ownerPubkey
+        let routeHint = chat.getContact()?.routeHint
+        
         guard let _ = params["reply_uuid"] as? String,
               let _ = params["text"] as? String,
-              let pubkey = chat.getContact()?.publicKey ?? chat.ownerPubkey,
+              let pubkey = pubkey,
               let amount = params["amount"] as? Int else
         {
             completion(nil)
@@ -1425,6 +1428,7 @@ extension SphinxOnionManager {
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
+            routeHint: routeHint,
             amtMsat: amount * 1000
         ) { success in
             if success {
@@ -1484,6 +1488,7 @@ extension SphinxOnionManager {
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
+            routeHint: contact.routeHint,
             amtMsat: amount * 1000
         ) { success in
             if(success){
