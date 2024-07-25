@@ -383,13 +383,6 @@ public class Chat: NSManagedObject {
         return TransactionMessage.getAllMessagesCountFor(chat: self)
     }
     
-    func getNewMessagesCount(lastMessageId: Int? = nil) -> Int {
-        guard let lastMessageId = lastMessageId else {
-            return 0
-        }
-        return TransactionMessage.getNewMessagesCountFor(chat: self, lastMessageId: lastMessageId)
-    }
-    
     func setChatMessagesAsSeen(
         shouldSync: Bool = true,
         shouldSave: Bool = true,
@@ -704,14 +697,13 @@ public class Chat: NSManagedObject {
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         
         var typeToExclude = [
-            TransactionMessage.TransactionMessageType.delete.rawValue,
             TransactionMessage.TransactionMessageType.contactKey.rawValue,
             TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue,
             TransactionMessage.TransactionMessageType.unknown.rawValue
         ]
         
         if includeContactKeyTypes {
-            typeToExclude = [TransactionMessage.TransactionMessageType.delete.rawValue]
+            typeToExclude = []
         }
         
         fetchRequest.predicate = NSPredicate(

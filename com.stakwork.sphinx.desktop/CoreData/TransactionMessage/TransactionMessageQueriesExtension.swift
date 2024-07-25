@@ -375,12 +375,8 @@ extension TransactionMessage {
         return fetchRequest
     }
     
-    static func getAllMessagesCountFor(chat: Chat, lastMessageId: Int? = nil) -> Int {
+    static func getAllMessagesCountFor(chat: Chat) -> Int {
         return CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: NSPredicate(format: "chat == %@ AND NOT (type IN %@)", chat, typesToExcludeFromChat), entityName: "TransactionMessage")
-    }
-    
-    static func getNewMessagesCountFor(chat: Chat, lastMessageId: Int) -> Int {
-        return CoreDataManager.sharedManager.getObjectsCountOfTypeWith(predicate: NSPredicate(format: "chat == %@ AND id > %d", chat, lastMessageId), entityName: "TransactionMessage")
     }
     
     static func getInvoicePaymentWith(paymentHash: String) -> TransactionMessage? {

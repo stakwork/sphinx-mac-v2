@@ -484,13 +484,12 @@ extension SphinxOnionManager {
         {
             if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
                  cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
-                
-                if let uuid = cachedMessage.uuid {
-                    receivedOMuuid(uuid)
-                }
-                
             } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
                 cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
+            }
+            
+            if let uuid = cachedMessage.uuid {
+                receivedOMuuid(uuid)
             }
             
             if cachedMessage.paymentHash == nil {
@@ -704,8 +703,8 @@ extension SphinxOnionManager {
                                     } else {
                                         message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
                                     }
-                                } else {
-                                    message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                } else if messageStatus.isFailed() {
+                                    message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                                 }
                             }
                         }
