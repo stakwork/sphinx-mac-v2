@@ -703,11 +703,8 @@ extension SphinxOnionManager {
         {
             originalMessage.uuid = newUUID
             
-            if (originalMessage.status == (TransactionMessage.TransactionMessageStatus.deleted.rawValue)){
-                originalMessage.status = TransactionMessage.TransactionMessageStatus.deleted.rawValue
-            }
-            
             finalizeSentMessage(localMsg: originalMessage, remoteMsg: message)
+            return
         }
         
         if let uuid = message.uuid,
@@ -818,7 +815,7 @@ extension SphinxOnionManager {
         }
     }
     
-    func processIncomingDeletion(message: Msg){
+    func processIncomingDeletion(message: Msg) {
         let genericIncomingMessage = GenericIncomingMessage(msg: message)
         
         if let messageToDeleteUUID = genericIncomingMessage.replyUuid {

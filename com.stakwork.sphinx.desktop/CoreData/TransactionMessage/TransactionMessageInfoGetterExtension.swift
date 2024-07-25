@@ -319,10 +319,6 @@ extension TransactionMessage {
         return getType() == TransactionMessageType.message.rawValue
     }
     
-    func isOnlyText() -> Bool {
-        return getType() == TransactionMessageType.message.rawValue && !isCallLink() && !isDeleted() || !isGiphy()
-    }
-    
     func isAttachment() -> Bool {
         return type == TransactionMessageType.attachment.rawValue
     }
@@ -449,6 +445,10 @@ extension TransactionMessage {
     
     func isDeleted() -> Bool {
         return status == TransactionMessageStatus.deleted.rawValue
+    }
+    
+    func isDeleteRequest() -> Bool {
+        return type == TransactionMessageType.delete.rawValue
     }
     
     func isNotConsecutiveMessage() -> Bool {
@@ -757,7 +757,7 @@ extension TransactionMessage {
         let directionString = incoming ? "received".localized : "sent".localized
         let senderAlias = self.getMessageSenderNickname(minimized: true, owner: owner, contact: contact)
         
-        if isDeleted() {
+        if isDeleted() || isDeleteRequest() {
             return "message.x.deleted".localized
         }
 

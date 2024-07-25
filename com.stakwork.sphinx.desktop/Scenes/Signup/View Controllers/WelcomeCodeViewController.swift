@@ -173,7 +173,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     
     func startSignup(code: String) {
         som.vc = self
-        som.chooseImportOrGenerateSeed(completion: {success in
+        som.showMnemonicToUser(completion: {success in
             if (success) {
                 self.handleInviteCode(code: code)
             } else {

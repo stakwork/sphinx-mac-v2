@@ -770,7 +770,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
-                    self.messagesArray = messages.reversed().filter { $0.isOnlyText() }
+                    self.messagesArray = messages.reversed()
                     
                     if !(self.delegate?.isOnStandardMode() ?? true) {
                         return
