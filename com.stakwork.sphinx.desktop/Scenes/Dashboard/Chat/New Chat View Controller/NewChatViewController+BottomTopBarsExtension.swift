@@ -143,7 +143,6 @@ extension NewChatViewController : GroupDetailsDelegate {
             } else {
                 som.exitTribe(tribeChat: chat)
             }
-            
             let _ = som.deleteContactOrChatMsgsFor(chat: chat)
             
             DispatchQueue.main.async {

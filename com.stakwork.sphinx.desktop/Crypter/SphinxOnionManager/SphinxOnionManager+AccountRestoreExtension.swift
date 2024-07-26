@@ -626,6 +626,12 @@ extension SphinxOnionManager {
         groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
         groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
         
+        if let message = message.message,
+           let innerContent = MessageInnerContent(JSONString: message)
+        {
+            groupActionMessage.replyUUID = innerContent.replyUuid
+        }
+        
         chat.seen = false
          
         if (didCreateTribe && csr.role != nil) {
@@ -686,7 +692,6 @@ extension SphinxOnionManager {
         requestPings()
         endWatchdogTime()
         resetFromRestore()
-        purgeObsoleteChats()
         updateRoutingInfo()
         
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
@@ -714,17 +719,6 @@ extension SphinxOnionManager {
             let _ = handleRunReturn(rr: rr)
         } catch {
             print("Error fetching pings")
-        }
-    }
-    
-    func purgeObsoleteChats(){
-        for chat in Chat.getAll() {
-            if Chat.hasRemovalIndicators(chat: chat) {
-                if let ownerPubKey = chat.ownerPubkey {
-                    addDeletedTribePubKey(tribeOwnerPubKey: ownerPubKey)
-                }
-                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-            }
         }
     }
     

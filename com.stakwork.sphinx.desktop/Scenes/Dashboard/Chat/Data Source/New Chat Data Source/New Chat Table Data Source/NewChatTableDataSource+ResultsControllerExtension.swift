@@ -167,9 +167,12 @@ extension NewChatTableDataSource {
         let contact = chat.getConversationContact()
         
         let replyingMessagesMap = getReplyingMessagesMapFor(messages: messages)
+        
         let boostMessagesMap = getBoostMessagesMapFor(messages: messages)
-        let threadMessagesMap = getThreadMessagesFor(messages: messages)
+        let requestResponsesMap = getMemberRequestResponsesMapFor(messages: messages)
         let purchaseMessagesMap = getPurchaseMessagesMapFor(messages: messages)
+        
+        let threadMessagesMap = getThreadMessagesFor(messages: messages)
         let linkContactsArray = getLinkContactsArrayFor(messages: messages)
         let linkTribesArray = getLinkTribesArrayFor(messages: messages)
         let webLinksArray = getWebLinksArrayFor(messages: messages)
@@ -198,6 +201,7 @@ extension NewChatTableDataSource {
             
             let replyingMessage = (message.replyUUID != nil) ? replyingMessagesMap[message.replyUUID!] : nil
             let boostsMessages = (message.uuid != nil) ? (boostMessagesMap[message.uuid!] ?? []) : []
+            let memberRequestResponses = (message.uuid != nil) ? (requestResponsesMap[message.uuid!] ?? []) : []
             let threadMessages = (message.threadUUID != nil) ? (threadMessagesMap[message.threadUUID!] ?? []) : []
             let threadOriginalMsg = (message.threadUUID != nil) ? originalMessagesMap[message.threadUUID!] : nil
             let purchaseMessages = purchaseMessagesMap[message.getMUID()] ?? [:]
@@ -240,6 +244,7 @@ extension NewChatTableDataSource {
                 replyingMessage: replyingMessage,
                 threadMessages: threadMessages,
                 boostMessages: boostsMessages,
+                memberRequestResponse: memberRequestResponses.first,
                 purchaseMessages: purchaseMessages,
                 linkContact: linkContact,
                 linkTribe: linkTribe,
@@ -518,6 +523,36 @@ extension NewChatTableDataSource {
         return boostMessagesMap
     }
     
+    func getMemberRequestResponsesMapFor(
+        messages: [TransactionMessage]
+    ) -> [String: [TransactionMessage]] {
+        
+        guard let chat = chat else {
+            return [:]
+        }
+        
+        let messageUUIDs: [String] = messages
+            .filter({ $0.type == TransactionMessage.TransactionMessageType.memberRequest.rawValue })
+            .map({ $0.uuid ?? "" })
+            .filter({ $0.isNotEmpty })
+        
+        let requestResponsesMessages = TransactionMessage.getMemberRequestsResponsesFor(messageUUIDs, on: chat)
+        
+        var responsesMessagesMap: [String: [TransactionMessage]] = [:]
+        
+        for responseMsg in requestResponsesMessages {
+            if let replyUUID = responseMsg.replyUUID, replyUUID.isNotEmpty {
+                if let map = responsesMessagesMap[replyUUID], map.count > 0 {
+                    responsesMessagesMap[replyUUID]?.append(responseMsg)
+                } else {
+                    responsesMessagesMap[replyUUID] = [responseMsg]
+                }
+            }
+        }
+        
+        return responsesMessagesMap
+    }
+    
     @objc func getThreadMessagesFor(
         messages: [TransactionMessage]
     ) -> [String: [TransactionMessage]] {
@@ -736,7 +771,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
         } catch {}
     }
     
-    func configureBoostAndPurchaseResultsController() {
+    func configureSecondaryMessagesResultsController() {
         guard let chat = chat else {
             return
         }
@@ -745,7 +780,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             return
         }
         
-        let fetchRequest = TransactionMessage.getBoostsAndPurchaseMessagesFetchRequestOn(chat: chat)
+        let fetchRequest = TransactionMessage.getSecondaryMessagesFetchRequestOn(chat: chat)
 
         additionMessagesResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -781,7 +816,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
                     
                     self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
-                    self.configureBoostAndPurchaseResultsController()
+                    self.configureSecondaryMessagesResultsController()
                 }
             } else {
                 if !(self.delegate?.isOnStandardMode() ?? true) {

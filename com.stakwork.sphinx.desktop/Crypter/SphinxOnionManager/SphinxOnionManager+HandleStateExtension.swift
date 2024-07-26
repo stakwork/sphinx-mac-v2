@@ -73,9 +73,7 @@ extension SphinxOnionManager {
                 self.handleReadStatus(rr: rr)
                 
                 ///Handling ping done
-                self.handlePingDone(
-                    msgs: rr.msgs
-                )
+                self.handlePingDone(msgs: rr.msgs)
                 
                 ///Handling restore callbacks
                 self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)

@@ -303,6 +303,11 @@ extension TransactionMessage {
         var typesToExclude = typesToExcludeFromChat
         typesToExclude.append(TransactionMessageType.boost.rawValue)
         
+        if chat.isMyPublicGroup() {
+            typesToExclude.append(TransactionMessageType.memberApprove.rawValue)
+            typesToExclude.append(TransactionMessageType.memberReject.rawValue)
+        }
+        
         let predicate = TransactionMessage.getPredicate(
             chat: chat,
             threadUUID: threadUUID,
@@ -326,16 +331,31 @@ extension TransactionMessage {
         return fetchRequest
     }
     
-    static func getBoostsAndPurchaseMessagesFetchRequestOn(
+    ///This method returns fetch request for:
+    ///Boost
+    ///Puchase items
+    ///Member requests responses if you are the admin
+    static func getSecondaryMessagesFetchRequestOn(
         chat: Chat
     ) -> NSFetchRequest<TransactionMessage> {
         
-        let types = [
+        var types = [
             TransactionMessageType.boost.rawValue,
             TransactionMessageType.purchase.rawValue,
             TransactionMessageType.purchaseAccept.rawValue,
-            TransactionMessageType.purchaseDeny.rawValue
+            TransactionMessageType.purchaseDeny.rawValue,
         ]
+        
+        if chat.isMyPublicGroup() {
+            types = [
+                TransactionMessageType.boost.rawValue,
+                TransactionMessageType.purchase.rawValue,
+                TransactionMessageType.purchaseAccept.rawValue,
+                TransactionMessageType.purchaseDeny.rawValue,
+                TransactionMessageType.memberReject.rawValue,
+                TransactionMessageType.memberApprove.rawValue,
+            ]
+        }
         
         let predicate = NSPredicate(
             format: "chat == %@ AND type IN %@",
@@ -502,6 +522,35 @@ extension TransactionMessage {
         )
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         let reactions: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "TransactionMessage")
+        
+        return reactions
+    }
+    
+    static func getMemberRequestsResponsesFor(
+        _ messages: [String],
+        on chat: Chat
+    ) -> [TransactionMessage] {
+        let types = [
+            TransactionMessageType.memberReject.rawValue,
+            TransactionMessageType.memberApprove.rawValue
+        ]
+        
+        let failedStatus = TransactionMessage.TransactionMessageStatus.failed.rawValue
+
+        let predicate = NSPredicate(
+            format: "chat == %@ AND type IN %@ AND replyUUID IN %@",
+            chat,
+            types,
+            messages
+        )
+        
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let reactions: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
         
         return reactions
     }
