@@ -302,8 +302,11 @@ extension TransactionMessage {
         
         var typesToExclude = typesToExcludeFromChat
         typesToExclude.append(TransactionMessageType.boost.rawValue)
-        typesToExclude.append(TransactionMessageType.memberApprove.rawValue)
-        typesToExclude.append(TransactionMessageType.memberReject.rawValue)
+        
+        if chat.isMyPublicGroup() {
+            typesToExclude.append(TransactionMessageType.memberApprove.rawValue)
+            typesToExclude.append(TransactionMessageType.memberReject.rawValue)
+        }
         
         let predicate = TransactionMessage.getPredicate(
             chat: chat,

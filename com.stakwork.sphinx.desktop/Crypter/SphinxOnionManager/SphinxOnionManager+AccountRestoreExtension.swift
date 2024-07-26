@@ -692,7 +692,6 @@ extension SphinxOnionManager {
         requestPings()
         endWatchdogTime()
         resetFromRestore()
-        purgeObsoleteChats()
         updateRoutingInfo()
         
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
