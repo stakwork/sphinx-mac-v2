@@ -774,7 +774,7 @@ extension SphinxOnionManager {
         chat.seen = true
         chat.lastMessage = nil
         
-        SphinxOnionManager.sharedInstance.setReadLevel(
+        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
             index: UInt64(message.id),
             chat: chat,
             recipContact: chat.getContact()

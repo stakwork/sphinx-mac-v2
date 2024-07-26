@@ -570,6 +570,38 @@ extension TransactionMessage {
         return messages
     }
     
+    static func getMessagePreviousTo(
+        messageId: Int,
+        on chat: Chat
+    ) -> TransactionMessage? {
+        
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        var typesToExclude = typesToExcludeFromChat
+        typesToExclude.append(TransactionMessageType.boost.rawValue)
+        
+        let predicate = NSPredicate(
+            format: "(chat == %@ AND (NOT (type IN %@) || (type == %d && replyUUID = nil))) AND id < %d",
+            chat,
+            typesToExclude,
+            TransactionMessageType.boost.rawValue,
+            messageId
+        )
+        
+        let sortDescriptors = [
+            NSSortDescriptor(key: "date", ascending: false),
+            NSSortDescriptor(key: "id", ascending: false)
+        ]
+        
+        let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
+        
+        return message
+    }
+    
     static func fetchTransactionMessagesForHistory() -> [TransactionMessage] {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         

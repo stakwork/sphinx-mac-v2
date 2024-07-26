@@ -405,24 +405,23 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         contextMenu.items = []
         var newItems = [NSMenuItem]()
 
-//        if let chat = chat {
-//            
-//            if let lastMessage = chat.lastMessage, !lastMessage.isOutgoing() {
-//                let isChatRead = lastMessage.seen
-//                
-//                let toggleReadUnreadItem = NSMenuItem(
-//                    title: isChatRead ? "mark.as.unread".localized : "mark.as.read".localized,
-//                    action: #selector(self.handleMenuItemClick(_:)),
-//                    keyEquivalent: ""
-//                )
-//                toggleReadUnreadItem.representedObject = chat
-//                toggleReadUnreadItem.target = self
-//                toggleReadUnreadItem.tag = RightClickedContactActions.toggleReadUnread.rawValue
-//                toggleReadUnreadItem.isEnabled = true
-//                
-//                newItems.append(toggleReadUnreadItem)
-//            }
-//        }
+        if let chat = chat {
+            if let lastMessage = chat.lastMessage, !lastMessage.isOutgoing() {
+                let isChatRead = lastMessage.seen
+                
+                let toggleReadUnreadItem = NSMenuItem(
+                    title: isChatRead ? "mark.as.unread".localized : "mark.as.read".localized,
+                    action: #selector(self.handleMenuItemClick(_:)),
+                    keyEquivalent: ""
+                )
+                toggleReadUnreadItem.representedObject = chat
+                toggleReadUnreadItem.target = self
+                toggleReadUnreadItem.tag = RightClickedContactActions.toggleReadUnread.rawValue
+                toggleReadUnreadItem.isEnabled = true
+                
+                newItems.append(toggleReadUnreadItem)
+            }
+        }
         
         if let contact = contact ?? chat?.getContact() {
             let deleteContactItem = NSMenuItem(
@@ -461,39 +460,35 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
                 }
                 initiateDeletion(contactId: contactId)
             case .toggleReadUnread:
-//                guard let chat = (sender.representedObject as? Chat), let lastMessage = chat.lastMessage else {
-//                    return
-//                }
-//                
-//                let desiredState = !chat.seen
-//                API.sharedInstance.toggleChatReadUnread(
-//                    chatId: chat.id,
-//                    shouldMarkAsUnread: desiredState == false,
-//                    callback: { success in
-//                        if success {
-//                            lastMessage.seen = desiredState
-//                            chat.seen = desiredState
-//                            chat.saveChat()
-//                        } else {
-//                            DispatchQueue.main.async {
-//                                AlertHelper.showAlert(
-//                                    title: "generic.error.title".localized,
-//                                    message: "generic.error.message".localized
-//                                )
-//                            }
-//                        }
-//                    }
-//                )
-                
                 guard let chat = (sender.representedObject as? Chat), let lastMessage = chat.lastMessage else {
                     return
                 }
                 
-                let desiredState = !chat.seen //store this immutable value and always sync both based on chat status
+                guard let previousMsg = TransactionMessage.getMessagePreviousTo(
+                    messageId: lastMessage.id,
+                    on: chat
+                ) else {
+                    return
+                }
                 
-                lastMessage.seen = desiredState
-                chat.seen = desiredState
-                chat.saveChat()
+                let success = SphinxOnionManager.sharedInstance.setReadLevel(
+                    index: UInt64(previousMsg.id),
+                    chat: chat,
+                    recipContact: chat.getContact()
+                )
+                
+                if success {
+                    let desiredState = !chat.seen
+                    
+                    lastMessage.seen = desiredState
+                    chat.seen = desiredState
+                    chat.saveChat()
+                } else {
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: "generic.error.message".localized
+                    )
+                }
             }
         }
     }

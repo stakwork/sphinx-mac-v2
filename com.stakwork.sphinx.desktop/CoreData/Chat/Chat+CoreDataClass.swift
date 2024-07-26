@@ -407,7 +407,7 @@ public class Chat: NSManagedObject {
             if let highestIndex = TransactionMessage.getMaxIndexFor(chat: self),
                SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: highestIndex) == false
             {
-                SphinxOnionManager.sharedInstance.setReadLevel(
+                let _ = SphinxOnionManager.sharedInstance.setReadLevel(
                     index: UInt64(highestIndex),
                     chat: self,
                     recipContact: self.getContact()
@@ -430,9 +430,10 @@ public class Chat: NSManagedObject {
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         
         fetchRequest.predicate = NSPredicate(
-            format: "chat.id == %d AND seen = %@",
+            format: "chat.id == %d AND (seen = %@ || id > %d)",
             chatId,
-            NSNumber(booleanLiteral: false)
+            NSNumber(booleanLiteral: false),
+            lastReadId
         )
         
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
@@ -446,6 +447,7 @@ public class Chat: NSManagedObject {
                     }
                     message.seen = true
                 } else {
+                    message.seen = false
                     message.chat?.seen = false
                 }
             }
