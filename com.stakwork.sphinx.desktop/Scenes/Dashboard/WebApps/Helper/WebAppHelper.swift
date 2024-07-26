@@ -64,6 +64,8 @@ class WebAppHelper : NSObject {
     var lsatInProgress: LSatInProgress? = nil
     var lsatTimer: Timer? = nil
     
+    let newMessageBubbleHelper = NewMessageBubbleHelper()
+    
     func setWebView(
         _ webView: WKWebView,
         authorizeHandler: @escaping (([String: AnyObject]) -> ()),
@@ -429,6 +431,8 @@ extension WebAppHelper : WKScriptMessageHandler {
             return
         }
         
+        newMessageBubbleHelper.showLoadingWheel()
+        
         lsatInProgress?.paymentHash = paymentH
         lsatInProgress?.publicKey = pubkey
         
@@ -452,6 +456,7 @@ extension WebAppHelper : WKScriptMessageHandler {
             callback: { success, errorMsg in
                 if let _ = errorMsg, !success {
                     self.endLsatTime()
+                    self.newMessageBubbleHelper.hideLoadingWheel()
                 }
             }
         )
@@ -482,6 +487,7 @@ extension WebAppHelper : WKScriptMessageHandler {
         )
         endLsatTime()
         lsatInProgress = nil
+        newMessageBubbleHelper.hideLoadingWheel()
     }
     
     @objc func handlePaidInvoiceNotification(n: Notification) {

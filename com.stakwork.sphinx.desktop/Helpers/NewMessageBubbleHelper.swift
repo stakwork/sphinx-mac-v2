@@ -137,10 +137,11 @@ class NewMessageBubbleHelper {
         }
     }
     
-    func toggleGenericBubbleView(view: NSView,
-                                 show: Bool,
-                                 tag: Int = NewMessageBubbleHelper.messageViewTag) {
-        
+    func toggleGenericBubbleView(
+        view: NSView,
+        show: Bool,
+        tag: Int = NewMessageBubbleHelper.messageViewTag
+    ) {
         let window = NSApplication.shared.keyWindow ?? NSApplication.shared.windows.first
         if let window = window {
             if show {
