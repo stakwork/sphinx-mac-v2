@@ -36,6 +36,7 @@ struct MessageTableCellState {
     var contactImage: NSImage? = nil
     var replyingMessage: TransactionMessage? = nil
     var boostMessages: [TransactionMessage] = []
+    var memberRequestResponse: TransactionMessage? = nil
     var threadMessages: [TransactionMessage] = []
     var purchaseMessages: [Int: TransactionMessage] = [:]
     var linkContact: LinkContact? = nil
@@ -60,6 +61,7 @@ struct MessageTableCellState {
         replyingMessage: TransactionMessage? = nil,
         threadMessages:[TransactionMessage] = [],
         boostMessages: [TransactionMessage] = [],
+        memberRequestResponse: TransactionMessage? = nil,
         purchaseMessages: [Int: TransactionMessage] = [:],
         linkContact: LinkContact? = nil,
         linkTribe: LinkTribe? = nil,
@@ -84,6 +86,7 @@ struct MessageTableCellState {
         self.replyingMessage = replyingMessage
         self.threadMessages = threadMessages
         self.boostMessages = boostMessages
+        self.memberRequestResponse = memberRequestResponse
         self.purchaseMessages = purchaseMessages
         self.linkContact = linkContact
         self.linkTribe = linkTribe
@@ -755,7 +758,11 @@ struct MessageTableCellState {
         var messageString = ""
         
         if message.isGroupJoinMessage() {
-            messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
+            if bubble?.direction.isOutgoing() == true {
+                messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
+            } else {
+                messageString = message.getGroupJoinMessageText(senderAlias: "name.you".localized)
+            }
         } else if message.isGroupLeaveMessage() {
             messageString = message.getGroupLeaveMessageText(senderAlias: senderInfo.1)
         } else if message.isApprovedRequest() {
@@ -800,13 +807,18 @@ struct MessageTableCellState {
     
     lazy var groupMemberRequest: NoBubbleMessageLayoutState.GroupMemberRequest? = {
         
-        guard let message = message, chat.isMyPublicGroup(),
-                message.isMemberRequest() || message.isApprovedRequest() || message.isDeclinedRequest() else {
+        guard let message = message, chat.isMyPublicGroup(), message.isMemberRequest() else {
             return nil
         }
         
-        guard let memberRequestStatus = NoBubbleMessageLayoutState.GroupMemberRequest.MemberRequestStatus(rawValue: message.type) else {
-            return nil
+        var memberRequestStatus = NoBubbleMessageLayoutState.GroupMemberRequest.MemberRequestStatus.Pending
+        
+        if let requestResponseMessage = memberRequestResponse {
+            if requestResponseMessage.isApprovedRequest() {
+                memberRequestStatus = NoBubbleMessageLayoutState.GroupMemberRequest.MemberRequestStatus.Approved
+            } else if requestResponseMessage.isDeclinedRequest() {
+                memberRequestStatus = NoBubbleMessageLayoutState.GroupMemberRequest.MemberRequestStatus.Rejected
+            }
         }
         
         return NoBubbleMessageLayoutState.GroupMemberRequest(
@@ -934,17 +946,18 @@ extension MessageTableCellState : Hashable {
         var mutableRhs = rhs
         
         return
-            mutableLhs.messageToShow?.id      == mutableRhs.messageToShow?.id &&
-            mutableLhs.messageId              == mutableRhs.messageId &&
-            mutableLhs.messageStatus          == mutableRhs.messageStatus &&
-            mutableLhs.messageType            == mutableRhs.messageType &&
-            mutableLhs.bubbleState            == mutableRhs.bubbleState &&
-            mutableLhs.messageString          == mutableRhs.messageString &&
-            mutableLhs.boostMessages.count    == mutableRhs.boostMessages.count &&
-            mutableLhs.isTextOnlyMessage      == mutableRhs.isTextOnlyMessage &&
-            mutableLhs.separatorDate          == mutableRhs.separatorDate &&
-            mutableLhs.paidContent?.status    == mutableRhs.paidContent?.status &&
-            mutableLhs.threadMessages.count   == mutableRhs.threadMessages.count
+            mutableLhs.messageToShow?.id         == mutableRhs.messageToShow?.id &&
+            mutableLhs.messageId                 == mutableRhs.messageId &&
+            mutableLhs.messageStatus             == mutableRhs.messageStatus &&
+            mutableLhs.messageType               == mutableRhs.messageType &&
+            mutableLhs.bubbleState               == mutableRhs.bubbleState &&
+            mutableLhs.messageString             == mutableRhs.messageString &&
+            mutableLhs.boostMessages.count       == mutableRhs.boostMessages.count &&
+            mutableLhs.isTextOnlyMessage         == mutableRhs.isTextOnlyMessage &&
+            mutableLhs.separatorDate             == mutableRhs.separatorDate &&
+            mutableLhs.paidContent?.status       == mutableRhs.paidContent?.status &&
+            mutableLhs.threadMessages.count      == mutableRhs.threadMessages.count &&
+            mutableLhs.memberRequestResponse?.id == mutableRhs.memberRequestResponse?.id
     }
 
     func hash(into hasher: inout Hasher) {

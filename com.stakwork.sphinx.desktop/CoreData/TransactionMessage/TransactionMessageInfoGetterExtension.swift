@@ -876,7 +876,7 @@ extension TransactionMessage {
         if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.approved".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
-            return "member.request.approved".localized
+            return String(format: "has.joined.tribe".localized, getMessageSenderNickname(owner: owner, contact: contact))
         }
     }
     

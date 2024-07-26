@@ -626,6 +626,12 @@ extension SphinxOnionManager {
         groupActionMessage.senderId = message.fromMe == true ? UserData.sharedInstance.getUserId() : chat.id
         groupActionMessage.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
         
+        if let message = message.message,
+           let innerContent = MessageInnerContent(JSONString: message)
+        {
+            groupActionMessage.replyUUID = innerContent.replyUuid
+        }
+        
         chat.seen = false
          
         if (didCreateTribe && csr.role != nil) {

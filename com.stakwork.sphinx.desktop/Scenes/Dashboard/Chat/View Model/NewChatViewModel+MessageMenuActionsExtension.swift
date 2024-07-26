@@ -34,7 +34,8 @@ extension NewChatViewModel {
         let _ = SphinxOnionManager.sharedInstance.sendMessage(
             to: message.chat?.getContact(),
             content: message.messageContent ?? "",
-            chat: chat, provisionalMessage: message,
+            chat: chat, 
+            provisionalMessage: message,
             threadUUID: message.threadUUID,
             replyUUID: message.replyUUID
         )
