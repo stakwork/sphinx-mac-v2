@@ -96,6 +96,7 @@
 "just.left.tribe"  = "Si %@ ay kakaalis lang sa tribo";
 "has.joined.group"  = "Si %@ ay sumali sa grupo";
 "has.joined.tribe"  = "Si %@ ay sumali sa tribo";
+"you.joined.tribe" = "Sumali ka sa tribo";
 "added.to.group"  = "Naidagdag si %@ sa grupo";
 "tribe.kick"  = "Inalis ka ng admin sa tribong ito";
 "tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";

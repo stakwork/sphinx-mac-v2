@@ -554,6 +554,11 @@ class GroupsManager {
             uuid: tribeInfo.uuid,
             useSSL: false,
             completion: { groupInfo in
+                if groupInfo["deleted"].boolValue == true {
+                    completion(nil)
+                    return
+                }
+                
                 let chatDict : [String: Any] = [
                     "id": CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
                     "owner_pubkey": groupInfo["pubkey"],

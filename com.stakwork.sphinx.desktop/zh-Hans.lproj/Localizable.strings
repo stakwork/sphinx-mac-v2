@@ -97,6 +97,7 @@
 "just.left.tribe" = "%@刚刚离开了部落";
 "has.joined.group" = "%@已加入群组";
 "has.joined.tribe" = "%@已加入部落";
+"you.joined.tribe" = "您已加入部落";
 "added.to.group" = "%@已被添加到群组";
 "tribe.kick" = "管理员已将\n您从此部落中移除";
 "tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";

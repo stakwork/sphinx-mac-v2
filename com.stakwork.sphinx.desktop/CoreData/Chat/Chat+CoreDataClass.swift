@@ -747,11 +747,13 @@ public class Chat: NSManagedObject {
     
     func updateChatFromTribesInfo() {
         self.escrowAmount = NSDecimalNumber(
-            integerLiteral: self.tribeInfo?.amountToStake ?? (self.escrowAmount?.intValue ?? 0)
+            integerLiteral: self.tribeInfo?.amountToStake ?? (self.escrowAmount?.intValue ?? 0
+                                                             )
         )
         self.pricePerMessage = NSDecimalNumber(
             integerLiteral: self.tribeInfo?.pricePerMessage ?? (self.pricePerMessage?.intValue ?? 0)
         )
+        
         self.pinnedMessageUUID = self.tribeInfo?.pin ?? nil
         self.name = (self.tribeInfo?.name?.isEmpty ?? true) ? self.name : self.tribeInfo!.name
         
@@ -762,15 +764,6 @@ public class Chat: NSManagedObject {
         }
         
         self.saveChat()
-        self.checkForDeletedTribe()
-    }
-    
-    func checkForDeletedTribe() {
-        if let tribeInfo = self.tribeInfo, tribeInfo.deleted {
-            if let lastMessage = self.getAllMessages(limit: 1).last, lastMessage.type != TransactionMessage.TransactionMessageType.groupDelete.rawValue {
-                AlertHelper.showAlert(title: "deleted.tribe.title".localized, message: "deleted.tribe.description".localized)
-            }
-        }
     }
     
     func getAppUrl() -> String? {
