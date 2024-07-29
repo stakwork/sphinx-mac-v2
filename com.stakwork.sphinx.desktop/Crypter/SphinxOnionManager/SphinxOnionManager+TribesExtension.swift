@@ -166,6 +166,10 @@ extension SphinxOnionManager {
             uuid: pubkey,
             useSSL: false,
             completion: { groupInfo in
+                if groupInfo["deleted"].boolValue == true {
+                    return
+                }
+                
                 var tribeInfo = GroupsManager.TribeInfo(ownerPubkey: pubkey, host: host, uuid: pubkey)
                 self.stashedInitialTribe = nil
                 

@@ -97,6 +97,7 @@
 "just.left.tribe" = "%@がトライブを退出しました";
 "has.joined.group" = "%@がグループに参加しました";
 "has.joined.tribe" = "%@がトライブに参加しました";
+"you.joined.tribe" = "あなたは部族に加わりました";
 "added.to.group" = "%@がグループに追加されました";
 "tribe.kick" = "管理者があなたをこのトライブから削除しました";
 "tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";

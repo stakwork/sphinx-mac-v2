@@ -97,6 +97,7 @@
 "just.left.tribe" = "%@ just left the tribe";
 "has.joined.group" = "%@ has joined the group";
 "has.joined.tribe" = "%@ has joined the tribe";
+"you.joined.tribe" = "You have joined the tribe";
 "added.to.group" = "%@ has been added to group";
 "tribe.kick" = "The admin has removed\nyou from this tribe";
 "tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";

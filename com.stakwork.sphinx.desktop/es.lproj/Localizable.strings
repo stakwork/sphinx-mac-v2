@@ -95,6 +95,7 @@
 "just.left.tribe" = "%@ ha abandonado la tribu";
 "has.joined.group" = "%@ se ha unido al grupo";
 "has.joined.tribe" = "%@ se ha unido a la tribu";
+"you.joined.tribe" = "Te has unido a la tribu";
 "added.to.group" = "%@ ha sido agregado al grupo";
 "tribe.kick" = "El administrador te ha\neliminado de esta tribu";
 "tribe.kick.as.admin" = "Has eliminado a %@ de \nesta tribu";

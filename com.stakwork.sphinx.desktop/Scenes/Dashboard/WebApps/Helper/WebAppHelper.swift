@@ -480,6 +480,11 @@ extension WebAppHelper : WKScriptMessageHandler {
             name: .invoiceIPaidSettled,
             object: nil
         )
+        
+        if let dict = lsatInProgress?.dict {
+            sendLsatResponse(dict: dict, success: false)
+        }
+        
         endLsatTime()
         lsatInProgress = nil
     }

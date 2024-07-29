@@ -759,9 +759,9 @@ struct MessageTableCellState {
         
         if message.isGroupJoinMessage() {
             if bubble?.direction.isOutgoing() == true {
-                messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
+                messageString = "you.joined.tribe".localized
             } else {
-                messageString = message.getGroupJoinMessageText(senderAlias: "name.you".localized)
+                messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
             }
         } else if message.isGroupLeaveMessage() {
             messageString = message.getGroupLeaveMessageText(senderAlias: senderInfo.1)
