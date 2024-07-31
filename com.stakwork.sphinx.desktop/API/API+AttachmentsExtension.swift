@@ -116,7 +116,7 @@ extension API {
         pubkey: String,
         callback: @escaping verifyAuthenticationCallback
     ) {
-        let url = "\(API.kAttachmentsServerUrl)/verify?id=\(id)&sig=\(sig)&pubkey=\(pubkey)"
+        let url = "\(API.kAttachmentsServerUrl)/verify?id=\(id)&sig=\(sig.urlSafe)&pubkey=\(pubkey)"
         
         guard let request = createRequest(url, params: nil, method: "POST", contentType: "multipart/form-data") else {
             callback(nil)
