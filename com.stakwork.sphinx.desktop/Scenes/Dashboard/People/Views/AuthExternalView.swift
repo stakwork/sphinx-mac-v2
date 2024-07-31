@@ -132,7 +132,7 @@ class AuthExternalView: CommonModalView, LoadableNib {
             return
         }
         
-        var urlString = "https://auth.sphinx.chat/oauth_verify?id=\(id)&sig=\(sig)&pubkey=\(pubkey)"
+        var urlString = "https://auth.sphinx.chat/oauth_verify?id=\(id)&sig=\(sig.urlSafe)&pubkey=\(pubkey)"
         
         if let routeHint = authInfo.routeHint, !routeHint.isEmpty {
             urlString = urlString + "&route_hint=\(routeHint)"

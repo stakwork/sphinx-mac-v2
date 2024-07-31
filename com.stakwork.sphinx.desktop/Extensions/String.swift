@@ -507,6 +507,30 @@ extension String {
         return Data(base64Encoded: self.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/"))
     }
     
+    var urlSafe: String {
+        return self.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+    }
+    
+    var urlSNotafe: String {
+        return self.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
+    }
+    
+    var nonBase64Data: Data? {
+        get {
+            var valid = false
+            var fixedString = self
+            while (!valid) {
+                fixedString = String(self.dropLast())
+                valid = fixedString.count % 4 == 0
+            }
+            let fixedChallenge = fixedString.urlSafe
+            if let challengeData = Data(base64Encoded: fixedChallenge) {
+                return challengeData
+            }
+            return nil
+        }
+    }
+    
     var lowerClean : String {
         return self.trim().lowercased()
     }
@@ -841,6 +865,20 @@ extension String {
                 return (paymentHash, timestamp, nil)
             }
             return nil
+        }
+    }
+    
+    var isBase64Encoded: Bool {
+        get {
+            if self.count % 4 != 0 {
+                return false
+            }
+            
+            if let _ = Data(base64Encoded: self) {
+                return true
+            } else {
+                return false
+            }
         }
     }
 }
