@@ -109,7 +109,7 @@ class TransactionsListViewController: NSViewController {
                            abs(resultTimestamp - messageTimestamp) <= timestampThreshold
                 }
                 
-                return (msgIdxUnaccounted || rhashUnaccounted) && !similarTransactionExists
+                return (msgIdxUnaccounted && rhashUnaccounted) && !similarTransactionExists
             }
             
             for result in unAccountedResults {
