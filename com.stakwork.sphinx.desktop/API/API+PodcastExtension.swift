@@ -63,7 +63,7 @@ extension API {
         callback: @escaping PodcastInfoCallback,
         errorCallback: @escaping EmptyCallback
     ) {
-        let url = API.getUrl(route: "https://tribes.sphinx.chat/podcast?id=\(podcastId)")
+        let url = "https://tribes.sphinx.chat/podcast?id=\(podcastId)"
         let tribeRequest : URLRequest? = createRequest(url, params: nil, method: "GET")
         
         guard let request = tribeRequest else {

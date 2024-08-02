@@ -33,11 +33,12 @@ class BoostButtonView: NSView, LoadableNib {
     }
     
     @IBAction func boostButtonClicked(_ sender: Any) {
-        animateButton()
-        delegate?.didTouchButton()
+        animateButton() {
+            self.delegate?.didTouchButton()
+        }
     }
     
-    func animateButton() {
+    func animateButton(completion: @escaping () -> ()) {
         boostButton.isEnabled = false
         boostButton.cursor = .pointingHand
         
@@ -59,6 +60,7 @@ class BoostButtonView: NSView, LoadableNib {
             }, completion: {
                 DispatchQueue.main.async {
                     self.boostButton.isEnabled = true
+                    completion()
                 }
             })
         })
