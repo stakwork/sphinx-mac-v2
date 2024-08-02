@@ -322,6 +322,7 @@ extension WebAppHelper : WKScriptMessageHandler {
         setTypeApplicationAndPassword(params: &params, dict: dict)
         params["lsat"] = dict["lsat"] as AnyObject
         params["success"] = success as AnyObject
+        
         let savedBudget: Int? = getValue(withKey: "budget")
         if let budget = savedBudget {
             params["budget"] = budget as AnyObject

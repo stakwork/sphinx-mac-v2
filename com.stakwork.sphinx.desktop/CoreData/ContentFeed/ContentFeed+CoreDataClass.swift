@@ -22,7 +22,16 @@ public class ContentFeed: NSManagedObject {
             return nil
         }
         
+        let feedUrl = json[CodingKeys.feedURL.rawValue].stringValue
+        let feedId = fId.fixedFeedId(feedUrl: feedUrl)
+        
         var contentFeed: ContentFeed
+        
+        ContentFeed.deleteFeedWith(feedId: feedId)
+        
+        guard let items = json[CodingKeys.items.rawValue].array, items.count > 0 else {
+            return nil
+        }
         
         if let managedObjectContext = context {
             contentFeed = ContentFeed(context: managedObjectContext)
@@ -30,17 +39,8 @@ public class ContentFeed: NSManagedObject {
             contentFeed = ContentFeed(entity: ContentFeed.entity(), insertInto: nil)
         }
         
-        let feedUrl = json[CodingKeys.feedURL.rawValue].stringValue
-        let feedId = fId.fixedFeedId(feedUrl: feedUrl)
-        
         contentFeed.feedURL = URL(string: feedUrl)
         contentFeed.feedID = feedId
-        
-        guard let items = json[CodingKeys.items.rawValue].array, items.count > 0 else {
-            ContentFeed.deleteFeedWith(feedId: feedId)
-            return nil
-        }
-        
         contentFeed.title = json[CodingKeys.title.rawValue].stringValue
         contentFeed.feedKindValue = FeedType(rawValue: json[CodingKeys.feedKindValue.rawValue].int16Value)?.rawValue ?? 0
         contentFeed.ownerURL = URL(string: json[CodingKeys.ownerURL.rawValue].stringValue)
@@ -128,8 +128,7 @@ public class ContentFeed: NSManagedObject {
         persistingIn managedObjectContext: NSManagedObjectContext,
         then completionHandler: ((Result<ContentFeed, Error>) -> Void)? = nil
     ) {
-        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
-        let tribesServerURL = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.tribesServerIP)/feed?url=\(feedURLPath)&fulltext=true"
+        let tribesServerURL = "https://tribes.sphinx.chat/feed?url=\(feedURLPath)&fulltext=true"
         
         API.sharedInstance.getContentFeed(
             url: tribesServerURL,
@@ -180,8 +179,7 @@ public class ContentFeed: NSManagedObject {
         persistingIn managedObjectContext: NSManagedObjectContext,
         then completionHandler: ((Result<ContentFeed, Error>) -> Void)? = nil
     ) {
-        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
-        let tribesServerURL = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.tribesServerIP)/feed?url=\(feedURLPath)&fulltext=true"
+        let tribesServerURL = "https://tribes.sphinx.chat/feed?url=\(feedURLPath)&fulltext=true"
         
         API.sharedInstance.getContentFeed(
             url: tribesServerURL,

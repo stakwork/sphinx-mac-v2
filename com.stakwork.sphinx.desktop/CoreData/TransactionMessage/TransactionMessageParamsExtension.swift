@@ -39,4 +39,29 @@ extension TransactionMessage {
         }
         return nil
     }
+    
+    static func getFeedBoostMessageParams(
+        contact: UserContact? = nil,
+        chat: Chat? = nil,
+        text: String
+    ) -> [String: AnyObject]? {
+        
+        var parameters = [String : AnyObject]()
+        
+        parameters["boost"] = true as AnyObject?
+        parameters["text"] = text as AnyObject?
+        
+        if let chat = chat {
+            parameters["chat_id"] = chat.id as AnyObject?
+        } else if let contact = contact {
+            parameters["contact_id"] = contact.id as AnyObject?
+        }
+        
+        let pricePerMessage = (chat?.pricePerMessage?.intValue ?? 0)
+        let escrowAmount = (chat?.escrowAmount?.intValue ?? 0)
+        parameters["amount"] = pricePerMessage + escrowAmount as AnyObject?
+        parameters["message_price"] = pricePerMessage + escrowAmount as AnyObject?
+        
+        return parameters
+    }
 }

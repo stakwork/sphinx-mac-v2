@@ -206,8 +206,8 @@ extension SphinxOnionManager {
         content: String,
         chat: Chat,
         provisionalMessage: TransactionMessage?,
-        amount:Int = 0,//amount we are sending via keysend with the message
-        purchaseAmount:Int?=nil,//amount we require receivers to pay to view message we are sending
+        amount: Int = 0,//amount we are sending via keysend with the message
+        purchaseAmount: Int? = nil,//amount we require receivers to pay to view message we are sending
         shouldSendAsKeysend: Bool = false,
         msgType: UInt8 = 0,
         muid: String? = nil,
@@ -1475,13 +1475,35 @@ extension SphinxOnionManager {
         }
     }
     
+    //MARK: Payments related
+    func sendFeedBoost(
+        params: [String: AnyObject],
+        chat: Chat,
+        completion: @escaping (TransactionMessage?) -> ()
+    ) {
+        let pubkey = chat.getContact()?.publicKey ?? chat.ownerPubkey
+        
+        guard let _ = params["text"] as? String,
+              let _ = pubkey,
+              let _ = params["amount"] as? Int else
+        {
+            completion(nil)
+            return
+        }
+        
+        let message = self.finalizeSendBoostReply(
+            params: params,
+            chat: chat
+        )
+        completion(message)
+    }
+    
     func finalizeSendBoostReply(
         params: [String: AnyObject],
         chat:Chat
     ) -> TransactionMessage? {
         
-        guard let replyUUID = params["reply_uuid"] as? String,
-            let text = params["text"] as? String,
+        guard let text = params["text"] as? String,
             let amount = params["amount"] as? Int else
         {
             return nil
@@ -1495,7 +1517,7 @@ extension SphinxOnionManager {
             amount: amount,
             msgType: UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
             threadUUID: nil,
-            replyUUID: replyUUID
+            replyUUID: params["reply_uuid"] as? String
         )
         
         return sentMessage

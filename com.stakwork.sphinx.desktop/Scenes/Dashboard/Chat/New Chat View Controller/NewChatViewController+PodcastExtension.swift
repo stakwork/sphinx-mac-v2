@@ -29,7 +29,6 @@ extension NewChatViewController {
             delegate: self,
             deepLinkData: deepLinkData
         )
-//        self.deeplinkData = nil
         
         addChildVC(vc: podcastPlayerVC!)
         

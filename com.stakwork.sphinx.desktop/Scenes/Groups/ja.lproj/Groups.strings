@@ -59,7 +59,7 @@
 "uTl-0t-F3h.title" = "フィードのコンテンツタイプ";
 
 /* Class = "NSButtonCell"; title = "Show on tribes.sphinx.chat?"; ObjectID = "qB7-uk-cfh"; */
-"qB7-uk-cfh.title" = "tribes.sphinx.chatに表示する？";
+"qB7-uk-cfh.title" = "tribes.v2.sphinx.chatに表示する？";
 
 /* Class = "NSButtonCell"; title = "Approve membership requests?"; ObjectID = "7zZ-36-zq9"; */
 "7zZ-36-zq9.title" = "メンバーシップ申請を承認する？";
