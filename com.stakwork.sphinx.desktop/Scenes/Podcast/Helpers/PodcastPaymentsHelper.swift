@@ -10,13 +10,14 @@ import Foundation
 
 class PodcastPaymentsHelper {
     public static func getSatsEarnedFor(_ feedId: String) -> Int {
-        let pmts = TransactionMessage.getPaymentsFor(feedId: feedId)
-        var satsEarned = 0
-        
-        for pmt in pmts {
-            satsEarned += (pmt.amount?.intValue ?? 0)
-        }
-        return satsEarned
+//        let pmts = TransactionMessage.getPaymentsFor(feedId: feedId)
+//        var satsEarned = 0
+//        
+//        for pmt in pmts {
+//            satsEarned += (pmt.amount?.intValue ?? 0)
+//        }
+//        return satsEarned
+        return 0
     }
     
     func processPaymentsFor(podcastFeed: PodcastFeed?,
@@ -75,42 +76,52 @@ class PodcastPaymentsHelper {
         return amt < 1 ? 1 : amt
     }
     
-    func streamSats(podcastId: String,
-                    podcatsDestinations: [PodcastDestination],
-                    updateMeta: Bool,
-                    amount: Int,
-                    chatId: Int,
-                    itemId: String,
-                    currentTime: Int,
-                    uuid: String? = nil) {
-        
-        var destinations = [[String: AnyObject]]()
-        
-        for d in podcatsDestinations {
-            
-            let destinationParams: [String: AnyObject] = [
-                "address": (d.address ?? "") as AnyObject,
-                "split": (d.split) as AnyObject,
-                "type": (d.type ?? "") as AnyObject
-            ]
-            
-            destinations.append(destinationParams)
+    func streamSats(
+        podcastId: String,
+        podcatsDestinations: [PodcastDestination],
+        updateMeta: Bool,
+        amount: Int,
+        chatId: Int,
+        itemId: String,
+        currentTime: Int,
+        uuid: String? = nil
+    ) {
+        for (index, d) in podcatsDestinations.enumerated() {
+            if d.type ?? "" == "node" {
+                let amount = Double(amount) / 100 * d.split
+                
+                var text = """
+                {
+                    "feedID": "\(podcastId)",
+                    "itemID": "\(itemId)",
+                    "ts": \(currentTime)
+                }
+                """
+                
+                if let uuid = uuid, !uuid.isEmpty {
+                    text = """
+                    {
+                        "feedID": "\(podcastId)",
+                        "itemID": "\(itemId)",
+                        "ts": \(currentTime),
+                        "uuid": \(uuid)
+                    }
+                    """
+                }
+                
+                guard let data = text.data(using: .utf8), let pubkey = d.address, pubkey.isPubKey else {
+                    continue
+                }
+                
+                DelayPerformedHelper.performAfterDelay(seconds: 0.5 * Double(index), completion: {
+                    SphinxOnionManager.sharedInstance.keysend(
+                        pubkey: pubkey,
+                        amt: Int(amount),
+                        data: data,
+                        completion: { _ in }
+                    )
+                })
+            }
         }
-        
-        var params: [String: AnyObject] = [
-            "destinations": destinations as AnyObject,
-            "amount": amount as AnyObject,
-            "chat_id": chatId as AnyObject
-        ]
-        
-        params["update_meta"] = updateMeta as AnyObject
-        
-        if let uuid = uuid, !uuid.isEmpty {
-            params["text"] = "{\"feedID\":\(podcastId),\"itemID\":\(itemId),\"ts\":\(currentTime),\"uuid\":\"\(uuid)\"}" as AnyObject
-        } else {
-            params["text"] = "{\"feedID\":\(podcastId),\"itemID\":\(itemId),\"ts\":\(currentTime)}" as AnyObject
-        }
-        
-//        API.sharedInstance.streamSats(params: params, callback: {}, errorCallback: {})
     }
 }

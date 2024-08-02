@@ -86,13 +86,9 @@ class FeedBoostHelper : NSObject {
             return
         }
         
-        for d in feedDestinations {
+        for (index, d) in feedDestinations.enumerated() {
             if d.type ?? "" == "node" {
                 let amount = Double(tipAmount) / 100 * d.split
-                
-                if Int(amount) != 53 {
-                    continue
-                }
                 
                 let text = """
                 {
@@ -106,12 +102,14 @@ class FeedBoostHelper : NSObject {
                     continue
                 }
                 
-                SphinxOnionManager.sharedInstance.keysend(
-                    pubkey: pubkey,
-                    amt: Int(amount),
-                    data: data,
-                    completion: { _ in }
-                )
+                DelayPerformedHelper.performAfterDelay(seconds: 0.5 * Double(index), completion: {
+                    SphinxOnionManager.sharedInstance.keysend(
+                        pubkey: pubkey,
+                        amt: Int(amount),
+                        data: data,
+                        completion: { _ in }
+                    )
+                })
             }
         }
     }

@@ -1044,7 +1044,7 @@ extension SphinxOnionManager {
         owner: UserContact? = nil
     ) -> TransactionMessage? {
         
-        let content = (type == TransactionMessage.TransactionMessageType.boost.rawValue) ? ("") : (message.content)
+        let content = message.content
         
         guard let indexString = message.index,
             let index = Int(indexString),
@@ -1475,7 +1475,6 @@ extension SphinxOnionManager {
         }
     }
     
-    //MARK: Payments related
     func sendFeedBoost(
         params: [String: AnyObject],
         chat: Chat,
