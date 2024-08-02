@@ -508,10 +508,6 @@ extension String {
     }
     
     var urlSafe: String {
-        return self.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
-    }
-    
-    var urlSNotafe: String {
         return self.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
     }
     
@@ -523,7 +519,10 @@ extension String {
                 fixedString = String(self.dropLast())
                 valid = fixedString.count % 4 == 0
             }
-            let fixedChallenge = fixedString.urlSafe
+            let fixedChallenge = fixedString
+                .replacingOccurrences(of: "-", with: "+")
+                .replacingOccurrences(of: "_", with: "/")
+            
             if let challengeData = Data(base64Encoded: fixedChallenge) {
                 return challengeData
             }
