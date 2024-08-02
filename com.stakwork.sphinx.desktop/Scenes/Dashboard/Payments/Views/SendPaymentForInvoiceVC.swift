@@ -145,16 +145,18 @@ class SendPaymentForInvoiceVC:NSViewController{
         prd.decodePaymentRequest(paymentRequest: invoice)
         
         SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice) { (success, errorMsg) in
-            self.loading = false
-            
-            if success {
-                self.animatePaymentContainer(show: false)
-                WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
-            } else {
-                AlertHelper.showAlert(
-                    title: "generic.error.title".localized,
-                    message: errorMsg ?? "generic.error.message".localized
-                )
+            DispatchQueue.main.async {
+                self.loading = false
+                
+                if success {
+                    self.animatePaymentContainer(show: false)
+                    WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
+                } else {
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: errorMsg ?? "generic.error.message".localized
+                    )
+                }
             }
         }
     }
