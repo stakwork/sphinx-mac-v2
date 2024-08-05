@@ -257,7 +257,7 @@ extension WebAppHelper : WKScriptMessageHandler {
             
             SphinxOnionManager.sharedInstance.keysend(
                 pubkey: dest,
-                amt: amt
+                amt: Double(amt)
             ) { success in
                 if success {
                     self.sendKeySendResponse(dict: dict, success: true)

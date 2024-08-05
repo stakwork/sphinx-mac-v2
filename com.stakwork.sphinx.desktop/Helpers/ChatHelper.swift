@@ -303,7 +303,8 @@ class ChatHelper {
             lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
                 text,
                 collectionViewWidth: collectionViewWidth,
-                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches
+                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
+                linkMatches: mutableTableCellState.messageContent?.linkMatches
             )
         }
         
@@ -468,7 +469,8 @@ class ChatHelper {
             textHeight = ChatHelper.getTextHeightFor(
                 text: text,
                 width: maxWidth,
-                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches
+                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
+                linkMatches: mutableTableCellState.messageContent?.linkMatches
             )
         }
         
@@ -479,7 +481,8 @@ class ChatHelper {
         _ text: String?,
         collectionViewWidth: CGFloat,
         maxHeight: CGFloat? = nil,
-        highlightedMatches: [NSTextCheckingResult]? = []
+        highlightedMatches: [NSTextCheckingResult]? = [],
+        linkMatches: [NSTextCheckingResult]? = []
     ) -> CGFloat {
         var textHeight: CGFloat = 0.0
         
@@ -492,7 +495,8 @@ class ChatHelper {
             textHeight = ChatHelper.getTextHeightFor(
                 text: text,
                 width: maxWidth,
-                highlightedMatches: highlightedMatches
+                highlightedMatches: highlightedMatches,
+                linkMatches: linkMatches
             )
         }
         
@@ -635,6 +639,7 @@ class ChatHelper {
         width: CGFloat,
         font: NSFont? = nil,
         highlightedMatches: [NSTextCheckingResult]? = [],
+        linkMatches: [NSTextCheckingResult]? = [],
         labelMargins: CGFloat? = nil
     ) -> CGFloat {
         let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
@@ -655,6 +660,41 @@ class ChatHelper {
                 range: adaptedRange
             )
             
+        }
+        
+        var nsRanges = linkMatches?.map {
+            return $0.range
+        } ?? []
+        
+        nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
+
+        for nsRange in nsRanges {
+            
+            if let range = Range(nsRange, in: text) {
+                
+                var substring = String(text[range])
+                
+                if substring.isPubKey {
+                    substring = substring.shareContactDeepLink
+                } else if substring.starts(with: API.kVideoCallServer) {
+                    substring = substring.callLinkDeepLink
+                } else if !substring.isTribeJoinLink {
+                    substring = substring.withProtocol(protocolString: "http")
+                }
+                 
+                if let url = URL(string: substring)  {
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.link: url,
+                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                            NSAttributedString.Key.font: Constants.kMessageFont
+                        ],
+                        range: nsRange
+                    )
+
+                }
+            }
         }
         
         let kLabelHorizontalMargins: CGFloat = 32.0

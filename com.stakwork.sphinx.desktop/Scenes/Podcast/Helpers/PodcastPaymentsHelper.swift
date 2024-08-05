@@ -10,22 +10,23 @@ import Foundation
 
 class PodcastPaymentsHelper {
     public static func getSatsEarnedFor(_ feedId: String) -> Int {
-//        let pmts = TransactionMessage.getPaymentsFor(feedId: feedId)
-//        var satsEarned = 0
-//        
-//        for pmt in pmts {
-//            satsEarned += (pmt.amount?.intValue ?? 0)
-//        }
-//        return satsEarned
-        return 0
+        let pmts = TransactionMessage.getPaymentsFor(feedId: feedId)
+        var satsEarned = 0
+        
+        for pmt in pmts {
+            satsEarned += (pmt.amount?.intValue ?? 0)
+        }
+        return satsEarned
     }
     
-    func processPaymentsFor(podcastFeed: PodcastFeed?,
-                            boostAmount: Int? = nil,
-                            itemId: String,
-                            currentTime: Int,
-                            clipSenderPubKey: String? = nil,
-                            uuid: String? = nil) {
+    func processPaymentsFor(
+        podcastFeed: PodcastFeed?,
+        boostAmount: Int? = nil,
+        itemId: String,
+        currentTime: Int,
+        clipSenderPubKey: String? = nil,
+        uuid: String? = nil
+    ) {
         
         
         let suggestedAmount = getPodcastAmount(podcastFeed)
@@ -116,7 +117,7 @@ class PodcastPaymentsHelper {
                 DelayPerformedHelper.performAfterDelay(seconds: 0.5 * Double(index), completion: {
                     SphinxOnionManager.sharedInstance.keysend(
                         pubkey: pubkey,
-                        amt: Int(amount),
+                        amt: amount,
                         data: data,
                         completion: { _ in }
                     )
