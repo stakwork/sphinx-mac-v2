@@ -230,16 +230,16 @@ class ChatHeaderView: NSView, LoadableNib {
     }
     
     func configureContributions() {
-        if let contentFeed = chat?.contentFeed, !contentFeed.feedID.isEmpty {
-            let isMyTribe = (chat?.isMyPublicGroup() ?? false)
-            let label = isMyTribe ? "earned.sats".localized : "contributed.sats".localized
-            let sats = PodcastPaymentsHelper.getSatsEarnedFor(contentFeed.feedID)
-            
-            contributionSign.isHidden = false
-            contributedSatsLabel.isHidden = false
-        
-            contributedSatsLabel.stringValue = String(format: label, sats)
-        }
+//        if let contentFeed = chat?.contentFeed, !contentFeed.feedID.isEmpty {
+//            let isMyTribe = (chat?.isMyPublicGroup() ?? false)
+//            let label = isMyTribe ? "earned.sats".localized : "contributed.sats".localized
+//            let sats = PodcastPaymentsHelper.getSatsEarnedFor(contentFeed.feedID)
+//            
+//            contributionSign.isHidden = false
+//            contributedSatsLabel.isHidden = false
+//        
+//            contributedSatsLabel.stringValue = String(format: label, sats)
+//        }
     }
     
     func setVolumeState() {

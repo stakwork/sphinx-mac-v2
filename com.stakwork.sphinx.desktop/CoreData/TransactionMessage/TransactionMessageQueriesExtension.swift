@@ -480,9 +480,19 @@ extension TransactionMessage {
     static func getPaymentsFor(feedId: String) -> [TransactionMessage] {
         let feedIDString1 = "{\"feedID\":\"\(feedId)"
         let feedIDString2 = "{\"feedID\":\(feedId)"
-        let predicate = NSPredicate(format: "chat == nil && (messageContent BEGINSWITH[c] %@ OR messageContent BEGINSWITH[c] %@)", feedIDString1, feedIDString2)
+        
+        let predicate = NSPredicate(
+            format: "chat == nil && (messageContent BEGINSWITH[c] %@ OR messageContent BEGINSWITH[c] %@)",
+            feedIDString1,
+            feedIDString2
+        )
+        
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
-        let payments: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "TransactionMessage")
+        let payments: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage"
+        )
         
         return payments
     }

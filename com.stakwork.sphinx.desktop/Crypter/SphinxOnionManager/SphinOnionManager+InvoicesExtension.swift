@@ -264,20 +264,20 @@ extension SphinxOnionManager{
     func keysend(
         pubkey: String,
         routeHint: String? = nil,
-        amt: Int,
+        amt: Double,
         data: Data? = nil,
         completion: @escaping (Bool) -> ()
     ) {
         checkAndFetchRouteTo(
             publicKey: pubkey,
             routeHint: routeHint,
-            amtMsat: amt * 1000
+            amtMsat: Int(amt * 1000)
         ) { success in
             if success {
                 if self.finalizeKeysend(
                     pubkey: pubkey,
                     routeHint: routeHint,
-                    amt: amt * 1000,
+                    amt: Int(amt * 1000),
                     data: data
                 ) {
                     completion(true)
