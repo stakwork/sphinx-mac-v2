@@ -338,6 +338,26 @@ extension SphinxOnionManager {//contacts related
         ///require routing if we're not on the same LSP
         return myLSPPubkey != contactLSPPubkey
     }
+    
+    func cancelInvite(inviteCode: String) -> Bool {
+        guard let seed = getAccountSeed() else {
+            return false
+        }
+        do {
+            let parsedInvite = try parseInvite(inviteQr: inviteCode)
+            
+            let rr = try Sphinx.cancelInvite(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                inviteCode: parsedInvite.code
+            )
+            let _ = handleRunReturn(rr: rr)
+            return true
+        } catch {
+            return false
+        }
+    }
 }
 
 

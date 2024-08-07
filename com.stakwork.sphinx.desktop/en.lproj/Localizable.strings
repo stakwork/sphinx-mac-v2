@@ -157,7 +157,9 @@
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "A contact with this public key already exists in your Address Book.";
 "delete.contact" = "Delete Contact";
+"delete.invite" = "Cancel Invite";
 "delete.contact.warning" = "Are you sure you want to delete this contact?";
+"delete.invite.warning" = "Are you sure you want to delete this invite?";
 "mark.as.unread" = "Mark as Unread";
 "mark.as.read" = "Mark as Read";
 "address-book.can-not-delete-contact-title" = "Can not delete contact";

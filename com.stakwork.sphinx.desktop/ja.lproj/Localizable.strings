@@ -156,7 +156,9 @@
 "invalid.route.hint" = "Invalid Route Hint";
 "new.contact.error.alreadyExists" = "この公開キーの連絡先が既にあなたのアドレス帳に存在します。";
 "delete.contact" = "連絡先を削除";
+"delete.invite" = "招待を削除";
 "delete.contact.warning" = "この連絡先を削除してもよろしいですか？";
+"delete.invite.warning" = "この招待を削除してもよろしいですか?";
 "mark.as.unread" = "未読としてマーク";
 "mark.as.read" = "読んだとしてマーク";
 "address-book.can-not-delete-contact-title" = "連絡先を削除できません";

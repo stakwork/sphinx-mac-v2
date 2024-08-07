@@ -424,8 +424,9 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         }
         
         if let contact = contact ?? chat?.getContact() {
+            
             let deleteContactItem = NSMenuItem(
-                title: "delete.contact".localized,
+                title: (contact.isInvite() ? "delete.invite" : "delete.contact").localized,
                 action: #selector(self.handleMenuItemClick(_:)),
                 keyEquivalent: ""
             )
@@ -495,35 +496,45 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
 
     
     func initiateDeletion(contactId: Int){
-        let confirmDeletionCallback: (() -> ()) = {
-            self.shouldDeleteContact(contactId: contactId)
+        guard let contact = UserContact.getContactWith(id: contactId) else {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: "generic.error.message".localized
+            )
+            
+            return
         }
-                
+        
+        let confirmDeletionCallback: (() -> ()) = {
+            self.shouldDeleteContact(contact: contact)
+        }
+            
         AlertHelper.showTwoOptionsAlert(
             title: "warning".localized,
-            message: "delete.contact.warning".localized,
+            message: (contact.isInvite() ? "delete.invite.warning" : "delete.contact.warning").localized,
             confirm: confirmDeletionCallback
         )
     }
     
-    func shouldDeleteContact(contactId: Int) {
-        if let contact = UserContact.getContactWith(id: contactId) {
-            
-            let som = SphinxOnionManager.sharedInstance
-            
-            if let publicKey = contact.publicKey, publicKey.isNotEmpty {
-                if som.deleteContactOrChatMsgsFor(contact: contact) {
-                    som.deleteContactFromState(pubkey: publicKey)
-                    
-                    CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
-                    return
-                }
-            }            
+    func shouldDeleteContact(contact: UserContact) {
+        let som = SphinxOnionManager.sharedInstance
+        
+        if let inviteCode = contact.invite?.inviteString, contact.isInvite() {
+            if !som.cancelInvite(inviteCode: inviteCode) {
+                AlertHelper.showAlert(
+                    title: "generic.error.title".localized,
+                    message: "generic.error.message".localized
+                )
+                return
+            }
         }
         
-        AlertHelper.showAlert(
-            title: "generic.error.title".localized,
-            message: "generic.error.message".localized
-        )
+        if let publicKey = contact.publicKey, publicKey.isNotEmpty {
+            if som.deleteContactOrChatMsgsFor(contact: contact) {
+                som.deleteContactFromState(pubkey: publicKey)
+            }
+        }
+                
+        CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
     }
 }
