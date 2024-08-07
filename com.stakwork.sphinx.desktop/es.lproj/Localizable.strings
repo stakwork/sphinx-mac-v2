@@ -151,7 +151,9 @@
 "invalid.route.hint" = "Route Hint inválido";
 "new.contact.error.alreadyExists" = "Ya existe un contacto con esta clave pública en tu lista de contactos.";
 "delete.contact" = "Eliminar contacto";
+"delete.invite" = "Cancelar Invitación";
 "delete.contact.warning" = "¿Estás seguro de que quieres eliminar este contacto?";
+"delete.invite.warning" = "¿Estás seguro de que quieres eliminar esta invitación?";
 "mark.as.unread" = "Marcar como no leído";
 "mark.as.read" = "Marcar como leído";
 "address-book.can-not-delete-contact-title" = "No se puede eliminar el contacto";
