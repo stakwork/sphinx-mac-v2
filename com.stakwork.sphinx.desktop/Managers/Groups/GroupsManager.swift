@@ -529,16 +529,22 @@ class GroupsManager {
             
             let isPrivate = tribeInfo.privateTribe
             
-            SphinxOnionManager.sharedInstance.joinTribe(
+            if SphinxOnionManager.sharedInstance.joinTribe(
                 tribePubkey: pubkey,
                 routeHint: routeHint,
                 alias: UserContact.getOwner()?.nickname,
-                isPrivate: isPrivate
-            )
-            
-            chat.status = (isPrivate) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
-            chat.type = Chat.ChatType.publicGroup.rawValue
-            chat.managedObjectContext?.saveContext()
+                isPrivate: isPrivate,
+                errorCallback: { error in
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: error.localizedDescription
+                    )
+                }
+            ) {
+                chat.status = (isPrivate) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
+                chat.type = Chat.ChatType.publicGroup.rawValue
+                chat.managedObjectContext?.saveContext()
+            }
         }
     }
     

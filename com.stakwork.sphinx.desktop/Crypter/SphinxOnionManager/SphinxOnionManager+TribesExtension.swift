@@ -22,18 +22,24 @@ extension SphinxOnionManager {
     
     func createTribe(
         params: [String: Any],
-        callback: @escaping (String) -> ()
-    ) {
+        callback: @escaping (String) -> (),
+        errorCallback: @escaping (SphinxOnionManagerError?) -> ()
+    ) -> Bool {
+        if !NetworkMonitor.shared.checkConnectionSync() {
+            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+            return false
+        }
+        
         guard let seed = getAccountSeed(),
               let tribeServerPubkey = getTribePubkey() else
         {
-            return
+            return false
         }
         
         guard let tribeData = try? JSONSerialization.data(withJSONObject: params),
               let tribeJSONString = String(data: tribeData, encoding: .utf8) else
         {
-            return
+            return false
         }
         
         self.createTribeCallback = callback
@@ -47,9 +53,11 @@ extension SphinxOnionManager {
                 tribeJson: tribeJSONString
             )
             let _ = handleRunReturn(rr: rr)
+            return true
         } catch {
             self.createTribeCallback = nil
             print("Error creating tribe")
+            return false
         }
     }
     
@@ -91,11 +99,18 @@ extension SphinxOnionManager {
         routeHint: String,
         joinAmountMsats: Int = 1000,
         alias: String? = nil,
-        isPrivate: Bool = false
-    ){
-        guard let seed = getAccountSeed() else{
-            return
+        isPrivate: Bool = false,
+        errorCallback: (SphinxOnionManagerError) -> ()
+    ) -> Bool {
+        if !NetworkMonitor.shared.checkConnectionSync() {
+            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+            return false
         }
+        
+        guard let seed = getAccountSeed() else{
+            return false
+        }
+        
         do {
             
             let rr = try Sphinx.joinTribe(
@@ -120,9 +135,10 @@ extension SphinxOnionManager {
             DelayPerformedHelper.performAfterDelay(seconds: 5.0, completion: {
                 self.recentlyJoinedTribePubKeys = self.recentlyJoinedTribePubKeys.filter({ $0 != tribePubkey })
             })
-            
+            return true
         } catch {
             recentlyJoinedTribePubKeys = recentlyJoinedTribePubKeys.filter({ $0 == tribePubkey })
+            return false
         }
     }
     
@@ -181,8 +197,16 @@ extension SphinxOnionManager {
         )
     }
     
-    func exitTribe(tribeChat: Chat) {
-        let _ = sendMessage(
+    func exitTribe(
+        tribeChat: Chat,
+        errorCallback: (SphinxOnionManagerError) -> ()
+    ) -> Bool {
+        if !NetworkMonitor.shared.checkConnectionSync() {
+            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+            return false
+        }
+
+        if let _ = sendMessage(
             to: nil,
             content: "",
             chat: tribeChat,
@@ -190,11 +214,14 @@ extension SphinxOnionManager {
             msgType: UInt8(TransactionMessage.TransactionMessageType.groupLeave.rawValue),
             threadUUID: nil,
             replyUUID: nil
-        )
-        
-        if let ownerPubKey = tribeChat.ownerPubkey {
-            addDeletedTribePubKey(tribeOwnerPubKey: ownerPubKey)
+        ).0 {
+            if let ownerPubKey = tribeChat.ownerPubkey {
+                addDeletedTribePubKey(tribeOwnerPubKey: ownerPubKey)
+            }
+            return true
         }
+        
+        return false
     }
     
     func getTribeMembers(
@@ -255,8 +282,8 @@ extension SphinxOnionManager {
         )
     }
     
-    func deleteTribe(tribeChat: Chat) {
-        let _ = sendMessage(
+    func deleteTribe(tribeChat: Chat) -> Bool {
+        if let _ = sendMessage(
             to: nil,
             content: "",
             chat: tribeChat,
@@ -264,7 +291,10 @@ extension SphinxOnionManager {
             msgType: UInt8(TransactionMessage.TransactionMessageType.groupDelete.rawValue),
             threadUUID: nil,
             replyUUID: nil
-        )
+        ).0 {
+            return true
+        }
+        return false
     }
     
     func addDeletedTribePubKey(

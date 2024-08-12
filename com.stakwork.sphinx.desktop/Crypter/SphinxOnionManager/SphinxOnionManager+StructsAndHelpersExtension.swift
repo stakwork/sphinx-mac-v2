@@ -383,3 +383,17 @@ struct ParseInvoiceResult: Mappable {
         expiry         <- map["expiry"]
     }
 }
+
+enum SphinxOnionManagerError: Error {
+    case SOMNetworkError
+    case SOMTimeoutError
+    
+    var localizedDescription: String {
+        switch self {
+        case .SOMNetworkError:
+            return "error.network".localized
+        case .SOMTimeoutError:
+            return "Timeout Error"
+        }
+    }
+}
