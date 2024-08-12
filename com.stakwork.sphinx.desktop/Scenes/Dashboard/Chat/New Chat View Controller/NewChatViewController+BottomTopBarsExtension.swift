@@ -126,6 +126,14 @@ extension NewChatViewController : GroupDetailsDelegate {
     }
     
     func exitAndDeleteGroup(completion: @escaping () -> ()) {
+        if !NetworkMonitor.shared.checkConnectionSync() {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
+            )
+            return
+        }
+        
         guard let chat = self.chat else {
             return
         }
@@ -137,12 +145,26 @@ extension NewChatViewController : GroupDetailsDelegate {
         
         AlertHelper.showTwoOptionsAlert(title: deleteLabel, message: confirmDeleteLabel, confirm: {
             let som = SphinxOnionManager.sharedInstance
+            var success = false
             
             if isMyPublicGroup {
-                som.deleteTribe(tribeChat: chat)
+                success = som.deleteTribe(tribeChat: chat)
             } else {
-                som.exitTribe(tribeChat: chat)
+                success = som.exitTribe(
+                    tribeChat: chat,
+                    errorCallback: { error in
+                        AlertHelper.showAlert(
+                            title: "generic.error.title".localized,
+                            message: error.localizedDescription
+                        )
+                    }
+                )
             }
+            
+            if !success {
+                return
+            }
+            
             let _ = som.deleteContactOrChatMsgsFor(chat: chat)
             
             DispatchQueue.main.async {

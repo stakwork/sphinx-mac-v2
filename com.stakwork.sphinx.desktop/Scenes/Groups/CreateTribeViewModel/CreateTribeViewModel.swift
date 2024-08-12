@@ -101,6 +101,14 @@ class CreateTribeViewModel {
     }
     
     func editOrCreateGroup() {
+        if !NetworkMonitor.shared.checkConnectionSync() {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
+            )
+            return
+        }
+        
         let params = groupsManager.getNewGroupParams()
         
         if let chat = chat {
@@ -147,9 +155,15 @@ class CreateTribeViewModel {
             return
         }
         
-        SphinxOnionManager.sharedInstance.createTribe(
+        let _ = SphinxOnionManager.sharedInstance.createTribe(
             params: params,
-            callback: handleNewTribeNotification
+            callback: handleNewTribeNotification, 
+            errorCallback: { error in
+                AlertHelper.showAlert(
+                    title: "generic.error.title".localized,
+                    message: error?.localizedDescription ?? ""
+                )
+            }
         )
     }
     
