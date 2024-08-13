@@ -251,9 +251,6 @@ struct MessageTableCellState {
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             return BubbleMessageLayoutState.MessageContent(
                 text: messageContent.formattingMarkdownText,
-                font: NSFont.getMessageFont(),
-                highlightedFont: NSFont.getHighlightedMessageFont(),
-                boldFont: NSFont.getMessageBoldFont(),
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
                 boldMatches: messageContent.boldMatches,
@@ -262,9 +259,6 @@ struct MessageTableCellState {
         } else if message.isPaidMessage() {
             return BubbleMessageLayoutState.MessageContent(
                 text: paidMessageContent,
-                font: NSFont.getEncryptionErrorFont(),
-                highlightedFont: NSFont.getHighlightedMessageFont(),
-                boldFont: NSFont.getMessageBoldFont(),
                 linkMatches: [],
                 highlightedMatches: [],
                 boldMatches: [],
@@ -845,9 +839,6 @@ struct MessageTableCellState {
         
         return NoBubbleMessageLayoutState.ThreadOriginalMessage(
             text: messageContent.formattingMarkdownText,
-            font: NSFont.getThreadHeaderFont(),
-            highlightedFont: NSFont.getThreadHeaderHightlightedFont(),
-            boldFont: NSFont.getThreadListHightlightedFont(),
             linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
             highlightedMatches: messageContent.highlightedMatches,
             boldMatches: messageContent.boldMatches,

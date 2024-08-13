@@ -120,9 +120,6 @@ class PinMessageDetailView: NSView, LoadableNib {
                 configureWith(
                     messageContent: BubbleMessageLayoutState.MessageContent(
                         text: messageContent.formattingMarkdownText,
-                        font: NSFont(name: "Roboto-Light", size: 15.0)!,
-                        highlightedFont: NSFont(name: "Roboto-Light", size: 15.0)!,
-                        boldFont: NSFont(name: "Roboto-Black", size: 15.0)!,
                         linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                         highlightedMatches: messageContent.highlightedMatches,
                         boldMatches: messageContent.boldMatches,
@@ -140,19 +137,23 @@ class PinMessageDetailView: NSView, LoadableNib {
     func configureWith(
         messageContent: BubbleMessageLayoutState.MessageContent?
     ) {
+        let normalFont = NSFont(name: "Roboto-Light", size: 15.0)!
+        let highlightedFont = NSFont(name: "Roboto-Light", size: 15.0)!
+        let boldFont = NSFont(name: "Roboto-Black", size: 15.0)!
+        
         if let messageContent = messageContent {
             if messageContent.hasNoMarkdown {
                 messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 messageLabel.stringValue = messageContent.text ?? ""
-                messageLabel.font = messageContent.font
+                messageLabel.font = normalFont
             } else {
                 let messageC = messageContent.text ?? ""
                 let attributedString = NSMutableAttributedString(string: messageC)
                 
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: messageContent.font,
+                        NSAttributedString.Key.font: normalFont,
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                     ]
                     , range: messageC.nsRange
@@ -174,7 +175,7 @@ class PinMessageDetailView: NSView, LoadableNib {
                         [
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: messageContent.highlightedFont
+                            NSAttributedString.Key.font: highlightedFont
                         ],
                         range: adaptedRange
                     )
@@ -193,7 +194,7 @@ class PinMessageDetailView: NSView, LoadableNib {
                     
                     attributedString.addAttributes(
                         [
-                            NSAttributedString.Key.font: messageContent.boldFont
+                            NSAttributedString.Key.font: boldFont
                         ],
                         range: adaptedRange
                     )
@@ -226,7 +227,7 @@ class PinMessageDetailView: NSView, LoadableNib {
                                     NSAttributedString.Key.link: url,
                                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                     NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: messageContent.font
+                                    NSAttributedString.Key.font: normalFont
                                 ],
                                 range: nsRange
                             )

@@ -178,9 +178,6 @@ struct BubbleMessageLayoutState {
     
     struct MessageContent {
         var text: String?
-        var font: NSFont
-        var highlightedFont: NSFont
-        var boldFont: NSFont
         var linkMatches: [NSTextCheckingResult]
         var highlightedMatches: [NSTextCheckingResult]
         var boldMatches: [NSTextCheckingResult]
@@ -188,18 +185,12 @@ struct BubbleMessageLayoutState {
         
         init(
             text: String?,
-            font: NSFont,
-            highlightedFont: NSFont,
-            boldFont: NSFont,
             linkMatches: [NSTextCheckingResult],
             highlightedMatches: [NSTextCheckingResult],
             boldMatches: [NSTextCheckingResult],
             shouldLoadPaidText: Bool
         ) {
             self.text = text
-            self.font = font
-            self.highlightedFont = highlightedFont
-            self.boldFont = boldFont
             self.linkMatches = linkMatches
             self.highlightedMatches = highlightedMatches
             self.boldMatches = boldMatches
@@ -590,9 +581,6 @@ struct NoBubbleMessageLayoutState {
     
     struct ThreadOriginalMessage {
         var text: String
-        var font: NSFont
-        var highlightedFont: NSFont
-        var boldFont: NSFont
         var linkMatches: [NSTextCheckingResult]
         var highlightedMatches: [NSTextCheckingResult]
         var boldMatches: [NSTextCheckingResult]
@@ -603,9 +591,6 @@ struct NoBubbleMessageLayoutState {
         
         init(
             text: String,
-            font: NSFont,
-            highlightedFont: NSFont,
-            boldFont: NSFont,
             linkMatches: [NSTextCheckingResult],
             highlightedMatches: [NSTextCheckingResult],
             boldMatches: [NSTextCheckingResult],
@@ -615,9 +600,6 @@ struct NoBubbleMessageLayoutState {
             timestamp: String
         ) {
             self.text = text
-            self.font = font
-            self.highlightedFont = highlightedFont
-            self.boldFont = boldFont
             self.linkMatches = linkMatches
             self.highlightedMatches = highlightedMatches
             self.boldMatches = boldMatches

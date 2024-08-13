@@ -148,16 +148,16 @@ class ThreadHeaderView: NSView, LoadableNib {
         if threadOriginalMessage.hasNoMarkdown {
             messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
             newMessageLabel.string = threadOriginalMessage.text
-            newMessageLabel.font = threadOriginalMessage.font
+            newMessageLabel.font = NSFont.getThreadHeaderFont()
             messageLabel.stringValue = threadOriginalMessage.text
-            messageLabel.font = threadOriginalMessage.font
+            messageLabel.font = NSFont.getThreadHeaderFont()
         } else {
             let messageC = threadOriginalMessage.text
 
             let attributedString = NSMutableAttributedString(string: messageC)
             attributedString.addAttributes(
                 [
-                    NSAttributedString.Key.font: threadOriginalMessage.font,
+                    NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                 ]
                 , range: messageC.nsRange
@@ -179,7 +179,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                     [
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                         NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                        NSAttributedString.Key.font: threadOriginalMessage.highlightedFont
+                        NSAttributedString.Key.font: NSFont.getThreadHeaderHightlightedFont()
                     ],
                     range: adaptedRange
                 )
@@ -198,7 +198,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                 
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: threadOriginalMessage.boldFont
+                        NSAttributedString.Key.font: NSFont.getThreadListBoldFont()
                     ],
                     range: adaptedRange
                 )
@@ -230,7 +230,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                             [
                                 NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                 NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                NSAttributedString.Key.font: threadOriginalMessage.font,
+                                NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
                                 NSAttributedString.Key.link: url
                             ],
                             range: nsRange
@@ -251,7 +251,7 @@ class ThreadHeaderView: NSView, LoadableNib {
         messageMedia: BubbleMessageLayoutState.MessageMedia?,
         mediaData: MessageTableCellState.MediaData?
     ) {
-        newMessageLabelScrollView.disabled = true
+        newMessageLabelScrollView.disabled = false
         
         if let messageMedia = messageMedia {
             

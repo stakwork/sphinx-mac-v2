@@ -185,7 +185,7 @@ extension ThreadListCollectionViewItem {
                 
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: NSFont.getMessageBoldFont()
+                        NSAttributedString.Key.font: NSFont.getThreadListBoldFont()
                     ],
                     range: adaptedRange
                 )

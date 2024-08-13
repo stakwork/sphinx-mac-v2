@@ -33,7 +33,7 @@ class Constants {
     public static var kChatNameHighlightedFont = NSFont(name: "Roboto-Bold", size: 16.0)!
     public static var kThreadHeaderFont = NSFont(name: "Roboto-Regular", size: 16.0)!
     public static var kThreadHeaderHighlightedFont = NSFont(name: "Roboto-Light", size: 16.0)!
-    public static var kThreadHeaderBoldFont = NSFont(name: "Roboto-Bold", size: 16.0)!
+    public static var kThreadHeaderBoldFont = NSFont(name: "Roboto-Black", size: 16.0)!
     public static var kThreadListFont = NSFont(name: "Roboto-Regular", size: 17.0)!
     public static var kThreadListHighlightedFont = NSFont(name: "Roboto-Light", size: 17.0)!
     public static var kThreadListBoldFont = NSFont(name: "Roboto-Black", size: 17.0)!

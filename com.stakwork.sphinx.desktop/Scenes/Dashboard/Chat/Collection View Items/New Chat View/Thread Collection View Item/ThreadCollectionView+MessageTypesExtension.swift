@@ -239,14 +239,14 @@ extension ThreadCollectionViewItem {
                 lastReplyMessageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 lastReplyMessageLabel.stringValue = messageContent.text ?? ""
-                lastReplyMessageLabel.font = messageContent.font
+                lastReplyMessageLabel.font = NSFont.getMessageFont()
             } else {
                 let messageC = messageContent.text ?? ""
 
                 let attributedString = NSMutableAttributedString(string: messageC)
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: messageContent.font,
+                        NSAttributedString.Key.font: NSFont.getMessageFont(),
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                     ]
                     , range: messageC.nsRange
@@ -268,7 +268,7 @@ extension ThreadCollectionViewItem {
                         [
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: messageContent.highlightedFont
+                            NSAttributedString.Key.font: NSFont.getHighlightedMessageFont()
                         ],
                         range: adaptedRange
                     )
@@ -287,7 +287,7 @@ extension ThreadCollectionViewItem {
                     
                     attributedString.addAttributes(
                         [
-                            NSAttributedString.Key.font: messageContent.boldFont
+                            NSAttributedString.Key.font: NSFont.getMessageBoldFont()
                         ],
                         range: adaptedRange
                     )
@@ -319,7 +319,7 @@ extension ThreadCollectionViewItem {
                                 [
                                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                     NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: messageContent.font,
+                                    NSAttributedString.Key.font: NSFont.getMessageFont(),
                                     NSAttributedString.Key.link: url
                                 ],
                                 range: nsRange
