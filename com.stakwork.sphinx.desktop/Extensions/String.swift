@@ -234,14 +234,14 @@ extension String {
             return []
         }
         
-        let textWithoutHightlights = self.formattingMarkdownText
+        let textWithoutMarkdown = self.formattingMarkdownText
         let types: NSTextCheckingResult.CheckingType = [.link]
         let detector = try? NSDataDetector(types: types.rawValue)
         
         let matches = detector!.matches(
-            in: textWithoutHightlights,
+            in: textWithoutMarkdown,
             options: .reportCompletion,
-            range: NSMakeRange(0, textWithoutHightlights.utf16.count)
+            range: NSMakeRange(0, textWithoutMarkdown.utf16.count)
         )
         
         return matches
@@ -249,30 +249,30 @@ extension String {
     }
     
     var pubKeyMatches: [NSTextCheckingResult] {
-        let textWithoutHightlights = self.formattingMarkdownText
+        let textWithoutMarkdown = self.formattingMarkdownText
         let pubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}\\b")
         let virtualPubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+\\b")
         
         let virtualPubkeyResults = virtualPubkeyRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
         
         let pubkeyResults = pubkeyRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
         
         return virtualPubkeyResults + pubkeyResults
     }
     
     var mentionMatches: [NSTextCheckingResult] {
-        let textWithoutHightlights = self.formattingMarkdownText
+        let textWithoutMarkdown = self.formattingMarkdownText
         let mentionRegex = try? NSRegularExpression(pattern: "\\B@[^\\s]+")
         
         return mentionRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
     }
     

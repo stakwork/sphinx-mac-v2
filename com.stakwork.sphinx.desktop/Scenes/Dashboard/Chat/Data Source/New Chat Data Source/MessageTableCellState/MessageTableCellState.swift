@@ -478,7 +478,6 @@ struct MessageTableCellState {
         let originalMessageSenderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let originalThreadMessage = BubbleMessageLayoutState.ThreadMessage(
             text: message.bubbleMessageContentString?.formattingMarkdownText,
-            font: NSFont.getMessageFont(),
             senderPic: originalMessageSenderInfo.2,
             senderAlias: originalMessageSenderInfo.1,
             senderColor: originalMessageSenderInfo.0,
@@ -685,7 +684,6 @@ struct MessageTableCellState {
             date: date,
             amount: amount,
             memo: message.messageContent,
-            font: NSFont.getMessageFont(),
             isPaid: message.isPaid(),
             isExpired: message.isExpired(),
             bubbleWidth: bubbleWidth

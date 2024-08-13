@@ -201,7 +201,7 @@ extension ThreadCollectionViewItem {
             textMessageView.superview?.layoutSubtreeIfNeeded()
             
             messageLabel.stringValue = text
-            messageLabel.font = originalMessage.font
+            messageLabel.font = NSFont.getMessageFont()
             
             textMessageView.isHidden = false
             

@@ -62,7 +62,7 @@ class InvoiceView: NSView, LoadableNib {
         
         addDashdBorder(invoice: invoice, bubble: bubble)
         
-        memoLabel.font = invoice.font
+        memoLabel.font = NSFont.getMessageFont()
         unitLabel.textColor = bubble.direction.isIncoming() ? NSColor.Sphinx.WashedOutReceivedText : NSColor.Sphinx.WashedOutSentText
         
         if let memo = invoice.memo, memo.isNotEmpty {

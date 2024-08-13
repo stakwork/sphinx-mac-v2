@@ -99,7 +99,6 @@ struct BubbleMessageLayoutState {
     
     struct ThreadMessage {
         var text: String?
-        var font: NSFont?
         var senderPic: String?
         var senderAlias: String?
         var senderColor: NSColor?
@@ -107,14 +106,12 @@ struct BubbleMessageLayoutState {
         
         init(
             text: String?,
-            font: NSFont?,
             senderPic: String?,
             senderAlias: String?,
             senderColor: NSColor?,
             sendDate: Date?
         ) {
             self.text = text
-            self.font = font
             self.senderPic = senderPic
             self.senderAlias = senderAlias
             self.senderColor = senderColor
@@ -461,7 +458,6 @@ struct BubbleMessageLayoutState {
         var date: Date
         var amount: Int
         var memo: String?
-        var font: NSFont
         var isPaid: Bool
         var isExpired: Bool
         var bubbleWidth: CGFloat
@@ -470,7 +466,6 @@ struct BubbleMessageLayoutState {
             date: Date,
             amount: Int,
             memo: String?,
-            font: NSFont,
             isPaid: Bool,
             isExpired: Bool,
             bubbleWidth: CGFloat
@@ -478,7 +473,6 @@ struct BubbleMessageLayoutState {
             self.date = date
             self.amount = amount
             self.memo = memo
-            self.font = font
             self.isPaid = isPaid
             self.isExpired = isExpired
             self.bubbleWidth = bubbleWidth

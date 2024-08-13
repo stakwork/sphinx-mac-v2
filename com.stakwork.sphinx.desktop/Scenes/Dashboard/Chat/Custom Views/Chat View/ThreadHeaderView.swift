@@ -198,7 +198,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                 
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: NSFont.getThreadListBoldFont()
+                        NSAttributedString.Key.font: NSFont.getThreadHeaderBoldFont()
                     ],
                     range: adaptedRange
                 )

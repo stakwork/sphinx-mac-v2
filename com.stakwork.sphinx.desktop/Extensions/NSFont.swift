@@ -53,6 +53,10 @@ extension NSFont {
         return Constants.kThreadHeaderHighlightedFont
     }
     
+    static func getThreadHeaderBoldFont() -> NSFont {
+        return Constants.kThreadHeaderBoldFont
+    }
+    
     static func getThreadListFont() -> NSFont {
         return Constants.kThreadListFont
     }
