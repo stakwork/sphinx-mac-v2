@@ -126,7 +126,7 @@ extension NewChatViewController : GroupDetailsDelegate {
     }
     
     func exitAndDeleteGroup(completion: @escaping () -> ()) {
-        if !NetworkMonitor.shared.checkConnectionSync() {
+        if !NetworkMonitor.shared.isNetworkConnected() {
             AlertHelper.showAlert(
                 title: "generic.error.title".localized,
                 message: SphinxOnionManagerError.SOMNetworkError.localizedDescription

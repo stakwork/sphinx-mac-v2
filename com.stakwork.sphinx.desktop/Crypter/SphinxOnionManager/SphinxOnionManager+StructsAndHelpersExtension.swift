@@ -391,7 +391,7 @@ enum SphinxOnionManagerError: Error {
     var localizedDescription: String {
         switch self {
         case .SOMNetworkError:
-            return "error.network".localized
+            return "Network Error"
         case .SOMTimeoutError:
             return "Timeout Error"
         }
