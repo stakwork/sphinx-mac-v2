@@ -119,11 +119,10 @@ class PinMessageDetailView: NSView, LoadableNib {
             if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
                 configureWith(
                     messageContent: BubbleMessageLayoutState.MessageContent(
-                        text: messageContent.replacingHightlightedChars,
-                        font: NSFont(name: "Roboto-Light", size: 15.0)!,
-                        highlightedFont: NSFont(name: "Roboto-Light", size: 15.0)!,
+                        text: messageContent.removingMarkdownDelimiters,
                         linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                         highlightedMatches: messageContent.highlightedMatches,
+                        boldMatches: messageContent.boldMatches,
                         shouldLoadPaidText: false
                     )
                 )
@@ -138,19 +137,23 @@ class PinMessageDetailView: NSView, LoadableNib {
     func configureWith(
         messageContent: BubbleMessageLayoutState.MessageContent?
     ) {
+        let normalFont = NSFont(name: "Roboto-Light", size: 15.0)!
+        let highlightedFont = NSFont(name: "Roboto-Light", size: 15.0)!
+        let boldFont = NSFont(name: "Roboto-Black", size: 15.0)!
+        
         if let messageContent = messageContent {
-            if messageContent.linkMatches.isEmpty && messageContent.highlightedMatches.isEmpty {
+            if messageContent.hasNoMarkdown {
                 messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 messageLabel.stringValue = messageContent.text ?? ""
-                messageLabel.font = messageContent.font
+                messageLabel.font = normalFont
             } else {
                 let messageC = messageContent.text ?? ""
                 let attributedString = NSMutableAttributedString(string: messageC)
                 
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: messageContent.font,
+                        NSAttributedString.Key.font: normalFont,
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                     ]
                     , range: messageC.nsRange
@@ -166,13 +169,38 @@ class PinMessageDetailView: NSView, LoadableNib {
                     ///Subtracting the previous matches delimiter characters since they have been removed from the string
                     ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
                     let substractionNeeded = index * 2
-                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 2)
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 2, (messageContent.text ?? "").count)
+                    )
                     
                     attributedString.addAttributes(
                         [
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: messageContent.highlightedFont
+                            NSAttributedString.Key.font: highlightedFont
+                        ],
+                        range: adaptedRange
+                    )
+                }
+                
+                ///Bold text formatting
+                let boldNsRanges = messageContent.boldMatches.map {
+                    return $0.range
+                }
+                
+                for (index, nsRange) in boldNsRanges.enumerated() {
+                    ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                    ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+                    let substractionNeeded = index * 4
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 4, (messageContent.text ?? "").count)
+                    )
+                    
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.font: boldFont
                         ],
                         range: adaptedRange
                     )
@@ -205,7 +233,7 @@ class PinMessageDetailView: NSView, LoadableNib {
                                     NSAttributedString.Key.link: url,
                                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                     NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: messageContent.font
+                                    NSAttributedString.Key.font: normalFont
                                 ],
                                 range: nsRange
                             )

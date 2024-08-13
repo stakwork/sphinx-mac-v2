@@ -201,7 +201,7 @@ extension ThreadCollectionViewItem {
             textMessageView.superview?.layoutSubtreeIfNeeded()
             
             messageLabel.stringValue = text
-            messageLabel.font = originalMessage.font
+            messageLabel.font = NSFont.getMessageFont()
             
             textMessageView.isHidden = false
             
@@ -235,18 +235,18 @@ extension ThreadCollectionViewItem {
             
             lastReplyTextMessageView.isHidden = false
             
-            if messageContent.linkMatches.isEmpty && messageContent.highlightedMatches.isEmpty && searchingTerm == nil {
+            if messageContent.hasNoMarkdown && searchingTerm == nil {
                 lastReplyMessageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 lastReplyMessageLabel.stringValue = messageContent.text ?? ""
-                lastReplyMessageLabel.font = messageContent.font
+                lastReplyMessageLabel.font = NSFont.getMessageFont()
             } else {
                 let messageC = messageContent.text ?? ""
 
                 let attributedString = NSMutableAttributedString(string: messageC)
                 attributedString.addAttributes(
                     [
-                        NSAttributedString.Key.font: messageContent.font,
+                        NSAttributedString.Key.font: NSFont.getMessageFont(),
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                     ]
                     , range: messageC.nsRange
@@ -262,13 +262,38 @@ extension ThreadCollectionViewItem {
                     ///Subtracting the previous matches delimiter characters since they have been removed from the string
                     ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
                     let substractionNeeded = index * 2
-                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 2)
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 2, (messageContent.text ?? "").count)
+                    )
                     
                     attributedString.addAttributes(
                         [
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: messageContent.highlightedFont
+                            NSAttributedString.Key.font: NSFont.getHighlightedMessageFont()
+                        ],
+                        range: adaptedRange
+                    )
+                }
+                
+                ///Bold text formatting
+                let boldNsRanges = messageContent.boldMatches.map {
+                    return $0.range
+                }
+                
+                for (index, nsRange) in boldNsRanges.enumerated() {
+                    ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                    ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+                    let substractionNeeded = index * 4
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 4, (messageContent.text ?? "").count)
+                    )
+                    
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.font: NSFont.getMessageBoldFont()
                         ],
                         range: adaptedRange
                     )
@@ -300,7 +325,7 @@ extension ThreadCollectionViewItem {
                                 [
                                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                     NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: messageContent.font,
+                                    NSAttributedString.Key.font: NSFont.getMessageFont(),
                                     NSAttributedString.Key.link: url
                                 ],
                                 range: nsRange

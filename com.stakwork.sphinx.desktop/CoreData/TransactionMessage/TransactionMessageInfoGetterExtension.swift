@@ -164,13 +164,13 @@ extension TransactionMessage {
             adjustedMC = "join.call".localized
         }
         
-        return adjustedMC
+        return adjustedMC.removingMarkdownDelimiters
     }
     
     func getReplyMessageContent() -> String {
         if hasMessageContent() {
             let messageContent = bubbleMessageContentString ?? ""
-            return messageContent.isValidHTML ? "bot.response.preview".localized : messageContent
+            return messageContent.isValidHTML ? "bot.response.preview".localized : messageContent.removingMarkdownDelimiters
         }
         if let fileName = self.mediaFileName {
             return fileName

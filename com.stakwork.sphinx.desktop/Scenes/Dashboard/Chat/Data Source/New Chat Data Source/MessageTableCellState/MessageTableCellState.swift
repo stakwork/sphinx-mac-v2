@@ -234,7 +234,7 @@ struct MessageTableCellState {
             messageId: replyingMessage.id,
             color: senderInfo.0,
             alias: senderInfo.1,
-            message: replyingMessage.bubbleMessageContentString,
+            message: replyingMessage.bubbleMessageContentString?.removingMarkdownDelimiters,
             mediaType: mediaType
         )
     }()
@@ -250,20 +250,18 @@ struct MessageTableCellState {
         
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             return BubbleMessageLayoutState.MessageContent(
-                text: messageContent.replacingHightlightedChars,
-                font: NSFont.getMessageFont(),
-                highlightedFont: NSFont.getHighlightedMessageFont(),
+                text: messageContent.removingMarkdownDelimiters,
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
+                boldMatches: messageContent.boldMatches,
                 shouldLoadPaidText: false
             )
         } else if message.isPaidMessage() {
             return BubbleMessageLayoutState.MessageContent(
                 text: paidMessageContent,
-                font: NSFont.getEncryptionErrorFont(),
-                highlightedFont: NSFont.getHighlightedMessageFont(),
                 linkMatches: [],
                 highlightedMatches: [],
+                boldMatches: [],
                 shouldLoadPaidText: message.messageContent == nil && (paidContent?.isPurchaseAccepted() == true || bubble?.direction.isOutgoing() == true)
             )
         }
@@ -479,8 +477,7 @@ struct MessageTableCellState {
         
         let originalMessageSenderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let originalThreadMessage = BubbleMessageLayoutState.ThreadMessage(
-            text: message.bubbleMessageContentString?.replacingHightlightedChars,
-            font: NSFont.getMessageFont(),
+            text: message.bubbleMessageContentString?.removingMarkdownDelimiters,
             senderPic: originalMessageSenderInfo.2,
             senderAlias: originalMessageSenderInfo.1,
             senderColor: originalMessageSenderInfo.0,
@@ -687,7 +684,6 @@ struct MessageTableCellState {
             date: date,
             amount: amount,
             memo: message.messageContent,
-            font: NSFont.getMessageFont(),
             isPaid: message.isPaid(),
             isExpired: message.isExpired(),
             bubbleWidth: bubbleWidth
@@ -830,19 +826,20 @@ struct MessageTableCellState {
     
     ///Thread original message header
     lazy var threadOriginalMessageHeader: NoBubbleMessageLayoutState.ThreadOriginalMessage? = {
-        guard let message = message else {
-            return nil
-        }
+//        guard let message = message else {
+//            return nil
+//        }
+        
+        let message = message!
         
         let senderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let messageContent = message.bubbleMessageContentString ?? ""
         
         return NoBubbleMessageLayoutState.ThreadOriginalMessage(
-            text: messageContent.replacingHightlightedChars,
-            font: NSFont.getThreadHeaderFont(),
-            highlightedFont: NSFont.getThreadHeaderHightlightedFont(),
+            text: messageContent.removingMarkdownDelimiters,
             linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
             highlightedMatches: messageContent.highlightedMatches,
+            boldMatches: messageContent.boldMatches,
             senderPic: senderInfo.2,
             senderAlias: senderInfo.1,
             senderColor: senderInfo.0,

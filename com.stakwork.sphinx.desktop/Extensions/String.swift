@@ -234,14 +234,14 @@ extension String {
             return []
         }
         
-        let textWithoutHightlights = self.replacingHightlightedChars
+        let textWithoutMarkdown = self.removingMarkdownDelimiters
         let types: NSTextCheckingResult.CheckingType = [.link]
         let detector = try? NSDataDetector(types: types.rawValue)
         
         let matches = detector!.matches(
-            in: textWithoutHightlights,
+            in: textWithoutMarkdown,
             options: .reportCompletion,
-            range: NSMakeRange(0, textWithoutHightlights.utf16.count)
+            range: NSMakeRange(0, textWithoutMarkdown.utf16.count)
         )
         
         return matches
@@ -249,36 +249,47 @@ extension String {
     }
     
     var pubKeyMatches: [NSTextCheckingResult] {
-        let textWithoutHightlights = self.replacingHightlightedChars
+        let textWithoutMarkdown = self.removingMarkdownDelimiters
         let pubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}\\b")
         let virtualPubkeyRegex = try? NSRegularExpression(pattern: "\\b[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+\\b")
         
         let virtualPubkeyResults = virtualPubkeyRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
         
         let pubkeyResults = pubkeyRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
         
         return virtualPubkeyResults + pubkeyResults
     }
     
     var mentionMatches: [NSTextCheckingResult] {
-        let textWithoutHightlights = self.replacingHightlightedChars
+        let textWithoutMarkdown = self.removingMarkdownDelimiters
         let mentionRegex = try? NSRegularExpression(pattern: "\\B@[^\\s]+")
         
         return mentionRegex?.matches(
-            in: textWithoutHightlights,
-            range: NSRange(textWithoutHightlights.startIndex..., in: textWithoutHightlights)
+            in: textWithoutMarkdown,
+            range: NSRange(textWithoutMarkdown.startIndex..., in: textWithoutMarkdown)
         ) ?? []
     }
     
     var highlightedMatches: [NSTextCheckingResult] {
+        let markdownText = self.replacingBoldDelimeterChars.replacingHyphensWithBullets
         let highlightedRegex = try? NSRegularExpression(pattern: "`(.*?)`", options: .dotMatchesLineSeparators)
-        return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        return highlightedRegex?.matches(in: markdownText, range: NSRange(markdownText.startIndex..., in: markdownText)) ?? []
+    }
+    
+    var boldMatches: [NSTextCheckingResult] {
+        let markdownText = self.replacingHightlightedChars.replacingHyphensWithBullets
+        let highlightedRegex = try? NSRegularExpression(pattern: "\\*\\*(.*?)\\*\\*", options: .dotMatchesLineSeparators)
+        return highlightedRegex?.matches(in: markdownText, range: NSRange(markdownText.startIndex..., in: markdownText)) ?? []
+    }
+    
+    var removingMarkdownDelimiters: String {
+        return self.replacingHightlightedChars.replacingBoldDelimeterChars.replacingHyphensWithBullets.trim()
     }
     
     var replacingHightlightedChars: String {
@@ -304,6 +315,39 @@ extension String {
         }
         
         return adaptedString
+    }
+    
+    var replacingBoldDelimeterChars: String {
+        if !self.contains("**") {
+            return self
+        }
+        
+        var adaptedString = self
+        let highlightedRegex = try? NSRegularExpression(pattern: "\\*\\*(.*?)\\*\\*", options: .dotMatchesLineSeparators)
+        let matches =  highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        
+        for (index, match) in matches.enumerated() {
+            
+            ///Subtracting the previous matches delimiter characters since they have been removed from the string
+            let substractionNeeded = index * 4
+            let adaptedRange = NSRange(location: match.range.location - substractionNeeded, length: match.range.length)
+            
+            adaptedString = adaptedString.replacingOccurrences(
+                of: "**",
+                with: "",
+                range: Range(adaptedRange, in: adaptedString)
+            )
+        }
+        
+        return adaptedString
+    }
+    
+    var replacingHyphensWithBullets: String {
+        return self.replacingOccurrences(of: "\n-", with: "\n•")
+    }
+    
+    var replacingNewLinesWithSpaces: String {
+        return self.replacingOccurrences(of: "\n", with: " ")
     }
     
     var stringFirstWebLink : (String, NSRange)? {

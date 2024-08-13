@@ -145,19 +145,19 @@ class ThreadHeaderView: NSView, LoadableNib {
         messageLabel.isHidden = true
         newMessageLabel.isEditable = false
         
-        if threadOriginalMessage.linkMatches.isEmpty && threadOriginalMessage.highlightedMatches.isEmpty {
+        if threadOriginalMessage.hasNoMarkdown {
             messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
             newMessageLabel.string = threadOriginalMessage.text
-            newMessageLabel.font = threadOriginalMessage.font
+            newMessageLabel.font = NSFont.getThreadHeaderFont()
             messageLabel.stringValue = threadOriginalMessage.text
-            messageLabel.font = threadOriginalMessage.font
+            messageLabel.font = NSFont.getThreadHeaderFont()
         } else {
             let messageC = threadOriginalMessage.text
 
             let attributedString = NSMutableAttributedString(string: messageC)
             attributedString.addAttributes(
                 [
-                    NSAttributedString.Key.font: threadOriginalMessage.font,
+                    NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
                     NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
                 ]
                 , range: messageC.nsRange
@@ -173,13 +173,38 @@ class ThreadHeaderView: NSView, LoadableNib {
                 ///Subtracting the previous matches delimiter characters since they have been removed from the string
                 ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
                 let substractionNeeded = index * 2
-                let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 2)
+                let adaptedRange = NSRange(
+                    location: nsRange.location - substractionNeeded,
+                    length: min(nsRange.length - 2, threadOriginalMessage.text.count)
+                )
                 
                 attributedString.addAttributes(
                     [
                         NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                         NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                        NSAttributedString.Key.font: threadOriginalMessage.highlightedFont
+                        NSAttributedString.Key.font: NSFont.getThreadHeaderHightlightedFont()
+                    ],
+                    range: adaptedRange
+                )
+            }
+            
+            ///Bold text formatting
+            let boldNsRanges = threadOriginalMessage.boldMatches.map {
+                return $0.range
+            }
+            
+            for (index, nsRange) in boldNsRanges.enumerated() {
+                ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+                let substractionNeeded = index * 4
+                let adaptedRange = NSRange(
+                    location: nsRange.location - substractionNeeded,
+                    length: min(nsRange.length - 4, threadOriginalMessage.text.count)
+                )
+                
+                attributedString.addAttributes(
+                    [
+                        NSAttributedString.Key.font: NSFont.getThreadHeaderBoldFont()
                     ],
                     range: adaptedRange
                 )
@@ -211,7 +236,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                             [
                                 NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                                 NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                NSAttributedString.Key.font: threadOriginalMessage.font,
+                                NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
                                 NSAttributedString.Key.link: url
                             ],
                             range: nsRange
@@ -232,7 +257,7 @@ class ThreadHeaderView: NSView, LoadableNib {
         messageMedia: BubbleMessageLayoutState.MessageMedia?,
         mediaData: MessageTableCellState.MediaData?
     ) {
-        newMessageLabelScrollView.disabled = true
+        newMessageLabelScrollView.disabled = false
         
         if let messageMedia = messageMedia {
             
