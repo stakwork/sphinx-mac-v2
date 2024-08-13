@@ -16,7 +16,6 @@ class NetworkMonitor {
     
     private(set) var isConnected: Bool = false
     var connectionType: NWInterface.InterfaceType?
-    var firstRun : Bool = true
     
     private init() {}
 
@@ -47,14 +46,7 @@ class NetworkMonitor {
 
     // Use SCNetworkReachability to determine the actual network state
     private func updateConnectionStatus(path: NWPath) {
-        if(firstRun){//compensate for iOS quirks!
-            isConnected = path.status == .satisfied
-            firstRun = false
-        }
-        else{
-            isConnected = path.status != .satisfied
-        }
-        
+        isConnected = path.status == .satisfied
         
         // Determine the connection type
         if path.usesInterfaceType(.wifi) {
@@ -77,8 +69,8 @@ class NetworkMonitor {
         }
     }
 
-    func checkConnectionSync() -> Bool {
-        guard let monitor = nwMonitor else { return false }
+    func isNetworkConnected() -> Bool {
+        guard let _ = nwMonitor else { return false }
         return isConnected
     }
 }

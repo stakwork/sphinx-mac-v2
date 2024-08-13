@@ -25,7 +25,7 @@ extension SphinxOnionManager {
         callback: @escaping (String) -> (),
         errorCallback: @escaping (SphinxOnionManagerError?) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.checkConnectionSync() {
+        if !NetworkMonitor.shared.isNetworkConnected() {
             errorCallback(SphinxOnionManagerError.SOMNetworkError)
             return false
         }
@@ -102,7 +102,7 @@ extension SphinxOnionManager {
         isPrivate: Bool = false,
         errorCallback: (SphinxOnionManagerError) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.checkConnectionSync() {
+        if !NetworkMonitor.shared.isNetworkConnected() {
             errorCallback(SphinxOnionManagerError.SOMNetworkError)
             return false
         }
@@ -201,7 +201,7 @@ extension SphinxOnionManager {
         tribeChat: Chat,
         errorCallback: (SphinxOnionManagerError) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.checkConnectionSync() {
+        if !NetworkMonitor.shared.isNetworkConnected() {
             errorCallback(SphinxOnionManagerError.SOMNetworkError)
             return false
         }
