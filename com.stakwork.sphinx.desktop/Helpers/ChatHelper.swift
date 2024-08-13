@@ -654,7 +654,10 @@ class ChatHelper {
             ///Subtracting the previous matches delimiter characters since they have been removed from the string
             ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
             let substractionNeeded = index * 2
-            let adaptedRange = NSRange(location: match.range.location - substractionNeeded, length: match.range.length - 2)
+            let adaptedRange = NSRange(
+                location: match.range.location - substractionNeeded,
+                length: min(match.range.length - 2, text.count)
+            )
             
             attributedString.addAttributes(
                 [
@@ -670,7 +673,10 @@ class ChatHelper {
             ///Subtracting the previous matches delimiter characters since they have been removed from the string
             ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
             let substractionNeeded = index * 4
-            let adaptedRange = NSRange(location: match.range.location - substractionNeeded, length: match.range.length - 4)
+            let adaptedRange = NSRange(
+                location: match.range.location - substractionNeeded,
+                length: min(match.range.length - 4, text.count)
+            )
             
             attributedString.addAttributes(
                 [

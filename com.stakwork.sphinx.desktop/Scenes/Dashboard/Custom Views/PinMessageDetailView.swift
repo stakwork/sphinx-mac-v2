@@ -119,7 +119,7 @@ class PinMessageDetailView: NSView, LoadableNib {
             if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
                 configureWith(
                     messageContent: BubbleMessageLayoutState.MessageContent(
-                        text: messageContent.formattingMarkdownText,
+                        text: messageContent.removingMarkdownDelimiters,
                         linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                         highlightedMatches: messageContent.highlightedMatches,
                         boldMatches: messageContent.boldMatches,
@@ -169,7 +169,10 @@ class PinMessageDetailView: NSView, LoadableNib {
                     ///Subtracting the previous matches delimiter characters since they have been removed from the string
                     ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
                     let substractionNeeded = index * 2
-                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 2)
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 2, (messageContent.text ?? "").count)
+                    )
                     
                     attributedString.addAttributes(
                         [
@@ -190,7 +193,10 @@ class PinMessageDetailView: NSView, LoadableNib {
                     ///Subtracting the previous matches delimiter characters since they have been removed from the string
                     ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
                     let substractionNeeded = index * 4
-                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 4)
+                    let adaptedRange = NSRange(
+                        location: nsRange.location - substractionNeeded,
+                        length: min(nsRange.length - 4, (messageContent.text ?? "").count)
+                    )
                     
                     attributedString.addAttributes(
                         [

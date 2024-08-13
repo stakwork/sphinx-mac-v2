@@ -234,7 +234,7 @@ struct MessageTableCellState {
             messageId: replyingMessage.id,
             color: senderInfo.0,
             alias: senderInfo.1,
-            message: replyingMessage.bubbleMessageContentString,
+            message: replyingMessage.bubbleMessageContentString?.removingMarkdownDelimiters,
             mediaType: mediaType
         )
     }()
@@ -250,7 +250,7 @@ struct MessageTableCellState {
         
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             return BubbleMessageLayoutState.MessageContent(
-                text: messageContent.formattingMarkdownText,
+                text: messageContent.removingMarkdownDelimiters,
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
                 boldMatches: messageContent.boldMatches,
@@ -477,7 +477,7 @@ struct MessageTableCellState {
         
         let originalMessageSenderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let originalThreadMessage = BubbleMessageLayoutState.ThreadMessage(
-            text: message.bubbleMessageContentString?.formattingMarkdownText,
+            text: message.bubbleMessageContentString?.removingMarkdownDelimiters,
             senderPic: originalMessageSenderInfo.2,
             senderAlias: originalMessageSenderInfo.1,
             senderColor: originalMessageSenderInfo.0,
@@ -836,7 +836,7 @@ struct MessageTableCellState {
         let messageContent = message.bubbleMessageContentString ?? ""
         
         return NoBubbleMessageLayoutState.ThreadOriginalMessage(
-            text: messageContent.formattingMarkdownText,
+            text: messageContent.removingMarkdownDelimiters,
             linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
             highlightedMatches: messageContent.highlightedMatches,
             boldMatches: messageContent.boldMatches,
