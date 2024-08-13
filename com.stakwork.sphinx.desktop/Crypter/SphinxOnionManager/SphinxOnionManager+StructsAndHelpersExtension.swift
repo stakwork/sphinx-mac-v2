@@ -331,13 +331,15 @@ extension SphinxOnionManager {
                 intType == TransactionMessage.TransactionMessageType.payment.rawValue
     }
     
-    func isMessageCallOrAttachment(
+    func isMessageWithText(
         type: UInt8
     ) -> Bool {
         let intType = Int(type)
+        
         return intType == TransactionMessage.TransactionMessageType.message.rawValue ||
                 intType == TransactionMessage.TransactionMessageType.call.rawValue ||
-                intType == TransactionMessage.TransactionMessageType.attachment.rawValue
+                intType == TransactionMessage.TransactionMessageType.attachment.rawValue ||
+                intType == TransactionMessage.TransactionMessageType.botResponse.rawValue
     }
     
     func isDelete(

@@ -304,6 +304,7 @@ class ChatHelper {
                 text,
                 collectionViewWidth: collectionViewWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
+                boldMatches: mutableTableCellState.messageContent?.boldMatches,
                 linkMatches: mutableTableCellState.messageContent?.linkMatches
             )
         }
@@ -470,6 +471,7 @@ class ChatHelper {
                 text: text,
                 width: maxWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
+                boldMatches: mutableTableCellState.messageContent?.boldMatches,
                 linkMatches: mutableTableCellState.messageContent?.linkMatches
             )
         }
@@ -482,6 +484,7 @@ class ChatHelper {
         collectionViewWidth: CGFloat,
         maxHeight: CGFloat? = nil,
         highlightedMatches: [NSTextCheckingResult]? = [],
+        boldMatches: [NSTextCheckingResult]? = [],
         linkMatches: [NSTextCheckingResult]? = []
     ) -> CGFloat {
         var textHeight: CGFloat = 0.0
@@ -496,6 +499,7 @@ class ChatHelper {
                 text: text,
                 width: maxWidth,
                 highlightedMatches: highlightedMatches,
+                boldMatches: boldMatches,
                 linkMatches: linkMatches
             )
         }
@@ -639,6 +643,7 @@ class ChatHelper {
         width: CGFloat,
         font: NSFont? = nil,
         highlightedMatches: [NSTextCheckingResult]? = [],
+        boldMatches: [NSTextCheckingResult]? = [],
         linkMatches: [NSTextCheckingResult]? = [],
         labelMargins: CGFloat? = nil
     ) -> CGFloat {
@@ -646,7 +651,6 @@ class ChatHelper {
         let attributedString = NSMutableAttributedString(string: text, attributes: attrs)
         
         for (index, match) in (highlightedMatches ?? []).enumerated() {
-            
             ///Subtracting the previous matches delimiter characters since they have been removed from the string
             ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
             let substractionNeeded = index * 2
@@ -656,6 +660,21 @@ class ChatHelper {
                 [
                     NSAttributedString.Key.font: Constants.kMessageHighlightedFont,
                     NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground
+                ],
+                range: adaptedRange
+            )
+            
+        }
+        
+        for (index, match) in (boldMatches ?? []).enumerated() {
+            ///Subtracting the previous matches delimiter characters since they have been removed from the string
+            ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+            let substractionNeeded = index * 4
+            let adaptedRange = NSRange(location: match.range.location - substractionNeeded, length: match.range.length - 4)
+            
+            attributedString.addAttributes(
+                [
+                    NSAttributedString.Key.font: Constants.kMessageBoldFont
                 ],
                 range: adaptedRange
             )

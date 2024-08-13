@@ -119,11 +119,13 @@ class PinMessageDetailView: NSView, LoadableNib {
             if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
                 configureWith(
                     messageContent: BubbleMessageLayoutState.MessageContent(
-                        text: messageContent.replacingHightlightedChars,
+                        text: messageContent.formattingMarkdownText,
                         font: NSFont(name: "Roboto-Light", size: 15.0)!,
                         highlightedFont: NSFont(name: "Roboto-Light", size: 15.0)!,
+                        boldFont: NSFont(name: "Roboto-Black", size: 15.0)!,
                         linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                         highlightedMatches: messageContent.highlightedMatches,
+                        boldMatches: messageContent.boldMatches,
                         shouldLoadPaidText: false
                     )
                 )
@@ -139,7 +141,7 @@ class PinMessageDetailView: NSView, LoadableNib {
         messageContent: BubbleMessageLayoutState.MessageContent?
     ) {
         if let messageContent = messageContent {
-            if messageContent.linkMatches.isEmpty && messageContent.highlightedMatches.isEmpty {
+            if messageContent.hasNoMarkdown {
                 messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 messageLabel.stringValue = messageContent.text ?? ""
@@ -173,6 +175,25 @@ class PinMessageDetailView: NSView, LoadableNib {
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
                             NSAttributedString.Key.font: messageContent.highlightedFont
+                        ],
+                        range: adaptedRange
+                    )
+                }
+                
+                ///Bold text formatting
+                let boldNsRanges = messageContent.boldMatches.map {
+                    return $0.range
+                }
+                
+                for (index, nsRange) in boldNsRanges.enumerated() {
+                    ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                    ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+                    let substractionNeeded = index * 4
+                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 4)
+                    
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.font: messageContent.boldFont
                         ],
                         range: adaptedRange
                     )

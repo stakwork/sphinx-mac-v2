@@ -198,7 +198,7 @@ extension NewMessageCollectionViewItem {
             labelHeightConstraint.constant = labelHeight
             textMessageView.superview?.layoutSubtreeIfNeeded()
                         
-            if messageContent.linkMatches.isEmpty && messageContent.highlightedMatches.isEmpty && searchingTerm == nil {
+            if messageContent.hasNoMarkdown && searchingTerm == nil {
                 messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 messageLabel.stringValue = messageContent.text ?? ""
@@ -232,6 +232,25 @@ extension NewMessageCollectionViewItem {
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
                             NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
                             NSAttributedString.Key.font: messageContent.highlightedFont
+                        ],
+                        range: adaptedRange
+                    )
+                }
+                
+                ///Bold text formatting
+                let boldNsRanges = messageContent.boldMatches.map {
+                    return $0.range
+                }
+                
+                for (index, nsRange) in boldNsRanges.enumerated() {
+                    ///Subtracting the previous matches delimiter characters since they have been removed from the string
+                    ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
+                    let substractionNeeded = index * 4
+                    let adaptedRange = NSRange(location: nsRange.location - substractionNeeded, length: nsRange.length - 4)
+                    
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.font: messageContent.boldFont
                         ],
                         range: adaptedRange
                     )

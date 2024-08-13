@@ -33,6 +33,10 @@ extension NSFont {
         return Constants.kMessageFont
     }
     
+    static func getMessageBoldFont() -> NSFont {
+        return Constants.kMessageBoldFont
+    }
+    
     static func getHighlightedMessageFont() -> NSFont {
         return Constants.kMessageHighlightedFont
     }
@@ -55,6 +59,10 @@ extension NSFont {
     
     static func getThreadListHightlightedFont() -> NSFont {
         return Constants.kThreadListHighlightedFont
+    }
+    
+    static func getThreadListBoldFont() -> NSFont {
+        return Constants.kThreadListBoldFont
     }
     
     static func getAmountFont() -> NSFont {

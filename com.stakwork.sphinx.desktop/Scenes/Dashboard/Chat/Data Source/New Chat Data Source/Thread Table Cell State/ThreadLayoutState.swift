@@ -36,6 +36,7 @@ struct ThreadLayoutState {
         var text: String
         var linkMatches: [NSTextCheckingResult]
         var highlightedMatches: [NSTextCheckingResult]
+        var boldMatches: [NSTextCheckingResult]
         var timestamp: String
         var senderInfo: (NSColor, String, String?)
         
@@ -43,14 +44,20 @@ struct ThreadLayoutState {
             text: String,
             linkMatches: [NSTextCheckingResult],
             highlightedMatches: [NSTextCheckingResult],
+            boldMatches: [NSTextCheckingResult],
             timestamp: String,
             senderInfo: (NSColor, String, String?)
         ) {
             self.text = text
             self.linkMatches = linkMatches
             self.highlightedMatches = highlightedMatches
+            self.boldMatches = boldMatches
             self.timestamp = timestamp
             self.senderInfo = senderInfo
+        }
+        
+        var hasNoMarkdown: Bool {
+            return linkMatches.isEmpty && boldMatches.isEmpty && highlightedMatches.isEmpty
         }
     }
     
