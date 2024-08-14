@@ -590,7 +590,7 @@ extension TransactionMessage {
                 return nil
             }
             
-            return self.messageContent
+            return self.messageContent?.trim()
         }
     }
     
