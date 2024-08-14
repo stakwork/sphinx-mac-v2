@@ -178,6 +178,7 @@ struct BubbleMessageLayoutState {
         var linkMatches: [NSTextCheckingResult]
         var highlightedMatches: [NSTextCheckingResult]
         var boldMatches: [NSTextCheckingResult]
+        var linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]
         var shouldLoadPaidText: Bool
         
         init(
@@ -185,17 +186,19 @@ struct BubbleMessageLayoutState {
             linkMatches: [NSTextCheckingResult],
             highlightedMatches: [NSTextCheckingResult],
             boldMatches: [NSTextCheckingResult],
+            linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)],
             shouldLoadPaidText: Bool
         ) {
             self.text = text
             self.linkMatches = linkMatches
             self.highlightedMatches = highlightedMatches
             self.boldMatches = boldMatches
+            self.linkMarkdownMatches = linkMarkdownMatches
             self.shouldLoadPaidText = shouldLoadPaidText
         }
         
         var hasNoMarkdown: Bool {
-            return linkMatches.isEmpty && boldMatches.isEmpty && highlightedMatches.isEmpty
+            return linkMatches.isEmpty && boldMatches.isEmpty && highlightedMatches.isEmpty && linkMarkdownMatches.isEmpty
         }
     }
     
@@ -578,6 +581,7 @@ struct NoBubbleMessageLayoutState {
         var linkMatches: [NSTextCheckingResult]
         var highlightedMatches: [NSTextCheckingResult]
         var boldMatches: [NSTextCheckingResult]
+        var linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]
         var senderPic: String?
         var senderAlias: String
         var senderColor: NSColor
@@ -588,6 +592,7 @@ struct NoBubbleMessageLayoutState {
             linkMatches: [NSTextCheckingResult],
             highlightedMatches: [NSTextCheckingResult],
             boldMatches: [NSTextCheckingResult],
+            linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)],
             senderPic: String?,
             senderAlias: String,
             senderColor: NSColor,
@@ -597,6 +602,7 @@ struct NoBubbleMessageLayoutState {
             self.linkMatches = linkMatches
             self.highlightedMatches = highlightedMatches
             self.boldMatches = boldMatches
+            self.linkMarkdownMatches = linkMarkdownMatches
             self.senderPic = senderPic
             self.senderAlias = senderAlias
             self.senderColor = senderColor
@@ -604,7 +610,7 @@ struct NoBubbleMessageLayoutState {
         }
         
         var hasNoMarkdown: Bool {
-            return linkMatches.isEmpty && boldMatches.isEmpty && highlightedMatches.isEmpty
+            return linkMatches.isEmpty && boldMatches.isEmpty && highlightedMatches.isEmpty && linkMarkdownMatches.isEmpty
         }
     }
 }

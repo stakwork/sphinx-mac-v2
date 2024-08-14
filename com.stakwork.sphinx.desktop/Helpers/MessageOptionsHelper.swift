@@ -328,7 +328,19 @@ extension MessageOptionsHelper : MessageOptionViewDelegate {
                 ClipboardHelper.copyToClipboard(text: message.bubbleMessageContentString ?? "", message: "text.copied.clipboard".localized, bubbleContainer: bubbleContainer)
                 break
             case .CopyLink:
-                ClipboardHelper.copyToClipboard(text: message.messageContent?.removingMarkdownDelimiters.stringFirstLink ?? "", message: "link.copied.clipboard".localized, bubbleContainer: bubbleContainer)
+                if let link = message.messageContent?.removingMarkdownDelimiters.stringFirstLink {
+                    ClipboardHelper.copyToClipboard(
+                        text: link,
+                        message: "link.copied.clipboard".localized,
+                        bubbleContainer: bubbleContainer
+                    )
+                } else if let link = message.messageContent?.linkMarkdownMatches.first?.2 {
+                    ClipboardHelper.copyToClipboard(
+                        text: link,
+                        message: "link.copied.clipboard".localized,
+                        bubbleContainer: bubbleContainer
+                    )
+                }
                 break
             case .CopyPubKey:
                 ClipboardHelper.copyToClipboard(text: message.messageContent?.removingMarkdownDelimiters.stringFirstPubKey?.0 ?? "", message: "pub.key.copied.clipboard".localized, bubbleContainer: bubbleContainer)

@@ -305,7 +305,8 @@ class ChatHelper {
                 collectionViewWidth: collectionViewWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
                 boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches
+                linkMatches: mutableTableCellState.messageContent?.linkMatches,
+                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
             )
         }
         
@@ -472,7 +473,8 @@ class ChatHelper {
                 width: maxWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
                 boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches
+                linkMatches: mutableTableCellState.messageContent?.linkMatches,
+                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
             )
         }
         
@@ -485,7 +487,8 @@ class ChatHelper {
         maxHeight: CGFloat? = nil,
         highlightedMatches: [NSTextCheckingResult]? = [],
         boldMatches: [NSTextCheckingResult]? = [],
-        linkMatches: [NSTextCheckingResult]? = []
+        linkMatches: [NSTextCheckingResult]? = [],
+        linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = []
     ) -> CGFloat {
         var textHeight: CGFloat = 0.0
         
@@ -500,7 +503,8 @@ class ChatHelper {
                 width: maxWidth,
                 highlightedMatches: highlightedMatches,
                 boldMatches: boldMatches,
-                linkMatches: linkMatches
+                linkMatches: linkMatches,
+                linkMarkdownMatches: linkMarkdownMatches
             )
         }
         
@@ -645,18 +649,16 @@ class ChatHelper {
         highlightedMatches: [NSTextCheckingResult]? = [],
         boldMatches: [NSTextCheckingResult]? = [],
         linkMatches: [NSTextCheckingResult]? = [],
+        linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = [],
         labelMargins: CGFloat? = nil
     ) -> CGFloat {
         let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
         let attributedString = NSMutableAttributedString(string: text, attributes: attrs)
         
-        for (index, match) in (highlightedMatches ?? []).enumerated() {
-            ///Subtracting the previous matches delimiter characters since they have been removed from the string
-            ///Subtracting the \` characters from the length since removing the chars caused the range to be 2 less chars
-            let substractionNeeded = index * 2
+        for match in (highlightedMatches ?? []) {
             let adaptedRange = NSRange(
-                location: match.range.location - substractionNeeded,
-                length: min(match.range.length - 2, text.count)
+                location: match.range.location,
+                length: match.range.length
             )
             
             attributedString.addAttributes(
@@ -669,13 +671,10 @@ class ChatHelper {
             
         }
         
-        for (index, match) in (boldMatches ?? []).enumerated() {
-            ///Subtracting the previous matches delimiter characters since they have been removed from the string
-            ///Subtracting the ** characters from the length since removing the chars caused the range to be 4 less chars
-            let substractionNeeded = index * 4
+        for match in (boldMatches ?? []) {
             let adaptedRange = NSRange(
-                location: match.range.location - substractionNeeded,
-                length: min(match.range.length - 4, text.count)
+                location: match.range.location,
+                length: match.range.length
             )
             
             attributedString.addAttributes(
@@ -719,6 +718,23 @@ class ChatHelper {
                     )
 
                 }
+            }
+        }
+        
+        for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
+            
+            let nsRange = textCheckingResult.range
+            
+            if let url = URL(string: link)  {
+                attributedString.addAttributes(
+                    [
+                        NSAttributedString.Key.link: url,
+                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                        NSAttributedString.Key.font: Constants.kMessageFont
+                    ],
+                    range: nsRange
+                )
             }
         }
         
