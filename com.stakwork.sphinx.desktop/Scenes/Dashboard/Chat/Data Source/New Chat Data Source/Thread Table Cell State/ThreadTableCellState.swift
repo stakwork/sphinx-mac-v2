@@ -40,6 +40,7 @@ struct ThreadTableCellState {
             linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
             highlightedMatches: messageContent.highlightedMatches,
             boldMatches: messageContent.boldMatches,
+            linkMarkdownMatches: messageContent.linkMarkdownMatches,
             timestamp: timestamp,
             senderInfo: getSenderInfo(message: originalMessage)
         )

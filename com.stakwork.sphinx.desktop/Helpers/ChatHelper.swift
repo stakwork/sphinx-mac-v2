@@ -305,7 +305,8 @@ class ChatHelper {
                 collectionViewWidth: collectionViewWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
                 boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches
+                linkMatches: mutableTableCellState.messageContent?.linkMatches,
+                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
             )
         }
         
@@ -472,7 +473,8 @@ class ChatHelper {
                 width: maxWidth,
                 highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
                 boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches
+                linkMatches: mutableTableCellState.messageContent?.linkMatches,
+                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
             )
         }
         
@@ -485,7 +487,8 @@ class ChatHelper {
         maxHeight: CGFloat? = nil,
         highlightedMatches: [NSTextCheckingResult]? = [],
         boldMatches: [NSTextCheckingResult]? = [],
-        linkMatches: [NSTextCheckingResult]? = []
+        linkMatches: [NSTextCheckingResult]? = [],
+        linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = []
     ) -> CGFloat {
         var textHeight: CGFloat = 0.0
         
@@ -500,7 +503,8 @@ class ChatHelper {
                 width: maxWidth,
                 highlightedMatches: highlightedMatches,
                 boldMatches: boldMatches,
-                linkMatches: linkMatches
+                linkMatches: linkMatches,
+                linkMarkdownMatches: linkMarkdownMatches
             )
         }
         
@@ -645,6 +649,7 @@ class ChatHelper {
         highlightedMatches: [NSTextCheckingResult]? = [],
         boldMatches: [NSTextCheckingResult]? = [],
         linkMatches: [NSTextCheckingResult]? = [],
+        linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = [],
         labelMargins: CGFloat? = nil
     ) -> CGFloat {
         let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
@@ -713,6 +718,23 @@ class ChatHelper {
                     )
 
                 }
+            }
+        }
+        
+        for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
+            
+            let nsRange = textCheckingResult.range
+            
+            if let url = URL(string: link)  {
+                attributedString.addAttributes(
+                    [
+                        NSAttributedString.Key.link: url,
+                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                        NSAttributedString.Key.font: Constants.kMessageFont
+                    ],
+                    range: nsRange
+                )
             }
         }
         

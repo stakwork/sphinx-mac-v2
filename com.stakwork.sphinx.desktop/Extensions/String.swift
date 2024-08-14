@@ -329,8 +329,77 @@ extension String {
         return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
     }
     
+    var linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)] {
+        var results: [(NSTextCheckingResult, String, String, Bool)] = []
+        
+        let linkMarkdownPattern = #"!\[([^\]]+)\]\((http[s]?:\/\/[^\s\)]+)\)"#
+        let linkMarkdownRegex = try? NSRegularExpression(pattern: linkMarkdownPattern)
+        let matches = linkMarkdownRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        
+        for match in matches {
+            if let result = getMatchAndStringsFrom(match: match, hasExclamationMark: true) {
+                results.append(result)
+            }
+        }
+        
+        let linkMarkdownPattern2 = #"\[([^\]]+)\]\((http[s]?:\/\/[^\s\)]+)\)"#
+        let linkMarkdownRegex2 = try? NSRegularExpression(pattern: linkMarkdownPattern2)
+        let matches2 = linkMarkdownRegex2?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        
+        for match in matches2 {
+            if let result = getMatchAndStringsFrom(match: match, hasExclamationMark: false) {
+                results.append(result)
+            }
+        }
+        
+        return results
+    }
+    
+    func getMatchAndStringsFrom(
+        match: NSTextCheckingResult,
+        hasExclamationMark: Bool
+    ) -> (NSTextCheckingResult, String, String, Bool)? {
+        if let imageRange = Range(match.range(at: 1), in: self),
+           let linkRange = Range(match.range(at: 2), in: self) {
+            let imageText = String(self[imageRange])
+            let linkText = String(self[linkRange])
+            return (match, "\(imageText)", "\(linkText)", hasExclamationMark)
+        }
+        return nil
+    }
+    
     var removingMarkdownDelimiters: String {
-        return self.replacingHightlightedChars.replacingBoldDelimeterChars.replacingHyphensWithBullets.markdownTrim()
+        return self.trim().replacingHightlightedChars.replacingBoldDelimeterChars.replacingHyphensWithBullets.replacingMarkdownLinks.markdownTrim()
+    }
+    
+    var replacingMarkdownLinks: String {
+        if !self.contains("[") && self.contains("(") {
+            return self
+        }
+        
+        var adaptedString = self
+        
+        for (match, text, link, hasExclamationMark)  in linkMarkdownMatches {
+
+            let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+            let zeroWidthSpace = "\u{200B}"
+            
+            let prefixString = (hasExclamationMark) ? "\(zeroWidthSpace)\(zeroWidthSpace)" : "\(zeroWidthSpace)"
+            let afterLinkChartsCount = 3 + link.count
+            
+            var suffixString = ""
+            for _ in 0..<afterLinkChartsCount {
+                suffixString += zeroWidthSpace
+            }
+            
+            adaptedString = adaptedString.replacingOccurrences(
+                of: hasExclamationMark ? "![\(text)](\(link))" : "[\(text)](\(link))",
+                with: "\(prefixString)\(text)\(suffixString)",
+                range: Range(adaptedRange, in: adaptedString)
+            )
+        }
+        
+        return adaptedString
     }
     
     var replacingHightlightedChars: String {
@@ -342,7 +411,6 @@ extension String {
         
         for match in highlightedMatches {
             
-            ///Subtracting the previous matches delimiter characters since they have been removed from the string
             let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
             let zeroWidthSpace = "\u{200B}"
             
@@ -365,7 +433,6 @@ extension String {
         
         for match in boldMatches {
             
-            ///Subtracting the previous matches delimiter characters since they have been removed from the string
             let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
             let zeroWidthSpace = "\u{200B}"
             

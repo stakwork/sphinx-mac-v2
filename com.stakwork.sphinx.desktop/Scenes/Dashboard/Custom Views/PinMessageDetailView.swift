@@ -123,6 +123,7 @@ class PinMessageDetailView: NSView, LoadableNib {
                         linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                         highlightedMatches: messageContent.highlightedMatches,
                         boldMatches: messageContent.boldMatches,
+                        linkMarkdownMatches: messageContent.linkMarkdownMatches,
                         shouldLoadPaidText: false
                     )
                 )
@@ -232,6 +233,27 @@ class PinMessageDetailView: NSView, LoadableNib {
                                 range: nsRange
                             )
 
+                        }
+                    }
+                }
+                
+                ///Markdown Links formatting
+                for (textCheckingResult, _, link, _) in messageContent.linkMarkdownMatches {
+                    
+                    let nsRange = textCheckingResult.range
+                    
+                    if let text = messageContent.text {
+                        
+                        if let url = URL(string: link)  {
+                            attributedString.addAttributes(
+                                [
+                                    NSAttributedString.Key.link: url,
+                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                                    NSAttributedString.Key.font: NSFont.getMessageFont()
+                                ],
+                                range: nsRange
+                            )
                         }
                     }
                 }

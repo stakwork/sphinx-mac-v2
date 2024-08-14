@@ -239,6 +239,24 @@ class ThreadHeaderView: NSView, LoadableNib {
                     }
                 }
             }
+            
+            ///Markdown Links formatting
+            for (textCheckingResult, _, link, _) in threadOriginalMessage.linkMarkdownMatches {
+                
+                let nsRange = textCheckingResult.range
+                
+                if let url = URL(string: link)  {
+                    attributedString.addAttributes(
+                        [
+                            NSAttributedString.Key.link: url,
+                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                            NSAttributedString.Key.font: NSFont.getMessageFont()
+                        ],
+                        range: nsRange
+                    )
+                }
+            }
 
             messageLabel.attributedStringValue = attributedString
             messageLabel.isEnabled = true

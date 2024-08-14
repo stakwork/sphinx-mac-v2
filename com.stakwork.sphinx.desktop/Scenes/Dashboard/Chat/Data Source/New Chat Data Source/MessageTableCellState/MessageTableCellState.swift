@@ -254,6 +254,7 @@ struct MessageTableCellState {
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
                 boldMatches: messageContent.boldMatches,
+                linkMarkdownMatches: messageContent.linkMarkdownMatches,
                 shouldLoadPaidText: false
             )
         } else if message.isPaidMessage() {
@@ -262,6 +263,7 @@ struct MessageTableCellState {
                 linkMatches: [],
                 highlightedMatches: [],
                 boldMatches: [],
+                linkMarkdownMatches: [],
                 shouldLoadPaidText: message.messageContent == nil && (paidContent?.isPurchaseAccepted() == true || bubble?.direction.isOutgoing() == true)
             )
         }
@@ -826,11 +828,9 @@ struct MessageTableCellState {
     
     ///Thread original message header
     lazy var threadOriginalMessageHeader: NoBubbleMessageLayoutState.ThreadOriginalMessage? = {
-//        guard let message = message else {
-//            return nil
-//        }
-        
-        let message = message!
+        guard let message = message else {
+            return nil
+        }
         
         let senderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let messageContent = message.bubbleMessageContentString ?? ""
@@ -840,6 +840,7 @@ struct MessageTableCellState {
             linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
             highlightedMatches: messageContent.highlightedMatches,
             boldMatches: messageContent.boldMatches,
+            linkMarkdownMatches: messageContent.linkMarkdownMatches,
             senderPic: senderInfo.2,
             senderAlias: senderInfo.1,
             senderColor: senderInfo.0,

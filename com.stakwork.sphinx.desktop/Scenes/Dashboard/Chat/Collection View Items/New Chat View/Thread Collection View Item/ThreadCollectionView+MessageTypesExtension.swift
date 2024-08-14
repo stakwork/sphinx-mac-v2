@@ -227,7 +227,10 @@ extension ThreadCollectionViewItem {
             let labelHeight = ChatHelper.getThreadOriginalTextMessageHeightFor(
                 text,
                 collectionViewWidth: collectionViewWidth,
-                highlightedMatches: messageContent.highlightedMatches
+                highlightedMatches: messageContent.highlightedMatches,
+                boldMatches: messageContent.boldMatches,
+                linkMatches: messageContent.linkMatches,
+                linkMarkdownMatches: messageContent.linkMarkdownMatches
             )
             
             lastReplyLabelHeightConstraint.constant = labelHeight
@@ -326,6 +329,26 @@ extension ThreadCollectionViewItem {
                                 range: nsRange
                             )
 
+                        }
+                    }
+                }
+                
+                ///Markdown Links formatting
+                for (textCheckingResult, _, link, _) in messageContent.linkMarkdownMatches {
+                    
+                    let nsRange = textCheckingResult.range
+                    
+                    if let text = messageContent.text {
+                        if let url = URL(string: link)  {
+                            attributedString.addAttributes(
+                                [
+                                    NSAttributedString.Key.link: url,
+                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                                    NSAttributedString.Key.font: NSFont.getMessageFont()
+                                ],
+                                range: nsRange
+                            )
                         }
                     }
                 }
