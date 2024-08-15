@@ -60,6 +60,7 @@ struct BubbleMessageLayoutState {
         var showSent: Bool
         var showSendingIcon: Bool
         var showBoltIcon: Bool
+        var showBoltGreyIcon: Bool
         var showFailedContainer: Bool
         var errorMessage: String
         var showLockIcon: Bool
@@ -74,6 +75,7 @@ struct BubbleMessageLayoutState {
             showSent: Bool,
             showSendingIcon: Bool,
             showBoltIcon: Bool,
+            showBoltGreyIcon: Bool,
             showFailedContainer: Bool,
             errorMessage: String,
             showLockIcon: Bool,
@@ -87,6 +89,7 @@ struct BubbleMessageLayoutState {
             self.showSent = showSent
             self.showSendingIcon = showSendingIcon
             self.showBoltIcon = showBoltIcon
+            self.showBoltGreyIcon = showBoltGreyIcon
             self.showFailedContainer = showFailedContainer
             self.errorMessage = errorMessage
             self.showLockIcon = showLockIcon
@@ -272,6 +275,7 @@ struct BubbleMessageLayoutState {
         var isGif: Bool
         var isPdf: Bool
         var isGiphy: Bool
+        var isImageLink: Bool
         var isPaid: Bool
         var isPaymentTemplate: Bool
         
@@ -283,6 +287,7 @@ struct BubbleMessageLayoutState {
             isGif: Bool,
             isPdf: Bool,
             isGiphy: Bool,
+            isImageLink: Bool,
             isPaid: Bool,
             isPaymentTemplate: Bool
         ) {
@@ -293,6 +298,7 @@ struct BubbleMessageLayoutState {
             self.isGif = isGif
             self.isPdf = isPdf
             self.isGiphy = isGiphy
+            self.isImageLink = isImageLink
             self.isPaid = isPaid
             self.isPaymentTemplate = isPaymentTemplate
         }

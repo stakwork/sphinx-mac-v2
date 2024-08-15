@@ -503,8 +503,6 @@ extension SphinxOnionManager {
     ) -> TransactionMessage? {
         
         let paymentMsg = rr.msgs[0]
-        let paymentStatusMsg = rr.msgs[1]
-        
         var paymentMessage: TransactionMessage? = nil
         
         if let sentUUID = paymentMsg.uuid {
@@ -524,7 +522,7 @@ extension SphinxOnionManager {
             paymentMessage?.createdAt = date
             paymentMessage?.updatedAt = date
             paymentMessage?.uuid = sentUUID
-            paymentMessage?.tag = paymentStatusMsg.tag
+            paymentMessage?.tag = paymentMsg.tag
             paymentMessage?.setAsLastMessage()
             paymentMessage?.managedObjectContext?.saveContext()
             

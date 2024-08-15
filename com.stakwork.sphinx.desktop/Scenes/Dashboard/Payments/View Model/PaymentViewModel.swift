@@ -105,8 +105,6 @@ class PaymentViewModel : NSObject {
             return
         }
         
-        let parameters = getParams()
-        
         SphinxOnionManager.sharedInstance.sendDirectPaymentMessage(
             amount: amount,
             muid: currentPayment.muid,
