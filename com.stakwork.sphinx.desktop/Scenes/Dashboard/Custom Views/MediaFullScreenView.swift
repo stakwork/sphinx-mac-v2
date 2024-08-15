@@ -144,6 +144,11 @@ class MediaFullScreenView: NSView, LoadableNib {
                 showFromData(data: data, message: message)
                 return
             }
+        } else if let url = message.messageContent?.linkMarkdownMatches.first?.2 {
+            if let image = MediaLoader.getImageFromCachedUrl(url: url) {
+                showImage(image: image)
+                return
+            }
         }
         
         hideMediaFullScreenView()

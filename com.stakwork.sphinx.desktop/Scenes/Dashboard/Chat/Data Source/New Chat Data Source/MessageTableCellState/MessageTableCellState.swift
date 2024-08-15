@@ -322,9 +322,9 @@ struct MessageTableCellState {
             return nil
         }
         
-        let hasMarkdownLinks = message.messageContent?.linkMarkdownMatches.count ?? 0 > 0
+        let hasMarkdownLinks = (message.messageContent?.linkMarkdownMatches.count ?? 0) > 0
         
-        guard message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() || (hasMarkdownLinks && message.isBotResponse()) else {
+        guard message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() || (message.isBotResponse() && hasMarkdownLinks) else {
             return nil
         }
         
@@ -403,7 +403,7 @@ struct MessageTableCellState {
         } else if message.isGiphy() {
             urlAndKey = (message.getGiphyUrl(), nil)
         } else if let imageLink = message.messageContent?.linkMarkdownMatches.first?.2, let url = URL(string: imageLink){
-            return (url, nil)
+            urlAndKey = (url, nil)
         }
         
         return urlAndKey
