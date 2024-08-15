@@ -71,7 +71,8 @@ class StatusHeaderView: NSView, LoadableNib {
         
         receivedSenderLabel.textColor = statusHeader.color
         
-        sentLightningIcon.isHidden = !statusHeader.showBoltIcon
+        sentLightningIcon.isHidden = !statusHeader.showBoltIcon && !statusHeader.showBoltGreyIcon
+        sentLightningIcon.textColor = statusHeader.showBoltGreyIcon ? NSColor.Sphinx.SecondaryText : NSColor.Sphinx.PrimaryGreen
         
         sentLockIcon.isHidden = !statusHeader.showLockIcon
         receivedLockIcon.isHidden = !statusHeader.showLockIcon
