@@ -148,7 +148,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
             }
             
             if message.isDirectPayment() {
-                MediaLoader.loadPaymentTemplateImage(url: imageUrl, message: message, completion: { messageId, image in
+                MediaLoader.loadPublicImage(url: imageUrl, messageId: message.id, completion: { messageId, image in
                     let updatedMediaData = MessageTableCellState.MediaData(
                         image: image
                     )
@@ -408,6 +408,63 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                 }
             })
         }
+    }
+    
+    func shouldLoadLinkImageDataFor(
+        messageId: Int,
+        and rowIndex: Int
+    ) {
+        if var tableCellState = getTableCellStateFor(
+            messageId: messageId,
+            and: rowIndex
+        ) {
+            
+            var url = tableCellState.1.messageMedia?.url
+            
+            if messageId == tableCellState.1.threadOriginalMessage?.id {
+                url = tableCellState.1.threadOriginalMessageMedia?.url
+            }
+            
+            guard let url = url else {
+                return
+            }
+            
+            self.isImageURL(url, completion: { isImage in
+                if !isImage {
+                    return
+                }
+                MediaLoader.loadPublicImage(url: url, messageId: messageId, completion: { messageId, image in
+                    let updatedMediaData = MessageTableCellState.MediaData(
+                        image: image
+                    )
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                }, errorCompletion: { messageId in
+                    let updatedMediaData = MessageTableCellState.MediaData(
+                        failed: true
+                    )
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                })
+            })
+        }
+    }
+    
+    func isImageURL(_ url: URL, completion: @escaping (Bool) -> Void) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+
+        URLSession.shared.dataTask(with: request) { (_, response, error) in
+            guard error == nil, let httpResponse = response as? HTTPURLResponse else {
+                completion(false)
+                return
+            }
+
+            if let contentType = httpResponse.allHeaderFields["Content-Type"] as? String {
+                let imageTypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"]
+                completion(imageTypes.contains(contentType))
+            } else {
+                completion(false)
+            }
+        }.resume()
     }
     
     func shouldLoadBotWebViewDataFor(

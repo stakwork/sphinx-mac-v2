@@ -88,6 +88,7 @@ struct ThreadTableCellState {
             isGif: message.isGif(),
             isPdf: message.isPDF(),
             isGiphy: message.isGiphy(),
+            isImageLink: false,
             isPaid: false,
             isPaymentTemplate: false
         )

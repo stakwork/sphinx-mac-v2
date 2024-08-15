@@ -15,6 +15,7 @@ import Cocoa
     @objc optional func shouldLoadVideoDataFor(messageId: Int, and rowIndex: Int)
     @objc optional func shouldLoadGiphyDataFor(messageId: Int, and rowIndex: Int)
     @objc optional func shouldLoadAudioDataFor(messageId: Int, and rowIndex: Int)
+    @objc optional func shouldLoadLinkImageDataFor(messageId: Int, and rowIndex: Int)
     
     func didTapMediaButtonFor(messageId: Int, and rowIndex: Int)
     func didTapFileDownloadButtonFor(messageId: Int, and rowIndex: Int)

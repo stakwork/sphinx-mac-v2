@@ -422,13 +422,13 @@ class MediaLoader {
 }
 
 extension MediaLoader {
-    class func loadPaymentTemplateImage(
+    class func loadPublicImage(
         url: URL,
-        message: TransactionMessage,
+        messageId: Int,
         completion: @escaping (Int, NSImage) -> (), errorCompletion: @escaping (Int) -> ()
     ) {
         if let cachedImage = getImageFromCachedUrl(url: url.absoluteString) {
-            completion(message.id, cachedImage)
+            completion(messageId, cachedImage)
         } else {
             loadDataFrom(URL: url, includeToken: true, completion: { (data, _) in
                 if let image = NSImage(data: data) {
@@ -438,7 +438,7 @@ extension MediaLoader {
                     )
                     
                     DispatchQueue.main.async {
-                        completion(message.id, image)
+                        completion(messageId, image)
                     }
                     return
                 }

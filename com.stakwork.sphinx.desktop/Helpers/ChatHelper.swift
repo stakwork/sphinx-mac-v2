@@ -321,6 +321,7 @@ class ChatHelper {
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         botWebViewData: MessageTableCellState.BotWebViewData? = nil,
+        mediaData: MessageTableCellState.MediaData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         var mutableTableCellState = tableCellState
@@ -373,7 +374,8 @@ class ChatHelper {
             tableCellState,
             linkData: linkData,
             tribeData: tribeData,
-            botWebViewData: botWebViewData
+            botWebViewData: botWebViewData,
+            mediaData: mediaData
         )
         
         return textHeight + (kGeneralMargin * 2) + statusHeaderheight + viewsHeight
@@ -538,7 +540,8 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
-        botWebViewData: MessageTableCellState.BotWebViewData? = nil
+        botWebViewData: MessageTableCellState.BotWebViewData? = nil,
+        mediaData: MessageTableCellState.MediaData? = nil
     ) -> CGFloat {
         
         var mutableTableCellState = tableCellState
@@ -589,8 +592,14 @@ class ChatHelper {
             }
         }
         
-        if let _ = mutableTableCellState.messageMedia {
-            viewsHeight += MediaMessageView.kViewHeight
+        if let messageMedia = mutableTableCellState.messageMedia {
+            if messageMedia.isImageLink {
+                if mediaData != nil {
+                    viewsHeight += MediaMessageView.kViewHeight
+                }
+            } else {
+                viewsHeight += MediaMessageView.kViewHeight
+            }
         }
         
         if let link = mutableTableCellState.callLink {

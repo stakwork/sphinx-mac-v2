@@ -320,16 +320,26 @@ extension String {
     }
     
     var highlightedMatches: [NSTextCheckingResult] {
+        if !self.contains("`") {
+            return []
+        }
         let highlightedRegex = try? NSRegularExpression(pattern: "`(.*?)`", options: .dotMatchesLineSeparators)
         return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
     }
     
     var boldMatches: [NSTextCheckingResult] {
+        if !self.contains("**") {
+            return []
+        }
         let highlightedRegex = try? NSRegularExpression(pattern: "\\*\\*(.*?)\\*\\*", options: .dotMatchesLineSeparators)
         return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
     }
     
     var linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)] {
+        if !self.contains("[") && self.contains("(") {
+            return []
+        }
+        
         var results: [(NSTextCheckingResult, String, String, Bool)] = []
         
         let linkMarkdownPattern = #"!\[([^\]]+)\]\((http[s]?:\/\/[^\s\)]+)\)"#

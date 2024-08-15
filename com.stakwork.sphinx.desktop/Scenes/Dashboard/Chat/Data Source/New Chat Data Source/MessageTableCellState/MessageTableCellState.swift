@@ -318,7 +318,13 @@ struct MessageTableCellState {
     }()
     
     lazy var messageMedia: BubbleMessageLayoutState.MessageMedia? = {
-        guard let message = messageToShow, message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() else {
+        guard let message = messageToShow else {
+            return nil
+        }
+        
+        let hasMarkdownLinks = message.messageContent?.linkMarkdownMatches.count ?? 0 > 0
+        
+        guard message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() || (hasMarkdownLinks && message.isBotResponse()) else {
             return nil
         }
         
@@ -336,6 +342,7 @@ struct MessageTableCellState {
             isGif: message.isGif(),
             isPdf: message.isPDF(),
             isGiphy: message.isGiphy(),
+            isImageLink: hasMarkdownLinks,
             isPaid: message.isPaidAttachment(),
             isPaymentTemplate: message.isDirectPayment()
         )
@@ -356,6 +363,7 @@ struct MessageTableCellState {
             isGif: message.isGif(),
             isPdf: message.isPDF(),
             isGiphy: message.isGiphy(),
+            isImageLink: false,
             isPaid: message.isPaidAttachment(),
             isPaymentTemplate: message.isDirectPayment()
         )
@@ -394,6 +402,8 @@ struct MessageTableCellState {
             urlAndKey = (message.getTemplateURL(), nil)
         } else if message.isGiphy() {
             urlAndKey = (message.getGiphyUrl(), nil)
+        } else if let imageLink = message.messageContent?.linkMarkdownMatches.first?.2, let url = URL(string: imageLink){
+            return (url, nil)
         }
         
         return urlAndKey

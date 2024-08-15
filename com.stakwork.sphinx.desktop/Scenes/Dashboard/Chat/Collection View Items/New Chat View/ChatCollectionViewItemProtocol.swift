@@ -34,6 +34,7 @@ protocol ChatCollectionViewItemDelegate: AnyObject {
     func shouldLoadFileDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadVideoDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadGiphyDataFor(messageId: Int, and rowIndex: Int)
+    func shouldLoadLinkImageDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadTextDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadLinkDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadBotWebViewDataFor(messageId: Int, and rowIndex: Int)
