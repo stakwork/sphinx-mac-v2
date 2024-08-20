@@ -476,6 +476,10 @@ extension SphinxOnionManager {
                     message?.expirationDate = expiry
                 }
                 
+                if let paymentHash = rr.msgs.first?.paymentHash {
+                    message?.paymentHash = paymentHash
+                }
+                
                 message?.createdAt = date
                 message?.updatedAt = date
                 message?.uuid = sentUUID
@@ -523,6 +527,7 @@ extension SphinxOnionManager {
             paymentMessage?.updatedAt = date
             paymentMessage?.uuid = sentUUID
             paymentMessage?.tag = paymentMsg.tag
+            paymentMessage?.paymentHash = paymentMsg.paymentHash
             paymentMessage?.setAsLastMessage()
             paymentMessage?.managedObjectContext?.saveContext()
             
@@ -566,9 +571,9 @@ extension SphinxOnionManager {
     func assignReceiverId(localMsg: TransactionMessage) {
         var receiverId :Int = -1
         
-        if let contact = localMsg.chat?.getContact(){
+        if let contact = localMsg.chat?.getContact() {
             receiverId = contact.id
-        } else if localMsg.type == 29,
+        } else if localMsg.type == TransactionMessage.TransactionMessageType.boost.rawValue,
             let replyUUID = localMsg.replyUUID,
             let replyMsg = TransactionMessage.getMessageWith(uuid: replyUUID)
         {
@@ -1063,14 +1068,13 @@ extension SphinxOnionManager {
         var isTribe = false
         
         if let contact = UserContact.getContactWithDisregardStatus(pubkey: pubkey) {
-            
             if let oneOnOneChat = contact.getChat() {
                 chat = oneOnOneChat
             } else {
                 chat = createChat(for: contact, with: date)
             }
             
-            senderId = fromMe ? (UserData.sharedInstance.getUserId()) : contact.id
+            senderId = (fromMe == true) ? (UserData.sharedInstance.getUserId()) : contact.id
             receiverId = (fromMe == true) ? contact.id : (UserData.sharedInstance.getUserId())
             
             if fromMe {
@@ -1112,7 +1116,7 @@ extension SphinxOnionManager {
         }
         
         let newMessage = TransactionMessage.getMessageInstanceWith(
-            id: Int(index),
+            id: index,
             context: managedContext
         )
         
@@ -1156,9 +1160,8 @@ extension SphinxOnionManager {
             newMessage.push = false
         }
         
-        
         if (type == TransactionMessage.TransactionMessageType.boost.rawValue && isTribe == true), let msgAmount = message.amount {
-            newMessage.amount = NSDecimalNumber(value: msgAmount/1000)
+            newMessage.amount = NSDecimalNumber(value: msgAmount / 1000)
             newMessage.amountMsat = NSDecimalNumber(value: msgAmount)
         } else {
             newMessage.amount = NSDecimalNumber(value: amount)
@@ -1175,9 +1178,7 @@ extension SphinxOnionManager {
         if (delaySave == false) {
             managedContext.saveContext()
         }
-        
-        assignReceiverId(localMsg: newMessage)
-        
+                
         newMessage.setAsLastMessage()
         
         return newMessage

@@ -80,13 +80,23 @@ extension SphinxOnionManager{
             publicKey: publicKey,
             routeHint: routeHint
         ) {
-            fetchRoutingInfoFor(
-                pubkey: publicKey,
-                amtMsat: amtMsat,
-                completion: { success in
-                    callback(success)
-                }
-            )
+            do {
+                let _ = try Sphinx.findRoute(
+                    state: self.loadOnionStateAsData(),
+                    toPubkey: publicKey,
+                    routeHint: routeHint,
+                    amtMsat: UInt64(amtMsat)
+                )
+                callback(true)
+            } catch {
+                fetchRoutingInfoFor(
+                    pubkey: publicKey,
+                    amtMsat: amtMsat,
+                    completion: { success in
+                        callback(success)
+                    }
+                )
+            }
         } else {
             callback(true)
         }

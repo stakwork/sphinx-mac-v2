@@ -90,13 +90,7 @@ class FeedBoostHelper : NSObject {
             if d.type ?? "" == "node" {
                 let amount = Double(tipAmount) / 100 * d.split
                 
-                let text = """
-                {
-                    "feedID": "\(feedID)",
-                    "itemID": "\(itemID)",
-                    "ts": \(currentTime)
-                }
-                """
+                let text = "{\"feedID\": \"\(feedID)\",\"itemID\": \"\(itemID)\",\"ts\": \(currentTime)}"
                 
                 guard let data = text.data(using: .utf8), let pubkey = d.address, pubkey.isPubKey else {
                     continue
