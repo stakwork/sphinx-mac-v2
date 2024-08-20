@@ -227,9 +227,17 @@ struct GenericIncomingMessage: Mappable {
             }
         }
         
+        if let paymentHash = msg.paymentHash {
+            self.paymentHash = paymentHash
+        }
+        
         if let invoice = self.invoice {
             let prd = PaymentRequestDecoder()
             prd.decodePaymentRequest(paymentRequest: invoice)
+            
+            if let paymentHash = try? Sphinx.paymentHashFromInvoice(bolt11: invoice) {
+                self.paymentHash = paymentHash
+            }
             
             let amount = prd.getAmount() ?? 0
             self.amount = amount * 1000 // convert to msat
@@ -253,7 +261,6 @@ struct GenericIncomingMessage: Mappable {
         muid       <- map["muid"]
         
     }
-    
 }
 
 struct TribeMembersRRObject: Mappable {
