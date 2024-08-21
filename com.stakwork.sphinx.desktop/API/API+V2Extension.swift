@@ -48,6 +48,29 @@ extension API {
         }
     }
     
+    func updateDefaultTribe() {
+        let url = "https://config.config.sphinx.chat/api/config/bitcoin"
+        let request : URLRequest? = createRequest(url, params: nil, method: "GET")
+        
+        guard let request = request else {
+            return
+        }
+        
+        //NEEDS TO BE CHANGED
+        sphinxRequest(request) { response in
+            switch response.result {
+            case .success(let data):
+                if let dictionary = data as? NSDictionary {
+                    if let tribe = dictionary["tribe"] as? String {
+                        UserDefaults.Keys.defaultTribePublicKey.set(tribe)
+                    }
+                }
+            case .failure(_):
+                break
+            }
+        }
+    }
+    
     func fetchRoutingInfo(
         callback: @escaping UpdateRoutingInfoCallback
     ) {
