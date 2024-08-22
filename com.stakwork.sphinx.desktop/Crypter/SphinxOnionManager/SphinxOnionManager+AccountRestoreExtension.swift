@@ -752,7 +752,15 @@ extension SphinxOnionManager {
                     lastMessage.type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue ||
                     lastMessage.type == TransactionMessage.TransactionMessageType.unknown.rawValue
                 {
-                    setChatAsSeenWith(message: lastMessage, and: chat)
+                    setChatAsSeenWith(message: lastMessage, and: chat, shouldSyncToServer: false)
+                    
+                    if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+                        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
+                            index: UInt64(maxMessageIndex),
+                            chat: chat,
+                            recipContact: chat.getContact()
+                        )
+                    }
                 } else {
                     chat.lastMessage = lastMessage
                 }
@@ -762,13 +770,18 @@ extension SphinxOnionManager {
     
     func setChatAsSeenWith(
         message: TransactionMessage,
-        and chat: Chat
+        and chat: Chat,
+        shouldSyncToServer: Bool = true
     ) {
         message.seen = true
         chat.seen = true
         chat.lastMessage = nil
         
-        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+        if !shouldSyncToServer {
+            return
+        }
+        
+        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
             index: UInt64(message.id),
             chat: chat,
             recipContact: chat.getContact()

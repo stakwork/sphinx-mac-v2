@@ -283,6 +283,7 @@ import WebKit
         let pinVC = EnterPinViewController.instantiate(mode: .Launch)
         pinVC.doneCompletion = { pin in
             UserDefaults.Keys.lastPinDate.set(Date())
+            self.updateDefaultTribe()
             self.setAppMenuVisibility(shouldEnableItems: true)
             self.loadDashboard()
         }
@@ -293,6 +294,18 @@ import WebKit
             closeOther: true,
             hideBar: true
         )
+    }
+     
+    func updateDefaultTribe() {
+        if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) == false {
+            return
+        }
+
+        if !UserData.sharedInstance.isUserLogged() {
+            return
+        }
+
+        API.sharedInstance.updateDefaultTribe()
     }
     
     func loadDashboard() {
