@@ -837,7 +837,8 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
         
         let confirmedMessages = messages.filter({
             return $0.senderId == UserData.sharedInstance.getUserId() &&
-                   $0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+                   ($0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue ||
+                    $0.status == TransactionMessage.TransactionMessageStatus.pending.rawValue)
         })
         let tags = confirmedMessages.compactMap({ $0.tag })
         
