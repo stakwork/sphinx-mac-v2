@@ -327,6 +327,7 @@ class SphinxOnionManager : NSObject {
             ///If already fetching content, then process is already running
             if !isFetchingContent() {
                 self.hideRestoreCallback = hideRestoreViewCallback
+                self.getReads()
                 self.syncNewMessages()
             }
             return
@@ -404,6 +405,7 @@ class SphinxOnionManager : NSObject {
                 )
             } else {
                 self.hideRestoreCallback = hideRestoreViewCallback
+                self.getReads()
                 self.syncNewMessages()
             }
         }
