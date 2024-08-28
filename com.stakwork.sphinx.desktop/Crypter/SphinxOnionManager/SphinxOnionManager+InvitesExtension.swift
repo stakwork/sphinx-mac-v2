@@ -138,8 +138,10 @@ extension SphinxOnionManager{//invites related
     ) {
         saveIPAndPortFrom(lspHost: lspHost)
         
-        UserDefaults.Keys.tribesServerIP.set(tribeServerHost)
-        UserDefaults.Keys.defaultTribePublicKey.set(defaultTribePubkey)
+        if UserDefaults.Keys.tribesServerIP.get() == nil {
+            UserDefaults.Keys.tribesServerIP.set(tribeServerHost)
+            UserDefaults.Keys.defaultTribePublicKey.set(defaultTribePubkey)
+        }
         
         if let routerUrl = routerUrl {
             UserDefaults.Keys.routerUrl.set(routerUrl)
@@ -147,6 +149,10 @@ extension SphinxOnionManager{//invites related
     }
     
     func saveIPAndPortFrom(lspHost: String) {
+        if UserDefaults.Keys.serverIP.get() != nil {
+            return
+        }
+        
         if let components = URLComponents(string: lspHost), let host = components.host {
             if let port = components.port {
                 UserDefaults.Keys.serverPORT.set(port)
