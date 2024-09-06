@@ -55,6 +55,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var threadUUID: String? = nil
     var escapeMonitor: Any? = nil
+    private var chatEmptyAvatarPlaceholderView: ChatEmptyAvatarPlaceholderView?
     
     var isThread: Bool {
         get {
@@ -140,6 +141,10 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
+        
+        if chat?.isPending() ?? false || chat?.lastMessage == nil{
+            setupEmptyChatPlaceholder()
+        }
     }
     
     override func viewWillDisappear() {
@@ -376,5 +381,38 @@ class NewChatViewController: DashboardSplittedViewController {
     
     @IBAction func expandMenuButtonClicked(_ sender: Any) {
         delegate?.shouldToggleLeftView(show: true)
+    }
+    
+    
+    
+    private func setupEmptyChatPlaceholder() {
+            // Create the custom view
+        guard let chat = self.chat else{
+            removeSetupEmptyChat()
+            return
+        }//Chat.getAll().first(where: {URL(string: $0.getContact()?.avatarUrl ?? "") != nil}) else{return}
+        let emptyView = ChatEmptyAvatarPlaceholderView(frame: .zero)
+        emptyView.isHidden = false
+        // Add it to the view hierarchy
+        view.addSubview(emptyView)
+        // Set up constraints
+        emptyView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            emptyView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyView.widthAnchor.constraint(equalToConstant: 200),  // Adjust as needed
+            emptyView.heightAnchor.constraint(equalToConstant: 200)  // Adjust as needed
+        ])
+        
+        // Store a reference to the custom view if needed
+        self.chatEmptyAvatarPlaceholderView = emptyView
+        
+        emptyView.configureWith(chat: chat)
+    }
+    
+    func removeSetupEmptyChat(){
+        chatEmptyAvatarPlaceholderView?.isHidden = true
+        chatEmptyAvatarPlaceholderView?.removeFromSuperview()
+        chatEmptyAvatarPlaceholderView = nil
     }
 }
