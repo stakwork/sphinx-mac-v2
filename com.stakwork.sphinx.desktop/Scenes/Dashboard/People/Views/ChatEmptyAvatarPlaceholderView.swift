@@ -14,6 +14,22 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     @IBOutlet weak var avatarImageView: AspectFillNSImageView!
     @IBOutlet weak var nameLabel: NSTextField!
     @IBOutlet weak var encryptionNoticeLabel: NSTextField!
+    @IBOutlet weak var lockImageView: NSImageView!
+    @IBOutlet weak var subtitleTextField: NSTextField!
+    @IBOutlet weak var initialsLabel: NSTextField!
+    @IBOutlet weak var initialsLabelContainer: NSBox!
+    
+    var inviteDate : Date? = nil
+    
+    var isPending : Bool = false {
+        didSet{
+            let dateText = inviteDate?.getStringDate(format: "MMMM d yyyy") ?? ""
+            let fullDateText = dateText == "" ? "Invited you" : "Invited you on \(dateText)"
+            let text = (isPending == false) ? "Messages and calls are secured with end-to-end encryption" : fullDateText
+            subtitleTextField.stringValue = text
+            lockImageView.isHidden = isPending
+        }
+    }
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -59,7 +75,32 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     func configureWith(chat:Chat){
         let name = chat.getName()
         nameLabel.stringValue = name
-        guard let avatarImage = chat.getContact()?.avatarUrl else {return}
-        setupAvatarImageView(imageUrl: avatarImage)
+        if let avatarImage = chat.getContact()?.avatarUrl,
+           avatarImage != ""
+        {
+            setupAvatarImageView(imageUrl: avatarImage)
+        }
+        else{
+            avatarImageView.image = nil
+            showInitialsFor(chat.getContact(), in: avatarImageView, and: initialsLabelContainer)
+        }
+        
+        isPending = chat.isPending()
+        inviteDate = chat.getContact()?.createdAt
+    }
+    
+    func showInitialsFor(_ object: ChatListCommonObject?, in imageView: AspectFillNSImageView, and container: NSView) {
+        let senderInitials = object?.getName().getInitialsFromName() ?? "UK"
+        let senderColor = object?.getColor()
+        
+        initialsLabelContainer.isHidden = false
+        imageView.bordered = false
+        imageView.image = nil
+        
+        initialsLabelContainer.wantsLayer = true
+        initialsLabelContainer.layer?.cornerRadius = initialsLabelContainer.frame.size.height / 2
+        initialsLabelContainer.layer?.backgroundColor = senderColor?.cgColor
+        
+        initialsLabel.stringValue = senderInitials
     }
 }
