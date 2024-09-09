@@ -211,7 +211,7 @@ class NewChatViewController: DashboardSplittedViewController {
         if chat?.lastMessage == nil && false{//not pending but empty chat
             setupEmptyChatPlaceholder()
         }
-        else if chat?.isPending() ?? false{ // pending chat
+        else if chat?.isPending() ?? false || true{ // pending chat
             setupPendingChatPlaceholder()
         }
         else{

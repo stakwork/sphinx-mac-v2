@@ -104,6 +104,7 @@ extension NSColor {
         public static let ChatsHeaderDivider = color("ChatsHeaderDivider")
         public static let InputBG1 = color("InputBG1")
         
+        public static let DText2 = color("D-Text 2")
         public static let PriceTagBG = color("PriceTagBG")
         public static let TextViewGreenColor = color("TextViewGreenColor")
         public static let TextViewBGColor = color("TextViewBGColor")

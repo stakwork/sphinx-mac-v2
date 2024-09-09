@@ -20,6 +20,8 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     @IBOutlet weak var initialsLabelContainer: NSBox!
     @IBOutlet weak var pendingContactTitle: NSTextField!
     @IBOutlet weak var pendingContactSubtitle: NSTextField!
+    @IBOutlet weak var clockImageView: NSImageView!
+    
     
     var inviteDate : Date? = nil
     
@@ -30,9 +32,12 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             let text = (isPending == false) ? "Messages and calls are secured with end-to-end encryption" : fullDateText
             subtitleTextField.stringValue = text
             lockImageView.isHidden = isPending
+            avatarImageView.addDottedCircularBorder()
             
+            clockImageView.isHidden = !isPending
             pendingContactTitle.isHidden = !isPending
             pendingContactSubtitle.isHidden = !isPending
+            lockImageView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [1.0,0.5], color: NSColor.Sphinx.PlaceholderText)
         }
     }
     
@@ -80,6 +85,14 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     func configureWith(chat:Chat){
         let name = chat.getName()
         nameLabel.stringValue = name
+        
+//        DelayPerformedHelper.performAfterDelay(seconds:  2.0, completion: {
+//            self.nameLabel.textColor = NSColor.Sphinx.TextMessages
+//        })
+        
+        inviteDate = chat.getContact()?.createdAt
+        isPending = true//chat.isPending()
+        
         if let avatarImage = chat.getContact()?.avatarUrl,
            avatarImage != ""
         {
@@ -90,8 +103,6 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             showInitialsFor(chat.getContact(), in: avatarImageView, and: initialsLabelContainer)
         }
         
-        isPending = chat.isPending()
-        inviteDate = chat.getContact()?.createdAt
     }
     
     func showInitialsFor(_ object: ChatListCommonObject?, in imageView: AspectFillNSImageView, and container: NSView) {
