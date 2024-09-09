@@ -208,11 +208,11 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func handleEmptyView(){
-        if chat?.lastMessage == nil && false{//not pending but empty chat
-            setupEmptyChatPlaceholder()
-        }
-        else if chat?.isPending() ?? false || true{ // pending chat
+        if (chat?.isPending() ?? false) || (chat == nil){ // pending chat
             setupPendingChatPlaceholder()
+        }
+        else if chat?.lastMessage == nil {//not pending but empty chat
+            setupEmptyChatPlaceholder()
         }
         else{
             removeSetupEmptyChat()
@@ -409,7 +409,7 @@ class NewChatViewController: DashboardSplittedViewController {
         emptyView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             emptyView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor,constant: -25.0),
+            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor,constant: 25.0),
             emptyView.widthAnchor.constraint(equalToConstant: 200),  // Adjust as needed
             emptyView.heightAnchor.constraint(equalToConstant: 200)  // Adjust as needed
         ])
@@ -422,7 +422,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     private func setupPendingChatPlaceholder() {
             // Create the custom view
-        guard let chat = self.chat else{
+        guard let contact = self.contact else{
             removeSetupEmptyChat()
             return
         }//Chat.getAll().first(where: {URL(string: $0.getContact()?.avatarUrl ?? "") != nil}) else{return}
@@ -444,7 +444,7 @@ class NewChatViewController: DashboardSplittedViewController {
         // Store a reference to the custom view if needed
         self.chatEmptyAvatarPlaceholderView = emptyView
         
-        emptyView.configureWith(chat: chat)
+        emptyView.configureWith(contact: contact)
         
         chatBottomView.isHidden = true
     }

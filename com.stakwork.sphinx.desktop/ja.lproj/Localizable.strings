@@ -163,6 +163,7 @@
 "mark.as.read" = "読んだとしてマーク";
 "address-book.can-not-delete-contact-title" = "連絡先を削除できません";
 "address-book.can-not-delete-contact-message" = "確認済みの連絡先は削除できません";
+"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
 
 //INVITE
 "add.people" = "人を追加";

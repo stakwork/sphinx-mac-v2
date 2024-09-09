@@ -158,6 +158,7 @@
 "mark.as.read" = "Marcar como leído";
 "address-book.can-not-delete-contact-title" = "No se puede eliminar el contacto";
 "address-book.can-not-delete-contact-message" = "Los contactos confirmados no se pueden eliminar";
+"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
 
 //INVITE
 "group.details" = "Detalles del Grupo";

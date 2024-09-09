@@ -162,6 +162,7 @@
 "mark.as.read" = "Mark as Read";
 "address-book.can-not-delete-contact-title" = "Hindi matanggal ang contact";
 "address-book.can-not-delete-contact-message" = "Hindi matatanggal ang mga kumpirmadong contact";
+"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
 
 //INVITE
 "add.people"  = "Magdagdag ng mga Tao";

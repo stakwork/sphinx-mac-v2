@@ -30,14 +30,13 @@ class ChatEmptyAvatarPlaceholderView: NSView {
         didSet{
             let dateText = inviteDate?.getStringDate(format: "MMMM d yyyy") ?? ""
             let fullDateText = dateText == "" ? "Invited you" : "Invited you on \(dateText)"
-            let text = (isPending == false) ? "Messages and calls are secured with end-to-end encryption" : fullDateText
+            let text = (isPending == false) ? "messages.encrypted.disclaimer".localized : fullDateText
             subtitleTextField.stringValue = text
             lockImageView.isHidden = isPending
             
             clockImageView.isHidden = !isPending
             pendingContactTitle.isHidden = !isPending
             pendingContactSubtitle.isHidden = !isPending
-            lockImageView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [1.0,0.5], color: NSColor.Sphinx.PlaceholderText)
             
             if(isPending){
                 pendingClockBackgroundView.setBackgroundColor(color: NSColor.Sphinx.Body)
@@ -89,16 +88,29 @@ class ChatEmptyAvatarPlaceholderView: NSView {
         }
     }
     
+    func configureWith(contact:UserContact){
+        let name = contact.getName()
+        nameLabel.stringValue = name
+        inviteDate = contact.createdAt
+        isPending = contact.isPending()
+        
+        if let avatarImage = contact.avatarUrl,
+           avatarImage != ""
+        {
+            setupAvatarImageView(imageUrl: avatarImage)
+        }
+        else{
+            avatarImageView.image = nil
+            showInitialsFor(contact, in: avatarImageView, and: initialsLabelContainer)
+        }
+        
+    }
+    
     func configureWith(chat:Chat){
         let name = chat.getName()
         nameLabel.stringValue = name
-        
-//        DelayPerformedHelper.performAfterDelay(seconds:  2.0, completion: {
-//            self.nameLabel.textColor = NSColor.Sphinx.TextMessages
-//        })
-        
         inviteDate = chat.getContact()?.createdAt
-        isPending = true//chat.isPending()
+        isPending = chat.isPending()
         
         if let avatarImage = chat.getContact()?.avatarUrl,
            avatarImage != ""

@@ -33,6 +33,8 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var mentionsBadgeLabel: NSTextField!
     @IBOutlet weak var unreadMessageBadgeContainer: NSBox!
     @IBOutlet weak var unreadMessageBadgeLabel: NSTextField!
+    @IBOutlet weak var pendingContactDashedLineContainerView: NSView!
+    @IBOutlet weak var pendingContactClockIconImageView: NSImageView!
     
     var delegate: ChatListCollectionViewItemDelegate? = nil
     
@@ -106,6 +108,9 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             
             muteImageView.isHidden = true
             lockSignLabel.isHidden = true
+            if(chatListObject.isInvite() == false){
+                renderPendingUI()
+            }
             
         } else {
             
@@ -140,6 +145,16 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         
         renderContactImageViews(for: chatListObject)
         renderInvitePrice(for: chatListObject)
+    }
+    
+    private func renderPendingUI(){
+        pendingContactDashedLineContainerView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
+        pendingContactClockIconImageView.isHidden = false
+        pendingContactDashedLineContainerView.isHidden = false
+        messageLabel.stringValue = "contact.pending".localized
+        inviteIconLabel.isHidden = true
+        inviteImageView.isHidden = true
+        
     }
     
     private func renderBadgeView(
@@ -213,7 +228,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
 
             chatInitialsView.isHidden = true
             chatImageView.isHidden = true
-            inviteImageView.isHidden = false
+            //inviteImageView.isHidden = false
 
         } else {
 
@@ -292,8 +307,8 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             messageLabel.textColor = .Sphinx.TextMessages
             
         } else if chatListObject.isPending() {
-            inviteIconLabel.isHidden = false
-            inviteIconLabel.stringValue = "sync"
+//            inviteIconLabel.isHidden = false
+//            inviteIconLabel.stringValue = "sync"
             failedMessageIcon.isHidden = true
             
             messageLabel.superview?.isHidden = false
@@ -395,6 +410,12 @@ extension ChatListCollectionViewItem {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        resetUIForReuse()
+    }
+    
+    func resetUIForReuse(){
+        self.pendingContactClockIconImageView.image = nil
+        self.pendingContactDashedLineContainerView.isHidden = true
     }
 }
 
