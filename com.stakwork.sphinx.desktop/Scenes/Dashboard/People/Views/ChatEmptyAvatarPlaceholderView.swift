@@ -18,6 +18,8 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     @IBOutlet weak var subtitleTextField: NSTextField!
     @IBOutlet weak var initialsLabel: NSTextField!
     @IBOutlet weak var initialsLabelContainer: NSBox!
+    @IBOutlet weak var pendingContactTitle: NSTextField!
+    @IBOutlet weak var pendingContactSubtitle: NSTextField!
     
     var inviteDate : Date? = nil
     
@@ -28,6 +30,9 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             let text = (isPending == false) ? "Messages and calls are secured with end-to-end encryption" : fullDateText
             subtitleTextField.stringValue = text
             lockImageView.isHidden = isPending
+            
+            pendingContactTitle.isHidden = !isPending
+            pendingContactSubtitle.isHidden = !isPending
         }
     }
     
