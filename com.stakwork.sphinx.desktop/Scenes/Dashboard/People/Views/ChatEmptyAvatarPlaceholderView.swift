@@ -32,12 +32,21 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             let text = (isPending == false) ? "Messages and calls are secured with end-to-end encryption" : fullDateText
             subtitleTextField.stringValue = text
             lockImageView.isHidden = isPending
-            avatarImageView.addDottedCircularBorder()
             
             clockImageView.isHidden = !isPending
             pendingContactTitle.isHidden = !isPending
             pendingContactSubtitle.isHidden = !isPending
             lockImageView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [1.0,0.5], color: NSColor.Sphinx.PlaceholderText)
+            
+            if(isPending){
+//                pendingContactTitle.addDashedBorder(
+//                    color:  NSColor.Sphinx.PlaceholderText,
+//                    size: CGSize(width: pendingContactTitle.frame.width, height: 100.0),
+//                    radius: 0
+//                )
+                
+                avatarImageView.addDottedCircularBorder(lineWidth: 1.5, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
+            }
         }
     }
     
