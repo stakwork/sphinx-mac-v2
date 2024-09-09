@@ -21,7 +21,8 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     @IBOutlet weak var pendingContactTitle: NSTextField!
     @IBOutlet weak var pendingContactSubtitle: NSTextField!
     @IBOutlet weak var clockImageView: NSImageView!
-    
+    @IBOutlet weak var dashedOutlinePlaceholderView: NSView!
+    @IBOutlet weak var pendingClockBackgroundView: NSView!
     
     var inviteDate : Date? = nil
     
@@ -39,13 +40,10 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             lockImageView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [1.0,0.5], color: NSColor.Sphinx.PlaceholderText)
             
             if(isPending){
-//                pendingContactTitle.addDashedBorder(
-//                    color:  NSColor.Sphinx.PlaceholderText,
-//                    size: CGSize(width: pendingContactTitle.frame.width, height: 100.0),
-//                    radius: 0
-//                )
-                
-                avatarImageView.addDottedCircularBorder(lineWidth: 1.5, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
+                pendingClockBackgroundView.setBackgroundColor(color: NSColor.Sphinx.Body)
+                pendingClockBackgroundView.makeCircular()
+                pendingClockBackgroundView.isHidden = false
+                dashedOutlinePlaceholderView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
             }
         }
     }
