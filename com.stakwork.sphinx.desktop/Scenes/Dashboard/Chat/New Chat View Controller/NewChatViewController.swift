@@ -63,6 +63,10 @@ class NewChatViewController: DashboardSplittedViewController {
         }
     }
     
+    var shouldShowPendingChat:Bool{
+        return (chat?.isPending() ?? false) || (chat == nil)
+    }
+    
     enum ViewMode: Int {
         case Standard
         case Search
@@ -130,6 +134,7 @@ class NewChatViewController: DashboardSplittedViewController {
         
         chatTopView.checkRoute()
         NotificationCenter.default.addObserver(self, selector: #selector(handleImagePaste), name: .onFilePaste, object: nil)
+        updateEmptyView()
     }
     
     override func viewDidAppear() {
@@ -142,7 +147,6 @@ class NewChatViewController: DashboardSplittedViewController {
         loadReplyableMeesage()
         addEscapeMonitor()
         
-        handleEmptyView()
     }
     
     override func viewWillDisappear() {
@@ -204,18 +208,6 @@ class NewChatViewController: DashboardSplittedViewController {
                 return nil
             }
             return event
-        }
-    }
-    
-    func handleEmptyView(){
-        if (chat?.isPending() ?? false) || (chat == nil){ // pending chat
-            setupPendingChatPlaceholder()
-        }
-        else if chat?.lastMessage == nil {//not pending but empty chat
-            setupEmptyChatPlaceholder()
-        }
-        else{
-            removeSetupEmptyChat()
         }
     }
     
@@ -308,6 +300,9 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func setupChatBottomView() {
+        if shouldShowPendingChat == true{//don't setup bottom view if it should be hidden
+            return
+        }
         chatBottomView.updateFieldStateFrom(
             chat,
             contact: contact,
@@ -396,62 +391,100 @@ class NewChatViewController: DashboardSplittedViewController {
     
     
     private func setupEmptyChatPlaceholder() {
-            // Create the custom view
-        guard let chat = self.chat else{
-            removeSetupEmptyChat()
+        print("Setting up empty chat placeholder")
+        removeEmptyChatPlaceholder() // Remove any existing placeholder first
+        
+        guard let chat = self.chat else {
+            print("No chat available, cannot setup empty chat placeholder")
             return
-        }//Chat.getAll().first(where: {URL(string: $0.getContact()?.avatarUrl ?? "") != nil}) else{return}
+        }
+        
         let emptyView = ChatEmptyAvatarPlaceholderView(frame: .zero)
         emptyView.isHidden = false
-        // Add it to the view hierarchy
         view.addSubview(emptyView)
+        
         // Set up constraints
         emptyView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             emptyView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor,constant: 25.0),
+            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor, constant: 25.0),
             emptyView.widthAnchor.constraint(equalToConstant: 200),  // Adjust as needed
             emptyView.heightAnchor.constraint(equalToConstant: 200)  // Adjust as needed
         ])
-                
-        // Store a reference to the custom view if needed
+        
+        // Store a reference to the custom view
         self.chatEmptyAvatarPlaceholderView = emptyView
         
         emptyView.configureWith(chat: chat)
+        
+        view.needsLayout = true
+        view.layoutSubtreeIfNeeded()
+        print("Empty chat placeholder setup complete")
     }
-    
+
     private func setupPendingChatPlaceholder() {
-            // Create the custom view
-        guard let contact = self.contact else{
-            removeSetupEmptyChat()
+        print("Setting up pending chat placeholder")
+        removeEmptyChatPlaceholder() // Remove any existing placeholder first
+        
+        guard let contact = self.contact else {
+            print("No contact available, cannot setup pending chat placeholder")
             return
-        }//Chat.getAll().first(where: {URL(string: $0.getContact()?.avatarUrl ?? "") != nil}) else{return}
+        }
+        
         let emptyView = ChatEmptyAvatarPlaceholderView(frame: .zero)
         emptyView.isHidden = false
-        // Add it to the view hierarchy
         view.addSubview(emptyView)
+        
         // Set up constraints
         emptyView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             emptyView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor,constant: 25.0),
+            emptyView.topAnchor.constraint(equalTo: chatTopView.bottomAnchor, constant: 25.0),
             emptyView.widthAnchor.constraint(equalToConstant: 200),  // Adjust as needed
-            emptyView.bottomAnchor.constraint(equalTo: chatBottomView.topAnchor, constant: 60.0)  // Adjust as needed
+            emptyView.bottomAnchor.constraint(equalTo: chatBottomView.topAnchor, constant: -60.0)  // Adjust as needed
         ])
-        emptyView.layer?.borderWidth = 1.0
-        emptyView.layer?.borderColor = CGColor.white
         
-        // Store a reference to the custom view if needed
+        emptyView.wantsLayer = true
+        
+        // Store a reference to the custom view
         self.chatEmptyAvatarPlaceholderView = emptyView
         
         emptyView.configureWith(contact: contact)
         
         chatBottomView.isHidden = true
+        
+        view.needsLayout = true
+        view.layoutSubtreeIfNeeded()
+        print("Pending chat placeholder setup complete")
     }
-    
-    func removeSetupEmptyChat(){
-        chatEmptyAvatarPlaceholderView?.isHidden = true
-        chatEmptyAvatarPlaceholderView?.removeFromSuperview()
-        chatEmptyAvatarPlaceholderView = nil
+
+    func removeEmptyChatPlaceholder() {
+        print("Attempting to remove empty chat placeholder")
+        if let placeholderView = self.chatEmptyAvatarPlaceholderView {
+            print("Placeholder view found, removing it")
+            placeholderView.removeFromSuperview()
+            self.chatEmptyAvatarPlaceholderView = nil
+            self.view.needsLayout = true
+            self.view.layoutSubtreeIfNeeded()
+            print("Placeholder view removed and layout updated")
+        } else {
+            print("No placeholder view found")
+        }
+    }
+
+    func updateEmptyView() {
+        print("Updating empty view")
+        if self.shouldShowPendingChat {
+            print("Setting up pending chat placeholder")
+            self.setupPendingChatPlaceholder()
+        } else if self.chat?.lastMessage == nil {
+            print("Setting up empty chat placeholder")
+            self.setupEmptyChatPlaceholder()
+        } else {
+            print("Removing empty chat placeholder")
+            self.removeEmptyChatPlaceholder()
+        }
+        self.view.needsLayout = true
+        self.view.layoutSubtreeIfNeeded()
     }
 }

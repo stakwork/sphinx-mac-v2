@@ -150,6 +150,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     private func renderPendingUI(){
         pendingContactDashedLineContainerView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
         pendingContactClockIconImageView.isHidden = false
+        pendingContactClockIconImageView.contentTintColor = NSColor.Sphinx.SecondaryText
         pendingContactDashedLineContainerView.isHidden = false
         messageLabel.stringValue = "contact.pending".localized
         inviteIconLabel.isHidden = true
