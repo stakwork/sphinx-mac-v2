@@ -97,9 +97,19 @@ class JitsiCallWebViewController: NSViewController {
     }
     
     func loadPage() {
-        if let link = link, let url = URL(string: link) {
-            let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
-            webView.load(request)
+        if var link = link {
+            if let owner = UserContact.getOwner(), let nickname = owner.nickname {
+                if link.contains("#") {
+                    link = link + "&userInfo.displayName=\"\(nickname)\"&config.prejoinConfig.enabled=false"
+                } else {
+                    link = link + "#userInfo.displayName=\"\(nickname)\"&config.prejoinConfig.enabled=false"
+                }
+            }
+            
+            if let url = URL(string: link) {
+                let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
+                webView.load(request)
+            }
         }
     }
 }
