@@ -106,7 +106,7 @@ class PaymentViewModel : NSObject {
         }
         
         SphinxOnionManager.sharedInstance.sendDirectPaymentMessage(
-            amount: amount,
+            amount: amount * 1000,
             muid: currentPayment.muid,
             content: currentPayment.message,
             chat: chat,

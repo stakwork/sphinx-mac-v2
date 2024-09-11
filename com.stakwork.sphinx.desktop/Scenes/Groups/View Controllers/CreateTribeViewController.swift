@@ -103,13 +103,13 @@ class CreateTribeViewController: NSViewController {
             imageField.stringValue = chatTribeInfo.img ?? ""
             completeUrlAndLoadImage()
             
-            let priceToJoin = chatTribeInfo.priceToJoin ?? 0
+            let priceToJoin = (chatTribeInfo.priceToJoin ?? 0) / 1000
             priceToJoinField.stringValue = priceToJoin > 0 ? "\(priceToJoin)" : ""
             
-            let pricePerMessage = chatTribeInfo.pricePerMessage ?? 0
+            let pricePerMessage = (chatTribeInfo.pricePerMessage ?? 0) / 1000
             pricePerMessageField.stringValue = pricePerMessage > 0 ? "\(pricePerMessage)" : ""
             
-            let amountToStake = chatTribeInfo.amountToStake ?? 0
+            let amountToStake = (chatTribeInfo.amountToStake ?? 0) / 1000
             amountToStakeField.stringValue = amountToStake > 0 ? "\(amountToStake)" : ""
             
             let timeToStake = chatTribeInfo.timeToStake ?? 0
