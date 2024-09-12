@@ -8,8 +8,9 @@
 
 import Cocoa
 import WebKit
+import AVFoundation
 
-class JitsiCallWebViewController: NSViewController {
+class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessageHandler {
     
     @IBOutlet weak var loadingView: NSImageView!
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
@@ -32,8 +33,15 @@ class JitsiCallWebViewController: NSViewController {
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
         
-        addWebView()
-        loadPage()
+        requestMicrophoneAccess { granted in
+            if granted {
+                self.addWebView()
+                self.loadPage()
+            } else {
+                print("Microphone access denied")
+                // Handle the case where microphone access is denied
+            }
+        }
     }
     
     override func viewDidAppear() {
@@ -42,15 +50,38 @@ class JitsiCallWebViewController: NSViewController {
         view.window?.delegate = self
     }
     
+    func requestMicrophoneAccess(completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
+    
     func addWebView() {
         let configuration = WKWebViewConfiguration()
+        
+        // Configure for media playback without user interaction
         configuration.mediaTypesRequiringUserActionForPlayback = []
         
+        // Add a content controller to handle permission requests
+        let contentController = WKUserContentController()
+        contentController.add(self, name: "permissionHandler")
+        configuration.userContentController = contentController
+
         let rect = CGRect(x: 0, y: 0, width: 700, height: 500)
         webView = WKWebView(frame: rect, configuration: configuration)
-        webView.customUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/80.0.3987.163 Chrome/80.0.3987.163 Safari/537.36"
+        webView.customUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Safari/605.1.15"
         webView.isHidden = true
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         
         webView.setBackgroundColor(color: NSColor.clear)
         addLoadingView()
@@ -65,7 +96,6 @@ class JitsiCallWebViewController: NSViewController {
 
         self.view.addSubview(webView)
         addWebViewConstraints()
-
     }
     
     func addLoadingView(){
@@ -97,9 +127,45 @@ class JitsiCallWebViewController: NSViewController {
     }
     
     func loadPage() {
-        if let link = link, let url = URL(string: link) {
-            let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
-            webView.load(request)
+        if var link = link {
+            if let owner = UserContact.getOwner(), let nickname = owner.nickname {
+                if link.contains("#") {
+                    link = link + "&userInfo.displayName=\"\(nickname)\"&config.prejoinConfig.enabled=false"
+                } else {
+                    link = link + "#userInfo.displayName=\"\(nickname)\"&config.prejoinConfig.enabled=false"
+                }
+            }
+            
+            if let url = URL(string: link) {
+                let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
+                webView.load(request)
+            }
+        }
+    }
+    
+    // MARK: - WKUIDelegate
+    
+    @available(macOS 12.0, *)
+    func webView(
+        _ webView: WKWebView,
+        requestMediaCapturePermissionFor origin: WKSecurityOrigin, 
+        initiatedByFrame frame: WKFrameInfo,
+        type: WKMediaCaptureType,
+        decisionHandler: @escaping (WKPermissionDecision) -> Void
+    ) {
+        requestMicrophoneAccess { granted in
+            if granted {
+                decisionHandler(.grant)
+            } else {
+                decisionHandler(.deny)
+            }
+        }
+    }
+    
+    // MARK: - WKScriptMessageHandler
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "permissionHandler" {
+            // Handle any custom messages from the web content if needed
         }
     }
 }
@@ -121,7 +187,6 @@ extension JitsiCallWebViewController : WKNavigationDelegate {
          }
      }
  }
-
 
 extension JitsiCallWebViewController : NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
