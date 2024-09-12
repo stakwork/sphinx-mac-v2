@@ -167,8 +167,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
 
 extension NSView {
 
-    func makeCircular() {
-     
+    func makeCircular() { 
         layer?.cornerRadius = min(
             frame.size.width,
             frame.size.height

@@ -81,6 +81,32 @@ extension NSView {
         return shapeLayer
     }
     
+    func addDottedCircularBorder(lineWidth: CGFloat = 2, dashPattern: [CGFloat] = [5, 5], color: NSColor = .gray) {
+        self.wantsLayer = true
+        
+        let shapeLayer = CAShapeLayer()
+        
+        // Determine the size of the circle
+        let diameter = min(bounds.width, bounds.height) - lineWidth
+        let circleRect = CGRect(x: (bounds.width - diameter) / 2,
+                                y: (bounds.height - diameter) / 2,
+                                width: diameter,
+                                height: diameter)
+        
+        // Create the circular path
+        let circlePath = NSBezierPath(ovalIn: circleRect)
+        
+        // Configure the shape layer
+        shapeLayer.path = circlePath.cgPath
+        shapeLayer.fillColor = NSColor.clear.cgColor
+        shapeLayer.strokeColor = color.cgColor
+        shapeLayer.lineWidth = lineWidth
+        shapeLayer.lineDashPattern = dashPattern.map { NSNumber(value: Float($0)) }
+        
+        // Add the shape layer to the view's layer
+        self.layer?.addSublayer(shapeLayer)
+    }
+    
     func setAnchorPoint(anchorPoint:CGPoint) {
         self.wantsLayer = true
         

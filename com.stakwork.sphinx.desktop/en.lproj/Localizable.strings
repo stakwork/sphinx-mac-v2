@@ -164,6 +164,7 @@
 "mark.as.read" = "Mark as Read";
 "address-book.can-not-delete-contact-title" = "Can not delete contact";
 "address-book.can-not-delete-contact-message" = "Confirmed contacts can not be deleted";
+"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
 
 //INVITE
 "add.people" = "Add People";
@@ -480,6 +481,8 @@
 "invite.pmt.in.progress.title" = "Payment in progress";
 "invite.pmt.in.progress.message" = "Your payment is being processed.";
 "contact.pending" = "Waiting for approval";
+"contact.pending.title" = "You are now connected on Sphinx";
+"contact.pending.subtitle" = "Your chat will be enabled as soon as your contact goes online";
 
 //DESKTOP
 "message" = "Message";

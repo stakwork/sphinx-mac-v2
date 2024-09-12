@@ -1139,6 +1139,9 @@
                                                                                             <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="00Y-N3-bPz" customClass="ChatShimmeringView" customModule="Sphinx" customModuleProvider="target">
                                                                                                 <rect key="frame" x="0.0" y="0.0" width="600" height="719"/>
                                                                                             </customView>
+                                                                                            <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Haj-NQ-dxf" customClass="ChatEmptyAvatarPlaceholderView" customModule="Sphinx" customModuleProvider="target">
+                                                                                                <rect key="frame" x="0.0" y="0.0" width="600" height="719"/>
+                                                                                            </customView>
                                                                                             <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yw2-rL-g5p" customClass="NewMessagesIndicatorView" customModule="Sphinx" customModuleProvider="target">
                                                                                                 <rect key="frame" x="510" y="10" width="80" height="46"/>
                                                                                                 <constraints>
@@ -1149,15 +1152,19 @@
                                                                                         </subviews>
                                                                                         <constraints>
                                                                                             <constraint firstAttribute="bottom" secondItem="00Y-N3-bPz" secondAttribute="bottom" id="4pU-zg-FU4"/>
+                                                                                            <constraint firstItem="Haj-NQ-dxf" firstAttribute="leading" secondItem="JBN-Ay-LgI" secondAttribute="leading" id="G1N-io-JZf"/>
                                                                                             <constraint firstAttribute="trailing" secondItem="pLa-eF-Xok" secondAttribute="trailing" id="Juk-cf-Nz8"/>
                                                                                             <constraint firstAttribute="trailing" secondItem="00Y-N3-bPz" secondAttribute="trailing" id="Kia-nT-fqR"/>
                                                                                             <constraint firstItem="pLa-eF-Xok" firstAttribute="leading" secondItem="JBN-Ay-LgI" secondAttribute="leading" id="Lth-ZR-1cw"/>
                                                                                             <constraint firstItem="pLa-eF-Xok" firstAttribute="top" secondItem="JBN-Ay-LgI" secondAttribute="top" id="OJx-es-wNx"/>
+                                                                                            <constraint firstAttribute="bottom" secondItem="Haj-NQ-dxf" secondAttribute="bottom" id="XLD-ai-ZJI"/>
                                                                                             <constraint firstAttribute="trailing" secondItem="Yw2-rL-g5p" secondAttribute="trailing" constant="10" id="eer-HD-VUp"/>
                                                                                             <constraint firstAttribute="bottom" secondItem="pLa-eF-Xok" secondAttribute="bottom" id="g7Z-Cc-3Pz"/>
                                                                                             <constraint firstAttribute="bottom" secondItem="Yw2-rL-g5p" secondAttribute="bottom" constant="10" id="mZD-wz-ksD"/>
                                                                                             <constraint firstItem="00Y-N3-bPz" firstAttribute="top" secondItem="JBN-Ay-LgI" secondAttribute="top" id="r8a-6n-xA7"/>
+                                                                                            <constraint firstItem="Haj-NQ-dxf" firstAttribute="top" secondItem="JBN-Ay-LgI" secondAttribute="top" id="sO7-67-xFV"/>
                                                                                             <constraint firstItem="00Y-N3-bPz" firstAttribute="leading" secondItem="JBN-Ay-LgI" secondAttribute="leading" id="wsq-Ha-kr1"/>
+                                                                                            <constraint firstAttribute="trailing" secondItem="Haj-NQ-dxf" secondAttribute="trailing" id="y7i-eu-tAH"/>
                                                                                         </constraints>
                                                                                     </view>
                                                                                 </box>
@@ -1369,6 +1376,7 @@
                         <outlet property="botWebView" destination="l2C-x4-swX" id="SWQ-Is-zlx"/>
                         <outlet property="chatBottomView" destination="VsO-VQ-Xhc" id="cXK-MW-BYo"/>
                         <outlet property="chatCollectionView" destination="i4b-mt-d3a" id="BYY-lT-F1M"/>
+                        <outlet property="chatEmptyAvatarPlaceholderView" destination="Haj-NQ-dxf" id="lzu-yG-phv"/>
                         <outlet property="chatScrollView" destination="pLa-eF-Xok" id="AOl-wj-U2J"/>
                         <outlet property="chatTopView" destination="ffC-9B-Cdx" id="YPh-Ow-0Fs"/>
                         <outlet property="childViewControllerContainer" destination="wD4-1y-bkn" id="X43-AB-cYK"/>

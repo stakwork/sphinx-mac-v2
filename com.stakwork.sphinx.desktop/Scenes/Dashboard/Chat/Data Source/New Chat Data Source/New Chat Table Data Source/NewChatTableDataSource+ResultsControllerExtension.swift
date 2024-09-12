@@ -827,7 +827,13 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                 
                 self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
             }
+            
+            refreshEmptyView()
         }
+    }
+    
+    func refreshEmptyView() {
+        delegate?.updateEmptyView()
     }
     
     func updateMessagesStatusesFrom(messages: [TransactionMessage]) {

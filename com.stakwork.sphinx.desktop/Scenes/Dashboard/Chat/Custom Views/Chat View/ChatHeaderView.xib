@@ -15,8 +15,10 @@
                 <outlet property="contributedSatsLabel" destination="IHe-SB-qGm" id="j4v-uV-duY"/>
                 <outlet property="contributionSign" destination="Z5U-q1-dkr" id="Wro-7J-utt"/>
                 <outlet property="contributionsContainer" destination="Bfe-Pb-g4b" id="zmY-TP-9I7"/>
+                <outlet property="dashedLineView" destination="pH0-1i-Xxk" id="lvi-IH-hMH"/>
                 <outlet property="headerButton" destination="TUM-g0-3nc" id="zYv-iL-4s7"/>
                 <outlet property="imageContainer" destination="hc9-ue-1sf" id="CHl-zL-vHT"/>
+                <outlet property="imageWidthConstraint" destination="xY6-lC-9j1" id="fbp-Ge-vkj"/>
                 <outlet property="initialsContainer" destination="4i4-rg-aZX" id="Gbf-ni-kBt"/>
                 <outlet property="initialsLabel" destination="alC-kC-ETc" id="Chb-3Y-Iby"/>
                 <outlet property="lockSign" destination="T82-4F-A3v" id="rdr-J6-a39"/>
@@ -51,10 +53,13 @@
                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="hc9-ue-1sf">
                             <rect key="frame" x="0.0" y="0.0" width="60" height="60"/>
                             <subviews>
+                                <customView translatesAutoresizingMaskIntoConstraints="NO" id="pH0-1i-Xxk">
+                                    <rect key="frame" x="9" y="2" width="56" height="56"/>
+                                </customView>
                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cKv-Wh-FUp" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
-                                    <rect key="frame" x="16" y="7" width="46" height="46"/>
+                                    <rect key="frame" x="14" y="7" width="46" height="46"/>
                                     <constraints>
-                                        <constraint firstAttribute="height" constant="46" id="jTx-pP-y00"/>
+                                        <constraint firstAttribute="width" secondItem="cKv-Wh-FUp" secondAttribute="height" multiplier="1:1" id="Fcg-ej-sQ3"/>
                                         <constraint firstAttribute="width" constant="46" id="xY6-lC-9j1"/>
                                     </constraints>
                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" id="fOM-R0-7rW"/>
@@ -65,8 +70,8 @@
                                         </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
                                 </imageView>
-                                <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="22" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="4i4-rg-aZX">
-                                    <rect key="frame" x="16" y="7" width="46" height="46"/>
+                                <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="23" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="4i4-rg-aZX">
+                                    <rect key="frame" x="14" y="7" width="46" height="46"/>
                                     <view key="contentView" id="DAZ-jq-nha">
                                         <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -88,12 +93,16 @@
                                 </box>
                             </subviews>
                             <constraints>
+                                <constraint firstItem="pH0-1i-Xxk" firstAttribute="bottom" secondItem="cKv-Wh-FUp" secondAttribute="bottom" constant="5" id="7Vz-b2-TTd"/>
                                 <constraint firstItem="4i4-rg-aZX" firstAttribute="leading" secondItem="cKv-Wh-FUp" secondAttribute="leading" id="D0y-zN-gP9"/>
                                 <constraint firstItem="cKv-Wh-FUp" firstAttribute="centerY" secondItem="hc9-ue-1sf" secondAttribute="centerY" id="Gqn-3T-QMa"/>
                                 <constraint firstItem="4i4-rg-aZX" firstAttribute="bottom" secondItem="cKv-Wh-FUp" secondAttribute="bottom" id="VsC-1d-bzr"/>
+                                <constraint firstItem="cKv-Wh-FUp" firstAttribute="centerX" secondItem="hc9-ue-1sf" secondAttribute="centerX" constant="7" id="Xub-h9-bAg"/>
                                 <constraint firstItem="4i4-rg-aZX" firstAttribute="top" secondItem="cKv-Wh-FUp" secondAttribute="top" id="b7C-52-vWK"/>
-                                <constraint firstItem="cKv-Wh-FUp" firstAttribute="leading" secondItem="hc9-ue-1sf" secondAttribute="leading" constant="16" id="ffz-v9-PMm"/>
+                                <constraint firstItem="pH0-1i-Xxk" firstAttribute="trailing" secondItem="cKv-Wh-FUp" secondAttribute="trailing" constant="5" id="cEG-xO-4yc"/>
+                                <constraint firstItem="pH0-1i-Xxk" firstAttribute="leading" secondItem="cKv-Wh-FUp" secondAttribute="leading" constant="-5" id="gUa-Gx-7t9"/>
                                 <constraint firstItem="4i4-rg-aZX" firstAttribute="trailing" secondItem="cKv-Wh-FUp" secondAttribute="trailing" id="nb5-pd-rtb"/>
+                                <constraint firstItem="pH0-1i-Xxk" firstAttribute="top" secondItem="cKv-Wh-FUp" secondAttribute="top" constant="-5" id="vn6-aW-qFs"/>
                                 <constraint firstAttribute="width" constant="60" id="w0L-f7-zI9"/>
                             </constraints>
                         </customView>

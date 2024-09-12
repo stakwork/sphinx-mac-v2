@@ -15,6 +15,7 @@
                 <outlet property="chatInitialsView" destination="6fn-Ml-eGP" id="uvx-81-qLz"/>
                 <outlet property="dateLabel" destination="lCr-zc-pEk" id="XnQ-eY-TNz"/>
                 <outlet property="failedMessageIcon" destination="EVb-5c-qLp" id="QRm-pQ-7gi"/>
+                <outlet property="imageWidthConstraint" destination="xXy-2z-dY0" id="gLO-aX-OxU"/>
                 <outlet property="inviteIconLabel" destination="NbI-90-UUd" id="yLV-1a-ajM"/>
                 <outlet property="inviteImageView" destination="g3b-VE-306" id="9aw-yN-89p"/>
                 <outlet property="invitePriceContainer" destination="kk4-Xz-eHc" id="LTE-i4-IWp"/>
@@ -25,6 +26,8 @@
                 <outlet property="messageLabel" destination="lXx-aV-dLV" id="rd7-2G-yB0"/>
                 <outlet property="muteImageView" destination="aIg-7o-bsA" id="SwU-Ih-lA5"/>
                 <outlet property="nameLabel" destination="DGs-Cx-Khc" id="1XT-JS-hQL"/>
+                <outlet property="pendingContactClockIconImageView" destination="NwQ-jc-CBa" id="wZg-z4-dos"/>
+                <outlet property="pendingContactDashedLineContainerView" destination="j73-IW-Rh1" id="pkN-6B-WNH"/>
                 <outlet property="unreadMessageBadgeContainer" destination="d30-ku-ihf" id="GYV-Zs-NT3"/>
                 <outlet property="unreadMessageBadgeLabel" destination="cmn-Qv-gK9" id="6mo-6y-Sfj"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="myH-nr-vdJ"/>
@@ -51,14 +54,17 @@
                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="E07-EI-XQp">
                             <rect key="frame" x="0.0" y="0.0" width="54" height="46"/>
                             <subviews>
-                                <box boxType="custom" borderType="none" cornerRadius="4" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="6fn-Ml-eGP">
+                                <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j73-IW-Rh1">
                                     <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
+                                </customView>
+                                <box boxType="custom" borderType="none" cornerRadius="4" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="6fn-Ml-eGP">
+                                    <rect key="frame" x="5" y="5" width="36" height="36"/>
                                     <view key="contentView" id="GEd-GU-WP0">
-                                        <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="36" height="36"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="inh-ff-0bK">
-                                                <rect key="frame" x="9" y="13" width="28" height="20"/>
+                                                <rect key="frame" x="4" y="8" width="28" height="20"/>
                                                 <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="TT" id="7H2-32-d4I">
                                                     <font key="font" size="17" name="Montserrat-Regular"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -73,32 +79,38 @@
                                     </view>
                                 </box>
                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MFd-qA-EWn" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
+                                    <rect key="frame" x="5" y="5" width="36" height="36"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" secondItem="MFd-qA-EWn" secondAttribute="height" multiplier="1:1" id="mDk-QK-Ax0"/>
+                                        <constraint firstAttribute="width" constant="36" id="xXy-2z-dY0"/>
+                                    </constraints>
                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Udk-A2-PdJ"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="boolean" keyPath="rounded" value="YES"/>
                                     </userDefinedRuntimeAttributes>
                                 </imageView>
                                 <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="g3b-VE-306">
-                                    <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
+                                    <rect key="frame" x="5" y="5" width="36" height="36"/>
                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="cbV-OV-cD6"/>
                                 </imageView>
                             </subviews>
                             <constraints>
                                 <constraint firstAttribute="height" constant="46" id="0Jo-jd-lv8"/>
-                                <constraint firstAttribute="bottom" secondItem="MFd-qA-EWn" secondAttribute="bottom" id="1aF-Yb-8ea"/>
-                                <constraint firstAttribute="bottom" secondItem="6fn-Ml-eGP" secondAttribute="bottom" id="8f7-g1-Jdt"/>
+                                <constraint firstItem="j73-IW-Rh1" firstAttribute="leading" secondItem="6fn-Ml-eGP" secondAttribute="leading" constant="-5" id="2SN-Fo-7zo"/>
                                 <constraint firstAttribute="width" constant="54" id="AV1-EA-sFZ"/>
-                                <constraint firstAttribute="trailing" secondItem="6fn-Ml-eGP" secondAttribute="trailing" constant="8" id="CNW-vF-DhU"/>
+                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="trailing" secondItem="MFd-qA-EWn" secondAttribute="trailing" id="Asy-gw-sth"/>
                                 <constraint firstItem="g3b-VE-306" firstAttribute="trailing" secondItem="MFd-qA-EWn" secondAttribute="trailing" id="CpP-Xh-Wsb"/>
+                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="top" secondItem="MFd-qA-EWn" secondAttribute="top" id="Mn9-L4-jny"/>
+                                <constraint firstItem="MFd-qA-EWn" firstAttribute="centerY" secondItem="E07-EI-XQp" secondAttribute="centerY" id="NDf-o4-b5s"/>
                                 <constraint firstItem="g3b-VE-306" firstAttribute="bottom" secondItem="MFd-qA-EWn" secondAttribute="bottom" id="OSX-Qy-R4E"/>
                                 <constraint firstItem="g3b-VE-306" firstAttribute="top" secondItem="MFd-qA-EWn" secondAttribute="top" id="R6o-aP-StK"/>
-                                <constraint firstItem="MFd-qA-EWn" firstAttribute="leading" secondItem="E07-EI-XQp" secondAttribute="leading" id="VwM-SL-DQ2"/>
                                 <constraint firstItem="g3b-VE-306" firstAttribute="leading" secondItem="MFd-qA-EWn" secondAttribute="leading" id="Zc4-fc-Vqt"/>
-                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="top" secondItem="E07-EI-XQp" secondAttribute="top" id="erz-44-TUj"/>
-                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="leading" secondItem="E07-EI-XQp" secondAttribute="leading" id="fra-WX-4gF"/>
-                                <constraint firstAttribute="trailing" secondItem="MFd-qA-EWn" secondAttribute="trailing" constant="8" id="uGt-MV-H7C"/>
-                                <constraint firstItem="MFd-qA-EWn" firstAttribute="top" secondItem="E07-EI-XQp" secondAttribute="top" id="vyE-XH-hJs"/>
+                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="bottom" secondItem="MFd-qA-EWn" secondAttribute="bottom" id="cTz-ke-N1y"/>
+                                <constraint firstItem="j73-IW-Rh1" firstAttribute="top" secondItem="6fn-Ml-eGP" secondAttribute="top" constant="-5" id="cio-hI-1rP"/>
+                                <constraint firstItem="MFd-qA-EWn" firstAttribute="centerX" secondItem="E07-EI-XQp" secondAttribute="centerX" constant="-4" id="iHV-Jp-AKh"/>
+                                <constraint firstItem="j73-IW-Rh1" firstAttribute="trailing" secondItem="6fn-Ml-eGP" secondAttribute="trailing" constant="5" id="kck-Fb-ZR5"/>
+                                <constraint firstItem="j73-IW-Rh1" firstAttribute="bottom" secondItem="6fn-Ml-eGP" secondAttribute="bottom" constant="5" id="tXJ-md-clv"/>
+                                <constraint firstItem="6fn-Ml-eGP" firstAttribute="leading" secondItem="MFd-qA-EWn" secondAttribute="leading" id="tqO-AX-s7e"/>
                             </constraints>
                         </customView>
                         <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="3" horizontalStackHuggingPriority="248.99998474121094" verticalStackHuggingPriority="249.99998474121094" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="749" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zvz-rW-kZ8">
@@ -140,6 +152,13 @@
                                 <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="6" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yWz-dQ-yMG">
                                     <rect key="frame" x="0.0" y="0.0" width="304" height="18"/>
                                     <subviews>
+                                        <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NwQ-jc-CBa">
+                                            <rect key="frame" x="0.0" y="-4" width="14" height="22"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="14" id="1No-vE-h7U"/>
+                                            </constraints>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="clock_icon" id="Ecl-0m-dIt"/>
+                                        </imageView>
                                         <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="NbI-90-UUd">
                                             <rect key="frame" x="-2" y="1" width="21" height="16"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="warning" id="1e6-fn-Spl">
@@ -179,8 +198,10 @@
                                         <integer value="1000"/>
                                         <integer value="1000"/>
                                         <integer value="1000"/>
+                                        <integer value="1000"/>
                                     </visibilityPriorities>
                                     <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
@@ -390,15 +411,16 @@
         </customView>
     </objects>
     <resources>
+        <image name="clock_icon" width="22" height="22"/>
         <image name="newMuteIcon" width="13" height="13"/>
         <namedColor name="Divider">
-            <color red="0.86274509803921573" green="0.8784313725490196" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.92156862745098034" green="0.92941176470588238" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="HeaderBG">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="PlaceholderText">
-            <color red="0.81568627450980391" green="0.83529411764705885" blue="0.84705882352941175" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.69019607843137254" green="0.71764705882352942" blue="0.73725490196078436" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="PrimaryBlue">
             <color red="0.38039215686274508" green="0.54117647058823526" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -77,6 +77,7 @@ extension NewChatViewController: NSFetchedResultsControllerDelegate {
             if shouldReloadView {
                 setupChatTopView()
                 setupChatBottomView()
+                updateEmptyView()
             }
             
         }

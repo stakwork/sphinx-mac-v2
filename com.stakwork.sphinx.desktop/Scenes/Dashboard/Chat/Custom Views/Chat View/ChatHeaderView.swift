@@ -45,6 +45,8 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var threadsButton: CustomButton!
     @IBOutlet weak var searchButton: CustomButton!
     @IBOutlet weak var refreshButton: CustomButton!
+    @IBOutlet weak var dashedLineView: NSView!
+    @IBOutlet weak var imageWidthConstraint: NSLayoutConstraint!
     
     var chat: Chat? = nil
     var contact: UserContact? = nil
@@ -132,9 +134,29 @@ class ChatHeaderView: NSView, LoadableNib {
     
     func configureEncryptionSign() {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
-        lockSign.stringValue = isEncrypted ? "lock" : "lock_open"
-        lockSign.isHidden = false
-        refreshButton.isHidden = isEncrypted
+        lockSign.isHidden = !isEncrypted
+        refreshButton.isHidden = true
+        
+        imageWidthConstraint.constant = isEncrypted ? 46 : 36
+        profileImageView.superview?.layoutSubtreeIfNeeded()
+        profileImageView.makeCircular()
+        
+        initialsContainer.cornerRadius = isEncrypted ? 23 : 18
+        initialsContainer.layoutSubtreeIfNeeded()
+        
+        dashedLineView.isHidden = isEncrypted
+        
+        if !isEncrypted {
+            dashedLineView.layer?.sublayers?.forEach { layer in
+                layer.removeFromSuperlayer()
+            }
+            
+            dashedLineView.addDottedCircularBorder(
+                lineWidth: 1.0,
+                dashPattern: [3,2],
+                color: NSColor.Sphinx.PlaceholderText
+            )
+        }
     }
     
     func configureImageOrInitials() {
@@ -262,10 +284,10 @@ class ChatHeaderView: NSView, LoadableNib {
             return
         }
         
-        boltSign.isHidden = false
-
         let success = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
-        self.boltSign.textColor = success ? HealthCheckView.kConnectedColor : HealthCheckView.kNotConnectedColor
+        
+        boltSign.isHidden = !success
+        boltSign.textColor = success ? HealthCheckView.kConnectedColor : HealthCheckView.kNotConnectedColor
     }
     
     @IBAction func threadsButtonClicked(_ sender: Any) {

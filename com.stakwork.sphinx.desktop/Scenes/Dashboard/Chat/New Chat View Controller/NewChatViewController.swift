@@ -20,6 +20,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     @IBOutlet weak var podcastPlayerView: NSView!
     @IBOutlet weak var shimmeringView: ChatShimmeringView!
+    @IBOutlet weak var chatEmptyAvatarPlaceholderView: ChatEmptyAvatarPlaceholderView!
     
     @IBOutlet weak var chatTopView: ChatTopView!
     @IBOutlet weak var threadHeaderView: ThreadHeaderView!
@@ -60,6 +61,10 @@ class NewChatViewController: DashboardSplittedViewController {
         get {
             return threadUUID != nil
         }
+    }
+    
+    var shouldShowPendingChat:Bool{
+        return (chat?.isPending() ?? false) || (chat == nil)
     }
     
     enum ViewMode: Int {
@@ -126,6 +131,7 @@ class NewChatViewController: DashboardSplittedViewController {
         configureCollectionView()
         setupChatTopView()
         setupChatData()
+        updateEmptyView()
         
         chatTopView.checkRoute()
         NotificationCenter.default.addObserver(self, selector: #selector(handleImagePaste), name: .onFilePaste, object: nil)
@@ -140,6 +146,7 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
+        
     }
     
     override func viewWillDisappear() {
@@ -231,7 +238,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func addShimmeringView() {
-        if chat != nil || contact != nil {
+        if chat != nil && chat?.lastMessage != nil {
             shimmeringView.toggle(show: true)
         }
     }
@@ -293,6 +300,9 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func setupChatBottomView() {
+        if shouldShowPendingChat == true{//don't setup bottom view if it should be hidden
+            return
+        }
         chatBottomView.updateFieldStateFrom(
             chat,
             contact: contact,
@@ -376,5 +386,38 @@ class NewChatViewController: DashboardSplittedViewController {
     
     @IBAction func expandMenuButtonClicked(_ sender: Any) {
         delegate?.shouldToggleLeftView(show: true)
+    }
+    
+    
+    
+    private func setupEmptyChatPlaceholder() {
+        guard let chat = chat else {
+            return
+        }
+        
+        chatEmptyAvatarPlaceholderView.configureWith(chat: chat)
+        chatEmptyAvatarPlaceholderView.isHidden = false
+        chatBottomView.isHidden = false
+    }
+
+    private func setupPendingChatPlaceholder() {
+        guard let contact = contact else {
+            return
+        }
+        
+        chatEmptyAvatarPlaceholderView.configureWith(contact: contact)
+        chatEmptyAvatarPlaceholderView.isHidden = false
+        chatBottomView.isHidden = true
+    }
+
+    func updateEmptyView() {
+        if shouldShowPendingChat {
+            setupPendingChatPlaceholder()
+        } else if chat?.lastMessage == nil {
+            setupEmptyChatPlaceholder()
+        } else {
+            chatEmptyAvatarPlaceholderView.isHidden = true
+            chatBottomView.isHidden = false
+        }
     }
 }

@@ -158,6 +158,7 @@
 "mark.as.read" = "Marcar como leído";
 "address-book.can-not-delete-contact-title" = "No se puede eliminar el contacto";
 "address-book.can-not-delete-contact-message" = "Los contactos confirmados no se pueden eliminar";
+"messages.encrypted.disclaimer" = "Los mensajes y las llamadas están protegidos con cifrado de extremo a extremo";
 
 //INVITE
 "group.details" = "Detalles del Grupo";
@@ -479,6 +480,8 @@
 "invite.pmt.in.progress.title" = "Procesando Pago";
 "invite.pmt.in.progress.message" = "Tu pago está siendo procesado.";
 "contact.pending" = "Esperando aprobación";
+"contact.pending.title" = "Ahora están conectados en Sphinx";
+"contact.pending.subtitle" = "Tu chat se habilitará tan pronto como tu contacto se conecte";
 
 //DESKTOP
 "message" = "Mensaje";
