@@ -481,6 +481,8 @@
 "invite.pmt.in.progress.title" = "Payment in progress";
 "invite.pmt.in.progress.message" = "Your payment is being processed.";
 "contact.pending" = "Waiting for approval";
+"contact.pending.title" = "You are now connected on Sphinx";
+"contact.pending.subtitle" = "Your chat will be enabled as soon as your contact goes online";
 
 //DESKTOP
 "message" = "Message";

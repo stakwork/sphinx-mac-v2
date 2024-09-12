@@ -163,7 +163,7 @@
 "mark.as.read" = "読んだとしてマーク";
 "address-book.can-not-delete-contact-title" = "連絡先を削除できません";
 "address-book.can-not-delete-contact-message" = "確認済みの連絡先は削除できません";
-"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
+"messages.encrypted.disclaimer" = "メッセージと通話はエンドツーエンドの暗号化で保護されます";
 
 //INVITE
 "add.people" = "人を追加";
@@ -477,6 +477,8 @@
 "invite.pmt.in.progress.title" = "支払い進行中";
 "invite.pmt.in.progress.message" = "支払いが処理されています。";
 "contact.pending" = "承認待ち";
+"contact.pending.title" = "Sphinxに接続されました";
+"contact.pending.subtitle" = "連絡先がオンラインになるとすぐにチャットが有効になります";
 
 //DESKTOP
 "message" = "メッセージ";

@@ -163,7 +163,7 @@
 "mark.as.read" = "标记为已读";
 "address-book.can-not-delete-contact-title" = "无法删除联系人";
 "address-book.can-not-delete-contact-message" = "已确认的联系人无法删除";
-"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
+"messages.encrypted.disclaimer" = "信息和通话均采用端到端加密保护";
 
 //INVITE
 "add.people" = "添加人员";
@@ -476,6 +476,8 @@
 "invite.pmt.in.progress.title" = "支付进行中";
 "invite.pmt.in.progress.message" = "您的支付正在处理中。";
 "contact.pending" = "等待批准";
+"contact.pending.title" = "您现在已连接到 Sphinx";
+"contact.pending.subtitle" = "您的联系人上线后即可启用聊天功能";
 
 //DESKTOP
 "message" = "消息";

@@ -57,6 +57,9 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     
     ///Invoices
     func shouldStartCallWith(link: String)
+    
+    ///Empty chat placeholder
+    func updateEmptyView()
 }
 
 class NewChatTableDataSource : NSObject {

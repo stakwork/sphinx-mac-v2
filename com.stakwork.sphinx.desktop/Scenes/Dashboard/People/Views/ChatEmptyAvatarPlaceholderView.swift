@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class ChatEmptyAvatarPlaceholderView: NSView {
+class ChatEmptyAvatarPlaceholderView: NSView, LoadableNib {
     
     @IBOutlet weak var contentView: NSView!
     @IBOutlet weak var avatarImageView: AspectFillNSImageView!
@@ -27,10 +27,11 @@ class ChatEmptyAvatarPlaceholderView: NSView {
     var inviteDate : Date? = nil
     
     var isPending : Bool = false {
-        didSet{
+        didSet {
             let dateText = inviteDate?.getStringDate(format: "MMMM d yyyy") ?? ""
-            let fullDateText = dateText == "" ? "Invited you" : "Invited you on \(dateText)"
+            let fullDateText = dateText == "" ? "Invited" : "Invited on \(dateText)"
             let text = (isPending == false) ? "messages.encrypted.disclaimer".localized : fullDateText
+            
             subtitleTextField.stringValue = text
             lockImageView.isHidden = isPending
             
@@ -38,41 +39,47 @@ class ChatEmptyAvatarPlaceholderView: NSView {
             pendingContactTitle.isHidden = !isPending
             pendingContactSubtitle.isHidden = !isPending
             
-            if(isPending){
+            if (isPending) {
                 pendingClockBackgroundView.setBackgroundColor(color: NSColor.Sphinx.Body)
                 pendingClockBackgroundView.makeCircular()
                 pendingClockBackgroundView.isHidden = false
-                dashedOutlinePlaceholderView.addDottedCircularBorder(lineWidth: 1.0, dashPattern: [8,4], color: NSColor.Sphinx.PlaceholderText)
+                dashedOutlinePlaceholderView.isHidden = false
+                
+                dashedOutlinePlaceholderView.addDottedCircularBorder(
+                    lineWidth: 1.0,
+                    dashPattern: [5,5],
+                    color: NSColor.Sphinx.PlaceholderText
+                )
+            } else {
+                dashedOutlinePlaceholderView.layer?.sublayers?.forEach { layer in
+                    layer.removeFromSuperlayer()
+                }
+                pendingClockBackgroundView.isHidden = true
+                dashedOutlinePlaceholderView.isHidden = true
             }
         }
     }
     
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
         setupView()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        loadViewFromNib()
         setupView()
     }
     
-    private func setupView() {
-        let bundle = Bundle(for: type(of: self))
-        let nib = NSNib(nibNamed: "ChatEmptyAvatarPlaceholderView", bundle: bundle)!
-        nib.instantiate(withOwner: self, topLevelObjects: nil)
-        
-        addSubview(contentView)
-        contentView.frame = bounds
-        contentView.autoresizingMask = [.width, .height]
+    func setupView() {
+        pendingContactTitle.stringValue = "contact.pending.title".localized
+        pendingContactSubtitle.stringValue = "contact.pending.subtitle".localized
     }
     
-    func setupAvatarImageView(imageUrl:String){
+    func setupAvatarImageView(imageUrl: String) {
         avatarImageView.wantsLayer = true
         avatarImageView.rounded = true
         avatarImageView.layer?.cornerRadius = avatarImageView.frame.height / 2
-        contentView.setBackgroundColor(color: .black)
-        self.setBackgroundColor(color: .purple)
         
         let imageUrl = imageUrl.trim()
         if imageUrl != "" {
@@ -88,43 +95,41 @@ class ChatEmptyAvatarPlaceholderView: NSView {
         }
     }
     
-    func configureWith(contact:UserContact){
+    func configureWith(contact: UserContact) {
         let name = contact.getName()
         nameLabel.stringValue = name
         inviteDate = contact.createdAt
         isPending = contact.isPending()
         
-        if let avatarImage = contact.avatarUrl,
-           avatarImage != ""
-        {
+        if let avatarImage = contact.avatarUrl, avatarImage != "" {
             setupAvatarImageView(imageUrl: avatarImage)
-        }
-        else{
+        } else {
             avatarImageView.image = nil
             showInitialsFor(contact, in: avatarImageView, and: initialsLabelContainer)
         }
         
     }
     
-    func configureWith(chat:Chat){
+    func configureWith(chat: Chat) {
         let name = chat.getName()
         nameLabel.stringValue = name
         inviteDate = chat.getContact()?.createdAt
         isPending = chat.isPending()
         
-        if let avatarImage = chat.getContact()?.avatarUrl,
-           avatarImage != ""
-        {
+        if let avatarImage = chat.getContact()?.avatarUrl, avatarImage != "" {
             setupAvatarImageView(imageUrl: avatarImage)
-        }
-        else{
+        } else {
             avatarImageView.image = nil
             showInitialsFor(chat.getContact(), in: avatarImageView, and: initialsLabelContainer)
         }
         
     }
     
-    func showInitialsFor(_ object: ChatListCommonObject?, in imageView: AspectFillNSImageView, and container: NSView) {
+    func showInitialsFor(
+        _ object: ChatListCommonObject?,
+        in imageView: AspectFillNSImageView,
+        and container: NSView
+    ) {
         let senderInitials = object?.getName().getInitialsFromName() ?? "UK"
         let senderColor = object?.getColor()
         

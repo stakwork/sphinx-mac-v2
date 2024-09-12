@@ -162,7 +162,7 @@
 "mark.as.read" = "Mark as Read";
 "address-book.can-not-delete-contact-title" = "Hindi matanggal ang contact";
 "address-book.can-not-delete-contact-message" = "Hindi matatanggal ang mga kumpirmadong contact";
-"messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
+"messages.encrypted.disclaimer" = "Ang mga mensahe at tawag ay sinigurado gamit ang end-to-end na pag-encrypt";
 
 //INVITE
 "add.people"  = "Magdagdag ng mga Tao";
@@ -476,6 +476,8 @@
 "invite.pmt.in.progress.title"  = "Kasalukuyang isinasagawa ang pagbabayad";
 "invite.pmt.in.progress.message"  = "Pinoproseso ang iyong bayad.";
 "contact.pending" = "Naghihintay ng pag-apruba";
+"contact.pending.title" = "Nakakonekta ka na ngayon sa Sphinx";
+"contact.pending.subtitle" = "Paganahin ang iyong chat sa sandaling mag-online ang iyong contact";
 
 //DESKTOP
 "message" = "Mensahe";
