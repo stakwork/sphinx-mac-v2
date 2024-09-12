@@ -28,11 +28,11 @@ extension TransactionMessage {
                 parameters["contact_id"] = contact.id as AnyObject?
             }
             
-            let pricePerMessage = (chat?.pricePerMessage?.intValue ?? 0)
-            let escrowAmount = (chat?.escrowAmount?.intValue ?? 0)
-            let tipAmount: Int = UserDefaults.Keys.tipAmount.get(defaultValue: 100)
-            parameters["amount"] = pricePerMessage + escrowAmount + tipAmount as AnyObject?
-            parameters["message_price"] = pricePerMessage + escrowAmount as AnyObject?
+            let pricePerMessageMSat = (chat?.pricePerMessage?.intValue ?? 0)
+            let escrowAmountMSat = (chat?.escrowAmount?.intValue ?? 0)
+            let tipAmountMSat: Int = UserDefaults.Keys.tipAmount.get(defaultValue: 100) * 1000
+            parameters["amount"] = pricePerMessageMSat + escrowAmountMSat + tipAmountMSat as AnyObject?
+            parameters["message_price"] = pricePerMessageMSat + escrowAmountMSat as AnyObject?
             
             parameters["reply_uuid"] = replyUUID as AnyObject?
             return parameters
@@ -57,10 +57,10 @@ extension TransactionMessage {
             parameters["contact_id"] = contact.id as AnyObject?
         }
         
-        let pricePerMessage = (chat?.pricePerMessage?.intValue ?? 0)
-        let escrowAmount = (chat?.escrowAmount?.intValue ?? 0)
-        parameters["amount"] = pricePerMessage + escrowAmount as AnyObject?
-        parameters["message_price"] = pricePerMessage + escrowAmount as AnyObject?
+        let pricePerMessageMSat = (chat?.pricePerMessage?.intValue ?? 0)
+        let escrowAmountMSat = (chat?.escrowAmount?.intValue ?? 0)
+        parameters["amount"] = pricePerMessageMSat + escrowAmountMSat as AnyObject?
+        parameters["message_price"] = pricePerMessageMSat + escrowAmountMSat as AnyObject?
         
         return parameters
     }

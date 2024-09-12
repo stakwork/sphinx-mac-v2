@@ -697,7 +697,10 @@ extension SphinxOnionManager {
                             if let messageStatus = dictionary[message.tag ?? ""] {
                                 if messageStatus.isReceived() {
                                     if message.isInvoice() {
-                                        message.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+                                        if message.status == TransactionMessage.TransactionMessageStatus.pending.rawValue {
+                                            ///Just set invoice as received if pending. Otherwise it might be confirmed/paid and revert to received when this happens
+                                            message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                        }
                                     } else {
                                         message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
                                     }

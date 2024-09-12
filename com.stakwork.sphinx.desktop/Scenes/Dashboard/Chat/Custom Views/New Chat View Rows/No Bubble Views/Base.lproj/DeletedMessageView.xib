@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -20,7 +20,7 @@
             <rect key="frame" x="0.0" y="0.0" width="480" height="62"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2du-l5-IEk">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2du-l5-IEk">
                     <rect key="frame" x="58" y="35" width="401" height="11"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="Usm-he-WRM">
                         <font key="font" size="10" name="Roboto-Italic"/>
@@ -28,7 +28,7 @@
                         <color key="backgroundColor" name="Body"/>
                     </textFieldCell>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JRK-Du-OFB">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JRK-Du-OFB">
                     <rect key="frame" x="58" y="16" width="401" height="11"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="This message has been deleted" id="2uf-pP-Vtm">
                         <font key="font" size="10" name="Roboto-Italic"/>
@@ -44,7 +44,6 @@
                 <constraint firstAttribute="trailing" secondItem="2du-l5-IEk" secondAttribute="trailing" constant="23" id="MAk-HW-vxe"/>
                 <constraint firstItem="JRK-Du-OFB" firstAttribute="top" secondItem="2du-l5-IEk" secondAttribute="bottom" constant="8" symbolic="YES" id="Y93-lB-yJI"/>
                 <constraint firstItem="JRK-Du-OFB" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="60" id="mDc-fP-B5K"/>
-                <constraint firstAttribute="bottom" secondItem="JRK-Du-OFB" secondAttribute="bottom" constant="16" id="vhx-JM-Abb"/>
             </constraints>
             <point key="canvasLocation" x="83" y="-36"/>
         </customView>

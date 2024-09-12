@@ -317,7 +317,7 @@ extension NewMessageCollectionViewItem {
                     
                     let nsRange = textCheckingResult.range
                     
-                    if let text = messageContent.text {
+                    if let _ = messageContent.text {
                         if let url = URL(string: link)  {
                             attributedString.addAttributes(
                                 [
