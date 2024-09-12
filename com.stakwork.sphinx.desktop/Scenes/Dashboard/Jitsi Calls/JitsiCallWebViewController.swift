@@ -146,7 +146,13 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
     // MARK: - WKUIDelegate
     
     @available(macOS 12.0, *)
-    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+    func webView(
+        _ webView: WKWebView,
+        requestMediaCapturePermissionFor origin: WKSecurityOrigin, 
+        initiatedByFrame frame: WKFrameInfo,
+        type: WKMediaCaptureType,
+        decisionHandler: @escaping (WKPermissionDecision) -> Void
+    ) {
         requestMicrophoneAccess { granted in
             if granted {
                 decisionHandler(.grant)
@@ -157,7 +163,6 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
     }
     
     // MARK: - WKScriptMessageHandler
-    
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "permissionHandler" {
             // Handle any custom messages from the web content if needed
