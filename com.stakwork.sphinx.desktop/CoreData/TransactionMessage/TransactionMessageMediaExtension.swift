@@ -18,7 +18,7 @@ extension TransactionMessage {
                     return TransactionMessage.TransactionMessageType.imageAttachment.rawValue
                 } else if mediaType.contains("video") {
                     return TransactionMessage.TransactionMessageType.videoAttachment.rawValue
-                } else if mediaType.contains("audio") {
+                } else if mediaType.contains("audio/wav") {
                     return TransactionMessage.TransactionMessageType.audioAttachment.rawValue
                 } else if mediaType.contains("sphinx/text") {
                     return TransactionMessage.TransactionMessageType.textAttachment.rawValue
