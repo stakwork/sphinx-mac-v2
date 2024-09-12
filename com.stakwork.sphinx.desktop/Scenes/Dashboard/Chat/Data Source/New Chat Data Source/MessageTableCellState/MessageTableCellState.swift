@@ -890,7 +890,7 @@ struct MessageTableCellState {
                 (self.contactLink == nil) &&
                 (self.tribeLink == nil) &&
                 (self.messageMedia == nil) &&
-//                (self.webLink == nil) &&
+                (self.audio == nil) &&
                 (self.botHTMLContent == nil) &&
                 (self.paidContent == nil) &&
                 (self.podcastComment == nil) &&
