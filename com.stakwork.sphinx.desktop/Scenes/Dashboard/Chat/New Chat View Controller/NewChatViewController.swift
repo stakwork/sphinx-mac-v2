@@ -63,7 +63,7 @@ class NewChatViewController: DashboardSplittedViewController {
         }
     }
     
-    var shouldShowPendingChat:Bool{
+    var shouldShowPendingChat: Bool {
         return (chat?.isPending() ?? false) || (chat == nil)
     }
     
@@ -387,8 +387,6 @@ class NewChatViewController: DashboardSplittedViewController {
     @IBAction func expandMenuButtonClicked(_ sender: Any) {
         delegate?.shouldToggleLeftView(show: true)
     }
-    
-    
     
     private func setupEmptyChatPlaceholder() {
         guard let chat = chat else {
