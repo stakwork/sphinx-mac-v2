@@ -404,14 +404,22 @@ public class Chat: NSManagedObject {
             self.unseenMessagesCount = 0
             self.unseenMentionsCount = 0
             
-            if let highestIndex = TransactionMessage.getMaxIndexFor(chat: self),
-               SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: highestIndex) == false
-            {
-                let _ = SphinxOnionManager.sharedInstance.setReadLevel(
-                    index: UInt64(highestIndex),
-                    chat: self,
-                    recipContact: self.getContact()
-                )
+            if let lastMessage = self.getLastMessageToShow(includeContactKeyTypes: true) {
+                if lastMessage.isKeyExchangeType() {
+                    if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+                        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
+                            index: UInt64(maxMessageIndex),
+                            chat: self,
+                            recipContact: self.getContact()
+                        )
+                    }
+                } else if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
+                    let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                        index: UInt64(lastMessage.id),
+                        chat: self,
+                        recipContact: self.getContact()
+                    )
+                }
             }
         }
         

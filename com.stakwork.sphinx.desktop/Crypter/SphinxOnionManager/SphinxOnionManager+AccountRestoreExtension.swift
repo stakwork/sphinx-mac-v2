@@ -747,11 +747,7 @@ extension SphinxOnionManager {
         
         for chat in Chat.getAll() {
             if let lastMessage = chat.getLastMessageToShow(includeContactKeyTypes: true) {
-                if
-                    lastMessage.type == TransactionMessage.TransactionMessageType.contactKey.rawValue ||
-                    lastMessage.type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue ||
-                    lastMessage.type == TransactionMessage.TransactionMessageType.unknown.rawValue
-                {
+                if lastMessage.isKeyExchangeType() {
                     setChatAsSeenWith(message: lastMessage, and: chat, shouldSyncToServer: false)
                     
                     if let maxMessageIndex = TransactionMessage.getMaxIndex() {

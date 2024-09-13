@@ -467,6 +467,12 @@ extension TransactionMessage {
         return type == TransactionMessageType.call.rawValue
     }
     
+    func isKeyExchangeType() -> Bool {
+        return self.type == TransactionMessage.TransactionMessageType.contactKey.rawValue ||
+                self.type == TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue ||
+                self.type == TransactionMessage.TransactionMessageType.unknown.rawValue
+    }
+    
     func canBeDeleted() -> Bool {
         return isOutgoing() || (self.chat?.isMyPublicGroup() ?? false)
     }
