@@ -13,13 +13,11 @@ class ChatEmptyAvatarPlaceholderView: NSView, LoadableNib {
     @IBOutlet weak var contentView: NSView!
     @IBOutlet weak var avatarImageView: AspectFillNSImageView!
     @IBOutlet weak var nameLabel: NSTextField!
-    @IBOutlet weak var encryptionNoticeLabel: NSTextField!
     @IBOutlet weak var lockImageView: NSImageView!
     @IBOutlet weak var subtitleTextField: NSTextField!
     @IBOutlet weak var initialsLabel: NSTextField!
     @IBOutlet weak var initialsLabelContainer: NSBox!
     @IBOutlet weak var pendingContactTitle: NSTextField!
-    @IBOutlet weak var pendingContactSubtitle: NSTextField!
     @IBOutlet weak var clockImageView: NSImageView!
     @IBOutlet weak var dashedOutlinePlaceholderView: NSView!
     @IBOutlet weak var pendingClockBackgroundView: NSView!
@@ -37,7 +35,6 @@ class ChatEmptyAvatarPlaceholderView: NSView, LoadableNib {
             
             clockImageView.isHidden = !isPending
             pendingContactTitle.isHidden = !isPending
-            pendingContactSubtitle.isHidden = !isPending
             
             if (isPending) {
                 pendingClockBackgroundView.setBackgroundColor(color: NSColor.Sphinx.Body)
@@ -72,8 +69,7 @@ class ChatEmptyAvatarPlaceholderView: NSView, LoadableNib {
     }
     
     func setupView() {
-        pendingContactTitle.stringValue = "contact.pending.title".localized
-        pendingContactSubtitle.stringValue = "contact.pending.subtitle".localized
+        pendingContactTitle.stringValue = "contact.pending.subtitle".localized
     }
     
     func setupAvatarImageView(imageUrl: String) {

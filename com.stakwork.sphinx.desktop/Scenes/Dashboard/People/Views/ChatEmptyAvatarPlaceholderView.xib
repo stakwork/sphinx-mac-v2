@@ -19,7 +19,6 @@
                 <outlet property="lockImageView" destination="O6F-XI-asJ" id="C3R-8f-IZx"/>
                 <outlet property="nameLabel" destination="MTh-ob-sV8" id="0n1-Ns-bqP"/>
                 <outlet property="pendingClockBackgroundView" destination="Ta5-uA-TSP" id="QMg-Nl-L14"/>
-                <outlet property="pendingContactSubtitle" destination="OzG-Nt-FPF" id="xf2-YG-hFe"/>
                 <outlet property="pendingContactTitle" destination="Cnr-Ao-GfG" id="vqZ-II-I37"/>
                 <outlet property="subtitleTextField" destination="cRS-Ha-D6k" id="EYT-sv-QuR"/>
             </connections>
@@ -93,13 +92,13 @@
                             </textFieldCell>
                         </textField>
                         <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Cnr-Ao-GfG">
-                            <rect key="frame" x="174" y="39" width="160" height="18"/>
+                            <rect key="frame" x="172" y="39" width="164" height="18"/>
                             <constraints>
                                 <constraint firstAttribute="width" relation="lessThanOrEqual" constant="312" id="nQZ-Zf-Cyl"/>
                             </constraints>
-                            <textFieldCell key="cell" title="You are now connected" id="bWk-L1-x6e">
+                            <textFieldCell key="cell" alignment="center" title="You are now connected" id="bWk-L1-x6e">
                                 <font key="font" size="15" name="Roboto-Regular"/>
-                                <color key="textColor" name="TextMessages"/>
+                                <color key="textColor" name="MainBottomIcons"/>
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </textFieldCell>
                         </textField>
@@ -122,29 +121,17 @@
                             </constraints>
                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="empty-chat-lock-icon" id="n2y-aW-RmD"/>
                         </imageView>
-                        <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="OzG-Nt-FPF">
-                            <rect key="frame" x="73" y="0.0" width="363" height="15"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="359" id="EQL-AV-k2E"/>
-                            </constraints>
-                            <textFieldCell key="cell" alignment="center" title="Test Subtitle" id="TOG-Zh-h6x">
-                                <font key="font" size="13" name="Roboto-Light"/>
-                                <color key="textColor" name="MainBottomIcons"/>
-                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            </textFieldCell>
-                        </textField>
                     </subviews>
                     <constraints>
                         <constraint firstItem="XjA-LA-lbE" firstAttribute="bottom" secondItem="UEe-FK-ZEg" secondAttribute="bottom" id="1Ij-VO-a6l"/>
                         <constraint firstItem="Ta5-uA-TSP" firstAttribute="top" secondItem="i7p-8J-zKP" secondAttribute="top" constant="2" id="2sY-IV-HgL"/>
                         <constraint firstItem="Ta5-uA-TSP" firstAttribute="trailing" secondItem="i7p-8J-zKP" secondAttribute="trailing" constant="-2" id="4Gv-Gl-QhK"/>
                         <constraint firstItem="cRS-Ha-D6k" firstAttribute="centerX" secondItem="MTh-ob-sV8" secondAttribute="centerX" id="4sL-pP-LG4"/>
-                        <constraint firstItem="OzG-Nt-FPF" firstAttribute="top" secondItem="Cnr-Ao-GfG" secondAttribute="bottom" constant="24" id="50m-25-thH"/>
                         <constraint firstItem="MTh-ob-sV8" firstAttribute="top" secondItem="UEe-FK-ZEg" secondAttribute="bottom" constant="28" id="60K-Ix-Ybd"/>
                         <constraint firstItem="HpA-b8-j9w" firstAttribute="bottom" secondItem="XjA-LA-lbE" secondAttribute="bottom" constant="13" id="9On-tM-YJO"/>
                         <constraint firstItem="XjA-LA-lbE" firstAttribute="leading" secondItem="UEe-FK-ZEg" secondAttribute="leading" id="9yC-Sb-IXE"/>
+                        <constraint firstAttribute="bottom" secondItem="Cnr-Ao-GfG" secondAttribute="bottom" constant="39" id="ESg-uA-BCf"/>
                         <constraint firstItem="MTh-ob-sV8" firstAttribute="centerX" secondItem="ecz-3u-302" secondAttribute="centerX" id="Lso-bS-tgC"/>
-                        <constraint firstItem="OzG-Nt-FPF" firstAttribute="centerX" secondItem="Cnr-Ao-GfG" secondAttribute="centerX" id="MFC-PO-uPj"/>
                         <constraint firstItem="O6F-XI-asJ" firstAttribute="centerY" secondItem="MTh-ob-sV8" secondAttribute="centerY" id="MtQ-zG-JbZ"/>
                         <constraint firstItem="HpA-b8-j9w" firstAttribute="top" secondItem="XjA-LA-lbE" secondAttribute="top" constant="-13" id="NNX-cp-MTe"/>
                         <constraint firstItem="Cnr-Ao-GfG" firstAttribute="centerX" secondItem="MTh-ob-sV8" secondAttribute="centerX" id="TkY-GD-U4H"/>
@@ -152,7 +139,6 @@
                         <constraint firstItem="XjA-LA-lbE" firstAttribute="top" secondItem="UEe-FK-ZEg" secondAttribute="top" id="UMw-sA-1Sn"/>
                         <constraint firstItem="O6F-XI-asJ" firstAttribute="leading" secondItem="MTh-ob-sV8" secondAttribute="trailing" constant="8" id="X4S-DP-Qtd"/>
                         <constraint firstItem="i7p-8J-zKP" firstAttribute="leading" secondItem="UEe-FK-ZEg" secondAttribute="trailing" constant="-15" id="Yha-0L-zPe"/>
-                        <constraint firstAttribute="bottom" secondItem="OzG-Nt-FPF" secondAttribute="bottom" id="Z1p-3v-p8f"/>
                         <constraint firstItem="cRS-Ha-D6k" firstAttribute="top" secondItem="MTh-ob-sV8" secondAttribute="bottom" constant="21" id="b5P-tr-MHj"/>
                         <constraint firstItem="HpA-b8-j9w" firstAttribute="trailing" secondItem="XjA-LA-lbE" secondAttribute="trailing" constant="13" id="dPw-7o-kxo"/>
                         <constraint firstItem="HpA-b8-j9w" firstAttribute="leading" secondItem="XjA-LA-lbE" secondAttribute="leading" constant="-13" id="duQ-xX-Wuo"/>
