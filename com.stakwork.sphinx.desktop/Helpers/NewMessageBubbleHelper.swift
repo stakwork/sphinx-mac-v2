@@ -41,11 +41,6 @@ class NewMessageBubbleHelper {
         backAlpha: CGFloat = 0.7,
         withLink link: String? = nil
     ) {
-        
-        if GroupsPinManager.sharedInstance.shouldAskForPin() {
-            return
-        }
-        
         self.link = link
         
         let messageLabel = getGenericMessageLabel(text: text, in: view, textColor: textColor)
