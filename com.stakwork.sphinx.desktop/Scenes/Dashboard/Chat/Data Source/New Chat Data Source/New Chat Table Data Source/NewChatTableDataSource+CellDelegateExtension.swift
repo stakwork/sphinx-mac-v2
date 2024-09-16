@@ -485,14 +485,15 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                     if let height = height {
                         self.botsWebViewData[messageId] = MessageTableCellState.BotWebViewData(height: height)
                         
-                        self.dataSourceQueue.sync {
+                        self.dataSourceQueue.async {
                             self.saveSnapshotCurrentState()
                             var snapshot = self.dataSource.snapshot()
                             
                             if snapshot.itemIdentifiers.contains(tableCellState.1) {
                                 snapshot.reloadItems([tableCellState.1])
-                                self.dataSource.apply(snapshot, animatingDifferences: true) {
-                                    DispatchQueue.main.async {
+                                
+                                DispatchQueue.main.async {
+                                    self.dataSource.apply(snapshot, animatingDifferences: true) {
                                         self.restoreScrollLastPosition()
                                     }
                                 }
@@ -618,12 +619,14 @@ extension NewChatTableDataSource {
         }
 
         if let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex) {
-            dataSourceQueue.sync {
+            dataSourceQueue.async {
                 var snapshot = self.dataSource.snapshot()
 
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
                     snapshot.reloadItems([tableCellState.1])
-                    self.dataSource.apply(snapshot, animatingDifferences: true)
+                    DispatchQueue.main.async {
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                    }
                 }
             }
         }
@@ -650,14 +653,15 @@ extension NewChatTableDataSource {
                 bubbleWidth: bubbleWidth
             )
 
-            dataSourceQueue.sync {
+            dataSourceQueue.async {
                 self.saveSnapshotCurrentState()
                 var snapshot = self.dataSource.snapshot()
                 
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
                     snapshot.reloadItems([tableCellState.1])
-                    self.dataSource.apply(snapshot, animatingDifferences: true) {
-                        DispatchQueue.main.async {
+                    
+                    DispatchQueue.main.async {
+                        self.dataSource.apply(snapshot, animatingDifferences: true) {
                             self.restoreScrollLastPosition()
                         }
                     }
@@ -679,12 +683,15 @@ extension NewChatTableDataSource {
                 if updatedUploadProgressData.progress < 100 {
                     self.uploadingProgress[messageId] = updatedUploadProgressData
                     
-                    self.dataSourceQueue.sync {
+                    self.dataSourceQueue.async {
                         var snapshot = self.dataSource.snapshot()
 
                         if snapshot.itemIdentifiers.contains(tableCellState.1) {
                             snapshot.reloadItems([tableCellState.1])
-                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                            
+                            DispatchQueue.main.async {
+                                self.dataSource.apply(snapshot, animatingDifferences: true)
+                            }
                         }
                     }
                 } else {
@@ -715,12 +722,15 @@ extension NewChatTableDataSource {
                 if !(self.collectionView.indexPathsForVisibleItems().map { $0.item }).contains(rowIndex) {
                     return
                 }
-                self.dataSourceQueue.sync {
+                self.dataSourceQueue.async {
                     var snapshot = self.dataSource.snapshot()
                     
                     if snapshot.itemIdentifiers.contains(tableCellState.1) {
                         snapshot.reloadItems([tableCellState.1])
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        
+                        DispatchQueue.main.async {
+                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                        }
                     }
                 }
             }
