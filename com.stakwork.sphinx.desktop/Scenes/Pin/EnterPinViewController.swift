@@ -47,9 +47,7 @@ class EnterPinViewController: NSViewController {
         
         pinView.setSubtitle(subtitle)
         pinView.doneCompletion = { pin in
-            if self.isLaunchMode() && GroupsPinManager.sharedInstance.isValidPin(pin) {
-                self.doneCompletion?(pin)
-            } else if self.isExportMode() {
+            if GroupsPinManager.sharedInstance.isValidPin(pin) && (self.isLaunchMode() || self.isExportMode()) {
                 self.doneCompletion?(pin)
             } else {
                 self.pinView.reset()
