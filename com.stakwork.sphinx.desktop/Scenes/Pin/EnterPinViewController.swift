@@ -53,7 +53,7 @@ class EnterPinViewController: NSViewController {
                 self.doneCompletion?(pin)
             } else {
                 self.pinView.reset()
-                self.newMessageBubbleHelper.showGenericMessageView(text: "invalid.pin".localized, in: self.view)
+                self.newMessageBubbleHelper.showGenericMessageView(text: "invalid.pin".localized, in: self.view,forceShowOverride: true)
             }
         }
     }

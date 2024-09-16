@@ -39,10 +39,11 @@ class NewMessageBubbleHelper {
         textColor: NSColor = NSColor.Sphinx.Body,
         backColor: NSColor = NSColor.Sphinx.Text,
         backAlpha: CGFloat = 0.7,
-        withLink link: String? = nil
+        withLink link: String? = nil,
+        forceShowOverride:Bool = false
     ) {
         
-        if GroupsPinManager.sharedInstance.shouldAskForPin() {
+        if GroupsPinManager.sharedInstance.shouldAskForPin() && !forceShowOverride {
             return
         }
         
