@@ -42,6 +42,8 @@ class ThreadsListDataSource : NSObject {
     typealias DataSource = NSCollectionViewDiffableDataSource<CollectionViewSection, ThreadTableCellState>
     typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<CollectionViewSection, ThreadTableCellState>
     
+    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    
     enum CollectionViewSection: Int, CaseIterable {
         case threads
     }
@@ -112,11 +114,8 @@ class ThreadsListDataSource : NSObject {
 
         DispatchQueue.main.async {
             self.dataSource.apply(snapshot, animatingDifferences: false)
-            
-            DispatchQueue.main.async {
-                self.collectionView.alphaValue = 1.0
-                self.toggleElementsVisibility()
-            }
+            self.collectionView.alphaValue = 1.0
+            self.toggleElementsVisibility()
         }
     }
     
