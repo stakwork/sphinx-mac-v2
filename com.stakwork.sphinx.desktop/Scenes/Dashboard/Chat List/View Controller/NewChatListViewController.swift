@@ -346,8 +346,10 @@ extension NewChatListViewController {
 
         snapshot.appendItems(items, toSection: .all)
         
-        dataSource.apply(snapshot, animatingDifferences: true) {
-            completion?()
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: true) {
+                completion?()
+            }
         }
     }
     
