@@ -485,11 +485,11 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                     if let height = height {
                         self.botsWebViewData[messageId] = MessageTableCellState.BotWebViewData(height: height)
                         
-                        self.dataSourceQueue.async {
-                            self.saveSnapshotCurrentState()
-                            var snapshot = self.dataSource.snapshot()
-                            
-                            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                        self.saveSnapshotCurrentState()
+                        var snapshot = self.dataSource.snapshot()
+                        
+                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                            self.dataSourceQueue.sync {
                                 snapshot.reloadItems([tableCellState.1])
                                 
                                 DispatchQueue.main.async {
@@ -619,13 +619,13 @@ extension NewChatTableDataSource {
         }
 
         if let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex) {
-            dataSourceQueue.async {
-                var snapshot = self.dataSource.snapshot()
+            var snapshot = self.dataSource.snapshot()
 
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                dataSourceQueue.sync {
                     snapshot.reloadItems([tableCellState.1])
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        self.dataSource.apply(snapshot, animatingDifferences: false)
                     }
                 }
             }
@@ -653,11 +653,11 @@ extension NewChatTableDataSource {
                 bubbleWidth: bubbleWidth
             )
 
-            dataSourceQueue.async {
-                self.saveSnapshotCurrentState()
-                var snapshot = self.dataSource.snapshot()
-                
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+            self.saveSnapshotCurrentState()
+            var snapshot = self.dataSource.snapshot()
+            
+            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                dataSourceQueue.sync {
                     snapshot.reloadItems([tableCellState.1])
                     
                     DispatchQueue.main.async {
@@ -679,24 +679,21 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ) {
-            DispatchQueue.main.async {
-                if updatedUploadProgressData.progress < 100 {
-                    self.uploadingProgress[messageId] = updatedUploadProgressData
-                    
-                    self.dataSourceQueue.async {
-                        var snapshot = self.dataSource.snapshot()
+            if updatedUploadProgressData.progress < 100 {
+                self.uploadingProgress[messageId] = updatedUploadProgressData
+                
+                var snapshot = self.dataSource.snapshot()
 
-                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                            snapshot.reloadItems([tableCellState.1])
-                            
-                            DispatchQueue.main.async {
-                                self.dataSource.apply(snapshot, animatingDifferences: true)
-                            }
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    self.dataSourceQueue.sync {
+                        snapshot.reloadItems([tableCellState.1])
+                        DispatchQueue.main.async {
+                            self.dataSource.apply(snapshot, animatingDifferences: false)
                         }
                     }
-                } else {
-                    self.uploadingProgress.removeValue(forKey: messageId)
                 }
+            } else {
+                self.uploadingProgress.removeValue(forKey: messageId)
             }
         }
     }
@@ -722,12 +719,11 @@ extension NewChatTableDataSource {
                 if !(self.collectionView.indexPathsForVisibleItems().map { $0.item }).contains(rowIndex) {
                     return
                 }
-                self.dataSourceQueue.async {
-                    var snapshot = self.dataSource.snapshot()
-                    
-                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                var snapshot = self.dataSource.snapshot()
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    self.dataSourceQueue.sync {
                         snapshot.reloadItems([tableCellState.1])
-                        
                         DispatchQueue.main.async {
                             self.dataSource.apply(snapshot, animatingDifferences: true)
                         }

@@ -36,6 +36,8 @@ class NewChatListViewController: NSViewController {
     
     private var owner: UserContact!
     
+    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    
     public enum Tab: Int {
         case Friends
         case Tribes
@@ -343,10 +345,10 @@ extension NewChatListViewController {
             )
             
         }
-
-        snapshot.appendItems(items, toSection: .all)
         
-        DispatchQueue.main.async {
+        dataSourceQueue.sync {
+            snapshot.appendItems(items, toSection: .all)
+            
             self.dataSource.apply(snapshot, animatingDifferences: true) {
                 completion?()
             }

@@ -57,12 +57,13 @@ extension NewChatTableDataSource {
         if UIUpdateIndex < self.UIUpdateIndex {
             return
         }
-        
+       
         scrolledAtBottom = false
+    
+        self.saveSnapshotCurrentState()
         
         DispatchQueue.main.async {
             CoreDataManager.sharedManager.saveContext()
-            self.saveSnapshotCurrentState()
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
                 self.restoreScrollLastPosition()
@@ -75,8 +76,8 @@ extension NewChatTableDataSource {
     }
     
     func updatePreloadedSnapshot() {
-        let snapshot = makeSnapshotForCurrentState()
-        DispatchQueue.main.async {
+        DispatchQueue.main.async {    
+            let snapshot = self.makeSnapshotForCurrentState()
             self.dataSource.apply(snapshot, animatingDifferences: false)
             
             DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {

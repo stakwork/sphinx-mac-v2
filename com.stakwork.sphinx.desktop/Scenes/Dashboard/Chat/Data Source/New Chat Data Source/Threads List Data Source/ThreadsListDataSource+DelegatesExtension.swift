@@ -247,15 +247,14 @@ extension ThreadsListDataSource {
         ) {
             mediaCached[messageId] = updatedCachedMedia
             
-            self.dataSourceQueue.async {
-                var snapshot = self.dataSource.snapshot()
-                
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+            var snapshot = self.dataSource.snapshot()
+            
+            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                self.dataSourceQueue.sync {
                     snapshot.reloadItems([tableCellState.1])
-                    
-                    DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
-                    }
+                        DispatchQueue.main.async {
+                            self.dataSource.apply(snapshot, animatingDifferences: false)
+                        }
                 }
             }
         }
