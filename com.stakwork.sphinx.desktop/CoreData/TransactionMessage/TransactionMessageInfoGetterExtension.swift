@@ -241,6 +241,10 @@ extension TransactionMessage {
         return status == TransactionMessageStatus.received.rawValue
     }
     
+    func confirmed() -> Bool {
+        return status == TransactionMessageStatus.confirmed.rawValue
+    }
+    
     func failed() -> Bool {
         return status == TransactionMessageStatus.cancelled.rawValue || status == TransactionMessageStatus.failed.rawValue
     }
@@ -261,13 +265,7 @@ extension TransactionMessage {
     public func isConfirmedAsReceived() -> Bool {
         return
             self.status == TransactionMessageStatus.received.rawValue ||
-            (
-                self.status == TransactionMessageStatus.confirmed.rawValue &&
-                (
-                    self.type == TransactionMessageType.payment.rawValue ||
-                    self.type == TransactionMessageType.invoice.rawValue
-                )
-            )
+            (self.status == TransactionMessageStatus.confirmed.rawValue && self.type == TransactionMessageType.invoice.rawValue)
     }
     
     //Message type
@@ -1014,7 +1012,7 @@ extension TransactionMessage {
     
     //Grouping Logic
     func shouldAvoidGrouping() -> Bool {
-        return pending() || failed() || isDeleted() || isInvoice() || isPayment() || isGroupActionMessage()
+        return pending() || failed() || isDeleted() || isInvoice() || isPayment() || isGroupActionMessage() || (isDirectPayment() && confirmed())
     }
     
     func hasSameSenderThanMessage(_ message: TransactionMessage) -> Bool {
