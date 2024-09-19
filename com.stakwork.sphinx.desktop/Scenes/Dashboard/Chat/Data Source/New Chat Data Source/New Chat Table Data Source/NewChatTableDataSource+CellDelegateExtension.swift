@@ -622,8 +622,9 @@ extension NewChatTableDataSource {
             var snapshot = self.dataSource.snapshot()
 
             if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                mediaReloadQueue.sync {
                     snapshot.reloadItems([tableCellState.1])
+                    
                     DispatchQueue.main.async {
                         self.dataSource.apply(snapshot, animatingDifferences: false)
                     }

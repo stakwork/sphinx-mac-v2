@@ -128,7 +128,8 @@ class NewChatTableDataSource : NSObject {
     var UIUpdateIndex = 0
     
     ///Data source updates queue
-    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    let dataSourceQueue = DispatchQueue(label: "chat.datasourceQueue", attributes: .concurrent)
+    let mediaReloadQueue = DispatchQueue(label: "chat.media.datasourceQueue", attributes: .concurrent)
     
     ///Constants
     static let kThreadHeaderRowIndex = -10
