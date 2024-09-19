@@ -42,7 +42,7 @@ class ThreadsListDataSource : NSObject {
     typealias DataSource = NSCollectionViewDiffableDataSource<CollectionViewSection, ThreadTableCellState>
     typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<CollectionViewSection, ThreadTableCellState>
     
-    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    let dataSourceQueue = DispatchQueue(label: "thread.datasourceQueue", attributes: .concurrent)
     
     enum CollectionViewSection: Int, CaseIterable {
         case threads

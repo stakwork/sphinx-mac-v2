@@ -477,21 +477,33 @@ extension SphinxOnionManager {
     func handleMessageStatusByTag(rr: RunReturn) {
         if let sentStatusJSON = rr.sentStatus,
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
-           let tag = sentStatus.tag,
-           let cachedMessage = TransactionMessage.getMessageWith(tag: tag)
+           let tag = sentStatus.tag
         {
-            if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
-                 cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
-            } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
-                cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-            }
-            
-            if let uuid = cachedMessage.uuid {
-                receivedOMuuid(uuid)
-            }
-            
-            if cachedMessage.paymentHash == nil {
-                cachedMessage.paymentHash = sentStatus.paymentHash
+            if let cachedMessage = TransactionMessage.getMessageWith(tag: tag) {
+                if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
+                     cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
+                    cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
+                }
+                
+                if let uuid = cachedMessage.uuid {
+                    receivedOMuuid(uuid)
+                }
+                
+                if cachedMessage.paymentHash == nil {
+                    cachedMessage.paymentHash = sentStatus.paymentHash
+                }
+            } else {
+                NotificationCenter.default.post(
+                    Notification(
+                        name: .onKeysendStatusReceived,
+                        object: nil,
+                        userInfo: [
+                            "tag" : tag,
+                            "status": sentStatus.status ?? TransactionMessage.TransactionMessageStatus.failed.rawValue
+                        ]
+                    )
+                )
             }
         }
     }

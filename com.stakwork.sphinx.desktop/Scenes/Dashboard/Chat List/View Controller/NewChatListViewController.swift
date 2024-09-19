@@ -36,7 +36,7 @@ class NewChatListViewController: NSViewController {
     
     private var owner: UserContact!
     
-    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    let dataSourceQueue = DispatchQueue(label: "chatList.datasourceQueue", attributes: .concurrent)
     
     public enum Tab: Int {
         case Friends

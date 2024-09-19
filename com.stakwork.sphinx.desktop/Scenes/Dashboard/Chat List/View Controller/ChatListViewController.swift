@@ -383,7 +383,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
     
     func getViewControllerToLoadInfo(vcId: Int) -> (NSViewController, String, String, Bool, CGFloat?, CGFloat?, Bool){
         switch vcId {
-        case 0:
+        case MenuItems.Profile.rawValue:
             return (
                 ProfileViewController.instantiate(),
                 "profile".localized,
@@ -393,17 +393,17 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 1:
-            return (
-                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
-                "new.contact".localized,
-                "add-contact-window",
-                true,
-                500,
-                nil,
-                false
-            )
-        case 2:
+//        case 1:
+//            return (
+//                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
+//                "new.contact".localized,
+//                "add-contact-window",
+//                true,
+//                500,
+//                nil,
+//                false
+//            )
+        case MenuItems.Transactions.rawValue:
             return (
                 TransactionsListViewController.instantiate(),
                 "transactions".localized,
@@ -413,7 +413,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 3:
+        case MenuItems.RequestPayment.rawValue:
             return (
                 CreateInvoiceViewController.instantiate(
                     childVCDelegate: self,
@@ -428,7 +428,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 4:
+        case MenuItems.PayInvoice.rawValue:
             return (
                 SendPaymentForInvoiceVC.instantiate(),
                 "pay.invoice".localized,
@@ -438,7 +438,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 6:
+        case MenuItems.AddFriend.rawValue:
             return (
                 AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
                 "new.contact".localized,
@@ -448,7 +448,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 7:
+        case MenuItems.CreateTribe.rawValue:
             return (
                 CreateTribeViewController.instantiate(),
                 "Create Tribe",
@@ -458,7 +458,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 8:
+        case MenuItems.ShareQR.rawValue:
             guard let shareInviteCodeVC = getQRCodeVC() else {
                 return (NSViewController(), "pubkey.upper".localized.localizedCapitalized, "", true, nil, nil, false)
             }
