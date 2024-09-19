@@ -142,13 +142,13 @@ extension SphinxOnionManager{
     func payInvoice(
         invoice: String,
         overPayAmountMsat: UInt64? = nil,
-        callback: ((Bool, String?) -> ())? = nil
+        callback: ((Bool, String?, String?) -> ())? = nil
     ){
         guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
-            callback?(false, "Pubkey not found")
+            callback?(false, "Pubkey not found", nil)
             return
         }
         
@@ -158,18 +158,18 @@ extension SphinxOnionManager{
             amtMsat: Int(overPayAmountMsat ?? UInt64(amount))
         ) { success in
             if success {
-                let (success, errorMsg) = self.finalizePayInvoice(
+                let (success, errorMsg, tag) = self.finalizePayInvoice(
                     invoice: invoice,
                     amount: overPayAmountMsat ?? UInt64(amount)
                 )
-                callback?(success, errorMsg)
+                callback?(success, errorMsg, tag)
             } else {
                 ///error getting route info
                 AlertHelper.showAlert(
                     title: "Routing Error",
                     message: "Could not find a route to the target. Please try again."
                 )
-                callback?(false, "Could not find a route to the target. Please try again.")
+                callback?(false, "Could not find a route to the target. Please try again.", nil)
             }
         }
     }
@@ -177,9 +177,9 @@ extension SphinxOnionManager{
     func finalizePayInvoice(
         invoice: String,
         amount: UInt64
-    ) -> (Bool, String?) {
+    ) -> (Bool, String?, String?) {
         guard let seed = getAccountSeed() else{
-            return (false, "Account seed not found")
+            return (false, "Account seed not found", nil)
         }
         do {
             let rr = try Sphinx.payInvoice(
@@ -190,9 +190,14 @@ extension SphinxOnionManager{
                 overpayMsat: amount
             )
             let _ = handleRunReturn(rr: rr)
-            return (true, nil)
+            
+            return (
+                true,
+                nil,
+                getMessageTag(messages: rr.msgs, isSendingMessage: true)
+            )
         } catch let error {
-            return (false, (error as? SphinxError).debugDescription)
+            return (false, (error as? SphinxError).debugDescription, nil)
         }
     }
     
