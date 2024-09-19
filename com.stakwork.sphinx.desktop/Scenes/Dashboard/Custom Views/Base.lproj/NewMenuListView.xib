@@ -28,22 +28,22 @@
                     <rect key="frame" x="0.0" y="0.0" width="428" height="650"/>
                 </customView>
                 <box clipsToBounds="YES" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="12" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="DfJ-kh-JNP">
-                    <rect key="frame" x="16" y="52" width="402" height="523"/>
+                    <rect key="frame" x="16" y="102" width="402" height="473"/>
                     <view key="contentView" id="pSi-6R-fXe">
-                        <rect key="frame" x="0.0" y="0.0" width="402" height="523"/>
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="473"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="QTE-ud-592">
-                                <rect key="frame" x="22" y="250" width="367" height="257"/>
+                                <rect key="frame" x="22" y="250" width="367" height="207"/>
                                 <subviews>
                                     <scrollView clipsToBounds="YES" wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="iCg-uw-ipX">
-                                        <rect key="frame" x="0.0" y="0.0" width="367" height="257"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="367" height="207"/>
                                         <clipView key="contentView" clipsToBounds="YES" drawsBackground="NO" id="q98-ge-oR9">
-                                            <rect key="frame" x="0.0" y="0.0" width="367" height="257"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="367" height="207"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <collectionView clipsToBounds="YES" selectable="YES" id="gCN-XJ-z0m" customClass="ScrollDisabledCollectionView" customModule="Sphinx" customModuleProvider="target">
-                                                    <rect key="frame" x="0.0" y="0.0" width="367" height="257"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="367" height="207"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                     <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" id="pbs-0K-Nu1">
                                                         <size key="itemSize" width="50" height="50"/>
@@ -58,7 +58,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="epR-Wn-hp1">
-                                            <rect key="frame" x="351" y="0.0" width="16" height="257"/>
+                                            <rect key="frame" x="351" y="0.0" width="16" height="207"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
@@ -219,7 +219,7 @@
                         </constraints>
                     </view>
                     <constraints>
-                        <constraint firstAttribute="height" constant="523" id="dr2-Ig-3ep"/>
+                        <constraint firstAttribute="height" constant="473" id="dr2-Ig-3ep"/>
                     </constraints>
                     <color key="borderColor" red="0.082352941176470587" green="0.11764705882352941" blue="0.15294117647058825" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     <color key="fillColor" name="HeaderBG"/>
