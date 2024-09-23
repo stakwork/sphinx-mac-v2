@@ -667,10 +667,11 @@ extension String {
     
     var nonBase64Data: Data? {
         get {
-            var valid = false
+            var valid = self.count % 4 == 0
             var fixedString = self
+            
             while (!valid) {
-                fixedString = String(self.dropLast())
+                fixedString = String(fixedString.dropLast())
                 valid = fixedString.count % 4 == 0
             }
             let fixedChallenge = fixedString

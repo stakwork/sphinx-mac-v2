@@ -309,7 +309,6 @@ import WebKit
     }
     
     func loadDashboard() {
-        SplashViewController.runBackgroundProcesses()
         ContactsService.sharedInstance.forceUpdate()
         
         createKeyWindowWith(

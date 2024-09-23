@@ -126,8 +126,6 @@ class SplashViewController: NSViewController {
     }
     
     func goToApp() {
-        SplashViewController.runBackgroundProcesses()
-        
         view.window?.styleMask = [.titled, .resizable, .miniaturizable]
         view.window?.titlebarAppearsTransparent = false
         view.window?.titleVisibility = .visible
@@ -136,13 +134,6 @@ class SplashViewController: NSViewController {
     
     func clearAllData() {
         UserData.sharedInstance.clearData()
-    }
-    
-    public static func runBackgroundProcesses() {
-        DispatchQueue.global().async {
-            CoreDataManager.sharedManager.deleteExpiredInvites()
-            AttachmentsManager.sharedInstance.runAuthentication()
-        }
     }
 }
 
