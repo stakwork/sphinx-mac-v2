@@ -84,15 +84,12 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         setupViews()
     }
     
-    func releaseMemory() {}
-    
     func configureWith(
         messageCellState: MessageTableCellState,
         mediaData: MessageTableCellState.MediaData?,
         threadOriginalMsgMediaData: MessageTableCellState.MediaData?,
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
-        botWebViewData: MessageTableCellState.BotWebViewData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,

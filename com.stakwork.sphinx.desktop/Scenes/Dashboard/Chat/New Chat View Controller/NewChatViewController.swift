@@ -27,7 +27,6 @@ class NewChatViewController: DashboardSplittedViewController {
     @IBOutlet weak var chatBottomView: ChatBottomView!
     @IBOutlet weak var chatScrollView: NSScrollView!
     @IBOutlet weak var chatCollectionView: NSCollectionView!
-    @IBOutlet weak var botWebView: WKWebView!
     @IBOutlet weak var draggingView: DraggingDestinationView!
     
     @IBOutlet weak var mentionsScrollView: NSScrollView!
@@ -160,10 +159,6 @@ class NewChatViewController: DashboardSplittedViewController {
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
     }
     
-    deinit {
-        botWebView = nil
-    }
-    
     override func viewDidLayout() {
         chatTableDataSource?.updateFrame()
     }
@@ -227,8 +222,6 @@ class NewChatViewController: DashboardSplittedViewController {
         
         chatTableDataSource?.stopListeningToResultsController()
         chatTableDataSource?.releaseMemory()
-        
-        botWebView = nil
     }
     
     func stopPlayingClip() {

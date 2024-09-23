@@ -242,7 +242,6 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
-        botWebViewData: MessageTableCellState.BotWebViewData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         ///No Bubble message views
@@ -320,7 +319,6 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
-        botWebViewData: MessageTableCellState.BotWebViewData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
@@ -374,7 +372,6 @@ class ChatHelper {
             tableCellState,
             linkData: linkData,
             tribeData: tribeData,
-            botWebViewData: botWebViewData,
             mediaData: mediaData
         )
         
@@ -540,7 +537,6 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
-        botWebViewData: MessageTableCellState.BotWebViewData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil
     ) -> CGFloat {
         
@@ -640,12 +636,6 @@ class ChatHelper {
         
         if let _ = mutableTableCellState.boosts {
             viewsHeight += NewMessageBoostView.kViewHeight
-        }
-        
-        if let botWebViewData = botWebViewData {
-            viewsHeight += botWebViewData.height
-        } else if let _ = mutableTableCellState.botHTMLContent {
-            viewsHeight += BotResponseView.kViewHeight
         }
         
         return viewsHeight

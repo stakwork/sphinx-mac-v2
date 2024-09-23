@@ -35,7 +35,6 @@ extension NewChatViewController {
                 shimmeringView: shimmeringView,
                 headerImage: getContactImage(),
                 bottomView: chatBottomView,
-                webView: botWebView,
                 delegate: self
             )
         } else {
@@ -49,7 +48,6 @@ extension NewChatViewController {
                 shimmeringView: shimmeringView,
                 headerImage: getContactImage(),
                 bottomView: chatBottomView,
-                webView: botWebView,
                 delegate: self
             )
         }

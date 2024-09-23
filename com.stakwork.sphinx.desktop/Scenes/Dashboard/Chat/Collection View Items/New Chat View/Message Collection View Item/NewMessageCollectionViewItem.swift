@@ -45,7 +45,6 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
     @IBOutlet weak var messageLabel: MessageTextField!
     
     ///Forth Container
-    @IBOutlet weak var botResponseView: BotResponseView!
     @IBOutlet weak var messageBoostView: NewMessageBoostView!
     @IBOutlet weak var linkPreviewView: NewLinkPreviewView!
     @IBOutlet weak var contactLinkPreviewView: ContactLinkView!
@@ -61,7 +60,6 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
     @IBOutlet weak var receivedMessageMenuButton: CustomButton!
     
     @IBOutlet weak var widthConstraint: NSLayoutConstraint!
-    @IBOutlet weak var botResponseViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var labelHeightConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
@@ -70,17 +68,12 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         setupViews()
     }
     
-    func releaseMemory() {
-        botResponseView.releaseMemory()
-    }
-    
     func configureWith(
         messageCellState: MessageTableCellState,
         mediaData: MessageTableCellState.MediaData?,
         threadOriginalMsgMediaData: MessageTableCellState.MediaData?,
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
-        botWebViewData: MessageTableCellState.BotWebViewData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
@@ -103,8 +96,7 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         configureViewsWidthWith(
             messageCellState: messageCellState,
             linkData: linkData,
-            tribeData: tribeData,
-            webViewData: botWebViewData
+            tribeData: tribeData
         )
         
         ///Status Header
@@ -133,7 +125,6 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         configureWith(podcastBoost: mutableMessageCellState.podcastBoost)
         configureWith(messageMedia: mutableMessageCellState.messageMedia, mediaData: mediaData, and: bubble)
         configureWith(genericFile: mutableMessageCellState.genericFile, mediaData: mediaData)
-        configureWith(botHTMLContent: mutableMessageCellState.botHTMLContent, botWebViewData: botWebViewData)
         configureWith(audio: mutableMessageCellState.audio, mediaData: mediaData, and: bubble)
         configureWith(podcastComment: mutableMessageCellState.podcastComment, mediaData: mediaData, and: bubble)
         

@@ -726,22 +726,6 @@ extension TransactionMessage {
         return (self.chat?.messages?.count ?? 0) == 1
     }
     
-    func save(webViewHeight height: CGFloat) {
-        if var heighs: [Int: CGFloat] = UserDefaults.Keys.webViewsHeight.getObject() {
-            heighs[self.id] = height
-            UserDefaults.Keys.webViewsHeight.setObject(heighs)
-        } else {
-            UserDefaults.Keys.webViewsHeight.setObject([self.id: height])
-        }
-    }
-    
-    func getWebViewHeight() -> CGFloat? {
-        if let heighs: [Int: CGFloat] = UserDefaults.Keys.webViewsHeight.getObject() {
-            return heighs[self.id]
-        }
-        return nil
-    }
-    
     //Message description
     func getMessageContentPreview(
         owner: UserContact,

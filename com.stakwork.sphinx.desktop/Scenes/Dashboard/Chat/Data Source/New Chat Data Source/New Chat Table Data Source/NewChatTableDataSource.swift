@@ -73,7 +73,6 @@ class NewChatTableDataSource : NSObject {
     var shimmeringView: ChatShimmeringView!
     var headerImage: NSImage?
     var bottomView: NSView!
-    var webView: WKWebView!
     
     ///Chat
     var chat: Chat?
@@ -99,7 +98,6 @@ class NewChatTableDataSource : NSObject {
     var messagesArray: [TransactionMessage] = []
     var messageTableCellStateArray: [MessageTableCellState] = []
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
-    var botsWebViewData: [Int: MessageTableCellState.BotWebViewData] = [:]
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     
     var searchingTerm: String? = nil
@@ -116,10 +114,6 @@ class NewChatTableDataSource : NSObject {
     
     ///Messages statuses restore
     var lastMessageTagRestored = ""
-    
-    ///WebView Loading
-    let webViewSemaphore = DispatchSemaphore(value: 1)
-    var webViewLoadingCompletion: ((CGFloat?) -> ())? = nil
     
     ///Chat Helper
     let chatHelper = ChatHelper()
@@ -144,7 +138,6 @@ class NewChatTableDataSource : NSObject {
         shimmeringView: ChatShimmeringView,
         headerImage: NSImage?,
         bottomView: NSView,
-        webView: WKWebView,
         delegate: NewChatTableDataSourceDelegate?
     ) {
         super.init()
@@ -160,7 +153,6 @@ class NewChatTableDataSource : NSObject {
         self.headerImage = headerImage
         self.bottomView = bottomView
         self.shimmeringView = shimmeringView
-        self.webView = webView
         
         self.delegate = delegate
         
@@ -179,12 +171,6 @@ class NewChatTableDataSource : NSObject {
     
     func releaseMemory() {
         preloaderHelper.releaseMemory()
-        
-        for item in collectionView.visibleItems() {
-            if let item = item as? ChatCollectionViewItemProtocol {
-                item.releaseMemory()
-            }
-        }
     }
     
     func configureTableView() {

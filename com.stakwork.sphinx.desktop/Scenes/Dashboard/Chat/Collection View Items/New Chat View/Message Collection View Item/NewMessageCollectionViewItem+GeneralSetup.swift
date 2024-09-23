@@ -44,8 +44,7 @@ extension NewMessageCollectionViewItem {
     func configureViewsWidthWith(
         messageCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData?,
-        tribeData: MessageTableCellState.TribeData?,
-        webViewData: MessageTableCellState.BotWebViewData?
+        tribeData: MessageTableCellState.TribeData?
     ) {
         var mutableCellState = messageCellState
         
@@ -80,10 +79,6 @@ extension NewMessageCollectionViewItem {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
         } else if let _ = tribeData {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
-        } else if let _ = mutableCellState.botHTMLContent {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumWebViewBubbleWidth
-        } else if let _ = webViewData {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumWebViewBubbleWidth
         } else if let _ = mutableCellState.messageContent, let _ = mutableCellState.paidContent {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth
         } else if let _ = mutableCellState.invoice {
@@ -111,7 +106,6 @@ extension NewMessageCollectionViewItem {
         podcastAudioView.isHidden = true
         callLinkView.isHidden = true
         podcastBoostView.isHidden = true
-        botResponseView.isHidden = true
         tribeLinkPreviewView.isHidden = true
         contactLinkPreviewView.isHidden = true
         linkPreviewView.isHidden = true
