@@ -62,9 +62,6 @@ extension ThreadCollectionViewItem {
         messageLabel.textColor = isIncoming ? NSColor.Sphinx.MainBottomIcons : NSColor.Sphinx.TextMessages
         messageLabel.alphaValue = isIncoming ? 1.0 : 0.6
         
-//        messageLabelLeadingConstraint.priority = NSLayoutConstraint.Priority(textRightAligned ? 1 : 1000)
-//        messageLabelTrailingConstraint.priority = NSLayoutConstraint.Priority(textRightAligned ? 1000 : 1)
-        
         let bubbleColor = isOutgoing ? NSColor.Sphinx.SentMsgBG : NSColor.Sphinx.ReceivedMsgBG
         bubbleAllViews.fillColor = bubbleColor
         textMessageBubbleView.fillColor = bubbleColor

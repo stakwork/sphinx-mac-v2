@@ -13,7 +13,6 @@
                 <outlet property="clockImageView" destination="i7p-8J-zKP" id="6dM-Xr-3Ej"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="K41-Kc-ZKd"/>
                 <outlet property="dashedOutlinePlaceholderView" destination="HpA-b8-j9w" id="edH-KA-BCZ"/>
-                <outlet property="encryptionNoticeLabel" destination="cRS-Ha-D6k" id="RaM-eg-JHS"/>
                 <outlet property="initialsLabel" destination="08Q-g8-Gx1" id="XGQ-4U-lkg"/>
                 <outlet property="initialsLabelContainer" destination="XjA-LA-lbE" id="1dY-cw-7li"/>
                 <outlet property="lockImageView" destination="O6F-XI-asJ" id="C3R-8f-IZx"/>

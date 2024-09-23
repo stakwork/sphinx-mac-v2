@@ -43,8 +43,6 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
     ///Thirs Container
     @IBOutlet weak var textMessageView: NSView!
     @IBOutlet weak var messageLabel: MessageTextField!
-    @IBOutlet weak var messageLabelLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var messageLabelTrailingConstraint: NSLayoutConstraint!
     
     ///Forth Container
     @IBOutlet weak var botResponseView: BotResponseView!

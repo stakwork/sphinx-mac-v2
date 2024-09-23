@@ -57,8 +57,6 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     ///Thirs Container
     @IBOutlet weak var textMessageView: NSView!
     @IBOutlet weak var messageLabel: MessageTextField!
-    @IBOutlet weak var messageLabelLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var messageLabelTrailingConstraint: NSLayoutConstraint!
     
     ///Thread
     @IBOutlet weak var threadRepliesView: ThreadRepliesView!
@@ -113,9 +111,6 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         self.messageId = mutableMessageCellState.message?.id
         self.originalMessageId = mutableMessageCellState.threadOriginalMessage?.id
         self.delegate = delegate
-        
-        ///Views Width
-        configureWidth()
         
         ///Status Header
         configureWith(statusHeader: mutableMessageCellState.statusHeader, uploadProgressData: uploadProgressData)

@@ -1901,7 +1901,6 @@
                     </view>
                     <connections>
                         <outlet property="authExternalView" destination="6cJ-eE-R77" id="7QX-YQ-Rvu"/>
-                        <outlet property="peopleTorActionsView" destination="QpE-Vy-kkv" id="PPT-S5-sAC"/>
                         <outlet property="personModalView" destination="gQK-Rv-0V3" id="Cjb-AY-I8U"/>
                         <outlet property="restoreProgressView" destination="urb-a9-06C" id="zkr-le-Vig"/>
                     </connections>

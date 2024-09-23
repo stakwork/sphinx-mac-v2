@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -34,15 +34,15 @@
                             <subviews>
                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BLZ-8y-MTc" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                                     <rect key="frame" x="10" y="10" width="40" height="40"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" constant="40" id="6KB-zM-VHZ"/>
-                                        <constraint firstAttribute="width" secondItem="BLZ-8y-MTc" secondAttribute="height" multiplier="1:1" id="q5w-hL-WVB"/>
-                                    </constraints>
                                     <buttonCell key="cell" type="square" title="play_arrow" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="A0i-8w-Lkv">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" size="25" name="MaterialIcons-Regular"/>
                                     </buttonCell>
                                     <color key="contentTintColor" name="Text"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="40" id="6KB-zM-VHZ"/>
+                                        <constraint firstAttribute="width" secondItem="BLZ-8y-MTc" secondAttribute="height" multiplier="1:1" id="q5w-hL-WVB"/>
+                                    </constraints>
                                     <connections>
                                         <action selector="playPauseButtonClicked:" target="-2" id="ZYk-fH-K8d"/>
                                     </connections>
@@ -111,8 +111,8 @@
                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="ymB-be-2wG">
                             <rect key="frame" x="360" y="0.0" width="50" height="60"/>
                             <subviews>
-                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7Q-M2-3vi">
-                                    <rect key="frame" x="12" y="22" width="40" height="16"/>
+                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7Q-M2-3vi">
+                                    <rect key="frame" x="13" y="22" width="39" height="16"/>
                                     <textFieldCell key="cell" lineBreakMode="clipping" title="00:00" id="3nG-hG-Dk1">
                                         <font key="font" size="14" name="Roboto-Regular"/>
                                         <color key="textColor" name="Text"/>
@@ -127,9 +127,6 @@
                             </constraints>
                         </customView>
                     </subviews>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="60" id="Cst-xb-B2n"/>
-                    </constraints>
                     <visibilityPriorities>
                         <integer value="1000"/>
                         <integer value="1000"/>

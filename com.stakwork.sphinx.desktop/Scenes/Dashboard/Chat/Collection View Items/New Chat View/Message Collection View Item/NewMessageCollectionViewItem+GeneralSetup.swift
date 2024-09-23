@@ -94,7 +94,7 @@ extension NewMessageCollectionViewItem {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth
         }
         
-        self.view.layoutSubtreeIfNeeded()
+        self.messageContentStackView.layoutSubtreeIfNeeded()
     }
     
     func hideAllSubviews() {
