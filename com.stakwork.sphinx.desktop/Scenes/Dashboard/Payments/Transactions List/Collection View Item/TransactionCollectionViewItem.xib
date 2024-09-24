@@ -7,22 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="TransactionCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="addressLabel" destination="NZ4-la-5aN" id="Xmp-Lb-DGC"/>
-                <outlet property="amountLabel" destination="UiL-u1-ssT" id="FSV-zT-FnT"/>
-                <outlet property="backgroundColorBox" destination="bGt-i1-TdG" id="hPK-l3-xDB"/>
-                <outlet property="bottomView" destination="umP-wg-OK0" id="fPZ-o5-iL6"/>
-                <outlet property="dayOfMonthLabel" destination="634-ua-tBF" id="qP8-Fz-XDS"/>
-                <outlet property="dayOfWeekLabel" destination="6LC-4n-MVq" id="zlE-ya-6NG"/>
-                <outlet property="errorMessageLabel" destination="1GA-bK-7s2" id="cxl-Du-ZOT"/>
-                <outlet property="failedPaymentLabel" destination="2Lk-V9-WrF" id="Oec-dz-Kj7"/>
-                <outlet property="paymentIcon" destination="NMk-Q6-Uns" id="2Xz-zf-aSa"/>
-                <outlet property="timeLabel" destination="PDC-dI-UaR" id="7Et-Jw-bgC"/>
-                <outlet property="topView" destination="jM9-xJ-Mqq" id="8VM-Er-D1A"/>
-                <outlet property="view" destination="c22-O7-iKe" id="jpt-U6-b4M"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="c22-O7-iKe">
@@ -71,7 +56,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="224" height="36"/>
                                                     <subviews>
                                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="NZ4-la-5aN">
-                                                            <rect key="frame" x="-2" y="20" width="127" height="16"/>
+                                                            <rect key="frame" x="-2" y="20" width="125" height="16"/>
                                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Jonathan Jonathan" id="1Xq-pr-4OU">
                                                                 <font key="font" size="14" name="Roboto-Regular"/>
                                                                 <color key="textColor" name="MainBottomIcons"/>
@@ -154,7 +139,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="634-ua-tBF">
-                                                    <rect key="frame" x="49" y="0.0" width="41" height="13"/>
+                                                    <rect key="frame" x="50" y="0.0" width="40" height="13"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="May 01" id="ThP-Lj-QXz">
                                                         <font key="font" size="11" name="Roboto-Regular"/>
                                                         <color key="textColor" name="WashedOutReceivedText"/>
@@ -162,7 +147,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="GfR-ZB-uzh">
-                                                    <rect key="frame" x="39" y="5" width="4" height="4"/>
+                                                    <rect key="frame" x="40" y="5" width="4" height="4"/>
                                                     <subviews>
                                                         <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="XdU-lR-ncA">
                                                             <rect key="frame" x="0.0" y="0.0" width="4" height="4"/>
@@ -183,7 +168,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6LC-4n-MVq">
-                                                    <rect key="frame" x="6" y="0.0" width="27" height="13"/>
+                                                    <rect key="frame" x="8" y="0.0" width="26" height="13"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="Mon" id="HkG-Ok-yyP">
                                                         <font key="font" size="11" name="Roboto-Regular"/>
                                                         <color key="textColor" name="WashedOutReceivedText"/>
@@ -301,12 +286,27 @@
             </constraints>
             <point key="canvasLocation" x="139" y="-9.5"/>
         </customView>
-        <customObject id="3CV-vp-sKZ" customClass="TransactionCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="3lv-4S-eO8" customClass="TransactionCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="addressLabel" destination="NZ4-la-5aN" id="RUg-Mk-BFl"/>
+                <outlet property="amountLabel" destination="UiL-u1-ssT" id="QRA-rd-4A8"/>
+                <outlet property="backgroundColorBox" destination="bGt-i1-TdG" id="df1-hf-JyN"/>
+                <outlet property="bottomView" destination="umP-wg-OK0" id="UN5-ZO-GoG"/>
+                <outlet property="dayOfMonthLabel" destination="634-ua-tBF" id="zs8-w2-wZl"/>
+                <outlet property="dayOfWeekLabel" destination="6LC-4n-MVq" id="PE4-FO-fhl"/>
+                <outlet property="errorMessageLabel" destination="1GA-bK-7s2" id="492-yY-Phu"/>
+                <outlet property="failedPaymentLabel" destination="2Lk-V9-WrF" id="7MA-Be-uPN"/>
+                <outlet property="paymentIcon" destination="NMk-Q6-Uns" id="rLB-do-TMz"/>
+                <outlet property="timeLabel" destination="PDC-dI-UaR" id="FA8-sw-UPD"/>
+                <outlet property="topView" destination="jM9-xJ-Mqq" id="MpT-ig-rNL"/>
+                <outlet property="view" destination="c22-O7-iKe" id="jLO-vd-Fay"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <image name="transaction-warning-icon" width="20" height="17"/>
         <namedColor name="Divider">
-            <color red="0.86274509803921573" green="0.8784313725490196" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.92156862745098034" green="0.92941176470588238" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="MainBottomIcons">
             <color red="0.37254901960784315" green="0.38823529411764707" blue="0.40784313725490196" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

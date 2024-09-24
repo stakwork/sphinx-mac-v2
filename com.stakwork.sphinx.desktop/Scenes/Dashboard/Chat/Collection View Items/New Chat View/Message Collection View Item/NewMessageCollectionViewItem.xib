@@ -7,48 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NewMessageCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="audioMessageView" destination="3st-ai-IfQ" id="OXG-Yx-ILw"/>
-                <outlet property="bubbleAllViews" destination="YWa-SY-0um" id="kzG-0O-pRB"/>
-                <outlet property="callLinkView" destination="W93-3l-LhK" id="BBg-Ko-wJn"/>
-                <outlet property="chatAvatarContainerView" destination="RAQ-Ej-oyC" id="k2c-d5-aKh"/>
-                <outlet property="chatAvatarView" destination="0w7-Od-NJs" id="Aqe-yb-NC9"/>
-                <outlet property="contactLinkPreviewView" destination="rdc-Np-v1I" id="XY9-6A-d8Z"/>
-                <outlet property="directPaymentView" destination="q5m-wU-yEJ" id="8ne-DY-WXl"/>
-                <outlet property="fileDetailsView" destination="RIJ-Mw-fdZ" id="Fa4-Xi-erb"/>
-                <outlet property="invoicePaymentView" destination="RrX-yx-9JZ" id="8aI-eu-BiK"/>
-                <outlet property="invoiceView" destination="WPP-eo-Blt" id="U2X-oS-SZ6"/>
-                <outlet property="labelHeightConstraint" destination="hJB-h5-cNj" id="aZd-Jf-EMj"/>
-                <outlet property="leftLineContainer" destination="bCg-hP-Rew" id="2Tw-vf-hv3"/>
-                <outlet property="leftPaymentDot" destination="eMS-4g-VRf" id="O6e-uP-aZo"/>
-                <outlet property="linkPreviewView" destination="Q58-W9-lXF" id="RH2-RJ-jzU"/>
-                <outlet property="mediaMessageView" destination="HWv-ck-qic" id="an5-i6-uYd"/>
-                <outlet property="messageBoostView" destination="pkI-rw-Lfs" id="bdg-Uw-4mJ"/>
-                <outlet property="messageContentStackView" destination="PqZ-pq-8i0" id="vGN-pK-4mw"/>
-                <outlet property="messageLabel" destination="okv-Ag-SIE" id="YZ4-Zp-4yz"/>
-                <outlet property="messageReplyView" destination="3Zu-1O-esC" id="nh0-HL-JLD"/>
-                <outlet property="paidAttachmentView" destination="Nsa-aP-VL4" id="sZu-uU-d1H"/>
-                <outlet property="paidTextMessageView" destination="YHK-d4-1Av" id="OKz-4b-ulG"/>
-                <outlet property="podcastAudioView" destination="gdL-Pr-dHL" id="GcU-UM-50Q"/>
-                <outlet property="podcastBoostView" destination="PfX-EW-tGc" id="EZd-1z-66G"/>
-                <outlet property="receivedArrow" destination="Viu-pF-fdW" id="R48-yp-ejc"/>
-                <outlet property="receivedMessageMarginView" destination="QnT-Cm-qyW" id="shZ-y2-Kpz"/>
-                <outlet property="receivedMessageMenuButton" destination="UQJ-sx-Qvb" id="KC0-02-NMq"/>
-                <outlet property="rightLineContainer" destination="aXK-p2-lS1" id="b74-BE-KZM"/>
-                <outlet property="rightPaymentDot" destination="Mxe-5f-yrE" id="t28-4I-JYI"/>
-                <outlet property="sentArrow" destination="RsB-r9-lHO" id="qRP-NE-i2p"/>
-                <outlet property="sentMessageMargingView" destination="9zh-HR-aT5" id="uT0-Tq-oV0"/>
-                <outlet property="sentMessageMenuButton" destination="kVX-93-0gK" id="oSk-hu-MLg"/>
-                <outlet property="sentPaidDetailsView" destination="99n-FQ-THd" id="Axb-U6-OCT"/>
-                <outlet property="statusHeaderView" destination="Kv2-Gm-iRV" id="dxK-ok-mb8"/>
-                <outlet property="statusHeaderViewContainer" destination="QIj-fa-qcL" id="UMS-Or-U0H"/>
-                <outlet property="textMessageView" destination="4D1-XE-gCv" id="ICY-LD-Di4"/>
-                <outlet property="tribeLinkPreviewView" destination="FJz-jZ-fP6" id="SNz-eq-O1C"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-                <outlet property="widthConstraint" destination="F1G-EE-6r5" id="Q9T-Bs-8Ap"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -442,9 +401,6 @@
                         <font key="font" size="18" name="MaterialIcons-Regular"/>
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
-                    <connections>
-                        <action selector="messageMenuButtonClicked:" target="-2" id="Wfx-3I-4xp"/>
-                    </connections>
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UQJ-sx-Qvb" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="1757" y="1783" width="22" height="18"/>
@@ -453,9 +409,6 @@
                         <font key="font" size="18" name="MaterialIcons-Regular"/>
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
-                    <connections>
-                        <action selector="messageMenuButtonClicked:" target="-2" id="fww-vN-m9R"/>
-                    </connections>
                 </button>
             </subviews>
             <constraints>
@@ -491,7 +444,48 @@
             </constraints>
             <point key="canvasLocation" x="68" y="212.5"/>
         </customView>
-        <customObject id="AeR-1v-L9M" customClass="NewMessageCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="tZt-fz-5EV" customClass="NewMessageCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="audioMessageView" destination="3st-ai-IfQ" id="wc8-aR-JJo"/>
+                <outlet property="bubbleAllViews" destination="YWa-SY-0um" id="yUA-ue-sHb"/>
+                <outlet property="callLinkView" destination="W93-3l-LhK" id="fHu-cE-Fa5"/>
+                <outlet property="chatAvatarContainerView" destination="RAQ-Ej-oyC" id="aWg-6F-6xI"/>
+                <outlet property="chatAvatarView" destination="0w7-Od-NJs" id="w1j-cU-Qge"/>
+                <outlet property="contactLinkPreviewView" destination="rdc-Np-v1I" id="9Fy-Fw-pXf"/>
+                <outlet property="directPaymentView" destination="q5m-wU-yEJ" id="9xU-zl-Obn"/>
+                <outlet property="fileDetailsView" destination="RIJ-Mw-fdZ" id="Mgc-hA-xoA"/>
+                <outlet property="invoicePaymentView" destination="RrX-yx-9JZ" id="LFB-qt-Q3j"/>
+                <outlet property="invoiceView" destination="WPP-eo-Blt" id="F6N-Yt-nQE"/>
+                <outlet property="labelHeightConstraint" destination="hJB-h5-cNj" id="Uoo-bX-QAL"/>
+                <outlet property="leftLineContainer" destination="bCg-hP-Rew" id="VhZ-ih-AKx"/>
+                <outlet property="leftPaymentDot" destination="eMS-4g-VRf" id="6qb-sQ-eQb"/>
+                <outlet property="linkPreviewView" destination="Q58-W9-lXF" id="W9D-1A-TAb"/>
+                <outlet property="mediaMessageView" destination="HWv-ck-qic" id="uzW-0B-M6Y"/>
+                <outlet property="messageBoostView" destination="pkI-rw-Lfs" id="1OD-yc-GdL"/>
+                <outlet property="messageContentStackView" destination="PqZ-pq-8i0" id="PXv-tx-6Ln"/>
+                <outlet property="messageLabel" destination="okv-Ag-SIE" id="RtB-pH-n1E"/>
+                <outlet property="messageReplyView" destination="3Zu-1O-esC" id="ELv-m2-VoT"/>
+                <outlet property="paidAttachmentView" destination="Nsa-aP-VL4" id="MbI-Vc-ZEF"/>
+                <outlet property="paidTextMessageView" destination="YHK-d4-1Av" id="4Tp-WK-WYP"/>
+                <outlet property="podcastAudioView" destination="gdL-Pr-dHL" id="KGN-vc-2Nr"/>
+                <outlet property="podcastBoostView" destination="PfX-EW-tGc" id="qYe-4e-JBM"/>
+                <outlet property="receivedArrow" destination="Viu-pF-fdW" id="sI8-ku-0Uj"/>
+                <outlet property="receivedMessageMarginView" destination="QnT-Cm-qyW" id="Oxy-Wv-At8"/>
+                <outlet property="receivedMessageMenuButton" destination="UQJ-sx-Qvb" id="t4G-tu-bin"/>
+                <outlet property="rightLineContainer" destination="aXK-p2-lS1" id="DcE-ln-Vxt"/>
+                <outlet property="rightPaymentDot" destination="Mxe-5f-yrE" id="MIc-KT-ceu"/>
+                <outlet property="sentArrow" destination="RsB-r9-lHO" id="jc9-ch-K5Z"/>
+                <outlet property="sentMessageMargingView" destination="9zh-HR-aT5" id="fmN-cM-M3y"/>
+                <outlet property="sentMessageMenuButton" destination="kVX-93-0gK" id="rKy-bw-Lg6"/>
+                <outlet property="sentPaidDetailsView" destination="99n-FQ-THd" id="wuu-cd-eqO"/>
+                <outlet property="statusHeaderView" destination="Kv2-Gm-iRV" id="oau-Yt-Z10"/>
+                <outlet property="statusHeaderViewContainer" destination="QIj-fa-qcL" id="ThR-o1-jmI"/>
+                <outlet property="textMessageView" destination="4D1-XE-gCv" id="Toc-Ux-k1J"/>
+                <outlet property="tribeLinkPreviewView" destination="FJz-jZ-fP6" id="dq4-Gg-BRY"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="7mb-ih-lCX"/>
+                <outlet property="widthConstraint" destination="F1G-EE-6r5" id="Jcr-mF-Kye"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <namedColor name="SentMsgBG">

@@ -6,13 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="TemplateCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="templateImageBack" destination="EQ3-p3-EH5" id="aBO-7I-off"/>
-                <outlet property="templateImageView" destination="qNI-hK-Xlp" id="mVS-Jy-TZi"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -50,6 +44,12 @@
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
-        <customObject id="ZGp-hA-I2r" customClass="TemplateCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="K1a-8d-KRg" customClass="TemplateCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="templateImageBack" destination="EQ3-p3-EH5" id="bKr-iK-nHk"/>
+                <outlet property="templateImageView" destination="qNI-hK-Xlp" id="lB0-St-eeI"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="9VG-cE-LwE"/>
+            </connections>
+        </collectionViewItem>
     </objects>
 </document>

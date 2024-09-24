@@ -29,8 +29,8 @@ class PodcastDetailSelectionVC : NSViewController{
     
     weak var delegate : PodcastDetailSelectionVCDelegate!
     
-    var podcast:PodcastFeed? = nil
-    var episode:PodcastEpisode!
+    var podcast: PodcastFeed? = nil
+    var episode: PodcastEpisode!
     
     lazy var podcastDetailSelectionVM: PodcastDetailSelectionVM = {
         return PodcastDetailSelectionVM(

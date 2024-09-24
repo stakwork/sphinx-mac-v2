@@ -7,46 +7,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="ThreadCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="audioMessageView" destination="3st-ai-IfQ" id="UPe-Bs-LgS"/>
-                <outlet property="bubbleAllViews" destination="YWa-SY-0um" id="Pf5-Pi-b9U"/>
-                <outlet property="bubbleLastReplyView" destination="2Bm-CJ-TFa" id="7zU-yh-8st"/>
-                <outlet property="chatAvatarContainerView" destination="RAQ-Ej-oyC" id="cEZ-1N-xMt"/>
-                <outlet property="chatAvatarView" destination="0w7-Od-NJs" id="6na-Pd-MIw"/>
-                <outlet property="fileDetailsView" destination="RIJ-Mw-fdZ" id="hVO-2c-Isr"/>
-                <outlet property="labelHeightConstraint" destination="hJB-h5-cNj" id="LfT-n4-a3m"/>
-                <outlet property="lastReplyAudioMessageView" destination="UdL-Mg-uQw" id="n23-jN-Kue"/>
-                <outlet property="lastReplyFileDetailsView" destination="Gm0-An-OhM" id="Mf8-5P-RLq"/>
-                <outlet property="lastReplyLabelHeightConstraint" destination="Osu-wL-52V" id="ua2-mD-RqZ"/>
-                <outlet property="lastReplyMediaMessageView" destination="cx7-Ub-j6B" id="HlV-mV-Vfx"/>
-                <outlet property="lastReplyMessageLabel" destination="KIy-KQ-GvG" id="yqu-6S-I8M"/>
-                <outlet property="lastReplyMessageLabelLeadingConstraint" destination="KMu-tX-hCb" id="gmK-w5-7KP"/>
-                <outlet property="lastReplyMessageLabelTrailingConstraint" destination="RWt-dY-vtN" id="ee9-sV-NRW"/>
-                <outlet property="lastReplyTextMessageView" destination="jgc-0k-iDb" id="d3J-dQ-Vec"/>
-                <outlet property="leftLineContainer" destination="bCg-hP-Rew" id="KoG-e5-74Q"/>
-                <outlet property="mediaMessageContainer" destination="gyx-Sw-rjN" id="AYf-kc-00s"/>
-                <outlet property="mediaMessageView" destination="HWv-ck-qic" id="Rz4-Si-34P"/>
-                <outlet property="messageContentStackView" destination="PqZ-pq-8i0" id="Xlx-0M-GJC"/>
-                <outlet property="messageLabel" destination="okv-Ag-SIE" id="BrW-Ct-7vu"/>
-                <outlet property="receivedArrow" destination="Viu-pF-fdW" id="ESH-qd-xus"/>
-                <outlet property="receivedMessageMarginView" destination="QnT-Cm-qyW" id="Y8H-ZB-WyU"/>
-                <outlet property="rightLineContainer" destination="aXK-p2-lS1" id="AFv-2A-jPy"/>
-                <outlet property="sentArrow" destination="RsB-r9-lHO" id="d0M-aK-mAx"/>
-                <outlet property="sentMessageMargingView" destination="9zh-HR-aT5" id="kch-HF-34z"/>
-                <outlet property="statusHeaderView" destination="Kv2-Gm-iRV" id="MPD-kE-iNg"/>
-                <outlet property="statusHeaderViewContainer" destination="QIj-fa-qcL" id="azb-lj-f1T"/>
-                <outlet property="textMessageBubbleView" destination="Bhe-Ws-xQ5" id="y07-YY-AKR"/>
-                <outlet property="textMessageView" destination="4D1-XE-gCv" id="iiS-e1-OMJ"/>
-                <outlet property="threadLastMessageHeader" destination="LIg-v5-fUP" id="hcb-bI-YKf"/>
-                <outlet property="threadRepliesView" destination="Ybx-OY-dzA" id="4Lt-po-EAp"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="aAO-e4-mjV"/>
-                <outlet property="widthConstraint" destination="jqz-cn-twZ" id="7Ai-WH-x6e"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView id="Hz6-mo-xeY" customClass="ThreadCollectionViewItemContentView" customModule="Sphinx" customModuleProvider="target">
+        <customView id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="933" height="1658"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
@@ -382,15 +346,45 @@
                 <constraint firstItem="2Bm-CJ-TFa" firstAttribute="bottom" secondItem="PqZ-pq-8i0" secondAttribute="bottom" id="xQD-mN-BLE"/>
                 <constraint firstItem="YWa-SY-0um" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="xqa-IC-FJ8"/>
             </constraints>
-            <connections>
-                <outlet property="lastMessageHeaderView" destination="LIg-v5-fUP" id="Sco-Ds-ok1"/>
-                <outlet property="lastReplyTextMessageView" destination="jgc-0k-iDb" id="Sga-hg-kzS"/>
-                <outlet property="messageView" destination="4D1-XE-gCv" id="Lui-Lo-vTo"/>
-                <outlet property="repliesView" destination="Ybx-OY-dzA" id="P7X-hO-0mh"/>
-            </connections>
             <point key="canvasLocation" x="68" y="212.5"/>
         </customView>
-        <customObject id="AeR-1v-L9M" customClass="ThreadCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="u92-1j-EfA" customClass="ThreadCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="audioMessageView" destination="3st-ai-IfQ" id="GZn-5s-dqG"/>
+                <outlet property="bubbleAllViews" destination="YWa-SY-0um" id="Vvp-fC-XW2"/>
+                <outlet property="bubbleLastReplyView" destination="2Bm-CJ-TFa" id="hfq-lJ-73x"/>
+                <outlet property="chatAvatarContainerView" destination="RAQ-Ej-oyC" id="VYJ-DT-aWs"/>
+                <outlet property="chatAvatarView" destination="0w7-Od-NJs" id="FFc-mj-PxM"/>
+                <outlet property="fileDetailsView" destination="RIJ-Mw-fdZ" id="ukc-bz-iaC"/>
+                <outlet property="labelHeightConstraint" destination="hJB-h5-cNj" id="Uqm-IU-mJP"/>
+                <outlet property="lastReplyAudioMessageView" destination="UdL-Mg-uQw" id="jX1-Lb-h7v"/>
+                <outlet property="lastReplyFileDetailsView" destination="Gm0-An-OhM" id="QoC-lK-Ilb"/>
+                <outlet property="lastReplyLabelHeightConstraint" destination="Osu-wL-52V" id="LfI-3H-6Bt"/>
+                <outlet property="lastReplyMediaMessageView" destination="cx7-Ub-j6B" id="Oxx-WS-2a3"/>
+                <outlet property="lastReplyMessageLabel" destination="KIy-KQ-GvG" id="jx1-aB-SOi"/>
+                <outlet property="lastReplyMessageLabelLeadingConstraint" destination="KMu-tX-hCb" id="oIP-Pj-wzP"/>
+                <outlet property="lastReplyMessageLabelTrailingConstraint" destination="RWt-dY-vtN" id="OLR-zp-6AU"/>
+                <outlet property="lastReplyTextMessageView" destination="jgc-0k-iDb" id="9Zx-Yh-6b9"/>
+                <outlet property="leftLineContainer" destination="bCg-hP-Rew" id="1Ry-Sg-KAw"/>
+                <outlet property="mediaMessageContainer" destination="gyx-Sw-rjN" id="cvh-WT-ZwD"/>
+                <outlet property="mediaMessageView" destination="HWv-ck-qic" id="Uh6-Xi-D0N"/>
+                <outlet property="messageContentStackView" destination="PqZ-pq-8i0" id="KYa-Jh-Q6S"/>
+                <outlet property="messageLabel" destination="okv-Ag-SIE" id="tZq-6k-Hru"/>
+                <outlet property="receivedArrow" destination="Viu-pF-fdW" id="rvf-4e-VV7"/>
+                <outlet property="receivedMessageMarginView" destination="QnT-Cm-qyW" id="GLm-sF-ztQ"/>
+                <outlet property="rightLineContainer" destination="aXK-p2-lS1" id="Qen-uG-igG"/>
+                <outlet property="sentArrow" destination="RsB-r9-lHO" id="8Uw-4w-3CJ"/>
+                <outlet property="sentMessageMargingView" destination="9zh-HR-aT5" id="d5U-vo-KRV"/>
+                <outlet property="statusHeaderView" destination="Kv2-Gm-iRV" id="j6A-ak-HmD"/>
+                <outlet property="statusHeaderViewContainer" destination="QIj-fa-qcL" id="7qR-CF-Yam"/>
+                <outlet property="textMessageBubbleView" destination="Bhe-Ws-xQ5" id="Tcp-pd-Biz"/>
+                <outlet property="textMessageView" destination="4D1-XE-gCv" id="y63-ej-S3D"/>
+                <outlet property="threadLastMessageHeader" destination="LIg-v5-fUP" id="wbm-cu-86F"/>
+                <outlet property="threadRepliesView" destination="Ybx-OY-dzA" id="m0B-V6-Bbe"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="hLH-sn-hgZ"/>
+                <outlet property="widthConstraint" destination="jqz-cn-twZ" id="NKA-YO-hxx"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <namedColor name="ReceivedMsgBG">

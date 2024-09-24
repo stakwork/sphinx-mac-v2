@@ -282,6 +282,7 @@
             </constraints>
             <point key="canvasLocation" x="-153" y="138"/>
         </customView>
+        <customObject id="F8w-Jq-PqM" customClass="NewMenuListItem" customModule="Sphinx" customModuleProvider="target"/>
     </objects>
     <resources>
         <image name="newQrCode" width="16" height="16"/>

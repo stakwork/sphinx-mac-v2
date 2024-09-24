@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="PodcastDetailActionCell" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="actionIconImage" destination="DYz-FH-2qx" id="8I2-ZB-eHT"/>
-                <outlet property="actionLabel" destination="jbI-X3-TlI" id="Q3h-p7-VAR"/>
-                <outlet property="divider" destination="8qE-xa-ZeC" id="5af-6W-Xme"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="322" height="64"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jbI-X3-TlI">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jbI-X3-TlI">
                     <rect key="frame" x="45" y="22" width="263" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="qFZ-de-Zbl"/>
@@ -63,7 +56,14 @@
             </constraints>
             <point key="canvasLocation" x="-82" y="135.5"/>
         </customView>
-        <customObject id="KTH-yy-T6h" customClass="PodcastDetailActionCell" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="juX-68-xZn" customClass="PodcastDetailActionCell" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="actionIconImage" destination="DYz-FH-2qx" id="zYM-hd-cFG"/>
+                <outlet property="actionLabel" destination="jbI-X3-TlI" id="7TX-fE-f7A"/>
+                <outlet property="divider" destination="8qE-xa-ZeC" id="Phu-6d-XTG"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="Dwt-hF-eKG"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <namedColor name="Text">

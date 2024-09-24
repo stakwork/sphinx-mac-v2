@@ -6,17 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="MessageNoBubbleCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="dateSeparatorView" destination="kXu-ED-ywd" id="SOO-Ui-afB"/>
-                <outlet property="deletedMessageView" destination="fsM-fh-rn0" id="QnP-oW-pnf"/>
-                <outlet property="groupActionsView" destination="dNS-9S-C03" id="RKp-3W-rd9"/>
-                <outlet property="leftLineContainer" destination="rmX-6M-U8m" id="Ij8-Mf-cSB"/>
-                <outlet property="rightLineContainer" destination="xew-Kl-kKH" id="4vS-Y0-pPn"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
-        <customObject id="d26-he-3t8" customClass="MessageNoBubbleCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView identifier="MessageNoBubbleCollectionViewItem" id="Hz6-mo-xeY">
@@ -99,5 +89,15 @@
             </constraints>
             <point key="canvasLocation" x="23" y="154"/>
         </customView>
+        <collectionViewItem id="6X0-B9-v0L" customClass="MessageNoBubbleCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="dateSeparatorView" destination="kXu-ED-ywd" id="rzF-wX-shl"/>
+                <outlet property="deletedMessageView" destination="fsM-fh-rn0" id="6qD-Dz-qxH"/>
+                <outlet property="groupActionsView" destination="dNS-9S-C03" id="my0-gR-vX2"/>
+                <outlet property="leftLineContainer" destination="rmX-6M-U8m" id="tpC-Ci-sgW"/>
+                <outlet property="rightLineContainer" destination="xew-Kl-kKH" id="V06-vH-ctb"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="tfX-BQ-vfl"/>
+            </connections>
+        </collectionViewItem>
     </objects>
 </document>

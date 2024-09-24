@@ -7,33 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="ChatListCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="backgroundBox" destination="hyM-3H-muz" id="4Q4-im-d5c"/>
-                <outlet property="chatImageView" destination="MFd-qA-EWn" id="ga9-6F-8nF"/>
-                <outlet property="chatInitialsLabel" destination="inh-ff-0bK" id="T00-zr-DSD"/>
-                <outlet property="chatInitialsView" destination="6fn-Ml-eGP" id="uvx-81-qLz"/>
-                <outlet property="dateLabel" destination="lCr-zc-pEk" id="XnQ-eY-TNz"/>
-                <outlet property="failedMessageIcon" destination="EVb-5c-qLp" id="QRm-pQ-7gi"/>
-                <outlet property="imageWidthConstraint" destination="xXy-2z-dY0" id="gLO-aX-OxU"/>
-                <outlet property="inviteIconLabel" destination="NbI-90-UUd" id="yLV-1a-ajM"/>
-                <outlet property="inviteImageView" destination="g3b-VE-306" id="9aw-yN-89p"/>
-                <outlet property="invitePriceContainer" destination="kk4-Xz-eHc" id="LTE-i4-IWp"/>
-                <outlet property="invitePriceLabel" destination="g4O-72-cVb" id="0T3-KU-o1X"/>
-                <outlet property="lockSignLabel" destination="3Zj-Kl-BUt" id="onN-6c-JU6"/>
-                <outlet property="mentionsBadgeContainer" destination="AiS-Wu-Ekf" id="BYd-D4-slU"/>
-                <outlet property="mentionsBadgeLabel" destination="3i2-x4-KyF" id="WR8-oc-lvQ"/>
-                <outlet property="messageLabel" destination="lXx-aV-dLV" id="rd7-2G-yB0"/>
-                <outlet property="muteImageView" destination="aIg-7o-bsA" id="SwU-Ih-lA5"/>
-                <outlet property="nameLabel" destination="DGs-Cx-Khc" id="1XT-JS-hQL"/>
-                <outlet property="pendingContactClockIconImageView" destination="NwQ-jc-CBa" id="wZg-z4-dos"/>
-                <outlet property="pendingContactDashedLineContainerView" destination="j73-IW-Rh1" id="pkN-6B-WNH"/>
-                <outlet property="unreadMessageBadgeContainer" destination="d30-ku-ihf" id="GYV-Zs-NT3"/>
-                <outlet property="unreadMessageBadgeLabel" destination="cmn-Qv-gK9" id="6mo-6y-Sfj"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="myH-nr-vdJ"/>
-            </connections>
-        </customObject>
-        <customObject id="hXf-Sd-bBx" customClass="ChatListCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -409,6 +383,32 @@
             </constraints>
             <point key="canvasLocation" x="45" y="153.5"/>
         </customView>
+        <collectionViewItem id="maJ-B9-Vez" customClass="ChatListCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="backgroundBox" destination="hyM-3H-muz" id="ShV-g5-ZZS"/>
+                <outlet property="chatImageView" destination="MFd-qA-EWn" id="LaT-h3-hKi"/>
+                <outlet property="chatInitialsLabel" destination="inh-ff-0bK" id="UVy-Be-Kg9"/>
+                <outlet property="chatInitialsView" destination="6fn-Ml-eGP" id="Zqu-cX-uOl"/>
+                <outlet property="dateLabel" destination="lCr-zc-pEk" id="qUN-xj-64O"/>
+                <outlet property="failedMessageIcon" destination="EVb-5c-qLp" id="gR5-pd-hqH"/>
+                <outlet property="imageWidthConstraint" destination="xXy-2z-dY0" id="vjj-er-KlA"/>
+                <outlet property="inviteIconLabel" destination="NbI-90-UUd" id="MJ0-at-SvE"/>
+                <outlet property="inviteImageView" destination="g3b-VE-306" id="sO3-5r-hag"/>
+                <outlet property="invitePriceContainer" destination="kk4-Xz-eHc" id="gzA-Zv-Qmo"/>
+                <outlet property="invitePriceLabel" destination="g4O-72-cVb" id="P6P-U8-5Hs"/>
+                <outlet property="lockSignLabel" destination="3Zj-Kl-BUt" id="AW2-BU-l8E"/>
+                <outlet property="mentionsBadgeContainer" destination="AiS-Wu-Ekf" id="wBo-xl-93G"/>
+                <outlet property="mentionsBadgeLabel" destination="3i2-x4-KyF" id="dHF-9s-Uxw"/>
+                <outlet property="messageLabel" destination="lXx-aV-dLV" id="9iq-fb-1kt"/>
+                <outlet property="muteImageView" destination="aIg-7o-bsA" id="CHw-Ra-zO0"/>
+                <outlet property="nameLabel" destination="DGs-Cx-Khc" id="uZS-gj-XC5"/>
+                <outlet property="pendingContactClockIconImageView" destination="NwQ-jc-CBa" id="QN4-bX-zjl"/>
+                <outlet property="pendingContactDashedLineContainerView" destination="j73-IW-Rh1" id="Kse-2g-QT9"/>
+                <outlet property="unreadMessageBadgeContainer" destination="d30-ku-ihf" id="p25-1h-hyI"/>
+                <outlet property="unreadMessageBadgeLabel" destination="cmn-Qv-gK9" id="5xK-xp-KZc"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="86j-r6-cnA"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <image name="clock_icon" width="22" height="22"/>

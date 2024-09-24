@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15702" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15702"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner">
-            <connections>
-                <outlet property="closeButton" destination="BYs-Kd-geV" id="ALU-Eb-K2J"/>
-                <outlet property="closeLabel" destination="sWN-nV-44e" id="i7K-it-lcT"/>
-                <outlet property="contactImageView" destination="igX-xv-eQ7" id="AX1-ir-oa9"/>
-                <outlet property="nameLabel" destination="MqS-TL-dGv" id="RvU-k3-Jh9"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -36,7 +28,7 @@
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </imageView>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sWN-nV-44e">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sWN-nV-44e">
                     <rect key="frame" x="51" y="58" width="29" height="25"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="" id="KUN-e4-r91">
                         <font key="font" size="25" name="MaterialIcons-Regular"/>
@@ -46,19 +38,16 @@
                 </textField>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BYs-Kd-geV">
                     <rect key="frame" x="38" y="50" width="40" height="40"/>
-                    <constraints>
-                        <constraint firstAttribute="width" constant="40" id="9kb-RG-l2z"/>
-                        <constraint firstAttribute="height" constant="40" id="yCk-8Y-5JT"/>
-                    </constraints>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="aob-H7-I0G">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
-                    <connections>
-                        <action selector="closeButtonClicked:" target="-2" id="kAV-S3-58T"/>
-                    </connections>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="9kb-RG-l2z"/>
+                        <constraint firstAttribute="height" constant="40" id="yCk-8Y-5JT"/>
+                    </constraints>
                 </button>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MqS-TL-dGv">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MqS-TL-dGv">
                     <rect key="frame" x="16" y="3" width="38" height="13"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Tomas" id="kNq-QM-X9R">
                         <font key="font" size="11" name="Roboto-Regular"/>
@@ -79,7 +68,15 @@
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
-        <customObject id="7Aa-LM-joF" customClass="GroupAddedContactCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="TMK-cU-T5a" customClass="GroupAddedContactCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="closeButton" destination="BYs-Kd-geV" id="kEl-Uk-KK3"/>
+                <outlet property="closeLabel" destination="sWN-nV-44e" id="eMk-XP-DAo"/>
+                <outlet property="contactImageView" destination="igX-xv-eQ7" id="Lz9-Z0-QCf"/>
+                <outlet property="nameLabel" destination="MqS-TL-dGv" id="E5n-QS-hNe"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="b2n-Oc-SgS"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <namedColor name="PrimaryBlue">

@@ -7,29 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NewOnlyTextMessageCollectionViewitem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="bubbleOnlyText" destination="ahx-cg-gFk" id="jEW-8q-2eE"/>
-                <outlet property="chatAvatarContainerView" destination="4lQ-yH-mp7" id="LCt-vb-3N0"/>
-                <outlet property="chatAvatarView" destination="KSM-nR-A3G" id="VLz-do-s7N"/>
-                <outlet property="leftLineContainer" destination="Ew2-CA-NMt" id="v43-bV-Kd1"/>
-                <outlet property="messageLabel" destination="7nT-GT-4h9" id="a38-wz-6nd"/>
-                <outlet property="messageLabelLeadingConstraint" destination="w2g-8z-QSW" id="YxI-G4-TEo"/>
-                <outlet property="messageLabelTrailingConstraint" destination="zAt-KU-ECV" id="hka-jt-3re"/>
-                <outlet property="receivedArrow" destination="JZc-bH-qgu" id="fUU-mh-YG1"/>
-                <outlet property="receivedMessageMarginView" destination="VEd-Nw-BI7" id="f1V-zq-le9"/>
-                <outlet property="receivedMessageMenuButton" destination="OSP-ED-UHM" id="fFC-JA-XGq"/>
-                <outlet property="rightLineContainer" destination="dsA-SD-6NT" id="PZg-Ex-WpG"/>
-                <outlet property="sentArrow" destination="k0I-pC-Pcm" id="HgE-Gn-WKy"/>
-                <outlet property="sentMessageMargingView" destination="5kg-HM-NR1" id="TyD-Zd-odx"/>
-                <outlet property="sentMessageMenuButton" destination="RqW-7V-PIs" id="UWk-yD-AFM"/>
-                <outlet property="statusHeaderView" destination="pCr-jf-cNZ" id="IqS-Np-YpO"/>
-                <outlet property="statusHeaderViewContainer" destination="9rC-bS-7Ll" id="g5f-Xb-o6x"/>
-                <outlet property="textMessageView" destination="d54-Qo-HA4" id="8rM-0v-YOF"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
-        <customObject id="Ogd-rM-ZpX" customClass="NewOnlyTextMessageCollectionViewitem" customModule="Sphinx" customModuleProvider="target"/>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView identifier="NewOnlyTextMessageCollectionViewitem" id="Hz6-mo-xeY">
@@ -224,7 +202,7 @@
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
                     <connections>
-                        <action selector="messageMenuButtonClicked:" target="-2" id="LU6-ye-Ytb"/>
+                        <action selector="messageMenuButtonClicked:" target="enl-i7-wjb" id="YXJ-5S-dHP"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OSP-ED-UHM" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
@@ -235,7 +213,7 @@
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
                     <connections>
-                        <action selector="messageMenuButtonClicked:" target="-2" id="rbC-Zh-3z2"/>
+                        <action selector="messageMenuButtonClicked:" target="enl-i7-wjb" id="4rX-F0-dte"/>
                     </connections>
                 </button>
             </subviews>
@@ -265,6 +243,28 @@
             </constraints>
             <point key="canvasLocation" x="-40" y="154"/>
         </customView>
+        <collectionViewItem id="enl-i7-wjb" customClass="NewOnlyTextMessageCollectionViewitem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="bubbleOnlyText" destination="ahx-cg-gFk" id="WZF-G8-kXp"/>
+                <outlet property="chatAvatarContainerView" destination="4lQ-yH-mp7" id="GEy-9y-1uV"/>
+                <outlet property="chatAvatarView" destination="KSM-nR-A3G" id="s39-Bo-3hT"/>
+                <outlet property="leftLineContainer" destination="Ew2-CA-NMt" id="4iO-bw-9rb"/>
+                <outlet property="messageLabel" destination="7nT-GT-4h9" id="OIv-s6-d7c"/>
+                <outlet property="messageLabelLeadingConstraint" destination="w2g-8z-QSW" id="rpS-Kh-94a"/>
+                <outlet property="messageLabelTrailingConstraint" destination="zAt-KU-ECV" id="mcf-BI-hW0"/>
+                <outlet property="receivedArrow" destination="JZc-bH-qgu" id="Q8i-Dx-CBG"/>
+                <outlet property="receivedMessageMarginView" destination="VEd-Nw-BI7" id="YjL-lZ-wUZ"/>
+                <outlet property="receivedMessageMenuButton" destination="OSP-ED-UHM" id="xlg-Ri-D28"/>
+                <outlet property="rightLineContainer" destination="dsA-SD-6NT" id="plU-yI-wxg"/>
+                <outlet property="sentArrow" destination="k0I-pC-Pcm" id="Gfm-SZ-pNg"/>
+                <outlet property="sentMessageMargingView" destination="5kg-HM-NR1" id="b06-5y-yRd"/>
+                <outlet property="sentMessageMenuButton" destination="RqW-7V-PIs" id="2bU-AU-QHf"/>
+                <outlet property="statusHeaderView" destination="pCr-jf-cNZ" id="cWy-hb-E5V"/>
+                <outlet property="statusHeaderViewContainer" destination="9rC-bS-7Ll" id="6WL-tm-vMv"/>
+                <outlet property="textMessageView" destination="d54-Qo-HA4" id="yRC-tJ-VmA"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="BkZ-7O-Bm8"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <namedColor name="SentMsgBG">

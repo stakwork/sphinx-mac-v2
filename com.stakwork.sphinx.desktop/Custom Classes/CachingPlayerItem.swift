@@ -221,9 +221,6 @@ open class CachingPlayerItem: AVPlayerItem {
         
         resourceLoaderDelegate.owner = self
         
-        NotificationCenter.default.removeObserver(self)
-        removeObserver(self, forKeyPath: "status")
-        
         addObserver(
             self,
             forKeyPath: "status",
@@ -259,9 +256,6 @@ open class CachingPlayerItem: AVPlayerItem {
         asset.resourceLoader.setDelegate(resourceLoaderDelegate, queue: DispatchQueue.main)
         super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         resourceLoaderDelegate.owner = self
-        
-        NotificationCenter.default.removeObserver(self)
-        removeObserver(self, forKeyPath: "status")
         
         addObserver(
             self,
@@ -303,9 +297,6 @@ open class CachingPlayerItem: AVPlayerItem {
         self.url = URL(fileURLWithPath: "")
         self.initialScheme = nil
         super.init(asset: asset, automaticallyLoadedAssetKeys: automaticallyLoadedAssetKeys)
-        
-        NotificationCenter.default.removeObserver(self)
-        removeObserver(self, forKeyPath: "status")
         
         addObserver(
             self,

@@ -7,20 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="GroupContactListItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="actionsContainer" destination="Zhx-m3-DcG" id="oOj-Pn-YLh"/>
-                <outlet property="approveButton" destination="vFB-aZ-VRB" id="0bu-k7-srJ"/>
-                <outlet property="contactName" destination="mnx-xI-Rnt" id="3j0-TD-kvX"/>
-                <outlet property="declineButton" destination="xAC-PP-Q2L" id="f7a-xo-okd"/>
-                <outlet property="deleteButton" destination="SqO-en-U9n" id="gSq-tS-xEp"/>
-                <outlet property="deleteButtonContainer" destination="bRY-M8-Gdc" id="NQf-aY-CJQ"/>
-                <outlet property="divider" destination="Bbh-bE-ABt" id="jR4-4V-lKb"/>
-                <outlet property="initialName" destination="wwY-zz-Sm1" id="eoH-FJ-UiI"/>
-                <outlet property="profileImage" destination="oVW-ra-cYs" id="LPt-D0-orf"/>
-                <outlet property="view" destination="ozY-ve-Yd0" id="7NP-LO-Nc3"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView clipsToBounds="YES" id="ozY-ve-Yd0">
@@ -102,7 +89,7 @@
                                                         </buttonCell>
                                                         <color key="contentTintColor" name="SecondaryText"/>
                                                         <connections>
-                                                            <action selector="deleteTapped:" target="-2" id="Vdy-HX-zOC"/>
+                                                            <action selector="deleteTapped:" target="WZq-nB-pAd" id="K6s-X3-Oj1"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -138,7 +125,7 @@
                                                                         <constraint firstAttribute="width" constant="27" id="pnI-XI-NPq"/>
                                                                     </constraints>
                                                                     <connections>
-                                                                        <action selector="approveRequestButtonClicked:" target="-2" id="wOQ-Ss-8Ux"/>
+                                                                        <action selector="approveRequestButtonClicked:" target="WZq-nB-pAd" id="WAG-DY-IQ9"/>
                                                                     </connections>
                                                                 </button>
                                                             </subviews>
@@ -171,7 +158,7 @@
                                                                         <constraint firstAttribute="height" constant="27" id="OKf-na-5pm"/>
                                                                     </constraints>
                                                                     <connections>
-                                                                        <action selector="declineRequestButtonClicked:" target="-2" id="eti-4t-4B7"/>
+                                                                        <action selector="declineRequestButtonClicked:" target="WZq-nB-pAd" id="j9e-dM-7Tr"/>
                                                                     </connections>
                                                                 </button>
                                                             </subviews>
@@ -251,7 +238,20 @@
             </constraints>
             <point key="canvasLocation" x="-5" y="38"/>
         </customView>
-        <customObject id="abU-Zo-e5T" customClass="GroupContactListItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="WZq-nB-pAd" customClass="GroupContactListItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="actionsContainer" destination="Zhx-m3-DcG" id="zTq-qa-qLb"/>
+                <outlet property="approveButton" destination="vFB-aZ-VRB" id="8hH-PE-sjn"/>
+                <outlet property="contactName" destination="mnx-xI-Rnt" id="bWL-dd-jp8"/>
+                <outlet property="declineButton" destination="xAC-PP-Q2L" id="xJB-Bp-Nog"/>
+                <outlet property="deleteButton" destination="SqO-en-U9n" id="VWk-Zi-m8q"/>
+                <outlet property="deleteButtonContainer" destination="bRY-M8-Gdc" id="def-en-4JH"/>
+                <outlet property="divider" destination="Bbh-bE-ABt" id="ged-ek-kEf"/>
+                <outlet property="initialName" destination="wwY-zz-Sm1" id="2WF-fh-ZbE"/>
+                <outlet property="profileImage" destination="oVW-ra-cYs" id="h6m-Fs-V7M"/>
+                <outlet property="view" destination="ozY-ve-Yd0" id="9KS-yR-IUi"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <image name="NSTouchBarDeleteTemplate" width="19" height="22"/>

@@ -7,27 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="PodcastPlayerCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
-            <connections>
-                <outlet property="audioLoadingWheel" destination="tj6-2r-uMr" id="oY6-Cn-ORE"/>
-                <outlet property="boostButtonView" destination="cvm-EV-YVC" id="H8o-mQ-66i"/>
-                <outlet property="currentTimeDot" destination="Gje-cP-dDc" id="3ot-Dz-GHF"/>
-                <outlet property="currentTimeLabel" destination="j3a-5W-Ger" id="AxP-7T-Lsx"/>
-                <outlet property="durationLabel" destination="aCz-Sz-VhK" id="LhT-Ea-oEv"/>
-                <outlet property="durationLine" destination="du4-Uv-efo" id="ivC-ch-9FC"/>
-                <outlet property="episodeImageView" destination="NHp-dV-cDu" id="1t5-Hd-pwq"/>
-                <outlet property="episodeLabel" destination="u4B-WC-vJh" id="hcT-sq-NdZ"/>
-                <outlet property="liveCollectionView" destination="MFz-Dp-jBt" id="ufj-h3-KeE"/>
-                <outlet property="liveScrollView" destination="35Y-CZ-In6" id="ad6-uO-h8r"/>
-                <outlet property="mouseDraggableView" destination="uyu-EV-v3y" id="02B-cp-NDS"/>
-                <outlet property="playPauseButton" destination="una-Hn-RvR" id="BpD-4R-Tc1"/>
-                <outlet property="podcastSatsView" destination="k5A-VQ-0lA" id="XTB-W1-bus"/>
-                <outlet property="progressLine" destination="jXX-Qx-eeZ" id="v0x-Em-E1p"/>
-                <outlet property="progressLineWidth" destination="ikH-wB-Y1V" id="hPg-LC-v13"/>
-                <outlet property="speedButton" destination="EfV-pV-zKD" id="Vyq-02-7GW"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -157,7 +137,7 @@
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="28" id="Yic-lH-qeX"/>
                     </constraints>
                     <connections>
-                        <action selector="controlButtonTouched:" target="-2" id="eYU-B8-1n9"/>
+                        <action selector="controlButtonTouched:" target="0Dg-MA-C20" id="7kn-SG-2JC"/>
                     </connections>
                 </button>
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="wkU-Xv-7th">
@@ -175,7 +155,7 @@
                                 <constraint firstAttribute="height" constant="50" id="X50-Pw-IUG"/>
                             </constraints>
                             <connections>
-                                <action selector="controlButtonTouched:" target="-2" id="olk-NF-OpZ"/>
+                                <action selector="controlButtonTouched:" target="0Dg-MA-C20" id="ofR-DL-hje"/>
                             </connections>
                         </button>
                     </subviews>
@@ -207,7 +187,7 @@
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="58" id="ktH-Ya-Q3K"/>
                     </constraints>
                     <connections>
-                        <action selector="controlButtonTouched:" target="-2" id="wdt-BH-ySk"/>
+                        <action selector="controlButtonTouched:" target="0Dg-MA-C20" id="jCm-Cl-kDn"/>
                     </connections>
                 </button>
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="zXx-n0-mtn">
@@ -225,7 +205,7 @@
                                 <constraint firstAttribute="height" constant="50" id="uo8-JA-pbq"/>
                             </constraints>
                             <connections>
-                                <action selector="controlButtonTouched:" target="-2" id="OA2-UB-U1b"/>
+                                <action selector="controlButtonTouched:" target="0Dg-MA-C20" id="0ze-5q-utX"/>
                             </connections>
                         </button>
                     </subviews>
@@ -258,7 +238,7 @@
                         <constraint firstAttribute="width" constant="55" id="qCk-Sy-k6W"/>
                     </constraints>
                     <connections>
-                        <action selector="speedValueChanged:" target="-2" id="nLs-pO-r0R"/>
+                        <action selector="speedValueChanged:" target="0Dg-MA-C20" id="otJ-fc-aOH"/>
                     </connections>
                 </popUpButton>
             </subviews>
@@ -315,7 +295,27 @@
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
-        <customObject id="Eh0-7V-7nj" customClass="PodcastPlayerCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="0Dg-MA-C20" customClass="PodcastPlayerCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="audioLoadingWheel" destination="tj6-2r-uMr" id="4C5-kk-oPs"/>
+                <outlet property="boostButtonView" destination="cvm-EV-YVC" id="YN0-OY-SOZ"/>
+                <outlet property="currentTimeDot" destination="Gje-cP-dDc" id="o4a-s9-2QG"/>
+                <outlet property="currentTimeLabel" destination="j3a-5W-Ger" id="6M8-im-vFU"/>
+                <outlet property="durationLabel" destination="aCz-Sz-VhK" id="eOy-D0-IU7"/>
+                <outlet property="durationLine" destination="du4-Uv-efo" id="xFi-mM-tkJ"/>
+                <outlet property="episodeImageView" destination="NHp-dV-cDu" id="Ufz-dm-8xA"/>
+                <outlet property="episodeLabel" destination="u4B-WC-vJh" id="BvA-9m-yrT"/>
+                <outlet property="liveCollectionView" destination="MFz-Dp-jBt" id="l9m-K4-iWy"/>
+                <outlet property="liveScrollView" destination="35Y-CZ-In6" id="efg-6U-bvG"/>
+                <outlet property="mouseDraggableView" destination="uyu-EV-v3y" id="kjG-pe-swP"/>
+                <outlet property="playPauseButton" destination="una-Hn-RvR" id="yvQ-Gx-Kis"/>
+                <outlet property="podcastSatsView" destination="k5A-VQ-0lA" id="OjE-jO-n8c"/>
+                <outlet property="progressLine" destination="jXX-Qx-eeZ" id="TI5-s6-aG8"/>
+                <outlet property="progressLineWidth" destination="ikH-wB-Y1V" id="zgZ-sG-7hy"/>
+                <outlet property="speedButton" destination="EfV-pV-zKD" id="b7g-8t-bKY"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="Tpt-uH-wtZ"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <image name="back15Icon" width="27" height="30"/>

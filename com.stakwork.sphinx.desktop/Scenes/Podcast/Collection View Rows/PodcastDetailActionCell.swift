@@ -18,6 +18,7 @@ public enum FeedItemActionType{
 }
 
 class PodcastDetailActionCell: NSCollectionViewItem {
+    
     @IBOutlet weak var actionLabel: NSTextField!
     @IBOutlet weak var actionIconImage: NSImageView!
     @IBOutlet weak var divider: NSBox!
