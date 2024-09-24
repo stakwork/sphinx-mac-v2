@@ -133,7 +133,20 @@ class NewChatViewController: DashboardSplittedViewController {
         updateEmptyView()
         
         chatTopView.checkRoute()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleImagePaste), name: .onFilePaste, object: nil)
+    }
+    
+    func listenForNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: .onFilePaste,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.handleImagePaste()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
     }
     
     override func viewDidAppear() {
@@ -155,8 +168,6 @@ class NewChatViewController: DashboardSplittedViewController {
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
-        
-        NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
     }
     
     override func viewDidLayout() {
@@ -341,7 +352,7 @@ class NewChatViewController: DashboardSplittedViewController {
         threadVC?.view.frame = frame
     }
     
-    @objc func handleImagePaste(){
+    func handleImagePaste(){
         if let _ = threadVC {
             return
         }

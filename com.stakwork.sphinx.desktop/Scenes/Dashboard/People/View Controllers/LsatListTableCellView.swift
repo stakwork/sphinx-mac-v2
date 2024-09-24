@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol LsatListCellDelegate{
+protocol LsatListCellDelegate: NSObject {
     func deleteLsat(index:Int)
     func copyLsat(index:Int)
     func debugLsat(index:Int)
@@ -23,7 +23,7 @@ class LsatListTableCellView: NSTableCellView {
     @IBOutlet weak var terminalLabel: NSTextField!
     @IBOutlet weak var paymentRequestLabel: NSTextField!
     
-    var delegate : LsatListCellDelegate? = nil
+    weak var delegate : LsatListCellDelegate? = nil
     var index : Int? = nil
     
     override func draw(_ dirtyRect: NSRect) {

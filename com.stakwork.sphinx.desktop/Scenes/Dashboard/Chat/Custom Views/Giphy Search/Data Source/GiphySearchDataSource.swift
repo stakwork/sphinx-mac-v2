@@ -45,9 +45,17 @@ class GiphySearchDataSource : NSObject {
         self.collectionView.collectionViewLayout?.invalidateLayout()
         self.collectionView.enclosingScrollView?.contentView.scroll(to: NSPoint(x: 0, y: 0))
         
-        NotificationCenter.default.addObserver(forName: NSView.boundsDidChangeNotification, object: collectionView.enclosingScrollView?.contentView, queue: OperationQueue.main) { [weak self] (n: Notification) in
+        NotificationCenter.default.addObserver(
+            forName: NSView.boundsDidChangeNotification,
+            object: collectionView.enclosingScrollView?.contentView,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
             self?.scrollViewDidScroll()
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
     }
     
     func insertObjects(objects: [GiphyObject]) {

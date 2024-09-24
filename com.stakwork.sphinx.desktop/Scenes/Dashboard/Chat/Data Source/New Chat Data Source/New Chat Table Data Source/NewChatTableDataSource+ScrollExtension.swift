@@ -31,7 +31,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             forName: NSView.boundsDidChangeNotification,
             object: collectionViewScroll.contentView,
             queue: OperationQueue.main
-        ) { [weak self] (n: Notification) in
+        ) { [weak self] _ in
             self?.scrollViewDidScroll()
         }
     }

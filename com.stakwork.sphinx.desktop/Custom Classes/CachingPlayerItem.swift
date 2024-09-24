@@ -221,9 +221,23 @@ open class CachingPlayerItem: AVPlayerItem {
         
         resourceLoaderDelegate.owner = self
         
-        addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+        NotificationCenter.default.removeObserver(self)
+        removeObserver(self, forKeyPath: "status")
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name:NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        addObserver(
+            self,
+            forKeyPath: "status",
+            options: NSKeyValueObservingOptions.new,
+            context: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.AVPlayerItemPlaybackStalled,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.playbackStalledHandler()
+        }
         
     }
     
@@ -246,21 +260,40 @@ open class CachingPlayerItem: AVPlayerItem {
         super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         resourceLoaderDelegate.owner = self
         
-        addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+        NotificationCenter.default.removeObserver(self)
+        removeObserver(self, forKeyPath: "status")
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name:NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        addObserver(
+            self,
+            forKeyPath: "status",
+            options: NSKeyValueObservingOptions.new,
+            context: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.AVPlayerItemPlaybackStalled,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.playbackStalledHandler()
+        }
         
     }
     
     // MARK: KVO
     
-    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override open func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey : Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         delegate?.playerItemReadyToPlay?(self)
     }
     
     // MARK: Notification hanlers
     
-    @objc func playbackStalledHandler() {
+    func playbackStalledHandler() {
         delegate?.playerItemPlaybackStalled?(self)
     }
 
@@ -271,13 +304,29 @@ open class CachingPlayerItem: AVPlayerItem {
         self.initialScheme = nil
         super.init(asset: asset, automaticallyLoadedAssetKeys: automaticallyLoadedAssetKeys)
         
-        addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStalledHandler), name:NSNotification.Name.AVPlayerItemPlaybackStalled, object: self)
+        NotificationCenter.default.removeObserver(self)
+        removeObserver(self, forKeyPath: "status")
+        
+        addObserver(
+            self,
+            forKeyPath: "status",
+            options: NSKeyValueObservingOptions.new,
+            context: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.AVPlayerItemPlaybackStalled,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.playbackStalledHandler()
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
         removeObserver(self, forKeyPath: "status")
+        
         resourceLoaderDelegate.session?.invalidateAndCancel()
     }
     

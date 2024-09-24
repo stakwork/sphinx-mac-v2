@@ -161,6 +161,10 @@ class NewChatTableDataSource : NSObject {
         configureDataSource()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
+    }
+    
     func updateFrame() {
         self.collectionView.collectionViewLayout?.invalidateLayout()
     }

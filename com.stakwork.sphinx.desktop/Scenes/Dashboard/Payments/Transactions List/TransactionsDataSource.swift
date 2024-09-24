@@ -51,6 +51,10 @@ class TransactionsDataSource : NSObject {
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
+    }
+    
     func loadTransactions(transactions: [PaymentTransaction]) {
         if self.transactions.count > 0 {
             addMoreTransactions(transactions: transactions)

@@ -149,26 +149,23 @@ class SendPaymentForInvoiceVC: NSViewController {
         SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice) { (success, errorMsg, tag) in
             if success {
                 self.paymentTag = tag
-                self.addPaymentObserver()
+                self.listenForNotifications()
             } else {
                 self.showErrorAlertAndDismiss(errorMsg: errorMsg)
             }
         }
     }
     
-    func addPaymentObserver() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .onKeysendStatusReceived,
-            object: nil
-        )
+    func listenForNotifications() {
+        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
         
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(onKeysendStatusReceived),
-            name: .onKeysendStatusReceived,
-            object: nil
-        )
+            forName: .onKeysendStatusReceived,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.onKeysendStatusReceived(n: n)
+        }
         
         paymentTimer = Timer.scheduledTimer(
             timeInterval: 5.0,
@@ -177,6 +174,13 @@ class SendPaymentForInvoiceVC: NSViewController {
             userInfo: nil,
             repeats: false
         )
+    }
+    
+    deinit {
+        paymentTimer?.invalidate()
+        paymentTimer = nil
+        
+        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
     }
     
     @objc func onKeysendStatusReceived(n: Notification) {
@@ -200,11 +204,7 @@ class SendPaymentForInvoiceVC: NSViewController {
         paymentTimer?.invalidate()
         paymentTimer = nil
         
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .onKeysendStatusReceived,
-            object: nil
-        )
+        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
     }
     
     @objc func showErrorAlertAndDismiss(errorMsg: String? = nil) {

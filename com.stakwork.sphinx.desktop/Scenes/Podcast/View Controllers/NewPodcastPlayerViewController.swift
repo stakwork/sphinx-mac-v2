@@ -30,10 +30,6 @@ class NewPodcastPlayerViewController: NSViewController {
         super.viewDidLayout()
         
         playerCollectionView.collectionViewLayout?.invalidateLayout()
-    }
-    
-    override func viewDidAppear() {
-        super.viewDidAppear()
         
         NotificationCenter.default.addObserver(
             forName: NSView.boundsDidChangeNotification,
@@ -44,9 +40,7 @@ class NewPodcastPlayerViewController: NSViewController {
         }
     }
     
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-        
+    deinit {
         NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
     }
     

@@ -27,7 +27,7 @@ class GroupContactListItem: NSCollectionViewItem {
     @IBOutlet weak var approveButton: CustomButton!
     @IBOutlet weak var declineButton: CustomButton!
     
-    var delegate: GroupContactListItemDelegate?
+    weak var delegate: GroupContactListItemDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()

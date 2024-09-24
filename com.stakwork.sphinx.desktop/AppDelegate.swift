@@ -320,8 +320,6 @@ import WebKit
     
     func applicationWillResignActive(_ notification: Notification) {
         if UserData.sharedInstance.isUserLogged() {
-            NotificationCenter.default.post(name: .shouldTrackPosition, object: nil)
-            
             setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
             
             podcastPlayerController.finishAndSaveContentConsumed()

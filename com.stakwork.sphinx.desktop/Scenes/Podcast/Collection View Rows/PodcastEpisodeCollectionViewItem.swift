@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol PodcastEpisodeCollectionViewItemDelegate{
+protocol PodcastEpisodeCollectionViewItemDelegate: NSObject {
     func episodeShareTapped(episode:PodcastEpisode)
 }
 
@@ -37,7 +37,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     @IBOutlet weak var currentTimeProgressWidth : NSLayoutConstraint!
     
     var episode:PodcastEpisode? = nil
-    var delegate:PodcastEpisodeCollectionViewItemDelegate? = nil
+    weak var delegate: PodcastEpisodeCollectionViewItemDelegate? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
