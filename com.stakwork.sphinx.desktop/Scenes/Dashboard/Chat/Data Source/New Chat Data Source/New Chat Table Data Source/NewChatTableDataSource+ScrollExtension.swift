@@ -31,7 +31,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             forName: NSView.boundsDidChangeNotification,
             object: collectionViewScroll.contentView,
             queue: OperationQueue.main
-        ) { [weak self] (n: Notification) in
+        ) { [weak self] _ in
             self?.scrollViewDidScroll()
         }
     }
@@ -41,7 +41,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if let scrollViewDesiredOffset = scrollViewDesiredOffset {
             if scrollViewDesiredOffset == collectionViewScroll.documentYOffset {
-                DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
+                DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
                     self.shimmeringView.toggle(show: false)
                     self.collectionView.alphaValue = 1.0
                 })

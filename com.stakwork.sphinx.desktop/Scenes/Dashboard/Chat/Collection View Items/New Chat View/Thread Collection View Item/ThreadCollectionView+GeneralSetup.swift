@@ -47,11 +47,6 @@ extension ThreadCollectionViewItem {
         mediaMessageContainer.layer?.masksToBounds = false
     }
     
-    func configureWidth() {
-        widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth
-        self.view.layoutSubtreeIfNeeded()
-    }
-    
     func hideAllSubviews() {
         textMessageView.isHidden = true
         mediaMessageContainer.isHidden = true
@@ -68,3 +63,10 @@ extension ThreadCollectionViewItem {
         threadLastMessageHeader.isHidden = true
     }
 }
+
+
+
+
+
+
+

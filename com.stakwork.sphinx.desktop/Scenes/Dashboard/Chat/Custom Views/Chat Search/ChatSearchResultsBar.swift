@@ -14,7 +14,7 @@ protocol ChatSearchResultsBarDelegate : AnyObject {
 
 class ChatSearchResultsBar: NSView, LoadableNib {
     
-    var delegate: ChatSearchResultsBarDelegate?
+    weak var delegate: ChatSearchResultsBarDelegate?
     
     @IBOutlet var contentView: NSView!
 

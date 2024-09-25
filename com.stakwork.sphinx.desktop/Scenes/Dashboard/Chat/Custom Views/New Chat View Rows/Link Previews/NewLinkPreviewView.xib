@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -53,7 +53,7 @@
                                     </constraints>
                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Cdb-3I-M8R"/>
                                 </imageView>
-                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t8P-q9-Ksd">
+                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t8P-q9-Ksd">
                                     <rect key="frame" x="34" y="52" width="268" height="13"/>
                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Label" id="psb-Pt-y8j">
                                         <font key="font" size="11" name="Roboto-Bold"/>
@@ -61,7 +61,7 @@
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
-                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VbG-j6-CJA">
+                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VbG-j6-CJA">
                                     <rect key="frame" x="-2" y="0.0" width="304" height="40"/>
                                     <textFieldCell key="cell" alignment="left" title="Label" id="3VR-fg-Eld">
                                         <font key="font" size="9" name="Roboto-Regular"/>
@@ -76,7 +76,6 @@
                                 <constraint firstItem="t8P-q9-Ksd" firstAttribute="leading" secondItem="2iJ-AU-Uhi" secondAttribute="trailing" constant="16" id="FHw-kh-j5i"/>
                                 <constraint firstItem="VbG-j6-CJA" firstAttribute="top" secondItem="2iJ-AU-Uhi" secondAttribute="bottom" constant="8" id="M2y-3k-CbR"/>
                                 <constraint firstItem="2iJ-AU-Uhi" firstAttribute="top" secondItem="tgI-wj-Zx0" secondAttribute="top" id="PCQ-YR-EaR"/>
-                                <constraint firstAttribute="width" constant="300" id="Wuu-yx-CPF"/>
                                 <constraint firstAttribute="trailing" secondItem="VbG-j6-CJA" secondAttribute="trailing" id="WvN-t5-vOj"/>
                                 <constraint firstAttribute="bottom" secondItem="VbG-j6-CJA" secondAttribute="bottom" id="b6R-WG-Yz8"/>
                                 <constraint firstItem="VbG-j6-CJA" firstAttribute="leading" secondItem="tgI-wj-Zx0" secondAttribute="leading" id="lpd-fw-jbY"/>
@@ -124,8 +123,8 @@
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="DLT-Oa-q1v">
                                 <rect key="frame" x="0.0" y="0.0" width="408" height="100"/>
                                 <subviews>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gFP-Rq-v4T">
-                                        <rect key="frame" x="140" y="43" width="128" height="15"/>
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gFP-Rq-v4T">
+                                        <rect key="frame" x="141" y="43" width="127" height="15"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Loading Link Preview" id="hzf-9I-oav">
                                             <font key="font" size="13" name="Roboto-Regular"/>
                                             <color key="textColor" name="Text"/>
@@ -146,16 +145,16 @@
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="0eg-f2-3fo">
                                 <rect key="frame" x="0.0" y="0.0" width="408" height="100"/>
                                 <subviews>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GYd-hb-ZXL">
-                                        <rect key="frame" x="126" y="43" width="156" height="15"/>
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GYd-hb-ZXL">
+                                        <rect key="frame" x="128" y="43" width="153" height="15"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Link Preview not available" id="fLF-fj-7ah">
                                             <font key="font" size="13" name="Roboto-Regular"/>
                                             <color key="textColor" name="Text"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9LQ-yu-r0j">
-                                        <rect key="frame" x="286" y="40" width="24" height="20"/>
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9LQ-yu-r0j">
+                                        <rect key="frame" x="285" y="40" width="24" height="20"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="error" id="v3C-Pn-5Lt">
                                             <font key="font" size="20" name="MaterialIcons-Regular"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>

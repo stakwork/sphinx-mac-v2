@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol PodcastEpisodeCollectionViewItemDelegate{
+protocol PodcastEpisodeCollectionViewItemDelegate: NSObject {
     func episodeShareTapped(episode:PodcastEpisode)
 }
 
@@ -32,12 +32,10 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     @IBOutlet weak var shareButton: NSImageView!
     @IBOutlet weak var mediaTypeIconImageView: NSImageView!
     @IBOutlet weak var downloadIconImage:NSImageView!
-    
-    
     @IBOutlet weak var currentTimeProgressWidth : NSLayoutConstraint!
     
     var episode:PodcastEpisode? = nil
-    var delegate:PodcastEpisodeCollectionViewItemDelegate? = nil
+    weak var delegate: PodcastEpisodeCollectionViewItemDelegate? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -125,7 +123,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         }
     }
     
-    func toggleWasPlayed(){
+    func toggleWasPlayed() {
         self.episode?.wasPlayed = (!(self.episode?.wasPlayed ?? true))
         shouldReloadList()
     }
@@ -144,22 +142,27 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         showMore()
     }
     
-    func showMore(){
-        if let episode = episode {
-            
-            let detailVC = PodcastDetailSelectionVC.instantiate(
-                podcast: episode.feed,
-                and: episode,
-                delegate: self
-            )
-            
-            WindowsManager.sharedInstance.showNewWindow(
-                with: "podcast.details".localized,
-                size: CGSize(width: 400, height: 600),
-                centeredIn: self.view.window,
-                contentVC: detailVC
-            )
+    func showMore() {
+        guard let episode = episode, let feedId = episode.feedID else {
+            return
         }
+        
+        guard let feed = ContentFeed.getFeedById(feedId: feedId) else {
+            return
+        }
+            
+        let detailVC = PodcastDetailSelectionVC.instantiate(
+            podcast: PodcastFeed.convertFrom(contentFeed: feed),
+            and: episode,
+            delegate: self
+        )
+        
+        WindowsManager.sharedInstance.showNewWindow(
+            with: "podcast.details".localized,
+            size: CGSize(width: 400, height: 600),
+            centeredIn: self.view.window,
+            contentVC: detailVC
+        )
     }
     
 }

@@ -22,7 +22,7 @@ class ImportSeedView: NSView, LoadableNib {
     @IBOutlet weak var loadingView: NSBox!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
-    var delegate : ImportSeedViewDelegate? = nil
+    weak var delegate : ImportSeedViewDelegate? = nil
     
     var originalFrame: CGRect = .zero
     var isKeyboardShown = false

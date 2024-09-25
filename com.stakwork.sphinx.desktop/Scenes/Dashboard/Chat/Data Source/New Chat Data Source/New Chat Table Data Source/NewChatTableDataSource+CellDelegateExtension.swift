@@ -467,46 +467,6 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         }.resume()
     }
     
-    func shouldLoadBotWebViewDataFor(
-        messageId: Int,
-        and rowIndex: Int
-    ) {
-        if var tableCellState = getTableCellStateFor(
-            messageId: messageId,
-            and: rowIndex
-        ),
-           let html = tableCellState.1.botHTMLContent?.html
-        {
-            webViewSemaphore.wait()
-            
-            loadWebViewContent(
-                html,
-                completion: { height in
-                    if let height = height {
-                        self.botsWebViewData[messageId] = MessageTableCellState.BotWebViewData(height: height)
-                        
-                        self.saveSnapshotCurrentState()
-                        var snapshot = self.dataSource.snapshot()
-                        
-                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                            self.dataSourceQueue.sync {
-                                snapshot.reloadItems([tableCellState.1])
-                                
-                                DispatchQueue.main.async {
-                                    self.dataSource.apply(snapshot, animatingDifferences: true) {
-                                        self.restoreScrollLastPosition()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    self.webViewSemaphore.signal()
-                }
-            )
-        }
-    }
-    
     func shouldLoadTextDataFor(
         messageId: Int,
         and rowIndex: Int
@@ -662,9 +622,7 @@ extension NewChatTableDataSource {
                     snapshot.reloadItems([tableCellState.1])
                     
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true) {
-                            self.restoreScrollLastPosition()
-                        }
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
                     }
                 }
             }
@@ -1096,12 +1054,10 @@ extension NewChatTableDataSource {
         
         let _ = som.deleteContactOrChatMsgsFor(chat: chat)
         
-        DispatchQueue.main.async {
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
-                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-                self.delegate?.didDeleteTribe()
-                self.messageBubbleHelper.hideLoadingWheel()
-            }
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
+            CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+            self.delegate?.didDeleteTribe()
+            self.messageBubbleHelper.hideLoadingWheel()
         }
     }
     

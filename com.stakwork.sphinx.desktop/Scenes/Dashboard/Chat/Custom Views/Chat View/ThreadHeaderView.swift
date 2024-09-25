@@ -27,7 +27,7 @@ import Cocoa
 
 class ThreadHeaderView: NSView, LoadableNib {
     
-    var delegate : ThreadHeaderViewDelegate? = nil
+    weak var delegate : ThreadHeaderViewDelegate? = nil
     
     var messageId: Int?
     

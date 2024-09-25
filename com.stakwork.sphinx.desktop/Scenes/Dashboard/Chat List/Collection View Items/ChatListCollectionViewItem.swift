@@ -9,7 +9,7 @@
 import Cocoa
 import SDWebImage
 
-protocol ChatListCollectionViewItemDelegate : NSObject{
+protocol ChatListCollectionViewItemDelegate : NSObject {
     func didRightClickOn(item: NSCollectionViewItem)
 }
 
@@ -37,7 +37,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var pendingContactClockIconImageView: NSImageView!
     @IBOutlet weak var imageWidthConstraint: NSLayoutConstraint!
     
-    var delegate: ChatListCollectionViewItemDelegate? = nil
+    weak var delegate: ChatListCollectionViewItemDelegate? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -276,9 +276,9 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                     options: [.lowPriority],
                     context: [.imageTransformer: transformer],
                     progress: nil,
-                    completed: { [unowned self] (image, error,_,_) in
+                    completed: { [weak self] (image, error,_,_) in
                         if (error == nil) {
-                            self.chatImageView.image = image
+                            self?.chatImageView.image = image
                         }
                     }
                 )

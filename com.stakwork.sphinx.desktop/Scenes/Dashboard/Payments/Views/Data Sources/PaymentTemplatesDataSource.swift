@@ -33,7 +33,11 @@ class PaymentTemplatesDataSource : NSObject {
         self.collectionView = collectionView
         self.images = images
         
-        NotificationCenter.default.addObserver(forName: NSView.boundsDidChangeNotification, object: self.collectionView.enclosingScrollView?.contentView, queue: OperationQueue.main) { [weak self] (n: Notification) in
+        NotificationCenter.default.addObserver(
+            forName: NSView.boundsDidChangeNotification,
+            object: self.collectionView.enclosingScrollView?.contentView,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
             self?.scrollViewDidScroll()
         }
     }

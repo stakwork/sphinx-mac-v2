@@ -167,12 +167,10 @@ extension NewChatViewController : GroupDetailsDelegate {
             
             let _ = som.deleteContactOrChatMsgsFor(chat: chat)
             
-            DispatchQueue.main.async {
-                DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
-                    CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-                    completion()
-                    self.delegate?.shouldResetTribeView()
-                }
+            DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
+                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+                completion()
+                self.delegate?.shouldResetTribeView()
             }
         })
     }

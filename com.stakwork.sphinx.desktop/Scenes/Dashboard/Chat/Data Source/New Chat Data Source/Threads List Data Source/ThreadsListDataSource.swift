@@ -110,11 +110,14 @@ class ThreadsListDataSource : NSObject {
     }
     
     func updateSnapshot() {
-        DispatchQueue.main.async {
+        self.dataSourceQueue.sync {
             let snapshot = self.makeSnapshotForCurrentState()
-            self.dataSource.apply(snapshot, animatingDifferences: false)
-            self.collectionView.alphaValue = 1.0
-            self.toggleElementsVisibility()
+            
+            DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: false)
+                self.collectionView.alphaValue = 1.0
+                self.toggleElementsVisibility()
+            }
         }
     }
     

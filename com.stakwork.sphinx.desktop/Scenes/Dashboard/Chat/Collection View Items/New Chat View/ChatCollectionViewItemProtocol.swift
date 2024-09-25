@@ -15,15 +15,12 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
         threadOriginalMsgMediaData: MessageTableCellState.MediaData?,
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
-        botWebViewData: MessageTableCellState.BotWebViewData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
         collectionViewWidth: CGFloat
     )
-    
-    func releaseMemory()
 }
 
 protocol ChatCollectionViewItemDelegate: AnyObject {
@@ -37,7 +34,6 @@ protocol ChatCollectionViewItemDelegate: AnyObject {
     func shouldLoadLinkImageDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadTextDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadLinkDataFor(messageId: Int, and rowIndex: Int)
-    func shouldLoadBotWebViewDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadAudioDataFor(messageId: Int, and rowIndex: Int)
     func shouldPodcastCommentDataFor(messageId: Int, and rowIndex: Int)
     

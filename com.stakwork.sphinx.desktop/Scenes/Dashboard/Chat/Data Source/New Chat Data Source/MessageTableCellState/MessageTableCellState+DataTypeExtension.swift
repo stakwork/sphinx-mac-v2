@@ -184,14 +184,4 @@ extension MessageTableCellState {
             self.progress = progress
         }
     }
-    
-    struct BotWebViewData {
-        var height: CGFloat
-        
-        init(
-            height: CGFloat
-        ) {
-            self.height = height
-        }
-    }
 }

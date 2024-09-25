@@ -8,12 +8,12 @@
 
 import Cocoa
 
-protocol NewChatListViewControllerDelegate: AnyObject {
+protocol NewChatListViewControllerDelegate: NSObject {
     func didClickRowAt(chatId: Int?, contactId: Int?)
     func shouldResetContactView(deletedContactId: Int)
 }
 
-public enum RightClickedContactActions : Int{
+public enum RightClickedContactActions : Int {
     case toggleReadUnread
     case deleteContact
 }
