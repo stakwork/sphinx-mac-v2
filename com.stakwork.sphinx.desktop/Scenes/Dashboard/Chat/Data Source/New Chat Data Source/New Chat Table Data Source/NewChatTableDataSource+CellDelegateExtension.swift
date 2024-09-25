@@ -1054,12 +1054,10 @@ extension NewChatTableDataSource {
         
         let _ = som.deleteContactOrChatMsgsFor(chat: chat)
         
-        DispatchQueue.main.async {
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
-                CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
-                self.delegate?.didDeleteTribe()
-                self.messageBubbleHelper.hideLoadingWheel()
-            }
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5) {
+            CoreDataManager.sharedManager.deleteChatObjectsFor(chat)
+            self.delegate?.didDeleteTribe()
+            self.messageBubbleHelper.hideLoadingWheel()
         }
     }
     
