@@ -77,6 +77,7 @@ class GroupDetailsViewController: NSViewController {
         view.window?.title = (chat.isPublicGroup() ? "tribe.details" : "group.details").localized
         
         checkOwnerRole()
+        addObserver()
     }
     
     func checkOwnerRole() {
@@ -101,16 +102,22 @@ class GroupDetailsViewController: NSViewController {
         })
     }
     
-    override func viewWillAppear() {
-        super.viewWillAppear()
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.setGroupInfo), name: .shouldReloadTribeData, object: nil)
+    func addObserver() {
+        NotificationCenter.default.addObserver(
+            forName: .shouldReloadTribeData,
+            object: nil,
+            queue: .main
+        ) { [weak self] (n: Notification) in
+            self?.setGroupInfo()
+        }
     }
     
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-        
-        NotificationCenter.default.removeObserver(self, name: .shouldReloadTribeData, object: nil)
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .shouldReloadTribeData,
+            object: nil
+        )
     }
     
     @objc func setGroupInfo() {

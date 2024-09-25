@@ -10,6 +10,7 @@ import CoreData
 public class PodcastEpisode: NSObject {
     
     public var itemID: String
+    public var feedID: String?
     public var title: String?
     public var author: String?
     public var episodeDescription: String?
@@ -21,7 +22,7 @@ public class PodcastEpisode: NSObject {
     public var clipStartTime: Int?
     public var clipEndTime: Int?
     public var showTitle: String?
-    public var feed: PodcastFeed?
+    public var feedUrlPath: String?
     public var people: [String] = []
     public var topics: [String] = []
     public var destination: PodcastDestination? = nil
@@ -102,8 +103,9 @@ extension PodcastEpisode {
         podcastEpisode.linkURLPath = contentFeedItem.linkURL?.absoluteString
         podcastEpisode.imageURLPath = contentFeedItem.imageURL?.absoluteString
         podcastEpisode.title = contentFeedItem.title
-        podcastEpisode.feed = feed
         podcastEpisode.type = ActionsManager.PODCAST_TYPE
+        podcastEpisode.feedID = feed?.feedID
+        podcastEpisode.feedUrlPath = feed?.feedURLPath
         
         return podcastEpisode
     }
@@ -138,8 +140,8 @@ extension PodcastEpisode {
     
     func constructShareLink(useTimestamp:Bool=false)->String?{
         var link : String? = nil
-        if let feedID = self.feed?.feedID,
-           let feedURL = self.feed?.feedURLPath{
+        if let feedID = self.feedID,
+           let feedURL = self.feedUrlPath {
             link = "sphinx.chat://?action=share_content&feedURL=\(feedURL)&feedID=\(feedID)&itemID=\(itemID)"
         }
         

@@ -9,7 +9,7 @@
 import Foundation
 import Cocoa
 
-protocol PodcastDetailSelectionVCDelegate{
+protocol PodcastDetailSelectionVCDelegate: NSObject {
     func shareButtonTapped(_ sender: Any)
     func shouldReloadList()
 }
@@ -27,10 +27,10 @@ class PodcastDetailSelectionVC : NSViewController{
     @IBOutlet weak var timeRemainingLabel : NSTextField!
     @IBOutlet weak var collectionView: NSCollectionView!
     
-    var delegate : PodcastDetailSelectionVCDelegate!
+    weak var delegate : PodcastDetailSelectionVCDelegate!
     
-    var podcast:PodcastFeed? = nil
-    var episode:PodcastEpisode!
+    var podcast: PodcastFeed? = nil
+    var episode: PodcastEpisode!
     
     lazy var podcastDetailSelectionVM: PodcastDetailSelectionVM = {
         return PodcastDetailSelectionVM(

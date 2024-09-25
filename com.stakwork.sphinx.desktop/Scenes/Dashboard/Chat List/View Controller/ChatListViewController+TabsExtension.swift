@@ -65,7 +65,7 @@ extension ChatListViewController {
         }
     }
     
-    @objc func dataDidChange() {
+    func dataDidChange() {
         updateNewMessageBadges()
         
         contactChatsContainerViewController.updateWithNewChats(

@@ -74,8 +74,6 @@ class DashboardViewController: NSViewController {
         
         AttachmentsManager.sharedInstance.runAuthentication(forceAuthenticate: true)
         
-        listerForNotifications()
-        
         chatListViewModel = ChatListViewModel()
         
         dashboardSplitView.delegate = self
@@ -90,8 +88,6 @@ class DashboardViewController: NSViewController {
         leftSplittedView.isHidden = windowState.menuCollapsed
         
         setupObservers()
-        
-        listenForResize()
         addEscapeMonitor()
     }
     
@@ -113,14 +109,203 @@ class DashboardViewController: NSViewController {
         askForNotificationsPermission()
     }
     
-    func setupObservers(){
-        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.themeChangedNotification(notification:)), name: .onInterfaceThemeChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleImageNotification(_:)), name: .webViewImageClicked, object: nil)
+    func setupObservers() {
+        DistributedNotificationCenter.default().addObserver(
+            forName: .onInterfaceThemeChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.themeChangedNotification(notification: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .connectedToInternet,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.didConnectToInternet()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .disconnectedFromInternet,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.didDisconnectFromInternet()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .webViewImageClicked,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.handleImageNotification(n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .shouldUpdateDashboard,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.reloadData()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .shouldReloadViews,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.reloadView()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .shouldResetChat,
+            object: nil,
+            queue: OperationQueue.main
+        ) { _ in
+            ///Reset chat view
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .chatNotificationClicked,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
+                
+                if chat.isPublicGroup() {
+                    self?.contactsService.selectedTribeId = chat.getObjectId()
+                    self?.listViewController?.setActiveTab(.tribes)
+                } else {
+                    self?.contactsService.selectedFriendId = chat.getObjectId()
+                    self?.listViewController?.setActiveTab(.friends)
+                }
+                
+                self?.shouldGoToChat(chatId: chat.id)
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onAuthDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.showDashboardModalsVC(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onPersonDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.showDashboardModalsVC(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onSaveProfileDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.showDashboardModalsVC(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onStakworkAuthDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.showDashboardModalsVC(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onRedeemSatsDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.showDashboardModalsVC(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onInvoiceDeepLink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+//            guard let vc = self else { return }
+//            vc.createInvoice(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onShareContentDeeplink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.processContentDeeplink(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .onShareContactDeeplink,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.processContactDeepLink(n: n)
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .shouldCloseRightPanel,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.closeButtonTapped()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didResizeNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            if let presenter = self?.presenter {
+                if let bounds = self?.presenterContainerView?.bounds {
+                    presenter.view.frame = bounds
+                }
+            }
+            
+            if let detailVC = self?.dashboardDetailViewController {
+                if let bounds = self?.rightDetailSplittedView.bounds {
+                    detailVC.view.frame = bounds
+                }
+            }
+        }
+    }
+    
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+        
+        listViewController?.delegate = nil
+    }
+    
+    deinit {
+        DistributedNotificationCenter.default().removeObserver(self, name: .onInterfaceThemeChanged, object: nil)
         NotificationCenter.default.removeObserver(self, name: .connectedToInternet, object: nil)
         NotificationCenter.default.removeObserver(self, name: .disconnectedFromInternet, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .webViewImageClicked, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .shouldUpdateDashboard, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .shouldReloadViews, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .shouldResetChat, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .chatNotificationClicked, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onAuthDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onPersonDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onSaveProfileDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onStakworkAuthDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onRedeemSatsDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onInvoiceDeepLink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onShareContentDeeplink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onShareContactDeeplink, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .shouldCloseRightPanel, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSWindow.didResizeNotification, object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(didConnectToInternet), name: .connectedToInternet, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didDisconnectFromInternet), name: .disconnectedFromInternet, object: nil)
+        if let escapeMonitor = escapeMonitor {
+            NSEvent.removeMonitor(escapeMonitor)
+        }
     }
     
     func askForNotificationsPermission() {
@@ -151,11 +336,11 @@ class DashboardViewController: NSViewController {
         )
     }
     
-    @objc private func didConnectToInternet() {
+    private func didConnectToInternet() {
         self.reconnectToServer()
     }
 
-    @objc private func didDisconnectFromInternet() {
+    private func didDisconnectFromInternet() {
         SphinxOnionManager.sharedInstance.isConnected = false
     } 
     
@@ -240,41 +425,6 @@ class DashboardViewController: NSViewController {
         }
     }
     
-    fileprivate func listenForResize() {
-        NotificationCenter.default.addObserver(forName: NSWindow.didResizeNotification, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            
-            if let presenter = self?.presenter {
-                if let bounds = self?.presenterContainerView?.bounds {
-                    presenter.view.frame = bounds
-                }
-            }
-            
-            if let detailVC = self?.dashboardDetailViewController {
-                if let bounds = self?.rightDetailSplittedView.bounds {
-                    detailVC.view.frame = bounds
-                }
-            }
-        }
-    }
-    
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-        
-        listViewController?.delegate = nil
-        
-        NotificationCenter.default.removeObserver(self, name: .shouldUpdateDashboard, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .shouldTrackPosition, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .shouldReloadViews, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .shouldResetChat, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .chatNotificationClicked, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .onAuthDeepLink, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .onPersonDeepLink, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .onSaveProfileDeepLink, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .webViewImageClicked, object: nil)
-        
-        NotificationCenter.default.removeObserver(self, name: NSWindow.didResizeNotification, object: nil)
-    }
-    
     func handleDeepLink() {
         if let linkQuery: String = UserDefaults.Keys.linkQuery.get(), let url = URL(string: linkQuery) {
             DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
@@ -319,87 +469,6 @@ class DashboardViewController: NSViewController {
         
         if let splitedVC = segue.destinationController as? DashboardSplittedViewController {
             splitedVC.delegate = self
-        }
-    }
-    
-    func listerForNotifications() {
-        NotificationCenter.default.addObserver(forName: .shouldUpdateDashboard, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            self?.reloadData()
-        }
-        
-        NotificationCenter.default.addObserver(forName: .shouldReloadViews, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            self?.reloadView()
-        }
-        
-        NotificationCenter.default.addObserver(forName: .shouldResetChat, object: nil, queue: OperationQueue.main) { _ in
-            ///Reset chat view
-        }
-        
-        NotificationCenter.default.addObserver(forName: .chatNotificationClicked, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            
-            if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
-                
-                if chat.isPublicGroup() {
-                    vc.contactsService.selectedTribeId = chat.getObjectId()
-                    vc.listViewController?.setActiveTab(.tribes)
-                } else {
-                    vc.contactsService.selectedFriendId = chat.getObjectId()
-                    vc.listViewController?.setActiveTab(.friends)
-                }
-                
-                vc.shouldGoToChat(chatId: chat.id)
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onAuthDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.showDashboardModalsVC(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onPersonDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.showDashboardModalsVC(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onSaveProfileDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.showDashboardModalsVC(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onStakworkAuthDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.showDashboardModalsVC(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onRedeemSatsDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.showDashboardModalsVC(n: n)
-        }
-        
-//        NotificationCenter.default.addObserver(forName: .onInvoiceDeepLink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-//            guard let vc = self else { return }
-//            vc.createInvoice(n: n)
-//        }
-        
-        NotificationCenter.default.addObserver(forName: .onShareContentDeeplink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.processContentDeeplink(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .onShareContactDeeplink, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.processContactDeepLink(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .webViewImageClicked, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.handleImageNotification(n: n)
-        }
-        
-        NotificationCenter.default.addObserver(forName: .shouldCloseRightPanel, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            guard let vc = self else { return }
-            vc.closeButtonTapped()
         }
     }
     
@@ -531,9 +600,12 @@ class DashboardViewController: NSViewController {
     
         escapeMonitor = nil
     
-        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { (event) in
-            if event.keyCode == 53 { // 53 is the key code for the Escape key
-                // Perform your action when the Escape key is pressed
+        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] (event) in
+            guard let self = self else {
+                return nil
+            }
+            
+            if event.keyCode == 53 {
                 if self.mediaFullScreenView?.isHidden == false {
                     self.mediaFullScreenView?.closeView()
                     return nil
@@ -731,7 +803,7 @@ extension DashboardViewController : DashboardVCDelegate {
         }
     }
     
-    @objc func handleImageNotification(_ notification: Notification) {
+    func handleImageNotification(_ notification: Notification) {
         if let imageURL = notification.userInfo?["imageURL"] as? URL,
            let message = notification.userInfo?["transactionMessage"] as? TransactionMessage {
             goToMediaFullView(imageURL: imageURL,message: message)

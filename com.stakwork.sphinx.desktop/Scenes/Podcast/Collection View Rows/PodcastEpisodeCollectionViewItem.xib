@@ -1,35 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="PodcastEpisodeCollectionViewItem" customModule="Sphinx">
-            <connections>
-                <outlet property="currentTimeProgressWidth" destination="glG-Vv-VYW" id="8Y7-gP-bcT"/>
-                <outlet property="datePublishedLabel" destination="g1Z-gy-QGr" id="o6c-MY-WOv"/>
-                <outlet property="descriptionLabel" destination="Lsa-5D-i61" id="FbZ-Al-frM"/>
-                <outlet property="divider" destination="ksL-lk-ds5" id="RZl-TA-DHS"/>
-                <outlet property="dotView" destination="uH4-AM-CPO" id="WrI-28-vTv"/>
-                <outlet property="downloadIconImage" destination="Ghv-yV-XUo" id="UFp-og-i4M"/>
-                <outlet property="durationProgressView" destination="AoM-mI-i6S" id="QOY-ZB-giE"/>
-                <outlet property="durationViewBox" destination="CtL-5X-MHs" id="OG5-7z-tUT"/>
-                <outlet property="episodeImageView" destination="wv7-cj-loH" id="5Fy-QG-zmD"/>
-                <outlet property="episodeNameLabel" destination="32U-yj-2RQ" id="4Vs-2W-TmN"/>
-                <outlet property="itemButton" destination="8qo-6d-wZT" id="YRR-Wv-Tdt"/>
-                <outlet property="mediaTypeIconImageView" destination="A6W-Sl-cE8" id="iUK-mr-aad"/>
-                <outlet property="playArrow" destination="R63-Jh-gvJ" id="HXj-Pl-ySQ"/>
-                <outlet property="playArrowBack" destination="Tj4-FF-Rke" id="6Jc-4k-loa"/>
-                <outlet property="playTimeProgressView" destination="AVp-bx-kcf" id="qvn-MZ-uBD"/>
-                <outlet property="playTimeProgressViewBox" destination="92u-1s-5TC" id="wId-hw-tN4"/>
-                <outlet property="playedCheckmark" destination="wIx-up-XjY" id="A8L-km-12l"/>
-                <outlet property="timeRemainingLabel" destination="ym2-QK-e9u" id="rO8-Se-71i"/>
-                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
-            </connections>
-        </customObject>
+        <customObject id="-2" userLabel="File's Owner"/>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
@@ -50,7 +28,7 @@
                                     </constraints>
                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Itp-CI-4dj"/>
                                 </imageView>
-                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="32U-yj-2RQ">
+                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="32U-yj-2RQ">
                                     <rect key="frame" x="62" y="8" width="271" height="32"/>
                                     <textFieldCell key="cell" alignment="left" title="Adopting Bitcoin, Bringing the New Gold Adopting Bitcoin, Bringing the" id="Y1h-sM-pO3">
                                         <font key="font" size="14" name="Roboto-Regular"/>
@@ -69,7 +47,7 @@
                                 <constraint firstItem="32U-yj-2RQ" firstAttribute="centerY" secondItem="TH9-Vf-s7H" secondAttribute="centerY" id="t2y-vA-5Ut"/>
                             </constraints>
                         </customView>
-                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Lsa-5D-i61">
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="Lsa-5D-i61">
                             <rect key="frame" x="-2" y="0.0" width="335" height="30"/>
                             <textFieldCell key="cell" title="This is my really awesome podcast description This is my really awesome podcast description" id="hSc-RP-Mi1">
                                 <font key="font" size="13" name="Roboto-Regular"/>
@@ -95,7 +73,7 @@
                     </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="podcastTypeIcon" id="ktm-22-c98"/>
                 </imageView>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="g1Z-gy-QGr">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="g1Z-gy-QGr">
                     <rect key="frame" x="37" y="67" width="63" height="14"/>
                     <textFieldCell key="cell" alignment="left" title="3 Apr 2023" id="sw1-TZ-FcI">
                         <font key="font" size="12" name="Roboto-Regular"/>
@@ -128,7 +106,7 @@
                 <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="4" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tqY-TH-Vpv">
                     <rect key="frame" x="118" y="67" width="77" height="14"/>
                     <subviews>
-                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ym2-QK-e9u">
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ym2-QK-e9u">
                             <rect key="frame" x="-2" y="0.0" width="65" height="14"/>
                             <textFieldCell key="cell" alignment="left" title="2hrs 19min" id="zlt-W2-RcL">
                                 <font key="font" size="12" name="Roboto-Regular"/>
@@ -208,6 +186,7 @@
                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AzQ-fN-4Wr">
                     <rect key="frame" x="58" y="11" width="48" height="48"/>
                     <constraints>
+                        <constraint firstAttribute="width" secondItem="AzQ-fN-4Wr" secondAttribute="height" multiplier="1:1" id="A0M-4l-hR7"/>
                         <constraint firstAttribute="width" secondItem="AzQ-fN-4Wr" secondAttribute="height" multiplier="1:1" id="eLG-yO-zw7"/>
                         <constraint firstAttribute="width" constant="48" id="hEa-og-ZOX"/>
                     </constraints>
@@ -218,20 +197,22 @@
                     <rect key="frame" x="116" y="11" width="48" height="48"/>
                     <constraints>
                         <constraint firstAttribute="width" secondItem="wLi-JI-Ya9" secondAttribute="height" multiplier="1:1" id="6UD-2m-VO0"/>
+                        <constraint firstAttribute="width" secondItem="wLi-JI-Ya9" secondAttribute="height" multiplier="1:1" id="aB0-Ls-M0G"/>
                         <constraint firstAttribute="width" constant="48" id="cR9-KI-j4F"/>
+                        <constraint firstAttribute="width" secondItem="wLi-JI-Ya9" secondAttribute="height" multiplier="1:1" id="fpw-zx-TDy"/>
                     </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="playerListOptions" id="4kX-CD-1hL"/>
                     <color key="contentTintColor" name="SecondaryText"/>
                 </imageView>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8qo-6d-wZT" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="0.0" width="363" height="200"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="200" id="KZ0-sE-2Mb"/>
-                    </constraints>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" enabled="NO" imageScaling="proportionallyDown" inset="2" id="MIn-nU-81g">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="200" id="KZ0-sE-2Mb"/>
+                    </constraints>
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="y4A-Kx-hpH">
                     <rect key="frame" x="51" y="4" width="62" height="60"/>
@@ -240,7 +221,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="shareButtonTapped:" target="-2" id="jzF-cU-ReZ"/>
+                        <action selector="shareButtonTapped:" target="EH6-74-rM0" id="heS-tW-Yip"/>
                     </connections>
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RED-Sa-3aL">
@@ -250,7 +231,7 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <action selector="moreButtonTapped:" target="-2" id="d4o-jV-5R9"/>
+                        <action selector="moreButtonTapped:" target="EH6-74-rM0" id="xzj-D2-1ix"/>
                     </connections>
                 </button>
                 <box boxType="custom" borderType="none" cornerRadius="16" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="Tj4-FF-Rke">
@@ -266,7 +247,7 @@
                     <color key="borderColor" name="TextMessages"/>
                     <color key="fillColor" name="TextMessages"/>
                 </box>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="R63-Jh-gvJ">
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="R63-Jh-gvJ">
                     <rect key="frame" x="317" y="23" width="33" height="25"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="play_arrow" id="KDw-gc-HYF">
                         <font key="font" size="25" name="MaterialIcons-Regular"/>
@@ -294,7 +275,6 @@
                 <constraint firstItem="A6W-Sl-cE8" firstAttribute="top" secondItem="Vze-cd-cg3" secondAttribute="bottom" constant="16" id="6mB-cE-WUS"/>
                 <constraint firstItem="y4A-Kx-hpH" firstAttribute="top" secondItem="AzQ-fN-4Wr" secondAttribute="top" id="6no-ru-aDe"/>
                 <constraint firstItem="tqY-TH-Vpv" firstAttribute="centerY" secondItem="uH4-AM-CPO" secondAttribute="centerY" id="9AA-ua-Sn9"/>
-                <constraint firstItem="AzQ-fN-4Wr" firstAttribute="width" secondItem="AzQ-fN-4Wr" secondAttribute="height" multiplier="1:1" id="A0M-4l-hR7"/>
                 <constraint firstItem="AVp-bx-kcf" firstAttribute="leading" secondItem="AoM-mI-i6S" secondAttribute="leading" id="AFL-vT-StN"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="leading" secondItem="AzQ-fN-4Wr" secondAttribute="trailing" constant="10" id="Ala-tg-L7N"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="top" secondItem="RED-Sa-3aL" secondAttribute="top" id="CVR-SG-X5n"/>
@@ -321,10 +301,8 @@
                 <constraint firstItem="Vze-cd-cg3" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="16" id="VyZ-Zc-TD3"/>
                 <constraint firstAttribute="trailing" secondItem="ksL-lk-ds5" secondAttribute="trailing" constant="16" id="WIs-vj-QfO"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="bottom" secondItem="RED-Sa-3aL" secondAttribute="bottom" id="WNO-gP-Xom"/>
-                <constraint firstItem="wLi-JI-Ya9" firstAttribute="width" secondItem="wLi-JI-Ya9" secondAttribute="height" multiplier="1:1" id="aB0-Ls-M0G"/>
                 <constraint firstItem="Tj4-FF-Rke" firstAttribute="centerY" secondItem="RED-Sa-3aL" secondAttribute="centerY" id="dJZ-qD-PVS"/>
                 <constraint firstAttribute="bottom" secondItem="ksL-lk-ds5" secondAttribute="bottom" id="exP-P4-XL5"/>
-                <constraint firstItem="wLi-JI-Ya9" firstAttribute="width" secondItem="wLi-JI-Ya9" secondAttribute="height" multiplier="1:1" id="fpw-zx-TDy"/>
                 <constraint firstItem="ksL-lk-ds5" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="hXg-vR-u7L"/>
                 <constraint firstItem="uH4-AM-CPO" firstAttribute="centerY" secondItem="g1Z-gy-QGr" secondAttribute="centerY" id="j4v-Gh-aZV"/>
                 <constraint firstItem="AoM-mI-i6S" firstAttribute="centerY" secondItem="tqY-TH-Vpv" secondAttribute="centerY" id="m2g-GH-ux1"/>
@@ -334,7 +312,30 @@
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
-        <customObject id="9oj-Bp-MEb" customClass="PodcastEpisodeCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+        <collectionViewItem id="EH6-74-rM0" customClass="PodcastEpisodeCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="currentTimeProgressWidth" destination="glG-Vv-VYW" id="Zpl-as-U7t"/>
+                <outlet property="datePublishedLabel" destination="g1Z-gy-QGr" id="YH9-Xw-t5f"/>
+                <outlet property="descriptionLabel" destination="Lsa-5D-i61" id="cht-zh-TT7"/>
+                <outlet property="divider" destination="ksL-lk-ds5" id="OEh-Zq-sKH"/>
+                <outlet property="dotView" destination="uH4-AM-CPO" id="Wt6-wr-N6b"/>
+                <outlet property="downloadIconImage" destination="Ghv-yV-XUo" id="Mgk-Tq-ote"/>
+                <outlet property="durationProgressView" destination="AoM-mI-i6S" id="PPS-JN-fJ6"/>
+                <outlet property="durationViewBox" destination="CtL-5X-MHs" id="x5w-rE-9Pf"/>
+                <outlet property="episodeImageView" destination="wv7-cj-loH" id="wqs-U4-Ozq"/>
+                <outlet property="episodeNameLabel" destination="32U-yj-2RQ" id="4Md-gs-ZLM"/>
+                <outlet property="itemButton" destination="8qo-6d-wZT" id="2pN-yO-CMS"/>
+                <outlet property="mediaTypeIconImageView" destination="A6W-Sl-cE8" id="nE7-Oe-tzc"/>
+                <outlet property="playArrow" destination="R63-Jh-gvJ" id="BTd-Wd-VeZ"/>
+                <outlet property="playArrowBack" destination="Tj4-FF-Rke" id="3aP-Nf-50k"/>
+                <outlet property="playTimeProgressView" destination="AVp-bx-kcf" id="ATT-e8-LqX"/>
+                <outlet property="playTimeProgressViewBox" destination="92u-1s-5TC" id="iaH-vR-ppr"/>
+                <outlet property="playedCheckmark" destination="wIx-up-XjY" id="STk-ib-l7c"/>
+                <outlet property="shareButton" destination="AzQ-fN-4Wr" id="TgE-qY-yXr"/>
+                <outlet property="timeRemainingLabel" destination="ym2-QK-e9u" id="Giv-go-y8Y"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="00L-x6-aJh"/>
+            </connections>
+        </collectionViewItem>
     </objects>
     <resources>
         <image name="didPlayIndicator" width="24" height="24"/>

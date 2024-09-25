@@ -14,7 +14,7 @@ class PodcastDetailSelectionVM : NSObject{
     
     weak var collectionView : NSCollectionView?
     
-    var delegate : PodcastDetailSelectionVCDelegate!
+    weak var delegate : PodcastDetailSelectionVCDelegate!
     var episode:PodcastEpisode!
     
     let kCellHeight = 64.0

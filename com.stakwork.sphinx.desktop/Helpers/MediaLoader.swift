@@ -97,9 +97,7 @@ class MediaLoader {
         
         loadDataFrom(URL: url, completion: { data, fileName in
             message.saveFileName(fileName)
-            DispatchQueue.main.async {
-                loadImageFromData(data: data, url: url, message: message, completion: completion, errorCompletion: errorCompletion)
-            }
+            loadImageFromData(data: data, url: url, message: message, completion: completion, errorCompletion: errorCompletion)
         }, errorCompletion: {
             DispatchQueue.main.async {
                 errorCompletion(messageId)
@@ -475,16 +473,14 @@ extension MediaLoader {
         loadDataFrom(URL: url, completion: { (data, fileName) in
             message.saveFileName(fileName)
             
-            DispatchQueue.main.async {
-                loadImageFromData(
-                    data: data,
-                    url: url,
-                    message: message,
-                    mediaKey: mediaKey,
-                    completion: completion,
-                    errorCompletion: errorCompletion
-                )
-            }
+            loadImageFromData(
+                data: data,
+                url: url,
+                message: message,
+                mediaKey: mediaKey,
+                completion: completion,
+                errorCompletion: errorCompletion
+            )
         }, errorCompletion: {
             DispatchQueue.main.async {
                 errorCompletion(messageId)

@@ -42,6 +42,8 @@ class ThreadsListDataSource : NSObject {
     typealias DataSource = NSCollectionViewDiffableDataSource<CollectionViewSection, ThreadTableCellState>
     typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<CollectionViewSection, ThreadTableCellState>
     
+    let dataSourceQueue = DispatchQueue(label: "thread.datasourceQueue", attributes: .concurrent)
+    
     enum CollectionViewSection: Int, CaseIterable {
         case threads
     }
@@ -108,12 +110,11 @@ class ThreadsListDataSource : NSObject {
     }
     
     func updateSnapshot() {
-        let snapshot = makeSnapshotForCurrentState()
-
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: false)
+        self.dataSourceQueue.sync {
+            let snapshot = self.makeSnapshotForCurrentState()
             
             DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: false)
                 self.collectionView.alphaValue = 1.0
                 self.toggleElementsVisibility()
             }

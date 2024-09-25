@@ -71,20 +71,22 @@ class DisplayInvoiceVC : NSViewController{
             
         }
         
-        self.addLocalization()
-        
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .sentInvoiceSettled,
-            object: nil
-        )
-        
+        addLocalization()
+        listenForNotifications()
+    }
+    
+    func listenForNotifications() {
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handlePaidInvoiceNotification),
-            name: .sentInvoiceSettled,
-            object: nil
-        )
+            forName: .sentInvoiceSettled,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.handlePaidInvoiceNotification(n: n)
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .sentInvoiceSettled, object: nil)
     }
     
     override func viewDidDisappear() {

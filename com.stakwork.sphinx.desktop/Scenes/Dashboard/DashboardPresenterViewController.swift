@@ -15,13 +15,7 @@ class DashboardPresenterViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         listenForResize()
-    }
-    
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-        NotificationCenter.default.removeObserver(self, name: NSWindow.didResizeNotification, object: nil)
     }
     
     static func instantiate() -> DashboardPresenterViewController {
@@ -30,14 +24,21 @@ class DashboardPresenterViewController: NSViewController {
     }
     
     fileprivate func listenForResize() {
-        NotificationCenter.default.addObserver(forName: NSWindow.didResizeNotification, object: nil, queue: OperationQueue.main) { [weak self] (n: Notification) in
-            
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didResizeNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
             for vc in self?.contentVC ?? [] {
                 if let bounds = self?.view.bounds {
                     vc?.view.frame = bounds
                 }
             }
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSWindow.didResizeNotification, object: nil)
     }
     
     func configurePresenterVC(_ contentVC: NSViewController?) {

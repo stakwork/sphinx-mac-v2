@@ -335,6 +335,14 @@ extension String {
         return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
     }
     
+    var itemsMatches: [NSTextCheckingResult] {
+        if !self.contains("-") {
+            return []
+        }
+        let highlightedRegex = try? NSRegularExpression(pattern: "(?<=^|\n)([\u{200B}]*)(-)(?!-)", options: .dotMatchesLineSeparators)
+        return highlightedRegex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+    }
+    
     var linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)] {
         if !self.contains("[") && self.contains("(") {
             return []
@@ -457,7 +465,24 @@ extension String {
     }
     
     var replacingHyphensWithBullets: String {
-        return self.replacingOccurrences(of: "\n-", with: "\n•")
+        if !self.contains("-") {
+            return self
+        }
+        
+        var adaptedString = self
+        
+        for match in itemsMatches {
+            
+            let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+            
+            adaptedString = adaptedString.replacingOccurrences(
+                of: "-",
+                with: "•",
+                range: Range(adaptedRange, in: adaptedString)
+            )
+        }
+        
+        return adaptedString
     }
     
     var stringFirstWebLink : (String, NSRange)? {
@@ -667,10 +692,11 @@ extension String {
     
     var nonBase64Data: Data? {
         get {
-            var valid = false
+            var valid = self.count % 4 == 0
             var fixedString = self
+            
             while (!valid) {
-                fixedString = String(self.dropLast())
+                fixedString = String(fixedString.dropLast())
                 valid = fixedString.count % 4 == 0
             }
             let fixedChallenge = fixedString

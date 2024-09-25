@@ -27,7 +27,6 @@ class NewChatViewController: DashboardSplittedViewController {
     @IBOutlet weak var chatBottomView: ChatBottomView!
     @IBOutlet weak var chatScrollView: NSScrollView!
     @IBOutlet weak var chatCollectionView: NSCollectionView!
-    @IBOutlet weak var botWebView: WKWebView!
     @IBOutlet weak var draggingView: DraggingDestinationView!
     
     @IBOutlet weak var mentionsScrollView: NSScrollView!
@@ -134,7 +133,20 @@ class NewChatViewController: DashboardSplittedViewController {
         updateEmptyView()
         
         chatTopView.checkRoute()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleImagePaste), name: .onFilePaste, object: nil)
+    }
+    
+    func listenForNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: .onFilePaste,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.handleImagePaste()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
     }
     
     override func viewDidAppear() {
@@ -156,12 +168,6 @@ class NewChatViewController: DashboardSplittedViewController {
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
-        
-        NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
-    }
-    
-    deinit {
-        botWebView = nil
     }
     
     override func viewDidLayout() {
@@ -227,8 +233,6 @@ class NewChatViewController: DashboardSplittedViewController {
         
         chatTableDataSource?.stopListeningToResultsController()
         chatTableDataSource?.releaseMemory()
-        
-        botWebView = nil
     }
     
     func stopPlayingClip() {
@@ -348,7 +352,7 @@ class NewChatViewController: DashboardSplittedViewController {
         threadVC?.view.frame = frame
     }
     
-    @objc func handleImagePaste(){
+    func handleImagePaste(){
         if let _ = threadVC {
             return
         }

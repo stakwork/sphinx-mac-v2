@@ -11,7 +11,6 @@ import Foundation
 extension Notification.Name {
     static let onBalanceDidChange = Notification.Name("onBalanceDidChange")
     static let shouldUpdateDashboard = Notification.Name("shouldUpdateDashboard")
-    static let shouldTrackPosition = Notification.Name("shouldTrackPosition")
     static let shouldResetChat = Notification.Name("shouldResetChat")
     static let shouldReloadViews = Notification.Name("shouldReloadViews")
     static let shouldReloadTribeData = Notification.Name("shouldReloadTribeData")
@@ -44,4 +43,5 @@ extension Notification.Name {
     
     static let connectedToInternet = Notification.Name("connectedToInternet")
     static let disconnectedFromInternet = Notification.Name("disconnectedFromInternet")
+    static let onKeysendStatusReceived = Notification.Name("onKeysendStatusReceived")
 }

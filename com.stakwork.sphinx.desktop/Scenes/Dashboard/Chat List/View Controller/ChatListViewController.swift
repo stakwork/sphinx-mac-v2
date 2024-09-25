@@ -92,108 +92,29 @@ class ChatListViewController : DashboardSplittedViewController {
         contactsService.configureFetchResultsController()
         
         prepareView()
-        listenForPubKeyAndTribeJoin()
-        
         setActiveTab(
             contactsService.selectedTab,
             loadData: false
         )
-        
-        NotificationCenter.default.removeObserver(self, name: .onContactsAndChatsChanged, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(dataDidChange), name: .onContactsAndChatsChanged, object: nil)
         
         resetSearchField()
         
         menuListView.configureDataSource(delegate: self)
         
         bottomBar.isHidden = true
-    }
-    
-    override func viewDidLayout() {
-        for childVC in self.children {
-            childVC.view.frame = chatListVCContainer.bounds
-        }
-    }
-    
-    override func viewWillAppear() {
-        super.viewWillAppear()
-        configureHeaderAndBottomBar()
-        headerView.delegate = self
-    }
-    
-    override func viewDidAppear() {
-        super.viewDidAppear()
         
-        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-            self.loadingChatList = false
-        })
+        listenForNotifications()
     }
     
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-    }
-    
-    func prepareView() {
-        receiveButton.cursor = .pointingHand
-        sendButton.cursor = .pointingHand
-        transactionsButton.cursor = .pointingHand
-        addContactButton.cursor = .pointingHand
-        
-        searchField.setPlaceHolder(
-            color: NSColor.Sphinx.SecondaryText,
-            font: NSFont(name: "Roboto-Regular", size: 14.0)!,
-            string: "search".localized
-        )
-        
-        searchField.delegate = self
-        menuListView.delegate = self
-        
-        self.view.window?.makeFirstResponder(self)
-    }
-    
-    internal func syncContentFeedStatus(
-        restoring: Bool,
-        progressCallback: @escaping (Int) -> (),
-        completionCallback: @escaping () -> ()
-    ) {
-        if !restoring {
-            completionCallback()
-            return
+    func listenForNotifications() {
+        NotificationCenter.default.addObserver(
+            forName: .onContactsAndChatsChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.dataDidChange()
         }
         
-        CoreDataManager.sharedManager.saveContext()
-        
-        feedsManager.restoreContentFeedStatus(
-            progressCallback: { contentProgress in
-                progressCallback(contentProgress)
-            },
-            completionCallback: {
-                completionCallback()
-            }
-        )
-    }
-    
-    func selectRowFor(chatId: Int) {
-        if let chat = Chat.getChatWith(id: chatId) {
-            didClickRowAt(
-                chatId: chat.id,
-                contactId: chat.getConversationContact()?.id
-            )
-        }
-    }
-    
-    @IBAction func addContactButtonClicked(_ sender: Any) {
-        let addFriendVC = AddFriendViewController.instantiate(delegate: self, dismissDelegate: self)
-        
-        WindowsManager.sharedInstance.showOnCurrentWindow(
-            with: "new.contact".localized,
-            identifier: "add-contact-window",
-            contentVC: addFriendVC,
-            height: 500
-        )
-    }
-    
-    func listenForPubKeyAndTribeJoin() {
         NotificationCenter.default.addObserver(
             forName: .onPubKeyClick,
             object: nil,
@@ -279,6 +200,96 @@ class ChatListViewController : DashboardSplittedViewController {
                 }
             }
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .onContactsAndChatsChanged, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onPubKeyClick, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onJoinTribeClick, object: nil)
+    }
+    
+    override func viewDidLayout() {
+        for childVC in self.children {
+            childVC.view.frame = chatListVCContainer.bounds
+        }
+    }
+    
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        configureHeaderAndBottomBar()
+        headerView.delegate = self
+    }
+    
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+            self.loadingChatList = false
+        })
+    }
+    
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+    }
+    
+    func prepareView() {
+        receiveButton.cursor = .pointingHand
+        sendButton.cursor = .pointingHand
+        transactionsButton.cursor = .pointingHand
+        addContactButton.cursor = .pointingHand
+        
+        searchField.setPlaceHolder(
+            color: NSColor.Sphinx.SecondaryText,
+            font: NSFont(name: "Roboto-Regular", size: 14.0)!,
+            string: "search".localized
+        )
+        
+        searchField.delegate = self
+        menuListView.delegate = self
+        
+        self.view.window?.makeFirstResponder(self)
+    }
+    
+    internal func syncContentFeedStatus(
+        restoring: Bool,
+        progressCallback: @escaping (Int) -> (),
+        completionCallback: @escaping () -> ()
+    ) {
+        if !restoring {
+            completionCallback()
+            return
+        }
+        
+        CoreDataManager.sharedManager.saveContext()
+        
+        feedsManager.restoreContentFeedStatus(
+            progressCallback: { contentProgress in
+                progressCallback(contentProgress)
+            },
+            completionCallback: {
+                completionCallback()
+            }
+        )
+    }
+    
+    func selectRowFor(chatId: Int) {
+        if let chat = Chat.getChatWith(id: chatId) {
+            didClickRowAt(
+                chatId: chat.id,
+                contactId: chat.getConversationContact()?.id
+            )
+        }
+    }
+    
+    @IBAction func addContactButtonClicked(_ sender: Any) {
+        let addFriendVC = AddFriendViewController.instantiate(delegate: self, dismissDelegate: self)
+        
+        WindowsManager.sharedInstance.showOnCurrentWindow(
+            with: "new.contact".localized,
+            identifier: "add-contact-window",
+            contentVC: addFriendVC,
+            height: 500
+        )
     }
     
     @IBAction func upgradeButtonClicked(_ sender: Any) {
@@ -383,7 +394,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
     
     func getViewControllerToLoadInfo(vcId: Int) -> (NSViewController, String, String, Bool, CGFloat?, CGFloat?, Bool){
         switch vcId {
-        case 0:
+        case MenuItems.Profile.rawValue:
             return (
                 ProfileViewController.instantiate(),
                 "profile".localized,
@@ -393,17 +404,17 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 1:
-            return (
-                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
-                "new.contact".localized,
-                "add-contact-window",
-                true,
-                500,
-                nil,
-                false
-            )
-        case 2:
+//        case 1:
+//            return (
+//                AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
+//                "new.contact".localized,
+//                "add-contact-window",
+//                true,
+//                500,
+//                nil,
+//                false
+//            )
+        case MenuItems.Transactions.rawValue:
             return (
                 TransactionsListViewController.instantiate(),
                 "transactions".localized,
@@ -413,7 +424,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 3:
+        case MenuItems.RequestPayment.rawValue:
             return (
                 CreateInvoiceViewController.instantiate(
                     childVCDelegate: self,
@@ -428,7 +439,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 4:
+        case MenuItems.PayInvoice.rawValue:
             return (
                 SendPaymentForInvoiceVC.instantiate(),
                 "pay.invoice".localized,
@@ -438,7 +449,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 6:
+        case MenuItems.AddFriend.rawValue:
             return (
                 AddFriendViewController.instantiate(delegate: self, dismissDelegate: self),
                 "new.contact".localized,
@@ -448,7 +459,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 7:
+        case MenuItems.CreateTribe.rawValue:
             return (
                 CreateTribeViewController.instantiate(),
                 "Create Tribe",
@@ -458,7 +469,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 nil,
                 false
             )
-        case 8:
+        case MenuItems.ShareQR.rawValue:
             guard let shareInviteCodeVC = getQRCodeVC() else {
                 return (NSViewController(), "pubkey.upper".localized.localizedCapitalized, "", true, nil, nil, false)
             }

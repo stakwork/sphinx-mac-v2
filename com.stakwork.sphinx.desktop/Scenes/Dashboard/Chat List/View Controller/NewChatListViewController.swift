@@ -8,12 +8,12 @@
 
 import Cocoa
 
-protocol NewChatListViewControllerDelegate: AnyObject {
+protocol NewChatListViewControllerDelegate: NSObject {
     func didClickRowAt(chatId: Int?, contactId: Int?)
     func shouldResetContactView(deletedContactId: Int)
 }
 
-public enum RightClickedContactActions : Int{
+public enum RightClickedContactActions : Int {
     case toggleReadUnread
     case deleteContact
 }
@@ -35,6 +35,8 @@ class NewChatListViewController: NSViewController {
     private var contactsService = ContactsService.sharedInstance
     
     private var owner: UserContact!
+    
+    let dataSourceQueue = DispatchQueue(label: "chatList.datasourceQueue", attributes: .concurrent)
     
     public enum Tab: Int {
         case Friends
@@ -343,11 +345,13 @@ extension NewChatListViewController {
             )
             
         }
-
-        snapshot.appendItems(items, toSection: .all)
         
-        dataSource.apply(snapshot, animatingDifferences: true) {
-            completion?()
+        dataSourceQueue.sync {
+            snapshot.appendItems(items, toSection: .all)
+            
+            self.dataSource.apply(snapshot, animatingDifferences: true) {
+                completion?()
+            }
         }
     }
     

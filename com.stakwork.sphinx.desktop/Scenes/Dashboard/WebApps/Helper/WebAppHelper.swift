@@ -57,7 +57,7 @@ class WebAppHelper : NSObject {
     var authorizeBudgetHandler: (([String: AnyObject]) -> ())! = nil
     
     var persistingValues: [String: AnyObject] = [:]
-    var delegate : WebAppHelperDelegate? = nil
+    weak var delegate : WebAppHelperDelegate? = nil
     
     var lsatList = [LSATObject]()
     
@@ -72,6 +72,10 @@ class WebAppHelper : NSObject {
         self.webView = webView
         self.authorizeHandler = authorizeHandler
         self.authorizeBudgetHandler = authorizeBudgetHandler
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .invoiceIPaidSettled, object: nil)
     }
 }
 
@@ -302,7 +306,7 @@ extension WebAppHelper : WKScriptMessageHandler {
                 
                 SphinxOnionManager.sharedInstance.payInvoice(
                     invoice: paymentRequest,
-                    callback: { success, errorMsg in
+                    callback: { success, errorMsg, _ in
                         if success {
                             self.sendPaymentResponse(dict: dict, success: true)
                         } else {
@@ -433,24 +437,21 @@ extension WebAppHelper : WKScriptMessageHandler {
         lsatInProgress?.paymentHash = paymentH
         lsatInProgress?.publicKey = pubkey
         
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .invoiceIPaidSettled,
-            object: nil
-        )
+        NotificationCenter.default.removeObserver(self, name: .invoiceIPaidSettled, object: nil)
         
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handlePaidInvoiceNotification),
-            name: .invoiceIPaidSettled,
-            object: nil
-        )
+            forName: .invoiceIPaidSettled,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            self?.handlePaidInvoiceNotification(n: n)
+        }
         
         startLsatTimer()
         
         SphinxOnionManager.sharedInstance.payInvoice(
             invoice: paymentRequest,
-            callback: { success, errorMsg in
+            callback: { success, errorMsg, _ in
                 if let _ = errorMsg, !success {
                     self.endLsatTime()
                 }
@@ -476,11 +477,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     @objc func lsatTimerFired() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: .invoiceIPaidSettled,
-            object: nil
-        )
+        NotificationCenter.default.removeObserver(self, name: .invoiceIPaidSettled, object: nil)
         
         if let dict = lsatInProgress?.dict {
             sendLsatResponse(dict: dict, success: false)

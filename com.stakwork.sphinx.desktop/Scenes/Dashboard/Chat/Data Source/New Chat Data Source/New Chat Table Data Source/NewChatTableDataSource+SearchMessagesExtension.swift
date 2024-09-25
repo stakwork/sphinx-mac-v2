@@ -185,10 +185,14 @@ extension NewChatTableDataSource {
     ) {
         let tableCellStates = getTableCellStatesForVisibleRows()
 
-        var snapshot = self.dataSource.snapshot()
-        snapshot.reloadItems(tableCellStates)
-        self.dataSource.apply(snapshot, animatingDifferences: animated) {
-            completion?()
+        self.dataSourceQueue.sync {
+            var snapshot = self.dataSource.snapshot()
+            snapshot.reloadItems(tableCellStates)
+            DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: animated) {
+                    completion?()
+                }
+            }
         }
     }
     

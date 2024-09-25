@@ -9,7 +9,7 @@
 import Foundation
 import AVKit
 
-protocol PlayerDelegate : AnyObject {
+protocol PlayerDelegate : NSObject  {
     func loadingState(_ podcastData: PodcastData)
     func playingState(_ podcastData: PodcastData)
     func pausedState(_ podcastData: PodcastData)

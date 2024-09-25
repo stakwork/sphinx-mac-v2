@@ -25,7 +25,6 @@ class ThreadTableDataSource : NewChatTableDataSource {
         shimmeringView: ChatShimmeringView,
         headerImage: NSImage?,
         bottomView: NSView,
-        webView: WKWebView,
         delegate: NewChatTableDataSourceDelegate?
     ) {
         
@@ -41,7 +40,6 @@ class ThreadTableDataSource : NewChatTableDataSource {
             shimmeringView: shimmeringView,
             headerImage: headerImage,
             bottomView: bottomView,
-            webView: webView,
             delegate: delegate
         )
     }

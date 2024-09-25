@@ -181,6 +181,10 @@ class NewChatHeaderView: NSView, LoadableNib {
         }
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .onBalanceDidChange, object: nil)
+    }
+    
     func updateBalance() {
         balanceUnitLabel.stringValue = "sat"
         walletBalanceService.updateBalance(labels: [balanceLabel])

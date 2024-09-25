@@ -57,7 +57,7 @@ extension PodcastEpisode {
     func getLocalFileName() -> String? {
         let itemID = itemID
         
-        guard let feedId = feed?.feedID, !feedId.isEmpty, !itemID.isEmpty else {
+        guard let feedId = feedID, !feedId.isEmpty, !itemID.isEmpty else {
             return nil
         }
         

@@ -80,12 +80,14 @@ extension NewChatTableDataSource : AudioPlayerHelperDelegate {
                 if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
                     delegate?.shouldReloadThreadHeader()
                 } else {
-                    dataSourceQueue.sync {
-                        var snapshot = self.dataSource.snapshot()
-                        
-                        if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    var snapshot = self.dataSource.snapshot()
+                    
+                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                        dataSourceQueue.sync {
                             snapshot.reloadItems([tableCellState.1])
-                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                            DispatchQueue.main.async {
+                                self.dataSource.apply(snapshot, animatingDifferences: true)
+                            }
                         }
                     }
                 }
@@ -205,12 +207,14 @@ extension NewChatTableDataSource : PlayerDelegate {
                     )
                 )
 
-                dataSourceQueue.sync {
-                    var snapshot = self.dataSource.snapshot()
-                    
-                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                var snapshot = self.dataSource.snapshot()
+                
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                    dataSourceQueue.sync {
                         snapshot.reloadItems([tableCellState.1])
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        DispatchQueue.main.async {
+                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                        }
                     }
                 }
             }

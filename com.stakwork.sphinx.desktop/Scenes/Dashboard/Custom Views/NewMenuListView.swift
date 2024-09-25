@@ -13,7 +13,17 @@ protocol NewMenuListViewDelegate: AnyObject {
     func buttonClicked(id: Int)
 }
 
-class NewMenuListView: NSView, LoadableNib {
+public enum MenuItems: Int {
+    case Profile
+    case Transactions
+    case RequestPayment
+    case PayInvoice
+    case AddFriend
+    case CreateTribe
+    case ShareQR
+}
+
+public class NewMenuListView: NSView, LoadableNib {
     
     enum CollectionViewSection: Int, CaseIterable {
         case title
@@ -35,7 +45,7 @@ class NewMenuListView: NSView, LoadableNib {
     
     let menuItems = [
         NewMenuItem(icon: "person", menuTitle: "profile".localized),
-        NewMenuItem(icon: "contact", menuTitle: "menu.contacts".localized),
+//        NewMenuItem(icon: "contact", menuTitle: "menu.contacts".localized),
         NewMenuItem(icon: "bottomBar2", menuTitle: "transactions".localized),
         NewMenuItem(icon: "bottomBar4", menuTitle: "request.payment".localized),
         NewMenuItem(icon: "bottomBar1", menuTitle: "pay.invoice".localized),
@@ -72,15 +82,15 @@ class NewMenuListView: NSView, LoadableNib {
     }
     
     @IBAction func addFriendButtonTapped(_ sender: NSButton) {
-        delegate?.buttonClicked(id: 6)
+        delegate?.buttonClicked(id: MenuItems.AddFriend.rawValue)
     }
     
     @IBAction func createTribeButtonTapped(_ sender: NSButton) {
-        delegate?.buttonClicked(id: 7)
+        delegate?.buttonClicked(id: MenuItems.CreateTribe.rawValue)
     }
     
     @IBAction func connectWithFriend(_ sender: NSButton) {
-        delegate?.buttonClicked(id: 8)
+        delegate?.buttonClicked(id: MenuItems.ShareQR.rawValue)
     }
 }
 

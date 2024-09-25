@@ -73,7 +73,6 @@ class NewChatTableDataSource : NSObject {
     var shimmeringView: ChatShimmeringView!
     var headerImage: NSImage?
     var bottomView: NSView!
-    var webView: WKWebView!
     
     ///Chat
     var chat: Chat?
@@ -99,7 +98,6 @@ class NewChatTableDataSource : NSObject {
     var messagesArray: [TransactionMessage] = []
     var messageTableCellStateArray: [MessageTableCellState] = []
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
-    var botsWebViewData: [Int: MessageTableCellState.BotWebViewData] = [:]
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     
     var searchingTerm: String? = nil
@@ -117,10 +115,6 @@ class NewChatTableDataSource : NSObject {
     ///Messages statuses restore
     var lastMessageTagRestored = ""
     
-    ///WebView Loading
-    let webViewSemaphore = DispatchSemaphore(value: 1)
-    var webViewLoadingCompletion: ((CGFloat?) -> ())? = nil
-    
     ///Chat Helper
     let chatHelper = ChatHelper()
     
@@ -128,7 +122,8 @@ class NewChatTableDataSource : NSObject {
     var UIUpdateIndex = 0
     
     ///Data source updates queue
-    let dataSourceQueue = DispatchQueue(label: "sphinx.chat.v2.datasourceQueue")
+    let dataSourceQueue = DispatchQueue(label: "chat.datasourceQueue", attributes: .concurrent)
+    let mediaReloadQueue = DispatchQueue(label: "chat.media.datasourceQueue", attributes: .concurrent)
     
     ///Constants
     static let kThreadHeaderRowIndex = -10
@@ -143,7 +138,6 @@ class NewChatTableDataSource : NSObject {
         shimmeringView: ChatShimmeringView,
         headerImage: NSImage?,
         bottomView: NSView,
-        webView: WKWebView,
         delegate: NewChatTableDataSourceDelegate?
     ) {
         super.init()
@@ -159,13 +153,16 @@ class NewChatTableDataSource : NSObject {
         self.headerImage = headerImage
         self.bottomView = bottomView
         self.shimmeringView = shimmeringView
-        self.webView = webView
         
         self.delegate = delegate
         
         addScrollObservers()
         configureTableView()
         configureDataSource()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
     }
     
     func updateFrame() {
@@ -178,12 +175,6 @@ class NewChatTableDataSource : NSObject {
     
     func releaseMemory() {
         preloaderHelper.releaseMemory()
-        
-        for item in collectionView.visibleItems() {
-            if let item = item as? ChatCollectionViewItemProtocol {
-                item.releaseMemory()
-            }
-        }
     }
     
     func configureTableView() {
