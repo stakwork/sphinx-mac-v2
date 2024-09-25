@@ -822,7 +822,9 @@ extension DashboardViewController : RestoreModalViewControllerDelegate {
     }
     
     func didFinishRestoring() {
-        modalsContainerView.isHidden = true
+        if(modalsContainerView.getModal() != modalsContainerView.authExternalView){
+            modalsContainerView.isHidden = true
+        }
     }
 }
 
