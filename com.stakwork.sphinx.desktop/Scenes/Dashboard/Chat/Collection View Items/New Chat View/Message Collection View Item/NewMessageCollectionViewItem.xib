@@ -401,6 +401,9 @@
                         <font key="font" size="18" name="MaterialIcons-Regular"/>
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
+                    <connections>
+                        <action selector="messageMenuButtonClicked:" target="tZt-fz-5EV" id="e4U-PG-Qt9"/>
+                    </connections>
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UQJ-sx-Qvb" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="1757" y="1783" width="22" height="18"/>
@@ -409,6 +412,9 @@
                         <font key="font" size="18" name="MaterialIcons-Regular"/>
                     </buttonCell>
                     <color key="contentTintColor" name="WashedOutReceivedText"/>
+                    <connections>
+                        <action selector="messageMenuButtonClicked:" target="tZt-fz-5EV" id="tnZ-9S-kBB"/>
+                    </connections>
                 </button>
             </subviews>
             <constraints>
