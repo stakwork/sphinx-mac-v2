@@ -75,6 +75,10 @@ class GroupDetailsViewController: NSViewController {
         groupImageView.rounded = true
         groupImageView.layer?.cornerRadius = groupImageView.frame.height / 2
         
+        adminAvatarImageView.wantsLayer = true
+        adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.width / 2
+        adminAvatarImageView.layer?.masksToBounds = true
+        
         loading = true
         
         optionsButton.cursor = .pointingHand
@@ -150,16 +154,16 @@ class GroupDetailsViewController: NSViewController {
         
         loading = false
         
-        if let chat = self.chat,
-           !chat.isTribeICreated{
+        if let chat = self.chat, !chat.isTribeICreated {
             adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
-            adminAvatarImageView.wantsLayer = true
-            adminAvatarImageView.rounded = true
-            adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.height / 2
-            adminAvatarImageView.layer?.masksToBounds = true
+            
+            let placeHolderImage = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
+            adminAvatarImageView.image = placeHolderImage
+            
             adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
-        }
-        else{
+            
+            adminInfoContainerView.isHidden = false
+        } else {
             adminInfoContainerView.isHidden = true
         }
         
