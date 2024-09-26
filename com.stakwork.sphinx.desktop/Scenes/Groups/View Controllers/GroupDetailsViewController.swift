@@ -34,6 +34,8 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var optionsButton: CustomButton!
     @IBOutlet weak var adminAvatarImageView: AspectFillNSImageView!
     @IBOutlet weak var adminNameLabel: NSTextField!
+    @IBOutlet weak var adminInfoContainerView: NSView!
+    
     
     var chat: Chat! = nil
     
@@ -154,9 +156,10 @@ class GroupDetailsViewController: NSViewController {
             adminAvatarImageView.wantsLayer = true
             adminAvatarImageView.rounded = true
             adminAvatarImageView.layer?.cornerRadius = groupImageView.frame.height / 2
-            
-//            let urlString = "https://memes.sphinx.chat/public/HoQTHP3oOn0NAXOTqJEWb6HCtxIyN_14WGgiIgXpxWI="
             adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
+        }
+        else{
+            adminInfoContainerView.isHidden = true
         }
     }
     

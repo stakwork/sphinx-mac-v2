@@ -1533,7 +1533,7 @@
                                             </constraints>
                                         </customView>
                                         <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BmW-hY-63S">
-                                            <rect key="frame" x="0.0" y="607" width="414" height="0.0"/>
+                                            <rect key="frame" x="0.0" y="507" width="414" height="0.0"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="tix-lT-SOU" customClass="TribeMemberInfoView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="30" y="-130" width="354" height="130"/>
@@ -1551,7 +1551,7 @@
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="DFj-7T-bIo">
-                                            <rect key="frame" x="0.0" y="517" width="414" height="90"/>
+                                            <rect key="frame" x="0.0" y="417" width="414" height="90"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="8Mq-v6-JG7" customClass="GroupPinView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="30" y="15" width="354" height="75"/>
@@ -1694,7 +1694,7 @@
                                         <constraint firstAttribute="bottom" secondItem="sZo-gO-gYo" secondAttribute="bottom" constant="40" id="98o-mu-mDk"/>
                                         <constraint firstItem="DFj-7T-bIo" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="bottom" id="HK4-mP-1g4"/>
                                         <constraint firstAttribute="trailing" secondItem="Rm1-Wr-wv9" secondAttribute="trailing" id="LbY-I9-dBU"/>
-                                        <constraint firstItem="BmW-hY-63S" firstAttribute="top" secondItem="C70-zX-0vt" secondAttribute="bottom" id="QkP-Fb-pRf"/>
+                                        <constraint firstItem="BmW-hY-63S" firstAttribute="top" secondItem="Rm1-Wr-wv9" secondAttribute="bottom" id="NEW-ID"/>
                                         <constraint firstItem="BmW-hY-63S" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ahY-Z2-cAi"/>
                                         <constraint firstAttribute="trailing" secondItem="BmW-hY-63S" secondAttribute="trailing" id="bl0-9e-mvs"/>
                                         <constraint firstItem="C70-zX-0vt" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ef4-6Z-PrL"/>
@@ -1750,6 +1750,7 @@
                     </view>
                     <connections>
                         <outlet property="adminAvatarImageView" destination="LmC-OR-LtH" id="wJC-oV-Uqc"/>
+                        <outlet property="adminInfoContainerView" destination="Rm1-Wr-wv9" id="xDl-lq-oja"/>
                         <outlet property="adminNameLabel" destination="A9B-67-txX" id="amQ-jQ-utA"/>
                         <outlet property="groupDateLabel" destination="Vlo-3g-ZM4" id="xJE-dz-RuO"/>
                         <outlet property="groupImageView" destination="vEJ-6Z-sUZ" id="bUp-CG-jPU"/>
