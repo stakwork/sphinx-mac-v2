@@ -24,11 +24,6 @@ class AuthExternalView: CommonModalView, LoadableNib {
         loadViewFromNib()
     }
     
-    override func viewDidHide() {
-        super.viewDidHide()
-        print("viewDidHide")
-    }
-    
     override func modalWillShowWith(query: String, delegate: ModalViewDelegate) {
         super.modalWillShowWith(query: query, delegate: delegate)
         
@@ -114,7 +109,7 @@ class AuthExternalView: CommonModalView, LoadableNib {
         }
 
         SphinxOnionManager.sharedInstance.processPeopleAuthChallenge(
-            urlString: query,
+            query: query,
             completion: { authParams in
                 if let (host, challenge, token, params) = authParams {
                     self.authInfo?.host = host

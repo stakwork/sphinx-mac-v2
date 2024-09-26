@@ -839,9 +839,8 @@ extension DashboardViewController : DashboardVCDelegate {
     
     func shouldHideRestoreModal(){
         for childVC in self.children.compactMap({$0 as? DashboardModalsViewController}) {
-            if(childVC.restoreProgressView.isHidden == false){
-                childVC.restoreProgressView.isHidden = true
-                childVC.view.isHidden = true
+            if !childVC.restoreProgressView.isHidden {
+                modalsContainerView.isHidden = true
             }
         }
     }

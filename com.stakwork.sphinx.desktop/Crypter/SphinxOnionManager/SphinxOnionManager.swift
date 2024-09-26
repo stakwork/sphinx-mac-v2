@@ -649,7 +649,7 @@ extension SphinxOnionManager {//Sign Up UI Related:
     }
     
     func processPeopleAuthChallenge(
-        urlString: String,
+        query: String,
         completion: @escaping ((String, String, String, [String: AnyObject])?) -> ()
     ) {
         guard let seed = getAccountSeed(),
@@ -692,7 +692,7 @@ extension SphinxOnionManager {//Sign Up UI Related:
                     "alias": alias as AnyObject,
                     "photo_url": photoUrl as AnyObject,
                     "route_hint": routeHint as AnyObject,
-                    "price_to_meet": 1 as AnyObject,
+                    "price_to_meet": 0 as AnyObject,
                     "verification_signature": sig as AnyObject
                 ]
 
@@ -710,26 +710,28 @@ extension SphinxOnionManager {//Sign Up UI Related:
             }
         }
 
-        // Parse the query string
-        let queryParams = urlString.components(separatedBy: "&").reduce(into: [String: String]()) { result, param in
-            let parts = param.components(separatedBy: "=")
-            if parts.count == 2 {
-                result[parts[0]] = parts[1]
+        if let components = URLComponents(string: "sphinx.chat://?\(query)") {
+            var queryParams: [String: String] = [:]
+            
+            components.queryItems?.forEach { queryItem in
+                queryParams[queryItem.name] = queryItem.value
             }
-        }
-
-        guard let host = queryParams["host"],
-              let challenge = queryParams["challenge"] else {
-            completion(nil)
-            return
-        }
-
-        authorizeWithChallenge(host: host, challenge: challenge) { success, token, params in
-            if success {
-                completion((host, challenge, token, params))
-            } else {
+            
+            guard let host = queryParams["host"],
+                  let challenge = queryParams["challenge"] else {
                 completion(nil)
+                return
             }
+            
+            authorizeWithChallenge(host: host, challenge: challenge) { success, token, params in
+                if success {
+                    completion((host, challenge, token, params))
+                } else {
+                    completion(nil)
+                }
+            }
+        } else {
+            completion(nil)
         }
     }
 }
