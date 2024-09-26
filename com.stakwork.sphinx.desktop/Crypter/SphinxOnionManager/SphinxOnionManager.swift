@@ -649,14 +649,14 @@ extension SphinxOnionManager {//Sign Up UI Related:
     }
     
     func processPeopleAuthChallenge(
-        urlString: String,
+        query: String,
         completion: @escaping ((String, String, String, [String: AnyObject])?) -> ()
     ) {
         guard let seed = getAccountSeed(),
               let owner = UserContact.getOwner(),
               let pubkey = owner.publicKey,
               let routeHint = owner.routeHint,
-              let alias = owner.nickname else 
+              let alias = owner.nickname else
         {
             completion(nil)
             return
@@ -664,19 +664,10 @@ extension SphinxOnionManager {//Sign Up UI Related:
 
         let photoUrl = owner.avatarUrl ?? ""
 
-        func requestNewChallenge(
-            host: String,
-            completion: @escaping (String?) -> ()
-        ) {
-            API.sharedInstance.askAuthentication(host: host, callback: { _, challenge in
-                completion(challenge)
-            })
-        }
-
         func authorizeWithChallenge(
             host: String,
             challenge: String,
-            completion: @escaping (Bool, String, [String: AnyObject]?) -> ()
+            completion: @escaping (Bool, String, [String: AnyObject]) -> ()
         ) {
             do {
                 let idx: UInt64 = 0
@@ -701,7 +692,7 @@ extension SphinxOnionManager {//Sign Up UI Related:
                     "alias": alias as AnyObject,
                     "photo_url": photoUrl as AnyObject,
                     "route_hint": routeHint as AnyObject,
-                    "price_to_meet": 1 as AnyObject,
+                    "price_to_meet": 0 as AnyObject,
                     "verification_signature": sig as AnyObject
                 ]
 
@@ -715,58 +706,29 @@ extension SphinxOnionManager {//Sign Up UI Related:
                     }
                 )
             } catch {
-                completion(false, "", nil)
+                completion(false, "", [:])
             }
         }
 
-        if var components = URLComponents(string: urlString) {
+        if let components = URLComponents(string: "sphinx.chat://?\(query)") {
             var queryParams: [String: String] = [:]
-
+            
             components.queryItems?.forEach { queryItem in
                 queryParams[queryItem.name] = queryItem.value
             }
-
-            if let host = queryParams["host"] {
-                if let challenge = queryParams["challenge"] {
-                    // Attempt authorization with existing challenge
-                    authorizeWithChallenge(host: host, challenge: challenge) { success, token, params in
-                        if success {
-                            completion((host, challenge, token, params!))
-                        } else {
-                            // If authorization fails, request a new challenge and try again
-                            requestNewChallenge(host: host) { newChallenge in
-                                guard let newChallenge = newChallenge else {
-                                    completion(nil)
-                                    return
-                                }
-                                authorizeWithChallenge(host: host, challenge: newChallenge) { newSuccess, newToken, newParams in
-                                    if newSuccess {
-                                        completion((host, newChallenge, newToken, newParams!))
-                                    } else {
-                                        completion(nil)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // If no challenge present, request a new one
-                    requestNewChallenge(host: host) { newChallenge in
-                        guard let newChallenge = newChallenge else {
-                            completion(nil)
-                            return
-                        }
-                        authorizeWithChallenge(host: host, challenge: newChallenge) { success, token, params in
-                            if success {
-                                completion((host, newChallenge, token, params!))
-                            } else {
-                                completion(nil)
-                            }
-                        }
-                    }
-                }
-            } else {
+            
+            guard let host = queryParams["host"],
+                  let challenge = queryParams["challenge"] else {
                 completion(nil)
+                return
+            }
+            
+            authorizeWithChallenge(host: host, challenge: challenge) { success, token, params in
+                if success {
+                    completion((host, challenge, token, params))
+                } else {
+                    completion(nil)
+                }
             }
         } else {
             completion(nil)

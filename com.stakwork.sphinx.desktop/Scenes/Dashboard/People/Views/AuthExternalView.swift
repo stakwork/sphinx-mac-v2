@@ -99,31 +99,30 @@ class AuthExternalView: CommonModalView, LoadableNib {
     }
     
     func verifyExternal() {
-        if let query = self.query {
-            SphinxOnionManager.sharedInstance.processPeopleAuthChallenge(
-                urlString: query,
-                completion: { authParams in
-                    if authParams != nil {
-                        self.authInfo?.host = authParams!.0
-                        self.authInfo?.challenge = authParams!.1
-                        self.authInfo?.token = authParams!.2
-                        self.authInfo?.verificationSignature = authParams!.3["verification_signature"] as? String
-                    }
-                    self.authorizationDone(
-                        success: authParams != nil,
-                        host: self.authInfo?.host ?? ""
-                    )
-            })
-        } else {
+        guard let query = self.query else {
             AlertHelper.showAlert(
                 title: "Error",
                 message: "Could not parse auth request"
             )
-            authorizationDone(
-                success: false,
-                host: self.authInfo?.host ?? ""
-            )
+            authorizationDone(success: false, host: self.authInfo?.host ?? "")
+            return
         }
+
+        SphinxOnionManager.sharedInstance.processPeopleAuthChallenge(
+            query: query,
+            completion: { authParams in
+                if let (host, challenge, token, params) = authParams {
+                    self.authInfo?.host = host
+                    self.authInfo?.challenge = challenge
+                    self.authInfo?.token = token
+                    self.authInfo?.verificationSignature = params["verification_signature"] as? String
+                    
+                    self.authorizationDone(success: true, host: host)
+                } else {
+                    self.authorizationDone(success: false, host: self.authInfo?.host ?? "")
+                }
+            }
+        )
     }
     
     func takeUserToAuth() {

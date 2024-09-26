@@ -837,6 +837,14 @@ extension DashboardViewController : DashboardVCDelegate {
         return (minWidth + podcastPlayerWidth, leftPanelWidth)
     }
     
+    func shouldHideRestoreModal(){
+        for childVC in self.children.compactMap({$0 as? DashboardModalsViewController}) {
+            if !childVC.restoreProgressView.isHidden {
+                modalsContainerView.isHidden = true
+            }
+        }
+    }
+    
     func shouldShowRestoreModal(
         with progress: Int,
         label: String,
@@ -894,7 +902,7 @@ extension DashboardViewController : RestoreModalViewControllerDelegate {
     }
     
     func didFinishRestoring() {
-        modalsContainerView.isHidden = true
+        shouldHideRestoreModal()
     }
 }
 

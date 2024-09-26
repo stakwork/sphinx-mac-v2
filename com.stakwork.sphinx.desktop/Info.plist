@@ -29,7 +29,7 @@
 			<string>com.gl.sphinxDesktop</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>sphinx.chat.v2</string>
+				<string>sphinx.chat</string>
 			</array>
 		</dict>
 	</array>
