@@ -128,12 +128,33 @@ extension WebAppHelper : WKScriptMessageHandler {
                 case "GETBUDGET":
                     getBudget(dict)
                     break
+                case "GETSIGNEDTOKEN":
+                    getSignedToken(dict)
                 default:
                     defaultAction(dict)
                     break
                 }
             }
         }
+    }
+    
+    func getSignedToken(_ dict: [String: AnyObject]) {
+        if let token = SphinxOnionManager.sharedInstance.getSignedToken() {
+            var newDict = dict
+            newDict["token"] = token as AnyObject
+
+            self.getSignedTokenResponse(dict: newDict, success: true)
+        } else {
+            self.getSignedTokenResponse(dict: dict, success: false)
+        }
+    }
+    
+    func getSignedTokenResponse(dict: [String: AnyObject], success: Bool) {
+        var params: [String: AnyObject] = [:]
+        setTypeApplicationAndPassword(params: &params, dict: dict)
+        params["success"] = success as AnyObject
+
+        sendMessage(dict: params)
     }
     
     func jsonStringWithObject(obj: AnyObject) -> String? {

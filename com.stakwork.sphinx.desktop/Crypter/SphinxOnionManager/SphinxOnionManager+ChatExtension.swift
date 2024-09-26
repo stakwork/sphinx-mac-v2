@@ -1343,6 +1343,26 @@ extension SphinxOnionManager {
         }
     }
     
+    func getSignedToken() -> String? {
+        guard let seed = self.getAccountSeed() else {
+            return nil
+        }
+        do {
+            let idx: UInt64 = 0
+            
+            let token = try Sphinx.signedTimestamp(
+                seed: seed,
+                idx: idx,
+                time: getTimeWithEntropy(),
+                network: network
+            )
+            
+            return token
+        } catch {
+            return nil
+        }
+    }
+    
     func payAttachment(
         message: TransactionMessage,
         price: Int
