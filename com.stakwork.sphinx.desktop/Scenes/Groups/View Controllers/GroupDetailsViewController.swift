@@ -155,11 +155,21 @@ class GroupDetailsViewController: NSViewController {
             adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
             adminAvatarImageView.wantsLayer = true
             adminAvatarImageView.rounded = true
-            adminAvatarImageView.layer?.cornerRadius = groupImageView.frame.height / 2
+            adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.height / 2
+            adminAvatarImageView.layer?.masksToBounds = true
             adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
         }
         else{
             adminInfoContainerView.isHidden = true
+        }
+        
+        if adminInfoContainerView.isHidden {
+            NSLayoutConstraint.deactivate(adminInfoContainerView.constraints)
+            
+            let topConstraint = NSLayoutConstraint(item: tribeMemberInfoContainer, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 100)
+            NSLayoutConstraint.activate([topConstraint])
+            
+            view.layoutSubtreeIfNeeded()
         }
     }
     
