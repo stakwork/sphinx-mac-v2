@@ -124,10 +124,6 @@ class AuthExternalView: CommonModalView, LoadableNib {
                     
                     self.authorizationDone(success: true, host: host)
                 } else {
-                    AlertHelper.showAlert(
-                        title: "Error",
-                        message: "Could not parse auth request"
-                    )
                     self.authorizationDone(success: false, host: self.authInfo?.host ?? "")
                 }
             }

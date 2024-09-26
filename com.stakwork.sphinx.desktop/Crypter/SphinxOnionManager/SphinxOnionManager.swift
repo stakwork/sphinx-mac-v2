@@ -710,16 +710,16 @@ extension SphinxOnionManager {//Sign Up UI Related:
             }
         }
 
-        guard let components = URLComponents(string: urlString),
-              let queryItems = components.queryItems else {
-            completion(nil)
-            return
+        // Parse the query string
+        let queryParams = urlString.components(separatedBy: "&").reduce(into: [String: String]()) { result, param in
+            let parts = param.components(separatedBy: "=")
+            if parts.count == 2 {
+                result[parts[0]] = parts[1]
+            }
         }
 
-        let queryParams = Dictionary(uniqueKeysWithValues: queryItems.map { ($0.name, $0.value) })
-
-        guard let host = queryParams["host"] as? String,
-              let challenge = queryParams["challenge"] as? String else {
+        guard let host = queryParams["host"],
+              let challenge = queryParams["challenge"] else {
             completion(nil)
             return
         }
