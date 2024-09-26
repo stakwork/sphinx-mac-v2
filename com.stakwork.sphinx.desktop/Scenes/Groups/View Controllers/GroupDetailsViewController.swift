@@ -32,6 +32,8 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var loadingContainer: NSBox!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     @IBOutlet weak var optionsButton: CustomButton!
+    @IBOutlet weak var adminAvatarImageView: AspectFillNSImageView!
+    @IBOutlet weak var adminNameLabel: NSTextField!
     
     var chat: Chat! = nil
     
@@ -145,6 +147,17 @@ class GroupDetailsViewController: NSViewController {
         configureTribeMemberView()
         
         loading = false
+        
+        if let chat = self.chat,
+           !chat.isTribeICreated{
+            adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
+            adminAvatarImageView.wantsLayer = true
+            adminAvatarImageView.rounded = true
+            adminAvatarImageView.layer?.cornerRadius = groupImageView.frame.height / 2
+            
+//            let urlString = "https://memes.sphinx.chat/public/HoQTHP3oOn0NAXOTqJEWb6HCtxIyN_14WGgiIgXpxWI="
+            adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
+        }
     }
     
     func updateTribePrices() {
