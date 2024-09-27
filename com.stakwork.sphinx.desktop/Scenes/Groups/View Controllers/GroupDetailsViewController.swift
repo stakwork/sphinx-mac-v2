@@ -32,6 +32,11 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var loadingContainer: NSBox!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     @IBOutlet weak var optionsButton: CustomButton!
+    @IBOutlet weak var adminAvatarImageView: AspectFillNSImageView!
+    @IBOutlet weak var adminNameLabel: NSTextField!
+    @IBOutlet weak var adminRoleLabel: NSTextField!
+    @IBOutlet weak var adminInfoContainerView: NSView!
+    
     
     var chat: Chat! = nil
     
@@ -70,6 +75,10 @@ class GroupDetailsViewController: NSViewController {
         groupImageView.wantsLayer = true
         groupImageView.rounded = true
         groupImageView.layer?.cornerRadius = groupImageView.frame.height / 2
+        
+        adminAvatarImageView.wantsLayer = true
+        adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.width / 2
+        adminAvatarImageView.layer?.masksToBounds = true
         
         loading = true
         
@@ -145,6 +154,29 @@ class GroupDetailsViewController: NSViewController {
         configureTribeMemberView()
         
         loading = false
+        
+        if let chat = self.chat, !chat.isTribeICreated {
+            adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
+            adminRoleLabel.stringValue = "admin".localized
+            
+            let placeHolderImage = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
+            adminAvatarImageView.image = placeHolderImage
+            
+            adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
+            
+            adminInfoContainerView.isHidden = false
+        } else {
+            adminInfoContainerView.isHidden = true
+        }
+        
+        if adminInfoContainerView.isHidden {
+            NSLayoutConstraint.deactivate(adminInfoContainerView.constraints)
+            
+            let topConstraint = NSLayoutConstraint(item: tribeMemberInfoContainer, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 100)
+            NSLayoutConstraint.activate([topConstraint])
+            
+            view.layoutSubtreeIfNeeded()
+        }
     }
     
     func updateTribePrices() {

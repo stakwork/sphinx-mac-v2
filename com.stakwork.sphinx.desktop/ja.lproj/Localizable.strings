@@ -119,6 +119,7 @@
 "alias.allowed-characters" = "トライブのエイリアスには、文字、数字、アンダースコアのみが許可されます";
 "kick.member.title" = "部族のメンバー";
 "kick.member.message" = "このメンバーをトライブから削除してもよろしいですか?";
+"admin" = "管理者";
 
 //SUBSCRIPTIONS
 "leave.lose.unsaved.changed" = "未保存の変更を失うことなく退出してもよろしいですか？";

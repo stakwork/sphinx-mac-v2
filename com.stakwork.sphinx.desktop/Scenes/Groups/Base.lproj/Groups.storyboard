@@ -1532,8 +1532,70 @@
                                                 <constraint firstItem="Vlo-3g-ZM4" firstAttribute="leading" secondItem="31k-7H-sVb" secondAttribute="trailing" id="qka-Sm-OvX"/>
                                             </constraints>
                                         </customView>
+                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="Rm1-Wr-wv9">
+                                            <rect key="frame" x="0.0" y="527" width="414" height="80"/>
+                                            <subviews>
+                                                <customView translatesAutoresizingMaskIntoConstraints="NO" id="uzk-cC-XJw">
+                                                    <rect key="frame" x="0.0" y="0.0" width="90" height="80"/>
+                                                    <subviews>
+                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LmC-OR-LtH" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
+                                                            <rect key="frame" x="18" y="13" width="54" height="54"/>
+                                                            <constraints>
+                                                                <constraint firstAttribute="width" constant="54" id="gpC-zo-jpP"/>
+                                                                <constraint firstAttribute="height" constant="54" id="i04-Vx-G8G"/>
+                                                            </constraints>
+                                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="tribePlaceHolder" id="R4R-wr-3sX"/>
+                                                            <color key="contentTintColor" name="SecondaryText"/>
+                                                            <userDefinedRuntimeAttributes>
+                                                                <userDefinedRuntimeAttribute type="boolean" keyPath="rounded" value="YES"/>
+                                                                <userDefinedRuntimeAttribute type="number" keyPath="radius">
+                                                                    <real key="value" value="27"/>
+                                                                </userDefinedRuntimeAttribute>
+                                                            </userDefinedRuntimeAttributes>
+                                                        </imageView>
+                                                    </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="LmC-OR-LtH" firstAttribute="centerY" secondItem="uzk-cC-XJw" secondAttribute="centerY" id="8IB-nj-G5d"/>
+                                                        <constraint firstAttribute="width" constant="90" id="eG7-QW-TrX"/>
+                                                        <constraint firstItem="LmC-OR-LtH" firstAttribute="centerX" secondItem="uzk-cC-XJw" secondAttribute="centerX" id="tsU-g0-QFh"/>
+                                                    </constraints>
+                                                </customView>
+                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A9B-67-txX">
+                                                    <rect key="frame" x="88" y="40" width="313" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="309" id="m0E-R3-RJp"/>
+                                                    </constraints>
+                                                    <textFieldCell key="cell" title="Admin" id="uhd-pX-c2k">
+                                                        <font key="font" size="17" name="Roboto-Regular"/>
+                                                        <color key="textColor" name="Text"/>
+                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rS1-o8-4zh">
+                                                    <rect key="frame" x="88" y="24" width="313" height="13"/>
+                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Admin" id="rB2-kI-h85">
+                                                        <font key="font" size="11" name="Roboto-Regular"/>
+                                                        <color key="textColor" name="SecondaryText"/>
+                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="rS1-o8-4zh" secondAttribute="trailing" constant="15" id="08N-b6-ouk"/>
+                                                <constraint firstItem="rS1-o8-4zh" firstAttribute="top" secondItem="A9B-67-txX" secondAttribute="bottom" constant="3" id="0te-h7-2Bi"/>
+                                                <constraint firstItem="uzk-cC-XJw" firstAttribute="leading" secondItem="Rm1-Wr-wv9" secondAttribute="leading" id="KW5-HY-JP6"/>
+                                                <constraint firstItem="rS1-o8-4zh" firstAttribute="width" secondItem="A9B-67-txX" secondAttribute="width" id="KbZ-Vt-oWR"/>
+                                                <constraint firstAttribute="height" constant="80" id="Kz2-2P-qg9"/>
+                                                <constraint firstItem="A9B-67-txX" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="LjL-cK-9nh"/>
+                                                <constraint firstItem="rS1-o8-4zh" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="Vzw-kT-h6v"/>
+                                                <constraint firstItem="A9B-67-txX" firstAttribute="centerY" secondItem="Rm1-Wr-wv9" secondAttribute="centerY" constant="-10" id="YUz-1J-j71"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="A9B-67-txX" secondAttribute="trailing" constant="15" id="iQY-dr-FrZ"/>
+                                                <constraint firstAttribute="bottom" secondItem="uzk-cC-XJw" secondAttribute="bottom" id="sIR-BD-EXN"/>
+                                                <constraint firstItem="uzk-cC-XJw" firstAttribute="top" secondItem="Rm1-Wr-wv9" secondAttribute="top" id="tbf-uS-iWn"/>
+                                            </constraints>
+                                        </customView>
                                         <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BmW-hY-63S">
-                                            <rect key="frame" x="0.0" y="607" width="414" height="0.0"/>
+                                            <rect key="frame" x="0.0" y="527" width="414" height="0.0"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="tix-lT-SOU" customClass="TribeMemberInfoView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="30" y="-130" width="354" height="130"/>
@@ -1551,7 +1613,7 @@
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="DFj-7T-bIo">
-                                            <rect key="frame" x="0.0" y="517" width="414" height="90"/>
+                                            <rect key="frame" x="0.0" y="437" width="414" height="90"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="8Mq-v6-JG7" customClass="GroupPinView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="30" y="15" width="354" height="75"/>
@@ -1619,7 +1681,8 @@
                                         <constraint firstItem="fhA-TS-JQN" firstAttribute="centerX" secondItem="sZo-gO-gYo" secondAttribute="centerX" id="5T7-Qs-Guv"/>
                                         <constraint firstAttribute="bottom" secondItem="sZo-gO-gYo" secondAttribute="bottom" constant="40" id="98o-mu-mDk"/>
                                         <constraint firstItem="DFj-7T-bIo" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="bottom" id="HK4-mP-1g4"/>
-                                        <constraint firstItem="BmW-hY-63S" firstAttribute="top" secondItem="C70-zX-0vt" secondAttribute="bottom" id="QkP-Fb-pRf"/>
+                                        <constraint firstAttribute="trailing" secondItem="Rm1-Wr-wv9" secondAttribute="trailing" id="LbY-I9-dBU"/>
+                                        <constraint firstItem="BmW-hY-63S" firstAttribute="top" secondItem="Rm1-Wr-wv9" secondAttribute="bottom" id="NEW-ID"/>
                                         <constraint firstItem="BmW-hY-63S" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ahY-Z2-cAi"/>
                                         <constraint firstAttribute="trailing" secondItem="BmW-hY-63S" secondAttribute="trailing" id="bl0-9e-mvs"/>
                                         <constraint firstItem="C70-zX-0vt" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ef4-6Z-PrL"/>
@@ -1628,6 +1691,8 @@
                                         <constraint firstItem="sZo-gO-gYo" firstAttribute="centerX" secondItem="PAz-66-15l" secondAttribute="centerX" id="rsx-EF-Zm8"/>
                                         <constraint firstItem="C70-zX-0vt" firstAttribute="top" secondItem="PAz-66-15l" secondAttribute="top" id="ww2-49-5F6"/>
                                         <constraint firstItem="DFj-7T-bIo" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="y1p-7D-TdQ"/>
+                                        <constraint firstItem="Rm1-Wr-wv9" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ybT-wY-lKz"/>
+                                        <constraint firstItem="Rm1-Wr-wv9" firstAttribute="top" secondItem="C70-zX-0vt" secondAttribute="bottom" id="yva-wP-7xN"/>
                                     </constraints>
                                 </view>
                                 <color key="fillColor" name="Body"/>
@@ -1672,6 +1737,10 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="adminAvatarImageView" destination="LmC-OR-LtH" id="wJC-oV-Uqc"/>
+                        <outlet property="adminInfoContainerView" destination="Rm1-Wr-wv9" id="xDl-lq-oja"/>
+                        <outlet property="adminNameLabel" destination="A9B-67-txX" id="amQ-jQ-utA"/>
+                        <outlet property="adminRoleLabel" destination="rS1-o8-4zh" id="Jun-gN-ipE"/>
                         <outlet property="groupDateLabel" destination="Vlo-3g-ZM4" id="xJE-dz-RuO"/>
                         <outlet property="groupImageView" destination="vEJ-6Z-sUZ" id="bUp-CG-jPU"/>
                         <outlet property="groupNameLabel" destination="bHo-IT-i3s" id="hbg-wg-joC"/>
