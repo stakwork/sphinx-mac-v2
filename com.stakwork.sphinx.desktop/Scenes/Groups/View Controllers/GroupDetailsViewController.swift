@@ -34,6 +34,7 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var optionsButton: CustomButton!
     @IBOutlet weak var adminAvatarImageView: AspectFillNSImageView!
     @IBOutlet weak var adminNameLabel: NSTextField!
+    @IBOutlet weak var adminRoleLabel: NSTextField!
     @IBOutlet weak var adminInfoContainerView: NSView!
     
     
@@ -156,6 +157,7 @@ class GroupDetailsViewController: NSViewController {
         
         if let chat = self.chat, !chat.isTribeICreated {
             adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
+            adminRoleLabel.stringValue = "admin".localized
             
             let placeHolderImage = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
             adminAvatarImageView.image = placeHolderImage

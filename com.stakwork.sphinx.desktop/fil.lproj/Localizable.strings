@@ -118,6 +118,7 @@
 "alias.allowed-characters"  = "Mga titik, numero at underscore lamang ang pinapayagan sa mga alias ng tribo";
 "kick.member.title" = "Miyembro ng Tribo";
 "kick.member.message" = "Sigurado ka bang gusto mong tanggalin ang miyembrong ito sa triibe?";
+"admin" = "Tagapangasiwa";
 
 //SUBSCRIPTIONS
 "leave.lose.unsaved.changed"  = "Sigurado ka bang gusto mong umalis at mawala ang anumang hindi na-save na mga pagbabago?";
