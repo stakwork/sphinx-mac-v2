@@ -155,16 +155,16 @@ class PeopleTorActionsView: CommonModalView, LoadableNib {
             parameters["extras"] = extras as AnyObject
         }
         
-        API.sharedInstance.savePeopleProfile(
-            params: parameters,
-            callback: { success in
-                
-            if success {
-                self.showAlertAndDismiss("people.save-succeed".localized)
-            } else {
-                self.showErrorAlertAndDismiss("people.save-failed".localized)
-            }
-        })
+//        API.sharedInstance.savePeopleProfile(
+//            params: parameters,
+//            callback: { success in
+//                
+//            if success {
+//                self.showAlertAndDismiss("people.save-succeed".localized)
+//            } else {
+//                self.showErrorAlertAndDismiss("people.save-failed".localized)
+//            }
+//        })
     }
     
     private func deleteProfile() {
@@ -172,16 +172,16 @@ class PeopleTorActionsView: CommonModalView, LoadableNib {
         parameters["id"] = authInfo?.jsonBody["id"].intValue as AnyObject
         parameters["host"] = authInfo?.jsonBody["host"].stringValue as AnyObject
         
-        API.sharedInstance.deletePeopleProfile(
-            params: parameters,
-            callback: { success in
-                
-            if success {
-                self.showAlertAndDismiss("people.delete-succeed".localized)
-            } else {
-                self.showErrorAlertAndDismiss("people.delete-failed".localized)
-            }
-        })
+//        API.sharedInstance.deletePeopleProfile(
+//            params: parameters,
+//            callback: { success in
+//                
+//            if success {
+//                self.showAlertAndDismiss("people.delete-succeed".localized)
+//            } else {
+//                self.showErrorAlertAndDismiss("people.delete-failed".localized)
+//            }
+//        })
     }
     
     private func redeemBadgeTokens() {
