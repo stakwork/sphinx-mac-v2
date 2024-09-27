@@ -110,6 +110,7 @@ class API {
         }
     }
 
+    public static let tribesV1Url = "https://tribes.sphinx.chat"
     
     class func getUrl(route: String) -> String {
         if let url = URL(string: route), let _ = url.scheme {
