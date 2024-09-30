@@ -17,7 +17,8 @@ extension API {
     typealias GetPersonInfoCallback = ((Bool, JSON?) -> ())
     typealias GetExternalRequestByKeyCallback = ((Bool, JSON?) -> ())
     typealias PeopleTorRequestCallback = ((Bool) -> ())
-    typealias CheckPeopleProfile = (Bool) -> ()
+    typealias CheckPeopleProfile = (Int?) -> ()
+    typealias CreatePeopleProfile = (Bool) -> ()
     
     public func authorizeExternal(
         host: String,
@@ -106,7 +107,7 @@ extension API {
         let url = "\(API.tribesV1Url)/person/\(publicKey)"
         
         guard let request = createRequest(url, params: nil, method: "GET") else {
-            callback(false)
+            callback(nil)
             return
         }
         
@@ -114,29 +115,33 @@ extension API {
             if let data = response.data {
                 let jsonProfile = JSON(data)
                 if let pubKey = jsonProfile["owner_pubkey"].string, pubKey == publicKey {
-                    callback(true)
+                    callback(jsonProfile["id"].int)
                 } else {
-                    callback(false)
+                    callback(nil)
                 }
             } else {
-                callback(false)
+                callback(nil)
             }
         }
     }
     
     public func createPeopleProfileWith(
         token: String,
+        userId: Int?,
         alias: String,
+        imageUrl: String?,
         publicKey: String,
         routeHint: String,
-        callback: @escaping CheckPeopleProfile
+        callback: @escaping CreatePeopleProfile
     ) {
         let url = "\(API.tribesV1Url)/person?token=\(token)"
         
         let params: [String: AnyObject] = [
+            "id": userId as AnyObject,
             "owner_pubkey": publicKey as AnyObject,
             "owner_alias": alias as AnyObject,
-            "owner_route_hint": routeHint as AnyObject
+            "owner_route_hint": routeHint as AnyObject,
+            "img": imageUrl as AnyObject
         ]
         
         guard let request = createRequest(url, params: params as NSDictionary, method: "POST") else {

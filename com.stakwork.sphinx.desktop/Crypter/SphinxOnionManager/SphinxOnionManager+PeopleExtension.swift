@@ -28,40 +28,38 @@ extension SphinxOnionManager {
         
         API.sharedInstance.checkPeopleProfileWith(
             publicKey: pubkey,
-            callback: { success in
-                if success {
-                    processQueryAndAuthorize(query: query, completion: completion)
-                } else {
-                    var token: String = ""
+            callback: { userId in
+                var token: String = ""
+                
+                do {
+                    let idx: UInt64 = 0
                     
-                    do {
-                        let idx: UInt64 = 0
-                        
-                        token = try Sphinx.signedTimestamp(
-                            seed: seed,
-                            idx: idx,
-                            time: self.getTimeWithEntropy(),
-                            network: self.network
-                        )
-                    } catch {
-                        completion(nil)
-                        return
-                    }
-                    
-                    API.sharedInstance.createPeopleProfileWith(
-                        token: token,
-                        alias: alias,
-                        publicKey: pubkey,
-                        routeHint: routeHint,
-                        callback: { succes in
-                            if succes {
-                                processQueryAndAuthorize(query: query, completion: completion)
-                            } else {
-                                completion(nil)
-                            }
-                        }
+                    token = try Sphinx.signedTimestamp(
+                        seed: seed,
+                        idx: idx,
+                        time: self.getTimeWithEntropy(),
+                        network: self.network
                     )
+                } catch {
+                    completion(nil)
+                    return
                 }
+                
+                API.sharedInstance.createPeopleProfileWith(
+                    token: token,
+                    userId: userId,
+                    alias: alias,
+                    imageUrl: owner.getPhotoUrl(),
+                    publicKey: pubkey,
+                    routeHint: routeHint,
+                    callback: { succes in
+                        if succes {
+                            processQueryAndAuthorize(query: query, completion: completion)
+                        } else {
+                            completion(nil)
+                        }
+                    }
+                )
             }
         )
 
