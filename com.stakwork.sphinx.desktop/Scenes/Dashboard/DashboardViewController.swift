@@ -719,29 +719,6 @@ extension DashboardViewController : DashboardVCDelegate {
         WindowsManager.sharedInstance.showInviteCodeWindow(vc: shareInviteCodeVC, window: view.window)
     }
     
-    func reloadChatListVC() {
-        reconnectToMQTT()
-        
-        if let listViewController = listViewController {
-            removeChildVC(child: listViewController)
-        }
-        
-        let chatListVCController = ChatListViewController.instantiate(
-            delegate: self
-        )
-        
-        addChildVC(
-            child: chatListVCController,
-            container: leftSplittedView
-        )
-        
-        listViewController = chatListVCController        
-        
-        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-            ContactsService.sharedInstance.forceUpdate()
-        })
-    }
-    
     func presentChatVCFor(
         chatId: Int?,
         contactId: Int?

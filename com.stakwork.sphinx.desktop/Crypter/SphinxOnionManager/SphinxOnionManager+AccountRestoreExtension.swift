@@ -748,15 +748,12 @@ extension SphinxOnionManager {
         for chat in Chat.getAll() {
             if let lastMessage = chat.getLastMessageToShow(includeContactKeyTypes: true) {
                 if lastMessage.isKeyExchangeType() {
-                    setChatAsSeenWith(message: lastMessage, and: chat, shouldSyncToServer: false)
-                    
-                    if let maxMessageIndex = TransactionMessage.getMaxIndex() {
-                        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
-                            index: UInt64(maxMessageIndex),
-                            chat: chat,
-                            recipContact: chat.getContact()
-                        )
-                    }
+                    fixSeenStateForChatsWithNoMessages(
+                        chat: chat,
+                        message: lastMessage
+                    )
+                } else if lastMessage.isOutgoing() {
+                    chat.setChatMessagesAsSeen()
                 } else {
                     chat.lastMessage = lastMessage
                 }
@@ -764,24 +761,21 @@ extension SphinxOnionManager {
         }
     }
     
-    func setChatAsSeenWith(
-        message: TransactionMessage,
-        and chat: Chat,
-        shouldSyncToServer: Bool = true
+    func fixSeenStateForChatsWithNoMessages(
+        chat: Chat,
+        message: TransactionMessage
     ) {
         message.seen = true
         chat.seen = true
         chat.lastMessage = nil
         
-        if !shouldSyncToServer {
-            return
+        if let maxMessageIndex = TransactionMessage.getMaxIndex() {
+            let _  = SphinxOnionManager.sharedInstance.setReadLevel(
+                index: UInt64(maxMessageIndex),
+                chat: chat,
+                recipContact: chat.getContact()
+            )
         }
-        
-        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
-            index: UInt64(message.id),
-            chat: chat,
-            recipContact: chat.getContact()
-        )
     }
     
     func processDeletedRestoredMessages() {

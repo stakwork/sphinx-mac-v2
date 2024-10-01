@@ -200,13 +200,7 @@ extension TransactionMessage {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         ///Not consider group join since those messages could be restored during contacts/tribes restore
-        fetchRequest.predicate = NSPredicate(
-            format: "NOT (status IN %@)",
-            [
-                TransactionMessage.TransactionMessageStatus.failed.rawValue,
-                TransactionMessage.TransactionMessageStatus.pending.rawValue
-            ]
-        )
+        fetchRequest.predicate = NSPredicate(format: "id >= 0")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         fetchRequest.fetchLimit = 1
 

@@ -26,40 +26,34 @@ extension SphinxOnionManager {
 
         let photoUrl = owner.avatarUrl ?? ""
         
-        API.sharedInstance.checkPeopleProfileWith(
+        var token: String = ""
+        
+        do {
+            let idx: UInt64 = 0
+            
+            token = try Sphinx.signedTimestamp(
+                seed: seed,
+                idx: idx,
+                time: self.getTimeWithEntropy(),
+                network: self.network
+            )
+        } catch {
+            completion(nil)
+            return
+        }
+        
+        API.sharedInstance.createPeopleProfileWith(
+            token: token,
+            alias: alias,
+            imageUrl: owner.getPhotoUrl(),
             publicKey: pubkey,
-            callback: { userId in
-                var token: String = ""
-                
-                do {
-                    let idx: UInt64 = 0
-                    
-                    token = try Sphinx.signedTimestamp(
-                        seed: seed,
-                        idx: idx,
-                        time: self.getTimeWithEntropy(),
-                        network: self.network
-                    )
-                } catch {
+            routeHint: routeHint,
+            callback: { succes in
+                if succes {
+                    processQueryAndAuthorize(query: query, completion: completion)
+                } else {
                     completion(nil)
-                    return
                 }
-                
-                API.sharedInstance.createPeopleProfileWith(
-                    token: token,
-                    userId: userId,
-                    alias: alias,
-                    imageUrl: owner.getPhotoUrl(),
-                    publicKey: pubkey,
-                    routeHint: routeHint,
-                    callback: { succes in
-                        if succes {
-                            processQueryAndAuthorize(query: query, completion: completion)
-                        } else {
-                            completion(nil)
-                        }
-                    }
-                )
             }
         )
 
