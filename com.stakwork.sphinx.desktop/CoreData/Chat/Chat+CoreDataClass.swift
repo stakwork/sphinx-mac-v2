@@ -328,8 +328,10 @@ public class Chat: NSManagedObject {
                 context: backgroundContext
             )
             
+            let ownerId = UserData.sharedInstance.getUserId()
+            
             for message in messages {
-                if let alias = message.senderAlias, alias.isNotEmpty {
+                if let alias = message.senderAlias, alias.isNotEmpty && message.isIncoming(ownerId: ownerId) && !message.isGroupActionMessage() {
                     if !self.aliasesAndPics.contains(where: {$0.0 == alias}) {
                         self.aliasesAndPics.append(
                             (alias, message.senderPic ?? "")
@@ -343,8 +345,10 @@ public class Chat: NSManagedObject {
     func processAliasesFrom(
         messages: [TransactionMessage]
     ) {
+        let ownerId = UserData.sharedInstance.getUserId()
+        
         for message in messages {
-            if let alias = message.senderAlias, alias.isNotEmpty {
+            if let alias = message.senderAlias, alias.isNotEmpty && message.isIncoming(ownerId: ownerId) && !message.isGroupActionMessage() {
                 if !aliasesAndPics.contains(where: {$0.0 == alias}) {
                     self.aliasesAndPics.append(
                         (alias, message.senderPic ?? "")

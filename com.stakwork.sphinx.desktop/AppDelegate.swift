@@ -309,13 +309,12 @@ import WebKit
     }
     
     func loadDashboard() {
-        ContactsService.sharedInstance.forceUpdate()
-        
         createKeyWindowWith(
             vc: DashboardViewController.instantiate(),
             windowState: WindowsManager.sharedInstance.getWindowState(),
             closeOther: true
         )
+        ContactsService.sharedInstance.forceUpdate()
     }
     
     func applicationWillResignActive(_ notification: Notification) {
