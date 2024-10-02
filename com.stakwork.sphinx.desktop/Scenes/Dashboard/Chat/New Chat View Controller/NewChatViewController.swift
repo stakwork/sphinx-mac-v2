@@ -131,6 +131,7 @@ class NewChatViewController: DashboardSplittedViewController {
         setupChatTopView()
         setupChatData()
         updateEmptyView()
+        listenForNotifications()
         
         chatTopView.checkRoute()
     }
@@ -275,7 +276,8 @@ class NewChatViewController: DashboardSplittedViewController {
                 chat: chat,
                 contact: contact,
                 andDelegate: self,
-                searchDelegate: self
+                searchDelegate: self,
+                viewWidth: view.frame.width - (podcastPlayerView.isHidden ? 0 : podcastPlayerView.frame.width)
             )
             
             configurePinnedMessageView()
@@ -348,8 +350,15 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func resizeSubviews(frame: NSRect) {
+        if abs(frame.width - view.frame.width) < 3 {
+            return
+        }
         view.frame = frame
         threadVC?.view.frame = frame
+        
+        chatTopView.toggleButtonsWith(
+            width: frame.width - (podcastPlayerView.isHidden ? 0 : podcastPlayerView.frame.width)
+        )
     }
     
     func handleImagePaste(){

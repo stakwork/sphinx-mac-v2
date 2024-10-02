@@ -78,16 +78,26 @@ class ChatTopView: NSView, LoadableNib {
         chatHeaderView.checkRoute()
     }
     
+    func getOptionsButtonView() -> NSView {
+        return chatHeaderView.getOptionsButtonView()
+    }
+    
+    func toggleButtonsWith(width: CGFloat) {
+        chatHeaderView.toggleButtonsWith(width: width)
+    }
+    
     func configureHeaderWith(
         chat: Chat?,
         contact: UserContact?,
         andDelegate delegate: ChatHeaderViewDelegate,
-        searchDelegate: ChatSearchTextFieldViewDelegate? = nil
+        searchDelegate: ChatSearchTextFieldViewDelegate? = nil,
+        viewWidth: CGFloat
     ) {
         chatHeaderView.configureWith(
             chat: chat,
             contact: contact,
-            delegate: delegate
+            delegate: delegate,
+            viewWidth: viewWidth
         )
         
         self.searchDelegate = searchDelegate

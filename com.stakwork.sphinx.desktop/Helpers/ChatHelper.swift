@@ -403,65 +403,65 @@ class ChatHelper {
         
         var maxWidth = min(
             CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth,
-            collectionViewWidth - 80
+            collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
         )
         
         if let _ = mutableTableCellState.directPayment {
             if let _ = mutableTableCellState.messageMedia {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentWithMediaBubbleWidth,
-                    collectionViewWidth - 80
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
                 )
             } else if let _ = mutableTableCellState.messageContent {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentWithTextBubbleWidth,
-                    collectionViewWidth - 80
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
                 )
             } else {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentBubbleWidth,
-                    collectionViewWidth - 80
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
                 )
             }
         } else if let _ = mutableTableCellState.messageMedia {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumMediaBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = mutableTableCellState.genericFile {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumFileBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = mutableTableCellState.audio {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumAudioBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = linkData {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = tribeData {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = mutableTableCellState.contactLink {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = mutableTableCellState.podcastComment {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumPodcastAudioBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         } else if let _ = mutableTableCellState.messageContent, let _ = mutableTableCellState.paidContent {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth,
-                collectionViewWidth - 80
+                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
             )
         }
         
@@ -493,7 +493,7 @@ class ChatHelper {
         
         let maxWidth = min(
             CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth,
-            collectionViewWidth - 80
+            collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
         )
         
         if let text = text, text.isNotEmpty {

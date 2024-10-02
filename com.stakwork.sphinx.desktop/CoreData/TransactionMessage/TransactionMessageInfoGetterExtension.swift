@@ -471,6 +471,11 @@ extension TransactionMessage {
                 self.type == TransactionMessage.TransactionMessageType.unknown.rawValue
     }
     
+    func isTribeInitialMessageType() -> Bool {
+        return self.type == TransactionMessage.TransactionMessageType.groupJoin.rawValue ||
+                self.type == TransactionMessage.TransactionMessageType.memberApprove.rawValue
+    }
+    
     func canBeDeleted() -> Bool {
         return isOutgoing() || (self.chat?.isMyPublicGroup() ?? false)
     }

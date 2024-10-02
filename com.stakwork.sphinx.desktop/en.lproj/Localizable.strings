@@ -387,6 +387,13 @@
 "amount.too.high" = "Amount too high";
 "link.not.supported" = "Link not supported";
 "bot.response.preview" = "Bot response";
+"threads" = "Threads";
+"web.app" = "Web App";
+"second.brain" = "Second Brain";
+"notifications" = "Notifications";
+"mute" = "Mute";
+"unmute" = "Unmute";
+"call" = "Call";
 
 "users" = "users";
 "optional.message.placeholder" = "Optional Message...";

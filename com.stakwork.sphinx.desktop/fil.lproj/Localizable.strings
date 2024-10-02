@@ -383,7 +383,6 @@
 "amount.too.high"  = "Masyadong mataas ang halaga";
 "link.not.supported" = "Link not supported";
 "bot.response.preview"  = "Sagot ng Bot";
-
 "users"  = "mga gumagamit";
 "optional.message.placeholder"  = "Opsyonal na Mensahe...";
 "price.required"  = "Kinakailangan ang presyo";
@@ -406,6 +405,13 @@
 "pages"  = "mga pahina";
 "page"  = "pahina";
 "pdf.description"  = "PDF - %@ - pahina %d ng %d";
+"threads" = "mga thread";
+"web.app" = "Web App";
+"second.brain" = "Pangalawang Utak";
+"notifications" = "Mga abiso";
+"mute" = "Pipi";
+"unmute" = "Unmute";
+"call" = "Tumawag";
 
 //OTHER
 "create.call"  = "Lumikha ng Tawag";

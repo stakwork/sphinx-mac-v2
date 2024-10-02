@@ -384,7 +384,6 @@
 "amount.too.high" = "金額太高";
 "link.not.supported" = "不支援鏈接";
 "bot.response.preview" = "機器人回應預覽";
-
 "users" = "用戶";
 "optional.message.placeholder" = "可選訊息...";
 "price.required" = "價格為必填項";
@@ -408,9 +407,15 @@
 "pages" = "頁";
 "page" = "頁";
 "pdf.description" = "PDF - %@ - 第%d頁，共%d頁";
-
 "alert-confirm.delete-message-title" = "確認刪除消息";
 "alert-confirm.delete-message-message" = "您確定要刪除此消息嗎？此操作無法撤銷";
+"threads" = "執行緒數";
+"web.app" = "網頁應用程式";
+"second.brain" = "第二個大腦";
+"notifications" = "通知";
+"mute" = "沉默的";
+"unmute" = "取消靜音";
+"call" = "稱呼";
 
 //OTHER
 "create.call" = "創建通話";

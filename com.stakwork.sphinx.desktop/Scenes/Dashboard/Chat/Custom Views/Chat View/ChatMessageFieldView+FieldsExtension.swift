@@ -174,7 +174,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     func didDetectFilePaste(pasteBoard: NSPasteboard) -> Bool {
         let hasFiles = ClipboardHelper().clipboardHasFiles(pasteBoard: pasteBoard)
         
-        if hasFiles == true {
+        if hasFiles {
             NotificationCenter.default.post(name: .onFilePaste, object: nil)
         }
 
