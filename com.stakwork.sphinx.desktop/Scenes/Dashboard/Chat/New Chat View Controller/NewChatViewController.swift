@@ -131,6 +131,7 @@ class NewChatViewController: DashboardSplittedViewController {
         setupChatTopView()
         setupChatData()
         updateEmptyView()
+        listenForNotifications()
         
         chatTopView.checkRoute()
     }
