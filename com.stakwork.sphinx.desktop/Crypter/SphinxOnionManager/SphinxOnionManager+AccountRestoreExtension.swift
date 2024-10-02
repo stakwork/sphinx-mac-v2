@@ -750,7 +750,14 @@ extension SphinxOnionManager {
                 if lastMessage.isKeyExchangeType() {
                     fixSeenStateForChatsWithNoMessages(
                         chat: chat,
-                        message: lastMessage
+                        message: lastMessage,
+                        shouldSetLastMessage: false
+                    )
+                } else if lastMessage.isTribeInitialMessageType() && chat.messages?.count == 1 {
+                    fixSeenStateForChatsWithNoMessages(
+                        chat: chat,
+                        message: lastMessage,
+                        shouldSetLastMessage: true
                     )
                 } else if lastMessage.isOutgoing() {
                     chat.setChatMessagesAsSeen()
@@ -763,11 +770,12 @@ extension SphinxOnionManager {
     
     func fixSeenStateForChatsWithNoMessages(
         chat: Chat,
-        message: TransactionMessage
+        message: TransactionMessage,
+        shouldSetLastMessage: Bool
     ) {
         message.seen = true
         chat.seen = true
-        chat.lastMessage = nil
+        chat.lastMessage = shouldSetLastMessage ? message : nil
         
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
             let _  = SphinxOnionManager.sharedInstance.setReadLevel(
