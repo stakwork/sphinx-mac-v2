@@ -16,6 +16,18 @@ extension NewChatViewController {
 }
 
 extension NewChatViewController : ChatHeaderViewDelegate {
+    func didClickOptionsButton() {
+        guard let chat = chat else {
+            return
+        }
+        MessageOptionsHelper.sharedInstance.showMenuForChatHeader(
+            in: self.view,
+            from: self.chatTopView.getOptionsButtonView(),
+            with: self,
+            and: chat
+        )
+    }
+    
     func didClickThreadsButton() {
         if let chatId = chat?.id {
             let threadsListVC = ThreadsListViewController.instantiate(

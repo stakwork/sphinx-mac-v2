@@ -384,7 +384,6 @@
 "amount.too.high" = "Importe demasiado alto";
 "link.not.supported" = "Enlace no válido";
 "bot.response.preview" = "Respuesta de Bot";
-
 "users" = "users";
 "optional.message.placeholder" = "Mensaje opcional...";
 "price.required" = "Precio requerido";
@@ -409,9 +408,15 @@
 "pages" = "páginas";
 "page" = "página";
 "pdf.description" = "PDF - %@ - Página %d de %d";
-
 "alert-confirm.delete-message-title" = "Confirmar Mensaje eliminado";
 "alert-confirm.delete-message-message" = "¿Estas seguro de que quieres eliminar este mensaje? Esta acción no puede revertirse";
+"threads" = "Hilos";
+"web.app" = "Aplicación Web";
+"second.brain" = "Second Brain";
+"notifications" = "Notificaciones";
+"mute" = "Silenciar";
+"unmute" = "Desilenciar";
+"call" = "Llamada";
 
 //OTHER
 "create.call" = "Crear Llamada";

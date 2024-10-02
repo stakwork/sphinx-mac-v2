@@ -383,7 +383,6 @@
 "amount.too.high" = "金額が高すぎます";
 "link.not.supported" = "リンクはサポートされていません";
 "bot.response.preview" = "ボットの応答プレビュー";
-
 "users" = "ユーザー";
 "optional.message.placeholder" = "オプションのメッセージ...";
 "price.required" = "価格が必要です";
@@ -407,9 +406,15 @@
 "pages" = "ページ";
 "page" = "ページ";
 "pdf.description" = "PDF - %@ - %dページ中の%dページ";
-
 "alert-confirm.delete-message-title" = "メッセージの削除を確認";
 "alert-confirm.delete-message-message" = "このメッセージを削除してもよろしいですか？ この操作は元に戻せません";
+"threads" = "スレッド";
+"web.app" = "ウェブアプリ";
+"second.brain" = "セカンドブレイン";
+"notifications" = "通知";
+"mute" = "ミュート";
+"unmute" = "ミュートを解除";
+"call" = "電話";
 
 //OTHER
 "create.call" = "通話を作成";

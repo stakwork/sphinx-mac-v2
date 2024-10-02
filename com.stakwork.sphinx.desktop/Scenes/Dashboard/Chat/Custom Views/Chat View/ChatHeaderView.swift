@@ -18,6 +18,7 @@ protocol ChatHeaderViewDelegate : AnyObject {
     func didClickSearchButton()
     func didClickSecondBrainAppButton()
     func didClickRefreshButton()
+    func didClickOptionsButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -45,9 +46,14 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var threadsButton: CustomButton!
     @IBOutlet weak var searchButton: CustomButton!
     @IBOutlet weak var refreshButton: CustomButton!
+    @IBOutlet weak var optionsButton: CustomButton!
     @IBOutlet weak var dashedLineView: NSView!
     @IBOutlet weak var imageWidthConstraint: NSLayoutConstraint!
     
+    let kMinimumChatHeaderForButtons: CGFloat = 700
+    
+    var isDisable = false
+    var viewWidth: CGFloat? = nil
     var chat: Chat? = nil
     var contact: UserContact? = nil
 
@@ -80,18 +86,26 @@ class ChatHeaderView: NSView, LoadableNib {
         headerButton.cursor = .pointingHand
         threadsButton.cursor = .pointingHand
         searchButton.cursor = .pointingHand
+        optionsButton.cursor = .pointingHand
+    }
+    
+    func getOptionsButtonView() -> NSView {
+        return optionsButton
     }
     
     func configureWith(
         chat: Chat?,
         contact: UserContact?,
-        delegate: ChatHeaderViewDelegate
+        delegate: ChatHeaderViewDelegate,
+        viewWidth: CGFloat
     ) {
         if chat == nil && contact == nil {
             setupDisabledMode()
             return
         }
-        
+       
+        self.viewWidth = viewWidth
+        self.isDisable = false
         self.chat = chat
         self.contact = contact
         self.delegate = delegate
@@ -100,6 +114,8 @@ class ChatHeaderView: NSView, LoadableNib {
     }
     
     func setupDisabledMode() {
+        isDisable = true
+        
         nameLabel.stringValue = "Open a conversation to start messaging"
         
         imageContainer.isHidden = true
@@ -124,12 +140,9 @@ class ChatHeaderView: NSView, LoadableNib {
     }
     
     func configureHeaderBasicInfo() {
-        searchButton.isHidden = false
-        
         nameLabel.stringValue = getHeaderName()
-        callButton.isHidden = false
         
-        threadsButton.isHidden = chat?.isConversation() ?? true
+        toggleButtonsWith(width: viewWidth)
     }
     
     func configureEncryptionSign() {
@@ -268,15 +281,15 @@ class ChatHeaderView: NSView, LoadableNib {
         volumeButton.image = NSImage(
             named: chat?.isMuted() ?? false ? "muteOnIcon" : "muteOffIcon"
         )
-        volumeButton.isHidden = false
+        toggleButtonsWith(width: viewWidth)
     }
     
     func toggleWebAppIcon() {
-        webAppButton.isHidden = !(chat?.hasWebApp() ?? false)
+        toggleButtonsWith(width: viewWidth)
     }
     
     func toggleSecondBrainAppIcon() {
-        secondBrainButton.isHidden = !(chat?.hasSecondBrainApp() ?? false)
+        toggleButtonsWith(width: viewWidth)
     }
     
     func checkRoute() {
@@ -288,6 +301,36 @@ class ChatHeaderView: NSView, LoadableNib {
         
         boltSign.isHidden = !success
         boltSign.textColor = success ? HealthCheckView.kConnectedColor : HealthCheckView.kNotConnectedColor
+    }
+    
+    func toggleButtonsWith(width: CGFloat?) {
+        guard let width = width else {
+            return
+        }
+        
+        if isDisable {
+            return
+        }
+        
+        viewWidth = width
+        
+        if width < kMinimumChatHeaderForButtons {
+            searchButton.isHidden = true
+            threadsButton.isHidden = true
+            webAppButton.isHidden = true
+            secondBrainButton.isHidden = true
+            volumeButton.isHidden = true
+            callButton.isHidden = true
+            optionsButton.isHidden = false
+        } else {
+            searchButton.isHidden = false
+            threadsButton.isHidden = chat?.isPublicGroup() == false
+            webAppButton.isHidden = chat?.hasWebApp() == false
+            secondBrainButton.isHidden = chat?.hasSecondBrainApp() == false
+            volumeButton.isHidden = false
+            callButton.isHidden = false
+            optionsButton.isHidden = true
+        }
     }
     
     @IBAction func threadsButtonClicked(_ sender: Any) {
@@ -322,5 +365,9 @@ class ChatHeaderView: NSView, LoadableNib {
         refreshButton.isHidden = true
         
         delegate?.didClickRefreshButton()
+    }
+    
+    @IBAction func optionsButtonClicked(_ sender: Any) {
+        delegate?.didClickOptionsButton()
     }
 }

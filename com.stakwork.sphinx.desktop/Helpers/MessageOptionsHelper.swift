@@ -16,6 +16,7 @@ import Cocoa
     @objc optional func shouldTogglePinState(message: TransactionMessage, pin: Bool)
     @objc optional func shouldPerformChatAction(action: Int)
     @objc optional func shouldSetFeedType(type: Int)
+    @objc optional func didSelectChatHeaderItem(item: Int)
     @objc optional func willHideMenu()
 }
 
@@ -62,6 +63,15 @@ class MessageOptionsHelper {
         case Podcast = 200
         case Video = 201
         case Newsletter = 202
+    }
+    
+    public enum ChatHeaderItem: Int {
+        case Search = 300
+        case Threads = 301
+        case WebApp = 302
+        case SecondBrain = 303
+        case Mute = 304
+        case Call = 305
     }
     
     func showMenuFor(
@@ -135,6 +145,59 @@ class MessageOptionsHelper {
         if let menuView = menuView {
             addBackLayer(on: menuView, frame: menuView.bounds, backColor: bubbleColor, vPosition: vPosition, hPosition: hPosition)
             addMenuOptions(options: messageOptions, on: menuView)
+            
+            container.addSubview(menuView)
+        }
+    }
+    
+    func showMenuForChatHeader(
+        in container: NSView,
+        from origin: NSView,
+        with delegate: MessageOptionsDelegate,
+        and chat: Chat
+    ) {
+        if let ch = self.chat, ch.id == chat.id {
+            hideMenu()
+            return
+        }
+        
+        hideMenu()
+        menuOptionsWidth = 140
+        
+        self.chat = chat
+        self.delegate = delegate
+        
+        let frameInView = origin.superview!.convert(origin.frame, to: container)
+        let windowHeight = NSApplication.shared.keyWindow?.frame.size.height ?? 735
+        let vPosition: VerticalPosition = (frameInView.origin.y < windowHeight / 2) ? .Top : .Bottom
+        let hPosition: HorizontalPosition = (frameInView.origin.x > (container.frame.width - (menuOptionsWidth / 2) - 12)) ? .Right : .Center
+        
+        let messageOptions = getChatHeaderMenuOptionsFor(chat: chat)
+        let optionsCount = messageOptions.count
+        let bubbleColor = NSColor.Sphinx.OldReceivedMsgBG
+        
+        let menuFrame = getMenuFrame(
+            vPosition: vPosition,
+            hPosition: hPosition,
+            buttonFrame: frameInView,
+            optionsCount: optionsCount
+        )
+        
+        menuView = MenuOptionsView(frame: menuFrame)
+        
+        if let menuView = menuView {
+            addBackLayer(
+                on: menuView,
+                frame: menuView.bounds,
+                backColor: bubbleColor,
+                vPosition: vPosition,
+                hPosition: hPosition
+            )
+            
+            addMenuOptions(
+                options: messageOptions,
+                on: menuView
+            )
             
             container.addSubview(menuView)
         }
@@ -217,6 +280,42 @@ class MessageOptionsHelper {
         options.append((FeedTypeItem.Podcast.rawValue, nil, nil, "Podcast"))
         options.append((FeedTypeItem.Video.rawValue, nil, nil, "Video"))
         options.append((FeedTypeItem.Newsletter.rawValue, nil, nil, "Newsletter"))
+        
+        return options
+    }
+    
+    func getChatHeaderMenuOptionsFor(chat: Chat) -> [(tag: Int, icon: String?, iconImage: String?, label: String)] {
+        var options = [(tag: Int, icon: String?, iconImage: String?, label: String)]()
+        
+        options.append(
+            (ChatHeaderItem.Search.rawValue, nil, nil, "search".localized)
+        )
+        if chat.isPublicGroup() {
+            options.append(
+                (ChatHeaderItem.Threads.rawValue, nil, nil, "threads".localized)
+            )
+        }
+        if chat.hasWebApp() {
+            options.append(
+                (ChatHeaderItem.WebApp.rawValue, nil, nil, "web.app".localized)
+            )
+        }
+        if chat.hasWebApp() {
+            options.append(
+                (ChatHeaderItem.SecondBrain.rawValue, nil, nil, "second.brain".localized)
+            )
+        }
+        options.append(
+            (
+                ChatHeaderItem.Mute.rawValue,
+                nil,
+                nil,
+                chat.isPublicGroup() ? "notifications".localized : (chat.isMuted() ? "unmute".localized : "mute".localized)
+            )
+        )
+        options.append(
+            (ChatHeaderItem.Call.rawValue, nil, nil, "call".localized)
+        )
         
         return options
     }
@@ -381,6 +480,10 @@ extension MessageOptionsHelper : MessageOptionViewDelegate {
         
         if let feedType = FeedTypeItem(rawValue: tag) {
             delegate?.shouldSetFeedType?(type: feedType.rawValue)
+        }
+        
+        if let _ = ChatHeaderItem(rawValue: tag) {
+            delegate?.didSelectChatHeaderItem?(item: tag)
         }
         
         delegate?.willHideMenu?()

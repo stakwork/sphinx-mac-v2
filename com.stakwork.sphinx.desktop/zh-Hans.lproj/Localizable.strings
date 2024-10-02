@@ -383,7 +383,6 @@
 "amount.too.high" = "金额太高";
 "link.not.supported" = "不支持的链接";
 "bot.response.preview" = "机器人响应预览";
-
 "users" = "用户";
 "optional.message.placeholder" = "可选消息...";
 "price.required" = "需要价格";
@@ -407,9 +406,15 @@
 "pages" = "页";
 "page" = "页";
 "pdf.description" = "PDF - %@ - 第%d页，共%d页";
-
 "alert-confirm.delete-message-title" = "确认删除消息";
 "alert-confirm.delete-message-message" = "您确定要删除这条消息吗？此操作不能撤销";
+"threads" = "线程";
+"web.app" = "Web 应用程序";
+"second.brain" = "第二大脑";
+"notifications" = "通知";
+"mute" = "沉默的";
+"unmute" = "取消静音";
+"call" = "称呼";
 
 //OTHER
 "create.call" = "创建通话";

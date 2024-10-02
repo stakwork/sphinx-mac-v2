@@ -42,6 +42,31 @@ extension NewChatViewController : MessageOptionsDelegate {
             }
         }
     }
+    
+    func didSelectChatHeaderItem(item: Int) {
+        if let headerItem = MessageOptionsHelper.ChatHeaderItem(rawValue: item) {
+            switch(headerItem) {
+            case .Search:
+                didClickSearchButton()
+                break
+            case .Threads:
+                didClickThreadsButton()
+                break
+            case .WebApp:
+                didClickWebAppButton()
+                break
+            case .SecondBrain:
+                didClickSecondBrainAppButton()
+                break
+            case .Mute:
+                didClickMuteButton()
+                break
+            case .Call:
+                didClickCallButton()
+                break
+            }
+        }
+    }
 }
 
 extension NewChatViewController : NewMessageReplyViewDelegate {
