@@ -78,6 +78,28 @@ extension TransactionMessage {
         return messages
     }
     
+    static func getAttachmentsBefore(
+        date: Date,
+        managedContext: NSManagedObjectContext? = nil
+    ) -> [TransactionMessage] {
+        let predicate = NSPredicate(
+            format: "type == %d AND mediaToken != nil AND createdAt < %@",
+            TransactionMessage.TransactionMessageType.attachment.rawValue,
+            date as NSDate
+        )
+        
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            managedContext: managedContext
+        )
+        
+        return messages
+    }
+    
     static func getPurchaseAcceptWith(mediaToken: String) -> TransactionMessage? {
         // Corrected the format specifier for the integer type field
         let predicate = NSPredicate(format: "type == %d AND mediaToken == %@", TransactionMessage.TransactionMessageType.purchaseAccept.rawValue, mediaToken)
