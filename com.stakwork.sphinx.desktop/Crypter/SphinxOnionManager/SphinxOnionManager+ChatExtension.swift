@@ -1123,15 +1123,16 @@ extension SphinxOnionManager {
         newMessage.id = index
         newMessage.uuid = uuid
         
+        let currentDate = Date()
         if let timestamp = message.timestamp,
            let dateFromMessage = timestampToDate(timestamp: UInt64(timestamp))
         {
-            newMessage.createdAt = dateFromMessage
-            newMessage.updatedAt = dateFromMessage
+            newMessage.createdAt = currentDate
+            newMessage.updatedAt = currentDate
             newMessage.date = dateFromMessage
         } else {
-            newMessage.createdAt = date
-            newMessage.updatedAt = date
+            newMessage.createdAt = currentDate
+            newMessage.updatedAt = currentDate
             newMessage.date = date
         }
         

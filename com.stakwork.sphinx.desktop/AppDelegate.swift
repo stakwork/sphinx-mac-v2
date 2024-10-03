@@ -55,6 +55,7 @@ import WebKit
         
         SDImageCache.shared.clearMemory()
         SDImageCache.shared.config.maxMemoryCount = 100
+        MediaLoader.deleteOldMedia()
         
         listenToSleepEvents()
         

@@ -615,10 +615,11 @@ extension SphinxOnionManager {
         groupActionMessage.chat = chat
         groupActionMessage.type = Int(type)
         
+        let currentDate = Date()
         let innerContentDate = message.getInnerContentDate()
-        groupActionMessage.createdAt = innerContentDate ?? date
+        groupActionMessage.createdAt = currentDate
+        groupActionMessage.updatedAt = currentDate
         groupActionMessage.date = innerContentDate ?? date
-        groupActionMessage.updatedAt = innerContentDate ?? date
         
         groupActionMessage.setAsLastMessage()
         groupActionMessage.senderAlias = csr.alias
