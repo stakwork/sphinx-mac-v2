@@ -369,17 +369,19 @@ extension NewChatViewController : ChatBottomViewDelegate {
         text: String,
         cursorPosition: Int
     ) {
-        if (!object.isEmpty) {
-            let leadingPos = getCurrentPosition(
-                cursorPoint: cursorPosition - text.count,
-                isMention: object.first?.type == .mention
-            )
-            mentionScrollViewLeadingConstraints.constant = leadingPos.0
-            mentionScrollViewBottomConstraints.constant = leadingPos.1
-            setupCollectionView()
+        DispatchQueue.main.async {
+            if (!object.isEmpty) {
+                let leadingPos = self.getCurrentPosition(
+                    cursorPoint: cursorPosition - text.count,
+                    isMention: object.first?.type == .mention
+                )
+                self.mentionScrollViewLeadingConstraints.constant = leadingPos.0
+                self.mentionScrollViewBottomConstraints.constant = leadingPos.1
+                self.setupCollectionView()
+            }
+            self.chatMentionAutocompleteDataSource?.setViewWidth(viewWidth: 170)
+            self.chatMentionAutocompleteDataSource?.updateMentionSuggestions(suggestions: object)
         }
-        chatMentionAutocompleteDataSource?.setViewWidth(viewWidth: 170)
-        chatMentionAutocompleteDataSource?.updateMentionSuggestions(suggestions: object)
     }
     
     func getCurrentPosition(
