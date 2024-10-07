@@ -71,7 +71,6 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         
         toggleSendMicButton()
         togglePriceContainer()
-        
         updateColor()
         
         ChatTrackingHandler.shared.saveOngoingMessage(
@@ -90,14 +89,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             cursorPosition: messageTextView.cursorPosition ?? 0
         )
         
-        let didUpdateHeight = updateBottomBarHeight()
-        if !didUpdateHeight {
-            return
-        }
-        
-//        if chatCollectionView.shouldScrollToBottom() {
-//            chatCollectionView.scrollToBottom(animated: false)
-//        }
+        let _ = updateBottomBarHeight()
     }
     
     func togglePriceContainer() {
@@ -118,6 +110,12 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     
     func updateColor() {
         let active: Bool = !priceTextField.stringValue.isEmpty
+        
+        if priceActive == active {
+            return
+        }
+        
+        priceActive = active
         
         let plusIconColor = active ?
         NSColor.Sphinx.GreenBorder :
