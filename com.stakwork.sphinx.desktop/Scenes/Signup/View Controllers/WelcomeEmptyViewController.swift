@@ -202,7 +202,7 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
         if let _ = UserContact.getOwner() {
             som.isV2InitialSetup = true
             
-            SignupHelper.step = SignupHelper.SignupStep.OwnerCreated.rawValue
+            UserData.sharedInstance.signupStep = SignupHelper.SignupStep.OwnerCreated.rawValue
             
             if isNewUser {
                 shouldContinueTo(mode: WelcomeViewMode.FriendMessage.rawValue)

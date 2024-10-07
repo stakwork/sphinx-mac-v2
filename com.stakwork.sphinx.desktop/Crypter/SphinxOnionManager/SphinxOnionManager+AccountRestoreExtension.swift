@@ -112,7 +112,7 @@ extension SphinxOnionManager {
     
     func isMnemonic(code: String) -> Bool {
         let words = code.split(separator: " ").map { String($0).trim().lowercased() }
-        let (error, _) = CrypterManager.sharedInstance.validateSeed(words: words)
+        let (error, _) = validateSeed(words: words)
         return error == nil
     }
     

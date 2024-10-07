@@ -18,8 +18,8 @@ extension API {
         callback: @escaping CreateGroupCallback,
         errorCallback: @escaping EmptyCallback
     ) {
-        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
-        let finalHost = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? host : SphinxOnionManager.sharedInstance.kTestV2TribesServer
+        let hostProtocol = SphinxOnionManager.sharedInstance.isProductionEnv ? "https" : "http"
+        let finalHost = SphinxOnionManager.sharedInstance.isProductionEnv ? host : SphinxOnionManager.sharedInstance.kTestV2TribesServer
         let url = API.getUrl(route: "\(hostProtocol)://\(finalHost)/tribes/\(uuid)")
         let tribeRequest : URLRequest? = createRequest(url, params: nil, method: "GET")
         

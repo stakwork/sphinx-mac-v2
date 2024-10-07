@@ -144,7 +144,7 @@ extension SphinxOnionManager{//invites related
         }
         
         if let routerUrl = routerUrl {
-            UserDefaults.Keys.routerUrl.set(routerUrl)
+            self.routerUrl = routerUrl
         }
     }
     
@@ -157,23 +157,23 @@ extension SphinxOnionManager{//invites related
             if let port = components.port {
                 UserDefaults.Keys.serverPORT.set(port)
                 UserDefaults.Keys.serverIP.set(host.replacingOccurrences(of: ":\(port)", with: ""))
-                UserDefaults.Keys.isProductionEnv.set(port == kProdServerPort)
+                isProductionEnv = port == kProdServerPort
             } else {
                 UserDefaults.Keys.serverIP.set(host)
-                UserDefaults.Keys.isProductionEnv.set(false)
+                isProductionEnv = false
             }
         } else if let components = URLComponents(string: "https://\(lspHost)"), let host = components.host {
             if let port = components.port {
                 UserDefaults.Keys.serverPORT.set(port)
                 UserDefaults.Keys.serverIP.set(host.replacingOccurrences(of: ":\(port)", with: ""))
-                UserDefaults.Keys.isProductionEnv.set(port == kProdServerPort)
+                isProductionEnv = port == kProdServerPort
             } else {
                 UserDefaults.Keys.serverIP.set(host)
-                UserDefaults.Keys.isProductionEnv.set(false)
+                isProductionEnv = false
             }
         } else {
             UserDefaults.Keys.serverIP.set(lspHost)
-            UserDefaults.Keys.isProductionEnv.set(false)
+            isProductionEnv = false
         }
     }
 }

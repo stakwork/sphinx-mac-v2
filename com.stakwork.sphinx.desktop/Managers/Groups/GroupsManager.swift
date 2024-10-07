@@ -456,7 +456,7 @@ class GroupsManager {
         tribeInfo: TribeInfo
     ) -> JSON? {
         let chatDict : [String: Any] = [
-            "id": CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
+            "id": SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
             "owner_pubkey": tribeInfo.ownerPubkey as Any,
             "name" : tribeInfo.name ?? "Unknown Name",
             "private": tribeInfo.privateTribe,
@@ -568,7 +568,7 @@ class GroupsManager {
                 }
                 
                 let chatDict : [String: Any] = [
-                    "id": CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
+                    "id": SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
                     "owner_pubkey": groupInfo["pubkey"],
                     "name" : groupInfo["name"],
                     "private": groupInfo["private"],

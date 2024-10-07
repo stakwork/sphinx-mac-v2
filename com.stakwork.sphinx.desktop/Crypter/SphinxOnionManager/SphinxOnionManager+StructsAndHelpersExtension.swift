@@ -12,6 +12,35 @@ import SwiftyJSON
 
 //MARK: Helper Structs & Functions:
 
+var wordsListPossibilities : [WordList] = [
+    .english,
+    .japanese,
+    .korean,
+    .spanish,
+    .simplifiedChinese,
+    .traditionalChinese,
+    .french,
+    .italian
+]
+
+func localizedString(_ key: String) -> String {
+    return NSLocalizedString(key, comment: "")
+}
+
+enum SeedValidationError: Error {
+    case incorrectWordNumber
+    case invalidWord
+    
+    var localizedDescription: String {
+        switch self {
+        case .incorrectWordNumber:
+            return localizedString("profile.mnemonic-incorrect-length")
+        case .invalidWord:
+            return localizedString("profile.mnemonic-invalid-word")
+        }
+    }
+}
+
 struct SphinxOnionBrokerResponse: Mappable {
     var scid: String?
     var serverPubkey: String?
@@ -403,6 +432,54 @@ enum SphinxOnionManagerError: Error {
             return "Network Error"
         case .SOMTimeoutError:
             return "Timeout Error"
+        }
+    }
+}
+
+extension SphinxOnionManager {
+    func validateSeed(
+        words: [String]
+    ) -> (SeedValidationError?, String?) {
+        if (words.count != 12 && words.count != 24) {
+            return (SeedValidationError.incorrectWordNumber,nil)
+        }
+        if let languageList = findListForWord(words[0]){
+            for i in 1..<words.count{
+                if languageList.words.contains(words[i]) == false {
+                    return (SeedValidationError.invalidWord, "\(i + 1) - \(words[i])")
+                }
+            }
+        }
+        else {
+            return (SeedValidationError.invalidWord, "1 -\(words[0])")
+        }
+        
+        return (nil, nil)
+    }
+    
+    func findListForWord(_ word: String) -> WordList? {
+        for language in wordsListPossibilities {
+            if language.words.contains(word) {
+                return language
+            }
+        }
+        return nil
+    }
+    
+    func generateCryptographicallySecureRandomInt(upperBound: Int) -> Int? {
+        guard upperBound > 0 else {
+            return nil // Ensure that the upperBound is greater than 0
+        }
+        
+        var randomInt: UInt32 = 0
+        let result = SecRandomCopyBytes(kSecRandomDefault, MemoryLayout.size(ofValue: randomInt), &randomInt)
+        
+        if result == errSecSuccess {
+            // Use randomInt to generate a random value within the specified range
+            let randomValue = Int(randomInt) % upperBound
+            return randomValue
+        } else {
+            return nil // Return nil to indicate an error in generating a secure random value
         }
     }
 }

@@ -132,7 +132,7 @@ class CreateTribeViewModel {
         var chatDict = rawTribeJSON
         
         let mappedFields : [String:Any] = [
-            "id": CrypterManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
+            "id": SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
             "owner_pubkey": ownerPubkey,
             "name" : name,
             "is_tribe_i_created": true,

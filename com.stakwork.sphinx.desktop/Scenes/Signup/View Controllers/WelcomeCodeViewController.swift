@@ -126,11 +126,11 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             options: ["Bitcoin","Regtest"],
             callbacks: [
                 {
-                    UserDefaults.Keys.isProductionEnv.set(true)
+                    SphinxOnionManager.sharedInstance.isProductionEnv = true
                     self.getConfigData(code: code)
                 },
                 {
-                    UserDefaults.Keys.isProductionEnv.set(false)
+                    SphinxOnionManager.sharedInstance.isProductionEnv = false
                     self.continueWith(code: code)
                 }
             ]
@@ -140,7 +140,7 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
     func getConfigData(
         code: String? = nil
     ) {
-        if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) == false {
+        if !SphinxOnionManager.sharedInstance.isProductionEnv {
             continueSignupToConnecting()
             return
         }

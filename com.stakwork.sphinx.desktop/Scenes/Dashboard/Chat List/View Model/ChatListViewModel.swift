@@ -20,6 +20,6 @@ final class ChatListViewModel: NSObject {
     var newMessagesChatIds = [Int]()
     
     func finishRestoring() {
-        SignupHelper.completeSignup()
+        UserData.sharedInstance.completeSignup()
     }
 }

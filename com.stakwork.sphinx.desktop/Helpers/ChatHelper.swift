@@ -699,7 +699,7 @@ class ChatHelper {
                 
                 if substring.isPubKey {
                     substring = substring.shareContactDeepLink
-                } else if substring.starts(with: API.kVideoCallServer) {
+                } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
                     substring = substring.callLinkDeepLink
                 } else if !substring.isTribeJoinLink {
                     substring = substring.withProtocol(protocolString: "http")

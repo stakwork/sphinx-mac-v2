@@ -173,7 +173,7 @@ extension ProfileImageView : SignupButtonViewDelegate {
         if isRestoring {
             delegate?.shouldContinueTo?(mode: -1)
         } else {
-            SignupHelper.step = SignupHelper.SignupStep.ImageSet.rawValue
+            UserData.sharedInstance.signupStep = SignupHelper.SignupStep.ImageSet.rawValue
             delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Ready.rawValue)
         }
         

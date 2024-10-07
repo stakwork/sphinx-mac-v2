@@ -186,17 +186,24 @@ extension NSColor {
     }
     
     static func getColorFor(key: String) -> NSColor {
-        if let colorCode = UserDefaults.standard.value(forKey: key) as? String {
+        if let colorCode = ColorsManager.sharedInstance.getColorFor(key: key) {
+            print("ColorsManager Color get from array")
+            return NSColor(hex: colorCode)
+        } else if let colorCode = UserDefaults.standard.value(forKey: key) as? String {
+            print("ColorsManager Color get from defaults")
             return NSColor(hex: colorCode)
         } else {
             let newColor = NSColor.random()
             UserDefaults.standard.set(newColor.toHexString(), forKey: key)
             UserDefaults.standard.synchronize()
+            ColorsManager.sharedInstance.saveColorFor(colorHex: newColor.toHexString(), key: key)
+            print("ColorsManager New color set")
             return newColor
         }
     }
     
     static func removeColorFor(key: String) {
+        ColorsManager.sharedInstance.removeColorFor(key: key)
         UserDefaults.standard.removeObject(forKey: key)
         UserDefaults.standard.synchronize()
     }

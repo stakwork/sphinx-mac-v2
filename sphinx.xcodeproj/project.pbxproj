@@ -93,6 +93,8 @@
 		47308E1F2507F3AC00FFAC6F /* GiphySearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47308E1E2507F3AC00FFAC6F /* GiphySearchView.swift */; };
 		47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */; };
 		4733ED252CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */; };
+		4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED292CB43AA600078EF2 /* ColorsManager.swift */; };
+		4733ED2C2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */; };
 		473437AF24DB12E000950F25 /* ContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473437AE24DB12E000950F25 /* ContactViewController.swift */; };
 		4734D3962417E3D400D6957E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4734D3952417E3D400D6957E /* AppDelegate.swift */; };
 		4734D39B2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */; };
@@ -921,6 +923,8 @@
 		47308E1E2507F3AC00FFAC6F /* GiphySearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphySearchView.swift; sourceTree = "<group>"; };
 		47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+GiphyExtension.swift"; sourceTree = "<group>"; };
 		4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+PeopleExtension.swift"; sourceTree = "<group>"; };
+		4733ED292CB43AA600078EF2 /* ColorsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsManager.swift; sourceTree = "<group>"; };
+		4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+OnionStateExtension.swift"; sourceTree = "<group>"; };
 		473437AE24DB12E000950F25 /* ContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewController.swift; sourceTree = "<group>"; };
 		4734D3922417E3D400D6957E /* Sphinx.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sphinx.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4734D3952417E3D400D6957E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -1852,6 +1856,14 @@
 			path = "Giphy Search";
 			sourceTree = "<group>";
 		};
+		4733ED282CB43A9700078EF2 /* ColorsManager */ = {
+			isa = PBXGroup;
+			children = (
+				4733ED292CB43AA600078EF2 /* ColorsManager.swift */,
+			);
+			path = ColorsManager;
+			sourceTree = "<group>";
+		};
 		473437AD24DB12B300950F25 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -1925,6 +1937,7 @@
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				4733ED282CB43A9700078EF2 /* ColorsManager */,
 				475B686429917537000EF29C /* Feeds */,
 				475B68472991605D000EF29C /* Actions Manager */,
 				47C52C4627F61ACF007B43E2 /* Requests Signing */,
@@ -3267,6 +3280,7 @@
 				47CC54AB2BF68A9500D2FB21 /* SphinxOnionManager+NotificationsExtension.swift */,
 				4741EBE62BFE71FC00EFF49E /* SphinxOnionManager+StructsAndHelpersExtension.swift */,
 				4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */,
+				4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */,
 			);
 			path = SphinxOnionManager;
 			sourceTree = "<group>";
@@ -4009,6 +4023,7 @@
 				93A06CF72BD7E43C003EF2B2 /* NewChatHeaderView.swift in Sources */,
 				47F258DB2541E54000122A5A /* PodcastPaymentsHelper.swift in Sources */,
 				4708C20E2A5884EC00274AD4 /* ChatHeaderView.swift in Sources */,
+				4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */,
 				474F6759248685AE00CE6016 /* ClipboardHelper.swift in Sources */,
 				CE1FA8FE2A01B6680014360C /* LsatListTableCellView.swift in Sources */,
 				4708C2132A58851900274AD4 /* ChatBottomView.swift in Sources */,
@@ -4148,6 +4163,7 @@
 				CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */,
 				47DF91552C4AA34C00E8128A /* LSat+CoreDataClass.swift in Sources */,
 				4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */,
+				4733ED2C2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift in Sources */,
 				479751FE246EE0AE00D2106B /* DashboardSplittedViewController.swift in Sources */,
 				4797E7582785F3AD0080B966 /* DashboardModalsViewController.swift in Sources */,
 				471946BC2BF25ABA00D05216 /* API+VersionsExtension.swift in Sources */,
