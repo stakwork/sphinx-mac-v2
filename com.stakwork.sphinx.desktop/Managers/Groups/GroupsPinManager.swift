@@ -31,7 +31,7 @@ class GroupsPinManager {
                 }
             }
         }
-        return SignupHelper.isLogged()
+        return UserData.sharedInstance.isSignupCompleted()
     }
     
     func isValidPin(

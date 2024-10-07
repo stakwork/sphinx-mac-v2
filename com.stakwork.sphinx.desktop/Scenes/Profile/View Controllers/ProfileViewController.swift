@@ -165,7 +165,7 @@ class ProfileViewController: NSViewController {
                 routeHintField.isEditable = false
             }
             
-            meetingServerField.stringValue = API.kVideoCallServer
+            meetingServerField.stringValue = API.sharedInstance.kVideoCallServer
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
 //            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }

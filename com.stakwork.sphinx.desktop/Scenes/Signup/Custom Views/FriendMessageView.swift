@@ -71,7 +71,7 @@ extension FriendMessageView : SignupButtonViewDelegate {
     }
     
     func continueToPinView() {
-        SignupHelper.step = SignupHelper.SignupStep.InviterContactCreated.rawValue
+        UserData.sharedInstance.signupStep = SignupHelper.SignupStep.InviterContactCreated.rawValue
         delegate?.shouldContinueTo?(mode: -1)
     }
     

@@ -15,7 +15,7 @@ class DeepLinksHandlerHelper {
             return
         }
         
-        if url.absoluteString.starts(with: API.kVideoCallServer) {
+        if url.absoluteString.starts(with: API.sharedInstance.kVideoCallServer) {
             WindowsManager.sharedInstance.showCallWindow(link: url.absoluteString)
             return
         }

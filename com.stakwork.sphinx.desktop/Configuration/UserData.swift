@@ -17,11 +17,43 @@ class UserData {
         return Static.instance
     }
     
+    var ownerId: Int? = nil
+    var ownerPubKey: String? = nil
+    
     let keychainManager = KeychainManager.sharedInstance
+    
+    var storedSignupStep: Int? = nil
+    
+    public var signupStep: Int {
+        get {
+            if let storedSignupStep = storedSignupStep {
+                return storedSignupStep
+            }
+            let storedSetp = UserDefaults.Keys.signupStep.get(defaultValue: 0)
+            storedSignupStep = storedSetp
+            return storedSetp
+        }
+        set {
+            storedSignupStep = newValue
+            UserDefaults.Keys.signupStep.set(newValue)
+        }
+    }
+    
+    func isPinSet() -> Bool {
+        return signupStep >= SignupHelper.SignupStep.PINNameSet.rawValue
+    }
+    
+    func isSignupCompleted() -> Bool {
+        return signupStep == SignupHelper.SignupStep.SignupComplete.rawValue || signupStep == SignupHelper.SignupStep.SphinxReady.rawValue
+    }
+    
+    func completeSignup() {
+        signupStep = SignupHelper.SignupStep.SignupComplete.rawValue
+    }
     
     func isUserLogged() -> Bool {
         if let _ = getMnemonic() {
-            return SignupHelper.isLogged()
+            return isSignupCompleted()
         }
         return false
     }
@@ -39,21 +71,31 @@ class UserData {
     }
     
     func getUserId() -> Int {
+        if let ownerId = ownerId {
+            return ownerId
+        }
         if let ownerId = UserDefaults.Keys.ownerId.get(defaultValue: -1), ownerId >= 0 {
+            self.ownerId = ownerId
             return ownerId
         }
         let ownerId = UserContact.getOwner()?.id ?? -1
         UserDefaults.Keys.ownerId.set(ownerId)
+        self.ownerId = ownerId
         
         return ownerId
     }
     
     func getUserPubKey() -> String? {
+        if let ownerPubKey = ownerPubKey {
+            return ownerPubKey
+        }
         if let ownerPubKey = UserDefaults.Keys.ownerPubKey.get(defaultValue: ""), !ownerPubKey.isEmpty {
+            self.ownerPubKey = ownerPubKey
             return ownerPubKey
         }
         let ownerPubKey = UserContact.getOwner()?.publicKey ?? nil
         UserDefaults.Keys.ownerPubKey.set(ownerPubKey)
+        self.ownerPubKey = ownerPubKey
 
         return ownerPubKey
     }
@@ -80,7 +122,7 @@ class UserData {
     func save(
         walletMnemonic: String
     ) {
-        let defaultPin : String? = !SignupHelper.isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : nil
+        let defaultPin : String? = !isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : nil
         
         if let pin = getAppPin() ?? defaultPin, // apply getAppPin if it exists, otherwise apply default signup pin
             let encryptedMnemonic = SymmetricEncryptionManager.sharedInstance.encryptString(text: walletMnemonic, key: pin),
@@ -93,7 +135,7 @@ class UserData {
     func getMnemonic(
         enteredPin: String? = nil
     ) -> String? {
-        let defaultPin : String? = !SignupHelper.isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : enteredPin
+        let defaultPin : String? = !isPinSet() ? SphinxOnionManager.sharedInstance.defaultInitialSignupPin : enteredPin
         
         if let pin = defaultPin ?? getAppPin(),
             let encryptedMnemonic = keychainManager.getValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue),

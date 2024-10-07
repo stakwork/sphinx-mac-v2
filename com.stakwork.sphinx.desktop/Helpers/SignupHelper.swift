@@ -45,27 +45,6 @@ class SignupHelper {
         }
     }
     
-    public static var step: Int {
-        get {
-            return UserDefaults.Keys.signupStep.get(defaultValue: 0)
-        }
-        set {
-            UserDefaults.Keys.signupStep.set(newValue)
-        }
-    }
-    
-    public static func isPinSet() -> Bool {
-        return step >= SignupHelper.SignupStep.PINNameSet.rawValue
-    }
-    
-    public static func isLogged() -> Bool {
-        return step == SignupHelper.SignupStep.SignupComplete.rawValue || step == SignupHelper.SignupStep.SphinxReady.rawValue
-    }
-    
-    public static func completeSignup() {
-        step = SignupStep.SignupComplete.rawValue
-    }
-    
     public static func getSupportContact() -> JSON {
         var inviteData = [String : String]()
         inviteData["nickname"] = "Sphinx Support"

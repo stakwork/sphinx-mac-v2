@@ -62,6 +62,9 @@ import WebKit
         setInitialVC()
         
         NetworkMonitor.shared.startMonitoring()
+        
+        ColorsManager.sharedInstance.storeColorsInMemory()
+        SphinxOnionManager.sharedInstance.storeOnionStateInMemory()
     }
     
     func clearWebkitCache() {
@@ -164,7 +167,7 @@ import WebKit
         if let mainWindow = getDashboardWindow() {
             mainWindow.replaceContentBy(vc: DashboardViewController.instantiate())
         } else {
-            if SignupHelper.isLogged() {
+            if UserData.sharedInstance.isSignupCompleted() {
                 ContactsService.sharedInstance.setSelectedChat()
                 presentPIN()
             } else {
@@ -298,7 +301,7 @@ import WebKit
     }
      
     func updateDefaultTribe() {
-        if UserDefaults.Keys.isProductionEnv.get(defaultValue: false) == false {
+        if !SphinxOnionManager.sharedInstance.isProductionEnv {
             return
         }
 

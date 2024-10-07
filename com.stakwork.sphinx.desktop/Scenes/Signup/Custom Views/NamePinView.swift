@@ -126,7 +126,7 @@ extension NamePinView : SignupButtonViewDelegate {
         loading = false
         
         UserData.sharedInstance.save(pin: pinField.getFieldValue())
-        SignupHelper.step = SignupHelper.SignupStep.PINNameSet.rawValue
+        UserData.sharedInstance.signupStep = SignupHelper.SignupStep.PINNameSet.rawValue
         
         delegate?.shouldContinueTo?(mode: WelcomeLightningViewController.FormViewMode.Image.rawValue)
     }

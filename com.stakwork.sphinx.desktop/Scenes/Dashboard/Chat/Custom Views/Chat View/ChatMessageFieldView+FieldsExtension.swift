@@ -71,33 +71,30 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         
         toggleSendMicButton()
         togglePriceContainer()
-        
         updateColor()
         
-        ChatTrackingHandler.shared.saveOngoingMessage(
-            with: messageTextView.string,
-            chatId: chat?.id,
-            threadUUID: threadUUID
-        )
-
-        processMention(
-            text: messageTextView.string,
-            cursorPosition: messageTextView.cursorPosition ?? 0
-        )
+        let string = messageTextView.string
+        let cursorPosition = messageTextView.cursorPosition ?? 0
         
-        processMacro(
-            text: messageTextView.string,
-            cursorPosition: messageTextView.cursorPosition ?? 0
-        )
-        
-        let didUpdateHeight = updateBottomBarHeight()
-        if !didUpdateHeight {
-            return
+        DispatchQueue.global(qos: .userInitiated).async {
+            ChatTrackingHandler.shared.saveOngoingMessage(
+                with: string,
+                chatId: self.chat?.id,
+                threadUUID: self.threadUUID
+            )
+            
+            self.processMention(
+                text: string,
+                cursorPosition: cursorPosition
+            )
+            
+            self.processMacro(
+                text: string,
+                cursorPosition: cursorPosition
+            )
         }
         
-//        if chatCollectionView.shouldScrollToBottom() {
-//            chatCollectionView.scrollToBottom(animated: false)
-//        }
+        let _ = updateBottomBarHeight()
     }
     
     func togglePriceContainer() {
@@ -118,6 +115,12 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     
     func updateColor() {
         let active: Bool = !priceTextField.stringValue.isEmpty
+        
+        if priceActive == active {
+            return
+        }
+        
+        priceActive = active
         
         let plusIconColor = active ?
         NSColor.Sphinx.GreenBorder :

@@ -74,7 +74,7 @@ extension API {
     func fetchRoutingInfo(
         callback: @escaping UpdateRoutingInfoCallback
     ) {
-        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let hostProtocol = SphinxOnionManager.sharedInstance.isProductionEnv ? "https" : "http"
         let url = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.routerUrl)/api/node"
         let request : URLRequest? = createRequest(url, params: nil, method: "GET")
         
@@ -108,7 +108,7 @@ extension API {
         amtMsat: Int,
         callback: @escaping FetchRoutingInfoCallback
     ) {
-        let hostProtocol = UserDefaults.Keys.isProductionEnv.get(defaultValue: false) ? "https" : "http"
+        let hostProtocol = SphinxOnionManager.sharedInstance.isProductionEnv ? "https" : "http"
         let url = "\(hostProtocol)://\(SphinxOnionManager.sharedInstance.routerUrl)/api/route?pubkey=\(pubkey)&msat=\(amtMsat)"
         let request : URLRequest? = createRequest(url, params: nil, method: "GET")
         

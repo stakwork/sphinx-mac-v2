@@ -146,7 +146,7 @@ extension WelcomeLightningViewController : WelcomeEmptyViewDelegate {
     }
     
     func continueToWelcome() {
-        SignupHelper.completeSignup()
+        UserData.sharedInstance.completeSignup()
         view.alphaValue = 0.0
         
         view.window?.replaceContentBy(

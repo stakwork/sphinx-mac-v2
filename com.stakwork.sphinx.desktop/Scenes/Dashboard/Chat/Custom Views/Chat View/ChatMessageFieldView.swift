@@ -63,6 +63,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
     }
     
     var isAttachmentAdded = false
+    var priceActive: Bool = false
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)

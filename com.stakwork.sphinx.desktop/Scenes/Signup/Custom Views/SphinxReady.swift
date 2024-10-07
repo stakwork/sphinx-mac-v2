@@ -95,7 +95,7 @@ extension SphinxReady : SignupButtonViewDelegate {
     
     func goToApp() {
         SignupHelper.resetSignupData()
-        SignupHelper.step = SignupHelper.SignupStep.SphinxReady.rawValue
+        UserData.sharedInstance.signupStep = SignupHelper.SignupStep.SphinxReady.rawValue
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             self.delegate?.shouldContinueTo?(mode: -1)

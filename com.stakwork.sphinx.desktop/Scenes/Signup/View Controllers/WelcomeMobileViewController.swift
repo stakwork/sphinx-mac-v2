@@ -74,7 +74,7 @@ class WelcomeMobileViewController: CommonWelcomeViewController {
     }
     
     func skipButtonClicked() {
-        SignupHelper.completeSignup()
+        UserData.sharedInstance.completeSignup()
         view.alphaValue = 0.0
         
         presentDashboard()

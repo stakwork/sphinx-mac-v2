@@ -99,7 +99,7 @@ extension NewOnlyTextMessageCollectionViewitem {
                         
                         if substring.isPubKey {
                             substring = substring.shareContactDeepLink
-                        } else if substring.starts(with: API.kVideoCallServer) {
+                        } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
                             substring = substring.callLinkDeepLink
                         } else if !substring.isTribeJoinLink {
                             substring = substring.withProtocol(protocolString: "http")
@@ -125,7 +125,7 @@ extension NewOnlyTextMessageCollectionViewitem {
                     
                     let nsRange = textCheckingResult.range
                     
-                    if let text = messageContent.text {
+                    if let _ = messageContent.text {
                         if let url = URL(string: link)  {
                             attributedString.addAttributes(
                                 [

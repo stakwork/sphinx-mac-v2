@@ -86,14 +86,21 @@ class API {
         }
     }
     
-    public static var kVideoCallServer : String {
+    var storedVideoCallServer: String? = nil
+    public var kVideoCallServer : String {
         get {
+            if let storedVideoCallServer = storedVideoCallServer {
+                return storedVideoCallServer
+            }
             if let meetingServerURL = UserDefaults.Keys.meetingServerURL.get(defaultValue: ""), meetingServerURL != "" {
+                self.storedVideoCallServer = meetingServerURL
                 return meetingServerURL
             }
-            return "https://jitsi.sphinx.chat"
+            self.storedVideoCallServer = "https://jitsi.sphinx.chat"
+            return self.storedVideoCallServer!
         }
         set {
+            self.storedVideoCallServer = newValue
             UserDefaults.Keys.meetingServerURL.set(newValue)
         }
     }
