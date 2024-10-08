@@ -68,19 +68,19 @@ import WebKit
     }
     
     func clearWebkitCache() {
-//        URLCache.shared.removeAllCachedResponses()
-//
-//        if let cookies = HTTPCookieStorage.shared.cookies {
-//            for cookie in cookies {
-//                HTTPCookieStorage.shared.deleteCookie(cookie)
-//            }
-//        }
-//        
-//        WKWebsiteDataStore.default().removeData(
-//            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
-//            modifiedSince: Date(timeIntervalSince1970: 0),
-//            completionHandler: {}
-//        )
+        URLCache.shared.removeAllCachedResponses()
+
+        if let cookies = HTTPCookieStorage.shared.cookies {
+            for cookie in cookies {
+                HTTPCookieStorage.shared.deleteCookie(cookie)
+            }
+        }
+        
+        WKWebsiteDataStore.default().removeData(
+            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+            modifiedSince: Date(timeIntervalSince1970: 0),
+            completionHandler: {}
+        )
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
