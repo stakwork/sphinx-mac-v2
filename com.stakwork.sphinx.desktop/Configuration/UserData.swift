@@ -19,10 +19,9 @@ class UserData {
     
     var ownerId: Int? = nil
     var ownerPubKey: String? = nil
+    var storedSignupStep: Int? = nil
     
     let keychainManager = KeychainManager.sharedInstance
-    
-    var storedSignupStep: Int? = nil
     
     public var signupStep: Int {
         get {

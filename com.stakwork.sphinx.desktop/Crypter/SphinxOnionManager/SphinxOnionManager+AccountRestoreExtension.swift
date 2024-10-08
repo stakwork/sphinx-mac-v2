@@ -116,15 +116,7 @@ extension SphinxOnionManager {
         return error == nil
     }
     
-    func syncContactsAndMessages(
-        contactRestoreCallback: RestoreProgressCallback?,
-        messageRestoreCallback: RestoreProgressCallback?,
-        hideRestoreViewCallback: (()->())?
-    ){
-        self.contactRestoreCallback = contactRestoreCallback
-        self.messageRestoreCallback = messageRestoreCallback
-        self.hideRestoreCallback = hideRestoreViewCallback
-        
+    func syncContactsAndMessages(){
         setupSyncWith(callback: processMessageCountReceived)
     }
     
@@ -180,6 +172,7 @@ extension SphinxOnionManager {
         startIndex: Int = 0
     ) {
         guard let seed = getAccountSeed() else{
+            finishRestoration()
             return
         }
         
@@ -204,8 +197,6 @@ extension SphinxOnionManager {
         lastMessageIndex: Int,
         msgCountLimit: Int
     ){
-        startWatchdogTimer()
-        
         do {
             let rr = try fetchFirstMsgsPerKey(
                 seed: seed,
@@ -253,6 +244,7 @@ extension SphinxOnionManager {
         reverse: Bool
     ) {
         guard let seed = getAccountSeed() else {
+            finishRestoration()
             return
         }
         
@@ -283,8 +275,6 @@ extension SphinxOnionManager {
         reverse: Bool
     ) {
         let safeLastMsgIndex = max(lastMessageIndex, 0)
-        
-        startWatchdogTimer()
         
         do {
             let rr = try fetchMsgsBatch(
@@ -394,6 +384,7 @@ extension SphinxOnionManager {
         }
         
         guard let seed = getAccountSeed() else {
+            finishRestoration()
             return
         }
         
@@ -428,6 +419,7 @@ extension SphinxOnionManager {
         }
         
         guard let seed = getAccountSeed() else {
+            finishRestoration()
             return
         }
         
