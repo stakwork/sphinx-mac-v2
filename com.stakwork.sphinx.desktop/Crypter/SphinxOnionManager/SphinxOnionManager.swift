@@ -414,8 +414,6 @@ class SphinxOnionManager : NSObject {
         self.contactRestoreCallback = contactRestoreCallback
         self.messageRestoreCallback = messageRestoreCallback
         
-        startWatchdogTimer()
-        
         let success = connectToBroker(seed: seed, xpub: my_xpub)
         
         if (success == false) {

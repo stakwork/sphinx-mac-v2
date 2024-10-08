@@ -274,6 +274,8 @@ extension SphinxOnionManager {
         msgCountLimit: Int,
         reverse: Bool
     ) {
+        startWatchdogTimer()
+        
         let safeLastMsgIndex = max(lastMessageIndex, 0)
         
         do {

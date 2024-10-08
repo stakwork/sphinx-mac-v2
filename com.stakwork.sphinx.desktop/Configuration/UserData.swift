@@ -73,15 +73,16 @@ class UserData {
         if let ownerId = ownerId {
             return ownerId
         }
-        if let ownerId = UserDefaults.Keys.ownerId.get(defaultValue: -1), ownerId >= 0 {
+        if let ownerId: Int = UserDefaults.Keys.ownerId.get(), ownerId >= 0 {
             self.ownerId = ownerId
             return ownerId
         }
-        let ownerId = UserContact.getOwner()?.id ?? -1
-        UserDefaults.Keys.ownerId.set(ownerId)
-        self.ownerId = ownerId
+        if let ownerId = UserContact.getOwner()?.id {
+            UserDefaults.Keys.ownerId.set(ownerId)
+            self.ownerId = ownerId
+        }
         
-        return ownerId
+        return ownerId ?? -1
     }
     
     func getUserPubKey() -> String? {
