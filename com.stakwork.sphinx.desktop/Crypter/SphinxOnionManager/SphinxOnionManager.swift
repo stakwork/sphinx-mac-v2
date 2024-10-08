@@ -410,6 +410,12 @@ class SphinxOnionManager : NSObject {
             contactRestoreCallback?(2)
         }
         
+        self.hideRestoreCallback = hideRestoreViewCallback
+        self.contactRestoreCallback = contactRestoreCallback
+        self.messageRestoreCallback = messageRestoreCallback
+        
+        startWatchdogTimer()
+        
         let success = connectToBroker(seed: seed, xpub: my_xpub)
         
         if (success == false) {
@@ -433,17 +439,16 @@ class SphinxOnionManager : NSObject {
             }
              
             if self.isV2Restore {
-                self.syncContactsAndMessages(
-                    contactRestoreCallback: contactRestoreCallback,
-                    messageRestoreCallback: messageRestoreCallback,
-                    hideRestoreViewCallback: {
-                        self.isV2Restore = false
-                        
-                        hideRestoreViewCallback?()
-                    }
-                )
+                self.hideRestoreCallback = {
+                    self.isV2Restore = false
+                    
+                    hideRestoreViewCallback?()
+                }
+                self.syncContactsAndMessages()
             } else {
-                self.hideRestoreCallback = hideRestoreViewCallback
+                self.contactRestoreCallback = nil
+                self.messageRestoreCallback = nil
+
                 self.getReads()
                 self.syncNewMessages()
             }
