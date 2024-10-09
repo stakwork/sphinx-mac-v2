@@ -50,6 +50,10 @@ class UserData {
         signupStep = SignupHelper.SignupStep.SignupComplete.rawValue
     }
     
+    func resetSignup() {
+        signupStep = SignupHelper.SignupStep.Start.rawValue
+    }
+    
     func isUserLogged() -> Bool {
         if let _ = getMnemonic() {
             return isSignupCompleted()
@@ -171,6 +175,7 @@ class UserData {
     
     func clearData() {
         CoreDataManager.sharedManager.clearCoreDataStore()
+        UserData.sharedInstance.resetSignup()
         let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue)
         UserDefaults.resetUserDefaults()
     }
