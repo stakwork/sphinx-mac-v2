@@ -811,7 +811,6 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
-                    
                     self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
                     self.configureSecondaryMessagesResultsController()
                 }
@@ -834,32 +833,35 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     }
     
     func updateMessagesStatusesFrom(messages: [TransactionMessage]) {
-        if messages.isEmpty {
-            return
-        }
-        
-        let confirmedMessages = messages.filter({
-            return $0.senderId == UserData.sharedInstance.getUserId() &&
-                   ($0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue ||
-                    $0.status == TransactionMessage.TransactionMessageStatus.pending.rawValue)
-        })
-        let tags = confirmedMessages.compactMap({ $0.tag })
-        
-        if tags.isEmpty {
-            return
-        }
-        
-        if !messageTableCellStateArray.isEmpty {
-            if !loadingMoreItems {
-                if lastMessageTagRestored == tags.last ?? "" {
-                    return
+        let dispatchQueue = DispatchQueue.global(qos: .utility)
+        dispatchQueue.async {
+            if messages.isEmpty {
+                return
+            }
+            
+            let confirmedMessages = messages.filter({
+                return $0.senderId == UserData.sharedInstance.getUserId() &&
+                       ($0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue ||
+                        $0.status == TransactionMessage.TransactionMessageStatus.pending.rawValue)
+            })
+            let tags = confirmedMessages.compactMap({ $0.tag })
+            
+            if tags.isEmpty {
+                return
+            }
+            
+            if !self.messageTableCellStateArray.isEmpty {
+                if !self.loadingMoreItems {
+                    if self.lastMessageTagRestored == tags.last ?? "" {
+                        return
+                    }
                 }
             }
+            
+            self.lastMessageTagRestored = tags.last ?? ""
+            
+            SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
         }
-        
-        lastMessageTagRestored = tags.last ?? ""
-        
-        SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
     }
     
     func resetFetchedResultsControllers() {

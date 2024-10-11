@@ -25,14 +25,18 @@ extension TransactionMessage {
         return message
     }
     
-    static func getMessageWith(tag: String) -> TransactionMessage? {
+    static func getMessageWith(
+        tag: String,
+        context: NSManagedObjectContext? = nil
+    ) -> TransactionMessage? {
         let predicate = NSPredicate(format: "tag == %@", tag)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         
         let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
-            entityName: "TransactionMessage"
+            entityName: "TransactionMessage",
+            managedContext: context
         )
         
         return message
@@ -167,14 +171,18 @@ extension TransactionMessage {
         return messages
     }
     
-    static func getMessagesWith(tags: [String]) -> [TransactionMessage] {
+    static func getMessagesWith(
+        tags: [String],
+        context: NSManagedObjectContext? = nil
+    ) -> [TransactionMessage] {
         let predicate = NSPredicate(format: "tag IN %@", tags)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         
         let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
-            entityName: "TransactionMessage"
+            entityName: "TransactionMessage",
+            managedContext: context
         )
         
         return messages
@@ -218,8 +226,10 @@ extension TransactionMessage {
         return messages
     }
     
-    static func getMaxIndex() -> Int? {
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+    static func getMaxIndex(
+        context: NSManagedObjectContext? = nil
+    ) -> Int? {
+        let context = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         ///Not consider group join since those messages could be restored during contacts/tribes restore
         fetchRequest.predicate = NSPredicate(format: "id >= 0")
@@ -455,8 +465,10 @@ extension TransactionMessage {
         return messages.first
     }
     
-    static func getReceivedUnseenMessagesCount() -> Int {
-        let userId = UserData.sharedInstance.getUserId()
+    static func getReceivedUnseenMessagesCount(
+        context: NSManagedObjectContext? = nil
+    ) -> Int {
+        let userId = UserData.sharedInstance.getUserId(context: context)
 
         let predicate = NSPredicate(
             format: "(senderId != %d || type == %d) AND NOT (type IN %@) AND seen == %@ AND chat != null AND id >= 0 AND chat.seen == %@ AND (chat.notify == %d OR (chat.notify == %d AND push == %@))",
@@ -476,7 +488,8 @@ extension TransactionMessage {
 
         let messagesCount: Int = CoreDataManager.sharedManager.getObjectsCountOfTypeWith(
             predicate: predicate,
-            entityName: "TransactionMessage"
+            entityName: "TransactionMessage",
+            context: context
         )
 
         return messagesCount

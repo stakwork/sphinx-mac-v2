@@ -144,10 +144,10 @@ class FeedsManager : NSObject {
     }
     
     func restoreContentFeedStatusInBackground() {
-        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
-        dispatchQueue.async {
-            self.restoreContentFeedStatus()
-        }
+//        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
+//        dispatchQueue.async {
+//            self.restoreContentFeedStatus()
+//        }
     }
     
     func restoreContentFeedStatus(

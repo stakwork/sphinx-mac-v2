@@ -572,8 +572,16 @@ class DashboardViewController: NSViewController {
     func reloadData() {
         reconnectToMQTT()
         
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-            appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        
+        backgroundContext.perform {
+            let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
+            
+            DispatchQueue.main.async {
+                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                    appDelegate.setBadge(count: receivedUnseenCount)
+                }
+            }
         }
     }
     

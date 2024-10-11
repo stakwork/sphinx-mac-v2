@@ -50,8 +50,14 @@ extension SphinxOnionManager {
     }
     
     func setAppBadgeCount() {
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-            appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
+        backgroundContext.perform {
+            let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: self.backgroundContext)
+            
+            DispatchQueue.main.async {
+                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                    appDelegate.setBadge(count: receivedUnseenCount)
+                }
+            }
         }
     }
 }

@@ -399,10 +399,10 @@ class ActionsManager {
     func syncActionsInBackground(
         completion: (() -> ())? = nil
     ) {
-        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
-        dispatchQueue.async {
-            self.syncActions(completion: completion)
-        }
+//        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
+//        dispatchQueue.async {
+//            self.syncActions(completion: completion)
+//        }
     }
     
     

@@ -249,7 +249,10 @@ public class Chat: NSManagedObject {
         return chats
     }
     
-    static func getTribeChatWithOwnerPubkey(ownerPubkey: String) -> Chat? {
+    static func getTribeChatWithOwnerPubkey(
+        ownerPubkey: String,
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
         let predicate = NSPredicate(
             format: "type == %d AND ownerPubkey == %@",
             Chat.ChatType.publicGroup.rawValue,
@@ -262,13 +265,17 @@ public class Chat: NSManagedObject {
             predicate: predicate,
             sortDescriptors: sortDescriptors,
             entityName: "Chat",
-            fetchLimit: 1
+            fetchLimit: 1,
+            managedContext: context
         ).first
         
         return chat
     }
     
-    static func getChatTribesFor(ownerPubkeys: [String]) -> [Chat] {
+    static func getChatTribesFor(
+        ownerPubkeys: [String],
+        context: NSManagedObjectContext? = nil
+    ) -> [Chat] {
         let predicate = NSPredicate(
             format: "type == %d AND ownerPubkey IN %@",
             Chat.ChatType.publicGroup.rawValue,
@@ -280,7 +287,8 @@ public class Chat: NSManagedObject {
         let chats : [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
-            entityName: "Chat"
+            entityName: "Chat",
+            managedContext: context
         )
         
         return chats
@@ -392,53 +400,67 @@ public class Chat: NSManagedObject {
         shouldSave: Bool = true,
         forceSeen: Bool = false
     ) {
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        
         if NSApplication.shared.isActive || forceSeen {
-            let receivedUnseenMessages = self.getReceivedUnseenMessages()
-            
-            if receivedUnseenMessages.count > 0 {
-                for m in receivedUnseenMessages {
-                    m.seen = true
+            backgroundContext.perform {
+                guard let chat = Chat.getChatWith(id: self.id, managedContext: backgroundContext) else {
+                    return
                 }
-            }
-            
-            if !self.seen {
-                seen = true
-            }
-            
-            self.unseenMessagesCount = 0
-            self.unseenMentionsCount = 0
-            
-            if let lastMessage = self.getLastMessageToShow(includeContactKeyTypes: true) {
-                if lastMessage.isKeyExchangeType() || (lastMessage.isTribeInitialMessageType() && messages?.count == 1) {
-                    if let maxMessageIndex = TransactionMessage.getMaxIndex() {
-                        let _  = SphinxOnionManager.sharedInstance.setReadLevel(
-                            index: UInt64(maxMessageIndex),
-                            chat: self,
-                            recipContact: getContact()
+                let receivedUnseenMessages = chat.getReceivedUnseenMessages(context: backgroundContext)
+                
+                if receivedUnseenMessages.count > 0 {
+                    for m in receivedUnseenMessages {
+                        m.seen = true
+                    }
+                }
+                
+                if !chat.seen {
+                    chat.seen = true
+                }
+                
+                chat.unseenMessagesCount = 0
+                chat.unseenMentionsCount = 0
+                
+                if let lastMessage = chat.getLastMessageToShow(includeContactKeyTypes: true, context: backgroundContext) {
+                    if lastMessage.isKeyExchangeType() || (lastMessage.isTribeInitialMessageType() && chat.messages?.count == 1) {
+                        if let maxMessageIndex = TransactionMessage.getMaxIndex(context: backgroundContext) {
+                            let _  = SphinxOnionManager.sharedInstance.setReadLevel(
+                                index: UInt64(maxMessageIndex),
+                                chat: chat,
+                                recipContact: chat.getConversationContact(context: backgroundContext)
+                            )
+                        }
+                    } else if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
+                        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                            index: UInt64(lastMessage.id),
+                            chat: chat,
+                            recipContact: chat.getConversationContact(context: backgroundContext)
                         )
                     }
-                } else if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
-                    let _ = SphinxOnionManager.sharedInstance.setReadLevel(
-                        index: UInt64(lastMessage.id),
-                        chat: self,
-                        recipContact: getContact()
-                    )
                 }
+                
+                backgroundContext.saveContext()
             }
         }
         
-        DispatchQueue.main.async {
-            if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-                appDelegate.setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
+        backgroundContext.perform {
+            let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
+            
+            DispatchQueue.main.async {
+                if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                    appDelegate.setBadge(count: receivedUnseenCount)
+                }
             }
         }
     }
     
     static func updateMessageReadStatus(
         chatId: Int,
-        lastReadId: Int
+        lastReadId: Int,
+        context: NSManagedObjectContext? = nil
     ) {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         
         fetchRequest.predicate = NSPredicate(
@@ -469,10 +491,17 @@ public class Chat: NSManagedObject {
         }
     }
     
-    func getReceivedUnseenMessages() -> [TransactionMessage] {
+    func getReceivedUnseenMessages(
+        context: NSManagedObjectContext
+    ) -> [TransactionMessage] {
         let userId = UserData.sharedInstance.getUserId()
         let predicate = NSPredicate(format: "senderId != %d AND chat == %@ AND seen == %@", userId, self, NSNumber(booleanLiteral: false))
-        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: [], entityName: "TransactionMessage")
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: [],
+            entityName: "TransactionMessage",
+            managedContext: context
+        )
         return messages
     }
     
@@ -632,9 +661,10 @@ public class Chat: NSManagedObject {
     }
     
     func getLastMessageToShow(
-        includeContactKeyTypes: Bool = false
+        includeContactKeyTypes: Bool = false,
+        context: NSManagedObjectContext? = nil
     ) -> TransactionMessage? {
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let context = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
         
         var typeToExclude = [
@@ -708,9 +738,18 @@ public class Chat: NSManagedObject {
         return contacts
     }
     
-    func getContacts(includeOwner: Bool = true, ownerAtEnd: Bool = false) -> [UserContact] {
+    func getContacts(
+        includeOwner: Bool = true,
+        ownerAtEnd: Bool = false,
+        context: NSManagedObjectContext? = nil
+    ) -> [UserContact] {
         let ids:[Int] = self.getContactIdsArray()
-        let contacts: [UserContact] = UserContact.getContactsWith(ids: ids, includeOwner: includeOwner, ownerAtEnd: ownerAtEnd)
+        let contacts: [UserContact] = UserContact.getContactsWith(
+            ids: ids,
+            includeOwner: includeOwner,
+            ownerAtEnd: ownerAtEnd,
+            context: context
+        )
         return contacts
     }
     

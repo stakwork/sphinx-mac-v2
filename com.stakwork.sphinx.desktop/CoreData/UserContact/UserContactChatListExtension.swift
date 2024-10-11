@@ -44,6 +44,15 @@ extension UserContact : ChatListCommonObject {
         return self.getChat()?.isSeen(ownerId: ownerId) ?? true
     }
     
+    public func getContactChat(
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
+        if conversation == nil {
+            setContactConversation(context: context)
+        }
+        return conversation
+    }
+    
     public func getChat() -> Chat? {
         if conversation == nil {
             setContactConversation()
