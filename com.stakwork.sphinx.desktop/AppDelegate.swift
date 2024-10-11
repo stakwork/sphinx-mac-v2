@@ -19,8 +19,6 @@ import WebKit
     
     let onionConnector = SphinxOnionConnector.sharedInstance
     
-    var unlockTimer : Timer? = nil
-    
     var statusBarItem: NSStatusItem!
     
     @IBOutlet weak var appearanceMenu: NSMenu!
@@ -59,12 +57,12 @@ import WebKit
         
         listenToSleepEvents()
         
-        setInitialVC()
-        
         NetworkMonitor.shared.startMonitoring()
         
         ColorsManager.sharedInstance.storeColorsInMemory()
         SphinxOnionManager.sharedInstance.storeOnionStateInMemory()
+        
+        setInitialVC()
     }
     
     func clearWebkitCache() {
@@ -258,9 +256,6 @@ import WebKit
     }
     
     func applicationWillBecomeActive(_ notification: Notification) {
-        unlockTimer?.invalidate()
-        unlockTimer = nil
-        
         if GroupsPinManager.sharedInstance.shouldAskForPin() {
             presentPIN()
             return
@@ -323,7 +318,7 @@ import WebKit
     
     func applicationWillResignActive(_ notification: Notification) {
         if UserData.sharedInstance.isUserLogged() {
-            setBadge(count: TransactionMessage.getReceivedUnseenMessagesCount())
+            setBadge()
             
             podcastPlayerController.finishAndSaveContentConsumed()
             actionsManager.syncActionsInBackground()
@@ -331,6 +326,18 @@ import WebKit
             CoreDataManager.sharedManager.saveContext()
         }
     }
+     
+     func setBadge() {
+         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+         
+         backgroundContext.perform {
+             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
+             
+             DispatchQueue.main.async {
+                 self.setBadge(count: receivedUnseenCount)
+             }
+         }
+     }
     
     func setBadge(count: Int) {
         statusBarItem.button?.image = NSImage(named: count > 0 ? "extraIconBadge" : "extraIcon")

@@ -10,6 +10,7 @@ import Foundation
 import CocoaMQTT
 import ObjectMapper
 import SwiftyJSON
+import CoreData
 
 extension SphinxOnionManager {//contacts related
     
@@ -221,9 +222,10 @@ extension SphinxOnionManager {//contacts related
     func createSelfContact(
         scid: String,
         serverPubkey: String,
-        myOkKey: String
+        myOkKey: String,
+        context: NSManagedObjectContext
     ) -> UserContact {
-        let contact = UserContact(context: managedContext)
+        let contact = UserContact(context: context)
         contact.scid = scid
         contact.isOwner = true
         contact.index = 0

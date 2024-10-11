@@ -73,7 +73,9 @@ class UserData {
         UserDefaults.Keys.pinHours.set(hours)
     }
     
-    func getUserId() -> Int {
+    func getUserId(
+        context: NSManagedObjectContext? = nil
+    ) -> Int {
         if let ownerId = ownerId {
             return ownerId
         }
@@ -81,7 +83,7 @@ class UserData {
             self.ownerId = ownerId
             return ownerId
         }
-        if let ownerId = UserContact.getOwner()?.id {
+        if let ownerId = UserContact.getOwner(context: context)?.id {
             UserDefaults.Keys.ownerId.set(ownerId)
             self.ownerId = ownerId
         }

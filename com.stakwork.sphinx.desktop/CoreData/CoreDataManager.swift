@@ -203,8 +203,12 @@ class CoreDataManager {
         return objects
     }
     
-    func getObjectsCountOfTypeWith(predicate: NSPredicate? = nil, entityName: String) -> Int {
-        let managedContext = persistentContainer.viewContext
+    func getObjectsCountOfTypeWith(
+        predicate: NSPredicate? = nil,
+        entityName: String,
+        context: NSManagedObjectContext? = nil
+    ) -> Int {
+        let managedContext = context ?? persistentContainer.viewContext
         var count:Int = 0
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:"\(entityName)")

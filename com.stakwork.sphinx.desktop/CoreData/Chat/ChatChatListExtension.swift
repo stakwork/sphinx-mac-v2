@@ -66,13 +66,15 @@ extension Chat : ChatListCommonObject {
         return date ?? createdAt ?? Date()
     }
     
-    func getConversationContact() -> UserContact? {
+    func getConversationContact(
+        context: NSManagedObjectContext? = nil
+    ) -> UserContact? {
         if isGroup() {
             return nil
         }
         
         if conversationContact == nil {
-            let contacts = getContacts(includeOwner: false)
+            let contacts = getContacts(includeOwner: false, context: context)
             conversationContact = contacts.first
         }
         

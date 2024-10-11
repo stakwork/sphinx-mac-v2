@@ -178,17 +178,23 @@ extension SphinxOnionManager {
     
     func handleOwnerContact(myContactInfo: String?) {
         if let myContactInfo = myContactInfo {
-            if let components = parseContactInfoString(
-                fullContactInfo: myContactInfo
-            ), UserContact.getContactWithDisregardStatus(pubkey: components.0) == nil {
-                ///only add this if we don't already have a "self" contact
-                let _ = createSelfContact(
-                    scid: components.2,
-                    serverPubkey: components.1,
-                    myOkKey: components.0
-                )
-                
-                managedContext.saveContext()
+            backgroundContext.perform {
+                if let components = self.parseContactInfoString(
+                    fullContactInfo: myContactInfo
+                ), UserContact.getContactWithDisregardStatus(
+                    pubkey: components.0,
+                    managedContext: self.backgroundContext
+                ) == nil {
+                    ///only add this if we don't already have a "self" contact
+                    let _ = self.createSelfContact(
+                        scid: components.2,
+                        serverPubkey: components.1,
+                        myOkKey: components.0,
+                        context: self.backgroundContext
+                    )
+                    
+                    self.backgroundContext.saveContext()
+                }
             }
         }
     }
@@ -479,31 +485,35 @@ extension SphinxOnionManager {
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
            let tag = sentStatus.tag
         {
-            if let cachedMessage = TransactionMessage.getMessageWith(tag: tag) {
-                if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
-                     cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
-                } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
-                    cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-                }
-                
-                if let uuid = cachedMessage.uuid {
-                    receivedOMuuid(uuid)
-                }
-                
-                if cachedMessage.paymentHash == nil {
-                    cachedMessage.paymentHash = sentStatus.paymentHash
-                }
-            } else {
-                NotificationCenter.default.post(
-                    Notification(
-                        name: .onKeysendStatusReceived,
-                        object: nil,
-                        userInfo: [
-                            "tag" : tag,
-                            "status": sentStatus.status ?? TransactionMessage.TransactionMessageStatus.failed.rawValue
-                        ]
+            backgroundContext.perform {
+                if let cachedMessage = TransactionMessage.getMessageWith(tag: tag, context: self.backgroundContext) {
+                    if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
+                        cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                    } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
+                        cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
+                    }
+                    
+                    if let uuid = cachedMessage.uuid {
+                        self.receivedOMuuid(uuid)
+                    }
+                    
+                    if cachedMessage.paymentHash == nil {
+                        cachedMessage.paymentHash = sentStatus.paymentHash
+                    }
+                    
+                    self.backgroundContext.saveContext()
+                } else {
+                    NotificationCenter.default.post(
+                        Notification(
+                            name: .onKeysendStatusReceived,
+                            object: nil,
+                            userInfo: [
+                                "tag" : tag,
+                                "status": sentStatus.status ?? TransactionMessage.TransactionMessageStatus.failed.rawValue
+                            ]
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -627,24 +637,26 @@ extension SphinxOnionManager {
 
                         let tags = array.compactMap({ $0["tag"].stringValue }).filter({ $0.isNotEmpty })
 
-                        for message in TransactionMessage.getMessagesWith(tags: tags) {
-                            if let messageStatus = dictionary[message.tag ?? ""] {
-                                if messageStatus.isReceived() {
-                                    if message.isInvoice() {
-                                        if message.status == TransactionMessage.TransactionMessageStatus.pending.rawValue {
-                                            ///Just set invoice as received if pending. Otherwise it might be confirmed/paid and revert to received when this happens
+                        backgroundContext.perform {
+                            for message in TransactionMessage.getMessagesWith(tags: tags, context: self.backgroundContext) {
+                                if let messageStatus = dictionary[message.tag ?? ""] {
+                                    if messageStatus.isReceived() {
+                                        if message.isInvoice() {
+                                            if message.status == TransactionMessage.TransactionMessageStatus.pending.rawValue {
+                                                ///Just set invoice as received if pending. Otherwise it might be confirmed/paid and revert to received when this happens
+                                                message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                            }
+                                        } else {
                                             message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
                                         }
-                                    } else {
-                                        message.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                                    } else if messageStatus.isFailed() {
+                                        message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                                     }
-                                } else if messageStatus.isFailed() {
-                                    message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                                 }
                             }
+                            
+                            self.backgroundContext.saveContext()
                         }
-
-                        CoreDataManager.sharedManager.saveContext()
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")

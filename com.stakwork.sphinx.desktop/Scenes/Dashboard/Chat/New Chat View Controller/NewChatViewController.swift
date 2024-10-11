@@ -169,6 +169,12 @@ class NewChatViewController: DashboardSplittedViewController {
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
+        
+        if chatCollectionView.isAtBottom() {
+            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+                self.chat?.setChatMessagesAsSeen()
+            })
+        }
     }
     
     override func viewDidLayout() {

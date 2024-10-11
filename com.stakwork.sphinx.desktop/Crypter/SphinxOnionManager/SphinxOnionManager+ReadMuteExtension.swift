@@ -16,26 +16,29 @@ extension SphinxOnionManager {
             let lastReadMap = parse(jsonString: lastRead)
             
             let pubKeys = lastReadMap.compactMap({ $0.key })
-            let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys)
-            let contacts = UserContact.getContactsWith(pubkeys: pubKeys)
             
-            for (pubKey, lastReadId) in lastReadMap {
-                guard let lastReadId = lastReadId as? Int else {
-                    continue
+            backgroundContext.perform {
+                let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: self.backgroundContext)
+                let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: self.backgroundContext)
+                
+                for (pubKey, lastReadId) in lastReadMap {
+                    guard let lastReadId = lastReadId as? Int else {
+                        continue
+                    }
+                    if let tribe = tribes.filter({ $0.ownerPubkey == pubKey }).first {
+                        updateLastReadIndex(
+                            chatId: tribe.id,
+                            lastReadId: lastReadId
+                        )
+                    } else if let contact = contacts.filter({ $0.publicKey == pubKey }).first, let chat = contact.getChat() {
+                        updateLastReadIndex(
+                            chatId: chat.id,
+                            lastReadId: lastReadId
+                        )
+                    }
                 }
-                if let tribe = tribes.filter({ $0.ownerPubkey == pubKey }).first {
-                    updateLastReadIndex(
-                        chatId: tribe.id, 
-                        lastReadId: lastReadId
-                    )
-                } else if let contact = contacts.filter({ $0.publicKey == pubKey }).first, let chat = contact.getChat() {
-                    updateLastReadIndex(
-                        chatId: chat.id,
-                        lastReadId: lastReadId
-                    )
-                }
+                self.updateChatReadStatus(chatListUnreadDict: chatListUnreadDict)
             }
-            updateChatReadStatus(chatListUnreadDict: chatListUnreadDict)
         }
         
         func updateLastReadIndex(
@@ -61,20 +64,29 @@ extension SphinxOnionManager {
         for (chatId, lastReadId) in chatListUnreadDict {
             Chat.updateMessageReadStatus(
                 chatId: chatId,
-                lastReadId: lastReadId
+                lastReadId: lastReadId,
+                context: backgroundContext
             )
         }
-        CoreDataManager.sharedManager.saveContext()
+        backgroundContext.saveContext()
         setAppBadgeCount()
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {
-        for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
-            let chat = UserContact.getContactWith(pubkey: pubkey)?.getChat() ?? Chat.getTribeChatWithOwnerPubkey(ownerPubkey: pubkey)
-            
-            if let level = muteLevel as? Int, (chat?.notify ?? -1) != level {
-                chat?.notify = level
-                chat?.managedObjectContext?.saveContext()
+        backgroundContext.perform {
+            for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
+                let chat = UserContact.getContactWith(
+                    pubkey: pubkey,
+                    managedContext: self.backgroundContext
+                )?.getContactChat(context: self.backgroundContext) ?? Chat.getTribeChatWithOwnerPubkey(
+                    ownerPubkey: pubkey,
+                    context: self.backgroundContext
+                )
+                
+                if let level = muteLevel as? Int, (chat?.notify ?? -1) != level {
+                    chat?.notify = level
+                    self.backgroundContext.saveContext()
+                }
             }
         }
     }
