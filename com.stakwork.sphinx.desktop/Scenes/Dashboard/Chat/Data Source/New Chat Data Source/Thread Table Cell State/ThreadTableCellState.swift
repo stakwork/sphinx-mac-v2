@@ -32,7 +32,7 @@ struct ThreadTableCellState {
     
     lazy var threadMessagesState : ThreadLayoutState.ThreadMessages? = {
         let originalMessageDate = (originalMessage.date ?? Date())
-        let timestamp = "\(originalMessageDate.getStringDate(format: "MMMM dd")) at \(originalMessageDate.getStringDate(format: "hh:mm a"))"
+        let timestamp = "\(originalMessageDate.getStringDate(format: "MMMM dd", showToday: true)), \(originalMessageDate.getStringDate(format: "hh:mm a"))"
         let messageContent = originalMessage.bubbleMessageContentString ?? ""
         
         let orignalMessageThred = ThreadLayoutState.ThreadOriginalMessage(
