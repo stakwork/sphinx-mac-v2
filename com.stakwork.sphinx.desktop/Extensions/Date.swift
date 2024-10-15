@@ -17,11 +17,16 @@ extension Date {
         return Calendar.current.ordinality(of: .month, in: .year, for: self)!
     }
     
-    func getStringDate(format: String) -> String {
+    func getStringDate(
+        format: String,
+        showToday: Bool = false
+    ) -> String {
+        if showToday && self.isToday() {
+            return "today".localized
+        }
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//        dateFormatter.locale = Locale(identifier: "UTC")
         return dateFormatter.string(from: self)
     }
     

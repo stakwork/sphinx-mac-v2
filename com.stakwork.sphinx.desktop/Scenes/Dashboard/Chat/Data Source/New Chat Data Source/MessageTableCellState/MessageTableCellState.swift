@@ -845,6 +845,7 @@ struct MessageTableCellState {
         
         let senderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let messageContent = message.bubbleMessageContentString ?? ""
+        let date = (message.date ?? Date())
         
         return NoBubbleMessageLayoutState.ThreadOriginalMessage(
             text: messageContent.removingMarkdownDelimiters,
@@ -855,7 +856,7 @@ struct MessageTableCellState {
             senderPic: senderInfo.2,
             senderAlias: senderInfo.1,
             senderColor: senderInfo.0,
-            timestamp: (message.date ?? Date()).getStringDate(format: "MMM dd, hh:mm a")
+            timestamp: "\(date.getStringDate(format: "MMM dd", showToday: true)), \(date.getStringDate(format: "hh:mm a"))"
         )
     }()
     

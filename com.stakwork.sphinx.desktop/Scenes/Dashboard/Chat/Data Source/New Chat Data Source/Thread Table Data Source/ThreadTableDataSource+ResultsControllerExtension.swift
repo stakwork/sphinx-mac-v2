@@ -39,6 +39,7 @@ extension ThreadTableDataSource {
         
         let admin = chat.getAdmin()
         let contact = chat.getConversationContact()
+        let threadOriginalMessage = TransactionMessage.getMessageWith(uuid: threadUUID)
         
         let replyingMessagesMap = getReplyingMessagesMapFor(messages: messages)
         let boostMessagesMap = getBoostMessagesMapFor(messages: messages)
@@ -74,7 +75,7 @@ extension ThreadTableDataSource {
                 in: messages,
                 and: [:],
                 groupingDate: &groupingDate,
-                threadHeaderMessage: nil
+                threadHeaderMessage: threadOriginalMessage
             )
             
             if let separatorDate = bubbleStateAndDate.1 {
