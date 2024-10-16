@@ -522,8 +522,7 @@ class GroupsManager {
         tribeInfo: TribeInfo
     ){
         if let chatJSON = getChatJSON(tribeInfo: tribeInfo),
-           let routeHint = tribeInfo.ownerRouteHint,
-           let chat = Chat.insertChat(chat: chatJSON)
+           let routeHint = tribeInfo.ownerRouteHint
         {
             guard let pubkey = tribeInfo.ownerPubkey else {
                 return
@@ -543,9 +542,11 @@ class GroupsManager {
                     )
                 }
             ) {
-                chat.status = (isPrivate) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
-                chat.type = Chat.ChatType.publicGroup.rawValue
-                chat.managedObjectContext?.saveContext()
+                if let chat = Chat.insertChat(chat: chatJSON) {
+                    chat.status = (isPrivate) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
+                    chat.type = Chat.ChatType.publicGroup.rawValue
+                    chat.managedObjectContext?.saveContext()
+                }
             }
         }
     }

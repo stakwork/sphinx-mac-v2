@@ -412,6 +412,10 @@ class NewChatViewController: DashboardSplittedViewController {
             return
         }
         
+        if chat.isPublicGroup() {
+            return
+        }
+        
         chatEmptyAvatarPlaceholderView.configureWith(chat: chat)
         chatEmptyAvatarPlaceholderView.isHidden = false
         chatBottomView.isHidden = false

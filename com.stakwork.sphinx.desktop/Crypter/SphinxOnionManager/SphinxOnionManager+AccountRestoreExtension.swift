@@ -369,7 +369,7 @@ extension SphinxOnionManager {
         }
         
         if let totalMsgCount = msgTotalCounts?.totalMessageAvailableCount {
-            ///Contacts Restore progress
+            ///Messages Restore progress
             if let messageRestoreCallback = messageRestoreCallback, totalMsgCount > 0 {
                 params.restoredItems = params.restoredItems + msgs.count
                 let msgsCount = min(params.restoredItems, totalMsgCount)
