@@ -189,7 +189,7 @@ class NewContactViewController: NSViewController {
 //        }
     }
     
-    func createV2Contact(){
+    func createV2Contact() {
         let nickname = userNameField.stringValue
         let pubkey = addressField.stringValue
         let routeHint = routeHintField.stringValue
@@ -232,7 +232,7 @@ class NewContactViewController: NSViewController {
 extension NewContactViewController : NSTextFieldDelegate {
     func controlTextDidChange(_ obj: Notification) {
         if let textField = obj.object as? NSTextField, textField == addressField || textField == routeHintField {
-            if textField.stringValue.isPubKey {
+            if textField.stringValue.isVirtualPubKey {
                 completePubkeyComponents(textField.stringValue)
             }
         }

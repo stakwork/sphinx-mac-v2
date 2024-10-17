@@ -442,6 +442,7 @@
 "popup.authorize-with" = "Gusto mo bang i-authorize ang:";
 "popup.redeem-sats"  = "I-redeem ang %d sats mula sa:";
 "authorization.login" = "Matagumpay kang naka-log in";
+"invalid.public-key" = "Di-wastong Public Key";
 
 "people.save-profile"  = "I-save ang Profile mula sa:";
 "people.delete-profile"  = "Tanggalin ang Profile mula sa:";

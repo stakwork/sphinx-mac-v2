@@ -16,7 +16,6 @@ class UserContactsHelper {
         pubKey: String,
         routeHint: String,
         photoUrl: String? = nil,
-        contactKey: String? = nil,
         callback: @escaping (Bool, UserContact?) -> ()
     ){
         let contactInfo = pubKey + "_" + routeHint
