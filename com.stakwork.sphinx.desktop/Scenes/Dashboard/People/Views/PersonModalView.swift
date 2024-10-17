@@ -14,7 +14,6 @@ class PersonModalView: CommonModalView, LoadableNib {
     @IBOutlet var contentView: NSView!
     @IBOutlet weak var imageView: AspectFillNSImageView!
     @IBOutlet weak var nicknameLabel: NSTextField!
-    @IBOutlet weak var messageLabel: NSTextField!
     @IBOutlet weak var priceLabel: NSTextField!
     
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
@@ -63,13 +62,8 @@ class PersonModalView: CommonModalView, LoadableNib {
     
     func getPersonInfo() -> Bool {
         if let host = authInfo?.host, let pubkey = authInfo?.pubkey {
-            if !pubkey.isVirtualPubKey {
-                showMessage(message: "invalid.public-key".localized, color: NSColor.Sphinx.PrimaryGreen)
-                return true
-            }
-            
             if let _ = UserContact.getContactWith(pubkey: pubkey) {
-                showMessage(message: "already.connected".localized, color: NSColor.Sphinx.PrimaryGreen)
+                showMessage(message: "already.connected".localized, color: NSColor.Sphinx.PrimaryRed)
                 return true
             }
             API.sharedInstance.getPersonInfo(host: host, pubkey: pubkey, callback: { success, person in
@@ -86,6 +80,12 @@ class PersonModalView: CommonModalView, LoadableNib {
     func showPersonInfo(person: JSON) {
         authInfo?.jsonBody = person
         
+        if !(authInfo?.jsonBody["owner_route_hint"].string ?? "").isRouteHint {
+            showMessage(message: "invalid.public-key".localized, color: NSColor.Sphinx.PrimaryRed)
+            self.delegate?.shouldDismissModals()
+            return
+        }
+        
         if let imageUrl = person["img"].string, let nsUrl = URL(string: imageUrl), imageUrl != "" {
             MediaLoader.asyncLoadImage(imageView: imageView, nsUrl: nsUrl, placeHolderImage: NSImage(named: "profileAvatar"))
         } else {
@@ -93,7 +93,6 @@ class PersonModalView: CommonModalView, LoadableNib {
         }
         
         nicknameLabel.stringValue = person["owner_alias"].string ?? "Unknown"
-        messageLabel.stringValue = person["description"].string ?? "No description"
         priceLabel.stringValue = "\("price.to.meet".localized)\((person["price_to_meet"].int ?? 0)) sat"
         
         loading = false
