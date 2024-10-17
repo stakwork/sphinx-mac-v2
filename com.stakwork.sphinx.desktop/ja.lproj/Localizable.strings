@@ -445,6 +445,7 @@
 "popup.authorize-with" = "認証しますか：";
 "popup.redeem-sats" = "%d satsを引き換えますか：";
 "authorization.login" = "ログインに成功しました";
+"invalid.public-key" = "無効な公開鍵";
 
 "people.save-profile" = "からプロファイルを保存：";
 "people.delete-profile" = "からプロファイルを削除：";

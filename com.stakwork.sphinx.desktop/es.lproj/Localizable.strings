@@ -448,6 +448,7 @@
 "popup.authorize-with" = "¿Quieres autorizar a:";
 "popup.redeem-sats" = "Canjear %d sats de:";
 "authorization.login" = "Felicitaciones! Has iniciado sesión";
+"invalid.public-key" = "Clave pública Inválida";
 
 "people.save-profile" = "Guardar Perfil de:";
 "people.delete-profile" = "Borrar Perfil de:";

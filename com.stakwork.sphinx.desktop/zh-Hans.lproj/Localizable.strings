@@ -445,6 +445,7 @@
 "popup.authorize-with" = "您想要授权给：";
 "popup.redeem-sats" = "兑换 %d sats 从：";
 "authorization.login" = "您已成功登录";
+"invalid.public-key" = "无效公钥";
 
 "people.save-profile" = "保存资料来自：";
 "people.delete-profile" = "删除资料来自：";
