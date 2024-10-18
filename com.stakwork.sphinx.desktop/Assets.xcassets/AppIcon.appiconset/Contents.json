@@ -1,61 +1,61 @@
 {
   "images" : [
     {
-      "filename" : "iconMac16x16.png",
+      "filename" : "V2-icon-padding-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "iconMac32x32 1.png",
+      "filename" : "V2-icon-padding-32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "iconMac32x32.png",
+      "filename" : "V2-icon-padding-32 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "iconMac64x64.png",
+      "filename" : "V2-icon-padding-64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "iconMac128x128.png",
+      "filename" : "V2-icon-padding-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "iconMac256x256 1.png",
+      "filename" : "V2-icon-padding-256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "iconMac256x256.png",
+      "filename" : "V2-icon-padding-256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "iconMac512x512 1.png",
+      "filename" : "V2-icon-padding-512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "iconMac512x512.png",
+      "filename" : "V2-icon-padding-512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "iconMac1024x1024.png",
+      "filename" : "V2-icon-padding-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
