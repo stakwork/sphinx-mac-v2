@@ -449,6 +449,8 @@
 "popup.redeem-sats" = "Canjear %d sats de:";
 "authorization.login" = "Felicitaciones! Has iniciado sesión";
 "invalid.public-key" = "Clave pública Inválida";
+"processing.payment" = "Procesando pago";
+"processing.payment.description" = "Este proceso puede tardar hasta 60 segundos. Se le notificará cuando finalice";
 
 "people.save-profile" = "Guardar Perfil de:";
 "people.delete-profile" = "Borrar Perfil de:";

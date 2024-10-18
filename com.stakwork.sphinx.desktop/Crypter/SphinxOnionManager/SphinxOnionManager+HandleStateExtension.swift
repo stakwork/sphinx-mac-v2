@@ -503,15 +503,9 @@ extension SphinxOnionManager {
                     
                     self.backgroundContext.saveContext()
                 } else {
-                    NotificationCenter.default.post(
-                        Notification(
-                            name: .onKeysendStatusReceived,
-                            object: nil,
-                            userInfo: [
-                                "tag" : tag,
-                                "status": sentStatus.status ?? TransactionMessage.TransactionMessageStatus.failed.rawValue
-                            ]
-                        )
+                    self.onPaymentStatusReceivedFor(
+                        tag: tag,
+                        status: sentStatus.status ?? SphinxOnionManager.kFailedStatus
                     )
                 }
             }

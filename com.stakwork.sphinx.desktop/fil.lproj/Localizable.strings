@@ -443,6 +443,8 @@
 "popup.redeem-sats"  = "I-redeem ang %d sats mula sa:";
 "authorization.login" = "Matagumpay kang naka-log in";
 "invalid.public-key" = "Di-wastong Public Key";
+"processing.payment" = "Pinoproseso ang pagbabayad";
+"processing.payment.description" = "Maaaring tumagal ng hanggang 60 segundo ang prosesong ito. Aabisuhan ka kapag nakumpleto na";
 
 "people.save-profile"  = "I-save ang Profile mula sa:";
 "people.delete-profile"  = "Tanggalin ang Profile mula sa:";

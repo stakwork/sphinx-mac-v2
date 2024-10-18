@@ -39,6 +39,7 @@ class SphinxOnionManager : NSObject {
     var watchdogTimer: Timer? = nil
     var reconnectionTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
+    var paymentTimeoutTimers: [String: Timer] = [:]
     
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
