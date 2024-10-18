@@ -446,6 +446,8 @@
 "popup.redeem-sats" = "%d satsを引き換えますか：";
 "authorization.login" = "ログインに成功しました";
 "invalid.public-key" = "無効な公開鍵";
+"processing.payment" = "支払い処理中";
+"processing.payment.description" = "この処理には最大60秒かかる場合があります。完了すると通知されます。";
 
 "people.save-profile" = "からプロファイルを保存：";
 "people.delete-profile" = "からプロファイルを削除：";

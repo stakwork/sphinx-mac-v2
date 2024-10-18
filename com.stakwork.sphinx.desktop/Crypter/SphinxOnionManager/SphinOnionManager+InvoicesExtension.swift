@@ -142,15 +142,17 @@ extension SphinxOnionManager{
     func payInvoice(
         invoice: String,
         overPayAmountMsat: UInt64? = nil,
-        callback: ((Bool, String?, String?) -> ())? = nil
+        callback: ((Bool, String?) -> ())? = nil
     ){
         guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
-            callback?(false, "Pubkey not found", nil)
+            callback?(false, "Pubkey not found")
             return
         }
+        
+        let hasRouteHint = invoiceDict.hopHints?.last != nil
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
@@ -158,28 +160,63 @@ extension SphinxOnionManager{
             amtMsat: Int(overPayAmountMsat ?? UInt64(amount))
         ) { success in
             if success {
-                let (success, errorMsg, tag) = self.finalizePayInvoice(
+                self.finalizePayInvoice(
                     invoice: invoice,
-                    amount: overPayAmountMsat ?? UInt64(amount)
+                    hasRouteHint: hasRouteHint,
+                    amount: overPayAmountMsat ?? UInt64(amount),
+                    callback: callback
                 )
-                callback?(success, errorMsg, tag)
             } else {
+                if !hasRouteHint {
+                    ///Standard invoice with no route hint
+                    self.payInvoiceFromLSP(
+                        invoice: invoice,
+                        callback: callback
+                    )
+                    callback?(true, nil)
+                    return
+                }
                 ///error getting route info
-                AlertHelper.showAlert(
-                    title: "Routing Error",
-                    message: "Could not find a route to the target. Please try again."
-                )
-                callback?(false, "Could not find a route to the target. Please try again.", nil)
+                callback?(false, "Could not find a route to the target. Please try again.")
             }
+        }
+    }
+    
+    func payInvoiceFromLSP(
+        invoice: String,
+        callback: ((Bool, String?) -> ())? = nil
+    ) {
+        guard let seed = getAccountSeed() else{
+            callback?(false, "Account seed not found")
+            return
+        }
+        
+        do {
+            let rr = try Sphinx.pay(
+                seed: seed,
+                uniqueTime: getTimeWithEntropy(),
+                state: loadOnionStateAsData(),
+                bolt11: invoice
+            )
+            let _ = handleRunReturn(rr: rr)
+            
+//            let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true)
+            
+            callback?(true, nil)
+        } catch let error {
+            callback?(false, (error as? SphinxError).debugDescription)
         }
     }
     
     func finalizePayInvoice(
         invoice: String,
-        amount: UInt64
-    ) -> (Bool, String?, String?) {
+        hasRouteHint: Bool,
+        amount: UInt64,
+        callback: ((Bool, String?) -> ())? = nil
+    ) {
         guard let seed = getAccountSeed() else{
-            return (false, "Account seed not found", nil)
+            callback?(false, "Account seed not found")
+            return
         }
         do {
             let rr = try Sphinx.payInvoice(
@@ -191,16 +228,59 @@ extension SphinxOnionManager{
             )
             let _ = handleRunReturn(rr: rr)
             
-            return (
-                true,
-                nil,
-                getMessageTag(messages: rr.msgs, isSendingMessage: true)
-            )
+            if let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true), !hasRouteHint {
+                setupInvoicePaymentTimerFor(invoice: invoice, tag: tag)
+            }
+            callback?(true, nil)
         } catch let error {
-            return (false, (error as? SphinxError).debugDescription, nil)
+            callback?(false, (error as? SphinxError).debugDescription)
         }
     }
     
+    func setupInvoicePaymentTimerFor(invoice: String, tag: String) {
+        let paymentTimer = Timer.scheduledTimer(
+            timeInterval: 60.0,
+            target: self,
+            selector: #selector(self.resetInvoicePaymentTimerFor(timer:)),
+            userInfo: ["invoice": invoice, "tag": tag],
+            repeats: false
+        )
+        
+        paymentTimeoutTimers[tag] = paymentTimer
+    }
+    
+    func onPaymentStatusReceivedFor(
+        tag: String,
+        status: String
+    ) {
+        DispatchQueue.main.async {
+            if let timer = self.paymentTimeoutTimers[tag] {
+                if status == SphinxOnionManager.kCompleteStatus {
+                    AlertHelper.showAlert(
+                        title: "Success",
+                        message: "Your payment has been successfully processed"
+                    )
+                } else if let userInfo = timer.userInfo as? [String: String], let invoice = userInfo["invoice"] {
+                    self.payInvoiceFromLSP(invoice: invoice)
+                }
+                self.resetInvoicePaymentTimerFor(tag: tag)
+            }
+        }
+    }
+    
+    @objc func resetInvoicePaymentTimerFor(timer: Timer) {
+        if let userInfo = timer.userInfo as? [String: String], let tag = userInfo["tag"] {
+            resetInvoicePaymentTimerFor(tag: tag)
+        }
+    }
+    
+    func resetInvoicePaymentTimerFor(tag: String) {
+        let timer = paymentTimeoutTimers[tag]
+        timer?.invalidate()
+        paymentTimeoutTimers[tag] = nil
+    }
+    
+    ///Pyaing invoice message
     func payInvoiceMessage(
         message: TransactionMessage
     ) {

@@ -35,8 +35,6 @@ class SendPaymentForInvoiceVC: NSViewController {
     @IBOutlet weak var paymentContainerBottomConstraint: NSLayoutConstraint!
     
     let prDecoder = PaymentRequestDecoder()
-    var paymentTag: String? = nil
-    var paymentTimer : Timer? = nil
     
     var loading = false {
         didSet {
@@ -146,70 +144,31 @@ class SendPaymentForInvoiceVC: NSViewController {
         let prd = PaymentRequestDecoder()
         prd.decodePaymentRequest(paymentRequest: invoice)
         
-        SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice) { (success, errorMsg, tag) in
+        SphinxOnionManager.sharedInstance.payInvoice(invoice: invoice) { [weak self] (success, errorMsg) in
             if success {
-                self.paymentTag = tag
-                self.listenForNotifications()
-            } else {
-                self.showErrorAlertAndDismiss(errorMsg: errorMsg)
-            }
-        }
-    }
-    
-    func listenForNotifications() {
-        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            forName: .onKeysendStatusReceived,
-            object: nil,
-            queue: OperationQueue.main
-        ) { [weak self] (n: Notification) in
-            self?.onKeysendStatusReceived(n: n)
-        }
-        
-        paymentTimer = Timer.scheduledTimer(
-            timeInterval: 5.0,
-            target: self,
-            selector: #selector(self.showErrorAlertAndDismiss),
-            userInfo: nil,
-            repeats: false
-        )
-    }
-    
-    deinit {
-        paymentTimer?.invalidate()
-        paymentTimer = nil
-        
-        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
-    }
-    
-    @objc func onKeysendStatusReceived(n: Notification) {
-        if let tag = n.userInfo?["tag"] as? String,
-           let status = n.userInfo?["status"] as? String {
-            
-            if tag == paymentTag {
-                if status == SphinxOnionManager.kCompleteStatus {
-                    resetTimerAndObserver()
-                    dismissView()
+                if let routeHint = SphinxOnionManager.sharedInstance.getInvoiceDetails(invoice: invoice)?.hopHints?.last {
+                    self?.dismissView()
                 } else {
-                    showErrorAlertAndDismiss()
+                    self?.showPendingAlert()
                 }
+            } else {
+                self?.showErrorAlertAndDismiss(errorMsg: errorMsg)
             }
         }
     }
     
-    func resetTimerAndObserver() {
-        paymentTag = nil
-        
-        paymentTimer?.invalidate()
-        paymentTimer = nil
-        
-        NotificationCenter.default.removeObserver(self, name: .onKeysendStatusReceived, object: nil)
+    func showPendingAlert() {
+        DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
+            AlertHelper.showAlert(
+                title: "processing.payment".localized,
+                message: "processing.payment.description".localized
+            ) {
+                self.dismissView()
+            }
+        })
     }
     
-    @objc func showErrorAlertAndDismiss(errorMsg: String? = nil) {
-        resetTimerAndObserver()
-        
+    func showErrorAlertAndDismiss(errorMsg: String? = nil) {
         DispatchQueue.main.async {
             AlertHelper.showAlert(
                 title: "generic.error.title".localized,
@@ -221,8 +180,6 @@ class SendPaymentForInvoiceVC: NSViewController {
     }
     
     func dismissView() {
-        resetTimerAndObserver()
-        
         DispatchQueue.main.async {
             self.animatePaymentContainer(show: false)
             WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
