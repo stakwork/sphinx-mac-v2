@@ -447,6 +447,8 @@
 "popup.redeem-sats" = "從中兌換%d sats：";
 "authorization.login" = "您已成功登入";
 "invalid.public-key" = "公鑰無效";
+"processing.payment" = "處理付款";
+"processing.payment.description" = "此過程最多可能需要 60 秒。完成後您將收到通知";
 
 "people.save-profile" = "從中保存個人檔案：";
 "people.delete-profile" = "從中刪除個人檔案：";

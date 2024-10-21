@@ -446,6 +446,8 @@
 "popup.redeem-sats" = "兑换 %d sats 从：";
 "authorization.login" = "您已成功登录";
 "invalid.public-key" = "无效公钥";
+"processing.payment" = "处理付款";
+"processing.payment.description" = "此过程可能需要 60 秒。完成后您将收到通知";
 
 "people.save-profile" = "保存资料来自：";
 "people.delete-profile" = "删除资料来自：";
