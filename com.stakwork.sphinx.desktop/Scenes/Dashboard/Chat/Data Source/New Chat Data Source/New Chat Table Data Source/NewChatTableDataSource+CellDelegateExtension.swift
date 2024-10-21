@@ -841,7 +841,7 @@ extension NewChatTableDataSource {
         }
         
         if chat.isPublicGroup() {
-            showMemberPopupFor(messageId: messageId)
+//            showMemberPopupFor(messageId: messageId)
         }
     }
     
