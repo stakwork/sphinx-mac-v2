@@ -330,7 +330,10 @@ public class Chat: NSManagedObject {
         
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform {
+        backgroundContext.perform { [weak self] in
+            guard let self = self else {
+                return
+            }
             let messages = self.getAllMessages(
                 limit: 2000,
                 context: backgroundContext
@@ -403,7 +406,10 @@ public class Chat: NSManagedObject {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
         if NSApplication.shared.isActive || forceSeen {
-            backgroundContext.perform {
+            backgroundContext.perform { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 guard let chat = Chat.getChatWith(id: self.id, managedContext: backgroundContext) else {
                     return
                 }
@@ -444,7 +450,10 @@ public class Chat: NSManagedObject {
             }
         }
         
-        backgroundContext.perform {
+        backgroundContext.perform { [weak self] in
+            guard let self = self else {
+                return
+            }
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
             
             DispatchQueue.main.async {
