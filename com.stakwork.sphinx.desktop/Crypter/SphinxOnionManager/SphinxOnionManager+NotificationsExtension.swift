@@ -50,7 +50,10 @@ extension SphinxOnionManager {
     }
     
     func setAppBadgeCount() {
-        backgroundContext.perform {
+        backgroundContext.perform { [weak self] in
+            guard let self = self else {
+                return
+            }
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: self.backgroundContext)
             
             DispatchQueue.main.async {

@@ -17,7 +17,10 @@ extension SphinxOnionManager {
             
             let pubKeys = lastReadMap.compactMap({ $0.key })
             
-            backgroundContext.perform {
+            backgroundContext.perform { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: self.backgroundContext)
                 let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: self.backgroundContext)
                 
@@ -73,7 +76,10 @@ extension SphinxOnionManager {
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {
-        backgroundContext.perform {
+        backgroundContext.perform { [weak self] in
+            guard let self = self else {
+                return
+            }
             for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
                 let chat = UserContact.getContactWith(
                     pubkey: pubkey,

@@ -49,34 +49,34 @@ extension SphinxOnionManager {
             restoreTribesFrom(
                 rr: rr,
                 topic: topic
-            ) { rr, topic in
+            ) { [weak self] rr, topic in
                 
                 ///handling contacts restore
-                self.restoreContactsFrom(messages: rr.msgs)
+                self?.restoreContactsFrom(messages: rr.msgs)
                 
                 ///Handling key exchange msgs restore
-                self.processKeyExchangeMessages(rr: rr)
+                self?.processKeyExchangeMessages(rr: rr)
                 
                 ///Handling invoice paid
-                self.processInvoicePaid(rr: rr)
+                self?.processInvoicePaid(rr: rr)
                 
                 ///Handling generic msgs restore
-                self.processGenericMessages(rr: rr)
+                self?.processGenericMessages(rr: rr)
                 
                 ///Handling messages statused
-                self.handleMessagesStatus(tags: rr.tags)
+                self?.handleMessagesStatus(tags: rr.tags)
                 
                 ///Handling incoming tags
-                self.handleMessageStatusByTag(rr: rr)
+                self?.handleMessageStatusByTag(rr: rr)
                 
                 ///Handling read status
-                self.handleReadStatus(rr: rr)
+                self?.handleReadStatus(rr: rr)
                 
                 ///Handling ping done
-                self.handlePingDone(msgs: rr.msgs)
+                self?.handlePingDone(msgs: rr.msgs)
                 
                 ///Handling restore callbacks
-                self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
+                self?.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
             }
             
             ///Handling settle status
@@ -130,8 +130,10 @@ extension SphinxOnionManager {
         handleRegisterTopic(
             rr: rr,
             skipAsyncTopic: skipAsyncTopic
-        ) { rr, skipAsyncTopic in
-            
+        ) { [weak self] rr, skipAsyncTopic in
+            guard let self = self else {
+                return
+            }
             ///Handling async pay topics to publish
             if !skipAsyncTopic && self.handleTopicToPush(
                 topic: rr.asyncpayTopic,
@@ -178,7 +180,10 @@ extension SphinxOnionManager {
     
     func handleOwnerContact(myContactInfo: String?) {
         if let myContactInfo = myContactInfo {
-            backgroundContext.perform {
+            backgroundContext.perform { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 if let components = self.parseContactInfoString(
                     fullContactInfo: myContactInfo
                 ), UserContact.getContactWithDisregardStatus(
@@ -485,7 +490,10 @@ extension SphinxOnionManager {
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
            let tag = sentStatus.tag
         {
-            backgroundContext.perform {
+            backgroundContext.perform { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 if let cachedMessage = TransactionMessage.getMessageWith(tag: tag, context: self.backgroundContext) {
                     if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
@@ -631,7 +639,10 @@ extension SphinxOnionManager {
 
                         let tags = array.compactMap({ $0["tag"].stringValue }).filter({ $0.isNotEmpty })
 
-                        backgroundContext.perform {
+                        backgroundContext.perform { [weak self] in
+                            guard let self = self else {
+                                return
+                            }
                             for message in TransactionMessage.getMessagesWith(tags: tags, context: self.backgroundContext) {
                                 if let messageStatus = dictionary[message.tag ?? ""] {
                                     if messageStatus.isReceived() {
