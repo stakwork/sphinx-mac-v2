@@ -1,61 +1,61 @@
 {
   "images" : [
     {
-      "filename" : "V2-icon-padding-16.png",
+      "filename" : "Sphinx_V2_icon_16_macOS.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "V2-icon-padding-32.png",
+      "filename" : "Sphinx_V2_icon_32_macOS.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "V2-icon-padding-32 1.png",
+      "filename" : "Sphinx_V2_icon_32_macOS 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "V2-icon-padding-64.png",
+      "filename" : "Sphinx_V2_icon_64_macOS.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "V2-icon-padding-128.png",
+      "filename" : "Sphinx_V2_icon_128_macOS.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "V2-icon-padding-256.png",
+      "filename" : "Sphinx_V2_icon_256_macOS.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "V2-icon-padding-256 1.png",
+      "filename" : "Sphinx_V2_icon_256_macOS 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "V2-icon-padding-512.png",
+      "filename" : "Sphinx_V2_icon_512_macOS.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "V2-icon-padding-512 1.png",
+      "filename" : "Sphinx_V2_icon_512_macOS 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "V2-icon-padding-1024.png",
+      "filename" : "Sphinx_V2_icon_1024_macOS.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
