@@ -354,7 +354,8 @@ class MediaFullScreenView: NSView, LoadableNib {
         
         mediaImageView.alphaValue = 0.0
         gifView.alphaValue = 0.0
-        videoPlayerView.alphaValue = 0.0
+        
+        videoPlayerView.isHidden = true
         
         gifView.layer?.removeAllAnimations()
         mediaImageView.image = nil
@@ -433,6 +434,6 @@ class MediaFullScreenView: NSView, LoadableNib {
 extension MediaFullScreenView : CachingPlayerItemDelegate {
     func playerItemReadyToPlay(_ playerItem: CachingPlayerItem) {
         loading = false
-        videoPlayerView.alphaValue = 1.0
+        videoPlayerView.isHidden = false
     }
 }

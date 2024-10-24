@@ -863,7 +863,11 @@ extension TransactionMessage {
         if self.chat?.isMyPublicGroup() ?? false {
             return String(format: "admin.request.approved".localized, getMessageSenderNickname(owner: owner, contact: contact))
         } else {
-            return String(format: "has.joined.tribe".localized, getMessageSenderNickname(owner: owner, contact: contact))
+            if self.isOutgoing(ownerId: owner.id) {
+                return "you.joined.tribe".localized
+            } else {
+                return String(format: "has.joined.tribe".localized, getMessageSenderNickname(owner: owner, contact: contact))
+            }
         }
     }
     
@@ -875,7 +879,7 @@ extension TransactionMessage {
             senderAlias: getMessageSenderNickname(
                 owner: owner,
                 contact: contact
-            )
+            ), ownerId: owner.id
         )
     }
     
@@ -891,8 +895,12 @@ extension TransactionMessage {
         )
     }
     
-    func getGroupJoinMessageText(senderAlias: String) -> String {
-        return String(format: "has.joined.tribe".localized, senderAlias)
+    func getGroupJoinMessageText(senderAlias: String, ownerId: Int) -> String {
+        if self.isOutgoing(ownerId: ownerId) {
+            return "you.joined.tribe".localized
+        } else {
+            return String(format: "has.joined.tribe".localized, senderAlias)
+        }
     }
     
     func getGroupLeaveMessageText(senderAlias: String) -> String {

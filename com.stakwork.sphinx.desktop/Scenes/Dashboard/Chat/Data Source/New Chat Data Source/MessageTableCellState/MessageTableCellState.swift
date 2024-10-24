@@ -770,12 +770,12 @@ struct MessageTableCellState {
             if bubble?.direction.isOutgoing() == true {
                 messageString = "you.joined.tribe".localized
             } else {
-                messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
+                messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1, ownerId: owner.id)
             }
         } else if message.isGroupLeaveMessage() {
             messageString = message.getGroupLeaveMessageText(senderAlias: senderInfo.1)
         } else if message.isApprovedRequest() {
-            messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1)
+            messageString = message.getGroupJoinMessageText(senderAlias: senderInfo.1, ownerId: owner.id)
         }
         
         return NoBubbleMessageLayoutState.GroupMemberNotification(message: messageString)
