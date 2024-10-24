@@ -48,7 +48,7 @@
                                     <constraint firstAttribute="height" constant="400" id="4ZE-Ya-ZZL"/>
                                     <constraint firstAttribute="width" constant="600" id="pes-v8-kxy"/>
                                 </constraints>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" id="aDe-zk-748"/>
+                                <imageCell key="cell" alignment="left" imageScaling="axesIndependently" id="aDe-zk-748"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="radius">
                                         <real key="value" value="0.0"/>

@@ -59,8 +59,6 @@ class NetworkMonitor {
             connectionType = nil // Connection type is unknown
         }
 
-        print("Network status changed - isConnected: \(isConnected), Connection Type: \(String(describing: connectionType))")
-
         // Example Notification Logic
         if isConnected {
             NotificationCenter.default.post(name: .connectedToInternet, object: nil)
