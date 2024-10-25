@@ -269,6 +269,7 @@
 "profile.mnemonic-generate-or-import-prompt" = "Would you like to generate a new seed phrase or import an existing one?";
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
+"profile.finish-setup" = "ニックネームとオプションのプロフィール写真を入力して\nプロフィールの設定を完了します";
 
 //PIN
 "privacy.pin" = "プライバシーPIN";

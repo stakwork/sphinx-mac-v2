@@ -88,7 +88,8 @@ class WelcomeLightningViewController: CommonWelcomeViewController {
         case .NamePin:
             formView = NamePinView(
                 frame: NSRect.zero,
-                delegate: self
+                delegate: self,
+                signupMode: signupMode
             )
         case .Image:
             let nickname = (formView as? NamePinView)?.getNickname() ?? UserContact.getOwner()?.nickname

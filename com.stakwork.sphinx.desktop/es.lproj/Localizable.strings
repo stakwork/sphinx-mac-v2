@@ -266,6 +266,7 @@
 "profile.mnemonic-generate-prompt" = "Generar";
 "profile.mnemonic-import-prompt" = "Importar";
 "profile.mnemonic-generate-or-import-prompt" = "¿Deseas generar una nueva frase mnemotécnica o importar una existente?";
+"profile.finish-setup" = "Ingresa tu apodo y una foto de perfil opcional\npara terminar de configurar tu Perfil";
 
 //PIN
 "privacy.pin" = "PIN de Privacidad";

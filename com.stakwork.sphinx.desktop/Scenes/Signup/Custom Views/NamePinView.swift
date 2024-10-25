@@ -23,6 +23,13 @@ class NamePinView: NSView, LoadableNib {
     let messageBubbleHelper = NewMessageBubbleHelper()
     let userData = UserData.sharedInstance
     
+    var signupMode: SignupHelper.SignupMode = .NewUser
+    var isRestore: Bool {
+        get {
+            return signupMode == .ExistingUser
+        }
+    }
+    
     var loading = false {
         didSet {
             LoadingWheelHelper.toggleLoadingWheel(loading: loading, loadingWheel: loadingWheel, color: NSColor.white, controls: [continueButton.getButton()])
@@ -48,10 +55,12 @@ class NamePinView: NSView, LoadableNib {
     
     init(
         frame frameRect: NSRect,
-        delegate: WelcomeEmptyViewDelegate
+        delegate: WelcomeEmptyViewDelegate,
+        signupMode: SignupHelper.SignupMode
     ) {
         super.init(frame: frameRect)
         
+        self.signupMode = signupMode
         self.delegate = delegate
         
         loadViewFromNib()
@@ -67,6 +76,7 @@ class NamePinView: NSView, LoadableNib {
         continueButton.setSignupColors()
         continueButton.buttonDisabled = true
         
+        nameField.isHidden = isRestore
         nameField.getTextField().nextKeyView = pinField.getTextField()
         pinField.getTextField().nextKeyView = confirmPinField.getTextField()
         
@@ -102,16 +112,20 @@ class NamePinView: NSView, LoadableNib {
 
 extension NamePinView : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
-        if getNickname().isEmpty {
+        if getNickname().isEmpty && !isRestore {
             showError()
         }
         
         loading = true
         
         if let owner = UserContact.getOwner() {
-            owner.nickname = nameField.getFieldValue()
-            
-            goToProfilePictureView()
+            if isRestore {
+                continueRestore()
+            } else {
+                owner.nickname = nameField.getFieldValue()
+                
+                goToProfilePictureView()
+            }
         } else {
             showError()
         }
@@ -120,6 +134,15 @@ extension NamePinView : SignupButtonViewDelegate {
     func showError() {
         loading = false
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized)
+    }
+    
+    func continueRestore() {
+        loading = false
+        
+        UserData.sharedInstance.save(pin: pinField.getFieldValue())
+        UserData.sharedInstance.signupStep = SignupHelper.SignupStep.ImageSet.rawValue
+        
+        delegate?.shouldContinueTo?(mode: -1)
     }
     
     func goToProfilePictureView() {
@@ -132,14 +155,14 @@ extension NamePinView : SignupButtonViewDelegate {
     }
     
     func isValid() -> Bool {
-        return !nameField.getFieldValue().isEmpty && 
+        return (!nameField.getFieldValue().isEmpty || isRestore) &&
             pinField.getFieldValue().length == 6 &&
             confirmPinField.getFieldValue().length == 6 &&
             pinField.getFieldValue() == confirmPinField.getFieldValue()
     }
     
     func pinDoNotMatch() -> Bool {
-        return !nameField.getFieldValue().isEmpty && 
+        return (!nameField.getFieldValue().isEmpty || isRestore) &&
             pinField.getFieldValue().length == 6 &&
             confirmPinField.getFieldValue().length == 6 &&
             pinField.getFieldValue() != confirmPinField.getFieldValue()

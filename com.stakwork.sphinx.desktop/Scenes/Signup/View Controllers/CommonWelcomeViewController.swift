@@ -15,7 +15,13 @@ class CommonWelcomeViewController: NSViewController {
     }
     
     func presentDashboard() {
-        let frame = WindowsManager.sharedInstance.getCenteredFrameFor(size: CGSize(width: 1100, height: 850))
+        let mainScreen = NSScreen.main
+        let frame = WindowsManager.sharedInstance.getCenteredFrameFor(
+            size: CGSize(
+                width: (mainScreen?.frame.width ?? 1375) * 0.9,
+                height: (mainScreen?.frame.height ?? 1062) * 0.9
+            )
+        )
         view.alphaValue = 0.0
         view.window?.styleMask = [.titled, .resizable, .miniaturizable]
         view.window?.titlebarAppearsTransparent = false

@@ -729,7 +729,7 @@ extension SphinxOnionManager {
         messageRestoreCallback = nil
         
         if let hideRestoreCallback = hideRestoreCallback {
-            hideRestoreCallback()
+            hideRestoreCallback(false)
         }
         
         joinInitialTribe()

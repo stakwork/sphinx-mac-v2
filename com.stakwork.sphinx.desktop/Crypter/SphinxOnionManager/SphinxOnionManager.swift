@@ -83,7 +83,7 @@ class SphinxOnionManager : NSObject {
     typealias RestoreProgressCallback = (Int) -> Void
     var messageRestoreCallback : RestoreProgressCallback? = nil
     var contactRestoreCallback : RestoreProgressCallback? = nil
-    var hideRestoreCallback: (() -> ())? = nil
+    var hideRestoreCallback: ((Bool) -> ())? = nil
     var tribeMembersCallback: (([String: AnyObject]) -> ())? = nil
     var inviteCreationCallback: ((String?) -> ())? = nil
     var mqttDisconnectCallback: (() -> ())? = nil
@@ -362,11 +362,11 @@ class SphinxOnionManager : NSObject {
     
     func reconnectToServer(
         connectingCallback: (() -> ())? = nil,
-        hideRestoreViewCallback: (()->())? = nil
+        hideRestoreViewCallback: ((Bool)->())? = nil
     ) {
         if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             if !self.isV2Restore {
-                hideRestoreViewCallback?()
+                hideRestoreViewCallback?(false)
             }
             return
         }
@@ -391,7 +391,7 @@ class SphinxOnionManager : NSObject {
         connectingCallback: (() -> ())? = nil,
         contactRestoreCallback: RestoreProgressCallback? = nil,
         messageRestoreCallback: RestoreProgressCallback? = nil,
-        hideRestoreViewCallback: (()->())? = nil
+        hideRestoreViewCallback: ((Bool)->())? = nil
     ){
         connectingCallback?()
         
@@ -399,7 +399,7 @@ class SphinxOnionManager : NSObject {
               let myPubkey = getAccountOnlyKeysendPubkey(seed: seed),
               let my_xpub = getAccountXpub(seed: seed) else
         {
-            hideRestoreViewCallback?()
+            hideRestoreViewCallback?(false)
             return
         }
         
@@ -416,7 +416,7 @@ class SphinxOnionManager : NSObject {
         let success = connectToBroker(seed: seed, xpub: my_xpub)
         
         if (success == false) {
-            hideRestoreViewCallback?()
+            hideRestoreViewCallback?(false)
             return
         }
         
@@ -436,10 +436,10 @@ class SphinxOnionManager : NSObject {
             }
              
             if self.isV2Restore {
-                self.hideRestoreCallback = {
+                self.hideRestoreCallback = { _ in
                     self.isV2Restore = false
                     
-                    hideRestoreViewCallback?()
+                    hideRestoreViewCallback?(true)
                 }
                 self.syncContactsAndMessages()
             } else {
