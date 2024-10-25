@@ -269,6 +269,7 @@
 "profile.mnemonic-generate-or-import-prompt" = "Would you like to generate a new seed phrase or import an existing one?";
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
+"profile.finish-setup" = "Ilagay ang iyong palayaw at isang opsyonal na larawan sa profile\nupang tapusin ang pag-set up ng iyong Profile";
 
 //PIN
 "privacy.pin" = "Pribadong PIN";

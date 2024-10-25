@@ -822,7 +822,7 @@ extension String {
         lineBreak:  Bool = true
     ) -> String {
         if self == "" {
-            return "Unknown"
+            return "-"
         }
         
         let names = self.split(separator: " ")

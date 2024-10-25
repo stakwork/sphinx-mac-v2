@@ -114,7 +114,10 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
             if code.isV2InviteCode {
                 continueWith(code: code)
             } else if som.isMnemonic(code: code) {
-                askForEnvironmentWith(code: code)
+//                askForEnvironmentWith(code: code)
+                
+                SphinxOnionManager.sharedInstance.isProductionEnv = true
+                self.getConfigData(code: code)
             }
         }
     }

@@ -46,6 +46,8 @@ class DashboardViewController: NSViewController {
     
     let contactsService = ContactsService.sharedInstance
     
+    var messageBubbleHelper = NewMessageBubbleHelper()
+    
     var newDetailViewController : NewChatViewController? = nil
     var listViewController : ChatListViewController? = nil
     
@@ -349,12 +351,31 @@ class DashboardViewController: NSViewController {
         SphinxOnionManager.sharedInstance.getMuteLevels()
     }
     
-    func hideRestoreViewCallback(){
+    func hideRestoreViewCallback(isRestore: Bool){
         DispatchQueue.main.async {
             self.listViewController?.headerLoading = false
             
             self.shouldHideRetoreModal()
             self.refreshUnreadStatus()
+            
+            if isRestore {
+                self.finishUserInfoSetup()
+            }
+        }
+    }
+    
+    func finishUserInfoSetup() {
+        if let owner = UserContact.getOwner(), (owner.nickname ?? "").trim().isEmpty == true {
+            WindowsManager.sharedInstance.showProfileWindow()
+            
+            messageBubbleHelper.showGenericMessageView(
+                text: "profile.finish-setup".localized,
+                delay: 5,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryGreen,
+                backAlpha: 1.0
+            )
+            
         }
     }
     
@@ -575,7 +596,7 @@ class DashboardViewController: NSViewController {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
         backgroundContext.perform { [weak self] in
-            guard let self = self else {
+            guard let _ = self else {
                 return
             }
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
@@ -595,7 +616,7 @@ class DashboardViewController: NSViewController {
                     self.listViewController?.headerLoading = true
                 }
             },
-            hideRestoreViewCallback: {
+            hideRestoreViewCallback: { _ in
                 DispatchQueue.main.async {
                     self.listViewController?.headerLoading = false
                 }
