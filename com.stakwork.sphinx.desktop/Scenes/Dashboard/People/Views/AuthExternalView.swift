@@ -99,7 +99,9 @@ class AuthExternalView: CommonModalView, LoadableNib {
     }
     
     func verifyExternal() {
-        guard let query = self.query else {
+        guard let host = self.authInfo?.host,
+              let challenge = self.authInfo?.challenge else
+        {
             AlertHelper.showAlert(
                 title: "Error",
                 message: "Could not parse auth request"
@@ -109,17 +111,16 @@ class AuthExternalView: CommonModalView, LoadableNib {
         }
 
         SphinxOnionManager.sharedInstance.processPeopleAuthChallenge(
-            query: query,
+            host: host,
+            challenge: challenge,
             completion: { authParams in
-                if let (host, challenge, token, params) = authParams {
-                    self.authInfo?.host = host
-                    self.authInfo?.challenge = challenge
+                if let (token, params) = authParams {
                     self.authInfo?.token = token
                     self.authInfo?.verificationSignature = params["verification_signature"] as? String
                     
                     self.authorizationDone(success: true, host: host)
                 } else {
-                    self.authorizationDone(success: false, host: self.authInfo?.host ?? "")
+                    self.authorizationDone(success: false, host: host)
                 }
             }
         )
@@ -152,6 +153,10 @@ class AuthExternalView: CommonModalView, LoadableNib {
                 backColor: NSColor.Sphinx.PrimaryGreen, 
                 backAlpha: 1.0
             )
+            
+            if let host = authInfo?.host, let challenge = authInfo?.challenge, let url = URL(string: "https://\(host)?challenge=\(challenge)") {
+                NSWorkspace.shared.open(url)
+            }
             
             delegate?.shouldDismissModals()
         } else {

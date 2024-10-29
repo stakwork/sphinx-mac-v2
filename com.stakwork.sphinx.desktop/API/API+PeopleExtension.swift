@@ -100,6 +100,7 @@ extension API {
     }
     
     public func createPeopleProfileWith(
+        host: String,
         token: String,
         alias: String,
         imageUrl: String?,
@@ -107,7 +108,7 @@ extension API {
         routeHint: String,
         callback: @escaping CreatePeopleProfile
     ) {
-        let url = "\(API.tribesV1Url)/person?token=\(token)"
+        let url = "\(API.getUrl(route: host))/person?token=\(token)"
         
         let params: [String: AnyObject] = [
             "owner_pubkey": publicKey as AnyObject,
