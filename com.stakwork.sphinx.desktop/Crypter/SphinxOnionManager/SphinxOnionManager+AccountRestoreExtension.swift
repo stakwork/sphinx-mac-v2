@@ -165,14 +165,14 @@ extension SphinxOnionManager {
             return
         }
         
-        finishRestoration()
+        finishMessagesFetch(isRestore: true)
     }
     
     func restoreFirstScidMessages(
         startIndex: Int = 0
     ) {
         guard let seed = getAccountSeed() else{
-            finishRestoration()
+            finishMessagesFetch(isRestore: true)
             return
         }
         
@@ -222,7 +222,7 @@ extension SphinxOnionManager {
             let firstBatchSize = min(SphinxOnionManager.kMessageBatchSize, safeSpread) //either do max batch size or less if less is needed
             
             if (safeSpread <= 0) {
-                finishRestoration()
+                finishMessagesFetch(isRestore: true)
                 return
             }
             
@@ -233,7 +233,7 @@ extension SphinxOnionManager {
                 reverse: true
             )
         } else {
-            finishRestoration()
+            finishMessagesFetch(isRestore: true)
         }
     }
 
@@ -244,7 +244,7 @@ extension SphinxOnionManager {
         reverse: Bool
     ) {
         guard let seed = getAccountSeed() else {
-            finishRestoration()
+            finishMessagesFetch(isRestore: reverse)
             return
         }
         
@@ -344,7 +344,7 @@ extension SphinxOnionManager {
     //MARK: Process all messages
     func handleFetchMessagesBatch(msgs: [Msg]) {
         guard let params = messageFetchParams else {
-            finishRestoration()
+            finishMessagesFetch(isRestore: true)
             return
         }
         
@@ -364,7 +364,7 @@ extension SphinxOnionManager {
         }?.index ?? "0"
         
         if let minRestoredIndexInt = Int(minRestoreIndex), minRestoredIndexInt - 1 <= params.stopIndex {
-            finishRestoration()
+            finishMessagesFetch(isRestore: true)
             return
         }
         
@@ -380,13 +380,13 @@ extension SphinxOnionManager {
             
             ///Restore finished
             if msgs.count <= 0 {
-                finishRestoration()
+                finishMessagesFetch(isRestore: true)
                 return
             }
         }
         
         guard let seed = getAccountSeed() else {
-            finishRestoration()
+            finishMessagesFetch(isRestore: true)
             return
         }
         
@@ -400,7 +400,7 @@ extension SphinxOnionManager {
     
     func handleFetchMessagesBatchInForward(msgs: [Msg]) {
         guard let params = messageFetchParams else {
-            finishRestoration()
+            finishMessagesFetch()
             return
         }
         
@@ -411,17 +411,19 @@ extension SphinxOnionManager {
         }?.index ?? "0"
         
         guard let maxRestoredIndexInt = Int(maxRestoreIndex) else {
-            finishRestoration()
+            finishMessagesFetch()
             return
         }
         
         if msgs.count <= 0 {
-            finishRestoration()
+            finishMessagesFetch()
             return
         }
         
+        maxMessageIndex = maxRestoredIndexInt
+        
         guard let seed = getAccountSeed() else {
-            finishRestoration()
+            finishMessagesFetch()
             return
         }
         
@@ -674,7 +676,9 @@ extension SphinxOnionManager {
         resetFromRestore()
     }
     
-    func finishRestoration() {
+    func finishMessagesFetch(
+        isRestore: Bool = false
+    ) {
         onMessageRestoredCallback = nil
         firstSCIDMsgsCallback = nil
         totalMsgsCountCallback = nil
@@ -689,8 +693,8 @@ extension SphinxOnionManager {
         resetFromRestore()
         updateRoutingInfo()
         
-        if let maxMessageIndex = TransactionMessage.getMaxIndex() {
-            UserDefaults.Keys.maxMessageIndex.set(maxMessageIndex)
+        if isRestore, let maxIndex = TransactionMessage.getMaxIndex() {
+            maxMessageIndex = maxIndex
         }
     }
     
