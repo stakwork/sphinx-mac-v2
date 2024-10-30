@@ -451,7 +451,7 @@ public class Chat: NSManagedObject {
         }
         
         backgroundContext.perform { [weak self] in
-            guard let self = self else {
+            guard let _ = self else {
                 return
             }
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
