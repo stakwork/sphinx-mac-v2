@@ -733,6 +733,12 @@ extension String {
         return self.lowerClean
     }
     
+    var isJitsiCallLink: Bool {
+        get {
+            return self.lowerClean.starts(with: "http") && self.lowerClean.contains(API.kJitsiCallServer)
+        }
+    }
+    
     var isCallLink: Bool {
         get {
             return self.lowerClean.starts(with: "http") && self.lowerClean.contains(TransactionMessage.kCallRoomName)

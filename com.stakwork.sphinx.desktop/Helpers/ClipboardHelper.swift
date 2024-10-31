@@ -66,8 +66,8 @@ class ClipboardHelper {
          */
         
         //if let screenshot : NSImage = vc.view.bitmapImage(),
-        if let cgScreenshot :CGImage = screenshot.cgImage{
-            let bitmapRep = NSBitmapImageRep(cgImage: cgScreenshot)
+        if let _ :CGImage = screenshot.cgImage {
+//            let bitmapRep = NSBitmapImageRep(cgImage: cgScreenshot)
             let data = screenshot.sd_imageData()
             NSPasteboard.general.setData(data, forType: .png)
             
@@ -83,7 +83,8 @@ class ClipboardHelper {
     
     func clipboardHasFiles(pasteBoard: NSPasteboard) -> Bool {
         if let files = pasteBoard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] {
-            return files.count > 0
+            let fileUrls = files.filter({ $0.isFileURL })
+            return fileUrls.count > 0
         }
         return false
     }
