@@ -336,7 +336,8 @@ public class Chat: NSManagedObject {
             }
             let messages = self.getAllMessages(
                 limit: 2000,
-                context: backgroundContext
+                context: backgroundContext,
+                forceAllMsgs: true
             )
             
             let ownerId = UserData.sharedInstance.getUserId()
@@ -384,13 +385,15 @@ public class Chat: NSManagedObject {
     
     func getAllMessages(
         limit: Int? = nil,
-        context: NSManagedObjectContext? = nil
+        context: NSManagedObjectContext? = nil,
+        forceAllMsgs: Bool = false
     ) -> [TransactionMessage] {
         
         return TransactionMessage.getAllMessagesFor(
             chat: self,
             limit: limit,
-            context: context
+            context: context,
+            forceAllMsgs: forceAllMsgs
         )
     }
     
