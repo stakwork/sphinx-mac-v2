@@ -138,13 +138,13 @@ extension NewChatViewController : GroupDetailsDelegate {
     }
     
     func exitAndDeleteGroup(completion: @escaping () -> ()) {
-        if !NetworkMonitor.shared.isNetworkConnected() {
-            AlertHelper.showAlert(
-                title: "generic.error.title".localized,
-                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
-            )
-            return
-        }
+//        if !NetworkMonitor.shared.isNetworkConnected() {
+//            AlertHelper.showAlert(
+//                title: "generic.error.title".localized,
+//                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
+//            )
+//            return
+//        }
         
         guard let chat = self.chat else {
             return
