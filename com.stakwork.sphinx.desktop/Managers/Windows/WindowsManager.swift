@@ -412,27 +412,47 @@ class WindowsManager {
         }
     }
     
-    func showCallWindow(link: String) {
-        if let jitsiCallVC = JitsiCallWebViewController.instantiate(link: link) {
-            let appTitle = "Sphinx Call"
+    func showCallWindow(link: String, audioOnly: Bool) {
+        if link.isJitsiCallLink {
+            var linkUrl = link
             
-            let screen = NSApplication.shared.keyWindow
-            let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
-            
-            let position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
-            
-            showNewWindow(with: appTitle,
-                          size: CGSize(width: frame.width, height: frame.height),
-                          minSize: CGSize(width: 350, height: 550),
-                          position: position,
-                          identifier: link,
-                          styleMask: [.titled, .resizable, .closable],
-                          contentVC: jitsiCallVC)
-        } else {
-            if let url = URL(string: link) {
-                NSWorkspace.shared.open(url)
+            if audioOnly && !link.contains("startAudioOnly") {
+                linkUrl = "\(link)#config.startAudioOnly=true"
             }
+            
+            if let jitsiCallVC = JitsiCallWebViewController.instantiate(link: linkUrl) {
+                presentWindowForCallVC(vc: jitsiCallVC, link: linkUrl)
+                return
+            }
+        } else if link.isLiveKitCallLink {
+            let liveKitVC = LikeKitCallViewController()
+            liveKitVC.url = link
+            liveKitVC.audioOnly = audioOnly
+            presentWindowForCallVC(vc: liveKitVC, link: link)
+            return
         }
+        if let url = URL(string: link) {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    func presentWindowForCallVC(vc: NSViewController, link: String) {
+        let appTitle = "Sphinx Call"
+        
+        let screen = NSApplication.shared.keyWindow
+        let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
+        
+        let position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
+        
+        showNewWindow(
+            with: appTitle,
+            size: CGSize(width: frame.width, height: frame.height),
+            minSize: CGSize(width: 350, height: 550),
+            position: position,
+            identifier: link,
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: vc
+        )
     }
     
     func showInviteCodeWindow(vc: NSViewController, window: NSWindow?) {
