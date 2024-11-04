@@ -36,16 +36,12 @@ class LikeKitCallViewController: NSViewController {
         view.wantsLayer = true
         view.layer?.backgroundColor = .white
 
-//        let url = "ws://your_host"
+        let wssUrl = "wss://livekit.sphinx.chat"
         let token = "your_jwt_token"
-        
-        guard let url = url else {
-            return
-        }
 
         Task {
             do {
-                try await room.connect(url: url, token: token)
+                try await room.connect(url: wssUrl, token: token)
                 // Connection successful...
 
                 // Publishing camera & mic...

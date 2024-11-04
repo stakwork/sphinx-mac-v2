@@ -108,6 +108,7 @@
 		473633F02555DCEE007405F2 /* PodcastSatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473633EF2555DCED007405F2 /* PodcastSatsView.swift */; };
 		473633F22555DCF9007405F2 /* PodcastSatsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 473633F12555DCF9007405F2 /* PodcastSatsView.xib */; };
 		473633F42555DEC0007405F2 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473633F32555DEC0007405F2 /* CustomSliderCell.swift */; };
+		473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 473873B12CD9507500CBBC28 /* ReplayKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		47393E622461DAF900E6F93E /* SymmetricEncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */; };
 		47393E652461DB2C00E6F93E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E642461DB2C00E6F93E /* String.swift */; };
 		473BC88F2600EEFF0070E519 /* NewEpisodeAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473BC88E2600EEFE0070E519 /* NewEpisodeAlertView.swift */; };
@@ -947,6 +948,7 @@
 		473633EF2555DCED007405F2 /* PodcastSatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSatsView.swift; sourceTree = "<group>"; };
 		473633F12555DCF9007405F2 /* PodcastSatsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastSatsView.xib; sourceTree = "<group>"; };
 		473633F32555DEC0007405F2 /* CustomSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
+		473873B12CD9507500CBBC28 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymmetricEncryptionManager.swift; sourceTree = "<group>"; };
 		47393E642461DB2C00E6F93E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		473BC88E2600EEFE0070E519 /* NewEpisodeAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEpisodeAlertView.swift; sourceTree = "<group>"; };
@@ -1605,6 +1607,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */,
 				47543C552A9517BC003F8DEE /* universal-sphinxrs-mac.a in Frameworks */,
 				47D03DE7250FC8B90077A968 /* PDFKit.framework in Frameworks */,
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
@@ -1632,6 +1635,7 @@
 		3E664B87C7B66A1253E2E109 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				473873B12CD9507500CBBC28 /* ReplayKit.framework */,
 				47543C542A9517BC003F8DEE /* universal-sphinxrs-mac.a */,
 				47D03DE6250FC8B90077A968 /* PDFKit.framework */,
 				82C242433501D81263FED4C2 /* Pods_Sphinx.framework */,

@@ -87,7 +87,8 @@ class API {
     }
     
     public static let kJitsiCallServer = "https://jitsi.sphinx.chat"
-    public static let kLiveKitCallServer = "https://jitsi.sphinx.chat"
+    public static let kLiveKitCallServer = "https://chat.sphinx.chat/rooms"
+
     
     var storedVideoCallServer: String? = nil
     public var kVideoCallServer : String {
