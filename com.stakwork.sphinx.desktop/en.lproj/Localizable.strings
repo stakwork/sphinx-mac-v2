@@ -302,6 +302,7 @@
 "error.loading.transactions" = "There was an error loading transactions list. Please try again later.";
 "loading.more.transactions" = "Loading more transactions...";
 "transactions.failure-reason" = "Failure reason:";
+"failed.payment" = "Failed Payment";
 
 //QR CODE SCANNER
 "scan.qr.code.upper" = "SCAN A QR CODE";

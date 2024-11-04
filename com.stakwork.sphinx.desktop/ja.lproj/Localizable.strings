@@ -298,6 +298,7 @@
 "error.loading.transactions" = "取引リストの読み込み中にエラーが発生しました。後ほど再度お試しください。";
 "loading.more.transactions" = "さらに取引を読み込んでいます...";
 "transactions.failure-reason" = "失敗の理由:";
+"failed.payment" = "支払い失敗";
 
 //QR CODE SCANNER
 "scan.qr.code.upper" = "QRコードをスキャン";

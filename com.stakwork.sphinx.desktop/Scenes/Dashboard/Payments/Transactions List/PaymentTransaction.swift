@@ -22,36 +22,13 @@ class PaymentTransaction {
     var paymentRequest : String?
     var paymentHash : String?
     var errorMessage : String?
+    var data : String?
     
     var expanded: Bool = false
     
     public enum TransactionDirection: Int {
         case Incoming
         case Outgoing
-    }
-    
-    init(json: JSON) {
-        let type = json["type"].int
-        let amount = json["amount"].int
-        let senderId = json["sender"].int
-        let receiverId = json["receiver"].int
-        let chatId = json["chat_id"].int
-        let date = Date.getDateFromString(dateString: json["date"].stringValue) ?? Date()
-        let paymentHash = json["payment_hash"].string
-        let paymentRequest = json["payment_request"].string
-        let originalMUUID = json["reply_uuid"].string
-        let errorMessage = json["error_message"].string
-        
-        self.type = type
-        self.amount = amount
-        self.senderId = senderId
-        self.receiverId = receiverId
-        self.chatId = chatId
-        self.date = date
-        self.paymentRequest = paymentRequest
-        self.paymentHash = paymentHash
-        self.originalMessageUUID = originalMUUID
-        self.errorMessage = errorMessage
     }
     
     init(
@@ -68,6 +45,7 @@ class PaymentTransaction {
         self.paymentRequest = transactionMessage.invoice
         self.paymentHash = transactionMessage.paymentHash
         self.errorMessage = transactionMessage.errorMessage
+        self.data = nil
         
         if let ts = ts {
             self.date = Date(timeIntervalSince1970: TimeInterval(ts) / 1000)
@@ -94,6 +72,7 @@ class PaymentTransaction {
         self.receiverId = (isIncoming) ? 0 : -1
         self.paymentRequest = "unknown"
         self.errorMessage = fetchedParams.error
+        self.data = fetchedParams.data
     }
     
     func getDirection() -> TransactionDirection {
@@ -112,6 +91,10 @@ class PaymentTransaction {
     
     func isFailed() -> Bool {
         return !((errorMessage ?? "").isEmpty)
+    }
+    
+    func isBountyPayment() -> Bool {
+        return !((data ?? "").isEmpty)
     }
     
     func getDate() -> Date {
@@ -156,7 +139,7 @@ class PaymentTransaction {
             }
             return message.senderAlias
         }
-        return nil
+        return self.data
     }
 }
 
@@ -168,6 +151,7 @@ class PaymentTransactionFromServer: Mappable {
     var remote: Bool?
     var msg_idx: Int?
     var error: String?
+    var data: String?
     
     required init?(map: Map) {}
     
@@ -179,5 +163,6 @@ class PaymentTransactionFromServer: Mappable {
         remote   <- map["remote"]
         msg_idx  <- map["msg_idx"]
         error    <- map["error"]
+        data     <- map["data"]
     }
 }
