@@ -22,7 +22,7 @@ class PaymentTransaction {
     var paymentRequest : String?
     var paymentHash : String?
     var errorMessage : String?
-    var data : String?
+    var content : String?
     
     var expanded: Bool = false
     
@@ -45,7 +45,7 @@ class PaymentTransaction {
         self.paymentRequest = transactionMessage.invoice
         self.paymentHash = transactionMessage.paymentHash
         self.errorMessage = transactionMessage.errorMessage
-        self.data = nil
+        self.content = transactionMessage.messageContent
         
         if let ts = ts {
             self.date = Date(timeIntervalSince1970: TimeInterval(ts) / 1000)
@@ -72,7 +72,6 @@ class PaymentTransaction {
         self.receiverId = (isIncoming) ? 0 : -1
         self.paymentRequest = "unknown"
         self.errorMessage = fetchedParams.error
-        self.data = fetchedParams.data
     }
     
     func getDirection() -> TransactionDirection {
@@ -94,7 +93,7 @@ class PaymentTransaction {
     }
     
     func isBountyPayment() -> Bool {
-        return !((data ?? "").isEmpty)
+        return !((content ?? "").isEmpty)
     }
     
     func getDate() -> Date {
@@ -139,7 +138,7 @@ class PaymentTransaction {
             }
             return message.senderAlias
         }
-        return self.data
+        return self.content
     }
 }
 
@@ -151,7 +150,6 @@ class PaymentTransactionFromServer: Mappable {
     var remote: Bool?
     var msg_idx: Int?
     var error: String?
-    var data: String?
     
     required init?(map: Map) {}
     
@@ -163,6 +161,5 @@ class PaymentTransactionFromServer: Mappable {
         remote   <- map["remote"]
         msg_idx  <- map["msg_idx"]
         error    <- map["error"]
-        data     <- map["data"]
     }
 }
