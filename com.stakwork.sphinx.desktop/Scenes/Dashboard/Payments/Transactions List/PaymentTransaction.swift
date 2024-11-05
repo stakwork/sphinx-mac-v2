@@ -75,7 +75,12 @@ class PaymentTransaction {
     }
     
     func getDirection() -> TransactionDirection {
+        if senderId == 0 && receiverId == 0 {
+            return TransactionDirection.Incoming
+        }
+        
         let userId = UserData.sharedInstance.getUserId()
+        
         if let senderId = senderId {
             if senderId == userId {
                 return TransactionDirection.Outgoing
@@ -93,7 +98,7 @@ class PaymentTransaction {
     }
     
     func isBountyPayment() -> Bool {
-        return !((content ?? "").isEmpty)
+        return !((content ?? "").isEmpty) && senderId == 0 && receiverId == 0
     }
     
     func getDate() -> Date {
@@ -111,15 +116,20 @@ class PaymentTransaction {
             return nil
         }
         
+        if chat == nil && senderId == 0 && receiverId == 0 && (content ?? "").isNotEmpty {
+            ///Incoming bounty pmts
+            return self.content
+        }
+        
         if let senderId = senderId, let sender = UserContact.getContactWith(id: senderId), isIncoming() {
             if let nickname = sender.nickname, !nickname.isEmpty {
                 return nickname
             } else {
-                return "unknown sender"
+                return "-"
             }
         } else if let receivedId = receiverId, let receiver = UserContact.getContactWith(id: receivedId), !isIncoming() {
             guard let chat = chat else {
-                return "-"
+                return self.content
             }
             if !chat.isGroup(), let nickname = receiver.nickname, !nickname.isEmpty {
                 return nickname
@@ -138,7 +148,7 @@ class PaymentTransaction {
             }
             return message.senderAlias
         }
-        return self.content
+        return "-"
     }
 }
 

@@ -41,9 +41,17 @@ class TransactionCollectionViewItem: NSCollectionViewItem {
         
         paymentIcon.image = transaction.isFailed() ? failedPmtImage : directionPmtImage
         
-        failedPaymentLabel.isHidden = !transaction.isFailed() && !transaction.isBountyPayment()
-        failedPaymentLabel.textColor = transaction.isFailed() ? NSColor.Sphinx.PrimaryRed : NSColor.Sphinx.PrimaryGreen
-        failedPaymentLabel.stringValue = transaction.isFailed() ? "failed.payment".localized : "Bounty"
+        failedPaymentLabel.isHidden = !transaction.isFailed()
+        
+        if transaction.isBountyPayment() {
+            failedPaymentLabel.cell?.wraps = true
+            failedPaymentLabel.lineBreakMode = .byWordWrapping
+        } else {
+            failedPaymentLabel.cell?.wraps = false
+            failedPaymentLabel.lineBreakMode = .byTruncatingTail
+        }
+        
+        failedPaymentLabel.stringValue = "failed.payment".localized
         
         let bottomViewVisible = transaction.isFailed() && transaction.expanded
         bottomView.isHidden = !bottomViewVisible
