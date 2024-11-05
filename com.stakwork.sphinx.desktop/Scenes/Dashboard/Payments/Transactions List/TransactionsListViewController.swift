@@ -78,7 +78,7 @@ class TransactionsListViewController: NSViewController {
             let msgIndexes = results.compactMap({ $0.msg_idx })
             let msgPmtHashes = results.compactMap({ $0.rhash })
             var messages = TransactionMessage.fetchTransactionMessagesForHistory()
-            var messagesMatching = TransactionMessage.fetchTransactionMessagesForHistoryWith(msgIndexes: msgIndexes, msgPmtHashes: msgPmtHashes)
+            let messagesMatching = TransactionMessage.fetchTransactionMessagesForHistoryWith(msgIndexes: msgIndexes, msgPmtHashes: msgPmtHashes)
             messages.append(contentsOf: messagesMatching)
             
             for result in results {
