@@ -396,6 +396,8 @@
 "mute" = "Mute";
 "unmute" = "Unmute";
 "call" = "Call";
+"error.getting.token.title" = "Error getting token";
+"error.getting.token.description" = "There was an error getting a token to join the call. Please try again later";
 
 "users" = "users";
 "optional.message.placeholder" = "Optional Message...";

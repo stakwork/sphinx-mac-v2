@@ -417,6 +417,8 @@
 "mute" = "沉默的";
 "unmute" = "取消静音";
 "call" = "称呼";
+"error.getting.token.title" = "获取令牌时出错";
+"error.getting.token.description" = "获取加入通话的令牌时出错。请稍后重试";
 
 //OTHER
 "create.call" = "创建通话";

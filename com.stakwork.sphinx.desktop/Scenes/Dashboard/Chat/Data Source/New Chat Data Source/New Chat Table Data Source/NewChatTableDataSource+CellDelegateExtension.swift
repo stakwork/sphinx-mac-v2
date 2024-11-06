@@ -1005,12 +1005,7 @@ extension NewChatTableDataSource {
 extension NewChatTableDataSource {
     func startVideoCall(link: String, audioOnly: Bool) {
         var linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
-        
-        if audioOnly && !linkUrl.contains("startAudioOnly") {
-            linkUrl = "\(linkUrl)#config.startAudioOnly=true"
-        }
-        
-        delegate?.shouldStartCallWith(link: linkUrl)                
+        delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly)
     }
 }
 

@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SwiftUI
 
 class WindowsManager {
     
@@ -378,6 +379,8 @@ class WindowsManager {
         newWindow.windowIdentifier = identifier
         newWindow.chatIdentifier = chatIdentifier
         newWindow.backgroundColor = NSColor.Sphinx.Body
+        newWindow.toolbarStyle = .unifiedCompact
+        newWindow.titlebarAppearsTransparent = true
         
         if let w = w {
             let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
@@ -412,27 +415,90 @@ class WindowsManager {
         }
     }
     
-    func showCallWindow(link: String) {
-        if let jitsiCallVC = JitsiCallWebViewController.instantiate(link: link) {
-            let appTitle = "Sphinx Call"
-            
-            let screen = NSApplication.shared.keyWindow
-            let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
-            
-            let position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
-            
-            showNewWindow(with: appTitle,
-                          size: CGSize(width: frame.width, height: frame.height),
-                          minSize: CGSize(width: 350, height: 550),
-                          position: position,
-                          identifier: link,
-                          styleMask: [.titled, .resizable, .closable],
-                          contentVC: jitsiCallVC)
-        } else {
-            if let url = URL(string: link) {
-                NSWorkspace.shared.open(url)
-            }
+    func startLiveKitCall(
+        link: String,
+        audioOnly: Bool
+    ) {
+        guard let owner = UserContact.getOwner() else {
+            return
         }
+        
+        var linkUrl = link
+        
+        if let room = linkUrl.liveKitRoomName {
+            API.sharedInstance.getLikeKitToken(
+                room: room,
+                alias: owner.nickname ?? "",
+                callback: { url, token in
+                    
+                    let appCtx = AppContext(store: sync)
+                    let roomCtx = RoomContext(store: sync)
+                    
+                    roomCtx.url = url
+                    roomCtx.token = token
+                    
+                    let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
+                        Task { @MainActor in
+                            self.closeIfExists(identifier: link)
+                        }
+                    }).environmentObject(appCtx).environmentObject(roomCtx)
+                    
+                    let hostingController = NSHostingController(rootView: roomContextView)
+                    self.presentWindowForCallVC(vc: hostingController, link: link)
+                },
+                errorCallback: { _ in
+                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: "error.getting.token.description".localized)
+                }
+            )
+        }
+    }
+    
+    func showCallWindow(
+        link: String,
+        audioOnly: Bool = false
+    ) {
+        
+        if link.isJitsiCallLink {
+            var linkUrl = link
+            
+            if audioOnly && !link.contains("startAudioOnly") {
+                linkUrl = "\(link)#config.startAudioOnly=true"
+            }
+            
+            if let jitsiCallVC = JitsiCallWebViewController.instantiate(link: linkUrl) {
+                presentWindowForCallVC(vc: jitsiCallVC, link: linkUrl)
+                return
+            }
+        } else if link.isLiveKitCallLink {
+            startLiveKitCall(
+                link: link,
+                audioOnly: audioOnly || link.contains("startAudioOnly")
+            )
+            return
+        }
+        
+        if let url = URL(string: link) {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    func presentWindowForCallVC(vc: NSViewController, link: String) {
+        let appTitle = "Sphinx Call"
+        
+        let screen = NSApplication.shared.keyWindow
+        let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
+        
+        let position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
+        
+        showNewWindow(
+            with: appTitle,
+            size: CGSize(width: frame.width, height: frame.height),
+            minSize: CGSize(width: 350, height: 550),
+            position: position,
+            identifier: link,
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: vc
+        )
     }
     
     func showInviteCodeWindow(vc: NSViewController, window: NSWindow?) {

@@ -77,6 +77,10 @@ extension NewChatViewModel {
         
         completion(validMessage != nil, errorMsg)
         
+        if let message = validMessage {
+            joinIfCallMessage(message: message)
+        }
+        
         resetReply()
     }
     

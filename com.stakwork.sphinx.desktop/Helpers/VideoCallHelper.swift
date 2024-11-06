@@ -27,10 +27,10 @@ class VideoCallHelper {
     
     public static func createCallMessage(mode: CallMode) -> String {
         let time = Date.timeIntervalSinceReferenceDate
-        let room = "\(API.sharedInstance.kVideoCallServer)\(TransactionMessage.kCallRoomName).\(time)"
+        let room = "\(API.sharedInstance.kVideoCallServer)/rooms\(TransactionMessage.kCallRoomName).\(time)"
         
         if mode == .Audio {
-            return room + "#config.startAudioOnly=true"
+            return room + "?startAudioOnly=true"
         }
         return room
     }
