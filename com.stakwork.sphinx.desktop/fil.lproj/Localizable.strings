@@ -413,6 +413,8 @@
 "mute" = "Pipi";
 "unmute" = "Unmute";
 "call" = "Tumawag";
+"error.getting.token.title" = "Error sa pagkuha ng token";
+"error.getting.token.description" = "Nagkaroon ng error sa pagkuha ng token para sumali sa tawag. Pakisubukang muli mamaya";
 
 //OTHER
 "create.call"  = "Lumikha ng Tawag";

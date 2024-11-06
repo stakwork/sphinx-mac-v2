@@ -745,6 +745,16 @@ extension String {
         }
     }
     
+    var liveKitRoomName: String? {
+        get {
+            let elements = self.components(separatedBy: "rooms/")
+            if elements.count > 1 {
+                return elements[1]
+            }
+            return nil
+        }
+    }
+    
     var isCallLink: Bool {
         get {
             return self.lowerClean.starts(with: "http") && self.lowerClean.contains(TransactionMessage.kCallRoomName)

@@ -416,6 +416,8 @@
 "mute" = "ミュート";
 "unmute" = "ミュートを解除";
 "call" = "電話";
+"error.getting.token.title" = "トークンの取得中にエラーが発生しました";
+"error.getting.token.description" = "通話に参加するためのトークンの取得中にエラーが発生しました。しばらくしてからもう一度お試しください。";
 
 //OTHER
 "create.call" = "通話を作成";

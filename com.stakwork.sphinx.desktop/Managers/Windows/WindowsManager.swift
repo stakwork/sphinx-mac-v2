@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SwiftUI
 
 class WindowsManager {
     
@@ -378,6 +379,8 @@ class WindowsManager {
         newWindow.windowIdentifier = identifier
         newWindow.chatIdentifier = chatIdentifier
         newWindow.backgroundColor = NSColor.Sphinx.Body
+        newWindow.toolbarStyle = .unifiedCompact
+        newWindow.titlebarAppearsTransparent = true
         
         if let w = w {
             let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
@@ -412,7 +415,49 @@ class WindowsManager {
         }
     }
     
-    func showCallWindow(link: String, audioOnly: Bool) {
+    func startLiveKitCall(
+        link: String,
+        audioOnly: Bool
+    ) {
+        guard let owner = UserContact.getOwner() else {
+            return
+        }
+        
+        var linkUrl = link
+        
+        if let room = linkUrl.liveKitRoomName {
+            API.sharedInstance.getLikeKitToken(
+                room: room,
+                alias: owner.nickname ?? "",
+                callback: { url, token in
+                    
+                    let appCtx = AppContext(store: sync)
+                    let roomCtx = RoomContext(store: sync)
+                    
+                    roomCtx.url = url
+                    roomCtx.token = token
+                    
+                    let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
+                        Task { @MainActor in
+                            self.closeIfExists(identifier: link)
+                        }
+                    }).environmentObject(appCtx).environmentObject(roomCtx)
+                    
+                    let hostingController = NSHostingController(rootView: roomContextView)
+                    self.presentWindowForCallVC(vc: hostingController, link: link)
+                },
+                errorCallback: { _ in
+                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: "error.getting.token.description".localized)
+                }
+            )
+        }
+    }
+    
+    func showCallWindow(
+        link: String,
+        audioOnly: Bool = false
+    ) {
+        
         if link.isJitsiCallLink {
             var linkUrl = link
             
@@ -425,12 +470,13 @@ class WindowsManager {
                 return
             }
         } else if link.isLiveKitCallLink {
-            let liveKitVC = LikeKitCallViewController()
-            liveKitVC.url = link
-            liveKitVC.audioOnly = audioOnly
-            presentWindowForCallVC(vc: liveKitVC, link: link)
+            startLiveKitCall(
+                link: link,
+                audioOnly: audioOnly || link.contains("startAudioOnly")
+            )
             return
         }
+        
         if let url = URL(string: link) {
             NSWorkspace.shared.open(url)
         }

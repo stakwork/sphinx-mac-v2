@@ -20,6 +20,7 @@ typealias CreateGroupCallback = ((JSON) -> ())
 typealias TemplatesCallback = (([ImageTemplate]) -> ())
 typealias PinMessageCallback = ((String) -> ())
 typealias ErrorCallback = ((String) -> ())
+typealias LiveKitTokenCallback = ((String, String) -> ())
 
 //Attachments
 typealias askAuthenticationCallback = ((String?, String?) -> ())
@@ -87,7 +88,7 @@ class API {
     }
     
     public static let kJitsiCallServer = "https://jitsi.sphinx.chat"
-    public static let kLiveKitCallServer = "https://chat.sphinx.chat/rooms"
+    public static let kLiveKitCallServer = "https://chat.sphinx.chat"
 
     
     var storedVideoCallServer: String? = nil

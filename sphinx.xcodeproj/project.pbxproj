@@ -94,6 +94,18 @@
 		47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */; };
 		4730EF5B2CDBCF800014581F /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 4730EF5A2CDBCF800014581F /* KeychainAccess */; };
 		4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */ = {isa = PBXBuildFile; productRef = 4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */; };
+		4730EF612CDBD0360014581F /* ValueStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF602CDBD0360014581F /* ValueStore.swift */; };
+		4730EF632CDBD0470014581F /* AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF622CDBD0470014581F /* AppContext.swift */; };
+		4730EF652CDBD0580014581F /* RoomContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF642CDBD0580014581F /* RoomContext.swift */; };
+		4730EF672CDBD0690014581F /* RoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF662CDBD0690014581F /* RoomView.swift */; };
+		4730EF692CDBD0910014581F /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF682CDBD0910014581F /* ConnectView.swift */; };
+		4730EF6B2CDBD0C90014581F /* CustomViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF6A2CDBD0C90014581F /* CustomViews.swift */; };
+		4730EF6D2CDBD0EE0014581F /* ParticipantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF6C2CDBD0EE0014581F /* ParticipantView.swift */; };
+		4730EF6F2CDBD1020014581F /* PublishOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF6E2CDBD1020014581F /* PublishOptionsView.swift */; };
+		4730EF712CDBD10D0014581F /* Participant+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF702CDBD10D0014581F /* Participant+Helper.swift */; };
+		4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */; };
+		4730EF772CDBD4E20014581F /* API+LiveKitExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */; };
+		4730EF7B2CDBE5C90014581F /* RoomContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF7A2CDBE5C90014581F /* RoomContextView.swift */; };
 		4733ED252CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */; };
 		4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED292CB43AA600078EF2 /* ColorsManager.swift */; };
 		4733ED2C2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */; };
@@ -571,7 +583,6 @@
 		47F8825F25656CB0002A7E71 /* SocketAckEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8824625656CB0002A7E71 /* SocketAckEmitter.swift */; };
 		47FB5F3E2BDC1A2B001B762B /* NewMenuListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47FB5F402BDC1A2B001B762B /* NewMenuListView.xib */; };
 		47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */ = {isa = PBXBuildFile; productRef = 47FCE2B62CD8FABC005DB8AF /* LiveKit */; };
-		47FCE2BC2CD8FBB0005DB8AF /* LikeKitCallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FCE2BB2CD8FBB0005DB8AF /* LikeKitCallViewController.swift */; };
 		47FEE1EF2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */; };
 		47FEE1F12A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */; };
 		47FEE1F42A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */; };
@@ -927,6 +938,18 @@
 		472B4E8E268BAF4E00E8D0FC /* OnionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnionManager.swift; sourceTree = "<group>"; };
 		47308E1E2507F3AC00FFAC6F /* GiphySearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphySearchView.swift; sourceTree = "<group>"; };
 		47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+GiphyExtension.swift"; sourceTree = "<group>"; };
+		4730EF602CDBD0360014581F /* ValueStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueStore.swift; sourceTree = "<group>"; };
+		4730EF622CDBD0470014581F /* AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContext.swift; sourceTree = "<group>"; };
+		4730EF642CDBD0580014581F /* RoomContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomContext.swift; sourceTree = "<group>"; };
+		4730EF662CDBD0690014581F /* RoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomView.swift; sourceTree = "<group>"; };
+		4730EF682CDBD0910014581F /* ConnectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
+		4730EF6A2CDBD0C90014581F /* CustomViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViews.swift; sourceTree = "<group>"; };
+		4730EF6C2CDBD0EE0014581F /* ParticipantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantView.swift; sourceTree = "<group>"; };
+		4730EF6E2CDBD1020014581F /* PublishOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishOptionsView.swift; sourceTree = "<group>"; };
+		4730EF702CDBD10D0014581F /* Participant+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+Helper.swift"; sourceTree = "<group>"; };
+		4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareSourcePickerView.swift; sourceTree = "<group>"; };
+		4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+LiveKitExtension.swift"; sourceTree = "<group>"; };
+		4730EF7A2CDBE5C90014581F /* RoomContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomContextView.swift; sourceTree = "<group>"; };
 		4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+PeopleExtension.swift"; sourceTree = "<group>"; };
 		4733ED292CB43AA600078EF2 /* ColorsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsManager.swift; sourceTree = "<group>"; };
 		4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+OnionStateExtension.swift"; sourceTree = "<group>"; };
@@ -1502,7 +1525,6 @@
 		47FB5F4B2BDC1A3C001B762B /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/NewMenuListView.strings; sourceTree = "<group>"; };
 		47FB5F4D2BDC1A3C001B762B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/NewMenuListView.strings; sourceTree = "<group>"; };
 		47FB5F4F2BDC1A3D001B762B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/NewMenuListView.strings; sourceTree = "<group>"; };
-		47FCE2BB2CD8FBB0005DB8AF /* LikeKitCallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikeKitCallViewController.swift; sourceTree = "<group>"; };
 		47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatMessageFieldView+FieldsExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatMessageFieldView+MentionsMacrosExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+FetchControllerExtension.swift"; sourceTree = "<group>"; };
@@ -1868,6 +1890,24 @@
 			path = "Giphy Search";
 			sourceTree = "<group>";
 		};
+		4730EF5F2CDBD0270014581F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4730EF602CDBD0360014581F /* ValueStore.swift */,
+				4730EF622CDBD0470014581F /* AppContext.swift */,
+				4730EF642CDBD0580014581F /* RoomContext.swift */,
+				4730EF662CDBD0690014581F /* RoomView.swift */,
+				4730EF682CDBD0910014581F /* ConnectView.swift */,
+				4730EF6A2CDBD0C90014581F /* CustomViews.swift */,
+				4730EF6C2CDBD0EE0014581F /* ParticipantView.swift */,
+				4730EF6E2CDBD1020014581F /* PublishOptionsView.swift */,
+				4730EF702CDBD10D0014581F /* Participant+Helper.swift */,
+				4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */,
+				4730EF7A2CDBE5C90014581F /* RoomContextView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		4733ED282CB43A9700078EF2 /* ColorsManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -2129,6 +2169,7 @@
 				47543C5F2A9519CD003F8DEE /* API+CrypterExtension.swift */,
 				471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */,
 				473615F62C359D0000EE3334 /* API+V2Extension.swift */,
+				4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -3466,7 +3507,7 @@
 		47FCE2B82CD8FB31005DB8AF /* Live Kit */ = {
 			isa = PBXGroup;
 			children = (
-				47FCE2BB2CD8FBB0005DB8AF /* LikeKitCallViewController.swift */,
+				4730EF5F2CDBD0270014581F /* Views */,
 			);
 			path = "Live Kit";
 			sourceTree = "<group>";
@@ -3961,13 +4002,16 @@
 				47DE1C042A68813B0029597B /* MessageNoBubbleCollectionViewItem.swift in Sources */,
 				47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */,
 				4744FACF246AF6A400C5FD94 /* AspectFillNSImageView.swift in Sources */,
+				4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */,
 				475B683829915DF5000EF29C /* PodcastModel+Properties.swift in Sources */,
+				4730EF6B2CDBD0C90014581F /* CustomViews.swift in Sources */,
 				474274A528EC7275000C3D51 /* TribeTagsView.swift in Sources */,
 				475B684B29916552000EF29C /* Array.swift in Sources */,
 				47B550A5248BEB0E000514BF /* PaymentTemplatesView.swift in Sources */,
 				47F8824A25656CB0002A7E71 /* SSLSecurity.swift in Sources */,
 				47DE1C182A6976120029597B /* NewMessageCollectionViewItem+GeneralSetup.swift in Sources */,
 				47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */,
+				4730EF772CDBD4E20014581F /* API+LiveKitExtension.swift in Sources */,
 				47DE1C342A6AF5FA0029597B /* ShimmeringView.swift in Sources */,
 				47B5509E248BD256000514BF /* SendPaymentViewController.swift in Sources */,
 				47F8825C25656CB0002A7E71 /* SocketIOClientSpec.swift in Sources */,
@@ -3977,6 +4021,7 @@
 				47DE1C282A69DC410029597B /* NewMessageBoostView.swift in Sources */,
 				4787F8A0247C16B200CCE8B9 /* ChatSmallAvatarView.swift in Sources */,
 				47DE1C1A2A6976630029597B /* NewMessageCollectionViewItem+StatusHeaderExtension.swift in Sources */,
+				4730EF6F2CDBD1020014581F /* PublishOptionsView.swift in Sources */,
 				47D676042C11F2D00002914E /* KeyboardReplyView.swift in Sources */,
 				47469D672ACEE892004F0490 /* ChatSearchTextFieldView.swift in Sources */,
 				47F8825F25656CB0002A7E71 /* SocketAckEmitter.swift in Sources */,
@@ -3991,12 +4036,14 @@
 				CEF18FA92C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift in Sources */,
 				473E1F3C2AC46DEB00DC1CDC /* ThreadCollectionView+DelegatesExtension.swift in Sources */,
 				CE6BF5CA29E5BA38009BCFDE /* SendPaymentForInvoiceVC.swift in Sources */,
+				4730EF672CDBD0690014581F /* RoomView.swift in Sources */,
 				47DF91572C4AA99300E8128A /* LSat+FetchUtils.swift in Sources */,
 				47FEE2092A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift in Sources */,
 				47DE1C202A697FC60029597B /* NewMessageCollectionViewItem+DelegatesExtension.swift in Sources */,
 				4708C2032A55C0DE00274AD4 /* Chat+FetchUtils.swift in Sources */,
 				473E1F542AC5EBAA00DC1CDC /* ThreadListCollectionViewItem.swift in Sources */,
 				47B550A9248BEB9A000514BF /* PaymentTemplatesViewController.swift in Sources */,
+				4730EF712CDBD10D0014581F /* Participant+Helper.swift in Sources */,
 				477158992BE4333D00E2101D /* TribeMemberHeaderView.swift in Sources */,
 				479751E0246D8FFB00D2106B /* ChatListViewController.swift in Sources */,
 				478ED59825D55C6B00940132 /* NamePinView.swift in Sources */,
@@ -4078,6 +4125,7 @@
 				47B55097248AC8CB000514BF /* NSProgressIndicator.swift in Sources */,
 				479751DA246C9A7E00D2106B /* AlertHelper.swift in Sources */,
 				47A4EFFE24B6321700117AE6 /* ConnectivityHelper.swift in Sources */,
+				4730EF632CDBD0470014581F /* AppContext.swift in Sources */,
 				4797E75A278607960080B966 /* PeopleTorActionsView.swift in Sources */,
 				473E1F472AC5BEB600DC1CDC /* ThreadHeaderView.swift in Sources */,
 				4708C2052A55CA4800274AD4 /* NSViewController.swift in Sources */,
@@ -4088,6 +4136,7 @@
 				475B685C29917395000EF29C /* PodcastPlayerController+ActionsTracking.swift in Sources */,
 				475F0BA224F7D97D0032EDC4 /* NewContactViewController.swift in Sources */,
 				475B680329915C9E000EF29C /* ActionTrack+CoreDataProperties.swift in Sources */,
+				4730EF612CDBD0360014581F /* ValueStore.swift in Sources */,
 				470396E9253721D7007F9C23 /* API+PodcastExtension.swift in Sources */,
 				4797F6512B0E395C00A19C58 /* TransactionCollectionViewItem.swift in Sources */,
 				475B684429915E12000EF29C /* PodcastFeed+PlayerPodcastData.swift in Sources */,
@@ -4125,11 +4174,13 @@
 				475B682529915D25000EF29C /* ContentFeedMediaKind.swift in Sources */,
 				479751DE246D82FA00D2106B /* NSSound.swift in Sources */,
 				475B681029915CCA000EF29C /* ContentConsumedAction.swift in Sources */,
+				4730EF692CDBD0910014581F /* ConnectView.swift in Sources */,
 				475B682629915D25000EF29C /* ContentFeedItem+Computeds.swift in Sources */,
 				478ED5FA25DC624300940132 /* ChangePinView.swift in Sources */,
 				47B6F52C258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift in Sources */,
 				473633DF2554464C007405F2 /* Asn1Parser.swift in Sources */,
 				4797E74C24B8B40F00D13270 /* VideoCallHelper.swift in Sources */,
+				4730EF6D2CDBD0EE0014581F /* ParticipantView.swift in Sources */,
 				475B682929915D72000EF29C /* ContentFeedPaymentDestination+CoreDataProperties.swift in Sources */,
 				47BDEDF124F466C4001688F3 /* ProfileViewControllerExtension.swift in Sources */,
 				47DE1C2C2A69E0BA0029597B /* MessageBoostImageView.swift in Sources */,
@@ -4265,7 +4316,6 @@
 				478ED58C25D47C9700940132 /* FriendMessageView.swift in Sources */,
 				473E1F3F2AC5B0CD00DC1CDC /* ThreadTableDataSource.swift in Sources */,
 				474C7A3A28D21116007A3E17 /* NotificationLevelView.swift in Sources */,
-				47FCE2BC2CD8FBB0005DB8AF /* LikeKitCallViewController.swift in Sources */,
 				472B4E8F268BAF4E00E8D0FC /* OnionManager.swift in Sources */,
 				473E1F652AC5F77B00DC1CDC /* ThreadsListDataSource+RowHeightExtension.swift in Sources */,
 				47F8824E25656CB0002A7E71 /* SocketManagerSpec.swift in Sources */,
@@ -4379,12 +4429,14 @@
 				475B680429915C9E000EF29C /* ActionTrack+FetchUtils.swift in Sources */,
 				474E46762AB0BFAB0098AD24 /* FileInfoView.swift in Sources */,
 				478ED58225D4468700940132 /* WelcomeCodeViewController.swift in Sources */,
+				4730EF652CDBD0580014581F /* RoomContext.swift in Sources */,
 				479C794824ED6DD8009BA1CD /* WebAppHelper.swift in Sources */,
 				4744FADA246B398800C5FD94 /* WindowsManager.swift in Sources */,
 				4708C20A2A56FE8800274AD4 /* ChatListViewController+TabsExtension.swift in Sources */,
 				479E7D8425ACF8200092595B /* GroupsPinManager.swift in Sources */,
 				47B5509C248BD02C000514BF /* PaymentViewModel.swift in Sources */,
 				4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */,
+				4730EF7B2CDBE5C90014581F /* RoomContextView.swift in Sources */,
 				47F8824B25656CB0002A7E71 /* SocketTypes.swift in Sources */,
 				475B681829915D01000EF29C /* ContentFeed+Computeds.swift in Sources */,
 				47E117932C33442B006D34EA /* NewShareQRCodeViewController.swift in Sources */,
