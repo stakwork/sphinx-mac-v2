@@ -299,6 +299,7 @@
 "error.loading.transactions" = "加載交易列表時出錯。請稍後再試。";
 "loading.more.transactions" = "加載更多交易...";
 "transactions.failure-reason" = "失敗原因：";
+"failed.payment" = "付款失敗";
 
 //QR CODE SCANNER
 "scan.qr.code.upper" = "掃描QR碼";

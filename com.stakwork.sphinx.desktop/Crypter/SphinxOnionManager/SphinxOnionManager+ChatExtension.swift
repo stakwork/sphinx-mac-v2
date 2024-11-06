@@ -625,6 +625,9 @@ extension SphinxOnionManager {
             return
         }
         
+        let genericPmtMsgs = rr.msgs.filter({ $0.type == nil && $0.msat ?? 0 > 0 && $0.message?.isNotEmpty == true })
+        restoreGenericPmts(pmts: genericPmtMsgs)
+        
         let notAllowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue),
@@ -700,6 +703,48 @@ extension SphinxOnionManager {
             }
             
             processIndexUpdate(message: message)
+        }
+        
+        managedContext.saveContext()
+    }
+    
+    func restoreGenericPmts(pmts: [Msg]) {
+        if pmts.isEmpty {
+            return
+        }
+        
+        for pmt in pmts {
+            
+            guard let index = pmt.index,
+                  let indexInt = Int(index) else
+            {
+                return
+            }
+            
+            var messageContent: String? = nil
+            
+            if let message = pmt.message,
+               let innerContent = MessageInnerContent(JSONString: message) 
+            {
+                messageContent = innerContent.content
+            }
+            
+            let newMessage = TransactionMessage.getMessageInstanceWith(
+                id: indexInt,
+                context: managedContext
+            )
+            
+            if let amount = pmt.msat {
+                newMessage.amount = NSDecimalNumber(value: amount / 1000)
+                newMessage.amountMsat = NSDecimalNumber(value: amount)
+            }
+            
+            newMessage.messageContent = messageContent
+            newMessage.paymentHash = pmt.paymentHash
+            
+            if let timestamp = pmt.timestamp {
+                newMessage.date = timestampToDate(timestamp: timestamp)
+            }
         }
         
         managedContext.saveContext()

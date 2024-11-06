@@ -43,6 +43,16 @@ class TransactionCollectionViewItem: NSCollectionViewItem {
         
         failedPaymentLabel.isHidden = !transaction.isFailed()
         
+        if transaction.isBountyPayment() {
+            failedPaymentLabel.cell?.wraps = true
+            failedPaymentLabel.lineBreakMode = .byWordWrapping
+        } else {
+            failedPaymentLabel.cell?.wraps = false
+            failedPaymentLabel.lineBreakMode = .byTruncatingTail
+        }
+        
+        failedPaymentLabel.stringValue = "failed.payment".localized
+        
         let bottomViewVisible = transaction.isFailed() && transaction.expanded
         bottomView.isHidden = !bottomViewVisible
         errorMessageLabel.stringValue = "\("transactions.failure-reason".localized) \(transaction.errorMessage ?? "-")"
