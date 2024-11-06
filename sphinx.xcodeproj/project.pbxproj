@@ -92,6 +92,8 @@
 		472B4E8F268BAF4E00E8D0FC /* OnionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472B4E8E268BAF4E00E8D0FC /* OnionManager.swift */; };
 		47308E1F2507F3AC00FFAC6F /* GiphySearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47308E1E2507F3AC00FFAC6F /* GiphySearchView.swift */; };
 		47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */; };
+		4730EF5B2CDBCF800014581F /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 4730EF5A2CDBCF800014581F /* KeychainAccess */; };
+		4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */ = {isa = PBXBuildFile; productRef = 4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */; };
 		4733ED252CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */; };
 		4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED292CB43AA600078EF2 /* ColorsManager.swift */; };
 		4733ED2C2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */; };
@@ -1609,6 +1611,8 @@
 			files = (
 				473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */,
 				47543C552A9517BC003F8DEE /* universal-sphinxrs-mac.a in Frameworks */,
+				4730EF5B2CDBCF800014581F /* KeychainAccess in Frameworks */,
+				4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */,
 				47D03DE7250FC8B90077A968 /* PDFKit.framework in Frameworks */,
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
 				47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */,
@@ -3622,6 +3626,8 @@
 			name = Sphinx;
 			packageProductDependencies = (
 				47FCE2B62CD8FABC005DB8AF /* LiveKit */,
+				4730EF5A2CDBCF800014581F /* KeychainAccess */,
+				4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -3704,6 +3710,8 @@
 			mainGroup = 4734D3892417E3D400D6957E;
 			packageReferences = (
 				47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */,
+				4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
 			projectDirPath = "";
@@ -5384,6 +5392,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.3.0;
+			};
+		};
 		47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/livekit/client-sdk-swift";
@@ -5395,6 +5419,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4730EF5A2CDBCF800014581F /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */;
+			productName = SFSafeSymbols;
+		};
 		47FCE2B62CD8FABC005DB8AF /* LiveKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */;
