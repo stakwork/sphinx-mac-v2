@@ -501,9 +501,9 @@ extension SphinxOnionManager {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                     }
                     
-                    if let uuid = cachedMessage.uuid {
-                        self.receivedOMuuid(uuid)
-                    }
+//                    if let uuid = cachedMessage.uuid {
+//                        self.receivedOMuuid(uuid)
+//                    }
                     
                     if cachedMessage.paymentHash == nil {
                         cachedMessage.paymentHash = sentStatus.paymentHash

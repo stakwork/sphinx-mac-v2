@@ -298,6 +298,7 @@
 "error.loading.transactions"  = "Nagkaroon ng pagkakamali sa paglo-load ng listahan ng mga transaksyon. Subukang muli sa ibang pagkakataon.";
 "loading.more.transactions"  = "Naglo-load ng higit pang mga transaksyon...";
 "transactions.failure-reason" = "Failure reason:";
+"failed.payment" = "Nabigong Pagbabayad";
 
 //QR CODE SCANNER
 "scan.qr.code.upper"  = "MAG-SCAN NG QR CODE";

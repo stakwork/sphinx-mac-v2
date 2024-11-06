@@ -306,9 +306,9 @@ extension SphinxOnionManager {
                 assignReceiverId(localMsg: sentMessage)
             }
             
-            if let sentMessageUUID = sentMessage?.uuid {
-                startSendTimeoutTimer(for: sentMessageUUID, msgType: msgType)
-            }
+//            if let sentMessageUUID = sentMessage?.uuid {
+//                startSendTimeoutTimer(for: sentMessageUUID, msgType: msgType)
+//            }
             
             return (sentMessage, nil)
         } catch let error {
@@ -345,45 +345,45 @@ extension SphinxOnionManager {
         return bytes <= 869
     }
     
-    func startSendTimeoutTimer(
-        for messageUUID: String,
-        msgType: UInt8
-    ) {
-        let excludedTypes = [
-            UInt8(TransactionMessage.TransactionMessageType.payment.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.keysend.rawValue),
-            UInt8(TransactionMessage.TransactionMessageType.delete.rawValue),
-        ]
-        
-        if excludedTypes.contains(msgType) {
-            return
-        }
-        
-        sendTimeoutTimers[messageUUID]?.invalidate() // Invalidate any existing timer for this UUID
-
-        let timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] timer in
-            self?.handleSendTimeout(for: messageUUID)
-        }
-        
-        sendTimeoutTimers[messageUUID] = timer
-    }
-
-    func handleSendTimeout(for messageUUID: String) {
-        guard let message = TransactionMessage.getMessageWith(uuid: messageUUID) else { return }
-        
-        message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
-        message.managedObjectContext?.saveContext()
-        
-        sendTimeoutTimers[messageUUID] = nil // Remove the timer reference
-    }
-    
-    // Call this method when you receive Ongoing Message UUID
-    func receivedOMuuid(_ omuuid: String) {
-        sendTimeoutTimers[omuuid]?.invalidate()
-        sendTimeoutTimers[omuuid] = nil
-    }
+//    func startSendTimeoutTimer(
+//        for messageUUID: String,
+//        msgType: UInt8
+//    ) {
+//        let excludedTypes = [
+//            UInt8(TransactionMessage.TransactionMessageType.payment.rawValue),
+//            UInt8(TransactionMessage.TransactionMessageType.directPayment.rawValue),
+//            UInt8(TransactionMessage.TransactionMessageType.boost.rawValue),
+//            UInt8(TransactionMessage.TransactionMessageType.keysend.rawValue),
+//            UInt8(TransactionMessage.TransactionMessageType.delete.rawValue),
+//        ]
+//        
+//        if excludedTypes.contains(msgType) {
+//            return
+//        }
+//        
+//        sendTimeoutTimers[messageUUID]?.invalidate() // Invalidate any existing timer for this UUID
+//
+//        let timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] timer in
+//            self?.handleSendTimeout(for: messageUUID)
+//        }
+//        
+//        sendTimeoutTimers[messageUUID] = timer
+//    }
+//
+//    func handleSendTimeout(for messageUUID: String) {
+//        guard let message = TransactionMessage.getMessageWith(uuid: messageUUID) else { return }
+//        
+//        message.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
+//        message.managedObjectContext?.saveContext()
+//        
+//        sendTimeoutTimers[messageUUID] = nil // Remove the timer reference
+//    }
+//    
+//    // Call this method when you receive Ongoing Message UUID
+//    func receivedOMuuid(_ omuuid: String) {
+//        sendTimeoutTimers[omuuid]?.invalidate()
+//        sendTimeoutTimers[omuuid] = nil
+//    }
     
     func processNewOutgoingMessage(
         rr: RunReturn,
@@ -625,6 +625,9 @@ extension SphinxOnionManager {
             return
         }
         
+        let genericPmtMsgs = rr.msgs.filter({ $0.type == nil && $0.msat ?? 0 > 0 && $0.message?.isNotEmpty == true })
+        restoreGenericPmts(pmts: genericPmtMsgs)
+        
         let notAllowedTypes = [
             UInt8(TransactionMessage.TransactionMessageType.contactKey.rawValue),
             UInt8(TransactionMessage.TransactionMessageType.contactKeyConfirmation.rawValue),
@@ -700,6 +703,48 @@ extension SphinxOnionManager {
             }
             
             processIndexUpdate(message: message)
+        }
+        
+        managedContext.saveContext()
+    }
+    
+    func restoreGenericPmts(pmts: [Msg]) {
+        if pmts.isEmpty {
+            return
+        }
+        
+        for pmt in pmts {
+            
+            guard let index = pmt.index,
+                  let indexInt = Int(index) else
+            {
+                return
+            }
+            
+            var messageContent: String? = nil
+            
+            if let message = pmt.message,
+               let innerContent = MessageInnerContent(JSONString: message) 
+            {
+                messageContent = innerContent.content
+            }
+            
+            let newMessage = TransactionMessage.getMessageInstanceWith(
+                id: indexInt,
+                context: managedContext
+            )
+            
+            if let amount = pmt.msat {
+                newMessage.amount = NSDecimalNumber(value: amount / 1000)
+                newMessage.amountMsat = NSDecimalNumber(value: amount)
+            }
+            
+            newMessage.messageContent = messageContent
+            newMessage.paymentHash = pmt.paymentHash
+            
+            if let timestamp = pmt.timestamp {
+                newMessage.date = timestampToDate(timestamp: timestamp)
+            }
         }
         
         managedContext.saveContext()

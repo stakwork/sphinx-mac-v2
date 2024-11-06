@@ -101,13 +101,13 @@ class CreateTribeViewModel {
     }
     
     func editOrCreateGroup() {
-        if !NetworkMonitor.shared.isNetworkConnected() {
-            AlertHelper.showAlert(
-                title: "generic.error.title".localized,
-                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
-            )
-            return
-        }
+//        if !NetworkMonitor.shared.isNetworkConnected() {
+//            AlertHelper.showAlert(
+//                title: "generic.error.title".localized,
+//                message: SphinxOnionManagerError.SOMNetworkError.localizedDescription
+//            )
+//            return
+//        }
         
         let params = groupsManager.getNewGroupParams()
         

@@ -25,10 +25,10 @@ extension SphinxOnionManager {
         callback: @escaping (String) -> (),
         errorCallback: @escaping (SphinxOnionManagerError?) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.isNetworkConnected() {
-            errorCallback(SphinxOnionManagerError.SOMNetworkError)
-            return false
-        }
+//        if !NetworkMonitor.shared.isNetworkConnected() {
+//            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+//            return false
+//        }
         
         guard let seed = getAccountSeed(),
               let tribeServerPubkey = getTribePubkey() else
@@ -102,10 +102,10 @@ extension SphinxOnionManager {
         isPrivate: Bool = false,
         errorCallback: (SphinxOnionManagerError) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.isNetworkConnected() {
-            errorCallback(SphinxOnionManagerError.SOMNetworkError)
-            return false
-        }
+//        if !NetworkMonitor.shared.isNetworkConnected() {
+//            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+//            return false
+//        }
         
         guard let seed = getAccountSeed() else{
             return false
@@ -201,10 +201,10 @@ extension SphinxOnionManager {
         tribeChat: Chat,
         errorCallback: (SphinxOnionManagerError) -> ()
     ) -> Bool {
-        if !NetworkMonitor.shared.isNetworkConnected() {
-            errorCallback(SphinxOnionManagerError.SOMNetworkError)
-            return false
-        }
+//        if !NetworkMonitor.shared.isNetworkConnected() {
+//            errorCallback(SphinxOnionManagerError.SOMNetworkError)
+//            return false
+//        }
 
         if let _ = sendMessage(
             to: nil,
