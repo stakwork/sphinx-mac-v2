@@ -10,16 +10,9 @@ import Foundation
 
 extension UserDefaults {
     public enum Keys {
+        public static let accountUUID = DefaultKey<String>("accountUUID")
         public static let appVersion = DefaultKey<Int>("appVersion")
-        public static let lastSeenHistoryDate = DefaultKey<Date>("lastSeenHistoryDate")
-        public static let lastSeenContactsDate = DefaultKey<Date>("lastSeenContactsDate")
         public static let clearSDMemoryDate = DefaultKey<Date>("clearSDMemoryDate")
-        public static let channelBalance = DefaultKey<Int>("channelBalance")
-        public static let remoteBalance = DefaultKey<Int>("remoteBalance")
-        public static let currentIP = DefaultKey<String>("currentIP")
-        public static let authToken = DefaultKey<String>("authToken")
-        public static let transportKey = DefaultKey<String>("transportKey")
-        public static let hmacKey = DefaultKey<String>("hmacKey")
         public static let ownerId = DefaultKey<Int>("ownerId")
         public static let ownerPubKey = DefaultKey<Int>("ownerPubKey")
         public static let inviteString = DefaultKey<String>("inviteString")
@@ -34,36 +27,25 @@ extension UserDefaults {
         public static let inviterPubkey = DefaultKey<String>("inviterPubkey")
         public static let inviterRouteHint = DefaultKey<String>("inviterRouteHint")
         public static let inviteAction = DefaultKey<String>("inviteAction")
-        public static let nodePassword = DefaultKey<String>("nodePassword")
         public static let welcomeMessage = DefaultKey<String>("welcomeMessage")
         public static let signupStep = DefaultKey<Int>("signupStep")
-        public static let didShowDeleteMessageConfirmation = DefaultKey<Bool>("didShowDeleteMessageConfirmation")
         public static let paymentProcessedInvites = DefaultKey<[String]>("paymentProcessedInvites")
         public static let isRestoring = DefaultKey<Bool>("isRestoring")
-        public static let lastViewedMessageID = DefaultKey<Int>("lastViewedMessageID")
         public static let linkQuery = DefaultKey<String>("linkQuery")
-        
         public static let lastPinDate = DefaultKey<Date>("lastPinDate")
         public static let pinHours = DefaultKey<Int>("pinHours")
-
         public static let inviteServerURL = DefaultKey<String>("inviteServerURL")
         public static let fileServerURL = DefaultKey<String>("fileServerURL")
         public static let meetingServerURL = DefaultKey<String>("meetingServerURL")
         public static let tribesServerURL = DefaultKey<String>("tribesServerURL")
-        public static let previousIP = DefaultKey<String>("previousIP")
-
         public static let tipAmount = DefaultKey<Int>("tipAmount")
-
         public static let windowRect = DefaultKey<Data>("windowRect")
         public static let appAppearance = DefaultKey<Int>("appAppearance")
         public static let notificationType = DefaultKey<Int>("notificationType")
         public static let notificationSound = DefaultKey<String>("notificationSound")
         public static let messagesSize = DefaultKey<Int>("messagesSize")
-
         public static let giphyUserId = DefaultKey<String>("giphyUserId")
-        
         public static let shouldTrackActions = DefaultKey<Bool>("shouldTrackActions")
-        
         public static let setupSigningDevice = DefaultKey<Bool>("setupSigningDevice")
         public static let setupPhoneSigner = DefaultKey<Bool>("setupPhoneSigner")
         public static let phoneSignerHost = DefaultKey<String>("phoneSignerHost")
@@ -74,11 +56,9 @@ extension UserDefaults {
         public static let signerKeys = DefaultKey<String>("signerKeys")
         public static let onionState = DefaultKey<String>("onionState")
         public static let sequence = DefaultKey<String>("sequence")
-        
         public static let selectedChat = DefaultKey<String>("selectedChat")
         public static let deletedTribesPubKeys = DefaultKey<[String]>("deletedTribesPubKeys")
         public static let maxMessageIndex = DefaultKey<Int>("maxMessageIndex")
-        
         public static let isProductionEnv = DefaultKey<Bool>("isProductionEnv")
         public static let serverIP = DefaultKey<String>("serverIP")
         public static let serverPORT = DefaultKey<Int>("serverPORT")
