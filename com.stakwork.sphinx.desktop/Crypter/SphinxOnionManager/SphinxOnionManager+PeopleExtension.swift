@@ -50,16 +50,12 @@ extension SphinxOnionManager {
             imageUrl: owner.getPhotoUrl(),
             publicKey: pubkey,
             routeHint: routeHint,
-            callback: { succes in
-                if succes {
-                    processQueryAndAuthorize(
-                        host: host,
-                        challenge: challenge,
-                        completion: completion
-                    )
-                } else {
-                    completion(nil)
-                }
+            callback: { _ in
+                processQueryAndAuthorize(
+                    host: host,
+                    challenge: challenge,
+                    completion: completion
+                )
             }
         )
 
