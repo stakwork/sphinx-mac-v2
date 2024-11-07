@@ -54,7 +54,6 @@ class SignupHelper {
     }
     
     public static func resetInviteInfo() {
-        UserDefaults.Keys.currentIP.removeValue()
         UserDefaults.Keys.inviteString.removeValue()
         UserDefaults.Keys.inviterNickname.removeValue()
         UserDefaults.Keys.inviterRouteHint.removeValue()
