@@ -749,7 +749,7 @@ extension String {
         get {
             let elements = self.components(separatedBy: "rooms/")
             if elements.count > 1 {
-                return elements[1]
+                return (elements[1].components(separatedBy: "#").first)?.components(separatedBy: "?").first
             }
             return nil
         }
