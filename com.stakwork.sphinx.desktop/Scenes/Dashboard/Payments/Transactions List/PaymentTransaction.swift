@@ -45,7 +45,7 @@ class PaymentTransaction {
         self.paymentRequest = transactionMessage.invoice
         self.paymentHash = transactionMessage.paymentHash
         self.errorMessage = transactionMessage.errorMessage
-        self.content = transactionMessage.messageContent
+        self.content = transactionMessage.messageContent?.replacingOccurrences(of: "+", with: " ").removingPercentEncoding
         
         if let ts = ts {
             self.date = Date(timeIntervalSince1970: TimeInterval(ts) / 1000)
