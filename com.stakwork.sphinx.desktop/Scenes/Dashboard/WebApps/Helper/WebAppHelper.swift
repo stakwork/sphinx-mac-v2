@@ -147,7 +147,7 @@ extension WebAppHelper : WKScriptMessageHandler {
         let sbTribes = Chat.getAllSecondBrainTribes()
         
         if sbTribes.count > 0 {
-            params["second_brain_list"] = sbTribes.filter({
+            params["secondBrainList"] = sbTribes.filter({
                 $0.secondBrainUrl != nil && $0.secondBrainUrl?.isNotEmpty == true
             }).compactMap({
                 $0.secondBrainUrl ?? ""
