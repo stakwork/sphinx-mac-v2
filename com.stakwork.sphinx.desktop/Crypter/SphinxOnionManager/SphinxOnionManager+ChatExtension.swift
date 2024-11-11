@@ -734,6 +734,8 @@ extension SphinxOnionManager {
                 context: managedContext
             )
             
+            newMessage.id = indexInt
+            
             if let amount = pmt.msat {
                 newMessage.amount = NSDecimalNumber(value: amount / 1000)
                 newMessage.amountMsat = NSDecimalNumber(value: amount)
