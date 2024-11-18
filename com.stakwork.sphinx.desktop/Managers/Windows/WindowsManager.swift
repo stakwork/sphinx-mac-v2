@@ -426,7 +426,7 @@ class WindowsManager {
         var linkUrl = link
         
         if let room = linkUrl.liveKitRoomName {
-            API.sharedInstance.getLikeKitToken(
+            API.sharedInstance.getLiveKitToken(
                 room: room,
                 alias: owner.nickname ?? "",
                 callback: { url, token in

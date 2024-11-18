@@ -234,16 +234,36 @@ import WebKit
             name: NSWorkspace.didWakeNotification,
             object: nil
         )
+        
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(sleepListener(aNotification:)),
+            name: NSWorkspace.screensDidWakeNotification,
+            object: nil
+        )
+        
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(sleepListener(aNotification:)),
+            name: NSWorkspace.sessionDidBecomeActiveNotification,
+            object: nil
+        )
     }
     
     @objc func sleepListener(aNotification: NSNotification) {
-        if (aNotification.name == NSWorkspace.didWakeNotification) && UserData.sharedInstance.isUserLogged() {
+        if (
+            aNotification.name == NSWorkspace.didWakeNotification ||
+            aNotification.name == NSWorkspace.screensDidWakeNotification ||
+            aNotification.name == NSWorkspace.sessionDidBecomeActiveNotification
+        ) && UserData.sharedInstance.isUserLogged() {
             SDImageCache.shared.clearMemory()
             
             NotificationCenter.default.post(
                 name: .onConnectionStatusChanged,
                 object: nil
             )
+            
+            SphinxOnionManager.sharedInstance.isConnected = false
             
             getDashboardVC()?.reconnectToServer()
         }
