@@ -10,7 +10,7 @@ import Foundation
 import SwiftyJSON
 
 extension API {
-    func getLikeKitToken(
+    func getLiveKitToken(
         room: String,
         alias: String,
         callback: @escaping LiveKitTokenCallback,

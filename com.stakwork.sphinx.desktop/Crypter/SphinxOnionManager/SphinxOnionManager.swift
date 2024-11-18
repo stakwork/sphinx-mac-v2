@@ -488,10 +488,6 @@ class SphinxOnionManager : NSObject {
     }
     
     @objc func reconnectionTimerFired() {
-        if !NetworkMonitor.shared.isConnected {
-            return
-        }
-        
         connectToServer(
             contactRestoreCallback: self.contactRestoreCallback,
             messageRestoreCallback: self.messageRestoreCallback,
