@@ -1,11 +1,11 @@
-platform :osx, '10.14'
+platform :osx, '12.0'
 use_frameworks!
 inhibit_all_warnings!
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
       xcconfig_path = config.base_configuration_reference.real_path
       xcconfig = File.read(xcconfig_path)
       xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
@@ -19,6 +19,7 @@ target 'Sphinx' do
    pod 'ReachabilitySwift'
    pod 'SwiftyJSON'
    pod 'SDWebImage'
+   pod 'SDWebImageSwiftUI'
    pod 'RNCryptor', '~> 5.0'
    pod 'KeychainAccess'
    pod 'Starscream', '~> 3.1'

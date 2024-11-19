@@ -20,11 +20,6 @@ struct RoomSwitchView: View {
     @EnvironmentObject var roomCtx: RoomContext
     @EnvironmentObject var room: Room
 
-    #if os(visionOS)
-        @Environment(\.openImmersiveSpace) var openImmersiveSpace
-        @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
-    #endif
-
     var shouldShowRoomView: Bool {
         true
     }
@@ -38,9 +33,9 @@ struct RoomSwitchView: View {
             if let localParticipantName = room.localParticipant.name {
                 elements.append(localParticipantName)
             }
-            if let localParticipantIdentity = room.localParticipant.identity {
-                elements.append(String(describing: localParticipantIdentity))
-            }
+//            if let localParticipantIdentity = room.localParticipant.identity {
+//                elements.append(String(describing: localParticipantIdentity))
+//            }
             return elements.joined(separator: " ")
         }
 
@@ -59,16 +54,7 @@ struct RoomSwitchView: View {
             }
         }
         .navigationTitle(computeTitle())
-        .onChange(of: shouldShowRoomView) { newValue in
-            #if os(visionOS)
-                Task {
-                    if newValue {
-                        await openImmersiveSpace(id: "ImmersiveSpace")
-                    } else {
-                        await dismissImmersiveSpace()
-                    }
-                }
-            #endif
+        .onChange(of: shouldShowRoomView) { _ in
         }
     }
 }
