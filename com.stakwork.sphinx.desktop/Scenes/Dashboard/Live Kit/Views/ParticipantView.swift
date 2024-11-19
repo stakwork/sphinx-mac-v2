@@ -150,10 +150,12 @@ struct ParticipantView: View {
                     HStack {
                         if let name = participant.name, name.isNotEmpty {
                             Text(String(describing: name))
+                                .font(Font(NSFont(name: "Roboto-Regular", size: 16.0)!))
                                 .lineLimit(1)
                                 .truncationMode(.tail)
                         } else if let identity = participant.identity {
                             Text(String(describing: identity))
+                                .font(Font(NSFont(name: "Roboto-Regular", size: 16.0)!))
                                 .lineLimit(1)
                                 .truncationMode(.tail)
                         }
