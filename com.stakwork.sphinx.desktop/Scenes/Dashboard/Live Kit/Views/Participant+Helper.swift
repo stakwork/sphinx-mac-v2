@@ -15,6 +15,7 @@
  */
 
 import LiveKit
+import SwiftyJSON
 
 public extension Participant {
     var mainVideoPublication: TrackPublication? {
@@ -27,5 +28,18 @@ public extension Participant {
 
     var subVideoTrack: VideoTrack? {
         firstScreenShareVideoTrack != nil ? firstCameraVideoTrack : nil
+    }
+    
+    var profilePictureUrl: String? {
+        get {
+            if let data = metadata?.data(using: .utf8) {
+                let json = JSON(data)
+                
+                if let profilePictureUrl = json["profilePictureUrl"].string, profilePictureUrl.isNotEmpty {
+                    return profilePictureUrl
+                }
+            }
+            return nil
+        }
     }
 }

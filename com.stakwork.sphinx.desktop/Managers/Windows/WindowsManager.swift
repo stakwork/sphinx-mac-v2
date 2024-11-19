@@ -423,12 +423,11 @@ class WindowsManager {
             return
         }
         
-        var linkUrl = link
-        
-        if let room = linkUrl.liveKitRoomName {
+        if let room = link.liveKitRoomName {
             API.sharedInstance.getLiveKitToken(
                 room: room,
                 alias: owner.nickname ?? "",
+                profilePicture: owner.avatarUrl,
                 callback: { url, token in
                     
                     let appCtx = AppContext(store: sync)

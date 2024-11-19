@@ -13,11 +13,21 @@ extension API {
     func getLiveKitToken(
         room: String,
         alias: String,
+        profilePicture: String?,
         callback: @escaping LiveKitTokenCallback,
         errorCallback: @escaping ErrorCallback
     ) {
-        let url = "\(self.kVideoCallServer)/api/connection-details?roomName=\(room)&participantName=\(alias)"
-        let request : URLRequest? = createRequest(url, params: nil, method: "GET")
+        var url = "\(self.kVideoCallServer)/api/connection-details?roomName=\(room)&participantName=\(alias)"
+        
+        if let profilePicture = profilePicture {
+            url = url + "&metadata={\"profilePictureUrl\":\"\(profilePicture)\"}"
+        }
+        
+        let request : URLRequest? = createRequest(
+            url,
+            params: nil,
+            method: "GET"
+        )
         
         guard let request = request else {
             errorCallback("")
