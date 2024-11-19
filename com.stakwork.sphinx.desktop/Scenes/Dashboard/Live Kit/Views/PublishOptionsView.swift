@@ -106,9 +106,7 @@ struct PublishOptionsView: View {
 
                 onPublish(captureOptions, publishOptions)
             }
-            #if !os(tvOS)
             .keyboardShortcut(.defaultAction)
-            #endif
 
             Spacer()
         }
