@@ -160,7 +160,7 @@ struct RoomView: View {
                     roomCtx.sendMessage()
                 } label: {
                     Image(systemSymbol: .paperplaneFill)
-                        .foregroundColor(roomCtx.textFieldString.isEmpty ? nil : Color(NSColor.Sphinx.PrimaryRed))
+                        .foregroundColor(roomCtx.textFieldString.isEmpty ? nil : Color(NSColor.Sphinx.PrimaryGreen))
                 }
                 .buttonStyle(.borderless)
             }
