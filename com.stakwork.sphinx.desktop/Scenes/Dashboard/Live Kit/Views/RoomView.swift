@@ -191,14 +191,14 @@ struct RoomView: View {
                     .foregroundColor(.white)
                     .padding()
             }
-
+            
             if case .connecting = room.connectionState {
                 Text("Re-connecting...")
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
             }
-
+            
             HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 5) {
                 Group {
                     if let focusParticipant = roomCtx.focusParticipant {
@@ -222,7 +222,7 @@ struct RoomView: View {
                                 .padding(.vertical, 35)
                                 .padding(.horizontal, 10)
                         }
-
+                        
                     } else {
                         // Array([room.allParticipants.values, room.allParticipants.values].joined())
                         ParticipantLayout(sortedParticipants(), spacing: 5) { participant in
@@ -246,318 +246,322 @@ struct RoomView: View {
                 }
             }
         }
-        .padding(5)
     }
 
     var body: some View {
         GeometryReader { geometry in
-            content(geometry: geometry)
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: toolbarPlacement) {
-                Group {
-                    if let name = room.name {
-                        Text(name)
-                            .fontWeight(.bold)
-                    }
-
-                    if let name = room.localParticipant.name, name.isNotEmpty {
-                        Text(String(describing: name))
-                    } else if let identity = room.localParticipant.identity {
-                        Text(String(describing: identity))
-                    }
-
+            VStack(spacing: 0) {
+                
+                Spacer().frame(height: 5.0)
+                
+                HStack {
                     Spacer()
-
-                    Picker("Mode", selection: $appCtx.videoViewMode) {
+                    
+                    Picker("", selection: $appCtx.videoViewMode) {
                         Text("Fit").tag(VideoView.LayoutMode.fit)
                         Text("Fill").tag(VideoView.LayoutMode.fill)
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                }
-
-                Group {
-                    let isCameraEnabled = room.localParticipant.isCameraEnabled()
-                    let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
-                    let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
+                    .frame(width: 150.0)
+                    .padding(10)
 
                     Group {
-                        if isCameraEnabled, canSwitchCameraPosition {
-                            Menu {
-                                Button("Switch position") {
-                                    Task {
-                                        isCameraPublishingBusy = true
-                                        defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                        if let track = room.localParticipant.firstCameraVideoTrack as? LocalVideoTrack,
-                                           let cameraCapturer = track.capturer as? CameraCapturer
-                                        {
-                                            try await cameraCapturer.switchCameraPosition()
+                        let isCameraEnabled = room.localParticipant.isCameraEnabled()
+                        let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
+                        let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
+
+                        Group {
+                            if isCameraEnabled, canSwitchCameraPosition {
+                                Menu {
+                                    Button("Switch position") {
+                                        Task {
+                                            isCameraPublishingBusy = true
+                                            defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                            if let track = room.localParticipant.firstCameraVideoTrack as? LocalVideoTrack,
+                                               let cameraCapturer = track.capturer as? CameraCapturer
+                                            {
+                                                try await cameraCapturer.switchCameraPosition()
+                                            }
                                         }
                                     }
-                                }
 
-                                Button("Disable") {
-                                    Task {
-                                        isCameraPublishingBusy = true
-                                        defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                        try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                                    Button("Disable") {
+                                        Task {
+                                            isCameraPublishingBusy = true
+                                            defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                            try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                                        }
                                     }
+                                } label: {
+                                    Image(systemSymbol: .videoFill)
+                                        .renderingMode(.original)
                                 }
-                            } label: {
-                                Image(systemSymbol: .videoFill)
-                                    .renderingMode(.original)
-                            }
-                            // disable while publishing/un-publishing
-                            .disabled(isCameraPublishingBusy)
-                        } else {
-                            // Toggle camera enabled
-                            Button(action: {
-                                       if isCameraEnabled {
-                                           Task {
-                                               isCameraPublishingBusy = true
-                                               defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                               try await room.localParticipant.setCamera(enabled: false)
-                                           }
-                                       } else {
-                                           publishOptionsPickerPresented = true
+                                // disable while publishing/un-publishing
+                                .disabled(isCameraPublishingBusy)
+                            } else {
+                                // Toggle camera enabled
+                                Button(action: {
+                                   if isCameraEnabled {
+                                       Task {
+                                           isCameraPublishingBusy = true
+                                           defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                           try await room.localParticipant.setCamera(enabled: false)
                                        }
-                                   },
-                                   label: {
-                                       Image(systemSymbol: .videoFill)
-                                           .renderingMode(isCameraEnabled ? .original : .template)
-                                   })
-                                   // disable while publishing/un-publishing
-                                   .disabled(isCameraPublishingBusy)
-                        }
-                    }
-                    .popover(isPresented: $publishOptionsPickerPresented) {
-                        PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
-                            publishOptionsPickerPresented = false
-                            isCameraPublishingBusy = true
-                            cameraPublishOptions = publishOptions
-                            Task {
-                                defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                try await room.localParticipant.setCamera(enabled: true,
-                                                                          captureOptions: captureOptions,
-                                                                          publishOptions: publishOptions)
+                                   } else {
+                                       publishOptionsPickerPresented = true
+                                   }
+                                },
+                                label: {
+                                   Image(systemSymbol: .videoFill)
+                                       .renderingMode(.template)
+                                       .foregroundColor(isCameraEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+                                })
+                                // disable while publishing/un-publishing
+                                .disabled(isCameraPublishingBusy)
                             }
                         }
-                        .padding()
-                    }
-
-                    // Toggle microphone enabled
-                    Button(action: {
-                        Task {
-                            isMicrophonePublishingBusy = true
-                            defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
-                        }
-                    },
-                    label: {
-                        Image(systemSymbol: .micFill)
-                            .renderingMode(isMicrophoneEnabled ? .original : .template)
-                    })
-                    .disabled(isMicrophonePublishingBusy)
-
-                    Button(action: {
-                       if #available(macOS 12.3, *) {
-                           if isScreenShareEnabled {
-                               // Turn off screen share
-                               Task {
-                                   isScreenSharePublishingBusy = true
-                                   defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                                   try await roomCtx.setScreenShareMacOS(isEnabled: false)
-                               }
-                           } else {
-                               screenPickerPresented = true
-                           }
-                       }
-                   },
-                   label: {
-                       Image(systemSymbol: .rectangleFillOnRectangleFill)
-                           .renderingMode(isScreenShareEnabled ? .original : .template)
-                           .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                   }).popover(isPresented: $screenPickerPresented) {
-                        if #available(macOS 12.3, *) {
-                            ScreenShareSourcePickerView { source in
+                        .popover(isPresented: $publishOptionsPickerPresented) {
+                            PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
+                                publishOptionsPickerPresented = false
+                                isCameraPublishingBusy = true
+                                cameraPublishOptions = publishOptions
                                 Task {
-                                    isScreenSharePublishingBusy = true
-                                    defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                                    try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                                    defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                    try await room.localParticipant.setCamera(enabled: true,
+                                                                              captureOptions: captureOptions,
+                                                                              publishOptions: publishOptions)
                                 }
-                                screenPickerPresented = false
-                            }.padding()
-                        }
-                   }
-                   .disabled(isScreenSharePublishingBusy)
-
-                    // Toggle messages view (chat example)
-                    Button(action: {
-                        withAnimation {
-                            roomCtx.showMessagesView.toggle()
-                        }
-                    },
-                    label: {
-                        Image(systemSymbol: .messageFill)
-                            .renderingMode(roomCtx.showMessagesView ? .original : .template)
-                    })
-                }
-
-                Menu {
-                    Button {
-                        if let url = URL(string: "livekit://") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    } label: {
-                        Text("New window")
-                    }
-
-                    Divider()
-
-                    Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
-
-                    Group {
-                        Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
-                        Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
-                        Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
-                        Divider()
-                    }
-
-                    Group {
-                        Picker("Output device", selection: $appCtx.outputDevice) {
-                            ForEach(AudioManager.shared.outputDevices) { device in
-                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
                             }
+                            .padding()
                         }
-                        Picker("Input device", selection: $appCtx.inputDevice) {
-                            ForEach(AudioManager.shared.inputDevices) { device in
-                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
-                            }
-                        }
-                    }
+                        .buttonStyle(.borderless)
 
-                    Group {
-                        Divider()
-
+                        // Toggle microphone enabled
                         Button {
                             Task {
-                                await room.localParticipant.unpublishAll()
+                                isMicrophonePublishingBusy = true
+                                defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
                             }
                         } label: {
-                            Text("Unpublish all")
+                            Image(systemSymbol: .micFill)
+                                .renderingMode(.template)
+                                .foregroundColor(isMicrophoneEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
                         }
+                        .disabled(isMicrophonePublishingBusy)
+                        .buttonStyle(.borderless)
 
-                        Divider()
-
-                        Menu {
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .quickReconnect)
-                                }
-                            } label: {
-                                Text("Quick reconnect")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .fullReconnect)
-                                }
-                            } label: {
-                                Text("Full reconnect")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .nodeFailure)
-                                }
-                            } label: {
-                                Text("Node failure")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .serverLeave)
-                                }
-                            } label: {
-                                Text("Server leave")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .migration)
-                                }
-                            } label: {
-                                Text("Migration")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
-                                }
-                            } label: {
-                                Text("Speaker update")
-                            }
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .forceTCP)
-                                }
-                            } label: {
-                                Text("Force TCP")
-                            }
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .forceTLS)
-                                }
-                            } label: {
-                                Text("Force TLS")
-                            }
-                        } label: {
-                            Text("Simulate scenario")
-                        }
-                    }
-
-                    Group {
-                        Menu {
-                            Button {
-                                Task {
-                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
-                                }
-                            } label: {
-                                Text("Allow all")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
-                                }
-                            } label: {
-                                Text("Disallow all")
-                            }
-                        } label: {
-                            Text("Track permissions")
-                        }
-
-                        Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
-                    }
-
-                } label: {
-                    Image(systemSymbol: .gear)
-                        .renderingMode(.original)
-                }
-
-                // Disconnect
-                Button(action: {
-                           Task {
-                               await roomCtx.disconnect()
+                        Button(action: {
+                           if #available(macOS 12.3, *) {
+                               if isScreenShareEnabled {
+                                   // Turn off screen share
+                                   Task {
+                                       isScreenSharePublishingBusy = true
+                                       defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
+                                       try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                                   }
+                               } else {
+                                   screenPickerPresented = true
+                               }
                            }
                        },
                        label: {
-                           Image(systemSymbol: .xmarkCircleFill)
-                               .renderingMode(.original)
-                       })
-            }
+                           Image(systemSymbol: .rectangleFillOnRectangleFill)
+                               .renderingMode(.template)
+                               .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+                       }).popover(isPresented: $screenPickerPresented) {
+                            if #available(macOS 12.3, *) {
+                                ScreenShareSourcePickerView { source in
+                                    Task {
+                                        isScreenSharePublishingBusy = true
+                                        defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
+                                        try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                                    }
+                                    screenPickerPresented = false
+                                }.padding()
+                            }
+                       }
+                       .disabled(isScreenSharePublishingBusy)
+                       .buttonStyle(.borderless)
+
+                        // Toggle messages view (chat example)
+                        Button(action: {
+                            withAnimation {
+                                roomCtx.showMessagesView.toggle()
+                            }
+                        },
+                        label: {
+                            Image(systemSymbol: .messageFill)
+                                .renderingMode(.template)
+                                .foregroundColor(roomCtx.showMessagesView ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+                        }).buttonStyle(.borderless)
+                    }.padding(5)
+
+                    Menu {
+                        Button {
+                            if let url = URL(string: "livekit://") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        } label: {
+                            Text("New window")
+                        }
+
+                        Divider()
+
+                        Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
+
+                        Group {
+                            Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
+                            Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
+                            Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
+                            Divider()
+                        }
+
+                        Group {
+                            Picker("Output device", selection: $appCtx.outputDevice) {
+                                ForEach(AudioManager.shared.outputDevices) { device in
+                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
+                                }
+                            }
+                            Picker("Input device", selection: $appCtx.inputDevice) {
+                                ForEach(AudioManager.shared.inputDevices) { device in
+                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
+                                }
+                            }
+                        }
+
+                        Group {
+                            Divider()
+
+                            Button {
+                                Task {
+                                    await room.localParticipant.unpublishAll()
+                                }
+                            } label: {
+                                Text("Unpublish all")
+                            }
+
+                            Divider()
+
+                            Menu {
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .quickReconnect)
+                                    }
+                                } label: {
+                                    Text("Quick reconnect")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .fullReconnect)
+                                    }
+                                } label: {
+                                    Text("Full reconnect")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .nodeFailure)
+                                    }
+                                } label: {
+                                    Text("Node failure")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .serverLeave)
+                                    }
+                                } label: {
+                                    Text("Server leave")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .migration)
+                                    }
+                                } label: {
+                                    Text("Migration")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
+                                    }
+                                } label: {
+                                    Text("Speaker update")
+                                }
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .forceTCP)
+                                    }
+                                } label: {
+                                    Text("Force TCP")
+                                }
+                                Button {
+                                    Task {
+                                        try await room.debug_simulate(scenario: .forceTLS)
+                                    }
+                                } label: {
+                                    Text("Force TLS")
+                                }
+                            } label: {
+                                Text("Simulate scenario")
+                            }
+                        }
+
+                        Group {
+                            Menu {
+                                Button {
+                                    Task {
+                                        try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
+                                    }
+                                } label: {
+                                    Text("Allow all")
+                                }
+
+                                Button {
+                                    Task {
+                                        try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
+                                    }
+                                } label: {
+                                    Text("Disallow all")
+                                }
+                            } label: {
+                                Text("Track permissions")
+                            }
+
+                            Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
+                        }
+
+                    } label: {
+                        Image(systemSymbol: .gear)
+                            .renderingMode(.original)
+                    }.padding(5)
+                    .frame(width: 60.0)
+
+                    // Disconnect
+                    Button(action: {
+                       Task {
+                           await roomCtx.disconnect()
+                       }
+                    },
+                    label: {
+                       Image(systemSymbol: .xmarkCircleFill)
+                           .renderingMode(.original)
+                    }).buttonStyle(.borderless).padding(5)
+                    
+                    Spacer().frame(width: 15)
+                    
+                }
+                .background(Color(NSColor.Sphinx.HeaderBG))
+                .padding(EdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5))
+                .cornerRadius(13)
+                
+                content(geometry: geometry).padding(5)
+                
+            }.background(Color(NSColor.Sphinx.ChatsHeaderDivider))
         }
-//        .withHostingWindow { self.windowAccess.set(window: $0) }
         .onAppear {
             Task { @MainActor in
                 canSwitchCameraPosition = try await CameraCapturer.canSwitchPosition()
