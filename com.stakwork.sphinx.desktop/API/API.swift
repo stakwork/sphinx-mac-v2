@@ -219,12 +219,6 @@ class API {
         contentType: String = "application/json",
         token: String? = nil
     ) -> URLRequest? {
-        
-        if !ConnectivityHelper.isConnectedToInternet {
-            networksConnectionLost()
-            return nil
-        }
-        
         if let nsURL = URL(string: url) {
             var request = URLRequest(url: nsURL)
             request.httpMethod = method
