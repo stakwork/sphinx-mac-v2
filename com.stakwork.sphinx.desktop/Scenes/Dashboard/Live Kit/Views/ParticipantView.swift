@@ -233,7 +233,7 @@ struct ParticipantView: View {
                                 } label: {
                                     if case .subscribed = remotePub.subscriptionState {
                                         Image(systemSymbol: .micFill)
-                                            .foregroundColor(Color(NSColor.Sphinx.SphinxOrange))
+                                            .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
                                     } else if case .notAllowed = remotePub.subscriptionState {
                                         Image(systemSymbol: .exclamationmarkCircle)
                                             .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
@@ -246,7 +246,7 @@ struct ParticipantView: View {
                             } else {
                                 // local
                                 Image(systemSymbol: .micFill)
-                                    .foregroundColor(Color(NSColor.Sphinx.SphinxOrange))
+                                    .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
                             }
 
                         } else {
