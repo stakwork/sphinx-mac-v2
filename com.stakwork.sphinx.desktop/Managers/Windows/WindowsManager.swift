@@ -445,8 +445,8 @@ class WindowsManager {
                     let hostingController = NSHostingController(rootView: roomContextView)
                     self.presentWindowForCallVC(vc: hostingController, link: link)
                 },
-                errorCallback: { _ in
-                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: "error.getting.token.description".localized)
+                errorCallback: { error in
+                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
                 }
             )
         }

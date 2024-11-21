@@ -17,10 +17,11 @@ extension API {
         callback: @escaping LiveKitTokenCallback,
         errorCallback: @escaping ErrorCallback
     ) {
-        var url = "\(self.kVideoCallServer)/api/connection-details?roomName=\(room)&participantName=\(alias)"
+        var url = "\(self.kVideoCallServer)/api/connection-details?roomName=\(room)&participantName=\(alias.urlEncode() ?? alias)"
         
         if let profilePicture = profilePicture {
-            url = url + "&metadata={\"profilePictureUrl\":\"\(profilePicture)\"}"
+            let metaData = "{\"profilePictureUrl\":\"\(profilePicture)\"}"
+            url = url + "&metadata=\(metaData.urlEncode() ?? metaData)"
         }
         
         let request : URLRequest? = createRequest(
@@ -30,7 +31,7 @@ extension API {
         )
         
         guard let request = request else {
-            errorCallback("")
+            errorCallback("Error creating request")
             return
         }
         
@@ -46,9 +47,9 @@ extension API {
                         return
                     }
                 }
-                errorCallback("")
-            case .failure(_):
-                errorCallback("")
+                errorCallback("Error getting response data")
+            case .failure(let error):
+                errorCallback(error.localizedDescription)
             }
         }
     }
