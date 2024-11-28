@@ -130,6 +130,8 @@ extension PodcastPlayerCollectionViewItem {
             options: [.highPriority],
             progress: nil
         )
+        
+        episodeImageView.gravity = .resizeAspect
     }
     
     func configureControls(

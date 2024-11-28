@@ -157,11 +157,12 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
             delegate: self
         )
         
-        WindowsManager.sharedInstance.showNewWindow(
+        WindowsManager.sharedInstance.showOnCurrentWindow(
             with: "podcast.details".localized,
-            size: CGSize(width: 400, height: 600),
-            centeredIn: self.view.window,
-            contentVC: detailVC
+            identifier: "podcast-details-window",
+            contentVC: detailVC,
+            hideDivider: false,
+            height: 600
         )
     }
     

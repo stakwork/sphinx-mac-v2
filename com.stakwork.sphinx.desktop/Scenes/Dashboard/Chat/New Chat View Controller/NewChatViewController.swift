@@ -361,6 +361,7 @@ class NewChatViewController: DashboardSplittedViewController {
         }
         view.frame = frame
         threadVC?.view.frame = frame
+        podcastPlayerVC?.view.frame = frame
         
         chatTopView.toggleButtonsWith(
             width: frame.width - (podcastPlayerView.isHidden ? 0 : podcastPlayerView.frame.width)

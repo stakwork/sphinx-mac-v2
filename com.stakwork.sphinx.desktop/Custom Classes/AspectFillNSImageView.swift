@@ -49,6 +49,7 @@ class AspectFillNSImageView: NSImageView {
         }
         
         self.layer?.contentsGravity = gravity
+        self.layer?.masksToBounds = true
     }
     
     open override var image: NSImage? {
