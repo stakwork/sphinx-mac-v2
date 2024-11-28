@@ -134,23 +134,23 @@
                                     <rect key="frame" x="220" y="0.0" width="1000" height="186"/>
                                     <subviews>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="oDd-gg-HZ8">
-                                            <rect key="frame" x="0.0" y="50" width="1000" height="136"/>
+                                            <rect key="frame" x="0.0" y="50" width="600" height="136"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="clM-Wn-u17">
-                                                    <rect key="frame" x="10" y="0.0" width="958" height="136"/>
+                                                    <rect key="frame" x="10" y="0.0" width="558" height="136"/>
                                                     <subviews>
                                                         <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yRy-te-G3m" customClass="DisabledScrollView" customModule="Sphinx" customModuleProvider="target">
-                                                            <rect key="frame" x="0.0" y="16" width="958" height="120"/>
+                                                            <rect key="frame" x="0.0" y="16" width="558" height="120"/>
                                                             <clipView key="contentView" drawsBackground="NO" id="aRe-Am-Wey">
-                                                                <rect key="frame" x="0.0" y="0.0" width="958" height="120"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="558" height="120"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
                                                                     <textView wantsLayer="YES" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="8wc-Bi-exs">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="942" height="120"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="542" height="120"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="NewHeaderBG"/>
-                                                                        <size key="minSize" width="942" height="120"/>
+                                                                        <size key="minSize" width="542" height="120"/>
                                                                         <size key="maxSize" width="990" height="10000000"/>
                                                                         <color key="insertionPointColor" name="textInsertionPointColor" catalog="System" colorSpace="catalog"/>
                                                                     </textView>
@@ -163,7 +163,7 @@
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="1ie-lh-WP7">
-                                                                <rect key="frame" x="926" y="0.0" width="16" height="120"/>
+                                                                <rect key="frame" x="526" y="0.0" width="16" height="120"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
@@ -176,7 +176,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o0s-gd-MXD" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
-                                                    <rect key="frame" x="14" y="16" width="956" height="120"/>
+                                                    <rect key="frame" x="14" y="16" width="556" height="120"/>
                                                     <textFieldCell key="cell" selectable="YES" title="Label" id="wQx-gQ-7cJ">
                                                         <font key="font" metaFont="system" size="16"/>
                                                         <color key="textColor" name="Text"/>
@@ -187,6 +187,7 @@
                                             <constraints>
                                                 <constraint firstItem="o0s-gd-MXD" firstAttribute="leading" secondItem="oDd-gg-HZ8" secondAttribute="leading" constant="16" id="2Mb-Zo-EjO"/>
                                                 <constraint firstAttribute="trailing" secondItem="o0s-gd-MXD" secondAttribute="trailing" constant="32" id="6oX-0I-Cv6"/>
+                                                <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="GPz-YI-Zzj"/>
                                                 <constraint firstItem="o0s-gd-MXD" firstAttribute="top" secondItem="oDd-gg-HZ8" secondAttribute="top" id="KwG-lv-xgB"/>
                                                 <constraint firstAttribute="bottom" secondItem="o0s-gd-MXD" secondAttribute="bottom" constant="16" id="cX0-DG-YiD"/>
                                                 <constraint firstItem="clM-Wn-u17" firstAttribute="top" secondItem="oDd-gg-HZ8" secondAttribute="top" id="oAn-rN-olt"/>
@@ -215,7 +216,6 @@
                                         </customView>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstAttribute="trailing" secondItem="oDd-gg-HZ8" secondAttribute="trailing" id="Xcg-4R-676"/>
                                         <constraint firstItem="02m-U3-tfS" firstAttribute="leading" secondItem="YlO-at-1xE" secondAttribute="leading" id="gQk-P0-5e2"/>
                                         <constraint firstItem="oDd-gg-HZ8" firstAttribute="leading" secondItem="YlO-at-1xE" secondAttribute="leading" id="zZA-JB-AAh"/>
                                     </constraints>

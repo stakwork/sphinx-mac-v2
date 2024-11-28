@@ -23,14 +23,6 @@
                                 </view>
                                 <color key="fillColor" name="Body"/>
                             </box>
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WXj-PR-03x">
-                                <rect key="frame" x="107" y="552" width="186" height="18"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="SHARE INVITATION CODE" id="Zyb-tS-AOZ">
-                                    <font key="font" size="14" name="Montserrat-SemiBold"/>
-                                    <color key="textColor" name="Text"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <customView focusRingType="none" translatesAutoresizingMaskIntoConstraints="NO" id="9nz-FW-ZTD">
                                 <rect key="frame" x="148" y="460" width="105" height="40"/>
                                 <subviews>
@@ -97,8 +89,6 @@
                             <constraint firstItem="ZTy-Kl-hwL" firstAttribute="centerY" secondItem="tQl-Ye-jJ8" secondAttribute="centerY" id="6Lu-cC-7Ru"/>
                             <constraint firstItem="7Wd-0q-UgP" firstAttribute="centerX" secondItem="ZTy-Kl-hwL" secondAttribute="centerX" id="DSC-UC-5Nq"/>
                             <constraint firstItem="KT6-5F-eoe" firstAttribute="top" secondItem="tQl-Ye-jJ8" secondAttribute="top" id="KsO-LW-Ib8"/>
-                            <constraint firstItem="WXj-PR-03x" firstAttribute="top" secondItem="tQl-Ye-jJ8" secondAttribute="top" constant="30" id="N5l-4F-oHL"/>
-                            <constraint firstItem="WXj-PR-03x" firstAttribute="centerX" secondItem="tQl-Ye-jJ8" secondAttribute="centerX" id="R8Z-A3-L6a"/>
                             <constraint firstAttribute="bottom" secondItem="KT6-5F-eoe" secondAttribute="bottom" id="SGE-mF-Nmn"/>
                             <constraint firstItem="ZTy-Kl-hwL" firstAttribute="centerX" secondItem="tQl-Ye-jJ8" secondAttribute="centerX" id="amB-ZK-pvk"/>
                             <constraint firstItem="ZTy-Kl-hwL" firstAttribute="top" secondItem="9nz-FW-ZTD" secondAttribute="bottom" constant="20" id="ifT-s9-f28"/>
@@ -113,7 +103,6 @@
                         <outlet property="copyButton" destination="VIr-bT-Qxe" id="0QW-mo-diq"/>
                         <outlet property="inviteCodeLabel" destination="7Wd-0q-UgP" id="eLp-UP-gS4"/>
                         <outlet property="qrCodeImageView" destination="ZTy-Kl-hwL" id="tPN-5w-5cD"/>
-                        <outlet property="viewTitle" destination="WXj-PR-03x" id="XyU-Zi-OkG"/>
                     </connections>
                 </viewController>
                 <customObject id="Eh7-9h-xod" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -128,9 +117,6 @@
         </namedColor>
         <namedColor name="SecondaryText">
             <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="Text">
-            <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

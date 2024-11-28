@@ -14,7 +14,6 @@ class ShareInviteCodeViewController: NSViewController {
     
     @IBOutlet weak var qrCodeImageView: NSImageView!
     @IBOutlet weak var inviteCodeLabel: NSTextField!
-    @IBOutlet weak var viewTitle: NSTextField!
     @IBOutlet weak var copyButton: CustomButton!
     
     public enum ViewMode: Int {
@@ -47,19 +46,14 @@ class ShareInviteCodeViewController: NSViewController {
     func setViewTitle() {
         switch (viewMode) {
         case .Invite:
-            viewTitle.stringValue = "share.invite.code.upper".localized
             copiedStrind = "code.copied.clipboard".localized
         case .PubKey:
-            viewTitle.stringValue = "pubkey.upper".localized
             copiedStrind = "pubkey.copied.clipboard".localized
         case .TribeQR:
-            viewTitle.stringValue = "group.link.upper".localized
             copiedStrind = "link.copied.clipboard".localized
         case .RouteHint:
-            viewTitle.stringValue = "route.hint".localized.uppercased()
             copiedStrind = "route.hint.copied.clipboard".localized
         case .Invoice:
-            viewTitle.stringValue = "invoice".localized.uppercased()
             copiedStrind = "invoice.copied.clipboard".localized
         }
     }

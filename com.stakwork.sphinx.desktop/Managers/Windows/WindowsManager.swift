@@ -324,7 +324,7 @@ class WindowsManager {
         shouldReplace: Bool = true,
         panelFixedWidth: Bool = false
     ) {
-        guard let keyWindow = NSApplication.shared.keyWindow, let dashboardVC = keyWindow.contentViewController as? DashboardViewController else {
+        guard let appDelegate = NSApplication.shared.delegate as? AppDelegate, let dashboardVC = appDelegate.getDashboardVC() else {
             return
         }
         
@@ -353,16 +353,8 @@ class WindowsManager {
         identifier: String? = nil,
         chatIdentifier: Int? = nil,
         styleMask: NSWindow.StyleMask = [.closable, .titled, .resizable],
-        contentVC: NSViewController,
-        shouldClose: Bool = false
+        contentVC: NSViewController
     ) {
-        
-        if let identifier = identifier {
-            if !shouldClose && bringToFrontIfExists(identifier: identifier, chatIdentifier: chatIdentifier) {
-                return
-            }
-            closeIfExists(identifier: identifier)
-        }
         
         let newWindow = TaggedWindow(contentRect: .init(origin: .zero, size: size),
                                      styleMask: styleMask,
@@ -371,7 +363,6 @@ class WindowsManager {
         
         newWindow.title = title
         newWindow.minSize = minSize ?? size
-        newWindow.isOpaque = false
         newWindow.isMovableByWindowBackground = false
         newWindow.contentViewController = contentVC
         newWindow.makeKeyAndOrderFront(nil)
@@ -379,6 +370,7 @@ class WindowsManager {
         newWindow.windowIdentifier = identifier
         newWindow.chatIdentifier = chatIdentifier
         newWindow.backgroundColor = NSColor.Sphinx.Body
+        newWindow.isOpaque = false
         newWindow.toolbarStyle = .unifiedCompact
         newWindow.titlebarAppearsTransparent = true
         
@@ -501,23 +493,38 @@ class WindowsManager {
     }
     
     func showInviteCodeWindow(vc: NSViewController, window: NSWindow?) {
-        showNewWindow(
+        showOnCurrentWindow(
             with: "share.invite.code".localized,
-            size: CGSize(width: 400, height: 600),
-            centeredIn: window,
-            styleMask: [.closable, .titled],
-            contentVC: vc
+            identifier: "invite-code-window",
+            contentVC: vc,
+            hideDivider: false,
+            height: 600
         )
     }
     
-    func showInvoiceWindow(vc: NSViewController, window: NSWindow?) {
+    func presentWindowForRightPanelVC(
+        vc: NSViewController,
+        identifier: String,
+        title: String,
+        minWidth: CGFloat,
+        resizable: Bool
+    ) {
+        let screen = NSApplication.shared.keyWindow
+        let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: minWidth, height: 600)
+        var position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
+        
+        if let mainScreen = NSScreen.main {
+            position = CGPoint(x: (mainScreen.frame.width - frame.width) / 2, y: (mainScreen.frame.height - frame.height) / 2)
+        }
+        
         showNewWindow(
-            with: "invoice".localized,
-            size: CGSize(width: 400, height: 600),
-            centeredIn: window,
-            identifier: "invoice-window",
-            contentVC: vc,
-            shouldClose: true
+            with: title,
+            size: CGSize(width: minWidth, height: frame.height),
+            minSize: CGSize(width: minWidth, height: 550),
+            position: position,
+            identifier: identifier,
+            styleMask: resizable ? [.titled, .resizable, .closable] : [.titled, .closable],
+            contentVC: vc
         )
     }
     

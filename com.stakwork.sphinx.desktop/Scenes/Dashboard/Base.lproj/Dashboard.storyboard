@@ -3021,7 +3021,7 @@ A
         <image name="plusIcon" width="20" height="20"/>
         <image name="qrCode" width="21" height="21"/>
         <image name="searchIcon" width="16" height="16"/>
-        <image name="tapToCopy" width="19" height="32"/>
+        <image name="tapToCopy" width="18.5" height="32"/>
         <image name="xmark" catalog="system" width="14" height="13"/>
         <namedColor name="AuthorizationModalBack">
             <color red="0.0" green="0.0" blue="0.0" alpha="0.40000000596046448" colorSpace="custom" customColorSpace="sRGB"/>

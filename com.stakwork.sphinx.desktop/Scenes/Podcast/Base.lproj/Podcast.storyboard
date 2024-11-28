@@ -113,7 +113,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="4" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ItL-FV-eSo">
-                                            <rect key="frame" x="78" y="297" width="246" height="18"/>
+                                            <rect key="frame" x="79" y="297" width="244" height="18"/>
                                             <subviews>
                                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="lUd-Bi-JQT">
                                                     <rect key="frame" x="0.0" y="2" width="16" height="16"/>
@@ -124,7 +124,7 @@
                                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="podcastTypeIcon" id="xtz-5t-S8x"/>
                                                 </imageView>
                                                 <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="drK-Sh-NzH">
-                                                    <rect key="frame" x="18" y="3" width="57" height="15"/>
+                                                    <rect key="frame" x="18" y="3" width="56" height="15"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Podcast" id="MVV-49-9oR">
                                                         <font key="font" size="13" name="Roboto-Regular"/>
                                                         <color key="textColor" name="Text"/>
@@ -132,7 +132,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="bR8-JO-PLc">
-                                                    <rect key="frame" x="77" y="0.0" width="6" height="18"/>
+                                                    <rect key="frame" x="76" y="0.0" width="6" height="18"/>
                                                     <subviews>
                                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="58n-sI-4xx">
                                                             <rect key="frame" x="0.0" y="6" width="6" height="6"/>
@@ -150,7 +150,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hYN-KL-fiW">
-                                                    <rect key="frame" x="85" y="3" width="72" height="15"/>
+                                                    <rect key="frame" x="84" y="3" width="72" height="15"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="3 Apr 2022" id="rPf-3B-EwY">
                                                         <font key="font" size="13" name="Roboto-Regular"/>
                                                         <color key="textColor" name="Text"/>
@@ -158,7 +158,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="beE-fW-WoD">
-                                                    <rect key="frame" x="159" y="0.0" width="6" height="18"/>
+                                                    <rect key="frame" x="158" y="0.0" width="6" height="18"/>
                                                     <subviews>
                                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="Uuy-Nk-fVG">
                                                             <rect key="frame" x="0.0" y="6" width="6" height="6"/>
@@ -176,7 +176,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="X8G-yz-LX3">
-                                                    <rect key="frame" x="167" y="3" width="81" height="15"/>
+                                                    <rect key="frame" x="166" y="3" width="80" height="15"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="2 hrs 19 min" id="hDR-lb-cSy">
                                                         <font key="font" size="13" name="Roboto-Regular"/>
                                                         <color key="textColor" name="Text"/>

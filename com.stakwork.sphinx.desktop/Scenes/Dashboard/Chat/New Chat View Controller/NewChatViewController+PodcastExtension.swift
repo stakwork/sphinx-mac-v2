@@ -30,20 +30,19 @@ extension NewChatViewController {
             deepLinkData: deepLinkData
         )
         
-        addChildVC(vc: podcastPlayerVC!)
+        guard let podcastPlayerVC = podcastPlayerVC else {
+            return
+        }
+        
+        WindowsManager.sharedInstance.showVCOnRightPanelWindow(
+            with: "Podcast",
+            identifier: "podcast-window",
+            contentVC: podcastPlayerVC,
+            shouldReplace: false,
+            panelFixedWidth: true
+        )
         
         chatTableDataSource?.updateFrame()
-    }
-    
-    func addChildVC(vc: NSViewController) {
-        self.addChildVC(
-            child: vc,
-            container: podcastPlayerView
-        )
-        podcastPlayerView.isHidden = false
-        
-        chatBottomView.updateBottomBarHeight()
-//        chatMentionAutocompleteDataSource?.configureCollectionView()
     }
 }
 

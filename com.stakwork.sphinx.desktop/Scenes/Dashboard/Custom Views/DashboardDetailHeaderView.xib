@@ -13,6 +13,8 @@
                 <outlet property="closeButton" destination="4M3-5v-ixa" id="FRu-34-bKe"/>
                 <outlet property="contentView" destination="R65-74-UBK" id="WW5-OF-dbC"/>
                 <outlet property="headerTitle" destination="9oG-zA-O3y" id="8yz-Gb-JAW"/>
+                <outlet property="openNWButton" destination="k9V-l1-wd5" id="YWg-yf-iSj"/>
+                <outlet property="openNWContainer" destination="PI2-WS-Z2R" id="byc-lJ-nt8"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -36,6 +38,7 @@
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
+                                        <color key="contentTintColor" name="SecondaryText"/>
                                         <symbolConfiguration key="symbolConfiguration" weight="medium">
                                             <nil key="locale"/>
                                         </symbolConfiguration>
@@ -90,6 +93,7 @@
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <color key="contentTintColor" name="SecondaryText"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="26" id="Oor-ed-dTV"/>
                                                 <constraint firstAttribute="height" constant="26" id="kOZ-OU-V97"/>
@@ -111,8 +115,52 @@
                                     <constraint firstAttribute="height" constant="28" id="vp7-yz-3LN"/>
                                 </constraints>
                             </box>
+                            <box hidden="YES" borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PI2-WS-Z2R">
+                                <rect key="frame" x="401" y="30" width="34" height="34"/>
+                                <view key="contentView" id="83o-Zr-GtH">
+                                    <rect key="frame" x="4" y="5" width="26" height="26"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="llz-Kc-QlA">
+                                            <rect key="frame" x="3" y="3" width="21" height="20"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="20" id="49p-Dn-7Ef"/>
+                                                <constraint firstAttribute="width" constant="21" id="fIY-GH-3aq"/>
+                                            </constraints>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="openNewWindow" id="Mbv-yo-RJD"/>
+                                        </imageView>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="k9V-l1-wd5" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="cIn-Sk-caH">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <color key="contentTintColor" name="SecondaryText"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="26" id="EBQ-iW-S3U"/>
+                                                <constraint firstAttribute="height" constant="26" id="Mto-wG-ZhS"/>
+                                            </constraints>
+                                            <connections>
+                                                <action selector="openNewWindowButtonTapped:" target="-2" id="dCW-q6-5gy"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="llz-Kc-QlA" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="QB6-92-jwh"/>
+                                        <constraint firstItem="llz-Kc-QlA" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="Y9z-86-IkB"/>
+                                        <constraint firstItem="k9V-l1-wd5" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="r29-cV-WDH"/>
+                                        <constraint firstItem="k9V-l1-wd5" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="w54-NL-dIf"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="28" id="JET-Ox-HfI"/>
+                                    <constraint firstAttribute="height" constant="28" id="JHh-kU-ocA"/>
+                                </constraints>
+                            </box>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="JKs-qg-lLO" firstAttribute="leading" secondItem="PI2-WS-Z2R" secondAttribute="trailing" constant="12" id="4GN-O2-bgO"/>
+                            <constraint firstItem="PI2-WS-Z2R" firstAttribute="centerY" secondItem="JKs-qg-lLO" secondAttribute="centerY" id="7x5-G6-wPM"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="leading" secondItem="GGz-Dy-M3p" secondAttribute="leading" constant="20" id="Pe5-8R-Sev"/>
                             <constraint firstItem="JKs-qg-lLO" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="QY3-2B-Xgg"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="Tf3-0n-Xha"/>
@@ -133,9 +181,13 @@
     </objects>
     <resources>
         <image name="arrow.left" catalog="system" width="15" height="12"/>
+        <image name="openNewWindow" width="21" height="20"/>
         <image name="xmark" catalog="system" width="14" height="13"/>
         <namedColor name="HeaderBG">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SecondaryText">
+            <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

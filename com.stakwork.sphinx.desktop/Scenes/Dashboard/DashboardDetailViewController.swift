@@ -70,6 +70,11 @@ class DashboardDetailViewController: NSViewController {
         addedTitles?.append(vcTitle)
         updateVCTitle()
         showBackButton()
+        showOpenInNWButton()
+        
+        for vc in self.children {
+            removeChildVC(child: vc)
+        }
         
         self.addChildVC(child: vc, container: containerView)
         guard let threadVC = vc as? NewChatViewController else { return }
@@ -89,6 +94,15 @@ class DashboardDetailViewController: NSViewController {
             headerView.hideBackButton(hide: true)
         }
     }
+    
+    func showOpenInNWButton() {
+        if let last = addedVC?.last, let last {
+            let buttonVisible = last.isKind(of: ThreadsListViewController.self) || last.isKind(of: NewChatViewController.self) || last.isKind(of: NewPodcastPlayerViewController.self)
+            headerView.setOpenNWButtonVisible(visible: buttonVisible)
+        } else {
+            headerView.setOpenNWButtonVisible(visible: false)
+        }
+    }
 }
 
 extension DashboardDetailViewController: DetailHeaderViewDelegate {
@@ -106,6 +120,7 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
             var _ = self.addedVC?.removeLast()
             
             showBackButton()
+            showOpenInNWButton()
         }
     }
     
@@ -117,7 +132,51 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
             }
         }
         self.addedVC?.removeAll()
+        self.addedTitles?.removeAll()
         dismissDelegate?.closeButtonTapped()
     }
     
+    func openInNSTapped() {
+        if let last = addedVC?.last, let last {
+            var newVC: NSViewController? = nil
+            var resizable = true
+            
+            if let vc = last as? ThreadsListViewController, let chatId = vc.chat?.id {
+                newVC = ThreadsListViewController.instantiate(
+                    chatId: chatId,
+                    delegate: vc.delegate
+                )
+                resizable = false
+                
+            } else if let vc = last as? NewChatViewController {
+                newVC = NewChatViewController.instantiate(
+                    contactId: vc.contact?.id,
+                    chatId: vc.chat?.id,
+                    delegate: vc.delegate,
+                    chatVCDelegate: nil,
+                    threadUUID: vc.threadUUID
+                )
+            } else if let vc = last as? NewPodcastPlayerViewController, let delegate = vc.delegate {
+                newVC = NewPodcastPlayerViewController.instantiate(
+                    chat: vc.chat,
+                    delegate: delegate,
+                    deepLinkData: vc.deepLinkData
+                )
+            }
+            
+            if let newVC = newVC {
+                closeButtonTapped()
+                
+                closeButtonTapped()
+                
+                WindowsManager.sharedInstance.presentWindowForRightPanelVC(
+                    vc: newVC,
+                    identifier: self.addedTitles?.last ?? "generic-windows",
+                    title: self.addedTitles?.last ?? "",
+                    minWidth: 450,
+                    resizable: resizable
+                )
+            }
+        }
+    }
 }

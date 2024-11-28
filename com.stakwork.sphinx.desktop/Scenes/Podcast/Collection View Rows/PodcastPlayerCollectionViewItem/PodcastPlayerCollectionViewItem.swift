@@ -18,7 +18,7 @@ protocol PodcastPlayerViewDelegate : AnyObject {
 
 class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     
-    @IBOutlet weak var episodeImageView: NSImageView!
+    @IBOutlet weak var episodeImageView: AspectFillNSImageView!
     @IBOutlet weak var episodeLabel: NSTextField!
     @IBOutlet weak var currentTimeLabel: NSTextField!
     @IBOutlet weak var durationLabel: NSTextField!
