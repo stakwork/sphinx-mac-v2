@@ -514,7 +514,7 @@ class WindowsManager {
         var position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
         
         if let mainScreen = NSScreen.main {
-            position = CGPoint(x: (mainScreen.frame.width - frame.width) / 2, y: (mainScreen.frame.height - frame.height) / 2)
+            position = CGPoint(x: (mainScreen.frame.width - minWidth) / 2, y: (mainScreen.frame.height - frame.height) / 2)
         }
         
         showNewWindow(
