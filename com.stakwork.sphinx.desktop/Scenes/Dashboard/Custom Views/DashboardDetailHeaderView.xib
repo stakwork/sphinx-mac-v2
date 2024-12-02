@@ -83,6 +83,7 @@
                                                 <constraint firstAttribute="width" constant="12" id="uUP-TU-khy"/>
                                             </constraints>
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="xmark" catalog="system" id="Y0h-VW-4g6"/>
+                                            <color key="contentTintColor" name="SecondaryText"/>
                                             <symbolConfiguration key="symbolConfiguration" weight="heavy">
                                                 <nil key="locale"/>
                                             </symbolConfiguration>
@@ -128,6 +129,7 @@
                                                 <constraint firstAttribute="width" constant="21" id="fIY-GH-3aq"/>
                                             </constraints>
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="openNewWindow" id="Mbv-yo-RJD"/>
+                                            <color key="contentTintColor" name="SecondaryText"/>
                                         </imageView>
                                         <button translatesAutoresizingMaskIntoConstraints="NO" id="k9V-l1-wd5" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
