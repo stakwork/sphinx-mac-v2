@@ -321,20 +321,23 @@ class DraggingDestinationView: NSView, LoadableNib {
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
         
-//        if let delegate = delegate,
-//            let images = pasteBoard.readObjects(forClasses: [NSImage.self]), images.count == 1,
-//            let image = images[0] as? NSImage,
-//            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
-//            
-//            let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-//            if let jpegData = bitmapRep.representation(using: NSBitmapImageRep.FileType.jpeg, properties: [:]) {
-//                delegate.imageDragged(image: image)
-//                resetView()
-//                return true
-//            }
-//        }
-        
         if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL] {
+            
+            if let delegate = delegate, urls.count == 1 {
+                let url = urls[0]
+                
+                if let data = getDataFrom(url: url) {
+                    resetView()
+                    setData(data, image: image)
+                    mediaType = .Photo
+                    
+                    if let image = self.image {
+                        delegate.imageDragged(image: image)
+                        return true
+                    }
+                }
+            }
+            
             if let delegate = delegate, let _ = self.mediaData, let image = self.image {
                 delegate.imageDragged(image: image)
             }
