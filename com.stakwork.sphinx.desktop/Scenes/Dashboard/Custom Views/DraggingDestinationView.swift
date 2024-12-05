@@ -320,21 +320,23 @@ class DraggingDestinationView: NSView, LoadableNib {
     func processURLs(pasteBoard: NSPasteboard) -> Bool{
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
-
-        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL], urls.count == 1 {
-            let url = urls[0]
-            
-            if !url.absoluteString.starts(with: "file://") {
-                return false
-            }
-            
+        
+        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL] {
             if let delegate = delegate, let _ = self.mediaData, let image = self.image {
                 delegate.imageDragged(image: image)
-            } else if let data = getDataFrom(url: url) {
-                chatDelegate?.attachmentAdded(url: url, data: data, image: image)
-                resetView()
-                return true
             }
+            
+            for url in urls {
+                if !url.absoluteString.starts(with: "file://") {
+                    continue
+                }
+                
+                if let data = getDataFrom(url: url) {
+                    chatDelegate?.attachmentAdded(url: url, data: data, image: image)
+                    resetView()
+                }
+            }
+            return true
         }
         return false
     }
