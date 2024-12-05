@@ -288,6 +288,11 @@
 		475B686C2991A91D000EF29C /* PodcastPlayerCollectionViewItem+Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475B686B2991A91D000EF29C /* PodcastPlayerCollectionViewItem+Delegates.swift */; };
 		475B72192BB1CC2C003AD969 /* Server+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475B72182BB1CC2C003AD969 /* Server+CoreDataProperties.swift */; };
 		475B721B2BB1CC39003AD969 /* Server+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475B721A2BB1CC39003AD969 /* Server+CoreDataClass.swift */; };
+		475DB98D2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DB98C2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift */; };
+		475DB98F2D01F57A0011C9BA /* AttachmentPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DB98E2D01F57A0011C9BA /* AttachmentPreview.swift */; };
+		475DB9912D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DB9902D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift */; };
+		475DB9952D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 475DB9942D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib */; };
+		475DB9972D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DB9962D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift */; };
 		475F0BA224F7D97D0032EDC4 /* NewContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F0BA124F7D97D0032EDC4 /* NewContactViewController.swift */; };
 		475F0BA324F7EBCD0032EDC4 /* Contacts.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 475F0BA524F7EBCD0032EDC4 /* Contacts.storyboard */; };
 		4767AE942509BA8C00C82E5B /* GiphySearchView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4767AE962509BA8C00C82E5B /* GiphySearchView.xib */; };
@@ -1157,6 +1162,11 @@
 		475B686B2991A91D000EF29C /* PodcastPlayerCollectionViewItem+Delegates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PodcastPlayerCollectionViewItem+Delegates.swift"; sourceTree = "<group>"; };
 		475B72182BB1CC2C003AD969 /* Server+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Server+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		475B721A2BB1CC39003AD969 /* Server+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Server+CoreDataClass.swift"; sourceTree = "<group>"; };
+		475DB98C2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsPreviewDataSource.swift; sourceTree = "<group>"; };
+		475DB98E2D01F57A0011C9BA /* AttachmentPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentPreview.swift; sourceTree = "<group>"; };
+		475DB9902D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentPreviewCollectionViewItem.swift; sourceTree = "<group>"; };
+		475DB9942D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AttachmentPreviewCollectionViewItem.xib; sourceTree = "<group>"; };
+		475DB9962D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatMessageFieldView+AttachmentsPreviewExtension.swift"; sourceTree = "<group>"; };
 		475F0BA124F7D97D0032EDC4 /* NewContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewContactViewController.swift; sourceTree = "<group>"; };
 		475F0BA424F7EBCD0032EDC4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Contacts.storyboard; sourceTree = "<group>"; };
 		475F0BA724F7EBD20032EDC4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Contacts.strings; sourceTree = "<group>"; };
@@ -1815,6 +1825,7 @@
 				47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */,
 				473E1F462AC5BEB600DC1CDC /* ThreadHeaderView.swift */,
 				473E1F482AC5BEBF00DC1CDC /* ThreadHeaderView.xib */,
+				475DB9962D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift */,
 			);
 			path = "Chat View";
 			sourceTree = "<group>";
@@ -2289,6 +2300,7 @@
 			isa = PBXGroup;
 			children = (
 				47469D5F2ACDDB13004F0490 /* MentionOrMacroItem.swift */,
+				475DB98E2D01F57A0011C9BA /* AttachmentPreview.swift */,
 			);
 			path = Objects;
 			sourceTree = "<group>";
@@ -2585,6 +2597,15 @@
 				475B721A2BB1CC39003AD969 /* Server+CoreDataClass.swift */,
 			);
 			path = Server;
+			sourceTree = "<group>";
+		};
+		475DB9872D01F34B0011C9BA /* Attachments Preview */ = {
+			isa = PBXGroup;
+			children = (
+				475DB9902D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift */,
+				475DB9942D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib */,
+			);
+			path = "Attachments Preview";
 			sourceTree = "<group>";
 		};
 		475F0B9D24F7D9330032EDC4 /* Contacts */ = {
@@ -3346,6 +3367,7 @@
 				47FEE1FD2A66D35E00646C4E /* New Chat Data Source */,
 				CE326B4A294295C600821A53 /* ChatMentionAutocompleteDataSource.swift */,
 				938209DF2BD88E3C000A9ED8 /* NewMenuItemDataSource.swift */,
+				475DB98C2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift */,
 			);
 			path = "Data Source";
 			sourceTree = "<group>";
@@ -3365,6 +3387,7 @@
 		47E771192472C1E200C9CFEB /* Collection View Items */ = {
 			isa = PBXGroup;
 			children = (
+				475DB9872D01F34B0011C9BA /* Attachments Preview */,
 				93FED3622BE2388A008B8DDD /* GroupContactList */,
 				938209E12BD88E82000A9ED8 /* NewMenuListItem */,
 				473E1F512AC5EB9200DC1CDC /* Threads List */,
@@ -3908,6 +3931,7 @@
 				473E1F502AC5E73C00DC1CDC /* ThreadsListShimmeringView.xib in Resources */,
 				479C793F24ED6A6C009BA1CD /* AuthorizeAppView.xib in Resources */,
 				93FED3662BE238EF008B8DDD /* GroupContactListItem.xib in Resources */,
+				475DB9952D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib in Resources */,
 				47DE1C112A6969C50029597B /* NewMessageCollectionViewItem.xib in Resources */,
 				47DE1C0A2A6881FA0029597B /* DateSeparatorView.xib in Resources */,
 				474E334C248000AA00F7F603 /* AttachmentPriceView.xib in Resources */,
@@ -4063,6 +4087,7 @@
 				479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */,
 				4794961F2AB2075C00C42D1E /* PodcastBoostView.swift in Sources */,
 				CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */,
+				475DB98D2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift in Sources */,
 				479496672AB8A79B00C42D1E /* GroupRequestView.swift in Sources */,
 				475B681A29915D01000EF29C /* ContentFeed+FetchUtils.swift in Sources */,
 				473E1F5F2AC5F3D500DC1CDC /* ThreadsListDataSource.swift in Sources */,
@@ -4351,6 +4376,7 @@
 				4720991A24834E0000426028 /* CryptorRSAConstants.swift in Sources */,
 				479496762AB8CA7500C42D1E /* NewChatViewController+MessageMenuExtension.swift in Sources */,
 				47FEE1FC2A65BA4F00646C4E /* NewChatViewController+MentionsExtension.swift in Sources */,
+				475DB98F2D01F57A0011C9BA /* AttachmentPreview.swift in Sources */,
 				478ED59025D5522C00940132 /* WelcomeEmptyViewController.swift in Sources */,
 				47FEE2002A66D3B500646C4E /* MessageLayoutState.swift in Sources */,
 				473633E125548E40007405F2 /* BoostButtonView.swift in Sources */,
@@ -4358,6 +4384,7 @@
 				474A66842497CAFE002C2D10 /* MessageReplyView.swift in Sources */,
 				47DE1C3F2A6AFA070029597B /* ChatShimmeringView.swift in Sources */,
 				938209E42BD88ED0000A9ED8 /* NewMenuListItem.swift in Sources */,
+				475DB9912D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift in Sources */,
 				CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */,
 				474FBD1D2BE94FD200D687BE /* SphinxOnionManager+AccountRestoreExtension.swift in Sources */,
 				47F8825225656CB0002A7E71 /* SocketEnginePollable.swift in Sources */,
@@ -4417,6 +4444,7 @@
 				478ED58425D47C4900940132 /* ConnectingView.swift in Sources */,
 				475723AB247ED3AC001ADC7E /* AudioPlayerHelper.swift in Sources */,
 				47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */,
+				475DB9972D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift in Sources */,
 				474568002515148A00D66268 /* URL.swift in Sources */,
 				47C52C4827F61ADF007B43E2 /* HMACSigningManager.swift in Sources */,
 				4705D3A127A06597009C0729 /* RestoreProgressView.swift in Sources */,

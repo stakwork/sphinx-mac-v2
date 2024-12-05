@@ -15,10 +15,6 @@ protocol ChatMentionAutocompleteDelegate: AnyObject {
     func shouldUpdateTableHeightTo(value: CGFloat)
 }
 
-fileprivate enum CellIdentifiers {
-    static let MentionCell = "MentionCellID"
-  }
-
 class ChatMentionAutocompleteDataSource : NSObject {
     var suggestions : [MentionOrMacroItem] = [MentionOrMacroItem]()
     var tableView : NSCollectionView!

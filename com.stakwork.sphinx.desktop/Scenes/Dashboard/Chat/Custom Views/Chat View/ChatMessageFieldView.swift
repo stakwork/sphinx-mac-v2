@@ -40,11 +40,16 @@ class ChatMessageFieldView: NSView, LoadableNib {
     @IBOutlet weak var priceCancelButton: NSBox!
     @IBOutlet weak var priceCancelButtonWidthConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var attachmentsPreviewContainer: NSView!
+    @IBOutlet weak var attachmentsPreviewScrollView: NSScrollView!
+    @IBOutlet weak var attachmentsPreviewCollectionView: NSCollectionView!
+    
     let kTextViewVerticalMargins: CGFloat = 41
     let kTextViewLineHeight: CGFloat = 19
     let kMinimumPriceFieldWidth: CGFloat = 90
     let kPriceClearButtonWidth: CGFloat = 20
     let kPriceFieldPadding: CGFloat = 10
+    let kAttachmentsPreviewHeight: CGFloat = 180
     
     let kFieldPlaceHolder = "message.placeholder".localized
     
@@ -64,6 +69,8 @@ class ChatMessageFieldView: NSView, LoadableNib {
     
     var isAttachmentAdded = false
     var priceActive: Bool = false
+    
+    var attachmentsPreviewDataSource : AttachmentsPreviewDataSource? = nil
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -95,6 +102,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
         setupMicButton()
         setupIntermitentAlphaView()
         showPriceClearButton()
+        configureAttachmentsPreviewCollectionView()
     }
     
     func setupIntermitentAlphaView() {
@@ -135,7 +143,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         if let layer = stackView.layer {
             layer.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
-            layer.cornerRadius = stackView.frame.height / 2
+            layer.cornerRadius = 20
             layer.masksToBounds = true
         }
         
@@ -180,12 +188,19 @@ class ChatMessageFieldView: NSView, LoadableNib {
         sendButton.isEnabled = false
     }
     
-    func updateBottomBarHeight() -> Bool {
+    func getAttachmentsPreviewHeight() -> CGFloat {
+        if attachmentsPreviewContainer.isHidden {
+            return 0
+        }
+        return kAttachmentsPreviewHeight
+    }
+    
+    func updateBottomBarHeight(animated: Bool = false) -> Bool {
         let isAtBottom = delegate?.isChatAtBottom() ?? false
         
         let messageFieldContentHeight = messageTextView.contentSize.height
         let updatedHeight = messageFieldContentHeight + kTextViewVerticalMargins
-        let newFieldHeight = min(updatedHeight, kTextViewLineHeight * 11) + 12
+        let newFieldHeight = min(updatedHeight, kTextViewLineHeight * 11) + 12 + getAttachmentsPreviewHeight()
         
         if messageContainerHeightConstraint.constant == newFieldHeight {
             scrollMessageTextViewToBottom()
@@ -194,12 +209,28 @@ class ChatMessageFieldView: NSView, LoadableNib {
         }
         
         messageContainerHeightConstraint.constant = newFieldHeight
-        layoutSubtreeIfNeeded()
-        scrollMessageTextViewToBottom()
         
-        if isAtBottom {
-            delegate?.shouldScrollToBottom()
-        }
+//        if animated {
+//            AnimationHelper.animateViewWith(duration: 0.25, animationsBlock: {
+//                self.layoutSubtreeIfNeeded()
+//            }, completion: {})
+//            
+//            DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
+//                self.scrollMessageTextViewToBottom()
+//                
+//                if isAtBottom {
+//                    self.delegate?.shouldScrollToBottom()
+//                }
+//            })
+//        } else {
+            layoutSubtreeIfNeeded()
+            
+            scrollMessageTextViewToBottom()
+            
+            if isAtBottom {
+                delegate?.shouldScrollToBottom()
+            }
+//        }
         
         return true
     }
@@ -290,8 +321,43 @@ class ChatMessageFieldView: NSView, LoadableNib {
         recordingTimeLabel.stringValue = "\(minutes):\(seconds)"
     }
     
+    func configureAttachmentsPreviewCollectionView() {
+        if attachmentsPreviewDataSource != nil {
+            return
+        }
+        
+        attachmentsPreviewCollectionView.isHidden = false
+        
+        attachmentsPreviewDataSource = AttachmentsPreviewDataSource(
+            collectionView: attachmentsPreviewCollectionView,
+            scrollView: attachmentsPreviewScrollView,
+            delegate: self
+        )
+    }
+    
     @IBAction func attachmentsButtonClicked(_ sender: Any) {
-        delegate?.didClickAttachmentsButton()
+        if attachmentsPreviewContainer.isHidden {
+            
+            let attachment1 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment2 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment3 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment4 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment5 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment6 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment7 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment8 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment9 = AttachmentPreview(type: .imageAttachment, URL: "")
+            let attachment10 = AttachmentPreview(type: .imageAttachment, URL: "")
+            
+            attachmentsPreviewDataSource?.updateAttachments(attachments: [attachment1, attachment2, attachment3, attachment4, attachment5, attachment6, attachment7, attachment8, attachment9, attachment10])
+            
+            attachmentsPreviewContainer.isHidden = false
+        } else {
+            attachmentsPreviewContainer.isHidden = true
+        }
+        let _ = updateBottomBarHeight(animated: true)
+        
+//        delegate?.didClickAttachmentsButton()
     }
     
     @IBAction func giphyButtonClicked(_ sender: Any) {
