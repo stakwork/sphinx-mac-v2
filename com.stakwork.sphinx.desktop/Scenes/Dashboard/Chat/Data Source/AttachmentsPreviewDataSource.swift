@@ -9,7 +9,7 @@
 import Cocoa
 
 protocol AttachmentPreviewDataSourceDelegate: AnyObject {
-    
+    func shouldRemoveItemAt(index: Int)
 }
 
 class AttachmentsPreviewDataSource : NSObject {
@@ -33,7 +33,6 @@ class AttachmentsPreviewDataSource : NSObject {
         self.attachmentsCollectionView = collectionView
         self.delegate = delegate
         self.scrollView = scrollView
-//        self.collectionView.backgroundColors = [NSColor.Sphinx.HeaderBG]
         
         scrollView.hasHorizontalScroller = true
         scrollView.hasVerticalScroller = false
@@ -64,10 +63,14 @@ class AttachmentsPreviewDataSource : NSObject {
             return
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+            let ctx = NSAnimationContext.current
+            ctx.duration = 0.15
+            ctx.allowsImplicitAnimation = true
+            
             self.attachmentsCollectionView.animator().scrollToItems(
                 at: [IndexPath(item: self.attachments.count - 1, section: 0)],
-                scrollPosition: .bottom
+                scrollPosition: .right
             )
         })
     }
@@ -92,11 +95,17 @@ extension AttachmentsPreviewDataSource : NSCollectionViewDelegate, NSCollectionV
         return 1
     }
     
-    func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: NSCollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return attachments.count
     }
     
-    func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
+    func collectionView(
+        _ collectionView: NSCollectionView,
+        itemForRepresentedObjectAt indexPath: IndexPath
+    ) -> NSCollectionViewItem {
         
         let item = collectionView.makeItem(
             withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "AttachmentPreviewCollectionViewItem"),
@@ -108,12 +117,37 @@ extension AttachmentsPreviewDataSource : NSCollectionViewDelegate, NSCollectionV
         return attachmentItem
     }
     
-    func collectionView(_ collectionView: NSCollectionView, willDisplay item: NSCollectionViewItem, forRepresentedObjectAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: NSCollectionView,
+        willDisplay item: NSCollectionViewItem,
+        forRepresentedObjectAt indexPath: IndexPath
+    ) {
         if let collectionViewItem = item as? AttachmentPreviewCollectionViewItem {
-//            attachmentItem.configureWith(
-//                mentionOrMacro: suggestions[indexPath.item],
-//                delegate: delegate
-//            )
+            let item = attachments[indexPath.item]
+            collectionViewItem.render(
+                with: item,
+                index: indexPath.item,
+                itemDelegate: self
+            )
         }
+    }
+}
+
+extension AttachmentsPreviewDataSource : AttachmentPreviewItemDelegate {
+    func closeButtonClicked(item: NSCollectionViewItem) {
+        if let indexPath = attachmentsCollectionView.indexPath(for: item) {
+            let index = indexPath.item
+            
+            attachments.remove(at: index)
+            attachmentsCollectionView.reloadData()
+            
+            delegate?.shouldRemoveItemAt(index: index)
+        }
+    }
+    
+    func playVideoButtonClicked(item: NSCollectionViewItem) {
+//        if let indexPath = attachmentsCollectionView.indexPath(for: item) {
+//            
+//        }
     }
 }

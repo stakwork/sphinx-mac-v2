@@ -14,7 +14,7 @@
             <rect key="frame" x="0.0" y="0.0" width="152" height="155"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="k7a-zA-DVN">
+                <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="k7a-zA-DVN">
                     <rect key="frame" x="0.0" y="15" width="140" height="140"/>
                     <view key="contentView" id="6r4-oQ-O5X">
                         <rect key="frame" x="0.0" y="0.0" width="140" height="140"/>
@@ -30,13 +30,16 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </imageView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="yjP-ng-brn">
+                                <rect key="frame" x="0.0" y="0.0" width="140" height="140"/>
+                            </customView>
                             <box hidden="YES" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="23" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="imP-FL-HAv">
                                 <rect key="frame" x="47" y="47" width="46" height="46"/>
                                 <view key="contentView" id="KWz-Xx-Hfa">
                                     <rect key="frame" x="0.0" y="0.0" width="46" height="46"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GdR-Iw-N6f">
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GdR-Iw-N6f" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                                             <rect key="frame" x="-6" y="-6" width="58" height="58"/>
                                             <buttonCell key="cell" type="square" title="play_arrow" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="EA1-4h-ejv">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -47,6 +50,9 @@
                                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="58" id="352-iv-I30"/>
                                                 <constraint firstAttribute="height" constant="58" id="bM0-pF-gsH"/>
                                             </constraints>
+                                            <connections>
+                                                <action selector="playVideoButtonClicked:" target="335-4Q-CTb" id="UQy-SK-WfL"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
@@ -60,13 +66,13 @@
                                 </constraints>
                                 <color key="fillColor" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </box>
-                            <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FEt-Pj-LZg">
-                                <rect key="frame" x="41" y="41" width="58" height="58"/>
-                                <buttonCell key="cell" type="square" title="picture_as_pdf" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="f28-B5-hng">
+                            <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FEt-Pj-LZg" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="41" y="64" width="58" height="58"/>
+                                <buttonCell key="cell" type="square" title="attachment" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="f28-B5-hng">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" size="39" name="MaterialIcons-Regular"/>
                                 </buttonCell>
-                                <color key="contentTintColor" red="0.84705882352941175" green="0.27058823529411763" blue="0.20784313725490194" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="contentTintColor" red="0.094117647060000004" green="0.094117647060000004" blue="0.094117647060000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="58" id="wAr-28-mVW"/>
                                     <constraint firstAttribute="height" constant="58" id="xqP-v7-bXU"/>
@@ -96,7 +102,7 @@
                                     </box>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="I4u-JE-SPw">
                                         <rect key="frame" x="12" y="25" width="116" height="11"/>
-                                        <textFieldCell key="cell" lineBreakMode="clipping" title="file_example.pdf" id="BKQ-Uz-jx5">
+                                        <textFieldCell key="cell" lineBreakMode="truncatingMiddle" title="file_example.pdf" id="BKQ-Uz-jx5">
                                             <font key="font" size="10" name="Roboto-Regular"/>
                                             <color key="textColor" name="Text"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -104,7 +110,7 @@
                                     </textField>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Qy-eh-9HE">
                                         <rect key="frame" x="12" y="10" width="116" height="11"/>
-                                        <textFieldCell key="cell" lineBreakMode="clipping" title="10 pages" id="3jo-Ra-tdT">
+                                        <textFieldCell key="cell" lineBreakMode="truncatingMiddle" title="10 pages" id="3jo-Ra-tdT">
                                             <font key="font" size="10" name="Roboto-Regular"/>
                                             <color key="textColor" name="MainBottomIcons"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -134,13 +140,16 @@
                                     <rect key="frame" x="0.0" y="0.0" width="28" height="28"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ppn-nx-SY4">
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ppn-nx-SY4" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="28" height="28"/>
                                             <buttonCell key="cell" type="square" title="close" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="RxT-cd-8XQ">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" size="18" name="MaterialIcons-Regular"/>
                                             </buttonCell>
                                             <color key="contentTintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <connections>
+                                                <action selector="closeButtonClicked:" target="335-4Q-CTb" id="uWj-L4-e6q"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <constraints>
@@ -158,10 +167,13 @@
                             </box>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="FEt-Pj-LZg" firstAttribute="centerY" secondItem="6r4-oQ-O5X" secondAttribute="centerY" id="54t-5c-cld"/>
+                            <constraint firstItem="yjP-ng-brn" firstAttribute="top" secondItem="6r4-oQ-O5X" secondAttribute="top" id="2gh-Yb-8FJ"/>
+                            <constraint firstItem="FEt-Pj-LZg" firstAttribute="centerY" secondItem="6r4-oQ-O5X" secondAttribute="centerY" constant="-23" id="54t-5c-cld"/>
                             <constraint firstAttribute="bottom" secondItem="38i-04-MkQ" secondAttribute="bottom" id="9HM-5c-wHZ"/>
+                            <constraint firstItem="yjP-ng-brn" firstAttribute="leading" secondItem="6r4-oQ-O5X" secondAttribute="leading" id="KR6-L3-9ZI"/>
                             <constraint firstAttribute="trailing" secondItem="qYn-e5-Grn" secondAttribute="trailing" id="MQ9-bd-ASv"/>
                             <constraint firstItem="FEt-Pj-LZg" firstAttribute="centerX" secondItem="6r4-oQ-O5X" secondAttribute="centerX" id="OgN-Hz-ci3"/>
+                            <constraint firstAttribute="bottom" secondItem="yjP-ng-brn" secondAttribute="bottom" id="Ty6-jT-E4o"/>
                             <constraint firstAttribute="trailing" secondItem="i09-mx-pDG" secondAttribute="trailing" constant="4" id="UvI-lH-8i0"/>
                             <constraint firstItem="imP-FL-HAv" firstAttribute="centerX" secondItem="6r4-oQ-O5X" secondAttribute="centerX" id="ZWZ-to-0KG"/>
                             <constraint firstAttribute="bottom" secondItem="qYn-e5-Grn" secondAttribute="bottom" id="b0L-0O-pkk"/>
@@ -169,11 +181,13 @@
                             <constraint firstItem="38i-04-MkQ" firstAttribute="top" secondItem="6r4-oQ-O5X" secondAttribute="top" id="rx3-OR-REK"/>
                             <constraint firstItem="38i-04-MkQ" firstAttribute="leading" secondItem="6r4-oQ-O5X" secondAttribute="leading" id="tyQ-aH-ECm"/>
                             <constraint firstItem="imP-FL-HAv" firstAttribute="centerY" secondItem="6r4-oQ-O5X" secondAttribute="centerY" id="uNo-0p-v5G"/>
+                            <constraint firstAttribute="trailing" secondItem="yjP-ng-brn" secondAttribute="trailing" id="vNP-9P-Kjz"/>
                             <constraint firstAttribute="trailing" secondItem="38i-04-MkQ" secondAttribute="trailing" id="w9C-K0-gJF"/>
                             <constraint firstItem="i09-mx-pDG" firstAttribute="top" secondItem="6r4-oQ-O5X" secondAttribute="top" constant="4" id="wFM-Fu-9AL"/>
                         </constraints>
                     </view>
                     <color key="borderColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="fillColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </box>
             </subviews>
             <constraints>
@@ -186,6 +200,16 @@
         </customView>
         <collectionViewItem id="335-4Q-CTb" customClass="AttachmentPreviewCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="attachmentImageView" destination="38i-04-MkQ" id="vND-nc-4HH"/>
+                <outlet property="closeButton" destination="Ppn-nx-SY4" id="TbI-aP-Ugp"/>
+                <outlet property="closeButtonView" destination="i09-mx-pDG" id="y5c-VF-qt2"/>
+                <outlet property="fileButton" destination="FEt-Pj-LZg" id="69c-rW-AqK"/>
+                <outlet property="fileDescriptionLabel" destination="6Qy-eh-9HE" id="EVb-e1-2aT"/>
+                <outlet property="fileInfoView" destination="qYn-e5-Grn" id="h8g-tc-Rzg"/>
+                <outlet property="fileNameLabel" destination="I4u-JE-SPw" id="Dn6-nc-FLD"/>
+                <outlet property="gifView" destination="yjP-ng-brn" id="AsD-bg-brN"/>
+                <outlet property="playVideoButton" destination="GdR-Iw-N6f" id="EbS-54-rBF"/>
+                <outlet property="videoButtonView" destination="imP-FL-HAv" id="U7Q-iT-XRU"/>
                 <outlet property="view" destination="c22-O7-iKe" id="RkD-aN-q8Y"/>
             </connections>
         </collectionViewItem>

@@ -13,14 +13,13 @@ protocol DraggingViewDelegate: AnyObject {
 }
 
 protocol ChatDraggingViewDelegate: AnyObject {
-    func attachmentAdded()
-    func attachmentRemoved()
+    func attachmentAdded(url: URL, data: Data?, image: NSImage?)
 }
 
 class DraggingDestinationView: NSView, LoadableNib {
     
     weak var delegate: DraggingViewDelegate?
-    weak var chatDeleate: ChatDraggingViewDelegate?
+    weak var chatDelegate: ChatDraggingViewDelegate?
     
     @IBOutlet var contentView: NSView!
     @IBOutlet weak var draggingContainer: NSView!
@@ -105,7 +104,7 @@ class DraggingDestinationView: NSView, LoadableNib {
         registerForDraggedTypes(acceptableTypes)
         
         if let delegate = delegate {
-            self.chatDeleate = delegate
+            self.chatDelegate = delegate
         }
     }
     
@@ -114,8 +113,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         mediaData = nil
         mediaType = nil
         giphyObject = nil
-        
-        chatDeleate?.attachmentRemoved()
     }
     
     func addImagePreviewView() {
@@ -186,8 +183,6 @@ class DraggingDestinationView: NSView, LoadableNib {
             
             imagePreview?.showImageWith(image: image, size: self.frame.size)
             imagePreview?.isHidden = false
-            
-            chatDeleate?.attachmentAdded()
         }
     }
     
@@ -322,7 +317,7 @@ class DraggingDestinationView: NSView, LoadableNib {
         return false
     }
     
-    func processURLs(pasteBoard:NSPasteboard) -> Bool{
+    func processURLs(pasteBoard: NSPasteboard) -> Bool{
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
 
@@ -333,33 +328,11 @@ class DraggingDestinationView: NSView, LoadableNib {
                 return false
             }
             
-            if let data = getDataFrom(url: url) {
-                fileName = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped
-                
-                if let image = NSImage(contentsOf: url) {
-                    if url.isPDF {
-                        showPDFPreview(data: data, image: image, url: url)
-                    } else if data.isAnimatedImage() {
-                        showGIFPreview(data: data, image: image)
-                    } else {
-                        showImagePreview(data: data, image: image)
-                    }
-                } else if url.isVideo {
-                    showVideoPreview(data: data, url: url)
-                } else {
-                    showFilePreview(data: data, url: url)
-                }
-                return true
-            }
-        }
-        if let images = pasteBoard.readObjects(forClasses: [NSImage.self]),
-            images.count > 0,
-            let image = images[0] as? NSImage,
-            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
-            
-            let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-            if let jpegData = bitmapRep.representation(using: NSBitmapImageRep.FileType.jpeg, properties: [:]) {
-                showImagePreview(data: jpegData, image: image)
+            if let delegate = delegate, let _ = self.mediaData, let image = self.image {
+                delegate.imageDragged(image: image)
+            } else if let data = getDataFrom(url: url) {
+                chatDelegate?.attachmentAdded(url: url, data: data, image: image)
+                resetView()
                 return true
             }
         }

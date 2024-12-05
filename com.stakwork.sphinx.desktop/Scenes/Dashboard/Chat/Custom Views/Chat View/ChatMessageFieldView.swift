@@ -69,6 +69,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
     
     var isAttachmentAdded = false
     var priceActive: Bool = false
+    var attachments : [AttachmentPreview] = [AttachmentPreview]()
     
     var attachmentsPreviewDataSource : AttachmentsPreviewDataSource? = nil
     
@@ -326,8 +327,6 @@ class ChatMessageFieldView: NSView, LoadableNib {
             return
         }
         
-        attachmentsPreviewCollectionView.isHidden = false
-        
         attachmentsPreviewDataSource = AttachmentsPreviewDataSource(
             collectionView: attachmentsPreviewCollectionView,
             scrollView: attachmentsPreviewScrollView,
@@ -336,28 +335,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
     }
     
     @IBAction func attachmentsButtonClicked(_ sender: Any) {
-        if attachmentsPreviewContainer.isHidden {
-            
-            let attachment1 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment2 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment3 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment4 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment5 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment6 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment7 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment8 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment9 = AttachmentPreview(type: .imageAttachment, URL: "")
-            let attachment10 = AttachmentPreview(type: .imageAttachment, URL: "")
-            
-            attachmentsPreviewDataSource?.updateAttachments(attachments: [attachment1, attachment2, attachment3, attachment4, attachment5, attachment6, attachment7, attachment8, attachment9, attachment10])
-            
-            attachmentsPreviewContainer.isHidden = false
-        } else {
-            attachmentsPreviewContainer.isHidden = true
-        }
-        let _ = updateBottomBarHeight(animated: true)
-        
-//        delegate?.didClickAttachmentsButton()
+        delegate?.didClickAttachmentsButton()
     }
     
     @IBAction func giphyButtonClicked(_ sender: Any) {

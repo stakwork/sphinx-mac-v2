@@ -1823,9 +1823,9 @@
 				4708C21E2A58959900274AD4 /* ChatMessageFieldView.xib */,
 				47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */,
 				47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */,
+				475DB9962D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift */,
 				473E1F462AC5BEB600DC1CDC /* ThreadHeaderView.swift */,
 				473E1F482AC5BEBF00DC1CDC /* ThreadHeaderView.xib */,
-				475DB9962D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift */,
 			);
 			path = "Chat View";
 			sourceTree = "<group>";

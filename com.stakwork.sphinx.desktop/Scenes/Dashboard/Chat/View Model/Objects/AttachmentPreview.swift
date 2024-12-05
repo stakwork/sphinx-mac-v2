@@ -11,22 +11,51 @@ import Foundation
 class AttachmentPreview: NSObject {
     
     var type: TransactionMessage.TransactionMessageType
-    var URL: String
+    var isAnimated: Bool = false
+    var url: URL?
+    var data: Data?
+    var image: NSImage?
     var name: String?
-    var pagesCount: String?
-    var fileSize: Int?
-    
+    var pagesCount: Int?
+    var fileSize: String?
+
     init(
-        type: TransactionMessage.TransactionMessageType,
-        URL: String,
-        name: String? = nil,
-        pagesCount: String? = nil,
-        fileSize: Int? = nil
+        url: URL,
+        data: Data?,
+        image: NSImage?
     ) {
-        self.type = type
-        self.URL = URL
-        self.name = name
-        self.pagesCount = pagesCount
-        self.fileSize = fileSize
+        if let image = NSImage(contentsOf: url) {
+            if url.isPDF {
+                self.type = .pdfAttachment
+                self.url = url
+                self.data = data
+                self.image = image
+                self.name = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped ?? "file.pdf"
+                self.pagesCount = data?.getPDFPagesCount() ?? 0
+            } else if data?.isAnimatedImage() == true {
+                self.type = .imageAttachment
+                self.url = url
+                self.data = data
+                self.image = image
+                self.isAnimated = true
+            } else {
+                self.type = .imageAttachment
+                self.url = url
+                self.data = data
+                self.image = image
+            }
+        } else if url.isVideo {
+            self.type = .videoAttachment
+            self.url = url
+            self.data = data
+            self.image = image
+        } else {
+            self.type = .fileAttachment
+            self.url = url
+            self.data = data
+            self.image = image
+            self.name = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped ?? "File"
+            self.fileSize = data?.formattedSize
+        }
     }
 }

@@ -181,6 +181,10 @@ class ChatBottomView: NSView, LoadableNib {
     func toggleAttachmentAdded(_ attachmentAdded: Bool) {
         messageFieldView.toggleAttachmentAdded(attachmentAdded)
     }
+    
+    func attachmentAdded(url: URL, data: Data?, image: NSImage?) {
+        messageFieldView.attachmentAdded(url: url, data: data, image: image)
+    }
 }
 
 //Search Mode
