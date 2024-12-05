@@ -326,15 +326,10 @@ class DraggingDestinationView: NSView, LoadableNib {
             if let delegate = delegate, urls.count == 1 {
                 let url = urls[0]
                 
-                if let data = getDataFrom(url: url) {
+                if let image = NSImage(contentsOf: url) {
                     resetView()
-                    setData(data, image: image)
-                    mediaType = .Photo
-                    
-                    if let image = self.image {
-                        delegate.imageDragged(image: image)
-                        return true
-                    }
+                    delegate.imageDragged(image: image)
+                    return true
                 }
             }
             
