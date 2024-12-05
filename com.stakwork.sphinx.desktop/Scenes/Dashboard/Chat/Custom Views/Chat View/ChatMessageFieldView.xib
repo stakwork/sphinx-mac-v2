@@ -66,15 +66,15 @@
                                                     <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7uu-QO-mqZ">
                                                         <rect key="frame" x="0.0" y="-140" width="1460" height="180"/>
                                                         <subviews>
-                                                            <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="8lZ-C0-G4N">
-                                                                <rect key="frame" x="10" y="30" width="1440" height="140"/>
+                                                            <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="8lZ-C0-G4N">
+                                                                <rect key="frame" x="10" y="15" width="1440" height="155"/>
                                                                 <clipView key="contentView" drawsBackground="NO" id="X2p-CD-irg">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="1440" height="140"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="1440" height="155"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <collectionView id="fI1-9w-mSl">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="1440" height="158"/>
-                                                                            <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="1440" height="155"/>
+                                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                                             <collectionViewGridLayout key="collectionViewLayout" id="W0j-ph-uHd"/>
                                                                             <color key="primaryBackgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                                                         </collectionView>
@@ -86,14 +86,14 @@
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                 </scroller>
                                                                 <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="bTh-XE-02C">
-                                                                    <rect key="frame" x="-100" y="-100" width="16" height="140"/>
+                                                                    <rect key="frame" x="1424" y="0.0" width="16" height="150"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                 </scroller>
                                                             </scrollView>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstItem="8lZ-C0-G4N" firstAttribute="top" secondItem="7uu-QO-mqZ" secondAttribute="top" constant="10" id="5ZI-mx-UbR"/>
-                                                            <constraint firstAttribute="bottom" secondItem="8lZ-C0-G4N" secondAttribute="bottom" constant="30" id="UiI-fD-sGt"/>
+                                                            <constraint firstAttribute="bottom" secondItem="8lZ-C0-G4N" secondAttribute="bottom" constant="15" id="UiI-fD-sGt"/>
                                                             <constraint firstAttribute="trailing" secondItem="8lZ-C0-G4N" secondAttribute="trailing" constant="10" id="kcn-4q-bHo"/>
                                                             <constraint firstItem="8lZ-C0-G4N" firstAttribute="leading" secondItem="7uu-QO-mqZ" secondAttribute="leading" constant="10" id="kob-mj-q0j"/>
                                                             <constraint firstAttribute="height" constant="180" id="nTp-3a-YpY"/>

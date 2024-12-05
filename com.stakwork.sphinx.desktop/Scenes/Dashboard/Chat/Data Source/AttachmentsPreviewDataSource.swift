@@ -21,7 +21,7 @@ class AttachmentsPreviewDataSource : NSObject {
     weak var delegate: AttachmentPreviewDataSourceDelegate!
     
     let kCellWidth : CGFloat = 152.0
-    let kCellHeight : CGFloat = 140.0
+    let kCellHeight : CGFloat = 155.0
     
     init(
         collectionView: NSCollectionView,
