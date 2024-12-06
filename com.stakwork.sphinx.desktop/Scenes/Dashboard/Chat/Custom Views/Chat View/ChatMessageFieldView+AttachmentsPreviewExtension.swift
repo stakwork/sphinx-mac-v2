@@ -28,7 +28,7 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
     }
     
     func attachmentAdded(url: URL, data: Data, image: NSImage?) {
-        if attachments.count >= 5 {
+        if attachments.count >= 10 {
             return
         }
         
