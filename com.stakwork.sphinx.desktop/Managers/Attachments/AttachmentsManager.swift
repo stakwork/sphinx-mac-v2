@@ -47,7 +47,6 @@ class AttachmentsManager {
     
     func setData(delegate: AttachmentsManagerDelegate, contact: UserContact?, chat: Chat?, provisionalMessage: TransactionMessage? = nil) {
         self.delegate = delegate
-        self.provisionalMessage = provisionalMessage
         self.contact = contact
         self.chat = chat
         self.uploadedImage = nil
@@ -156,55 +155,71 @@ class AttachmentsManager {
         }
     }
     
-    func uploadAndSendAttachment(
-        attachmentObject: AttachmentObject,
+    func uploadAndSendAttachments(
+        attachmentObjects: [AttachmentObject],
+        index: Int,
         chat: Chat?,
-        provisionalMessage: TransactionMessage? = nil,
         replyingMessage: TransactionMessage? = nil,
         threadUUID: String? = nil
     ) {
-        uploading = true
-        
-        delegate?.didUpdateUploadProgress?(
-            progress: 5,
-            provisionalMessageId: provisionalMessage?.id ?? -1
-        )
-        
-        guard let token: String = UserDefaults.Keys.attachmentsToken.get() else {
-            self.authenticate(completion: { token in
-                self.uploadAndSendAttachment(
-                    attachmentObject: attachmentObject,
-                    chat: chat,
-                    provisionalMessage: provisionalMessage,
-                    replyingMessage: replyingMessage,
-                    threadUUID: threadUUID
-                )
-            }, errorCompletion: {
-                UserDefaults.Keys.attachmentsToken.removeValue()
-                self.uploadFailed(errorMessage: "Could not authenticate with Memes server")
-            })
+        if index == attachmentObjects.count {
             return
         }
         
-        delegate?.didUpdateUploadProgress?(
-            progress: 10,
-            provisionalMessageId: provisionalMessage?.id ?? -1
-        )
+        uploading = true
         
-        if let _ = attachmentObject.data {
+        let attachmentObject = attachmentObjects[index]
+        
+        if let _ = attachmentObject.data, let provisionalMsg = attachmentObject.provisionalMsg {
+            self.provisionalMessage = provisionalMsg
+            
+            delegate?.didUpdateUploadProgress?(
+                progress: 5,
+                provisionalMessageId: provisionalMessage?.id ?? -1
+            )
+            
+            guard let token: String = UserDefaults.Keys.attachmentsToken.get() else {
+                self.authenticate(completion: { token in
+                    self.uploadAndSendAttachments(
+                        attachmentObjects: attachmentObjects,
+                        index: index,
+                        chat: chat,
+                        replyingMessage: replyingMessage,
+                        threadUUID: threadUUID
+                    )
+                }, errorCompletion: {
+                    UserDefaults.Keys.attachmentsToken.removeValue()
+                    self.uploadFailed(errorMessage: "Could not authenticate with Memes server")
+                })
+                return
+            }
+            
+            delegate?.didUpdateUploadProgress?(
+                progress: 10,
+                provisionalMessageId: provisionalMessage?.id ?? -1
+            )
+            
             uploadData(attachmentObject: attachmentObject, token: token) { fileJSON, AttachmentObject in
                 let (msg, errorMessage) = self.sendAttachment(
                     file: fileJSON,
                     chat: chat,
                     attachmentObject: attachmentObject,
-                    provisionalMessage: provisionalMessage,
-                    replyingMessage: replyingMessage,
+                    provisionalMessage: provisionalMsg,
+                    replyingMessage: (index == attachmentObjects.count - 1) ? replyingMessage : nil, //Adding reply just on last attachment
                     threadUUID: threadUUID
                 )
                 
                 if let errorMessage = errorMessage, msg == nil {
                     self.uploadFailed(errorMessage: errorMessage)
                 }
+                
+                self.uploadAndSendAttachments(
+                    attachmentObjects: attachmentObjects,
+                    index: index + 1,
+                    chat: chat,
+                    replyingMessage: replyingMessage,
+                    threadUUID: threadUUID
+                )
             }
         }
     }

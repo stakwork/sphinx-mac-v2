@@ -13,14 +13,13 @@ protocol DraggingViewDelegate: AnyObject {
 }
 
 protocol ChatDraggingViewDelegate: AnyObject {
-    func attachmentAdded()
-    func attachmentRemoved()
+    func attachmentAdded(url: URL, data: Data, image: NSImage?)
 }
 
 class DraggingDestinationView: NSView, LoadableNib {
     
     weak var delegate: DraggingViewDelegate?
-    weak var chatDeleate: ChatDraggingViewDelegate?
+    weak var chatDelegate: ChatDraggingViewDelegate?
     
     @IBOutlet var contentView: NSView!
     @IBOutlet weak var draggingContainer: NSView!
@@ -105,7 +104,7 @@ class DraggingDestinationView: NSView, LoadableNib {
         registerForDraggedTypes(acceptableTypes)
         
         if let delegate = delegate {
-            self.chatDeleate = delegate
+            self.chatDelegate = delegate
         }
     }
     
@@ -114,8 +113,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         mediaData = nil
         mediaType = nil
         giphyObject = nil
-        
-        chatDeleate?.attachmentRemoved()
     }
     
     func addImagePreviewView() {
@@ -139,10 +136,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         }
         
         reset()
-    }
-    
-    func isSendingMedia() -> Bool {
-        return mediaData != nil && giphyObject == nil
     }
     
     func isSendingGiphy() -> (Bool, GiphyObject?) {
@@ -172,67 +165,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         draggingContainer.addDashedBorder(color: borderColor, size: draggingContainer.bounds.size, lineWidth: 5)
         draggingContainer.layer?.cornerRadius = 10
         draggingContainer.isHidden = false
-    }
-    
-    func showImagePreview(data: Data, image: NSImage) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .Photo
-        
-        if let delegate = delegate, let _ = self.mediaData, let image = self.image {
-            delegate.imageDragged(image: image)
-        } else {
-            addImagePreviewView()
-            
-            imagePreview?.showImageWith(image: image, size: self.frame.size)
-            imagePreview?.isHidden = false
-            
-            chatDeleate?.attachmentAdded()
-        }
-    }
-    
-    func showPDFPreview(data: Data, image: NSImage, url: URL) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .PDF
-        
-        addImagePreviewView()
-        imagePreview?.showPDFWith(image: image, size: self.frame.size, data: data, url: url)
-        imagePreview?.isHidden = false
-    }
-    
-    func showGIFPreview(data: Data, image: NSImage?) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .Gif
-        
-        addImagePreviewView()
-        imagePreview?.showGifWith(data: data, size: self.frame.size)
-        imagePreview?.isHidden = false
-    }
-    
-    func showVideoPreview(data: Data, url: URL) {
-        resetView()
-        setData(data, image: nil)
-        mediaType = .Video
-        
-        addImagePreviewView()
-        imagePreview?.showVideoWith(data: data, size: self.frame.size, autoPlay: false)
-        imagePreview?.isHidden = false
-        
-        MediaLoader.getThumbnailImageFromVideoData(data: data, videoUrl: url.absoluteString, completion: { image in
-            self.setData(data, image: image)
-        })
-    }
-    
-    func showFilePreview(data: Data, url: URL) {
-        resetView()
-        setData(data, image: nil)
-        mediaType = .GenericFile
-        
-        addImagePreviewView()
-        imagePreview?.showFileWith(data: data, size: self.frame.size, url: url)
-        imagePreview?.isHidden = false
     }
     
     func showGiphyPreview(data: Data, object: GiphyObject) {
@@ -322,46 +254,37 @@ class DraggingDestinationView: NSView, LoadableNib {
         return false
     }
     
-    func processURLs(pasteBoard:NSPasteboard) -> Bool{
+    func processURLs(pasteBoard: NSPasteboard) -> Bool{
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
-
-        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL], urls.count == 1 {
-            let url = urls[0]
+        
+        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL] {
             
-            if !url.absoluteString.starts(with: "file://") {
-                return false
-            }
-            
-            if let data = getDataFrom(url: url) {
-                fileName = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped
+            if let delegate = delegate, urls.count == 1 {
+                let url = urls[0]
                 
                 if let image = NSImage(contentsOf: url) {
-                    if url.isPDF {
-                        showPDFPreview(data: data, image: image, url: url)
-                    } else if data.isAnimatedImage() {
-                        showGIFPreview(data: data, image: image)
-                    } else {
-                        showImagePreview(data: data, image: image)
-                    }
-                } else if url.isVideo {
-                    showVideoPreview(data: data, url: url)
-                } else {
-                    showFilePreview(data: data, url: url)
+                    resetView()
+                    delegate.imageDragged(image: image)
+                    return true
                 }
-                return true
             }
-        }
-        if let images = pasteBoard.readObjects(forClasses: [NSImage.self]),
-            images.count > 0,
-            let image = images[0] as? NSImage,
-            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
             
-            let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-            if let jpegData = bitmapRep.representation(using: NSBitmapImageRep.FileType.jpeg, properties: [:]) {
-                showImagePreview(data: jpegData, image: image)
-                return true
+            if let delegate = delegate, let _ = self.mediaData, let image = self.image {
+                delegate.imageDragged(image: image)
             }
+            
+            for url in urls {
+                if !url.absoluteString.starts(with: "file://") {
+                    continue
+                }
+                
+                if let data = getDataFrom(url: url) {
+                    chatDelegate?.attachmentAdded(url: url, data: data, image: image)
+                    resetView()
+                }
+            }
+            return true
         }
         return false
     }

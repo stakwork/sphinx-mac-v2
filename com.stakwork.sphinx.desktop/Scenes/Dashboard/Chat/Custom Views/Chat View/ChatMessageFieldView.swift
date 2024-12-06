@@ -40,11 +40,16 @@ class ChatMessageFieldView: NSView, LoadableNib {
     @IBOutlet weak var priceCancelButton: NSBox!
     @IBOutlet weak var priceCancelButtonWidthConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var attachmentsPreviewContainer: NSView!
+    @IBOutlet weak var attachmentsPreviewScrollView: NSScrollView!
+    @IBOutlet weak var attachmentsPreviewCollectionView: NSCollectionView!
+    
     let kTextViewVerticalMargins: CGFloat = 41
     let kTextViewLineHeight: CGFloat = 19
     let kMinimumPriceFieldWidth: CGFloat = 90
     let kPriceClearButtonWidth: CGFloat = 20
     let kPriceFieldPadding: CGFloat = 10
+    let kAttachmentsPreviewHeight: CGFloat = 180
     
     let kFieldPlaceHolder = "message.placeholder".localized
     
@@ -64,6 +69,9 @@ class ChatMessageFieldView: NSView, LoadableNib {
     
     var isAttachmentAdded = false
     var priceActive: Bool = false
+    var attachments : [AttachmentPreview] = [AttachmentPreview]()
+    
+    var attachmentsPreviewDataSource : AttachmentsPreviewDataSource? = nil
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -95,6 +103,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
         setupMicButton()
         setupIntermitentAlphaView()
         showPriceClearButton()
+        configureAttachmentsPreviewCollectionView()
     }
     
     func setupIntermitentAlphaView() {
@@ -135,7 +144,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         if let layer = stackView.layer {
             layer.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
-            layer.cornerRadius = stackView.frame.height / 2
+            layer.cornerRadius = 20
             layer.masksToBounds = true
         }
         
@@ -180,12 +189,19 @@ class ChatMessageFieldView: NSView, LoadableNib {
         sendButton.isEnabled = false
     }
     
-    func updateBottomBarHeight() -> Bool {
+    func getAttachmentsPreviewHeight() -> CGFloat {
+        if attachmentsPreviewContainer.isHidden {
+            return 0
+        }
+        return kAttachmentsPreviewHeight
+    }
+    
+    func updateBottomBarHeight(animated: Bool = false) -> Bool {
         let isAtBottom = delegate?.isChatAtBottom() ?? false
         
         let messageFieldContentHeight = messageTextView.contentSize.height
         let updatedHeight = messageFieldContentHeight + kTextViewVerticalMargins
-        let newFieldHeight = min(updatedHeight, kTextViewLineHeight * 11) + 12
+        let newFieldHeight = min(updatedHeight, kTextViewLineHeight * 11) + 12 + getAttachmentsPreviewHeight()
         
         if messageContainerHeightConstraint.constant == newFieldHeight {
             scrollMessageTextViewToBottom()
@@ -194,12 +210,28 @@ class ChatMessageFieldView: NSView, LoadableNib {
         }
         
         messageContainerHeightConstraint.constant = newFieldHeight
-        layoutSubtreeIfNeeded()
-        scrollMessageTextViewToBottom()
         
-        if isAtBottom {
-            delegate?.shouldScrollToBottom()
-        }
+//        if animated {
+//            AnimationHelper.animateViewWith(duration: 0.25, animationsBlock: {
+//                self.layoutSubtreeIfNeeded()
+//            }, completion: {})
+//            
+//            DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
+//                self.scrollMessageTextViewToBottom()
+//                
+//                if isAtBottom {
+//                    self.delegate?.shouldScrollToBottom()
+//                }
+//            })
+//        } else {
+            layoutSubtreeIfNeeded()
+            
+            scrollMessageTextViewToBottom()
+            
+            if isAtBottom {
+                delegate?.shouldScrollToBottom()
+            }
+//        }
         
         return true
     }
@@ -274,6 +306,31 @@ class ChatMessageFieldView: NSView, LoadableNib {
         return price > 0 && !text.isEmpty
     }
     
+    func isSendingMedia() -> Bool {
+        return !attachments.isEmpty
+    }
+    
+    func getAttachmentObjects(text: String, price: Int) -> [AttachmentObject] {
+        var attachmentObjects: [AttachmentObject] = []
+        
+        for (index, attachment) in attachments.enumerated() {
+            let (key, encryptedData) = SymmetricEncryptionManager.sharedInstance.encryptData(data: attachment.data)
+            if let encryptedData = encryptedData {
+                let attachmentObject = AttachmentObject(
+                    data: encryptedData,
+                    fileName: attachment.name,
+                    mediaKey: key,
+                    type: attachment.type,
+                    text: (index == attachments.count - 1) ? text : "",
+                    image: attachment.image,
+                    price: (index == attachments.count - 1) ? price : 0
+                )
+                attachmentObjects.append(attachmentObject)
+            }
+        }
+        return attachmentObjects
+    }
+    
     func toggleRecordingViews(show: Bool) {
         intermitentAlphaView.toggleAnimation(animate: show)
         
@@ -288,6 +345,18 @@ class ChatMessageFieldView: NSView, LoadableNib {
     
     func recordingProgress(minutes: String, seconds: String) {
         recordingTimeLabel.stringValue = "\(minutes):\(seconds)"
+    }
+    
+    func configureAttachmentsPreviewCollectionView() {
+        if attachmentsPreviewDataSource != nil {
+            return
+        }
+        
+        attachmentsPreviewDataSource = AttachmentsPreviewDataSource(
+            collectionView: attachmentsPreviewCollectionView,
+            scrollView: attachmentsPreviewScrollView,
+            delegate: self
+        )
     }
     
     @IBAction func attachmentsButtonClicked(_ sender: Any) {

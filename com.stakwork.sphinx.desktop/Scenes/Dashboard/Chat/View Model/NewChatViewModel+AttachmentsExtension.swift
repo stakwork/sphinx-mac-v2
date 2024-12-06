@@ -10,49 +10,54 @@ import Cocoa
 
 extension NewChatViewModel: AttachmentsManagerDelegate {
     
-    func insertProvisionalAttachmentMessageAndUpload(
-        attachmentObject: AttachmentObject,
+    func insertProvisionalAttachmentMessagesAndUpload(
+        attachmentObjects: [AttachmentObject],
         chat: Chat?,
         audioDuration: Double? = nil
     ) {
         let attachmentsManager = AttachmentsManager.sharedInstance
-
-        if let message = TransactionMessage.createProvisionalAttachmentMessage(
-            attachmentObject: attachmentObject,
-            date: Date(),
-            chat: chat,
-            replyUUID: replyingTo?.uuid,
-            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
-        ) {
-            
-            chatDataSource?.setMediaDataForMessageWith(
-                messageId: message.id,
-                mediaData: MessageTableCellState.MediaData(
-                    image: attachmentObject.image,
-                    data: attachmentObject.getDecryptedData(),
-                    fileInfo: attachmentObject.getFileInfo(),
-                    audioInfo: attachmentObject.getAudioInfo(duration: audioDuration),
-                    failed: false
-                )
-            )
-            
-            attachmentsManager.setData(
-                delegate: self,
-                contact: contact,
-                chat: chat,
-                provisionalMessage: message
-            )
-
-            chatDataSource?.setProgressForProvisional(messageId: message.id, progress: 0)
-
-            attachmentsManager.uploadAndSendAttachment(
+        var updatedAttachmentObjects: [AttachmentObject] = []
+        
+        for (index, var attachmentObject) in attachmentObjects.enumerated() {
+            if let message = TransactionMessage.createProvisionalAttachmentMessage(
                 attachmentObject: attachmentObject,
+                date: Date(),
                 chat: chat,
-                provisionalMessage: message,
-                replyingMessage: replyingTo,
+                replyUUID: (index == attachmentObjects.count - 1) ? replyingTo?.uuid : nil,
                 threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
-            )
+            ) {
+                
+                chatDataSource?.setMediaDataForMessageWith(
+                    messageId: message.id,
+                    mediaData: MessageTableCellState.MediaData(
+                        image: attachmentObject.image,
+                        data: attachmentObject.getDecryptedData(),
+                        fileInfo: attachmentObject.getFileInfo(),
+                        audioInfo: attachmentObject.getAudioInfo(duration: audioDuration),
+                        failed: false
+                    )
+                )
+                
+                attachmentObject.provisionalMsg = message
+                updatedAttachmentObjects.append(attachmentObject)
+
+                chatDataSource?.setProgressForProvisional(messageId: message.id, progress: 0)
+            }
         }
+        
+        attachmentsManager.setData(
+            delegate: self,
+            contact: contact,
+            chat: chat
+        )
+        
+        attachmentsManager.uploadAndSendAttachments(
+            attachmentObjects: updatedAttachmentObjects,
+            index: 0,
+            chat: chat,
+            replyingMessage: replyingTo,
+            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+        )
 
         resetReply()
     }
@@ -148,8 +153,8 @@ extension NewChatViewModel {
                     type: AttachmentsManager.AttachmentType.Audio
                 )
 
-                insertProvisionalAttachmentMessageAndUpload(
-                    attachmentObject: attachmentObject,
+                insertProvisionalAttachmentMessagesAndUpload(
+                    attachmentObjects: [attachmentObject],
                     chat: chat,
                     audioDuration: audioData.1
                 )
