@@ -190,16 +190,13 @@ extension NewChatViewController : GroupDetailsDelegate {
 
 extension NewChatViewController : ChatBottomViewDelegate {
     
-    func getAttachmentObject(
+    func getAttachmentObjects(
         text: String,
         price: Int
-    ) -> AttachmentObject? {
-        if draggingView.isSendingMedia() {
-            let attachmentObject = draggingView.getData(
-                price: price,
-                text: text
-            )
-            return attachmentObject
+    ) -> [AttachmentObject] {
+        if chatBottomView.isSendingMedia() {
+            let attachmentObjects = chatBottomView.getAttachmentObjects(text: text, price: price)
+            return attachmentObjects
         } else {
             if let data = text.data(using: .utf8) {
                 let (key, encryptedData) = SymmetricEncryptionManager.sharedInstance.encryptData(data: data)
@@ -214,11 +211,11 @@ extension NewChatViewController : ChatBottomViewDelegate {
                         price: price,
                         contactPubkey: chat?.getContact()?.publicKey
                     )
-                    return attachmentObject
+                    return [attachmentObject]
                 }
             }
         }
-        return nil
+        return []
     }
     
     func shouldSendMessage(
@@ -229,26 +226,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
         
-        if shouldUploadMedia() {
-            
-            let attachmentObject = getAttachmentObject(
-                text: text,
-                price: price
-            )
-            
-            draggingView.setup()
-            
-            if let attachmentObject = attachmentObject {
-                newChatViewModel.insertProvisionalAttachmentMessageAndUpload(
-                    attachmentObject: attachmentObject, 
-                    chat: chat
-                )
-            } else {
-                messageBubbleHelper.showGenericMessageView(
-                    text: "generic.error.message".localized, in: view
-                )
-            }
-        } else if let text = giphyText(text: text), let data = draggingView.getMediaData() {
+        if let text = giphyText(text: text), let data = draggingView.getMediaData() {
             
             draggingView.setup()
             
@@ -260,6 +238,25 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     completion(success)
                 }
             )
+        } else if shouldUploadMedia() {
+            
+            let attachmentObjects = getAttachmentObjects(
+                text: text,
+                price: price
+            )
+            
+//            draggingView.setup()
+            
+//            if let attachmentObject = attachmentObject {
+//                newChatViewModel.insertProvisionalAttachmentMessageAndUpload(
+//                    attachmentObject: attachmentObject, 
+//                    chat: chat
+//                )
+//            } else {
+//                messageBubbleHelper.showGenericMessageView(
+//                    text: "generic.error.message".localized, in: view
+//                )
+//            }
         } else {
             newChatViewModel.shouldSendMessage(
                 text: text,
@@ -293,7 +290,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
     }
     
     func shouldUploadMedia() -> Bool {
-        return draggingView.isSendingMedia() || chatBottomView.isPaidTextMessage()
+        return chatBottomView.isPaidTextMessage() ||
+                chatBottomView.isSendingMedia()
     }
     
     func didClickAttachmentsButton() {
@@ -448,7 +446,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
     func isMessageLengthValid(
         text: String
     ) -> Bool {
-        let sendingAttachment = draggingView.isSendingMedia()
+        let sendingAttachment = chatBottomView.isSendingMedia()
         
         return SphinxOnionManager.sharedInstance.isMessageLengthValid(
             text: text,
@@ -461,6 +459,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
 
 extension NewChatViewController : GiphySearchViewDelegate {
     func didSelectGiphy(object: GiphyObject, data: Data) {
+        chatBottomView.toggleAttachmentsAdded()
         draggingView.showGiphyPreview(data: data, object: object)
     }
 }
@@ -540,11 +539,7 @@ extension NewChatViewController : ThreadsListViewControllerDelegate {
 }
 
 extension NewChatViewController : ChatDraggingViewDelegate {
-    func attachmentAdded(url: URL, data: Data?, image: NSImage?) {
+    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
         chatBottomView.attachmentAdded(url: url, data: data, image: image)
-    }
-    
-    func attachmentRemoved() {
-        chatBottomView.toggleAttachmentAdded(false)
     }
 }

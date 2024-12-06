@@ -16,8 +16,9 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
             attachments: self.attachments
         )
         
+        toggleAttachmentsAdded()
+        
         if attachments.isEmpty {
-            toggleAttachmentAdded(false)
             attachmentsPreviewContainer.isHidden = true
         } else {
             attachmentsPreviewContainer.isHidden = false
@@ -26,15 +27,15 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
         let _ = updateBottomBarHeight(animated: true)
     }
     
-    func attachmentAdded(url: URL, data: Data?, image: NSImage?) {
-        if attachments.count >= 10 {
+    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
+        if attachments.count >= 5 {
             return
         }
         
-        toggleAttachmentAdded(true)
-        
         let attachment = AttachmentPreview(url: url, data: data, image: image)
         attachments.append(attachment)
+        
+        toggleAttachmentsAdded()
         
         attachmentsPreviewDataSource?.updateAttachments(
             attachments: self.attachments

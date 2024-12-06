@@ -98,7 +98,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func togglePriceContainer() {
-        priceContainer.isHidden = isThread || (!isAttachmentAdded && messageTextView.string.isEmpty)
+        priceContainer.isHidden = isThread || attachments.count > 1 || (attachments.isEmpty && messageTextView.string.isEmpty)
     }
     
     func toggleSendMicButton() {
@@ -106,8 +106,8 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         micButton.isHidden = !sendButton.isHidden
     }
     
-    func toggleAttachmentAdded(_ attachmentAdded: Bool) {
-        isAttachmentAdded = attachmentAdded
+    func toggleAttachmentsAdded() {
+        isAttachmentAdded = attachments.count > 0
         
         togglePriceContainer()
         toggleSendMicButton()

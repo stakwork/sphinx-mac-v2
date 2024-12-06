@@ -306,6 +306,31 @@ class ChatMessageFieldView: NSView, LoadableNib {
         return price > 0 && !text.isEmpty
     }
     
+    func isSendingMedia() -> Bool {
+        return !attachments.isEmpty
+    }
+    
+    func getAttachmentObjects(text: String, price: Int) -> [AttachmentObject] {
+        var attachmentObjects: [AttachmentObject] = []
+        
+        for (index, attachment) in attachments.enumerated() {
+            let (key, encryptedData) = SymmetricEncryptionManager.sharedInstance.encryptData(data: attachment.data)
+            if let encryptedData = encryptedData {
+                let attachmentObject = AttachmentObject(
+                    data: encryptedData,
+                    fileName: attachment.name,
+                    mediaKey: key,
+                    type: attachment.type,
+                    text: (index == attachments.count - 1) ? text : "",
+                    image: attachment.image,
+                    price: (index == attachments.count - 1) ? price : 0
+                )
+                attachmentObjects.append(attachmentObject)
+            }
+        }
+        return attachmentObjects
+    }
+    
     func toggleRecordingViews(show: Bool) {
         intermitentAlphaView.toggleAnimation(animate: show)
         

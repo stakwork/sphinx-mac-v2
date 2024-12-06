@@ -59,25 +59,23 @@ class AttachmentPreviewCollectionViewItem: NSCollectionViewItem {
         resetAllViews()
         
         switch (item.type) {
-        case .imageAttachment:
-            if item.isAnimated {
-                if let animation = item.data?.createGIFAnimation() {
-                    gifView.isHidden = false
-                    gifView.wantsLayer = true
-                    gifView.layer?.cornerRadius = 10
-                    gifView.layer?.contents = nil
-                    gifView.layer?.contentsGravity = .resizeAspect
-                    gifView.layer?.add(animation, forKey: "contents")
-                }
-            } else {
-                attachmentImageView.isHidden = false
-                attachmentImageView.gravity = .resizeAspectFill
-                attachmentImageView.image = item.image
+        case .Photo:
+            attachmentImageView.isHidden = false
+            attachmentImageView.gravity = .resizeAspectFill
+            attachmentImageView.image = item.image
+        case .Gif:
+            if let animation = item.data.createGIFAnimation() {
+                gifView.isHidden = false
+                gifView.wantsLayer = true
+                gifView.layer?.cornerRadius = 10
+                gifView.layer?.contents = nil
+                gifView.layer?.contentsGravity = .resizeAspect
+                gifView.layer?.add(animation, forKey: "contents")
             }
-        case .videoAttachment:
-            if let videoData = item.data, let videoUrl = item.url {
+        case .Video:
+            if let videoUrl = item.url {
                 MediaLoader.getThumbnailImageFromVideoData(
-                    data: videoData,
+                    data: item.data,
                     videoUrl: videoUrl.absoluteString,
                     completion: { image in
                         self.attachmentImageView.isHidden = false
@@ -87,11 +85,11 @@ class AttachmentPreviewCollectionViewItem: NSCollectionViewItem {
                 )
             }
             videoButtonView.isHidden = false
-        case .pdfAttachment:
-            if let image = item.data?.getPDFImage(ofPage: 0) {
+        case .PDF:
+            if let image = item.data.getPDFImage(ofPage: 0) {
                 attachmentImageView.isHidden = false
                 attachmentImageView.gravity = .resizeAspectFill
-                attachmentImageView.image = item.image
+                attachmentImageView.image = image
             } else {
                 fileButton.isHidden = false
                 fileButton.title = "picture_as_pdf"
@@ -99,7 +97,7 @@ class AttachmentPreviewCollectionViewItem: NSCollectionViewItem {
             fileInfoView.isHidden = false
             fileNameLabel.stringValue = item.name ?? "File"
             fileDescriptionLabel.stringValue = (item.pagesCount == 1) ? "\(item.pagesCount ?? 0) page" : "\(item.pagesCount ?? 0) pages"
-        case .fileAttachment:
+        case .GenericFile:
             fileButton.isHidden = false
             fileInfoView.isHidden = false
             fileNameLabel.stringValue = item.name ?? "File"

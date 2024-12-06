@@ -138,6 +138,14 @@ class ChatBottomView: NSView, LoadableNib {
         return messageFieldView.isPaidTextMessage()
     }
     
+    func isSendingMedia() -> Bool {
+        return messageFieldView.isSendingMedia()
+    }
+    
+    func getAttachmentObjects(text: String, price: Int) -> [AttachmentObject] {
+        return messageFieldView.getAttachmentObjects(text: text, price: price)
+    }
+    
     func configureReplyViewFor(
         message: TransactionMessage? = nil,
         podcastComment: PodcastComment? = nil,
@@ -178,11 +186,11 @@ class ChatBottomView: NSView, LoadableNib {
         messageFieldView.recordingProgress(minutes: minutes, seconds: seconds)
     }
     
-    func toggleAttachmentAdded(_ attachmentAdded: Bool) {
-        messageFieldView.toggleAttachmentAdded(attachmentAdded)
+    func toggleAttachmentsAdded() {
+        messageFieldView.toggleAttachmentsAdded()
     }
     
-    func attachmentAdded(url: URL, data: Data?, image: NSImage?) {
+    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
         messageFieldView.attachmentAdded(url: url, data: data, image: image)
     }
 }

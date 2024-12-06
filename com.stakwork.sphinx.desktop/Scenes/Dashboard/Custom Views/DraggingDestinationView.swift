@@ -13,7 +13,7 @@ protocol DraggingViewDelegate: AnyObject {
 }
 
 protocol ChatDraggingViewDelegate: AnyObject {
-    func attachmentAdded(url: URL, data: Data?, image: NSImage?)
+    func attachmentAdded(url: URL, data: Data, image: NSImage?)
 }
 
 class DraggingDestinationView: NSView, LoadableNib {
@@ -138,10 +138,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         reset()
     }
     
-    func isSendingMedia() -> Bool {
-        return mediaData != nil && giphyObject == nil
-    }
-    
     func isSendingGiphy() -> (Bool, GiphyObject?) {
         return (giphyObject != nil, giphyObject)
     }
@@ -169,65 +165,6 @@ class DraggingDestinationView: NSView, LoadableNib {
         draggingContainer.addDashedBorder(color: borderColor, size: draggingContainer.bounds.size, lineWidth: 5)
         draggingContainer.layer?.cornerRadius = 10
         draggingContainer.isHidden = false
-    }
-    
-    func showImagePreview(data: Data, image: NSImage) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .Photo
-        
-        if let delegate = delegate, let _ = self.mediaData, let image = self.image {
-            delegate.imageDragged(image: image)
-        } else {
-            addImagePreviewView()
-            
-            imagePreview?.showImageWith(image: image, size: self.frame.size)
-            imagePreview?.isHidden = false
-        }
-    }
-    
-    func showPDFPreview(data: Data, image: NSImage, url: URL) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .PDF
-        
-        addImagePreviewView()
-        imagePreview?.showPDFWith(image: image, size: self.frame.size, data: data, url: url)
-        imagePreview?.isHidden = false
-    }
-    
-    func showGIFPreview(data: Data, image: NSImage?) {
-        resetView()
-        setData(data, image: image)
-        mediaType = .Gif
-        
-        addImagePreviewView()
-        imagePreview?.showGifWith(data: data, size: self.frame.size)
-        imagePreview?.isHidden = false
-    }
-    
-    func showVideoPreview(data: Data, url: URL) {
-        resetView()
-        setData(data, image: nil)
-        mediaType = .Video
-        
-        addImagePreviewView()
-        imagePreview?.showVideoWith(data: data, size: self.frame.size, autoPlay: false)
-        imagePreview?.isHidden = false
-        
-        MediaLoader.getThumbnailImageFromVideoData(data: data, videoUrl: url.absoluteString, completion: { image in
-            self.setData(data, image: image)
-        })
-    }
-    
-    func showFilePreview(data: Data, url: URL) {
-        resetView()
-        setData(data, image: nil)
-        mediaType = .GenericFile
-        
-        addImagePreviewView()
-        imagePreview?.showFileWith(data: data, size: self.frame.size, url: url)
-        imagePreview?.isHidden = false
     }
     
     func showGiphyPreview(data: Data, object: GiphyObject) {

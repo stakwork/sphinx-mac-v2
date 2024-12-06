@@ -198,14 +198,18 @@ class NewChatViewController: DashboardSplittedViewController {
         }
     
         escapeMonitor = nil
-    
-        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { (event) in
+        
+        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self else {
+                return nil
+            }
+            
             if event.keyCode == 53 { // 53 is the key code for the Escape key
                 if self.isThread {
                     if let mediaFullScreenView = self.mediaFullScreenView {
                         mediaFullScreenView.closeView()
                         return nil
-                    } else if self.draggingView.isSendingMedia() {
+                    } else if self.chatBottomView.isSendingMedia() {
                         self.draggingView.setup()
                         return nil
                     }
