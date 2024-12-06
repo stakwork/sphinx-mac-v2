@@ -245,18 +245,18 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 price: price
             )
             
-//            draggingView.setup()
-            
-//            if let attachmentObject = attachmentObject {
-//                newChatViewModel.insertProvisionalAttachmentMessageAndUpload(
-//                    attachmentObject: attachmentObject, 
-//                    chat: chat
-//                )
-//            } else {
-//                messageBubbleHelper.showGenericMessageView(
-//                    text: "generic.error.message".localized, in: view
-//                )
-//            }
+            if !attachmentObjects.isEmpty {
+                chatBottomView.resetAttachments()
+                
+                newChatViewModel.insertProvisionalAttachmentMessagesAndUpload(
+                    attachmentObjects: attachmentObjects,
+                    chat: chat
+                )
+            } else {
+                messageBubbleHelper.showGenericMessageView(
+                    text: "generic.error.message".localized, in: view
+                )
+            }
         } else {
             newChatViewModel.shouldSendMessage(
                 text: text,

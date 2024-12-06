@@ -142,6 +142,10 @@ class ChatBottomView: NSView, LoadableNib {
         return messageFieldView.isSendingMedia()
     }
     
+    func resetAttachments() {
+        messageFieldView.resetAttachments()
+    }
+    
     func getAttachmentObjects(text: String, price: Int) -> [AttachmentObject] {
         return messageFieldView.getAttachmentObjects(text: text, price: price)
     }

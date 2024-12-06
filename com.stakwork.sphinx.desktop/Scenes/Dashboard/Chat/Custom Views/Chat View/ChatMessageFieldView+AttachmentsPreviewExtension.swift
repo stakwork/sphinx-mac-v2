@@ -45,4 +45,12 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
         
         let _ = updateBottomBarHeight(animated: true)
     }
+    
+    func resetAttachments() {
+        attachments = []
+        toggleAttachmentsAdded()
+        attachmentsPreviewDataSource?.updateAttachments(attachments: [])
+        attachmentsPreviewContainer.isHidden = true
+        let _ = updateBottomBarHeight(animated: true)
+    }
 }
