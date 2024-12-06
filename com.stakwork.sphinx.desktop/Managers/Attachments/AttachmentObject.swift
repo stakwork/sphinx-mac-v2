@@ -17,6 +17,7 @@ public struct AttachmentObject {
     var paidMessage: String?
     var price: Int = 0
     var fileName: String? = nil
+    var provisionalMsg: TransactionMessage? = nil
     
     init(
         data: Data,

@@ -16,13 +16,14 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         audioDuration: Double? = nil
     ) {
         let attachmentsManager = AttachmentsManager.sharedInstance
+        var updatedAttachmentObjects: [AttachmentObject] = []
         
-        for attachmentObject in attachmentObjects {
+        for (index, var attachmentObject) in attachmentObjects.enumerated() {
             if let message = TransactionMessage.createProvisionalAttachmentMessage(
                 attachmentObject: attachmentObject,
                 date: Date(),
                 chat: chat,
-                replyUUID: replyingTo?.uuid,
+                replyUUID: (index == attachmentObjects.count - 1) ? replyingTo?.uuid : nil,
                 threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
             ) {
                 
@@ -37,24 +38,26 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
                     )
                 )
                 
-                attachmentsManager.setData(
-                    delegate: self,
-                    contact: contact,
-                    chat: chat,
-                    provisionalMessage: message
-                )
+                attachmentObject.provisionalMsg = message
+                updatedAttachmentObjects.append(attachmentObject)
 
                 chatDataSource?.setProgressForProvisional(messageId: message.id, progress: 0)
-
-    //            attachmentsManager.uploadAndSendAttachment(
-    //                attachmentObject: attachmentObject,
-    //                chat: chat,
-    //                provisionalMessage: message,
-    //                replyingMessage: replyingTo,
-    //                threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
-    //            )
             }
         }
+        
+        attachmentsManager.setData(
+            delegate: self,
+            contact: contact,
+            chat: chat
+        )
+        
+        attachmentsManager.uploadAndSendAttachments(
+            attachmentObjects: updatedAttachmentObjects,
+            index: 0,
+            chat: chat,
+            replyingMessage: replyingTo,
+            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+        )
 
         resetReply()
     }
