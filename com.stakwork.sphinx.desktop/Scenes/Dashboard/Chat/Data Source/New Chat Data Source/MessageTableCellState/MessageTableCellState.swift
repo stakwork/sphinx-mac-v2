@@ -869,6 +869,15 @@ struct MessageTableCellState {
         }
     }
     
+    var hashMessageId: Int? {
+        get {
+            if threadMessages.count > 1 {
+                return threadMessages.first?.id
+            }
+            return self.message?.id
+        }
+    }
+    
     ///Message to decide bubble direction and status info - sender name, date
     var headerAndBubbleMessage: TransactionMessage? {
         get {
@@ -971,7 +980,7 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self.messageToShow?.id)
+        hasher.combine(self.hashMessageId)
     }
     
     func getUniqueIdentifier() -> Int {

@@ -638,7 +638,10 @@ class DashboardViewController: NSViewController {
             }
             
             if event.keyCode == 53 {
-                if self.mediaFullScreenView?.isHidden == false {
+                if let windowToClose = WindowsManager.sharedInstance.getLastTaggedWindows(), windowToClose.isKeyWindow {
+                    windowToClose.close()
+                    return nil
+                } else if self.mediaFullScreenView?.isHidden == false {
                     self.mediaFullScreenView?.closeView()
                     return nil
                 ///Hide dashboard views popups (Profile, Create Tribe, etc)

@@ -124,10 +124,10 @@ class JoinTribeViewController: NSViewController {
         tribeNameLabel.stringValue = tribeInfo?.name ?? ""
         tribeDescriptionLabel.stringValue = tribeInfo?.description ?? ""
         
-        priceToJoin.stringValue = "\(tribeInfo?.priceToJoin ?? 0)"
-        pricePerMessage.stringValue = "\(tribeInfo?.pricePerMessage ?? 0)"
-        amountToStake.stringValue = "\(tribeInfo?.amountToStake ?? 0)"
-        timeToStake.stringValue = "\(tribeInfo?.timeToStake ?? 0)"
+        priceToJoin.stringValue = "\((tribeInfo?.priceToJoin ?? 0) / 1000)"
+        pricePerMessage.stringValue = "\((tribeInfo?.pricePerMessage ?? 0) / 1000)"
+        amountToStake.stringValue = "\((tribeInfo?.amountToStake ?? 0) / 1000)"
+        timeToStake.stringValue = "\((tribeInfo?.timeToStake ?? 0) / 1000)"
         
         tribeImageView.borderColor = NSColor.Sphinx.SecondaryText.cgColor
         tribeImageView.bordered = true

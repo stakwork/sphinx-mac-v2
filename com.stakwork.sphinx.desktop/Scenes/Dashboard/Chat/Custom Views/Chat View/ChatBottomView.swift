@@ -142,6 +142,10 @@ class ChatBottomView: NSView, LoadableNib {
         return messageFieldView.isSendingMedia()
     }
     
+    func shouldRemoveItemAt(index: Int?) {
+        messageFieldView.shouldRemoveItemAt(index: index)
+    }
+    
     func resetAttachments() {
         messageFieldView.resetAttachments()
     }

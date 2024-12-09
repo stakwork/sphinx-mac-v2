@@ -6,10 +6,16 @@
 //  Copyright © 2024 Tomas Timinskas. All rights reserved.
 //
 
-import Foundation
+import Cocoa
 
 extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
-    func shouldRemoveItemAt(index: Int) {
+    func shouldRemoveItemAt(index: Int?) {
+        let index = index ?? attachments.count - 1
+        
+        if index > attachments.count - 1 {
+            return
+        }
+        
         attachments.remove(at: index)
         
         attachmentsPreviewDataSource?.updateAttachments(
