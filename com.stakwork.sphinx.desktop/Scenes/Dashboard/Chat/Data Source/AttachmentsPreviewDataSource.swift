@@ -9,7 +9,7 @@
 import Cocoa
 
 protocol AttachmentPreviewDataSourceDelegate: AnyObject {
-    func shouldRemoveItemAt(index: Int)
+    func shouldRemoveItemAt(index: Int?)
 }
 
 class AttachmentsPreviewDataSource : NSObject {

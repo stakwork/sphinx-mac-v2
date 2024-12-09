@@ -176,6 +176,8 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
                     minWidth: 450,
                     resizable: resizable
                 )
+                
+                (newVC as? NewChatViewController)?.setMessageFieldActive()
             }
         }
     }

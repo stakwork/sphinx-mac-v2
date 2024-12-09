@@ -53,6 +53,14 @@ class WindowsManager {
         return WindowState(frame: initialFrame, minSize: minSize, menuCollapsed: false)
     }
     
+    func getLastTaggedWindows() -> TaggedWindow? {
+        return NSApplication.shared.windows.filter({
+            $0.isKind(of: TaggedWindow.self) && 
+            ($0 as? TaggedWindow)?.windowIdentifier?.contains("web-app") == false &&
+            ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.chat") == false
+        }).last as? TaggedWindow
+    }
+    
     func getCenteredFrameFor(size: CGSize) -> CGRect {
         let mainScreen = NSScreen.main
         let centerPoint = CGPoint(x: ((mainScreen?.frame.width ?? 1000) / 2) - (size.width / 2), y: ((mainScreen?.frame.height ?? 735) / 2) - (size.height / 2))
@@ -401,8 +409,7 @@ class WindowsManager {
                           identifier: chat.getWebAppIdentifier(),
                           styleMask: [.titled, .resizable, .closable],
                           contentVC: webGameVC)
-        }
-        else{
+        } else {
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
         }
     }

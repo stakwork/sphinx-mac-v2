@@ -205,12 +205,12 @@ class NewChatViewController: DashboardSplittedViewController {
             }
             
             if event.keyCode == 53 { // 53 is the key code for the Escape key
-                if self.isThread {
+                if self.chatBottomView.isSendingMedia() {
+                    self.chatBottomView.shouldRemoveItemAt(index: nil)
+                    return nil
+                } else if self.isThread {
                     if let mediaFullScreenView = self.mediaFullScreenView {
                         mediaFullScreenView.closeView()
-                        return nil
-                    } else if self.chatBottomView.isSendingMedia() {
-                        self.draggingView.setup()
                         return nil
                     }
                 } else if !self.pinMessageDetailView.isHidden {
@@ -357,6 +357,8 @@ class NewChatViewController: DashboardSplittedViewController {
             shouldReplace: false,
             panelFixedWidth: true
         )
+        
+        threadVC.setMessageFieldActive()
     }
     
     func resizeSubviews(frame: NSRect) {

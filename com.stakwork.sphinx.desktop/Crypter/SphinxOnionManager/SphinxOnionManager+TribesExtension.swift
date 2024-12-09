@@ -107,7 +107,7 @@ extension SphinxOnionManager {
 //            return false
 //        }
         
-        guard let seed = getAccountSeed() else{
+        guard let seed = getAccountSeed() else {
             return false
         }
         
