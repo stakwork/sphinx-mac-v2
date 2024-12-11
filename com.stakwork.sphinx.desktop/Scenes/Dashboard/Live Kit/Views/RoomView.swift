@@ -173,21 +173,22 @@ struct RoomView: View {
 
     func content(geometry: GeometryProxy) -> some View {
         VStack {
-            if showConnectionTime {
-                Text("Connected (\([room.serverRegion, room.serverNodeId, "\(String(describing: room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
-                    .padding()
-            }
+//            if showConnectionTime {
+//                Text("Connected (\([room.serverRegion, room.serverNodeId, "\(String(describing: room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
+//                    .multilineTextAlignment(.center)
+//                    .foregroundColor(.white)
+//                    .padding()
+//            }
             
             if case .connecting = room.connectionState {
-                Text("Re-connecting...")
+                Text("Connecting...")
                     .multilineTextAlignment(.center)
+                    .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                     .foregroundColor(.white)
                     .padding()
             }
             
-            HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 5) {
+            HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 0) {
                 Group {
                     if let focusParticipant = roomCtx.focusParticipant {
                         ZStack(alignment: .bottomTrailing) {
@@ -196,24 +197,11 @@ struct RoomView: View {
                             { _ in
                                 roomCtx.focusParticipant = nil
                             }
-                            .overlay(RoundedRectangle(cornerRadius: 5)
-                                .stroke(Color(NSColor.Sphinx.PrimaryGreen).opacity(1.0), lineWidth: 3))
-                            
-                            Text("SELECTED")
-                                .font(.system(size: 10))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.white)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(Color(NSColor.Sphinx.PrimaryGreen).opacity(0.7))
-                                .cornerRadius(8)
-                                .padding(.vertical, 35)
-                                .padding(.horizontal, 10)
                         }
                         
                     } else {
                         // Array([room.allParticipants.values, room.allParticipants.values].joined())
-                        ParticipantLayout(sortedParticipants(), spacing: 5) { participant in
+                        ParticipantLayout(sortedParticipants(), spacing: 0) { participant in
                             ParticipantView(participant: participant,
                                             videoViewMode: appCtx.videoViewMode)
                             { participant in
@@ -354,9 +342,9 @@ struct RoomView: View {
                            }
                         },
                         label: {
-                           Image(systemSymbol: .videoFill)
+                            Image(systemSymbol: isCameraEnabled ? .videoFill : .videoSlashFill)
                                .renderingMode(.template)
-                               .foregroundColor(Color.white)
+                               .foregroundColor(isCameraEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                                .font(.system(size: 16))
                         })
                         // disable while publishing/un-publishing
@@ -510,7 +498,7 @@ struct RoomView: View {
                         }
                     }
                     
-                    Text("4")
+                    Text("\(room.allParticipants.count)")
                         .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
                         .foregroundColor(Color.white)
                         .padding(.trailing, 8)

@@ -88,6 +88,8 @@ final class RoomContext: ObservableObject {
     @Published var textFieldString: String = ""
 
     var _connectTask: Task<Void, Error>?
+    
+    var colors: [String: Color] = [:]
 
     public init(
         store: ValueStore<Preferences>
@@ -308,6 +310,20 @@ extension RoomContext: RoomDelegate {
 
     func room(_: Room, trackPublication _: TrackPublication, didUpdateE2EEState state: E2EEState) {
         print("didUpdateE2EEState: \(state)")
+    }
+}
+
+extension RoomContext {
+    func getColorForParticipan(participantId: String?) -> Color? {
+        guard let participantId = participantId else {
+            return nil
+        }
+        if let color = colors[participantId] {
+            return color
+        }
+        let randomColor = Color(NSColor.random())
+        colors[participantId] = randomColor
+        return randomColor
     }
 }
 

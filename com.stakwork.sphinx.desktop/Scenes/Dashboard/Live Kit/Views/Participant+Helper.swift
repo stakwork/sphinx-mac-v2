@@ -16,6 +16,7 @@
 
 import LiveKit
 import SwiftyJSON
+import SwiftUI
 
 public extension Participant {
     var mainVideoPublication: TrackPublication? {
@@ -41,5 +42,5 @@ public extension Participant {
             }
             return nil
         }
-    }
+    }    
 }

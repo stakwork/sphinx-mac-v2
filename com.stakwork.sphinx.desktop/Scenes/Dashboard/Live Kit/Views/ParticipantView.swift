@@ -23,6 +23,7 @@ import SDWebImageSwiftUI
 struct ParticipantView: View {
     @ObservedObject var participant: Participant
     @EnvironmentObject var appCtx: AppContext
+    @EnvironmentObject var roomCtx: RoomContext
 
     var videoViewMode: VideoView.LayoutMode = .fill
     var onTap: ((_ participant: Participant) -> Void)?
@@ -50,7 +51,13 @@ struct ParticipantView: View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
                 // Background color
-                Color(NSColor.Sphinx.HeaderBG).ignoresSafeArea()
+                Color(NSColor.Sphinx.HeaderBG)
+                    .ignoresSafeArea()
+                    .overlay(
+                        participant.isSpeaking ?
+                            RoundedRectangle(cornerRadius: 8).stroke(Color(NSColor.Sphinx.PrimaryBlue), lineWidth: 3.0)
+                            : nil
+                    )
 
                 // VideoView for the Participant
                 if let publication = participant.mainVideoPublication,
@@ -58,20 +65,25 @@ struct ParticipantView: View {
                    let track = publication.track as? VideoTrack,
                    appCtx.videoViewVisible
                 {
-                    ZStack(alignment: .topLeading) {
+                    ZStack(alignment: .center) {
                         SwiftUIVideoView(track,
-                                         layoutMode: videoViewMode,
+                                         layoutMode: .fill,
                                          mirrorMode: appCtx.videoViewMirrored ? .mirror : .auto,
                                          renderMode: appCtx.preferSampleBufferRendering ? .sampleBuffer : .auto,
                                          pinchToZoomOptions: appCtx.videoViewPinchToZoomOptions,
                                          isDebugMode: appCtx.showInformationOverlay,
                                          isRendering: $isRendering)
+                        .cornerRadius(8)
                         
                         if !isRendering {
                             ProgressView().progressViewStyle(CircularProgressViewStyle())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         }
-                    }
+                    }.overlay(
+                        participant.isSpeaking ?
+                            RoundedRectangle(cornerRadius: 8).stroke(Color(NSColor.Sphinx.PrimaryBlue), lineWidth: 3.0)
+                            : nil
+                    )
                 } else if let profilePictureUrl = participant.profilePictureUrl, let url = URL(string: profilePictureUrl) {
                     WebImage(url: url)
                         .onSuccess { _,_,_ in
@@ -82,10 +94,7 @@ struct ParticipantView: View {
                         }
                         .resizable()
                         .scaledToFill()
-                        .frame(
-                            width: min(geometry.size.width, geometry.size.height) * 0.8,
-                            height: min(geometry.size.width, geometry.size.height) * 0.8
-                        )
+                        .frame(width: 146.0, height: 146.0)
                         .clipped()
                         .cornerRadius(min(geometry.size.width, geometry.size.height) * 0.4)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -97,12 +106,17 @@ struct ParticipantView: View {
                             }
                         )
                 } else {
-                    if let publication = participant.mainVideoPublication as? RemoteTrackPublication,
-                       case .notAllowed = publication.subscriptionState {
-                        bgView(systemSymbol: .exclamationmarkCircle, geometry: geometry)
-                    } else {
-                        bgView(systemSymbol: .videoSlashFill, geometry: geometry)
-                    }
+                    ZStack(alignment: .center) {
+                        Circle()
+                            .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                            .frame(maxWidth: 146.0, maxHeight: 146.0)
+
+                        Text((participant.name ?? "Unknow").getInitialsFromName())
+                            .font(Font(NSFont(name: "Roboto-Medium", size: 70.0)!))
+                            .foregroundColor(Color.white)
+                            .frame(width: 146.0, height: 130.0)
+                            .padding(.top, 8.0)
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 if appCtx.showInformationOverlay {
@@ -146,146 +160,162 @@ struct ParticipantView: View {
                     }
 
                     // Bottom user info bar
-                    HStack {
+                    HStack(spacing: 4.0) {
+                        ZStack(alignment: .center) {
+                            if let publication = participant.firstAudioPublication,
+                               !publication.isMuted
+                            {
+                                // is remote
+                                if participant.isSpeaking {
+                                    Circle()
+                                        .fill(Color.white)
+                                        .frame(maxWidth: 24.0, maxHeight: 24.0)
+                                    Image(systemSymbol: .waveformCircleFill)
+                                        .renderingMode(.template)
+                                        .foregroundColor(Color(NSColor.Sphinx.PrimaryBlue))
+                                        .font(.system(size: 24))
+                                } else {
+                                    if let remotePub = publication as? RemoteTrackPublication {
+                                        Menu {
+                                            if case .subscribed = remotePub.subscriptionState {
+                                                Button {
+                                                    Task {
+                                                        try await remotePub.set(subscribed: false)
+                                                    }
+                                                } label: {
+                                                    Text("Unsubscribe")
+                                                }
+                                            } else if case .unsubscribed = remotePub.subscriptionState {
+                                                Button {
+                                                    Task {
+                                                        try await remotePub.set(subscribed: true)
+                                                    }
+                                                } label: {
+                                                    Text("Subscribe")
+                                                }
+                                            }
+                                        } label: {
+                                            if case .subscribed = remotePub.subscriptionState {
+                                                Image(systemSymbol: .micFill)
+                                                    .foregroundColor(Color.white)
+                                                    .font(.system(size: 14))
+                                            } else if case .notAllowed = remotePub.subscriptionState {
+                                                Image(systemSymbol: .exclamationmarkCircle)
+                                                    .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                                    .font(.system(size: 14))
+                                            } else {
+                                                Image(systemSymbol: .micSlashFill)
+                                                    .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                                    .font(.system(size: 14))
+                                            }
+                                        }
+                                        .menuStyle(BorderlessButtonMenuStyle())
+                                        .fixedSize()
+                                    } else {
+                                        Image(systemSymbol: .micFill)
+                                            .foregroundColor(Color.white)
+                                            .font(.system(size: 14))
+                                    }
+                                }
+
+                            } else {
+                                Image(systemSymbol: .micSlashFill)
+                                    .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                    .font(.system(size: 14))
+                            }
+                        }.frame(width: 28.0, height: 28.0)
+                        
                         if let name = participant.name, name.isNotEmpty {
                             Text(String(describing: name))
-                                .font(Font(NSFont(name: "Roboto-Regular", size: 16.0)!))
+                                .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                                 .lineLimit(1)
+                                .foregroundColor(Color.white)
                                 .truncationMode(.tail)
                         } else if let identity = participant.identity {
                             Text(String(describing: identity))
-                                .font(Font(NSFont(name: "Roboto-Regular", size: 16.0)!))
+                                .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                                 .lineLimit(1)
+                                .foregroundColor(Color.white)
                                 .truncationMode(.tail)
                         }
 
-                        if let publication = participant.mainVideoPublication,
-                           !publication.isMuted
-                        {
-                            // is remote
-                            if let remotePub = publication as? RemoteTrackPublication {
-                                Menu {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: false)
-                                            }
-                                        } label: {
-                                            Text("Unsubscribe")
-                                        }
-                                    } else if case .unsubscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: true)
-                                            }
-                                        } label: {
-                                            Text("Subscribe")
-                                        }
-                                    }
-                                } label: {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .videoFill)
-                                            .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                                    } else if case .notAllowed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .exclamationmarkCircle)
-                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                    } else {
-                                        Image(systemSymbol: .videoSlashFill)
-                                    }
-                                }
-                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
-                                .fixedSize()
-                            } else {
-                                // local
-                                Image(systemSymbol: .videoFill)
-                                    .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                            }
+//                        if let publication = participant.mainVideoPublication,
+//                           !publication.isMuted
+//                        {
+//                            // is remote
+//                            if let remotePub = publication as? RemoteTrackPublication {
+//                                Menu {
+//                                    if case .subscribed = remotePub.subscriptionState {
+//                                        Button {
+//                                            Task {
+//                                                try await remotePub.set(subscribed: false)
+//                                            }
+//                                        } label: {
+//                                            Text("Unsubscribe")
+//                                        }
+//                                    } else if case .unsubscribed = remotePub.subscriptionState {
+//                                        Button {
+//                                            Task {
+//                                                try await remotePub.set(subscribed: true)
+//                                            }
+//                                        } label: {
+//                                            Text("Subscribe")
+//                                        }
+//                                    }
+//                                } label: {
+//                                    if case .subscribed = remotePub.subscriptionState {
+//                                        Image(systemSymbol: .videoFill)
+//                                            .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
+//                                    } else if case .notAllowed = remotePub.subscriptionState {
+//                                        Image(systemSymbol: .exclamationmarkCircle)
+//                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+//                                    } else {
+//                                        Image(systemSymbol: .videoSlashFill)
+//                                    }
+//                                }
+//                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+//                                .fixedSize()
+//                            } else {
+//                                // local
+//                                Image(systemSymbol: .videoFill)
+//                                    .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
+//                            }
+//
+//                        } else {
+//                            Image(systemSymbol: .videoSlashFill)
+//                                .foregroundColor(Color.white)
+//                        }
+                        
+                        Spacer()
 
-                        } else {
-                            Image(systemSymbol: .videoSlashFill)
-                                .foregroundColor(Color.white)
-                        }
-
-                        if let publication = participant.firstAudioPublication,
-                           !publication.isMuted
-                        {
-                            // is remote
-                            if let remotePub = publication as? RemoteTrackPublication {
-                                Menu {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: false)
-                                            }
-                                        } label: {
-                                            Text("Unsubscribe")
-                                        }
-                                    } else if case .unsubscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: true)
-                                            }
-                                        } label: {
-                                            Text("Subscribe")
-                                        }
-                                    }
-                                } label: {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .micFill)
-                                            .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                                    } else if case .notAllowed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .exclamationmarkCircle)
-                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                    } else {
-                                        Image(systemSymbol: .micSlashFill)
-                                    }
-                                }
-                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
-                                .fixedSize()
-                            } else {
-                                // local
-                                Image(systemSymbol: .micFill)
-                                    .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                            }
-
-                        } else {
-                            Image(systemSymbol: .micSlashFill)
-                                .foregroundColor(Color.white)
-                        }
-
-                        if participant.connectionQuality == .excellent {
-                            Image(systemSymbol: .wifi)
-                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                        } else if participant.connectionQuality == .good {
-                            Image(systemSymbol: .wifi)
-                                .foregroundColor(Color(NSColor.Sphinx.SphinxOrange))
-                        } else if participant.connectionQuality == .poor {
-                            Image(systemSymbol: .wifiExclamationmark)
-                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                        }
-
-                        if participant.firstTrackEncryptionType == .none {
-                            Image(systemSymbol: .lockOpenFill)
-                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                        } else {
-                            Image(systemSymbol: .lockFill)
-                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-                        }
+//                        if participant.connectionQuality == .excellent {
+//                            Image(systemSymbol: .wifi)
+//                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
+//                        } else if participant.connectionQuality == .good {
+//                            Image(systemSymbol: .wifi)
+//                                .foregroundColor(Color(NSColor.Sphinx.SphinxOrange))
+//                        } else if participant.connectionQuality == .poor {
+//                            Image(systemSymbol: .wifiExclamationmark)
+//                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+//                        }
+//
+//                        if participant.firstTrackEncryptionType == .none {
+//                            Image(systemSymbol: .lockOpenFill)
+//                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+//                        } else {
+//                            Image(systemSymbol: .lockFill)
+//                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
+//                        }
 
                     }
-                    .padding(5)
+                    .padding(.leading, 10)
+                    .padding(.bottom, 10)
                     .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: 30.0)
                 }
             }
             .cornerRadius(8)
             .padding(EdgeInsets(top: 9, leading: 0, bottom: 0, trailing: 13))
-            // Glow the border when the participant is speaking
-            .overlay(
-                participant.isSpeaking ?
-                    RoundedRectangle(cornerRadius: 5)
-                    .stroke(Color(NSColor.Sphinx.PrimaryBlue), lineWidth: 5.0)
-                    : nil
-            )
         }.gesture(TapGesture()
             .onEnded { _ in
                 // Pass the tap event
