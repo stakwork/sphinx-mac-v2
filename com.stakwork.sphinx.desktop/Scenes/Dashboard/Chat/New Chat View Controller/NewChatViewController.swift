@@ -134,6 +134,8 @@ class NewChatViewController: DashboardSplittedViewController {
         listenForNotifications()
         
         chatTopView.checkRoute()
+        
+        setMessageFieldActive()
     }
     
     func listenForNotifications() {
@@ -357,8 +359,6 @@ class NewChatViewController: DashboardSplittedViewController {
             shouldReplace: false,
             panelFixedWidth: true
         )
-        
-        threadVC.setMessageFieldActive()
     }
     
     func resizeSubviews(frame: NSRect) {

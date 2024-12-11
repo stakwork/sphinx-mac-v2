@@ -10,7 +10,9 @@ import Cocoa
 
 extension ChatMessageFieldView {
     func setMessageFieldActive() {
-        self.window?.makeFirstResponder(messageTextView)
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+            self.window?.makeFirstResponder(self.messageTextView)
+        })
     }
 }
 
