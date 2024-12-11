@@ -48,7 +48,6 @@ struct ParticipantView: View {
 
     var body: some View {
         GeometryReader { geometry in
-
             ZStack(alignment: .bottom) {
                 // Background color
                 Color(NSColor.Sphinx.HeaderBG).ignoresSafeArea()
@@ -273,12 +272,13 @@ struct ParticipantView: View {
                                 .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
                         }
 
-                    }.padding(5)
-                        .frame(minWidth: 0, maxWidth: .infinity)
-                        .background(Color.black.opacity(0.5))
+                    }
+                    .padding(5)
+                    .frame(minWidth: 0, maxWidth: .infinity)
                 }
             }
             .cornerRadius(8)
+            .padding(EdgeInsets(top: 9, leading: 0, bottom: 0, trailing: 13))
             // Glow the border when the participant is speaking
             .overlay(
                 participant.isSpeaking ?

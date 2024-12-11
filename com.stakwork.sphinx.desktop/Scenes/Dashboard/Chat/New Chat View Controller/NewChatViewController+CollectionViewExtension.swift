@@ -234,7 +234,11 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
     }
     
     func shouldStartCallWith(link: String, audioOnly: Bool) {
-        WindowsManager.sharedInstance.showCallWindow(link: link, audioOnly: audioOnly)
+        WindowsManager.sharedInstance.showCallWindow(
+            link: link,
+            audioOnly: audioOnly,
+            tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
+        )
     }
 }
 

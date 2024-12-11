@@ -416,7 +416,8 @@ class WindowsManager {
     
     func startLiveKitCall(
         link: String,
-        audioOnly: Bool
+        audioOnly: Bool,
+        tribeImage: String? = nil
     ) {
         guard let owner = UserContact.getOwner() else {
             return
@@ -434,6 +435,7 @@ class WindowsManager {
                     
                     roomCtx.url = url
                     roomCtx.token = token
+                    roomCtx.tribeImage = tribeImage
                     
                     let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
                         Task { @MainActor in
@@ -453,7 +455,8 @@ class WindowsManager {
     
     func showCallWindow(
         link: String,
-        audioOnly: Bool = false
+        audioOnly: Bool = false,
+        tribeImage: String? = nil
     ) {
         
         if link.isJitsiCallLink {
@@ -470,7 +473,8 @@ class WindowsManager {
         } else if link.isLiveKitCallLink {
             startLiveKitCall(
                 link: link,
-                audioOnly: audioOnly || link.contains("startAudioOnly")
+                audioOnly: audioOnly || link.contains("startAudioOnly"),
+                tribeImage: tribeImage
             )
             return
         }
@@ -480,8 +484,11 @@ class WindowsManager {
         }
     }
     
-    func presentWindowForCallVC(vc: NSViewController, link: String) {
-        let appTitle = "Sphinx Call"
+    func presentWindowForCallVC(
+        vc: NSViewController,
+        link: String
+    ) {
+//        let appTitle = "Sphinx Call"
         
         let screen = NSApplication.shared.keyWindow
         let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
@@ -489,12 +496,12 @@ class WindowsManager {
         let position = (screen?.frame.origin) ?? CGPoint(x: 0.0, y: 0.0)
         
         showNewWindow(
-            with: appTitle,
+            with: "",
             size: CGSize(width: frame.width, height: frame.height),
             minSize: CGSize(width: 350, height: 550),
             position: position,
             identifier: link,
-            styleMask: [.titled, .resizable, .closable],
+            styleMask: [.fullSizeContentView, .titled, .closable, .miniaturizable, .resizable],
             contentVC: vc
         )
     }

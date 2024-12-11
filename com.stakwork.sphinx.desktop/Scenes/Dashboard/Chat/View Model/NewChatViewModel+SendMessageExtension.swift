@@ -122,7 +122,10 @@ extension NewChatViewModel {
         if message.isCallMessageType() {
             if let link = message.messageContent {
                 let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
-                WindowsManager.sharedInstance.showCallWindow(link: linkUrl)
+                WindowsManager.sharedInstance.showCallWindow(
+                    link: linkUrl,
+                    tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
+                )
             }
         }
     }

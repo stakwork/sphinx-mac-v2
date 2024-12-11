@@ -44,6 +44,8 @@ final class RoomContext: ObservableObject {
     @Published var token: String = "" {
         didSet { store.value.token = token }
     }
+    
+    @Published var tribeImage: String? = nil
 
     @Published var e2eeKey: String = "" {
         didSet { store.value.e2eeKey = e2eeKey }
