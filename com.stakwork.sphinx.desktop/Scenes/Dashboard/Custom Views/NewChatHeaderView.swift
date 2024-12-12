@@ -89,7 +89,7 @@ class NewChatHeaderView: NSView, LoadableNib {
     
     func configureProfile() {
         walletBalanceService.updateBalance(labels: [balanceLabel])
-        balanceUnitLabel.stringValue = "sat"
+        balanceUnitLabel.stringValue = "sats"
         
         setupViews()
         
@@ -186,7 +186,7 @@ class NewChatHeaderView: NSView, LoadableNib {
     }
     
     func updateBalance() {
-        balanceUnitLabel.stringValue = "sat"
+        balanceUnitLabel.stringValue = "sats"
         walletBalanceService.updateBalance(labels: [balanceLabel])
     }
 }

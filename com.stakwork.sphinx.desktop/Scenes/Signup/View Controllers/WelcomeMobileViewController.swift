@@ -68,7 +68,7 @@ class WelcomeMobileViewController: CommonWelcomeViewController {
     }
     
     func getItButtonClicked() {
-        if let url = URL(string: "itms-apps://itunes.apple.com/app/apple-store/id1483956418?mt=8") {
+        if let url = URL(string: "https://testflight.apple.com/join/p721ALD9") {
             NSWorkspace.shared.open(url)
         }
     }
