@@ -81,8 +81,8 @@
                                                                 </textFieldCell>
                                                             </textField>
                                                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bpk-CQ-VVf">
-                                                                <rect key="frame" x="158" y="63" width="22" height="15"/>
-                                                                <textFieldCell key="cell" lineBreakMode="clipping" title="sat" id="fcV-0k-vw1">
+                                                                <rect key="frame" x="158" y="63" width="28" height="15"/>
+                                                                <textFieldCell key="cell" lineBreakMode="clipping" title="sats" id="fcV-0k-vw1">
                                                                     <font key="font" size="12" name="Montserrat-Regular"/>
                                                                     <color key="textColor" name="SecondaryText"/>
                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
