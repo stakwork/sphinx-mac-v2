@@ -68,8 +68,10 @@ class AttachmentsPreviewDataSource : NSObject {
             ctx.duration = 0.15
             ctx.allowsImplicitAnimation = true
             
+            let numberOfItems = self.attachmentsCollectionView.numberOfItems(inSection: 0)
+            
             self.attachmentsCollectionView.animator().scrollToItems(
-                at: [IndexPath(item: self.attachments.count - 1, section: 0)],
+                at: [IndexPath(item: numberOfItems - 1, section: 0)],
                 scrollPosition: .right
             )
         })
@@ -110,7 +112,11 @@ extension AttachmentsPreviewDataSource : NSCollectionViewDelegate, NSCollectionV
         _ collectionView: NSCollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return attachments.count + 1
+        if attachments.count < 10 {
+            return attachments.count + 1
+        } else {
+            return attachments.count
+        }
     }
     
     func collectionView(
@@ -170,9 +176,7 @@ extension AttachmentsPreviewDataSource : AttachmentPreviewItemDelegate {
     }
     
     func playVideoButtonClicked(item: NSCollectionViewItem) {
-//        if let indexPath = attachmentsCollectionView.indexPath(for: item) {
-//            
-//        }
+
     }
 }
 
