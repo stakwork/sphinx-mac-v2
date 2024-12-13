@@ -109,6 +109,8 @@ class ProfileViewController: NSViewController {
         pinTimeoutBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         changePinBox.addShadow(location: VerticalLocation.center, color: NSColor.black, opacity: 0.2, radius: 2.0)
         
+        addDraggingViewClickListener()
+        
         sharePhotoSwitchContainer.wantsLayer = true
         sharePhotoSwitchCircle.wantsLayer = true
         sharePhotoSwitchContainer.layer?.cornerRadius = sharePhotoSwitchContainer.frame.size.height / 2
@@ -127,6 +129,28 @@ class ProfileViewController: NSViewController {
         userNameField.delegate = self
         meetingServerField.delegate = self
         meetingAmountField.delegate = self
+    }
+    
+    func addDraggingViewClickListener() {
+        let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(handleAttachmentClick(_:)))
+        profilePictureDraggingView.addGestureRecognizer(clickGesture)
+    }
+
+    @objc private func handleAttachmentClick(_ sender: NSClickGestureRecognizer) {
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canCreateDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.allowedContentTypes = [.jpeg, .png]
+        
+        let i = openPanel.runModal()
+        
+        if (i == NSApplication.ModalResponse.OK) {
+            if let url = openPanel.url, let image = NSImage(contentsOf: url) {
+                imageDragged(image: image)
+            }
+        }
     }
     
     func configureProfile() {

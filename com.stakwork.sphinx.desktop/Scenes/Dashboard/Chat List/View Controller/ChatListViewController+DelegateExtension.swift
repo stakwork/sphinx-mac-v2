@@ -81,6 +81,7 @@ extension ChatListViewController : ChildVCDelegate, ActionsDelegate {
         )
     }
     
+    func shouldShowAttachmentsPopup() {}
     func didDismissView() {}
     func didCreateMessage() {}
     func didFailInvoiceOrPayment() {}

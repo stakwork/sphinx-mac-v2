@@ -204,6 +204,10 @@ class GiphySearchView: NSView, LoadableNib {
     }
     
     @IBAction func closeViewButtonClicked(_ sender: Any) {
+        closeView()
+    }
+    
+    func closeView() {
         gifsDataSource?.setDataAndReload(objects: [])
         stickersDataSource?.setDataAndReload(objects: [])
         recentDataSource?.setDataAndReload(objects: [])

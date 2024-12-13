@@ -300,11 +300,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
         }
         
         if chat.isPublicGroup() {
-            messageBubbleHelper.showGenericMessageView(
-                text: "drag.attachment".localized,
-                in: view,
-                delay: 2.5
-            )
+            chatBottomView.didClickAddAttachment()
         } else {
             childViewControllerContainer.showPmtOptionsMenuOn(
                 parentVC: self,
@@ -459,8 +455,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
 
 extension NewChatViewController : GiphySearchViewDelegate {
     func didSelectGiphy(object: GiphyObject, data: Data) {
-        chatBottomView.toggleAttachmentsAdded()
         draggingView.showGiphyPreview(data: data, object: object)
+        chatBottomView.toggleAttachmentsAdded(forceShowSend: draggingView.isSendingGiphy().0)
     }
 }
 
@@ -513,6 +509,10 @@ extension NewChatViewController : ActionsDelegate {
         )
     }
     
+    func shouldShowAttachmentsPopup() {
+        chatBottomView.didClickAddAttachment()
+    }
+    
     func shouldReloadMuteState() {}
     
     func didDismissView() {
@@ -541,5 +541,9 @@ extension NewChatViewController : ThreadsListViewControllerDelegate {
 extension NewChatViewController : ChatDraggingViewDelegate {
     func attachmentAdded(url: URL, data: Data, image: NSImage?) {
         chatBottomView.attachmentAdded(url: url, data: data, image: image)
+    }
+    
+    func imageDismissed() {
+        chatBottomView.toggleAttachmentsAdded(forceShowSend: draggingView.isSendingGiphy().0)
     }
 }
