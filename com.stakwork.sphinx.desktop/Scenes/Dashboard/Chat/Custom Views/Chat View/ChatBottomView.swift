@@ -110,6 +110,18 @@ class ChatBottomView: NSView, LoadableNib {
         messageFieldView.setMessageFieldActive()
     }
     
+    func didClickAddAttachment() {
+        messageFieldView.didClickAddAttachment()
+    }
+    
+    func isSearchingGiphy() -> Bool {
+        return !giphySearchView.isHidden
+    }
+    
+    func closeGiphySearch() {
+        giphySearchView.closeView()
+    }
+    
     func loadGiphySearchWith(
         delegate: GiphySearchViewDelegate
     ) {
@@ -194,8 +206,10 @@ class ChatBottomView: NSView, LoadableNib {
         messageFieldView.recordingProgress(minutes: minutes, seconds: seconds)
     }
     
-    func toggleAttachmentsAdded() {
-        messageFieldView.toggleAttachmentsAdded()
+    func toggleAttachmentsAdded(
+        forceShowSend: Bool = false
+    ) {
+        messageFieldView.toggleAttachmentsAdded(forceShowSend: forceShowSend)
     }
     
     func attachmentAdded(url: URL, data: Data, image: NSImage?) {

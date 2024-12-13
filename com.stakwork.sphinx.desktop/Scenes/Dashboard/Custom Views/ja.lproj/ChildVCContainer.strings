@@ -5,6 +5,8 @@
 /* Class = "NSTextFieldCell"; title = "Send"; ObjectID = "6nj-Kc-WVc"; */
 "6nj-Kc-WVc.title" = "送信";
 
+"xGM-96-ahR.title" = "ファイルを添付";
+
 /* Class = "NSTextFieldCell"; title = "CANCEL"; ObjectID = "DDa-Up-Zo6"; */
 "DDa-Up-Zo6.title" = "キャンセル";
 

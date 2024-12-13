@@ -108,11 +108,14 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         micButton.isHidden = !sendButton.isHidden
     }
     
-    func toggleAttachmentsAdded() {
-        isAttachmentAdded = attachments.count > 0
+    func toggleAttachmentsAdded(
+        forceShowSend: Bool = false
+    ) {
+        isAttachmentAdded = attachments.count > 0 || forceShowSend
         
         togglePriceContainer()
         toggleSendMicButton()
+        setMessageFieldActive()
     }
     
     func updateColor() {

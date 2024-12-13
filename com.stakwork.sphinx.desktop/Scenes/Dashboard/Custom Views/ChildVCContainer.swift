@@ -20,6 +20,7 @@ protocol ActionsDelegate: AnyObject {
     func didFailInvoiceOrPayment()
     func shouldCreateCall(mode: VideoCallHelper.CallMode)
     func shouldSendPaymentFor(paymentObject: PaymentViewModel.PaymentObject, callback: ((Bool) -> ())?)
+    func shouldShowAttachmentsPopup()
     func shouldReloadMuteState()
     func didDismissView()
 }
@@ -42,6 +43,7 @@ class ChildVCContainer: NSView, LoadableNib {
     @IBOutlet weak var containerWidth: NSLayoutConstraint!
     
     let menuSize = CGSize(width: 300, height: 170)
+    let chatMenuSize = CGSize(width: 300, height: 225)
     let oneOptionMenuSize = CGSize(width: 300, height: 115)
     let invoicePaymentSize = CGSize(width: 380, height: 500)
     let groupMembersSize = CGSize(width: 380, height: 620)
@@ -61,6 +63,7 @@ class ChildVCContainer: NSView, LoadableNib {
         case Audio
         case Video
         case Cancel
+        case Attach
     }
     
     enum ViewMode: Int {
@@ -104,6 +107,15 @@ class ChildVCContainer: NSView, LoadableNib {
         layoutSubtreeIfNeeded()
     }
     
+    func prepareChatMenuViewSize() {
+        let menuSize = chatMenuSize
+        containerWidth.constant = menuSize.width
+        containerHeight.constant = menuSize.height
+        requestOptionContainer.isHidden = false
+        
+        layoutSubtreeIfNeeded()
+    }
+    
     func prepareTribeMemberPopupSize() {
         containerWidth.constant = tribeMemberPopupSize.width
         containerHeight.constant = tribeMemberPopupSize.height
@@ -137,7 +149,7 @@ class ChildVCContainer: NSView, LoadableNib {
         with chat: Chat?,
         delegate: ActionsDelegate
     ) {
-        prepareMenuViewSize()
+        prepareChatMenuViewSize()
         preparePopupOn(parentVC: parentVC, with: chat, and: nil, delegate: delegate)
         optionsMenuContainer.isHidden = false
         showView()
@@ -308,6 +320,10 @@ class ChildVCContainer: NSView, LoadableNib {
                 break
             case ChildVCOptionsMenuButton.Send.rawValue:
                 showChildVC(mode: ViewMode.SendAmount)
+                break
+            case ChildVCOptionsMenuButton.Attach.rawValue:
+                delegate?.shouldShowAttachmentsPopup()
+                hideView()
                 break
             case ChildVCOptionsMenuButton.Audio.rawValue:
                 delegate?.shouldCreateCall(mode: .Audio)

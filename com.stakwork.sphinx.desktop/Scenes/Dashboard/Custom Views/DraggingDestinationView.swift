@@ -12,8 +12,9 @@ protocol DraggingViewDelegate: AnyObject {
     func imageDragged(image: NSImage)
 }
 
-protocol ChatDraggingViewDelegate: AnyObject {
-    func attachmentAdded(url: URL, data: Data, image: NSImage?)
+@objc protocol ChatDraggingViewDelegate: AnyObject {
+    @objc func attachmentAdded(url: URL, data: Data, image: NSImage?)
+    @objc optional func imageDismissed()
 }
 
 class DraggingDestinationView: NSView, LoadableNib {
@@ -136,6 +137,8 @@ class DraggingDestinationView: NSView, LoadableNib {
         }
         
         reset()
+        
+        chatDelegate?.imageDismissed?()
     }
     
     func isSendingGiphy() -> (Bool, GiphyObject?) {
@@ -281,8 +284,8 @@ class DraggingDestinationView: NSView, LoadableNib {
                 
                 if let data = getDataFrom(url: url) {
                     chatDelegate?.attachmentAdded(url: url, data: data, image: image)
-                    resetView()
                 }
+                resetView()
             }
             return true
         }
