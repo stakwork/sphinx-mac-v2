@@ -347,7 +347,7 @@ struct RoomView: View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    Text("\(room.participantCount)  Participants")
+                    Text(room.participantCount == 1 ? ("\(room.participantCount)  Participants") : ("\(room.participantCount)  Participant"))
                         .foregroundColor(Color(NSColor.Sphinx.Text))
                         .font(Font(NSFont(name: "Roboto-Bold", size: 18.0)!))
                     Spacer()
@@ -779,11 +779,12 @@ struct RoomView: View {
                 
                 Menu(content: {
                     Button {
-                        if let url = URL(string: "livekit://") {
+                        let room = "\(API.sharedInstance.kVideoCallServer)/rooms/\(room.name ?? "Room")"
+                        if let url = URL(string: room) {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        Text("New window")
+                        Text("Open in Browser")
                     }
 
                     Divider()
@@ -823,96 +824,96 @@ struct RoomView: View {
 
                         Divider()
 
-                        Menu {
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .quickReconnect)
-                                }
-                            } label: {
-                                Text("Quick reconnect")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .fullReconnect)
-                                }
-                            } label: {
-                                Text("Full reconnect")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .nodeFailure)
-                                }
-                            } label: {
-                                Text("Node failure")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .serverLeave)
-                                }
-                            } label: {
-                                Text("Server leave")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .migration)
-                                }
-                            } label: {
-                                Text("Migration")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
-                                }
-                            } label: {
-                                Text("Speaker update")
-                            }
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .forceTCP)
-                                }
-                            } label: {
-                                Text("Force TCP")
-                            }
-                            Button {
-                                Task {
-                                    try await room.debug_simulate(scenario: .forceTLS)
-                                }
-                            } label: {
-                                Text("Force TLS")
-                            }
-                        } label: {
-                            Text("Simulate scenario")
-                        }
+//                        Menu {
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .quickReconnect)
+//                                }
+//                            } label: {
+//                                Text("Quick reconnect")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .fullReconnect)
+//                                }
+//                            } label: {
+//                                Text("Full reconnect")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .nodeFailure)
+//                                }
+//                            } label: {
+//                                Text("Node failure")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .serverLeave)
+//                                }
+//                            } label: {
+//                                Text("Server leave")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .migration)
+//                                }
+//                            } label: {
+//                                Text("Migration")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
+//                                }
+//                            } label: {
+//                                Text("Speaker update")
+//                            }
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .forceTCP)
+//                                }
+//                            } label: {
+//                                Text("Force TCP")
+//                            }
+//                            Button {
+//                                Task {
+//                                    try await room.debug_simulate(scenario: .forceTLS)
+//                                }
+//                            } label: {
+//                                Text("Force TLS")
+//                            }
+//                        } label: {
+//                            Text("Simulate scenario")
+//                        }
                     }
 
-                    Group {
-                        Menu {
-                            Button {
-                                Task {
-                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
-                                }
-                            } label: {
-                                Text("Allow all")
-                            }
-
-                            Button {
-                                Task {
-                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
-                                }
-                            } label: {
-                                Text("Disallow all")
-                            }
-                        } label: {
-                            Text("Track permissions")
-                        }
-
-                        Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
-                    }
+//                    Group {
+//                        Menu {
+//                            Button {
+//                                Task {
+//                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
+//                                }
+//                            } label: {
+//                                Text("Allow all")
+//                            }
+//
+//                            Button {
+//                                Task {
+//                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
+//                                }
+//                            } label: {
+//                                Text("Disallow all")
+//                            }
+//                        } label: {
+//                            Text("Track permissions")
+//                        }
+//
+//                        Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
+//                    }
                 }, label: {
                     Image(systemSymbol: .gear)
                         .renderingMode(.template)
