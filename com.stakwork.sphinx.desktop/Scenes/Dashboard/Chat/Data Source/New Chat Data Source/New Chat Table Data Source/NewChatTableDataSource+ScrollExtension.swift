@@ -33,7 +33,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             queue: OperationQueue.main
         ) { [weak self] _ in
             self?.scrollViewDidScroll()
-        }
+        }        
     }
     
     func scrollViewDidScroll() {

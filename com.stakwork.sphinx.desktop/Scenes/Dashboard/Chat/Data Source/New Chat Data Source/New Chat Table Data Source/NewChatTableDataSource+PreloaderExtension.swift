@@ -129,6 +129,7 @@ extension NewChatTableDataSource {
         scrolledAtBottom = true
         
         delegate?.didScrollToBottom()
+        scrollViewDidScroll()
     }
     
     func saveScrollPosition() {

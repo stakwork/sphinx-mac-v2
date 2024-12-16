@@ -137,20 +137,20 @@
                                             <rect key="frame" x="0.0" y="50" width="600" height="136"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="clM-Wn-u17">
-                                                    <rect key="frame" x="10" y="0.0" width="558" height="136"/>
+                                                    <rect key="frame" x="10" y="0.0" width="590" height="136"/>
                                                     <subviews>
                                                         <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yRy-te-G3m" customClass="DisabledScrollView" customModule="Sphinx" customModuleProvider="target">
-                                                            <rect key="frame" x="0.0" y="16" width="558" height="120"/>
+                                                            <rect key="frame" x="0.0" y="16" width="590" height="120"/>
                                                             <clipView key="contentView" drawsBackground="NO" id="aRe-Am-Wey">
-                                                                <rect key="frame" x="0.0" y="0.0" width="558" height="120"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="590" height="120"/>
                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                 <subviews>
                                                                     <textView wantsLayer="YES" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="8wc-Bi-exs">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="542" height="120"/>
+                                                                        <rect key="frame" x="0.0" y="0.0" width="574" height="120"/>
                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="NewHeaderBG"/>
-                                                                        <size key="minSize" width="542" height="120"/>
+                                                                        <size key="minSize" width="574" height="120"/>
                                                                         <size key="maxSize" width="990" height="10000000"/>
                                                                         <color key="insertionPointColor" name="textInsertionPointColor" catalog="System" colorSpace="catalog"/>
                                                                     </textView>
@@ -163,7 +163,7 @@
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                             <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="1ie-lh-WP7">
-                                                                <rect key="frame" x="526" y="0.0" width="16" height="120"/>
+                                                                <rect key="frame" x="558" y="0.0" width="16" height="120"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                             </scroller>
                                                         </scrollView>
@@ -193,7 +193,7 @@
                                                 <constraint firstItem="clM-Wn-u17" firstAttribute="top" secondItem="oDd-gg-HZ8" secondAttribute="top" id="oAn-rN-olt"/>
                                                 <constraint firstAttribute="bottom" secondItem="clM-Wn-u17" secondAttribute="bottom" id="oxc-6y-cak"/>
                                                 <constraint firstItem="clM-Wn-u17" firstAttribute="leading" secondItem="oDd-gg-HZ8" secondAttribute="leading" constant="10" id="taq-97-Ibp"/>
-                                                <constraint firstAttribute="trailing" secondItem="clM-Wn-u17" secondAttribute="trailing" constant="32" id="zzp-AG-dqc"/>
+                                                <constraint firstAttribute="trailing" secondItem="clM-Wn-u17" secondAttribute="trailing" id="zzp-AG-dqc"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="02m-U3-tfS">

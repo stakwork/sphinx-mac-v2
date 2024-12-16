@@ -251,7 +251,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                             NSAttributedString.Key.link: url,
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
                             NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                            NSAttributedString.Key.font: NSFont.getMessageFont()
+                            NSAttributedString.Key.font: NSFont.getThreadHeaderFont()
                         ],
                         range: nsRange
                     )
