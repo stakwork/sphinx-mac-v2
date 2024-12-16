@@ -936,9 +936,9 @@ extension MessageTableCellState {
         
         if chat.isPublicGroup() {
             senderInfo = (
-                ChatHelper.getSenderColorFor(message: message),
-                message.senderAlias ?? "Unknow",
-                message.senderPic
+                isSent ? owner.getColor() : ChatHelper.getSenderColorFor(message: message),
+                message.senderAlias ?? (isSent ? (owner.nickname ?? "Unknow") : "Unknow"),
+                message.senderPic ?? (isSent ? (owner.avatarUrl) : nil)
             )
         } else if isSent {
             senderInfo = (

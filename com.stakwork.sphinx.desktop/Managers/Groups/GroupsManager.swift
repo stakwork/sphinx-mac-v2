@@ -151,7 +151,6 @@ class GroupsManager {
         var host : String! = nil
         var uuid : String! = nil
         var tags : [Tag] = []
-        var priceToJoin : Int? = nil
         var pricePerMessage : Int? = nil
         var amountToStake : Int? = nil
         var timeToStake : Int? = nil
@@ -164,6 +163,14 @@ class GroupsManager {
         var feedContentType : FeedContentType? = nil
         var ownerRouteHint : String? = nil
         var bots : [Bot] = []
+        var priceToJoin : Int? = nil
+        
+        var nonZeroPriceToJoin: Int {
+            if let priceToJoin = priceToJoin, priceToJoin > 0 {
+                return priceToJoin
+            }
+            return 1000
+        }
     }
     
     struct Tag {
@@ -529,7 +536,7 @@ class GroupsManager {
             }
             
             let isPrivate = tribeInfo.privateTribe
-            let priceToJoin = tribeInfo.priceToJoin ?? 1000
+            let priceToJoin = tribeInfo.nonZeroPriceToJoin
             
             if SphinxOnionManager.sharedInstance.joinTribe(
                 tribePubkey: pubkey,

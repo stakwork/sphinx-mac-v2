@@ -353,6 +353,10 @@ extension ChatListViewController: NewChatHeaderViewDelegate {
     func menuTapped(_ frame: CGRect) {
         menuListView.isHidden = false
     }
+    
+    func isMenuExpanded() -> Bool {
+        return !menuListView.isHidden
+    }
 }
 
 
@@ -374,8 +378,6 @@ extension ChatListViewController: NewMenuListViewDelegate {
     func closeButtonTapped() {
         menuListView.isHidden = true
     }
-    
-    
 }
 
 extension ChatListViewController: NewMenuItemDataSourceDelegate {

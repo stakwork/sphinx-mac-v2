@@ -211,27 +211,13 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         messageContainerHeightConstraint.constant = newFieldHeight
         
-//        if animated {
-//            AnimationHelper.animateViewWith(duration: 0.25, animationsBlock: {
-//                self.layoutSubtreeIfNeeded()
-//            }, completion: {})
-//            
-//            DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
-//                self.scrollMessageTextViewToBottom()
-//                
-//                if isAtBottom {
-//                    self.delegate?.shouldScrollToBottom()
-//                }
-//            })
-//        } else {
-            layoutSubtreeIfNeeded()
-            
-            scrollMessageTextViewToBottom()
-            
-            if isAtBottom {
-                delegate?.shouldScrollToBottom()
-            }
-//        }
+        layoutSubtreeIfNeeded()
+        
+        scrollMessageTextViewToBottom()
+        
+        if isAtBottom {
+            delegate?.shouldScrollToBottom()
+        }
         
         return true
     }
@@ -364,6 +350,10 @@ class ChatMessageFieldView: NSView, LoadableNib {
     }
     
     @IBAction func giphyButtonClicked(_ sender: Any) {
+        if isSendingMedia() {
+            ///can't send Giphy and media at the same time
+            return
+        }
         delegate?.didClickGiphyButton()
     }
     

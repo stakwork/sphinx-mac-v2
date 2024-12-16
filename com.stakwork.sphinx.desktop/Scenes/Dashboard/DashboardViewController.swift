@@ -641,6 +641,9 @@ class DashboardViewController: NSViewController {
                 if let windowToClose = WindowsManager.sharedInstance.getLastTaggedWindows(), windowToClose.isKeyWindow {
                     windowToClose.close()
                     return nil
+                } else if listViewController?.isMenuExpanded() == true {
+                    listViewController?.closeButtonTapped()
+                    return nil
                 } else if self.mediaFullScreenView?.isHidden == false {
                     self.mediaFullScreenView?.closeView()
                     return nil
@@ -791,7 +794,6 @@ extension DashboardViewController : DashboardVCDelegate {
         dashboardDetailViewController?.closeButtonTapped()
         
         newDetailViewController = newChatVCController
-        newDetailViewController?.setMessageFieldActive()
 
         deeplinkData = nil
     }

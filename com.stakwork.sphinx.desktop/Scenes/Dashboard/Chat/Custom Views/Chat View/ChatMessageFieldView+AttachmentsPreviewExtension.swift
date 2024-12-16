@@ -59,4 +59,36 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
         attachmentsPreviewContainer.isHidden = true
         let _ = updateBottomBarHeight(animated: true)
     }
+    
+    func didClickAddAttachment() {
+        let openPanel = NSOpenPanel()
+
+        openPanel.title = "Choose a File"
+        openPanel.canChooseFiles = true
+        openPanel.canChooseDirectories = false
+        openPanel.allowsMultipleSelection = true
+
+        openPanel.begin { response in
+            if response == .OK {
+                for url in openPanel.urls {
+                    if !url.absoluteString.starts(with: "file://") {
+                        continue
+                    }
+                    
+                    if let data = self.getDataFrom(url: url) {
+                        self.attachmentAdded(url: url, data: data, image: nil)
+                    }
+                }
+            }
+        }
+    }
+    
+    func getDataFrom(url: URL) -> Data? {
+        do {
+            let data = try Data(contentsOf: url)
+            return data
+        } catch {
+            return nil
+        }
+    }
 }

@@ -134,6 +134,8 @@ class NewChatViewController: DashboardSplittedViewController {
         listenForNotifications()
         
         chatTopView.checkRoute()
+        
+        setMessageFieldActive()
     }
     
     func listenForNotifications() {
@@ -205,7 +207,10 @@ class NewChatViewController: DashboardSplittedViewController {
             }
             
             if event.keyCode == 53 { // 53 is the key code for the Escape key
-                if self.chatBottomView.isSendingMedia() {
+                if self.chatBottomView.isSearchingGiphy() {
+                    self.chatBottomView.closeGiphySearch()
+                    return nil
+                } else if self.chatBottomView.isSendingMedia() {
                     self.chatBottomView.shouldRemoveItemAt(index: nil)
                     return nil
                 } else if self.isThread {
@@ -357,8 +362,6 @@ class NewChatViewController: DashboardSplittedViewController {
             shouldReplace: false,
             panelFixedWidth: true
         )
-        
-        threadVC.setMessageFieldActive()
     }
     
     func resizeSubviews(frame: NSRect) {

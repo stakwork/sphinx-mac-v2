@@ -72,8 +72,31 @@ class CreateTribeViewController: NSViewController {
             self.loading = false
         })
         
+        addDraggingViewClickListener()
         configureFields()
         completeEditView()
+    }
+    
+    func addDraggingViewClickListener() {
+        let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(handleAttachmentClick(_:)))
+        imageDraggingView.addGestureRecognizer(clickGesture)
+    }
+
+    @objc private func handleAttachmentClick(_ sender: NSClickGestureRecognizer) {
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canCreateDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.allowedContentTypes = [.jpeg, .png]
+        
+        let i = openPanel.runModal()
+        
+        if (i == NSApplication.ModalResponse.OK) {
+            if let url = openPanel.url, let image = NSImage(contentsOf: url) {
+                imageDragged(image: image)
+            }
+        }
     }
     
     func configureFields() {

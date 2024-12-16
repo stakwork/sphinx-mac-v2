@@ -505,6 +505,8 @@
 		47D03DEF250FF9A90077A968 /* URLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D03DEE250FF9A90077A968 /* URLResponse.swift */; };
 		47D676042C11F2D00002914E /* KeyboardReplyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D676032C11F2D00002914E /* KeyboardReplyView.swift */; };
 		47D676062C11F2DD0002914E /* KeyboardReplyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47D676052C11F2DD0002914E /* KeyboardReplyView.xib */; };
+		47D7B3AE2D0C757900866983 /* AddAttachmentCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D7B3AD2D0C757900866983 /* AddAttachmentCollectionViewItem.swift */; };
+		47D7B3B02D0C759200866983 /* AddAttachmentCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */; };
 		47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D7D8E324620B520089C6EE /* KeychainManager.swift */; };
 		47DE1BF02A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */; };
 		47DE1BF42A6813BA0029597B /* StatusHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */; };
@@ -1446,6 +1448,8 @@
 		47D03DEE250FF9A90077A968 /* URLResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLResponse.swift; sourceTree = "<group>"; };
 		47D676032C11F2D00002914E /* KeyboardReplyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReplyView.swift; sourceTree = "<group>"; };
 		47D676052C11F2DD0002914E /* KeyboardReplyView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = KeyboardReplyView.xib; sourceTree = "<group>"; };
+		47D7B3AD2D0C757900866983 /* AddAttachmentCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttachmentCollectionViewItem.swift; sourceTree = "<group>"; };
+		47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddAttachmentCollectionViewItem.xib; sourceTree = "<group>"; };
 		47D7D8E324620B520089C6EE /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewOnlyTextMessageCollectionViewitem.xib; sourceTree = "<group>"; };
 		47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusHeaderView.swift; sourceTree = "<group>"; };
@@ -2604,6 +2608,8 @@
 			children = (
 				475DB9902D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift */,
 				475DB9942D01FD630011C9BA /* AttachmentPreviewCollectionViewItem.xib */,
+				47D7B3AD2D0C757900866983 /* AddAttachmentCollectionViewItem.swift */,
+				47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */,
 			);
 			path = "Attachments Preview";
 			sourceTree = "<group>";
@@ -3838,6 +3844,7 @@
 				4771589E2BE511D200E2101D /* Roboto-Thin.ttf in Resources */,
 				47FB5F3E2BDC1A2B001B762B /* NewMenuListView.xib in Resources */,
 				47DE1C2A2A69DC4A0029597B /* NewMessageBoostView.xib in Resources */,
+				47D7B3B02D0C759200866983 /* AddAttachmentCollectionViewItem.xib in Resources */,
 				4726A43824C628DA005A66B4 /* note.caf in Resources */,
 				478ED5B025D597E500940132 /* connecting.gif in Resources */,
 				4797E83924BCC10D00D13270 /* Dashboard.storyboard in Resources */,
@@ -4426,6 +4433,7 @@
 				47E7713B2472E76500C9CFEB /* NSBezierPath.swift in Sources */,
 				473633F02555DCEE007405F2 /* PodcastSatsView.swift in Sources */,
 				4758189E28ECA956006F32A2 /* CreateTribeViewModel.swift in Sources */,
+				47D7B3AE2D0C757900866983 /* AddAttachmentCollectionViewItem.swift in Sources */,
 				475B681729915D01000EF29C /* ContentFeed+CoreDataClass.swift in Sources */,
 				4794964D2AB4930F00C42D1E /* PodcastAudioView.swift in Sources */,
 				47F8824C25656CB0002A7E71 /* SocketParsable.swift in Sources */,
@@ -5276,7 +5284,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 109;
+				CURRENT_PROJECT_VERSION = 114;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5313,7 +5321,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 109;
+				CURRENT_PROJECT_VERSION = 114;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
