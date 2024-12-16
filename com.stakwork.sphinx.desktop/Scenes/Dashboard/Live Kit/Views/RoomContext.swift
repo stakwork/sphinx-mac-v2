@@ -44,6 +44,8 @@ final class RoomContext: ObservableObject {
     @Published var token: String = "" {
         didSet { store.value.token = token }
     }
+    
+    @Published var tribeImage: String? = nil
 
     @Published var e2eeKey: String = "" {
         didSet { store.value.e2eeKey = e2eeKey }
@@ -81,11 +83,14 @@ final class RoomContext: ObservableObject {
     @Published var focusParticipant: Participant?
 
     @Published var showMessagesView: Bool = false
+    @Published var showParticipantsView: Bool = false
     @Published var messages: [ExampleRoomMessage] = []
 
     @Published var textFieldString: String = ""
 
     var _connectTask: Task<Void, Error>?
+    
+    var colors: [String: Color] = [:]
 
     public init(
         store: ValueStore<Preferences>
@@ -306,6 +311,20 @@ extension RoomContext: RoomDelegate {
 
     func room(_: Room, trackPublication _: TrackPublication, didUpdateE2EEState state: E2EEState) {
         print("didUpdateE2EEState: \(state)")
+    }
+}
+
+extension RoomContext {
+    func getColorForParticipan(participantId: String?) -> Color? {
+        guard let participantId = participantId else {
+            return nil
+        }
+        if let color = colors[participantId] {
+            return color
+        }
+        let randomColor = Color(NSColor.random())
+        colors[participantId] = randomColor
+        return randomColor
     }
 }
 

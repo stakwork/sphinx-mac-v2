@@ -17,6 +17,7 @@
 import LiveKit
 import SFSafeSymbols
 import SwiftUI
+import SDWebImageSwiftUI
 
 let adaptiveMin = 300.0
 let toolbarPlacement: ToolbarItemPlacement = .primaryAction
@@ -92,25 +93,29 @@ struct RoomView: View {
                 Spacer()
             }
 
-            //            VStack(alignment: isMe ? .trailing : .leading) {
-            //                Text(message.identity)
             Text(message.text)
                 .padding(8)
                 .background(Color(isMe ? NSColor.Sphinx.PrimaryGreen : NSColor.Sphinx.SecondaryText))
                 .foregroundColor(Color.white)
                 .cornerRadius(18)
-            //            }
             if !isMe {
                 Spacer()
             }
         }.padding(.vertical, 5)
-            .padding(.horizontal, 10)
+        .padding(.horizontal, 10)
     }
 
     func scrollToBottom(_ scrollView: ScrollViewProxy) {
         guard let last = roomCtx.messages.last else { return }
         withAnimation {
             scrollView.scrollTo(last.id)
+        }
+    }
+    
+    func scrollToTop(_ scrollView: ScrollViewProxy) {
+        guard let first = sortedParticipants().first else { return }
+        withAnimation {
+            scrollView.scrollTo(first.id)
         }
     }
 
@@ -146,16 +151,6 @@ struct RoomView: View {
                 TextField("Enter message", text: $roomCtx.textFieldString)
                     .textFieldStyle(PlainTextFieldStyle())
                     .disableAutocorrection(true)
-                // TODO: add iOS unique view modifiers
-                // #if os(iOS)
-                // .autocapitalization(.none)
-                // .keyboardType(type.toiOSType())
-                // #endif
-
-                //                    .overlay(RoundedRectangle(cornerRadius: 10.0)
-                //                                .strokeBorder(Color.white.opacity(0.3),
-                //                                              style: StrokeStyle(lineWidth: 1.0)))
-
                 Button {
                     roomCtx.sendMessage()
                 } label: {
@@ -174,6 +169,257 @@ struct RoomView: View {
             maxWidth: geometry.isTall ? .infinity : 320
         )
     }
+    
+    func participantView(_ participant: Participant) -> some View {
+        return VStack {
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+            
+            HStack(spacing: 8) {
+                if let profilePictureUrl = participant.profilePictureUrl, let url = URL(string: profilePictureUrl) {
+                    WebImage(url: url)
+                        .onSuccess { _,_,_ in
+                            print("success")
+                        }
+                        .onFailure { error in
+                            print("error")
+                        }
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 32.0, height: 32.0)
+                        .clipped()
+                        .cornerRadius(16.0)
+                } else {
+                    ZStack(alignment: .center) {
+                        Circle()
+                            .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                            .frame(maxWidth: 32.0, maxHeight: 32.0)
+
+                        Text((participant.name ?? "Unknow").getInitialsFromName())
+                            .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
+                            .foregroundColor(Color.white)
+                            .frame(width: 32.0, height: 32.0)
+    //                        .padding(.top, 8.0)
+                    }
+                }
+                
+                Text((participant.name ?? "Unknow"))
+                    .padding(.leading, 8)
+                    .font(Font(NSFont(name: "Roboto-Regular", size: 15.0)!))
+                    .foregroundColor(Color(NSColor.Sphinx.Text))
+                
+                Spacer()
+                
+                ZStack(alignment: .center) {
+                    if let publication = participant.mainVideoPublication,
+                       !publication.isMuted,
+                       appCtx.videoViewVisible
+                    {
+                        if let publication = participant.mainVideoPublication,
+                           !publication.isMuted
+                        {
+                            if let remotePub = publication as? RemoteTrackPublication {
+                                Menu {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: false)
+                                            }
+                                        } label: {
+                                            Text("Unsubscribe")
+                                        }
+                                    } else if case .unsubscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: true)
+                                            }
+                                        } label: {
+                                            Text("Subscribe")
+                                        }
+                                    }
+                                } label: {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .videoFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.Text))
+                                            .font(.system(size: 20))
+                                    } else if case .notAllowed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .exclamationmarkCircle)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    } else {
+                                        Image(systemSymbol: .videoSlashFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.Text))
+                                            .font(.system(size: 20))
+                                    }
+                                }
+                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                                .fixedSize()
+                            } else {
+                                Image(systemSymbol: .videoFill)
+                                    .foregroundColor(Color(NSColor.Sphinx.Text))
+                                    .font(.system(size: 18))
+                            }
+
+                        } else {
+                            Image(systemSymbol: .videoFill)
+                                .foregroundColor(Color.white)
+                                .font(.system(size: 18))
+                        }
+                    }
+                }.frame(width: 32.0, height: 32.0)
+                
+                ZStack(alignment: .center) {
+                    if let publication = participant.firstAudioPublication,
+                       !publication.isMuted
+                    {
+                        if participant.isSpeaking {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(maxWidth: 32.0, maxHeight: 32.0)
+                            Image(systemSymbol: .waveformCircleFill)
+                                .renderingMode(.template)
+                                .foregroundColor(Color(NSColor.Sphinx.PrimaryBlue))
+                                .font(.system(size: 32))
+                        } else {
+                            if let remotePub = publication as? RemoteTrackPublication {
+                                Menu {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: false)
+                                            }
+                                        } label: {
+                                            Text("Unsubscribe")
+                                        }
+                                    } else if case .unsubscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: true)
+                                            }
+                                        } label: {
+                                            Text("Subscribe")
+                                        }
+                                    }
+                                } label: {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .micFill)
+                                            .foregroundColor(Color.white)
+                                            .font(.system(size: 20))
+                                    } else if case .notAllowed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .exclamationmarkCircle)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    } else {
+                                        Image(systemSymbol: .micSlashFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    }
+                                }
+                                .menuStyle(BorderlessButtonMenuStyle())
+                                .fixedSize()
+                            } else {
+                                Image(systemSymbol: .micFill)
+                                    .foregroundColor(Color.white)
+                                    .font(.system(size: 18))
+                            }
+                        }
+
+                    } else {
+                        Image(systemSymbol: .micSlashFill)
+                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                            .font(.system(size: 18))
+                    }
+                }.frame(width: 32.0, height: 32.0)
+            }
+            .frame(height: 62)
+            .frame(minWidth: 0, maxWidth: .infinity)
+            
+            Rectangle()
+                .fill(Color.black.opacity(0.35))
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    func participantsView(geometry: GeometryProxy) -> some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Text("\(room.participantCount)  Participants")
+                        .foregroundColor(Color(NSColor.Sphinx.Text))
+                        .font(Font(NSFont(name: "Roboto-Bold", size: 18.0)!))
+                    Spacer()
+                    Button {
+                        roomCtx.showParticipantsView.toggle()
+                    } label: {
+                        Image(systemSymbol: .xmark)
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(NSColor.Sphinx.PlaceholderText))
+                    }
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+                }.frame(
+                    minWidth: 0,
+                    maxWidth: .infinity
+                ).frame(
+                    height: 76
+                )
+                .padding(.trailing, 23)
+                .padding(.leading, 30)
+                
+                ScrollViewReader { scrollView in
+                    ScrollView(.vertical, showsIndicators: true) {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(sortedParticipants()) { participant in
+                                participantView(participant)
+                            }
+                        }
+                    }
+                    .onAppear(perform: {
+                        scrollToTop(scrollView)
+                    })
+                    .onChange(of: room.participantCount, perform: { _ in
+                        scrollToTop(scrollView)
+                    })
+                    .frame(
+                        minWidth: 0,
+                        maxWidth: .infinity,
+                        minHeight: 0,
+                        maxHeight: .infinity,
+                        alignment: .leading
+                    )
+                }
+                .padding(.trailing, 23)
+                .padding(.leading, 30)
+            }
+            .frame(
+                minWidth: 0,
+                maxWidth: .infinity,
+                minHeight: 0,
+                maxHeight: .infinity,
+                alignment: .leading
+            )
+            .background(Color(NSColor.Sphinx.HeaderBG))
+            .cornerRadius(8)
+        }
+        .padding(.top, 9)
+        .padding(.trailing, 16)
+        .frame(
+            width: 360
+        )
+        //        .frame(
+        //            minWidth: 0,
+        //            maxWidth: geometry.isTall ? .infinity : 320
+        //        )
+    }
 
     func sortedParticipants() -> [Participant] {
         room.allParticipants.values.sorted { p1, p2 in
@@ -185,21 +431,22 @@ struct RoomView: View {
 
     func content(geometry: GeometryProxy) -> some View {
         VStack {
-            if showConnectionTime {
-                Text("Connected (\([room.serverRegion, room.serverNodeId, "\(String(describing: room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
-                    .padding()
-            }
+//            if showConnectionTime {
+//                Text("Connected (\([room.serverRegion, room.serverNodeId, "\(String(describing: room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
+//                    .multilineTextAlignment(.center)
+//                    .foregroundColor(.white)
+//                    .padding()
+//            }
             
             if case .connecting = room.connectionState {
-                Text("Re-connecting...")
+                Text("Connecting...")
                     .multilineTextAlignment(.center)
+                    .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                     .foregroundColor(.white)
                     .padding()
             }
             
-            HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 5) {
+            HorVStack(axis: geometry.isTall ? .vertical : .horizontal, spacing: 0) {
                 Group {
                     if let focusParticipant = roomCtx.focusParticipant {
                         ZStack(alignment: .bottomTrailing) {
@@ -208,24 +455,11 @@ struct RoomView: View {
                             { _ in
                                 roomCtx.focusParticipant = nil
                             }
-                            .overlay(RoundedRectangle(cornerRadius: 5)
-                                .stroke(Color(NSColor.Sphinx.PrimaryGreen).opacity(1.0), lineWidth: 3))
-                            
-                            Text("SELECTED")
-                                .font(.system(size: 10))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color.white)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(Color(NSColor.Sphinx.PrimaryGreen).opacity(0.7))
-                                .cornerRadius(8)
-                                .padding(.vertical, 35)
-                                .padding(.horizontal, 10)
                         }
                         
                     } else {
                         // Array([room.allParticipants.values, room.allParticipants.values].joined())
-                        ParticipantLayout(sortedParticipants(), spacing: 5) { participant in
+                        ParticipantLayout(sortedParticipants(), spacing: 0) { participant in
                             ParticipantView(participant: participant,
                                             videoViewMode: appCtx.videoViewMode)
                             { participant in
@@ -244,323 +478,494 @@ struct RoomView: View {
                 if roomCtx.showMessagesView {
                     messagesView(geometry: geometry)
                 }
+                
+                // Show participants view if enabled
+                if roomCtx.showParticipantsView {
+                    participantsView(geometry: geometry)
+                }
             }
+        }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 3))
+    }
+    
+    func bottomBar() -> some View {
+        ZStack {
+            HStack(spacing: 12.0) {
+                if let tribeImg = roomCtx.tribeImage, let url = URL(string: tribeImg) {
+                    WebImage(url: url)
+                        .onSuccess { _,_,_ in
+                            print("success")
+                        }
+                        .onFailure { error in
+                            print("failure")
+                        }
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 40.0)
+                        .frame(width: 40.0)
+                        .cornerRadius(8.0)
+                        .clipped()
+                }
+                
+                HStack(spacing: 0.0) {
+                    Text(room.name ?? "Room")
+                        .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                        .foregroundColor(Color(NSColor.Sphinx.MainBottomIcons))
+                        .padding(.horizontal, 13)
+                    
+                    Button(action: {
+                        Task {
+                            let room = "\(API.sharedInstance.kVideoCallServer)/rooms/\(room.name ?? "Room")"
+                            ClipboardHelper.copyToClipboard(text: room, message: "call.link.copied.clipboard".localized)
+                        }
+                    },
+                    label: {
+                        Image("itemDetailsCopy")
+                            .renderingMode(.template)
+                            .frame(height: 16.0)
+                            .frame(width: 16.0)
+                            .padding(.trailing, 13)
+                            .foregroundColor(Color(NSColor.Sphinx.MainBottomIcons))
+                    })
+                    .background(Color.clear)
+                    .buttonStyle(PlainButtonStyle())
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+                }
+                .frame(height: 40.0)
+                .background(
+                    Color(NSColor.Sphinx.MainBottomIcons)
+                        .opacity(0.1)
+                        .cornerRadius(8.0)
+                )
+                
+//                Picker("", selection: $appCtx.videoViewMode) {
+//                    Text("Fit").tag(VideoView.LayoutMode.fit)
+//                    Text("Fill").tag(VideoView.LayoutMode.fill)
+//                }
+//                .pickerStyle(SegmentedPickerStyle())
+//                .frame(width: 150.0)
+                
+                Spacer()
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            HStack {
+                Spacer()
+                
+                Group {
+                    let isCameraEnabled = room.localParticipant.isCameraEnabled()
+                    let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
+                    let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
+                    
+                    // Toggle microphone enabled
+                    Button {
+                        Task {
+                            isMicrophonePublishingBusy = true
+                            defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                        }
+                    } label: {
+                        Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
+                            .renderingMode(.template)
+                            .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
+                            .font(.system(size: 18))
+                    }
+                    .disabled(isMicrophonePublishingBusy)
+                    .frame(height: 40.0)
+                    .frame(width: 40.0)
+                    .background(
+                        Color(isMicrophoneEnabled ? NSColor.Sphinx.MainBottomIcons : NSColor.Sphinx.BadgeRed)
+                            .opacity(isMicrophoneEnabled ? 0.1 : 0.2)
+                            .cornerRadius(8.0)
+                    )
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+
+                    // Toggle Video enabled
+                    Group {
+                        Button(action: {
+                           if isCameraEnabled {
+                               Task {
+                                   isCameraPublishingBusy = true
+                                   defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                   try await room.localParticipant.setCamera(enabled: false)
+                               }
+                           } else {
+                               publishOptionsPickerPresented = true
+                           }
+                        },
+                        label: {
+                            Image(systemSymbol: isCameraEnabled ? .videoFill : .videoSlashFill)
+                               .renderingMode(.template)
+                               .foregroundColor(isCameraEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
+                               .font(.system(size: 16))
+                        })
+                        // disable while publishing/un-publishing
+                        .disabled(isCameraPublishingBusy)
+                    }
+                    .popover(isPresented: $publishOptionsPickerPresented) {
+                        PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
+                            publishOptionsPickerPresented = false
+                            isCameraPublishingBusy = true
+                            cameraPublishOptions = publishOptions
+                            Task {
+                                defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                                try await room.localParticipant.setCamera(enabled: true,
+                                                                          captureOptions: captureOptions,
+                                                                          publishOptions: publishOptions)
+                            }
+                        }
+                        .padding()
+                    }
+                    .frame(height: 40.0)
+                    .frame(width: 40.0)
+                    .background(
+                        Color(isCameraEnabled ? NSColor.Sphinx.MainBottomIcons : NSColor.Sphinx.BadgeRed)
+                            .opacity(isCameraEnabled ? 0.1 : 0.2)
+                            .cornerRadius(8.0)
+                    )
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+
+                    // Toggle Share Screen enabled
+                    Button(action: {
+                       if #available(macOS 12.3, *) {
+                           if isScreenShareEnabled {
+                               // Turn off screen share
+                               Task {
+                                   isScreenSharePublishingBusy = true
+                                   defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
+                                   try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                               }
+                           } else {
+                               screenPickerPresented = true
+                           }
+                       }
+                   },
+                   label: {
+                       Image(systemSymbol: .rectangleFillOnRectangleFill)
+                           .renderingMode(.template)
+                           .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+                           .font(.system(size: 16))
+                   }).popover(isPresented: $screenPickerPresented) {
+                        if #available(macOS 12.3, *) {
+                            ScreenShareSourcePickerView { source in
+                                Task {
+                                    isScreenSharePublishingBusy = true
+                                    defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
+                                    try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                                }
+                                screenPickerPresented = false
+                            }.padding()
+                        }
+                   }
+                   .disabled(isScreenSharePublishingBusy)
+                   .frame(height: 40.0)
+                   .frame(width: 40.0)
+                   .background(
+                       Color(NSColor.Sphinx.MainBottomIcons)
+                           .opacity(0.1)
+                           .cornerRadius(8.0)
+                   )
+                   .buttonStyle(.borderless)
+                   .onHover { isHover in
+                       if isHover {
+                           NSCursor.pointingHand.set()
+                       } else {
+                           NSCursor.arrow.set()
+                       }
+                   }
+
+                    // Toggle messages view (chat example)
+//                    Button(action: {
+//                        withAnimation {
+//                            roomCtx.showMessagesView.toggle()
+//                        }
+//                    },
+//                    label: {
+//                        Image(systemSymbol: .messageFill)
+//                            .renderingMode(.template)
+//                            .foregroundColor(roomCtx.showMessagesView ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+//                    }).buttonStyle(.borderless)
+                }.padding(5)
+
+                // Disconnect
+                Button(action: {
+                   Task {
+                       await roomCtx.disconnect()
+                   }
+                },
+                label: {
+                   Image(systemSymbol: .phoneDownFill)
+                       .renderingMode(.template)
+                       .foregroundColor(Color.white)
+                       .font(.system(size: 23))
+                })
+                .frame(height: 40.0)
+                .frame(width: 64.0)
+                .background(
+                    Color(NSColor.Sphinx.BadgeRed)
+                        .cornerRadius(8.0)
+                )
+                .buttonStyle(.borderless)
+                .onHover { isHover in
+                    if isHover {
+                        NSCursor.pointingHand.set()
+                    } else {
+                        NSCursor.arrow.set()
+                    }
+                }
+                
+                Spacer()
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            HStack(spacing: 13.0) {
+                Spacer()
+                
+                HStack(spacing: 4.0) {
+                    Button(action: {
+                        Task {
+                            roomCtx.showParticipantsView.toggle()
+                        }
+                    },
+                    label: {
+                        Image(systemSymbol: .person2Fill)
+                            .renderingMode(.template)
+                            .foregroundColor(Color.white)
+                            .font(.system(size: 18))
+                    })
+                    .background(Color.clear)
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.leading, 8.0)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+                    
+                    Text("\(room.allParticipants.count)")
+                        .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                        .foregroundColor(Color.white)
+                        .padding(.trailing, 8)
+                }
+                .frame(height: 40.0)
+                .background(
+                    roomCtx.showParticipantsView ?
+                    Color(NSColor(hex: "#5078F2"))
+                        .opacity(0.75)
+                        .cornerRadius(8.0)
+                    : Color(NSColor.Sphinx.MainBottomIcons)
+                        .opacity(0.1)
+                        .cornerRadius(8.0)
+                )
+                
+                Menu(content: {
+                    Button {
+                        if let url = URL(string: "livekit://") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        Text("New window")
+                    }
+
+                    Divider()
+
+                    Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
+
+                    Group {
+                        Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
+                        Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
+                        Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
+                        Divider()
+                    }
+
+                    Group {
+                        Picker("Output device", selection: $appCtx.outputDevice) {
+                            ForEach(AudioManager.shared.outputDevices) { device in
+                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
+                            }
+                        }
+                        Picker("Input device", selection: $appCtx.inputDevice) {
+                            ForEach(AudioManager.shared.inputDevices) { device in
+                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
+                            }
+                        }
+                    }
+
+                    Group {
+                        Divider()
+
+                        Button {
+                            Task {
+                                await room.localParticipant.unpublishAll()
+                            }
+                        } label: {
+                            Text("Unpublish all")
+                        }
+
+                        Divider()
+
+                        Menu {
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .quickReconnect)
+                                }
+                            } label: {
+                                Text("Quick reconnect")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .fullReconnect)
+                                }
+                            } label: {
+                                Text("Full reconnect")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .nodeFailure)
+                                }
+                            } label: {
+                                Text("Node failure")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .serverLeave)
+                                }
+                            } label: {
+                                Text("Server leave")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .migration)
+                                }
+                            } label: {
+                                Text("Migration")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
+                                }
+                            } label: {
+                                Text("Speaker update")
+                            }
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .forceTCP)
+                                }
+                            } label: {
+                                Text("Force TCP")
+                            }
+                            Button {
+                                Task {
+                                    try await room.debug_simulate(scenario: .forceTLS)
+                                }
+                            } label: {
+                                Text("Force TLS")
+                            }
+                        } label: {
+                            Text("Simulate scenario")
+                        }
+                    }
+
+                    Group {
+                        Menu {
+                            Button {
+                                Task {
+                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
+                                }
+                            } label: {
+                                Text("Allow all")
+                            }
+
+                            Button {
+                                Task {
+                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
+                                }
+                            } label: {
+                                Text("Disallow all")
+                            }
+                        } label: {
+                            Text("Track permissions")
+                        }
+
+                        Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
+                    }
+                }, label: {
+                    Image(systemSymbol: .gear)
+                        .renderingMode(.template)
+                        .foregroundColor(Color.white)
+                        .font(.system(size: 18))
+                })
+                .buttonStyle(.borderless)
+                .menuStyle(BorderlessButtonMenuStyle())
+//                .menuIndicator(.hidden)
+                .frame(width: 40.0, height: 40.0)
+                .background(
+                    Color(NSColor.Sphinx.MainBottomIcons)
+                        .opacity(0.1)
+                        .cornerRadius(8.0)
+                )
+                .onHover { isHover in
+                    if isHover {
+                        NSCursor.pointingHand.set()
+                    } else {
+                        NSCursor.arrow.set()
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(height: 80.0)
+        .padding(.horizontal, 16.0)
+        
+    }
+    
+    func optionsButton() -> some View {
+        Group {
+            
         }
     }
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
+            ZStack {
+                Color(NSColor.Sphinx.Body)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                Spacer().frame(height: 5.0)
-                
-                HStack {
-                    Spacer()
+                VStack(spacing: 0) {
                     
-                    Picker("", selection: $appCtx.videoViewMode) {
-                        Text("Fit").tag(VideoView.LayoutMode.fit)
-                        Text("Fill").tag(VideoView.LayoutMode.fill)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .frame(width: 150.0)
-                    .padding(10)
-
-                    Group {
-                        let isCameraEnabled = room.localParticipant.isCameraEnabled()
-                        let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
-                        let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
-
-                        Group {
-                            if isCameraEnabled, canSwitchCameraPosition {
-                                Menu {
-                                    Button("Switch position") {
-                                        Task {
-                                            isCameraPublishingBusy = true
-                                            defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                            if let track = room.localParticipant.firstCameraVideoTrack as? LocalVideoTrack,
-                                               let cameraCapturer = track.capturer as? CameraCapturer
-                                            {
-                                                try await cameraCapturer.switchCameraPosition()
-                                            }
-                                        }
-                                    }
-
-                                    Button("Disable") {
-                                        Task {
-                                            isCameraPublishingBusy = true
-                                            defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                            try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
-                                        }
-                                    }
-                                } label: {
-                                    Image(systemSymbol: .videoFill)
-                                        .renderingMode(.original)
-                                }
-                                // disable while publishing/un-publishing
-                                .disabled(isCameraPublishingBusy)
-                            } else {
-                                // Toggle camera enabled
-                                Button(action: {
-                                   if isCameraEnabled {
-                                       Task {
-                                           isCameraPublishingBusy = true
-                                           defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                           try await room.localParticipant.setCamera(enabled: false)
-                                       }
-                                   } else {
-                                       publishOptionsPickerPresented = true
-                                   }
-                                },
-                                label: {
-                                   Image(systemSymbol: .videoFill)
-                                       .renderingMode(.template)
-                                       .foregroundColor(isCameraEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                                })
-                                // disable while publishing/un-publishing
-                                .disabled(isCameraPublishingBusy)
-                            }
-                        }
-                        .popover(isPresented: $publishOptionsPickerPresented) {
-                            PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
-                                publishOptionsPickerPresented = false
-                                isCameraPublishingBusy = true
-                                cameraPublishOptions = publishOptions
-                                Task {
-                                    defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                    try await room.localParticipant.setCamera(enabled: true,
-                                                                              captureOptions: captureOptions,
-                                                                              publishOptions: publishOptions)
-                                }
-                            }
-                            .padding()
-                        }
-                        .buttonStyle(.borderless)
-
-                        // Toggle microphone enabled
-                        Button {
-                            Task {
-                                isMicrophonePublishingBusy = true
-                                defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
-                            }
-                        } label: {
-                            Image(systemSymbol: .micFill)
-                                .renderingMode(.template)
-                                .foregroundColor(isMicrophoneEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                        }
-                        .disabled(isMicrophonePublishingBusy)
-                        .buttonStyle(.borderless)
-
-                        Button(action: {
-                           if #available(macOS 12.3, *) {
-                               if isScreenShareEnabled {
-                                   // Turn off screen share
-                                   Task {
-                                       isScreenSharePublishingBusy = true
-                                       defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                                       try await roomCtx.setScreenShareMacOS(isEnabled: false)
-                                   }
-                               } else {
-                                   screenPickerPresented = true
-                               }
-                           }
-                       },
-                       label: {
-                           Image(systemSymbol: .rectangleFillOnRectangleFill)
-                               .renderingMode(.template)
-                               .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                       }).popover(isPresented: $screenPickerPresented) {
-                            if #available(macOS 12.3, *) {
-                                ScreenShareSourcePickerView { source in
-                                    Task {
-                                        isScreenSharePublishingBusy = true
-                                        defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                                        try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
-                                    }
-                                    screenPickerPresented = false
-                                }.padding()
-                            }
-                       }
-                       .disabled(isScreenSharePublishingBusy)
-                       .buttonStyle(.borderless)
-
-                        // Toggle messages view (chat example)
-                        Button(action: {
-                            withAnimation {
-                                roomCtx.showMessagesView.toggle()
-                            }
-                        },
-                        label: {
-                            Image(systemSymbol: .messageFill)
-                                .renderingMode(.template)
-                                .foregroundColor(roomCtx.showMessagesView ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                        }).buttonStyle(.borderless)
-                    }.padding(5)
-
-                    Menu {
-                        Button {
-                            if let url = URL(string: "livekit://") {
-                                NSWorkspace.shared.open(url)
-                            }
-                        } label: {
-                            Text("New window")
-                        }
-
-                        Divider()
-
-                        Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
-
-                        Group {
-                            Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
-                            Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
-                            Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
-                            Divider()
-                        }
-
-                        Group {
-                            Picker("Output device", selection: $appCtx.outputDevice) {
-                                ForEach(AudioManager.shared.outputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
-                                }
-                            }
-                            Picker("Input device", selection: $appCtx.inputDevice) {
-                                ForEach(AudioManager.shared.inputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
-                                }
-                            }
-                        }
-
-                        Group {
-                            Divider()
-
-                            Button {
-                                Task {
-                                    await room.localParticipant.unpublishAll()
-                                }
-                            } label: {
-                                Text("Unpublish all")
-                            }
-
-                            Divider()
-
-                            Menu {
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .quickReconnect)
-                                    }
-                                } label: {
-                                    Text("Quick reconnect")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .fullReconnect)
-                                    }
-                                } label: {
-                                    Text("Full reconnect")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .nodeFailure)
-                                    }
-                                } label: {
-                                    Text("Node failure")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .serverLeave)
-                                    }
-                                } label: {
-                                    Text("Server leave")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .migration)
-                                    }
-                                } label: {
-                                    Text("Migration")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
-                                    }
-                                } label: {
-                                    Text("Speaker update")
-                                }
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .forceTCP)
-                                    }
-                                } label: {
-                                    Text("Force TCP")
-                                }
-                                Button {
-                                    Task {
-                                        try await room.debug_simulate(scenario: .forceTLS)
-                                    }
-                                } label: {
-                                    Text("Force TLS")
-                                }
-                            } label: {
-                                Text("Simulate scenario")
-                            }
-                        }
-
-                        Group {
-                            Menu {
-                                Button {
-                                    Task {
-                                        try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
-                                    }
-                                } label: {
-                                    Text("Allow all")
-                                }
-
-                                Button {
-                                    Task {
-                                        try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
-                                    }
-                                } label: {
-                                    Text("Disallow all")
-                                }
-                            } label: {
-                                Text("Track permissions")
-                            }
-
-                            Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
-                        }
-
-                    } label: {
-                        Image(systemSymbol: .gear)
-                            .renderingMode(.original)
-                    }.padding(5)
-                    .frame(width: 60.0)
-
-                    // Disconnect
-                    Button(action: {
-                       Task {
-                           await roomCtx.disconnect()
-                       }
-                    },
-                    label: {
-                       Image(systemSymbol: .xmarkCircleFill)
-                           .renderingMode(.original)
-                    }).buttonStyle(.borderless).padding(5)
+                    Spacer().frame(height: 45.0)
                     
-                    Spacer().frame(width: 15)
+                    content(geometry: geometry)
                     
+                    bottomBar()
                 }
-                .background(Color(NSColor.Sphinx.HeaderBG))
-                .padding(EdgeInsets(top: 0, leading: 5, bottom: 0, trailing: 5))
-                .cornerRadius(13)
-                
-                content(geometry: geometry).padding(5)
-                
-            }.background(Color(NSColor.Sphinx.ChatsHeaderDivider))
+                .background(Color.black.opacity(0.5))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .onAppear {
             Task { @MainActor in

@@ -53,8 +53,9 @@ struct RoomSwitchView: View {
                 ConnectView()
             }
         }
-        .navigationTitle(computeTitle())
+//        .navigationTitle(computeTitle())
         .onChange(of: shouldShowRoomView) { _ in
+            
         }
     }
 }
@@ -76,6 +77,7 @@ struct RoomContextView: View {
     
     var body: some View {
         RoomSwitchView()
+            .ignoresSafeArea()
             .environmentObject(roomCtx)
             .environmentObject(roomCtx.room)
             .environment(\.colorScheme, .dark)
