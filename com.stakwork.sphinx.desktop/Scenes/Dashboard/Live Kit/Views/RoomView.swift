@@ -111,6 +111,13 @@ struct RoomView: View {
             scrollView.scrollTo(last.id)
         }
     }
+    
+    func scrollToTop(_ scrollView: ScrollViewProxy) {
+        guard let first = sortedParticipants().first else { return }
+        withAnimation {
+            scrollView.scrollTo(first.id)
+        }
+    }
 
     func messagesView(geometry: GeometryProxy) -> some View {
         VStack(spacing: 0) {
@@ -161,6 +168,257 @@ struct RoomView: View {
             minWidth: 0,
             maxWidth: geometry.isTall ? .infinity : 320
         )
+    }
+    
+    func participantView(_ participant: Participant) -> some View {
+        return VStack {
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+            
+            HStack(spacing: 8) {
+                if let profilePictureUrl = participant.profilePictureUrl, let url = URL(string: profilePictureUrl) {
+                    WebImage(url: url)
+                        .onSuccess { _,_,_ in
+                            print("success")
+                        }
+                        .onFailure { error in
+                            print("error")
+                        }
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 32.0, height: 32.0)
+                        .clipped()
+                        .cornerRadius(16.0)
+                } else {
+                    ZStack(alignment: .center) {
+                        Circle()
+                            .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                            .frame(maxWidth: 32.0, maxHeight: 32.0)
+
+                        Text((participant.name ?? "Unknow").getInitialsFromName())
+                            .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
+                            .foregroundColor(Color.white)
+                            .frame(width: 32.0, height: 32.0)
+    //                        .padding(.top, 8.0)
+                    }
+                }
+                
+                Text((participant.name ?? "Unknow"))
+                    .padding(.leading, 8)
+                    .font(Font(NSFont(name: "Roboto-Regular", size: 15.0)!))
+                    .foregroundColor(Color(NSColor.Sphinx.Text))
+                
+                Spacer()
+                
+                ZStack(alignment: .center) {
+                    if let publication = participant.mainVideoPublication,
+                       !publication.isMuted,
+                       appCtx.videoViewVisible
+                    {
+                        if let publication = participant.mainVideoPublication,
+                           !publication.isMuted
+                        {
+                            if let remotePub = publication as? RemoteTrackPublication {
+                                Menu {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: false)
+                                            }
+                                        } label: {
+                                            Text("Unsubscribe")
+                                        }
+                                    } else if case .unsubscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: true)
+                                            }
+                                        } label: {
+                                            Text("Subscribe")
+                                        }
+                                    }
+                                } label: {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .videoFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.Text))
+                                            .font(.system(size: 20))
+                                    } else if case .notAllowed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .exclamationmarkCircle)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    } else {
+                                        Image(systemSymbol: .videoSlashFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.Text))
+                                            .font(.system(size: 20))
+                                    }
+                                }
+                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                                .fixedSize()
+                            } else {
+                                Image(systemSymbol: .videoFill)
+                                    .foregroundColor(Color(NSColor.Sphinx.Text))
+                                    .font(.system(size: 18))
+                            }
+
+                        } else {
+                            Image(systemSymbol: .videoFill)
+                                .foregroundColor(Color.white)
+                                .font(.system(size: 18))
+                        }
+                    }
+                }.frame(width: 32.0, height: 32.0)
+                
+                ZStack(alignment: .center) {
+                    if let publication = participant.firstAudioPublication,
+                       !publication.isMuted
+                    {
+                        if participant.isSpeaking {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(maxWidth: 32.0, maxHeight: 32.0)
+                            Image(systemSymbol: .waveformCircleFill)
+                                .renderingMode(.template)
+                                .foregroundColor(Color(NSColor.Sphinx.PrimaryBlue))
+                                .font(.system(size: 32))
+                        } else {
+                            if let remotePub = publication as? RemoteTrackPublication {
+                                Menu {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: false)
+                                            }
+                                        } label: {
+                                            Text("Unsubscribe")
+                                        }
+                                    } else if case .unsubscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: true)
+                                            }
+                                        } label: {
+                                            Text("Subscribe")
+                                        }
+                                    }
+                                } label: {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .micFill)
+                                            .foregroundColor(Color.white)
+                                            .font(.system(size: 20))
+                                    } else if case .notAllowed = remotePub.subscriptionState {
+                                        Image(systemSymbol: .exclamationmarkCircle)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    } else {
+                                        Image(systemSymbol: .micSlashFill)
+                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                            .font(.system(size: 20))
+                                    }
+                                }
+                                .menuStyle(BorderlessButtonMenuStyle())
+                                .fixedSize()
+                            } else {
+                                Image(systemSymbol: .micFill)
+                                    .foregroundColor(Color.white)
+                                    .font(.system(size: 18))
+                            }
+                        }
+
+                    } else {
+                        Image(systemSymbol: .micSlashFill)
+                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                            .font(.system(size: 18))
+                    }
+                }.frame(width: 32.0, height: 32.0)
+            }
+            .frame(height: 62)
+            .frame(minWidth: 0, maxWidth: .infinity)
+            
+            Rectangle()
+                .fill(Color.black.opacity(0.35))
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    func participantsView(geometry: GeometryProxy) -> some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Text("\(room.participantCount)  Participants")
+                        .foregroundColor(Color(NSColor.Sphinx.Text))
+                        .font(Font(NSFont(name: "Roboto-Bold", size: 18.0)!))
+                    Spacer()
+                    Button {
+                        roomCtx.showParticipantsView.toggle()
+                    } label: {
+                        Image(systemSymbol: .xmark)
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(NSColor.Sphinx.PlaceholderText))
+                    }
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
+                }.frame(
+                    minWidth: 0,
+                    maxWidth: .infinity
+                ).frame(
+                    height: 76
+                )
+                .padding(.trailing, 23)
+                .padding(.leading, 30)
+                
+                ScrollViewReader { scrollView in
+                    ScrollView(.vertical, showsIndicators: true) {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(sortedParticipants()) { participant in
+                                participantView(participant)
+                            }
+                        }
+                    }
+                    .onAppear(perform: {
+                        scrollToTop(scrollView)
+                    })
+                    .onChange(of: room.participantCount, perform: { _ in
+                        scrollToTop(scrollView)
+                    })
+                    .frame(
+                        minWidth: 0,
+                        maxWidth: .infinity,
+                        minHeight: 0,
+                        maxHeight: .infinity,
+                        alignment: .leading
+                    )
+                }
+                .padding(.trailing, 23)
+                .padding(.leading, 30)
+            }
+            .frame(
+                minWidth: 0,
+                maxWidth: .infinity,
+                minHeight: 0,
+                maxHeight: .infinity,
+                alignment: .leading
+            )
+            .background(Color(NSColor.Sphinx.HeaderBG))
+            .cornerRadius(8)
+        }
+        .padding(.top, 9)
+        .padding(.trailing, 16)
+        .frame(
+            width: 360
+        )
+        //        .frame(
+        //            minWidth: 0,
+        //            maxWidth: geometry.isTall ? .infinity : 320
+        //        )
     }
 
     func sortedParticipants() -> [Participant] {
@@ -219,6 +477,11 @@ struct RoomView: View {
                 // Show messages view if enabled
                 if roomCtx.showMessagesView {
                     messagesView(geometry: geometry)
+                }
+                
+                // Show participants view if enabled
+                if roomCtx.showParticipantsView {
+                    participantsView(geometry: geometry)
                 }
             }
         }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 3))
@@ -478,7 +741,7 @@ struct RoomView: View {
                 HStack(spacing: 4.0) {
                     Button(action: {
                         Task {
-                            //Open Participants view
+                            roomCtx.showParticipantsView.toggle()
                         }
                     },
                     label: {
@@ -505,8 +768,12 @@ struct RoomView: View {
                 }
                 .frame(height: 40.0)
                 .background(
+                    roomCtx.showParticipantsView ?
                     Color(NSColor(hex: "#5078F2"))
                         .opacity(0.75)
+                        .cornerRadius(8.0)
+                    : Color(NSColor.Sphinx.MainBottomIcons)
+                        .opacity(0.1)
                         .cornerRadius(8.0)
                 )
                 

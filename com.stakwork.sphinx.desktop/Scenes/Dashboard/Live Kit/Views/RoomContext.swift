@@ -83,6 +83,7 @@ final class RoomContext: ObservableObject {
     @Published var focusParticipant: Participant?
 
     @Published var showMessagesView: Bool = false
+    @Published var showParticipantsView: Bool = false
     @Published var messages: [ExampleRoomMessage] = []
 
     @Published var textFieldString: String = ""
