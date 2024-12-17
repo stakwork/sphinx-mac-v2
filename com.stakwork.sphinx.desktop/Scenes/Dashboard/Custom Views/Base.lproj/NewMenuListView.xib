@@ -188,7 +188,7 @@
                             </stackView>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jgb-o9-nG3">
                                 <rect key="frame" x="23" y="50" width="106" height="14"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="Version 1.0.0 (114)" id="a9T-h0-eiW">
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Version 1.0.0 (117)" id="a9T-h0-eiW">
                                     <font key="font" size="12" name="Roboto-Regular"/>
                                     <color key="textColor" name="PrimaryText"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
