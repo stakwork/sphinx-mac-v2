@@ -238,74 +238,7 @@ struct ParticipantView: View {
                                 .foregroundColor(Color.white)
                                 .truncationMode(.tail)
                         }
-
-//                        if let publication = participant.mainVideoPublication,
-//                           !publication.isMuted
-//                        {
-//                            // is remote
-//                            if let remotePub = publication as? RemoteTrackPublication {
-//                                Menu {
-//                                    if case .subscribed = remotePub.subscriptionState {
-//                                        Button {
-//                                            Task {
-//                                                try await remotePub.set(subscribed: false)
-//                                            }
-//                                        } label: {
-//                                            Text("Unsubscribe")
-//                                        }
-//                                    } else if case .unsubscribed = remotePub.subscriptionState {
-//                                        Button {
-//                                            Task {
-//                                                try await remotePub.set(subscribed: true)
-//                                            }
-//                                        } label: {
-//                                            Text("Subscribe")
-//                                        }
-//                                    }
-//                                } label: {
-//                                    if case .subscribed = remotePub.subscriptionState {
-//                                        Image(systemSymbol: .videoFill)
-//                                            .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-//                                    } else if case .notAllowed = remotePub.subscriptionState {
-//                                        Image(systemSymbol: .exclamationmarkCircle)
-//                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-//                                    } else {
-//                                        Image(systemSymbol: .videoSlashFill)
-//                                    }
-//                                }
-//                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
-//                                .fixedSize()
-//                            } else {
-//                                // local
-//                                Image(systemSymbol: .videoFill)
-//                                    .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-//                            }
-//
-//                        } else {
-//                            Image(systemSymbol: .videoSlashFill)
-//                                .foregroundColor(Color.white)
-//                        }
-                        
                         Spacer()
-
-//                        if participant.connectionQuality == .excellent {
-//                            Image(systemSymbol: .wifi)
-//                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-//                        } else if participant.connectionQuality == .good {
-//                            Image(systemSymbol: .wifi)
-//                                .foregroundColor(Color(NSColor.Sphinx.SphinxOrange))
-//                        } else if participant.connectionQuality == .poor {
-//                            Image(systemSymbol: .wifiExclamationmark)
-//                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-//                        }
-//
-//                        if participant.firstTrackEncryptionType == .none {
-//                            Image(systemSymbol: .lockOpenFill)
-//                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-//                        } else {
-//                            Image(systemSymbol: .lockFill)
-//                                .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
-//                        }
 
                     }
                     .padding(.leading, 10)

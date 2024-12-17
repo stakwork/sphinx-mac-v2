@@ -201,7 +201,7 @@ struct RoomView: View {
                             .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                             .foregroundColor(Color.white)
                             .frame(width: 32.0, height: 32.0)
-    //                        .padding(.top, 8.0)
+
                     }
                 }
                 
@@ -243,29 +243,39 @@ struct RoomView: View {
                                     if case .subscribed = remotePub.subscriptionState {
                                         Image(systemSymbol: .videoFill)
                                             .foregroundColor(Color(NSColor.Sphinx.Text))
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 24))
                                     } else if case .notAllowed = remotePub.subscriptionState {
                                         Image(systemSymbol: .exclamationmarkCircle)
                                             .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 24))
                                     } else {
                                         Image(systemSymbol: .videoSlashFill)
                                             .foregroundColor(Color(NSColor.Sphinx.Text))
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 24))
                                     }
                                 }
-                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: false))
                                 .fixedSize()
+                                .frame(width: 32, height: 32)
+                                .background(Color(NSColor.Sphinx.MainBottomIcons).opacity(0.2))
+                                .cornerRadius(6.0)
+                                .onHover { isHover in
+                                    if isHover {
+                                        NSCursor.pointingHand.set()
+                                    } else {
+                                        NSCursor.arrow.set()
+                                    }
+                                }
                             } else {
                                 Image(systemSymbol: .videoFill)
                                     .foregroundColor(Color(NSColor.Sphinx.Text))
-                                    .font(.system(size: 18))
+                                    .font(.system(size: 20))
                             }
 
                         } else {
                             Image(systemSymbol: .videoFill)
                                 .foregroundColor(Color.white)
-                                .font(.system(size: 18))
+                                .font(.system(size: 20))
                         }
                     }
                 }.frame(width: 32.0, height: 32.0)
@@ -274,62 +284,62 @@ struct RoomView: View {
                     if let publication = participant.firstAudioPublication,
                        !publication.isMuted
                     {
-                        if participant.isSpeaking {
-                            Circle()
-                                .fill(Color.white)
-                                .frame(maxWidth: 32.0, maxHeight: 32.0)
-                            Image(systemSymbol: .waveformCircleFill)
-                                .renderingMode(.template)
-                                .foregroundColor(Color(NSColor.Sphinx.PrimaryBlue))
-                                .font(.system(size: 32))
-                        } else {
-                            if let remotePub = publication as? RemoteTrackPublication {
-                                Menu {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: false)
-                                            }
-                                        } label: {
-                                            Text("Unsubscribe")
+                        if let remotePub = publication as? RemoteTrackPublication {
+                            Menu {
+                                if case .subscribed = remotePub.subscriptionState {
+                                    Button {
+                                        Task {
+                                            try await remotePub.set(subscribed: false)
                                         }
-                                    } else if case .unsubscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: true)
-                                            }
-                                        } label: {
-                                            Text("Subscribe")
-                                        }
+                                    } label: {
+                                        Text("Unsubscribe")
                                     }
-                                } label: {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .micFill)
-                                            .foregroundColor(Color.white)
-                                            .font(.system(size: 20))
-                                    } else if case .notAllowed = remotePub.subscriptionState {
-                                        Image(systemSymbol: .exclamationmarkCircle)
-                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                            .font(.system(size: 20))
-                                    } else {
-                                        Image(systemSymbol: .micSlashFill)
-                                            .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                            .font(.system(size: 20))
+                                } else if case .unsubscribed = remotePub.subscriptionState {
+                                    Button {
+                                        Task {
+                                            try await remotePub.set(subscribed: true)
+                                        }
+                                    } label: {
+                                        Text("Subscribe")
                                     }
                                 }
-                                .menuStyle(BorderlessButtonMenuStyle())
-                                .fixedSize()
-                            } else {
-                                Image(systemSymbol: .micFill)
-                                    .foregroundColor(Color.white)
-                                    .font(.system(size: 18))
+                            } label: {
+                                if case .subscribed = remotePub.subscriptionState {
+                                    Image(systemSymbol: .micFill)
+                                        .foregroundColor(Color.white)
+                                        .font(.system(size: 24))
+                                } else if case .notAllowed = remotePub.subscriptionState {
+                                    Image(systemSymbol: .exclamationmarkCircle)
+                                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                        .font(.system(size: 24))
+                                } else {
+                                    Image(systemSymbol: .micSlashFill)
+                                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                        .font(.system(size: 24))
+                                }
                             }
+                            .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: false))
+                            .fixedSize()
+                            .frame(width: 32, height: 32)
+                            .background(Color(NSColor.Sphinx.MainBottomIcons).opacity(0.2))
+                            .cornerRadius(6.0)
+                            .onHover { isHover in
+                                if isHover {
+                                    NSCursor.pointingHand.set()
+                                } else {
+                                    NSCursor.arrow.set()
+                                }
+                            }
+                        } else {
+                            Image(systemSymbol: .micFill)
+                                .foregroundColor(Color.white)
+                                .font(.system(size: 20))
                         }
 
                     } else {
                         Image(systemSymbol: .micSlashFill)
                             .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                            .font(.system(size: 18))
+                            .font(.system(size: 20))
                     }
                 }.frame(width: 32.0, height: 32.0)
             }
@@ -347,7 +357,7 @@ struct RoomView: View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    Text(room.participantCount == 1 ? ("\(room.participantCount)  Participants") : ("\(room.participantCount)  Participant"))
+                    Text(room.participantCount == 1 ? ("\(room.participantCount)  Participant") : ("\(room.participantCount)  Participants"))
                         .foregroundColor(Color(NSColor.Sphinx.Text))
                         .font(Font(NSFont(name: "Roboto-Bold", size: 18.0)!))
                     Spacer()
@@ -431,13 +441,6 @@ struct RoomView: View {
 
     func content(geometry: GeometryProxy) -> some View {
         VStack {
-//            if showConnectionTime {
-//                Text("Connected (\([room.serverRegion, room.serverNodeId, "\(String(describing: room.connectStopwatch.total().rounded(to: 2)))s"].compactMap { $0 }.joined(separator: ", ")))")
-//                    .multilineTextAlignment(.center)
-//                    .foregroundColor(.white)
-//                    .padding()
-//            }
-            
             if case .connecting = room.connectionState {
                 Text("Connecting...")
                     .multilineTextAlignment(.center)
