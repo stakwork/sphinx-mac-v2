@@ -54,11 +54,25 @@ final class AppContext: ObservableObject {
             AudioManager.shared.outputDevice = outputDevice
         }
     }
+    
+    @Published var outputDeviceId: String = AudioManager.shared.defaultOutputDevice.deviceId {
+        didSet {
+            print("didSet outputDevice: \(String(describing: outputDevice))")
+            outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputDeviceId }) ?? AudioManager.shared.defaultOutputDevice
+        }
+    }
 
     @Published var inputDevice: AudioDevice = AudioManager.shared.defaultInputDevice {
         didSet {
             print("didSet inputDevice: \(String(describing: inputDevice))")
             AudioManager.shared.inputDevice = inputDevice
+        }
+    }
+    
+    @Published var inputDeviceId: String = AudioManager.shared.defaultInputDevice.deviceId {
+        didSet {
+            print("didSet inputDevice: \(String(describing: inputDeviceId))")
+            inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputDeviceId }) ?? AudioManager.shared.defaultInputDevice
         }
     }
 

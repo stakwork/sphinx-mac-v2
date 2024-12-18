@@ -71,7 +71,7 @@ struct ParticipantView: View {
                                          mirrorMode: appCtx.videoViewMirrored ? .mirror : .auto,
                                          renderMode: appCtx.preferSampleBufferRendering ? .sampleBuffer : .auto,
                                          pinchToZoomOptions: appCtx.videoViewPinchToZoomOptions,
-                                         isDebugMode: appCtx.showInformationOverlay,
+                                         isDebugMode: false,
                                          isRendering: $isRendering)
                         .cornerRadius(8)
                         
@@ -210,6 +210,7 @@ struct ParticipantView: View {
                                             }
                                         }
                                         .menuStyle(BorderlessButtonMenuStyle())
+                                        .menuIndicator(.hidden)
                                         .fixedSize()
                                     } else {
                                         Image(systemSymbol: .micFill)

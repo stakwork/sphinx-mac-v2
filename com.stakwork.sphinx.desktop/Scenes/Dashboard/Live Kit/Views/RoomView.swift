@@ -77,6 +77,10 @@ struct RoomView: View {
 
     @State private var screenPickerPresented = false
     @State private var publishOptionsPickerPresented = false
+    @State private var isGearMenuPresented = false
+    
+    @State private var isParticipantsVideoMenuPresented: [String: Bool] = [:]
+    @State private var isParticipantsAudioMenuPresented: [String: Bool] = [:]
 
     @State private var cameraPublishOptions = VideoPublishOptions()
 
@@ -221,44 +225,62 @@ struct RoomView: View {
                            !publication.isMuted
                         {
                             if let remotePub = publication as? RemoteTrackPublication {
-                                Menu {
-                                    if case .subscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: false)
-                                            }
-                                        } label: {
-                                            Text("Unsubscribe")
-                                        }
-                                    } else if case .unsubscribed = remotePub.subscriptionState {
-                                        Button {
-                                            Task {
-                                                try await remotePub.set(subscribed: true)
-                                            }
-                                        } label: {
-                                            Text("Subscribe")
-                                        }
-                                    }
-                                } label: {
+                                
+                                Button(action: {
+                                    isParticipantsVideoMenuPresented[participant.id] = true
+                                }) {
                                     if case .subscribed = remotePub.subscriptionState {
                                         Image(systemSymbol: .videoFill)
                                             .foregroundColor(Color(NSColor.Sphinx.Text))
-                                            .font(.system(size: 24))
+                                            .font(.system(size: 15))
+                                            .frame(width: 32.0, height: 32.0)
                                     } else if case .notAllowed = remotePub.subscriptionState {
                                         Image(systemSymbol: .exclamationmarkCircle)
                                             .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                            .font(.system(size: 24))
+                                            .font(.system(size: 15))
+                                            .frame(width: 32.0, height: 32.0)
                                     } else {
                                         Image(systemSymbol: .videoSlashFill)
                                             .foregroundColor(Color(NSColor.Sphinx.Text))
-                                            .font(.system(size: 24))
+                                            .font(.system(size: 15))
+                                            .frame(width: 32.0, height: 32.0)
                                     }
                                 }
-                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: false))
-                                .fixedSize()
+                                .buttonStyle(.borderless)
+                                .background(
+                                    Color(NSColor.Sphinx.MainBottomIcons)
+                                        .opacity(0.2)
+                                        .cornerRadius(8.0)
+                                )
+                                .popover(isPresented: Binding(
+                                    get: { isParticipantsVideoMenuPresented[participant.id] ?? false },
+                                    set: { isParticipantsVideoMenuPresented[participant.id] = $0 }
+                                )) {
+                                    VStack(spacing: 16) {
+                                        if case .subscribed = remotePub.subscriptionState {
+                                            Button {
+                                                Task {
+                                                    try await remotePub.set(subscribed: false)
+                                                    isParticipantsVideoMenuPresented[participant.id] = false
+                                                }
+                                            } label: {
+                                                Text("Unsubscribe")
+                                            }
+                                        } else if case .unsubscribed = remotePub.subscriptionState {
+                                            Button {
+                                                Task {
+                                                    try await remotePub.set(subscribed: true)
+                                                    isParticipantsVideoMenuPresented[participant.id] = false
+                                                }
+                                            } label: {
+                                                Text("Subscribe")
+                                            }
+                                        }
+                                    }
+                                    .padding()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                }
                                 .frame(width: 32, height: 32)
-                                .background(Color(NSColor.Sphinx.MainBottomIcons).opacity(0.2))
-                                .cornerRadius(6.0)
                                 .onHover { isHover in
                                     if isHover {
                                         NSCursor.pointingHand.set()
@@ -269,60 +291,79 @@ struct RoomView: View {
                             } else {
                                 Image(systemSymbol: .videoFill)
                                     .foregroundColor(Color(NSColor.Sphinx.Text))
-                                    .font(.system(size: 20))
+                                    .font(.system(size: 15))
                             }
 
                         } else {
                             Image(systemSymbol: .videoFill)
                                 .foregroundColor(Color.white)
-                                .font(.system(size: 20))
+                                .font(.system(size: 15))
                         }
                     }
                 }.frame(width: 32.0, height: 32.0)
                 
                 ZStack(alignment: .center) {
+                    @State var isAudioMenuPresented = false
+                    
                     if let publication = participant.firstAudioPublication,
                        !publication.isMuted
                     {
                         if let remotePub = publication as? RemoteTrackPublication {
-                            Menu {
-                                if case .subscribed = remotePub.subscriptionState {
-                                    Button {
-                                        Task {
-                                            try await remotePub.set(subscribed: false)
-                                        }
-                                    } label: {
-                                        Text("Unsubscribe")
-                                    }
-                                } else if case .unsubscribed = remotePub.subscriptionState {
-                                    Button {
-                                        Task {
-                                            try await remotePub.set(subscribed: true)
-                                        }
-                                    } label: {
-                                        Text("Subscribe")
-                                    }
-                                }
-                            } label: {
+                            Button(action: {
+                                isParticipantsAudioMenuPresented[participant.id] = true
+                            }) {
                                 if case .subscribed = remotePub.subscriptionState {
                                     Image(systemSymbol: .micFill)
                                         .foregroundColor(Color.white)
-                                        .font(.system(size: 24))
+                                        .font(.system(size: 17))
+                                        .frame(width: 32.0, height: 32.0)
                                 } else if case .notAllowed = remotePub.subscriptionState {
                                     Image(systemSymbol: .exclamationmarkCircle)
                                         .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                        .font(.system(size: 24))
+                                        .font(.system(size: 17))
+                                        .frame(width: 32.0, height: 32.0)
                                 } else {
                                     Image(systemSymbol: .micSlashFill)
                                         .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                        .font(.system(size: 24))
+                                        .font(.system(size: 17))
+                                        .frame(width: 32.0, height: 32.0)
                                 }
                             }
-                            .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: false))
-                            .fixedSize()
+                            .buttonStyle(.borderless)
+                            .background(
+                                Color(NSColor.Sphinx.MainBottomIcons)
+                                    .opacity(0.2)
+                                    .cornerRadius(8.0)
+                            )
+                            .popover(isPresented: Binding(
+                                get: { isParticipantsAudioMenuPresented[participant.id] ?? false },
+                                set: { isParticipantsAudioMenuPresented[participant.id] = $0 }
+                            )) {
+                                VStack(spacing: 16) {
+                                    if case .subscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: false)
+                                                isParticipantsAudioMenuPresented[participant.id] = false
+                                            }
+                                        } label: {
+                                            Text("Unsubscribe")
+                                        }
+                                    } else if case .unsubscribed = remotePub.subscriptionState {
+                                        Button {
+                                            Task {
+                                                try await remotePub.set(subscribed: true)
+                                                isParticipantsAudioMenuPresented[participant.id] = false
+                                            }
+                                        } label: {
+                                            Text("Subscribe")
+                                        }
+                                    }
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }
                             .frame(width: 32, height: 32)
-                            .background(Color(NSColor.Sphinx.MainBottomIcons).opacity(0.2))
-                            .cornerRadius(6.0)
                             .onHover { isHover in
                                 if isHover {
                                     NSCursor.pointingHand.set()
@@ -333,13 +374,13 @@ struct RoomView: View {
                         } else {
                             Image(systemSymbol: .micFill)
                                 .foregroundColor(Color.white)
-                                .font(.system(size: 20))
+                                .font(.system(size: 17))
                         }
 
                     } else {
                         Image(systemSymbol: .micSlashFill)
                             .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                            .font(.system(size: 20))
+                            .font(.system(size: 17))
                     }
                 }.frame(width: 32.0, height: 32.0)
             }
@@ -780,164 +821,70 @@ struct RoomView: View {
                         .cornerRadius(8.0)
                 )
                 
-                Menu(content: {
-                    Button {
-                        let room = "\(API.sharedInstance.kVideoCallServer)/rooms/\(room.name ?? "Room")"
-                        if let url = URL(string: room) {
-                            NSWorkspace.shared.open(url)
-                        }
-                    } label: {
-                        Text("Open in Browser")
-                    }
-
-                    Divider()
-
-                    Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
-
-                    Group {
-                        Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
-                        Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
-                        Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
-                        Divider()
-                    }
-
-                    Group {
-                        Picker("Output device", selection: $appCtx.outputDevice) {
-                            ForEach(AudioManager.shared.outputDevices) { device in
-                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
-                            }
-                        }
-                        Picker("Input device", selection: $appCtx.inputDevice) {
-                            ForEach(AudioManager.shared.inputDevices) { device in
-                                Text(device.isDefault ? "Default" : "\(device.name)").tag(device)
-                            }
-                        }
-                    }
-
-                    Group {
-                        Divider()
-
-                        Button {
-                            Task {
-                                await room.localParticipant.unpublishAll()
-                            }
-                        } label: {
-                            Text("Unpublish all")
-                        }
-
-                        Divider()
-
-//                        Menu {
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .quickReconnect)
-//                                }
-//                            } label: {
-//                                Text("Quick reconnect")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .fullReconnect)
-//                                }
-//                            } label: {
-//                                Text("Full reconnect")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .nodeFailure)
-//                                }
-//                            } label: {
-//                                Text("Node failure")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .serverLeave)
-//                                }
-//                            } label: {
-//                                Text("Server leave")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .migration)
-//                                }
-//                            } label: {
-//                                Text("Migration")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .speakerUpdate(seconds: 3))
-//                                }
-//                            } label: {
-//                                Text("Speaker update")
-//                            }
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .forceTCP)
-//                                }
-//                            } label: {
-//                                Text("Force TCP")
-//                            }
-//                            Button {
-//                                Task {
-//                                    try await room.debug_simulate(scenario: .forceTLS)
-//                                }
-//                            } label: {
-//                                Text("Force TLS")
-//                            }
-//                        } label: {
-//                            Text("Simulate scenario")
-//                        }
-                    }
-
-//                    Group {
-//                        Menu {
-//                            Button {
-//                                Task {
-//                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: true)
-//                                }
-//                            } label: {
-//                                Text("Allow all")
-//                            }
-//
-//                            Button {
-//                                Task {
-//                                    try await room.localParticipant.setTrackSubscriptionPermissions(allParticipantsAllowed: false)
-//                                }
-//                            } label: {
-//                                Text("Disallow all")
-//                            }
-//                        } label: {
-//                            Text("Track permissions")
-//                        }
-//
-//                        Toggle("E2EE enabled", isOn: $roomCtx.isE2eeEnabled)
-//                    }
-                }, label: {
+                Button(action: {
+                    isGearMenuPresented.toggle()
+                }) {
                     Image(systemSymbol: .gear)
                         .renderingMode(.template)
                         .foregroundColor(Color.white)
                         .font(.system(size: 18))
-                })
-                .buttonStyle(.borderless)
-                .menuStyle(BorderlessButtonMenuStyle())
-//                .menuIndicator(.hidden)
-                .frame(width: 40.0, height: 40.0)
+                        .frame(width: 40.0, height: 40.0)
+                }
+                .buttonStyle(PlainButtonStyle())
                 .background(
                     Color(NSColor.Sphinx.MainBottomIcons)
                         .opacity(0.1)
                         .cornerRadius(8.0)
                 )
-                .onHover { isHover in
-                    if isHover {
-                        NSCursor.pointingHand.set()
-                    } else {
-                        NSCursor.arrow.set()
+                .popover(isPresented: $isGearMenuPresented) {
+                    VStack(spacing: 16) {
+                        Button {
+                            let room = "\(API.sharedInstance.kVideoCallServer)/rooms/\(room.name ?? "Room")"
+                            if let url = URL(string: room) {
+                                NSWorkspace.shared.open(url)
+                            }
+                        } label: {
+                            Text("Open in Browser")
+                        }
+
+                        Divider()
+
+                        Toggle("Show info overlay", isOn: $appCtx.showInformationOverlay)
+
+                        Group {
+                            Toggle("VideoView visible", isOn: $appCtx.videoViewVisible)
+                            Toggle("VideoView flip", isOn: $appCtx.videoViewMirrored)
+                            Toggle("VideoView renderMode: .sampleBuffer", isOn: $appCtx.preferSampleBufferRendering)
+                            Divider()
+                        }
+
+                        Group {
+                            Picker("Output device", selection: $appCtx.outputDeviceId) {
+                                ForEach(AudioManager.shared.outputDevices) { device in
+                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                }
+                            }
+                            Picker("Input device", selection: $appCtx.inputDeviceId) {
+                                ForEach(AudioManager.shared.inputDevices) { device in
+                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                }
+                            }
+                        }
+
+                        Group {
+                            Divider()
+                            
+                            Button {
+                                Task {
+                                    await room.localParticipant.unpublishAll()
+                                }
+                            } label: {
+                                Text("Unpublish all")
+                            }
+                        }
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
