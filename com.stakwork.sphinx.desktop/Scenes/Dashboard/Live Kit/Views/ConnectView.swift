@@ -58,7 +58,7 @@ struct ConnectView: View {
                                     .renderingMode(.original)
                                 Text("Connect Options")
                             }
-                            .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                            .menuStyle(BorderlessButtonMenuStyle())
                             .fixedSize()
 
                             Menu {
@@ -79,7 +79,7 @@ struct ConnectView: View {
                                     .renderingMode(.original)
                                 Text("Room Options")
                             }
-                            .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                            .menuStyle(BorderlessButtonMenuStyle())
                             .fixedSize()
                         }
                     }.frame(maxWidth: 350)
@@ -133,7 +133,7 @@ struct ConnectView: View {
                                         .renderingMode(.original)
                                     Text("Recent")
                                 }
-                                .menuStyle(BorderlessButtonMenuStyle(showsMenuIndicator: true))
+                                .menuStyle(BorderlessButtonMenuStyle())
                                 .fixedSize()
                             }
 
