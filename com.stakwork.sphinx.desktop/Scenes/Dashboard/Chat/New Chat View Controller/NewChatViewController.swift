@@ -201,11 +201,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
         escapeMonitor = nil
         
-        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self = self else {
-                return nil
-            }
-            
+        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { (event) in
             if event.keyCode == 53 { // 53 is the key code for the Escape key
                 if self.chatBottomView.isSearchingGiphy() {
                     self.chatBottomView.closeGiphySearch()

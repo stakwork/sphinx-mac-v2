@@ -360,6 +360,25 @@ class ProfileViewController: NSViewController {
         return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeTipAmount
     }
     
+    func closeOnCompletion(completion: @escaping () -> ()) {
+        if didUpdateProfile() {
+            AlertHelper.showTwoOptionsAlert(
+                title: "profile.unsaved-changes".localized,
+                message: "profile.unsaved-changes.alert".localized,
+                confirm: {
+                    self.uploadImage()
+                },
+                cancel: {
+                    completion()
+                },
+                confirmLabel: "profile.changes.save".localized,
+                cancelLabel: "profile.changes.discard".localized
+            )
+            return
+        }
+        completion()
+    }
+    
     func saveFinished(success: Bool) {
         self.configureProfile()
         self.newMessageBubbleHelper.showGenericMessageView(text: success ? "profile.saved".localized : "generic.error.message".localized, in: self.view, position: .Top)

@@ -454,6 +454,12 @@ class DashboardViewController: NSViewController {
     }
     
     @IBAction func closeButtonTapped(_ sender: NSButton) {
+        if let profileVC = self.presenter?.contentVC?.last as? ProfileViewController {
+            profileVC.closeOnCompletion() {
+                self.closePresenter()
+            }
+            return
+        }
         closePresenter()
     }
     
@@ -632,17 +638,13 @@ class DashboardViewController: NSViewController {
     
         escapeMonitor = nil
     
-        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] (event) in
-            guard let self = self else {
-                return nil
-            }
-            
+        self.escapeMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { (event) in
             if event.keyCode == 53 {
                 if let windowToClose = WindowsManager.sharedInstance.getLastTaggedWindows(), windowToClose.isKeyWindow {
                     windowToClose.close()
                     return nil
-                } else if listViewController?.isMenuExpanded() == true {
-                    listViewController?.closeButtonTapped()
+                } else if self.listViewController?.isMenuExpanded() == true {
+                    self.listViewController?.closeButtonTapped()
                     return nil
                 } else if self.mediaFullScreenView?.isHidden == false {
                     self.mediaFullScreenView?.closeView()
