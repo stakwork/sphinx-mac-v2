@@ -274,6 +274,10 @@
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
 "profile.finish-setup" = "Enter your nickname and an optional profile picture\nto finish setting up your Profile";
+"profile.unsaved-changes" = "Unsaved changes";
+"profile.unsaved-changes.alert" = "You have unsaved changes. Do you want to save them before proceeding?";
+"profile.changes.save" = "Save changes";
+"profile.changes.discard" = "Discard changes";
 
 //PIN
 "privacy.pin" = "Privacy PIN";

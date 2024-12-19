@@ -270,6 +270,10 @@
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
 "profile.finish-setup" = "Ilagay ang iyong palayaw at isang opsyonal na larawan sa profile\nupang tapusin ang pag-set up ng iyong Profile";
+"profile.unsaved-changes" = "Mga hindi na-save na pagbabago";
+"profile.unsaved-changes.alert" = "Mayroon kang mga hindi na-save na pagbabago. Gusto mo bang i-save ang mga ito bago magpatuloy?";
+"profile.changes.save" = "I-save ang mga pagbabago";
+"profile.changes.discard" = "Itapon ang mga pagbabago";
 
 //PIN
 "privacy.pin" = "Pribadong PIN";

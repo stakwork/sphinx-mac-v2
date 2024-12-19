@@ -454,6 +454,12 @@ class DashboardViewController: NSViewController {
     }
     
     @IBAction func closeButtonTapped(_ sender: NSButton) {
+        if let profileVC = self.presenter?.contentVC?.last as? ProfileViewController {
+            profileVC.closeOnCompletion() {
+                self.closePresenter()
+            }
+            return
+        }
         closePresenter()
     }
     

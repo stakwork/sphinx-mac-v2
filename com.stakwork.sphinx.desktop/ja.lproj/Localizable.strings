@@ -270,6 +270,10 @@
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
 "profile.finish-setup" = "ニックネームとオプションのプロフィール写真を入力して\nプロフィールの設定を完了します";
+"profile.unsaved-changes" = "保存されていない変更";
+"profile.unsaved-changes.alert" = "保存されていない変更があります。続行する前に保存しますか?";
+"profile.changes.save" = "変更を保存";
+"profile.changes.discard" = "変更を破棄";
 
 //PIN
 "privacy.pin" = "プライバシーPIN";

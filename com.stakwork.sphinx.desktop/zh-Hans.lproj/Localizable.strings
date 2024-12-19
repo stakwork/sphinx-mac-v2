@@ -270,6 +270,10 @@
 "profile.mnemonic-generate-prompt" = "Generate";
 "profile.mnemonic-import-prompt" = "Import";
 "profile.finish-setup" = "输入您的昵称和可选的个人资料图片\n以完成您的个人资料设置";
+"profile.unsaved-changes" = "未保存的更改";
+"profile.unsaved-changes.alert" = "您有未保存的更改。是否要先保存这些更改再继续？";
+"profile.changes.save" = "保存更改";
+"profile.changes.discard" = "放弃更改";
 
 //PIN
 "privacy.pin" = "隐私PIN码";
