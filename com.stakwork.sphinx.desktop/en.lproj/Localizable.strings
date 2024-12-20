@@ -427,6 +427,8 @@
 "page" = "page";
 "pdf.description" = "PDF - %@ - Page %d of %d";
 
+"contact.connected.since" = "Connected since %@";
+
 //OTHER
 "create.call" = "Create Call";
 "select.call.mode" = "Select call mode";

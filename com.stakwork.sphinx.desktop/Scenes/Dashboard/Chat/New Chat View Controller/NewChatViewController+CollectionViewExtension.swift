@@ -106,7 +106,6 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         if let message = TransactionMessage.getMessageWith(id: messageId) {
             delegate?.shouldShowFullMediaFor(message: message)
         }
-        
     }
     
     func didTapOnContactWith(pubkey: String, and routeHint: String?) {

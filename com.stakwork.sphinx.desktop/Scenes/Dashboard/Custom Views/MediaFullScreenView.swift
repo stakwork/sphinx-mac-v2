@@ -154,6 +154,19 @@ class MediaFullScreenView: NSView, LoadableNib {
         hideMediaFullScreenView()
     }
     
+    func showWith(imageUrl: String) {
+        currentMode = ViewMode.Viewing
+        setViewSize()
+        loading = true
+        
+        if let image = MediaLoader.getImageFromCachedUrl(url: imageUrl) {
+            showImage(image: image)
+            return
+        }
+        
+        hideMediaFullScreenView()
+    }
+    
     func showWith(
         imageURL: URL,
         message: TransactionMessage,

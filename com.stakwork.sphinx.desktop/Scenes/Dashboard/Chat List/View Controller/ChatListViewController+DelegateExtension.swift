@@ -95,8 +95,8 @@ extension ChatListViewController : ChildVCDelegate, ActionsDelegate {
 }
 
 extension ChatListViewController : NewChatListViewControllerDelegate {
-    func shouldResetContactView(deletedContactId: Int) {
-        delegate?.shouldResetContactView(deletedContactId: deletedContactId)
+    func shouldResetContactView() {
+        delegate?.shouldResetContactView()
     }
     
     func didClickRowAt(

@@ -424,6 +424,7 @@
 "call" = "稱呼";
 "error.getting.token.title" = "取得令牌時發生錯誤";
 "error.getting.token.description" = "取得加入通話的令牌時發生錯誤。請稍後重試";
+"contact.connected.since" = "%@起已上線";
 
 //OTHER
 "create.call" = "創建通話";

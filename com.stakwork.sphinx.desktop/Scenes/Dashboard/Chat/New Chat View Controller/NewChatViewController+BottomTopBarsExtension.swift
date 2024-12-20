@@ -96,7 +96,10 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     func didClickHeaderButton() {
         if let contact = contact {
             
-            let contactVC = NewContactViewController.instantiate(contact: contact)
+            let contactVC = ContactDetailsViewController.instantiate(
+                contact: contact,
+                delegate: self
+            )
             
             WindowsManager.sharedInstance.showVCOnRightPanelWindow(
                 with: "contact.info".localized,
@@ -545,5 +548,15 @@ extension NewChatViewController : ChatDraggingViewDelegate {
     
     func imageDismissed() {
         chatBottomView.toggleAttachmentsAdded(forceShowSend: draggingView.isSendingGiphy().0)
+    }
+}
+
+extension NewChatViewController : ContactDetailsViewDelegate {
+    func didDeleteContact() {
+        delegate?.shouldResetContactView()
+    }
+    
+    func didTapOnAvatarImage(url: String) {
+        delegate?.shouldShowFullMediaFor(url: url)
     }
 }

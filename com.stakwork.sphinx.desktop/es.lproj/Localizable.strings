@@ -426,6 +426,8 @@
 "error.getting.token.title" = "Error al obtener el token";
 "error.getting.token.description" = "Se produjo un error al obtener un token para unirse a la llamada. Inténtelo nuevamente más tarde";
 
+"contact.connected.since" = "Connected since %@";
+
 //OTHER
 "create.call" = "Crear Llamada";
 "select.call.mode" = "Seleccionar Tipo de Llamada";
