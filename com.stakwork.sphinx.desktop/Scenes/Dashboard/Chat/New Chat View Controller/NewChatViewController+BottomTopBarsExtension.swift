@@ -97,7 +97,7 @@ extension NewChatViewController : ChatHeaderViewDelegate {
         if let contact = contact {
             
             let contactVC = ContactDetailsViewController.instantiate(
-                contact: contact,
+                contactId: contact.id,
                 delegate: self
             )
             

@@ -27,15 +27,15 @@ class ContactDetailsViewController: NSCollectionViewItem {
     @IBOutlet weak var removeContactButtonBack: NSBox!
     @IBOutlet weak var removeContactButton: CustomButton!
     
-    var contact: UserContact! = nil
+    var contact: UserContact? = nil
     
     static func instantiate(
-        contact: UserContact,
+        contactId: Int,
         delegate: ContactDetailsViewDelegate?
     ) -> ContactDetailsViewController {
         
         let viewController = StoryboardScene.Contacts.contactDetailsViewController.instantiate()
-        viewController.contact = contact
+        viewController.contact = UserContact.getContactWith(id: contactId)
         viewController.delegate = delegate
 
         return viewController
@@ -59,6 +59,9 @@ class ContactDetailsViewController: NSCollectionViewItem {
     }
     
     func setupContactInfo() {
+        guard let contact = contact else {
+            return
+        }
         contactAvatarView.configureSize(width: 100, height: 100, fontSize: 25)
         contactAvatarView.loadWith(contact)
         
@@ -69,13 +72,16 @@ class ContactDetailsViewController: NSCollectionViewItem {
     }
     
     @IBAction func contactAvatarButtonClicked(_ sender: Any) {
+        guard let contact = contact else {
+            return
+        }
         if let urlString = contact.getPhotoUrl()?.removeDuplicatedProtocol(), let _ = URL(string: urlString) {
             delegate?.didTapOnAvatarImage(url: urlString)
         }
     }
     
     @IBAction func publicKeyButtonClicked(_ sender: Any) {
-        guard let address = contact.getAddress(), !address.isEmpty else {
+        guard let address = contact?.getAddress(), !address.isEmpty else {
             return
         }
             
@@ -90,11 +96,7 @@ class ContactDetailsViewController: NSCollectionViewItem {
     }
     
     @IBAction func removeContactButtonClicked(_ sender: Any) {
-        initiateDeletion(contactId: contact.id)
-    }
-    
-    func initiateDeletion(contactId: Int){
-        guard let contact = UserContact.getContactWith(id: contactId) else {
+        guard let contact = contact else {
             AlertHelper.showAlert(
                 title: "generic.error.title".localized,
                 message: "generic.error.message".localized
