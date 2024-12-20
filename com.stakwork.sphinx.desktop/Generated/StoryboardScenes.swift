@@ -103,6 +103,8 @@ internal enum StoryboardScene {
         internal static let newContactViewController = SceneType<NewContactViewController>(storyboard: Contacts.self, identifier: "NewContactViewController")
         
         internal static let newInviteViewController = SceneType<NewInviteViewController>(storyboard: Contacts.self, identifier: "NewInviteViewController")
+        
+        internal static let contactDetailsViewController = SceneType<ContactDetailsViewController>(storyboard: Contacts.self, identifier: "ContactDetailsViewController")
     }
     
     internal enum Signup: StoryboardType {

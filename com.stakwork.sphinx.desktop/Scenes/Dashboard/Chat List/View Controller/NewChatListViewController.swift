@@ -10,7 +10,7 @@ import Cocoa
 
 protocol NewChatListViewControllerDelegate: NSObject {
     func didClickRowAt(chatId: Int?, contactId: Int?)
-    func shouldResetContactView(deletedContactId: Int)
+    func shouldResetContactView()
 }
 
 public enum RightClickedContactActions : Int {

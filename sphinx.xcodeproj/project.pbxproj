@@ -482,6 +482,7 @@
 		47B6F529258BC40600D64A41 /* PodcastLiveDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B6F528258BC40600D64A41 /* PodcastLiveDataSource.swift */; };
 		47B6F52C258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */; };
 		47B6F52D258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */; };
+		47BA31782D15B14D001AF7E5 /* ContactDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */; };
 		47BDEDE924F46585001688F3 /* Profile.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47BDEDEB24F46585001688F3 /* Profile.storyboard */; };
 		47BDEDF124F466C4001688F3 /* ProfileViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BDEDF024F466C4001688F3 /* ProfileViewControllerExtension.swift */; };
 		47BDEE0224F6A2CA001688F3 /* SettingsTabsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47BDEE0424F6A2CA001688F3 /* SettingsTabsView.xib */; };
@@ -1415,6 +1416,7 @@
 		47B6F528258BC40600D64A41 /* PodcastLiveDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastLiveDataSource.swift; sourceTree = "<group>"; };
 		47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastLiveHeaderCollectionViewItem.swift; sourceTree = "<group>"; };
 		47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastLiveHeaderCollectionViewItem.xib; sourceTree = "<group>"; };
+		47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetailsViewController.swift; sourceTree = "<group>"; };
 		47BDEDEA24F46585001688F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Profile.storyboard; sourceTree = "<group>"; };
 		47BDEDED24F4658A001688F3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Profile.strings; sourceTree = "<group>"; };
 		47BDEDEF24F4658B001688F3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Profile.strings; sourceTree = "<group>"; };
@@ -2630,6 +2632,7 @@
 				47D03DE1250BB2810077A968 /* AddFriendViewController.swift */,
 				475F0BA124F7D97D0032EDC4 /* NewContactViewController.swift */,
 				47D03DE3250BB9F40077A968 /* NewInviteViewController.swift */,
+				47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -4154,6 +4157,7 @@
 				475B721B2BB1CC39003AD969 /* Server+CoreDataClass.swift in Sources */,
 				47FEE2292A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift in Sources */,
 				478ED5A825D571F900940132 /* SignupSecureFieldView.swift in Sources */,
+				47BA31782D15B14D001AF7E5 /* ContactDetailsViewController.swift in Sources */,
 				4744FA882469C9F800C5FD94 /* TransactionMessage+CoreDataProperties.swift in Sources */,
 				47B55097248AC8CB000514BF /* NSProgressIndicator.swift in Sources */,
 				479751DA246C9A7E00D2106B /* AlertHelper.swift in Sources */,

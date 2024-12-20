@@ -227,14 +227,14 @@ class DashboardViewController: NSViewController {
             self?.showDashboardModalsVC(n: n)
         }
         
-        NotificationCenter.default.addObserver(
-            forName: .onInvoiceDeepLink,
-            object: nil,
-            queue: OperationQueue.main
-        ) { [weak self] (n: Notification) in
+//        NotificationCenter.default.addObserver(
+//            forName: .onInvoiceDeepLink,
+//            object: nil,
+//            queue: OperationQueue.main
+//        ) { [weak self] (n: Notification) in
 //            guard let vc = self else { return }
 //            vc.createInvoice(n: n)
-        }
+//        }
         
         NotificationCenter.default.addObserver(
             forName: .onShareContentDeeplink,
@@ -474,12 +474,13 @@ class DashboardViewController: NSViewController {
     }
     
     @objc func themeChangedNotification(notification: Notification) {
-        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-            NSAppearance.current = self.view.effectiveAppearance
-            self.listViewController?.configureHeaderAndBottomBar()
-            
-            ///Should reload Friends and Messages
-        })
+        self.listViewController?.configureHeaderAndBottomBar()
+        
+        self.presentChatVCFor(
+            chatId: self.newDetailViewController?.chat?.id,
+            contactId: self.newDetailViewController?.contact?.id,
+            forceReload: true
+        )
     }
     
     override func prepare(for segue: NSStoryboardSegue, sender: Any?) {
@@ -557,7 +558,7 @@ class DashboardViewController: NSViewController {
            let messageId = n.userInfo?["message_id"] as? Int,
            let message = TransactionMessage.getMessageWith(id: messageId) {
             
-            goToMediaFullView(imageURL: imageURL,message: message)
+            goToMediaFullView(imageURL: imageURL, message: message)
         } else {
             NewMessageBubbleHelper().showGenericMessageView(text: "Error pulling image data.")
         }
@@ -701,7 +702,7 @@ extension DashboardViewController : NSSplitViewDelegate {
 }
 
 extension DashboardViewController : DashboardVCDelegate {
-    func shouldResetContactView(deletedContactId: Int) {
+    func shouldResetContactView() {
         contactsService.selectedFriendId = nil
         
         didClickOnChatRow(
@@ -761,13 +762,14 @@ extension DashboardViewController : DashboardVCDelegate {
     
     func presentChatVCFor(
         chatId: Int?,
-        contactId: Int?
+        contactId: Int?,
+        forceReload: Bool = false
     ) {
-        if let chatId = chatId, newDetailViewController?.chat?.id == chatId {
+        if let chatId = chatId, newDetailViewController?.chat?.id == chatId, !forceReload {
             return
         }
         
-        if let contactId = contactId, newDetailViewController?.contact?.id == contactId {
+        if let contactId = contactId, newDetailViewController?.contact?.id == contactId, !forceReload {
             return
         }
         
@@ -802,6 +804,21 @@ extension DashboardViewController : DashboardVCDelegate {
     
     func shouldShowFullMediaFor(message: TransactionMessage) {
         goToMediaFullView(message: message)
+    }
+    
+    func shouldShowFullMediaFor(url: String) {
+        if mediaFullScreenView == nil {
+            mediaFullScreenView = MediaFullScreenView()
+        }
+        
+        if let mediaFullScreenView = mediaFullScreenView {
+            view.addSubview(mediaFullScreenView)
+            
+            mediaFullScreenView.delegate = self
+            mediaFullScreenView.constraintTo(view: view)
+            mediaFullScreenView.showWith(imageUrl: url)
+            mediaFullScreenView.isHidden = false
+        }
     }
     
     func goToMediaFullView(message: TransactionMessage?) {

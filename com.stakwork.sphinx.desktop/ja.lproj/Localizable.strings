@@ -196,6 +196,8 @@
 "confirm.delete.keychain" = "このノードをキーチェーンから永久に削除してもよろしいですか？他のデバイスからこのノードに接続していないことをダブルチェックしてください。これにより、キーチェーンから情報が削除され、その接続が失われます。";
 "error.restoring.keychain" = "キーチェーンから復元する際にエラーが発生しました。";
 "share.invite.code.upper" = "招待コードを共有";
+"contact.info" = "連絡先";
+"tribe.info" = "部族情報";
 "add.friend" = "友達を追加";
 "invalid.code.pubkey" = "これは公開キーのようです。登録するには、https://sphinx.chatから招待コードが必要です";
 "invalid.code.invoice" = "これは請求書のようです。登録するには、https://sphinx.chatから招待コードが必要です";
@@ -423,6 +425,7 @@
 "call" = "電話";
 "error.getting.token.title" = "トークンの取得中にエラーが発生しました";
 "error.getting.token.description" = "通話に参加するためのトークンの取得中にエラーが発生しました。しばらくしてからもう一度お試しください。";
+"contact.connected.since" = "%@から接続";
 
 //OTHER
 "create.call" = "通話を作成";
