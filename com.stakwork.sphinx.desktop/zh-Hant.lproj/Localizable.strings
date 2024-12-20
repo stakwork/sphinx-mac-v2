@@ -196,6 +196,8 @@
 "confirm.delete.keychain" = "您確定要永久從鑰匙串中刪除此節點嗎？請再次檢查您是否未從其他設備連接到此節點，因為這將從鑰匙串中刪除信息，導致該連接丟失。";
 "error.restoring.keychain" = "從鑰匙串恢復時出錯。";
 "share.invite.code.upper" = "分享邀請碼";
+"contact.info" = "聯絡方式";
+"tribe.info" = "部落資訊";
 "add.friend" = "添加朋友";
 "invalid.code.pubkey" = "這看起來像一個公鑰，要註冊您需要從https://sphinx.chat獲得一個邀請碼";
 "invalid.code.invoice" = "這看起來像一個發票，要註冊您需要從https://sphinx.chat獲得一個邀請碼";

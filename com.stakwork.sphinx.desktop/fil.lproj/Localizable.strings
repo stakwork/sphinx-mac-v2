@@ -195,7 +195,9 @@
 "confirm.delete.keychain"  = "Sigurado ka bang gusto mong permanenteng tanggalin ang node na ito sa keychain? I-double check na hindi ka nakakonekta sa node na ito mula sa ibang aparato, dahil aalisin nito ang impormasyon mula sa keychain na nagiging sanhi ng pagkawala ng koneksyong iyon.";
 "error.restoring.keychain"  = "Nagkaroon ng pagkakamali sa pag-babalik mula sa Keychain.";
 "share.invite.code.upper"  = "Share Invite Code";
-"add.friend"  = "Add Friend";
+"contact.info" = "Mga Detalye ng Pakikipag-ugnayan";
+"tribe.info" = "Impormasyon ng Tribo";
+"add.friend"  = "Magdagdag ng Kaibigan";
 "invalid.code.pubkey" = "Mukhang isang pubkey ito, para mag-sign up need mo ng code ng imbitasyon mula sa https://sphinx.chat";
 "invalid.code.invoice" = "Mukhang isang invoice ito, para mag-sign up need mo ng code ng imbitasyon mula sa https://sphinx.chat";
 "invalid.code" = "Hindi namin nakikilala ang code na ito, upang mag-sign up, need mo ng code ng imbitasyon mula sa https://sphinx.chat";

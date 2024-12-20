@@ -196,6 +196,8 @@
 "confirm.delete.keychain" = "このノードをキーチェーンから永久に削除してもよろしいですか？他のデバイスからこのノードに接続していないことをダブルチェックしてください。これにより、キーチェーンから情報が削除され、その接続が失われます。";
 "error.restoring.keychain" = "キーチェーンから復元する際にエラーが発生しました。";
 "share.invite.code.upper" = "招待コードを共有";
+"contact.info" = "連絡先";
+"tribe.info" = "部族情報";
 "add.friend" = "友達を追加";
 "invalid.code.pubkey" = "これは公開キーのようです。登録するには、https://sphinx.chatから招待コードが必要です";
 "invalid.code.invoice" = "これは請求書のようです。登録するには、https://sphinx.chatから招待コードが必要です";

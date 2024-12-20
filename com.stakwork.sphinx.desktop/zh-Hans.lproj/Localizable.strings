@@ -196,6 +196,8 @@
 "confirm.delete.keychain" = "您确定要永久删除此节点的密钥链吗？请双重检查您是否未从其他设备连接到此节点，因为这将从密钥链中删除信息，导致连接丢失。";
 "error.restoring.keychain" = "从密钥链恢复时出错。";
 "share.invite.code.upper" = "分享邀请码";
+"contact.info" = "联系方式";
+"tribe.info" = "部落信息";
 "add.friend" = "添加朋友";
 "invalid.code.pubkey" = "这看起来像一个公钥，要注册，您需要从https://sphinx.chat获取邀请码";
 "invalid.code.invoice" = "这看起来像一个发票，要注册，您需要从https://sphinx.chat获取邀请码";

@@ -193,6 +193,8 @@
 "confirm.delete.keychain" = "¿Estás seguro que deseas borrar permanentemente este nodo de Keychain? Verifica no estas conectado a este nodo en otro dispositivo, ya que esta acción borrará la información haciendo que tu conexión en el otro dispositivo se pierda.";
 "error.restoring.keychain" = "Ocurrió un problema restaurando desde Keychain.";
 "share.invite.code.upper" = "COMPARTIR INVITACIÓN";
+"contact.info" = "Datos del contacto";
+"tribe.info" = "Información de la tribu";
 "add.friend" = "Agregar Amigo";
 "invalid.code.pubkey" = "Parece que has ingresado una clave pública, para registrarte necesitarás un código de invitación. Obtenlo en https://sphinx.chat";
 "invalid.code.invoice" = "Parece que has ingresado una solicitud de pago, para registrarte necesitarás un código de invitación. Obtenlo en https://sphinx.chat";

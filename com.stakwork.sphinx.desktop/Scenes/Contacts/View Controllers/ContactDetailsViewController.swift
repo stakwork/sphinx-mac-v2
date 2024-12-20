@@ -63,7 +63,7 @@ class ContactDetailsViewController: NSCollectionViewItem {
         contactAvatarView.loadWith(contact)
         
         contactName.stringValue = contact.getName()
-        contactDate.stringValue = String.init(format: "contact.connected.since".localized, contact.createdAt?.getStringDate(format: "EEE dd MMM") ?? "")
+        contactDate.stringValue = String.init(format: "contact.connected.since".localized, contact.createdAt?.getStringDate(format: "MMMM dd, YYYY") ?? "")
         publicKeyLabel.stringValue = contact.publicKey ?? ""
         routeHintLabel.stringValue = contact.routeHint ?? ""
     }
