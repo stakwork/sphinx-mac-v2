@@ -538,7 +538,20 @@ extension TransactionMessage {
     
     var isResendActionAllowed: Bool {
         get {
-            return (isTextMessage() && status == TransactionMessageStatus.failed.rawValue)
+            if isTextMessage() || isAttachment() {
+                if isPaidAttachment() {
+                    return false
+                }
+            }
+            if status == TransactionMessageStatus.failed.rawValue {
+                return true
+            }
+            if status == TransactionMessageStatus.pending.rawValue, let date = date {
+                let tenMinutesAgo = Date().addingTimeInterval(-10 * 60)
+                return date < tenMinutesAgo
+            }
+            
+            return false
         }
     }
     
