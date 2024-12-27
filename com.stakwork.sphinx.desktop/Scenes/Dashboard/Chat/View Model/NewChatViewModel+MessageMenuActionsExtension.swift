@@ -31,14 +31,29 @@ extension NewChatViewModel {
             return
         }
         
-        let _ = SphinxOnionManager.sharedInstance.sendMessage(
-            to: message.chat?.getContact(),
-            content: message.messageContent ?? "",
-            chat: chat, 
-            provisionalMessage: message,
-            threadUUID: message.threadUUID,
-            replyUUID: message.replyUUID
-        )
+        if message.isTextMessage() {
+            let _ = SphinxOnionManager.sharedInstance.sendMessage(
+                to: message.chat?.getContact(),
+                content: message.messageContent ?? "",
+                chat: chat,
+                provisionalMessage: message,
+                threadUUID: message.threadUUID,
+                replyUUID: message.replyUUID
+            )
+        } else if message.isAttachment() {
+            let _ = SphinxOnionManager.sharedInstance.sendMessage(
+                to: message.chat?.getContact(),
+                content: message.messageContent ?? "",
+                chat: chat,
+                provisionalMessage: message,
+                msgType: UInt8(message.type),
+                muid: message.muid,
+                mediaKey: message.mediaKey,
+                mediaType: message.mediaType,
+                threadUUID: message.threadUUID,
+                replyUUID: message.replyUUID
+            )
+        }
     }
     
     func shouldTogglePinState(
