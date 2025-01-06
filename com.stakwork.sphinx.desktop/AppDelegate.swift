@@ -256,6 +256,7 @@ import WebKit
             aNotification.name == NSWorkspace.screensDidWakeNotification ||
             aNotification.name == NSWorkspace.sessionDidBecomeActiveNotification
         ) && UserData.sharedInstance.isUserLogged() {
+            
             SDImageCache.shared.clearMemory()
             
             NotificationCenter.default.post(
