@@ -74,8 +74,6 @@ class DashboardViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        AttachmentsManager.sharedInstance.runAuthentication(forceAuthenticate: true)
-        
         chatListViewModel = ChatListViewModel()
         
         dashboardSplitView.delegate = self

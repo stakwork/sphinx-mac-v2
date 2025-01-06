@@ -840,6 +840,44 @@ extension String {
         return self
     }
     
+    func decodeJWT() -> (header: [String: Any]?, payload: [String: Any]?, signature: String?) {
+        let segments = self.split(separator: ".").map(String.init)
+        guard segments.count == 3 else {
+            print("Invalid JWT structure")
+            return (nil, nil, nil)
+        }
+
+        let header = decodeBase64Url(segments[0])
+        let payload = decodeBase64Url(segments[1])
+        let signature = segments[2] // Signature is not decoded, it's typically used for verification.
+
+        return (header, payload, signature)
+    }
+    
+    func decodeBase64Url(_ base64Url: String) -> [String: Any]? {
+        var base64 = base64Url
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        
+        // Add padding if necessary
+        while base64.count % 4 != 0 {
+            base64 += "="
+        }
+
+        guard let data = Data(base64Encoded: base64) else {
+            print("Failed to decode Base64Url string")
+            return nil
+        }
+
+        do {
+            let json = try JSONSerialization.jsonObject(with: data, options: [])
+            return json as? [String: Any]
+        } catch {
+            print("Failed to parse JSON: \(error)")
+            return nil
+        }
+    }
+    
     func getNameStyleString(
         lineBreak:  Bool = true
     ) -> String {

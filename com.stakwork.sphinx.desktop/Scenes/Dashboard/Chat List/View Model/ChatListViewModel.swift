@@ -11,10 +11,6 @@ import SwiftyJSON
 
 final class ChatListViewModel: NSObject {
     
-    func authenticateWithMemesServer() {
-        AttachmentsManager.sharedInstance.runAuthentication()
-    }
-    
     var syncMessagesTask: DispatchWorkItem? = nil
     var syncMessagesDate = Date()
     var newMessagesChatIds = [Int]()
