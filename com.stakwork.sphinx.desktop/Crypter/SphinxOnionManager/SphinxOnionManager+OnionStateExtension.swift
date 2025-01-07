@@ -13,9 +13,10 @@ extension SphinxOnionManager {
     func storeOnionStateInMemory() {
         let userDefaults = UserDefaults.standard
         let allDefaults = userDefaults.dictionaryRepresentation()
+        let inMemoryMutationKeys = mutationKeys
 
         for (key, value) in allDefaults {
-            if mutationKeys.contains(key), let value = value as? [UInt8] {
+            if inMemoryMutationKeys.contains(key), let value = value as? [UInt8] {
                 onionState[key] = value
             }
         }
