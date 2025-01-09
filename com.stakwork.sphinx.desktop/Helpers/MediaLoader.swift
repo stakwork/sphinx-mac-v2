@@ -14,6 +14,17 @@ class MediaLoader {
     
     static let cache = SphinxCache()
     
+    class func isAuthenticated() -> (Bool, String?) {
+        if let token: String = UserDefaults.Keys.attachmentsToken.get() {
+            let expDate: Date? = UserDefaults.Keys.attachmentsTokenExpDate.get()
+            
+            if let expDate = expDate, expDate > Date() {
+                return (true, token)
+            }
+        }
+        return (false, nil)
+    }
+    
     class func loadDataFrom(URL: URL, includeToken: Bool = true, completion: @escaping (Data, String?) -> (), errorCompletion: @escaping () -> ()) {
         if !ConnectivityHelper.isConnectedToInternet {
             errorCompletion()
@@ -26,7 +37,23 @@ class MediaLoader {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
         var request = URLRequest(url: URL as URL)
         
-        if let token: String = UserDefaults.Keys.attachmentsToken.get(), includeToken {
+        let isAuthenticated = MediaLoader.isAuthenticated()
+        
+        if !isAuthenticated.0 {
+            AttachmentsManager.sharedInstance.authenticate(completion: {
+                self.loadDataFrom(
+                    URL: URL,
+                    includeToken: includeToken,
+                    completion: completion,
+                    errorCompletion: errorCompletion
+                )
+            }, errorCompletion: {
+                errorCompletion()
+            })
+            return
+        }
+        
+        if let token: String = isAuthenticated.1, includeToken {
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         

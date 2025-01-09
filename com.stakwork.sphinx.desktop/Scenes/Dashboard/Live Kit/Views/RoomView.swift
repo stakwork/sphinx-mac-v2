@@ -837,7 +837,7 @@ struct RoomView: View {
                         .cornerRadius(8.0)
                 )
                 .popover(isPresented: $isGearMenuPresented) {
-                    VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 16) {
                         Button {
                             let room = "\(API.sharedInstance.kVideoCallServer)/rooms/\(room.name ?? "Room")"
                             if let url = URL(string: room) {
