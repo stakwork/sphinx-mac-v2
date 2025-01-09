@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AppKit
 
 class AttachmentPreview: NSObject {
     
@@ -19,30 +20,30 @@ class AttachmentPreview: NSObject {
     var fileSize: String?
 
     init(
-        url: URL,
+        url: URL?,
         data: Data,
         image: NSImage?
     ) {
-        if let image = NSImage(contentsOf: url) {
-            if url.isPDF {
+        if let nnImage = NSImage(contentsOf: url ?? URL(fileURLWithPath: "")) ?? image {
+            if url?.isPDF == true {
                 self.type = .PDF
                 self.url = url
                 self.data = data
-                self.image = image
-                self.name = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped ?? "file.pdf"
+                self.image = nnImage
+                self.name = (url?.absoluteString as? NSString)?.lastPathComponent.percentNotEscaped ?? "file.pdf"
                 self.pagesCount = data.getPDFPagesCount() ?? 0
             } else if data.isAnimatedImage() {
                 self.type = .Gif
                 self.url = url
                 self.data = data
-                self.image = image
+                self.image = nnImage
             } else {
                 self.type = .Photo
                 self.url = url
                 self.data = data
-                self.image = image
+                self.image = nnImage
             }
-        } else if url.isVideo {
+        } else if url?.isVideo == true {
             self.type = .Video
             self.url = url
             self.data = data
@@ -52,7 +53,7 @@ class AttachmentPreview: NSObject {
             self.url = url
             self.data = data
             self.image = image
-            self.name = (url.absoluteString as NSString).lastPathComponent.percentNotEscaped ?? "File"
+            self.name = (url?.absoluteString as? NSString)?.lastPathComponent.percentNotEscaped ?? "File"
             self.fileSize = data.formattedSize
         }
     }

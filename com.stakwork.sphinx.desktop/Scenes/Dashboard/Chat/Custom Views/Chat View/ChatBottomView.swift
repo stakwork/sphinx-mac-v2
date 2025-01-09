@@ -212,7 +212,7 @@ class ChatBottomView: NSView, LoadableNib {
         messageFieldView.toggleAttachmentsAdded(forceShowSend: forceShowSend)
     }
     
-    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
+    func attachmentAdded(url: URL?, data: Data, image: NSImage?) {
         messageFieldView.attachmentAdded(url: url, data: data, image: image)
     }
 }

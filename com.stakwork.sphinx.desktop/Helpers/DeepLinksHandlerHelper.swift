@@ -15,7 +15,7 @@ class DeepLinksHandlerHelper {
             return
         }
         
-        if url.absoluteString.starts(with: API.sharedInstance.kVideoCallServer) {
+        if url.absoluteString.isJitsiCallLink || url.absoluteString.isLiveKitCallLink {
             WindowsManager.sharedInstance.showCallWindow(link: url.absoluteString)
             return
         }

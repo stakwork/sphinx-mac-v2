@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:jitsi.sphinx.chat</string>
+		<string>applinks:chat.sphinx.chat</string>
 	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>

@@ -542,7 +542,7 @@ extension NewChatViewController : ThreadsListViewControllerDelegate {
 }
 
 extension NewChatViewController : ChatDraggingViewDelegate {
-    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
+    func attachmentAdded(url: URL?, data: Data, image: NSImage?) {
         chatBottomView.attachmentAdded(url: url, data: data, image: image)
     }
     

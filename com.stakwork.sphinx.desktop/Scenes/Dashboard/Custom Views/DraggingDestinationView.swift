@@ -13,7 +13,7 @@ protocol DraggingViewDelegate: AnyObject {
 }
 
 @objc protocol ChatDraggingViewDelegate: AnyObject {
-    @objc func attachmentAdded(url: URL, data: Data, image: NSImage?)
+    @objc func attachmentAdded(url: URL?, data: Data, image: NSImage?)
     @objc optional func imageDismissed()
 }
 
@@ -246,7 +246,7 @@ class DraggingDestinationView: NSView, LoadableNib {
         return false
     }
     
-    func performPasteOperation(pasteBoard:NSPasteboard)->Bool{
+    func performPasteOperation(pasteBoard: NSPasteboard) -> Bool {
         isReceivingDrag = false
         
         let urlResult = processURLs(pasteBoard: pasteBoard)
@@ -261,7 +261,7 @@ class DraggingDestinationView: NSView, LoadableNib {
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
         
-        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL] {
+        if let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: options) as? [URL], urls.count > 0 {
             
             if let delegate = delegate, urls.count == 1 {
                 let url = urls[0]
@@ -288,6 +288,19 @@ class DraggingDestinationView: NSView, LoadableNib {
                 resetView()
             }
             return true
+        } else if let images = pasteBoard.readObjects(forClasses: [NSImage.self], options: options) as? [NSImage], images.count > 0 {
+            if let delegate = delegate, images.count == 1 {
+                resetView()
+                delegate.imageDragged(image: images[0])
+                return true
+            }
+            
+            for image in images {
+                if let data = image.tiffRepresentation {
+                    chatDelegate?.attachmentAdded(url: nil, data: data, image: image)
+                }
+                resetView()
+            }
         }
         return false
     }

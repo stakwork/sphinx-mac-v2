@@ -82,9 +82,11 @@ class ClipboardHelper {
     }
     
     func clipboardHasFiles(pasteBoard: NSPasteboard) -> Bool {
-        if let files = pasteBoard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] {
+        if let files = pasteBoard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL], files.count > 0 {
             let fileUrls = files.filter({ $0.isFileURL })
             return fileUrls.count > 0
+        } else if let images = pasteBoard.readObjects(forClasses: [NSImage.self], options: nil) as? [NSImage], images.count > 0 {
+            return images.count > 0
         }
         return false
     }
