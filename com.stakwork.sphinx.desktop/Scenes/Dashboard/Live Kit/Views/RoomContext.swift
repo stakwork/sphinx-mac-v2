@@ -151,7 +151,7 @@ final class RoomContext: ObservableObject {
             ),
             defaultScreenShareCaptureOptions: ScreenShareCaptureOptions(
                 dimensions: .h1080_169,
-                useBroadcastExtension: true
+                includeCurrentApplication: true
             ),
             defaultVideoPublishOptions: VideoPublishOptions(
                 simulcast: simulcast
