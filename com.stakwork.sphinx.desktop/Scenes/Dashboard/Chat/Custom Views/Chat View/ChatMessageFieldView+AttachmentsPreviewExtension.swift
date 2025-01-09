@@ -33,7 +33,7 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
         let _ = updateBottomBarHeight(animated: true)
     }
     
-    func attachmentAdded(url: URL, data: Data, image: NSImage?) {
+    func attachmentAdded(url: URL?, data: Data, image: NSImage?) {
         if attachments.count >= 10 {
             return
         }
