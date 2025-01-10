@@ -617,6 +617,7 @@ struct RoomView: View {
                             .renderingMode(.template)
                             .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                             .font(.system(size: 18))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     .disabled(isMicrophonePublishingBusy)
                     .frame(height: 40.0)
@@ -626,6 +627,7 @@ struct RoomView: View {
                             .opacity(isMicrophoneEnabled ? 0.1 : 0.2)
                             .cornerRadius(8.0)
                     )
+                    .contentShape(Rectangle())
                     .buttonStyle(.borderless)
                     .onHover { isHover in
                         if isHover {
@@ -653,6 +655,7 @@ struct RoomView: View {
                                .renderingMode(.template)
                                .foregroundColor(isCameraEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                                .font(.system(size: 16))
+                               .frame(maxWidth: .infinity, maxHeight: .infinity)
                         })
                         // disable while publishing/un-publishing
                         .disabled(isCameraPublishingBusy)
@@ -678,6 +681,7 @@ struct RoomView: View {
                             .opacity(isCameraEnabled ? 0.1 : 0.2)
                             .cornerRadius(8.0)
                     )
+                    .contentShape(Rectangle())
                     .buttonStyle(.borderless)
                     .onHover { isHover in
                         if isHover {
@@ -707,6 +711,7 @@ struct RoomView: View {
                            .renderingMode(.template)
                            .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
                            .font(.system(size: 16))
+                           .frame(maxWidth: .infinity, maxHeight: .infinity)
                    }).popover(isPresented: $screenPickerPresented) {
                         if #available(macOS 12.3, *) {
                             ScreenShareSourcePickerView { source in
@@ -727,6 +732,7 @@ struct RoomView: View {
                            .opacity(0.1)
                            .cornerRadius(8.0)
                    )
+                   .contentShape(Rectangle())
                    .buttonStyle(.borderless)
                    .onHover { isHover in
                        if isHover {
@@ -760,6 +766,7 @@ struct RoomView: View {
                        .renderingMode(.template)
                        .foregroundColor(Color.white)
                        .font(.system(size: 23))
+                       .frame(maxWidth: .infinity, maxHeight: .infinity)
                 })
                 .frame(height: 40.0)
                 .frame(width: 64.0)
@@ -767,6 +774,7 @@ struct RoomView: View {
                     Color(NSColor.Sphinx.BadgeRed)
                         .cornerRadius(8.0)
                 )
+                .contentShape(Rectangle())
                 .buttonStyle(.borderless)
                 .onHover { isHover in
                     if isHover {
@@ -795,6 +803,7 @@ struct RoomView: View {
                             .font(.system(size: 18))
                     })
                     .background(Color.clear)
+                    .contentShape(Rectangle())
                     .buttonStyle(PlainButtonStyle())
                     .padding(.leading, 8.0)
                     .onHover { isHover in
@@ -836,6 +845,7 @@ struct RoomView: View {
                         .opacity(0.1)
                         .cornerRadius(8.0)
                 )
+                .contentShape(Rectangle())
                 .popover(isPresented: $isGearMenuPresented) {
                     VStack(alignment: .leading, spacing: 16) {
                         Button {
