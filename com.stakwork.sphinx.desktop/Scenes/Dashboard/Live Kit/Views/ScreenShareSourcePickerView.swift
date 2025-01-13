@@ -42,7 +42,7 @@ class ScreenShareSourcePickerCtrl: ObservableObject {
             }
         }
 
-        let sources = try await MacOSScreenCapturer.sources(for: mode == .display ? .display : .window)
+        let sources = try await MacOSScreenCapturer.sources(for: mode == .display ? .display : .window, includeCurrentApplication: true)
         let options = ScreenShareCaptureOptions(dimensions: .h360_43, fps: 5, includeCurrentApplication: true)
         let _newTracks = sources.map { LocalVideoTrack.createMacOSScreenShareTrack(source: $0, options: options) }
 
