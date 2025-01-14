@@ -88,6 +88,16 @@ struct RoomView: View {
 
     @State private var showConnectionTime = true
     @State private var canSwitchCameraPosition = false
+    
+    @State private var isRecording = false
+    @State private var shouldAnimate = false
+    
+    private func startAnimation() {
+        shouldAnimate = true
+        withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
+            shouldAnimate.toggle()
+        }
+    }
 
     func messageView(_ message: ExampleRoomMessage) -> some View {
         let isMe = message.senderSid == room.localParticipant.sid
@@ -790,6 +800,23 @@ struct RoomView: View {
             HStack(spacing: 13.0) {
                 Spacer()
                 
+                if isRecording {
+                    Image(systemSymbol: .recordCircle)
+                        .renderingMode(.template)
+                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                        .font(.system(size: 30))
+                        .frame(height: 40.0)
+                        .frame(width: 40.0)
+                        .opacity(shouldAnimate ? 0.4 : 1.0)
+                        .onAppear {
+                            startAnimation()
+                        }
+                        .onDisappear {
+                            shouldAnimate = false
+                            isRecording = false
+                        }
+                }
+                
                 HStack(spacing: 4.0) {
                     Button(action: {
                         Task {
@@ -855,6 +882,15 @@ struct RoomView: View {
                             }
                         } label: {
                             Text("Open in Browser")
+                        }
+                        
+                        Button {
+                            Task { @MainActor in
+                                isRecording = !isRecording
+                                shouldAnimate = !shouldAnimate
+                            }
+                        } label: {
+                            Text(isRecording ? "Stop Recording" : "Start Recording")
                         }
 
                         Divider()
