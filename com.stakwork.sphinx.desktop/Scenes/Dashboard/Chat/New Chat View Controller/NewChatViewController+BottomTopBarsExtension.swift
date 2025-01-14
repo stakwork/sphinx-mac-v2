@@ -11,6 +11,9 @@ import Cocoa
 
 extension NewChatViewController {
     func setMessageFieldActive() {
+        guard let chat = chat else {
+            return
+        }
         chatBottomView.setMessageFieldActive()
     }
 }
@@ -397,10 +400,12 @@ extension NewChatViewController : ChatBottomViewDelegate {
 
                 // Convert the glyph rect to the text view's coordinate system
                 let textRectInView = chatBottomView.messageFieldView.messageTextView.convert(glyphRect, to: chatBottomView.messageFieldView.messageTextView)
+        
+        let attachmentsViewHeight: CGFloat = chatBottomView.messageFieldView.isAttachmentAdded ? 180 : 0
 
         return (
             CGFloat((isMention ? 38 : 52) + textRectInView.origin.x + textRectInView.width),
-            CGFloat(22 + textRectInView.origin.y)
+            CGFloat(22 + textRectInView.origin.y + attachmentsViewHeight)
         )
     }
     
