@@ -63,7 +63,7 @@ extension NewChatViewModel {
         
         let (validMessage, errorMsg) = SphinxOnionManager.sharedInstance.sendMessage(
             to: contact,
-            content: text,
+            content: messageText,
             chat: chat,
             provisionalMessage: provisionalMessage,
             msgType: UInt8(type),
