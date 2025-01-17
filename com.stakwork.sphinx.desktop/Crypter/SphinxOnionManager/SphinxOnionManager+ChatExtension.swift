@@ -1203,7 +1203,7 @@ extension SphinxOnionManager {
         newMessage.tag = message.tag
         
         if let myAlias = chat.myAlias ?? owner?.nickname, chat.isPublicGroup() {
-            newMessage.push = content?.contains(myAlias) == true
+            newMessage.push = content?.contains("@\(myAlias)") == true
         } else {
             newMessage.push = false
         }
