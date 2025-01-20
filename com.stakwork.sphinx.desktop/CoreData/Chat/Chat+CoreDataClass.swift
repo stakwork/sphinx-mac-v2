@@ -348,23 +348,15 @@ public class Chat: NSManagedObject {
             guard let self = self else {
                 return
             }
+            self.aliasesAndPics = []
+            
             let messages = self.getAllMessages(
                 limit: 2000,
                 context: backgroundContext,
                 forceAllMsgs: true
             )
             
-            let ownerId = UserData.sharedInstance.getUserId()
-            
-            for message in messages {
-                if let alias = message.senderAlias, alias.isNotEmpty && message.isIncoming(ownerId: ownerId) && !message.isGroupActionMessage() {
-                    if !self.aliasesAndPics.contains(where: {$0.0 == alias}) {
-                        self.aliasesAndPics.append(
-                            (alias, message.senderPic ?? "")
-                        )
-                    }
-                }
-            }
+            self.processAliasesFrom(messages: messages)
         }
     }
     
@@ -374,14 +366,36 @@ public class Chat: NSManagedObject {
         let ownerId = UserData.sharedInstance.getUserId()
         
         for message in messages {
-            if let alias = message.senderAlias, alias.isNotEmpty && message.isIncoming(ownerId: ownerId) && !message.isGroupActionMessage() {
-                if !aliasesAndPics.contains(where: {$0.0 == alias}) {
-                    self.aliasesAndPics.append(
-                        (alias, message.senderPic ?? "")
-                    )
+            if !message.isIncoming(ownerId: ownerId) {
+                continue
+            }
+            if isDateBeforeThreeMonthsAgo(message.messageDate) {
+                continue
+            }
+            if let alias = message.senderAlias, alias.isNotEmpty {
+                if let picture = message.senderPic, picture.isNotEmpty {
+                    if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
+                        self.aliasesAndPics.append(
+                            (alias, message.senderPic ?? "")
+                        )
+                    }
+                } else {
+                    if !aliasesAndPics.contains(where: { $0.0 == alias }) {
+                        self.aliasesAndPics.append(
+                            (alias, message.senderPic ?? "")
+                        )
+                    }
                 }
             }
         }
+    }
+    
+    func isDateBeforeThreeMonthsAgo(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        if let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: Date()) {
+            return date < threeMonthsAgo
+        }
+        return false
     }
     
     static func getChatsWith(uuids: [String]) -> [Chat] {

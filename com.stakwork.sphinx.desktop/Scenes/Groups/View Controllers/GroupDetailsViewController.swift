@@ -191,8 +191,8 @@ class GroupDetailsViewController: NSViewController {
     
     func configureTribeMemberView() {
         if let chat = chat, let owner = UserContact.getOwner(), chat.isPublicGroup() {
-            let alias = chat.myAlias ?? owner.nickname
-            let photoUrl = chat.myPhotoUrl ?? owner.getPhotoUrl()
+            let alias = (chat.myAlias?.isNotEmpty == true) ? chat.myAlias : owner.nickname
+            let photoUrl = (chat.myPhotoUrl?.isNotEmpty == true) ? chat.myPhotoUrl : owner.getPhotoUrl()
             
             tribeMemberInfoContainerHeight.constant = 160
             
