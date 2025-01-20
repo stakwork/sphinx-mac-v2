@@ -20,6 +20,8 @@ class TransactionsListViewController: NSViewController {
     var didReachLimit = false
     let itemsPerPage : UInt32 = 50
     
+    var succeededPaymentHashes: [String] = []
+    
     static func instantiate() -> TransactionsListViewController {
         
         let viewController = StoryboardScene.Payments.transactionsListVC.instantiate()
@@ -75,6 +77,8 @@ class TransactionsListViewController: NSViewController {
         if let jsonString = jsonString,
            let results = Mapper<PaymentTransactionFromServer>().mapArray(JSONString: jsonString) {
             
+            succeededPaymentHashes += (results.filter({ $0.isSucceeded() })).compactMap({ $0.rhash })
+            
             let msgIndexes = results.compactMap({ $0.msg_idx })
             let msgPmtHashes = results.compactMap({ $0.rhash })
             var messages = TransactionMessage.fetchTransactionMessagesForHistory()
@@ -82,6 +86,11 @@ class TransactionsListViewController: NSViewController {
             messages.append(contentsOf: messagesMatching)
             
             for result in results {
+                
+                if let rHash = result.rhash, result.isFailed() && succeededPaymentHashes.contains(rHash) {
+                    continue
+                }
+                
                 if let localHistoryMessage = messages.filter({ $0.id == result.msg_idx ?? -1 }).first {
                     let paymentTransaction = PaymentTransaction(fromTransactionMessage: localHistoryMessage, ts: result.ts)
                     history.append(paymentTransaction)

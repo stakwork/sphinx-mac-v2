@@ -163,6 +163,14 @@ class PaymentTransactionFromServer: Mappable {
     
     required init?(map: Map) {}
     
+    func isSucceeded() -> Bool {
+        return (error ?? "").isEmpty
+    }
+    
+    func isFailed() -> Bool {
+        return !((error ?? "").isEmpty)
+    }
+    
     func mapping(map: Map) {
         scid     <- map["scid"]
         amt_msat <- map["amt_msat"]

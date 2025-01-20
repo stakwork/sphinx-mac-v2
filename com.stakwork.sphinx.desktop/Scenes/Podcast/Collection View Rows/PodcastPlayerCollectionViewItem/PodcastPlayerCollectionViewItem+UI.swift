@@ -149,5 +149,9 @@ extension PodcastPlayerCollectionViewItem {
         speedButton.selectItem(at: selectedIndex ?? 2)
         
         mouseDraggableView.delegate = self
+        
+        let hasDestinations = podcast.destinationsArray.count > 0
+        boostButtonView.alphaValue = hasDestinations ? 1.0 : 0.3
+        boostButtonView.toggleEnabled(enabled: hasDestinations)
     }
 }

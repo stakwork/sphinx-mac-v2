@@ -65,5 +65,9 @@ class BoostButtonView: NSView, LoadableNib {
             })
         })
     }
+    
+    func toggleEnabled(enabled: Bool) {
+        boostButton.isEnabled = enabled
+    }
 }
 
