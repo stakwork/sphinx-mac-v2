@@ -90,13 +90,54 @@ struct RoomView: View {
     @State private var canSwitchCameraPosition = false
     
     @State private var isRecording = false
+    @State private var isProcessingRecordRequest = false
     @State private var shouldAnimate = false
+    
+    let newMessageBubbleHelper = NewMessageBubbleHelper()
     
     private func startAnimation() {
         shouldAnimate = true
         withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
             shouldAnimate.toggle()
         }
+    }
+    
+    private func toggleRecording() {
+        guard let roomName = room.name else {
+            return
+        }
+        isProcessingRecordRequest = true
+        
+        let urlAction = isRecording ? "stop" : "start"
+        var isoStringWithMilliseconds: String? = nil
+        
+        if !isRecording {
+            let currentDate = Date()
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            isoStringWithMilliseconds = isoFormatter.string(from: currentDate)
+        }
+        
+        API.sharedInstance.toggleLiveKitRecording(
+            room: roomName,
+            now: isoStringWithMilliseconds,
+            action: urlAction,
+            callback: { success in
+                if success {
+                    self.newMessageBubbleHelper.showGenericMessageView(
+                        text: self.isRecording ? "Recording ended. This call is no longer being recorded." : "Recording in progress. Please be aware this call is being recorded.",
+                        delay: 5,
+                        textColor: NSColor.white,
+                        backColor: NSColor.Sphinx.BadgeRed,
+                        backAlpha: 1.0
+                    )
+                    
+                    self.isRecording = !self.isRecording
+                    self.shouldAnimate = !self.shouldAnimate
+                }
+                self.isProcessingRecordRequest = false
+            }
+        )
     }
 
     func messageView(_ message: ExampleRoomMessage) -> some View {
@@ -768,6 +809,9 @@ struct RoomView: View {
                 // Disconnect
                 Button(action: {
                    Task {
+                       if (isRecording) {
+                           toggleRecording()
+                       }
                        await roomCtx.disconnect()
                    }
                 },
@@ -884,13 +928,15 @@ struct RoomView: View {
                             Text("Open in Browser")
                         }
                         
-                        Button {
-                            Task { @MainActor in
-                                isRecording = !isRecording
-                                shouldAnimate = !shouldAnimate
+                        if !isProcessingRecordRequest {
+                            Button {
+                                Task { @MainActor in
+                                    toggleRecording()
+                                    isGearMenuPresented.toggle()
+                                }
+                            } label: {
+                                Text(isRecording ? "Stop Recording" : "Start Recording")
                             }
-                        } label: {
-                            Text(isRecording ? "Stop Recording" : "Start Recording")
                         }
 
                         Divider()

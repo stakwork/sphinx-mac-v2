@@ -53,4 +53,56 @@ extension API {
             }
         }
     }
+    
+    func toggleLiveKitRecording(
+        room: String,
+        now: String? = nil,
+        action: String,
+        callback: @escaping LiveKitRecordingCallback
+    ) {
+        var url = "\(self.kVideoCallServer)/api/record/\(action)?roomName=\(room)"
+        
+        if let now = now {
+            url = "\(url)&now=\(now)"
+        }
+        
+        guard let url = URL(string: url) else {
+            callback(false)
+            return
+        }
+        
+        // Create the request
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            // Handle the response
+            if let error = error {
+                callback(false)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                callback(false)
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                callback(true)
+                return
+            }
+            
+            guard let data = data, !data.isEmpty else {
+                callback(false)
+                return
+            }
+            
+            // Handle response data
+            if let responseString = String(data: data, encoding: .utf8) {
+                callback(false)
+            } else {
+                callback(false)
+            }
+        }
+        
+        // Start the request
+        task.resume()
+    }
 }

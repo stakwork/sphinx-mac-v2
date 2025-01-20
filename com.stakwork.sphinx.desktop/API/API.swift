@@ -21,6 +21,7 @@ typealias TemplatesCallback = (([ImageTemplate]) -> ())
 typealias PinMessageCallback = ((String) -> ())
 typealias ErrorCallback = ((String) -> ())
 typealias LiveKitTokenCallback = ((String, String) -> ())
+typealias LiveKitRecordingCallback = ((Bool) -> ())
 
 //Attachments
 typealias askAuthenticationCallback = ((String?, String?) -> ())
