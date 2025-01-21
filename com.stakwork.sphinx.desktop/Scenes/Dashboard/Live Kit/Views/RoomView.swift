@@ -89,7 +89,7 @@ struct RoomView: View {
     @State private var showConnectionTime = true
     @State private var canSwitchCameraPosition = false
     
-    @State private var isRecording = false
+    @State private var didStartRecording = false
     @State private var isProcessingRecordRequest = false
     @State private var shouldAnimate = false
     
@@ -108,10 +108,10 @@ struct RoomView: View {
         }
         isProcessingRecordRequest = true
         
-        let urlAction = isRecording ? "stop" : "start"
+        let urlAction = didStartRecording ? "stop" : "start"
         var isoStringWithMilliseconds: String? = nil
         
-        if !isRecording {
+        if !didStartRecording {
             let currentDate = Date()
             let isoFormatter = ISO8601DateFormatter()
             isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -124,16 +124,17 @@ struct RoomView: View {
             action: urlAction,
             callback: { success in
                 if success {
-                    self.newMessageBubbleHelper.showGenericMessageView(
-                        text: self.isRecording ? "Recording ended. This call is no longer being recorded." : "Recording in progress. Please be aware this call is being recorded.",
-                        delay: 5,
-                        textColor: NSColor.white,
-                        backColor: NSColor.Sphinx.BadgeRed,
-                        backAlpha: 1.0
-                    )
-                    
-                    self.isRecording = !self.isRecording
-                    self.shouldAnimate = !self.shouldAnimate
+                    DispatchQueue.main.async {
+                        self.didStartRecording = !self.didStartRecording
+                        
+                        self.newMessageBubbleHelper.showGenericMessageView(
+                            text: self.didStartRecording ? "Starting call recording. Please wait..." : "Stopping call recording. Please wait...",
+                            delay: 5,
+                            textColor: NSColor.white,
+                            backColor: NSColor.Sphinx.BadgeRed,
+                            backAlpha: 1.0
+                        )
+                    }
                 }
                 self.isProcessingRecordRequest = false
             }
@@ -809,7 +810,7 @@ struct RoomView: View {
                 // Disconnect
                 Button(action: {
                    Task {
-                       if (isRecording) {
+                       if didStartRecording && room.isRecording {
                            toggleRecording()
                        }
                        await roomCtx.disconnect()
@@ -844,7 +845,7 @@ struct RoomView: View {
             HStack(spacing: 13.0) {
                 Spacer()
                 
-                if isRecording {
+                if room.isRecording {
                     Image(systemSymbol: .recordCircle)
                         .renderingMode(.template)
                         .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
@@ -857,7 +858,7 @@ struct RoomView: View {
                         }
                         .onDisappear {
                             shouldAnimate = false
-                            isRecording = false
+                            didStartRecording = false
                         }
                 }
                 
@@ -928,14 +929,23 @@ struct RoomView: View {
                             Text("Open in Browser")
                         }
                         
-                        if !isProcessingRecordRequest {
+                        if room.isRecording && didStartRecording && !isProcessingRecordRequest {
                             Button {
                                 Task { @MainActor in
                                     toggleRecording()
                                     isGearMenuPresented.toggle()
                                 }
                             } label: {
-                                Text(isRecording ? "Stop Recording" : "Start Recording")
+                                Text("Stop Recording")
+                            }
+                        } else if !room.isRecording && !isProcessingRecordRequest {
+                            Button {
+                                Task { @MainActor in
+                                    toggleRecording()
+                                    isGearMenuPresented.toggle()
+                                }
+                            } label: {
+                                Text("Start Recording")
                             }
                         }
 
@@ -1021,7 +1031,18 @@ struct RoomView: View {
                     }
                 }
             }
+        }.onChange(of: room.isRecording) { newValue in
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: newValue ? "Recording in progress.\nPlease be aware this call is being recorded." : "Recording ended.\nThis call is no longer being recorded.",
+                delay: 5,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.BadgeRed,
+                backAlpha: 1.0
+            )
+            
+            self.shouldAnimate = newValue
         }
+
     }
 }
 
