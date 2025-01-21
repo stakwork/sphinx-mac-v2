@@ -239,6 +239,16 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
             tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
         )
     }
+    
+    func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?) {
+        guard let message = message else {
+            return
+        }
+        chatTopView.configureScheduleIcon(
+            lastMessage: message,
+            ownerId: owner.id
+        )
+    }
 }
 
 extension NewChatViewController : MediaFullScreenDelegate {

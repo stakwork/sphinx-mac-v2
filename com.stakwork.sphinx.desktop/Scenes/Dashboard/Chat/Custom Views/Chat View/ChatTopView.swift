@@ -105,6 +105,16 @@ class ChatTopView: NSView, LoadableNib {
         chatSearchView.setDelegate(self)
     }
     
+    func configureScheduleIcon(
+        lastMessage: TransactionMessage,
+        ownerId: Int
+    ) {
+        chatHeaderView.configureScheduleIcon(
+            lastMessage: lastMessage,
+            ownerId: ownerId
+        )
+    }
+    
     func configurePinnedMessageViewWith(
         chatId: Int,
         andDelegate delegate: PinnedMessageViewDelegate,

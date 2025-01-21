@@ -60,6 +60,9 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     
     ///Empty chat placeholder
     func updateEmptyView()
+    
+    ///Pending outgoing message
+    func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?)
 }
 
 class NewChatTableDataSource : NSObject {
