@@ -157,6 +157,7 @@ class NewChatTableDataSource : NSObject {
         self.delegate = delegate
         
         addScrollObservers()
+        configureScrollView()
         configureTableView()
         configureDataSource()
     }
@@ -177,6 +178,11 @@ class NewChatTableDataSource : NSObject {
         preloaderHelper.releaseMemory()
     }
     
+    func configureScrollView() {
+        collectionViewScroll.verticalScrollElasticity = .none
+        collectionViewScroll.horizontalScrollElasticity = .none
+    }
+    
     func configureTableView() {
         collectionView.alphaValue = 0.0
         
@@ -187,9 +193,6 @@ class NewChatTableDataSource : NSObject {
         collectionView.registerItem(NewOnlyTextMessageCollectionViewitem.self)
         collectionView.registerItem(MessageNoBubbleCollectionViewItem.self)
         collectionView.registerItem(ThreadCollectionViewItem.self)
-        
-        collectionViewScroll.verticalScrollElasticity = .none
-        collectionViewScroll.horizontalScrollElasticity = .none
     }
     
     func makeCellProvider(

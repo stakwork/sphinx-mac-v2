@@ -44,6 +44,16 @@ class ThreadTableDataSource : NewChatTableDataSource {
         )
     }
     
+    override func configureScrollView() {
+        super.configureScrollView()
+        
+        collectionViewScroll.hasVerticalScroller = false
+        collectionViewScroll.hasHorizontalScroller = false
+        collectionViewScroll.verticalScroller?.alphaValue = 0
+        collectionViewScroll.horizontalScroller?.alphaValue = 0
+        collectionViewScroll.automaticallyAdjustsContentInsets = false
+    }
+    
     override func loadMoreItems() {
         ///Nothing to do
     }
