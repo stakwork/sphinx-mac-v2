@@ -885,11 +885,12 @@ struct RoomView: View {
                             NSCursor.arrow.set()
                         }
                     }
-                    
-                    Text("\(room.allParticipants.count)")
-                        .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
-                        .foregroundColor(Color.white)
-                        .padding(.trailing, 8)
+                    if room.allParticipants.count > 0 {
+                        Text("\(room.allParticipants.count)")
+                            .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                            .foregroundColor(Color.white)
+                            .padding(.trailing, 8)
+                    }
                 }
                 .frame(height: 40.0)
                 .background(
@@ -1042,7 +1043,6 @@ struct RoomView: View {
             
             self.shouldAnimate = newValue
         }
-
     }
 }
 

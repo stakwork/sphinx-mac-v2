@@ -312,6 +312,10 @@ extension RoomContext: RoomDelegate {
     func room(_: Room, trackPublication _: TrackPublication, didUpdateE2EEState state: E2EEState) {
         print("didUpdateE2EEState: \(state)")
     }
+    
+    func room(_ room: Room, didUpdateIsRecording isRecording: Bool) {
+        print("didUpdateIsRecording: \(isRecording)")
+    }
 }
 
 extension RoomContext {
