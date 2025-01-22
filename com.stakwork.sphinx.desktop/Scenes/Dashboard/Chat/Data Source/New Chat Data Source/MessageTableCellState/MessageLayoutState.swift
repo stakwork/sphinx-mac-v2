@@ -68,6 +68,7 @@ struct BubbleMessageLayoutState {
         var showExpiredReceived: Bool
         var expirationTimestamp: String?
         var timestamp: String
+        var messageDate: Date
         
         init(
             senderName: String?,
@@ -82,7 +83,8 @@ struct BubbleMessageLayoutState {
             showExpiredSent: Bool,
             showExpiredReceived: Bool,
             expirationTimestamp: String?,
-            timestamp: String
+            timestamp: String,
+            messageDate: Date
         ) {
             self.senderName = senderName
             self.color = color
@@ -97,6 +99,7 @@ struct BubbleMessageLayoutState {
             self.showExpiredReceived = showExpiredReceived
             self.expirationTimestamp = expirationTimestamp
             self.timestamp = timestamp
+            self.messageDate = messageDate
         }
     }
     

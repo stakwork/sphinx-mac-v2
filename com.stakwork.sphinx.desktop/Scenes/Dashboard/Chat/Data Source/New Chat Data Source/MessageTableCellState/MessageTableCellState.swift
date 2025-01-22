@@ -207,7 +207,8 @@ struct MessageTableCellState {
             showExpiredSent: message.isInvoice() && !message.isPaid() && !isSent,
             showExpiredReceived: message.isInvoice() && !message.isPaid() && isSent,
             expirationTimestamp: expirationTimestamp,
-            timestamp: timestamp
+            timestamp: timestamp,
+            messageDate: message.date ?? Date()
         )
         
         return statusHeader

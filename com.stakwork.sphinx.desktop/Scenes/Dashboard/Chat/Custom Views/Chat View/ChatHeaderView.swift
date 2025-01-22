@@ -38,6 +38,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var tribePriceLabel: NSTextField!
     @IBOutlet weak var lockSign: NSTextField!
     @IBOutlet weak var boltSign: NSTextField!
+    @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var volumeButton: CustomButton!
     @IBOutlet weak var webAppButton: CustomButton!
     @IBOutlet weak var secondBrainButton: CustomButton!
@@ -111,6 +112,20 @@ class ChatHeaderView: NSView, LoadableNib {
         self.delegate = delegate
         
         setChatInfo()
+    }
+    
+    func configureScheduleIcon(
+        lastMessage: TransactionMessage,
+        ownerId: Int
+    ) {
+        scheduleIcon.isHidden = true
+        
+        if lastMessage.isOutgoing(ownerId: ownerId), !lastMessage.isConfirmedAsReceived() {
+            let thirtySecondsAgo = Date().addingTimeInterval(-30)
+            if lastMessage.messageDate < thirtySecondsAgo {
+                scheduleIcon.isHidden = false
+            }
+        }
     }
     
     func setupDisabledMode() {
