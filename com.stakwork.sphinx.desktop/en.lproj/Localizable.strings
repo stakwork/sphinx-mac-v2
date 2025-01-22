@@ -459,7 +459,7 @@
 "popup.redeem-sats" = "Redeem %d sats from:";
 "authorization.login" = "You’ve been logged in successfully";
 "invalid.public-key" = "Invalid Public Key";
-"processing.payment" = "Processsing payment";
+"processing.payment" = "Processing payment";
 "processing.payment.description" = "This process could take up to 60 seconds. You will be notified when completed";
 
 "people.save-profile" = "Save Profile from:";
