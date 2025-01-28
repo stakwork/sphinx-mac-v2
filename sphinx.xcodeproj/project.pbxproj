@@ -509,6 +509,7 @@
 		47D7B3AE2D0C757900866983 /* AddAttachmentCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D7B3AD2D0C757900866983 /* AddAttachmentCollectionViewItem.swift */; };
 		47D7B3B02D0C759200866983 /* AddAttachmentCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */; };
 		47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D7D8E324620B520089C6EE /* KeychainManager.swift */; };
+		47DCF7E62D495FAE007A57A9 /* CallControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DCF7E52D495FAE007A57A9 /* CallControlView.swift */; };
 		47DE1BF02A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */; };
 		47DE1BF42A6813BA0029597B /* StatusHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */; };
 		47DE1BF62A6813C50029597B /* StatusHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1BF52A6813C50029597B /* StatusHeaderView.xib */; };
@@ -564,6 +565,7 @@
 		47EB025929B21D9D0032CFB5 /* VoIPRequestMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EB025829B21D9D0032CFB5 /* VoIPRequestMessage.swift */; };
 		47F258DB2541E54000122A5A /* PodcastPaymentsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F258DA2541E53F00122A5A /* PodcastPaymentsHelper.swift */; };
 		47F58A82268E4CAC00B223E0 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 47F58A81268E4CAC00B223E0 /* README.md */; };
+		47F865FF2D4964C4006A2641 /* CallControlView.swift in Resources */ = {isa = PBXBuildFile; fileRef = 47DCF7E52D495FAE007A57A9 /* CallControlView.swift */; };
 		47F8824725656CB0002A7E71 /* SocketStringReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822925656CB0002A7E71 /* SocketStringReader.swift */; };
 		47F8824825656CB0002A7E71 /* SocketLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822A25656CB0002A7E71 /* SocketLogger.swift */; };
 		47F8824925656CB0002A7E71 /* SocketExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822B25656CB0002A7E71 /* SocketExtensions.swift */; };
@@ -1453,6 +1455,7 @@
 		47D7B3AD2D0C757900866983 /* AddAttachmentCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAttachmentCollectionViewItem.swift; sourceTree = "<group>"; };
 		47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddAttachmentCollectionViewItem.xib; sourceTree = "<group>"; };
 		47D7D8E324620B520089C6EE /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		47DCF7E52D495FAE007A57A9 /* CallControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallControlView.swift; sourceTree = "<group>"; };
 		47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewOnlyTextMessageCollectionViewitem.xib; sourceTree = "<group>"; };
 		47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusHeaderView.swift; sourceTree = "<group>"; };
 		47DE1BF52A6813C50029597B /* StatusHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StatusHeaderView.xib; sourceTree = "<group>"; };
@@ -1922,6 +1925,7 @@
 				4730EF702CDBD10D0014581F /* Participant+Helper.swift */,
 				4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */,
 				4730EF7A2CDBE5C90014581F /* RoomContextView.swift */,
+				47DCF7E52D495FAE007A57A9 /* CallControlView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3803,6 +3807,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47F865FF2D4964C4006A2641 /* CallControlView.swift in Resources */,
 				47E19DEB2BB7191500A0E596 /* PrivacyInfo.xcprivacy in Resources */,
 				47B5508824895D71000514BF /* Main.storyboard in Resources */,
 				47DE1C162A6974550029597B /* NewLinkPreviewView.xib in Resources */,
@@ -4416,6 +4421,7 @@
 				47F8825425656CB0002A7E71 /* SocketEnginePacketType.swift in Sources */,
 				4744FA992469CA4D00C5FD94 /* TransactionMessageInfoGetterExtension.swift in Sources */,
 				4744FA5E2469A41100C5FD94 /* API.swift in Sources */,
+				47DCF7E62D495FAE007A57A9 /* CallControlView.swift in Sources */,
 				4744FA902469C9F800C5FD94 /* Subscription+CoreDataProperties.swift in Sources */,
 				47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */,
 				475B68682991A1A2000EF29C /* FeedBoostHelper.swift in Sources */,

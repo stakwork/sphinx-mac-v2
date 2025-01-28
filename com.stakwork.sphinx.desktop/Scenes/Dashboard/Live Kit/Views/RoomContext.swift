@@ -18,7 +18,7 @@ import LiveKit
 import SwiftUI
 
 // This class contains the logic to control behavior of the whole app.
-final class RoomContext: ObservableObject {
+final class RoomContext: NSObject, ObservableObject {
     let jsonEncoder = JSONEncoder()
     let jsonDecoder = JSONDecoder()
     
@@ -87,15 +87,22 @@ final class RoomContext: ObservableObject {
     @Published var messages: [ExampleRoomMessage] = []
 
     @Published var textFieldString: String = ""
+    
+    @State var didStartRecording = false
 
     var _connectTask: Task<Void, Error>?
     
     var colors: [String: Color] = [:]
+    
+    var controlsPanel: NSPanel? = nil
 
     public init(
         store: ValueStore<Preferences>
     ) {
         self.store = store
+        
+        super.init()
+        
         room.add(delegate: self)
 
         url = store.value.url
@@ -351,5 +358,86 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(messageId)
+    }
+}
+
+extension RoomContext: NSWindowDelegate {
+    func windowDidBecomeKey(_ notification: Notification) {
+        hideCallControlWindow()
+    }
+    
+    func windowDidResignKey(_ notification: Notification) {
+        if self.room.connectionState == .connected {
+            presentCallControlWindow()
+        }
+    }
+    
+    func presentCallControlWindow() {
+        let mainScreen = NSScreen.main
+        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 200) / 2 - 135, y: 15)
+        
+        let shareControlView = CallControlView()
+            .environmentObject(self)
+            .environmentObject(self.room)
+        
+        let hostingController = NSHostingController(rootView: shareControlView)
+        
+        showControlsPanel(
+            with: "",
+            size: CGSize(width: 270, height: 80),
+            minSize: CGSize(width: 270, height: 80),
+            position: position,
+            identifier: "share-panel",
+            backgroundColor: NSColor.clear,
+            contentVC: hostingController
+        )
+    }
+    
+    func showControlsPanel(
+        with title: String,
+        size: CGSize,
+        minSize: CGSize? = nil,
+        centeredIn w: NSWindow? = nil,
+        position: CGPoint? = nil,
+        identifier: String? = nil,
+        chatIdentifier: Int? = nil,
+        backgroundColor: NSColor? = nil,
+        contentVC: NSViewController
+    ) {
+        controlsPanel = NSPanel(
+            contentRect: .init(origin: .zero, size: size),
+            styleMask: [.nonactivatingPanel, .borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        controlsPanel?.title = title
+        controlsPanel?.minSize = minSize ?? size
+        controlsPanel?.isMovableByWindowBackground = false
+        controlsPanel?.contentViewController = contentVC
+        controlsPanel?.makeKeyAndOrderFront(nil)
+        controlsPanel?.isReleasedWhenClosed = false
+        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
+        controlsPanel?.isOpaque = false
+        controlsPanel?.toolbarStyle = .unifiedCompact
+        controlsPanel?.titlebarAppearsTransparent = true
+        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
+        controlsPanel?.level = .mainMenu
+        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        
+        if let w = w {
+            let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
+            controlsPanel?.setFrame(.init(origin: position, size: size), display: true)
+        } else if let position = position {
+            controlsPanel?.setFrame(.init(origin: position, size: size), display: true)
+        } else {
+            controlsPanel?.center()
+        }
+    }
+    
+    func hideCallControlWindow() {
+        DispatchQueue.main.async {
+            self.controlsPanel?.close()
+        }
     }
 }

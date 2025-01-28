@@ -89,7 +89,6 @@ struct RoomView: View {
     @State private var showConnectionTime = true
     @State private var canSwitchCameraPosition = false
     
-    @State private var didStartRecording = false
     @State private var isProcessingRecordRequest = false
     @State private var shouldAnimate = false
     
@@ -108,10 +107,10 @@ struct RoomView: View {
         }
         isProcessingRecordRequest = true
         
-        let urlAction = didStartRecording ? "stop" : "start"
+        let urlAction = roomCtx.didStartRecording ? "stop" : "start"
         var isoStringWithMilliseconds: String? = nil
         
-        if !didStartRecording {
+        if !roomCtx.didStartRecording {
             let currentDate = Date()
             let isoFormatter = ISO8601DateFormatter()
             isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -125,10 +124,10 @@ struct RoomView: View {
             callback: { success in
                 if success {
                     DispatchQueue.main.async {
-                        self.didStartRecording = !self.didStartRecording
+                        self.roomCtx.didStartRecording = !self.roomCtx.didStartRecording
                         
                         self.newMessageBubbleHelper.showGenericMessageView(
-                            text: self.didStartRecording ? "Starting call recording. Please wait..." : "Stopping call recording. Please wait...",
+                            text: self.roomCtx.didStartRecording ? "Starting call recording. Please wait..." : "Stopping call recording. Please wait...",
                             delay: 5,
                             textColor: NSColor.white,
                             backColor: NSColor.Sphinx.BadgeRed,
@@ -810,7 +809,7 @@ struct RoomView: View {
                 // Disconnect
                 Button(action: {
                    Task {
-                       if didStartRecording && room.isRecording {
+                       if roomCtx.didStartRecording && room.isRecording {
                            toggleRecording()
                        }
                        await roomCtx.disconnect()
@@ -858,7 +857,7 @@ struct RoomView: View {
                         }
                         .onDisappear {
                             shouldAnimate = false
-                            didStartRecording = false
+                            roomCtx.didStartRecording = false
                         }
                 }
                 
@@ -930,7 +929,7 @@ struct RoomView: View {
                             Text("Open in Browser")
                         }
                         
-                        if room.isRecording && didStartRecording && !isProcessingRecordRequest {
+                        if room.isRecording && roomCtx.didStartRecording && !isProcessingRecordRequest {
                             Button {
                                 Task { @MainActor in
                                     toggleRecording()

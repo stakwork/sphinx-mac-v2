@@ -61,6 +61,13 @@ class WindowsManager {
         }).last as? TaggedWindow
     }
     
+    func getLiveKitCallWindow() -> TaggedWindow? {
+        return NSApplication.shared.windows.filter({
+            $0.isKind(of: TaggedWindow.self) &&
+            ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.call") == true
+        }).last as? TaggedWindow
+    }
+    
     func getCenteredFrameFor(size: CGSize) -> CGRect {
         let mainScreen = NSScreen.main
         let centerPoint = CGPoint(x: ((mainScreen?.frame.width ?? 1000) / 2) - (size.width / 2), y: ((mainScreen?.frame.height ?? 735) / 2) - (size.height / 2))
@@ -360,7 +367,9 @@ class WindowsManager {
         position: CGPoint? = nil,
         identifier: String? = nil,
         chatIdentifier: Int? = nil,
+        delegate: NSWindowDelegate? = nil,
         styleMask: NSWindow.StyleMask = [.closable, .titled, .resizable],
+        backgroundColor: NSColor? = nil,
         contentVC: NSViewController
     ) {
         
@@ -377,10 +386,50 @@ class WindowsManager {
         newWindow.isReleasedWhenClosed = false
         newWindow.windowIdentifier = identifier
         newWindow.chatIdentifier = chatIdentifier
-        newWindow.backgroundColor = NSColor.Sphinx.Body
+        newWindow.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
         newWindow.isOpaque = false
         newWindow.toolbarStyle = .unifiedCompact
         newWindow.titlebarAppearsTransparent = true
+        newWindow.delegate = delegate
+        
+        if let w = w {
+            let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
+            newWindow.setFrame(.init(origin: position, size: size), display: true)
+        } else if let position = position {
+            newWindow.setFrame(.init(origin: position, size: size), display: true)
+        } else {
+            newWindow.center()
+        }
+    }
+    
+    ///New Windows
+    func showControlsPanel(
+        with title: String,
+        size: CGSize,
+        minSize: CGSize? = nil,
+        centeredIn w: NSWindow? = nil,
+        position: CGPoint? = nil,
+        identifier: String? = nil,
+        chatIdentifier: Int? = nil,
+        backgroundColor: NSColor? = nil,
+        contentVC: NSViewController
+    ) {
+        
+        let newWindow = NSPanel(contentRect: .init(origin: .zero, size: size), styleMask: [.nonactivatingPanel, .borderless], backing: .buffered, defer: false)
+        
+        newWindow.title = title
+        newWindow.minSize = minSize ?? size
+        newWindow.isMovableByWindowBackground = false
+        newWindow.contentViewController = contentVC
+        newWindow.makeKeyAndOrderFront(nil)
+        newWindow.isReleasedWhenClosed = false
+        newWindow.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
+        newWindow.isOpaque = false
+        newWindow.toolbarStyle = .unifiedCompact
+        newWindow.titlebarAppearsTransparent = true
+        newWindow.styleMask = [.nonactivatingPanel, .borderless]
+        newWindow.level = .mainMenu
+        newWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         
         if let w = w {
             let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
@@ -444,7 +493,7 @@ class WindowsManager {
                     }).environmentObject(appCtx).environmentObject(roomCtx)
                     
                     let hostingController = NSHostingController(rootView: roomContextView)
-                    self.presentWindowForCallVC(vc: hostingController, link: link)
+                    self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
                 },
                 errorCallback: { error in
                     AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
@@ -486,10 +535,9 @@ class WindowsManager {
     
     func presentWindowForCallVC(
         vc: NSViewController,
-        link: String
+        link: String,
+        delegate: NSWindowDelegate? = nil
     ) {
-//        let appTitle = "Sphinx Call"
-        
         let screen = NSApplication.shared.keyWindow
         let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
         
@@ -501,6 +549,7 @@ class WindowsManager {
             minSize: CGSize(width: 350, height: 550),
             position: position,
             identifier: link,
+            delegate: delegate,
             styleMask: [.fullSizeContentView, .titled, .closable, .miniaturizable, .resizable],
             contentVC: vc
         )
@@ -585,3 +634,4 @@ class TaggedWindow : NSWindow {
     var windowIdentifier: String? = nil
     var chatIdentifier: Int? = nil
 }
+
