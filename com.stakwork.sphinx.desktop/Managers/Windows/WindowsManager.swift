@@ -57,7 +57,8 @@ class WindowsManager {
         return NSApplication.shared.windows.filter({
             $0.isKind(of: TaggedWindow.self) && 
             ($0 as? TaggedWindow)?.windowIdentifier?.contains("web-app") == false &&
-            ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.chat") == false
+            ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.chat") == false &&
+            ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.call") == false
         }).last as? TaggedWindow
     }
     
