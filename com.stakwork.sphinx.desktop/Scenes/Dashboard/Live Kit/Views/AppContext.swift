@@ -69,8 +69,11 @@ final class AppContext: ObservableObject {
         didSet {
             print("didSet inputDevice: \(String(describing: inputDevice))")
             AudioManager.shared.inputDevice = inputDevice
+            reloadAudioDevices()
         }
     }
+    
+    @Published var realInputDevice: AudioDevice = AudioManager.shared.defaultInputDevice
     
     @Published var inputDeviceId: String = AudioManager.shared.defaultInputDevice.deviceId {
         didSet {
@@ -117,6 +120,17 @@ final class AppContext: ObservableObject {
         let realOutputDevice = AudioManager.shared.outputDevices.first(where: { $0.name == defaultOutputDevice.name && $0.deviceId != "default" }) ?? defaultOutputDevice
 
         self.realOutputDevice = realOutputDevice
+        
+        //Audio Input device
+        var defaultInputDevice = inputDevice
+
+        if defaultInputDevice.name.isEmpty, let firstDevice = AudioManager.shared.inputDevices.first {
+            defaultInputDevice = firstDevice
+        }
+
+        let realInputDevice = AudioManager.shared.inputDevices.first(where: { $0.name == defaultInputDevice.name && $0.deviceId != "default" }) ?? defaultInputDevice
+
+        self.realInputDevice = realInputDevice
     }
 
 }

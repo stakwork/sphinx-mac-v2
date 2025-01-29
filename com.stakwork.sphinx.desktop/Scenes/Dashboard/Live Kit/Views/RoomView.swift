@@ -967,12 +967,12 @@ struct RoomView: View {
                         Group {
                             Picker("Output device", selection: $appCtx.outputDeviceId) {
                                 ForEach(AudioManager.shared.outputDevices) { device in
-                                    Text(device.isDefault ? "System Output device" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System Output device (\(appCtx.realOutputDevice.name))" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                             Picker("Input device", selection: $appCtx.inputDeviceId) {
                                 ForEach(AudioManager.shared.inputDevices) { device in
-                                    Text(device.isDefault ? "System Input device" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System Input device (\(appCtx.realInputDevice.name))" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                         }
