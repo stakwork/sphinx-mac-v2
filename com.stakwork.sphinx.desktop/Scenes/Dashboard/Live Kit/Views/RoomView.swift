@@ -664,7 +664,11 @@ struct RoomView: View {
                             try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
                         }
                     } label: {
-                        Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
+                        let enabledMicImage: SFSymbol = appCtx.realOutputDevice.name.lowercased().contains("airpods") ? .airpodspro : ((appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")) ? .headphones : .micFill)
+                        
+                        let disabledMicImage: SFSymbol = appCtx.realOutputDevice.name.lowercased().contains("airpods") ? .airpodspro : ((appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")) ? .headphones : .micSlashFill)
+                        
+                        Image(systemSymbol: isMicrophoneEnabled ? enabledMicImage : disabledMicImage)
                             .renderingMode(.template)
                             .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                             .font(.system(size: 18))
@@ -963,12 +967,12 @@ struct RoomView: View {
                         Group {
                             Picker("Output device", selection: $appCtx.outputDeviceId) {
                                 ForEach(AudioManager.shared.outputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System Output device" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                             Picker("Input device", selection: $appCtx.inputDeviceId) {
                                 ForEach(AudioManager.shared.inputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System Input device" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                         }
@@ -1031,6 +1035,7 @@ struct RoomView: View {
                     }
                 }
             }
+            appCtx.reloadAudioDevices()
         }.onChange(of: room.isRecording) { newValue in
             self.newMessageBubbleHelper.showGenericMessageView(
                 text: newValue ? "Recording in progress.\nPlease be aware this call is being recorded." : "Recording ended.\nThis call is no longer being recorded.",

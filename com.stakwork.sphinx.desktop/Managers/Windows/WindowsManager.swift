@@ -9,7 +9,12 @@
 import Cocoa
 import SwiftUI
 
-class WindowsManager {
+class WindowsManager : NSObject {
+    
+    var appCtx: AppContext! = nil
+    var roomCtx: RoomContext! = nil
+    
+    var controlsPanel: DraggablePanel? = nil
     
     class var sharedInstance : WindowsManager {
         struct Static {
@@ -402,45 +407,6 @@ class WindowsManager {
         }
     }
     
-    ///New Windows
-    func showControlsPanel(
-        with title: String,
-        size: CGSize,
-        minSize: CGSize? = nil,
-        centeredIn w: NSWindow? = nil,
-        position: CGPoint? = nil,
-        identifier: String? = nil,
-        chatIdentifier: Int? = nil,
-        backgroundColor: NSColor? = nil,
-        contentVC: NSViewController
-    ) {
-        
-        let newWindow = NSPanel(contentRect: .init(origin: .zero, size: size), styleMask: [.nonactivatingPanel, .borderless], backing: .buffered, defer: false)
-        
-        newWindow.title = title
-        newWindow.minSize = minSize ?? size
-        newWindow.isMovableByWindowBackground = false
-        newWindow.contentViewController = contentVC
-        newWindow.makeKeyAndOrderFront(nil)
-        newWindow.isReleasedWhenClosed = false
-        newWindow.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
-        newWindow.isOpaque = false
-        newWindow.toolbarStyle = .unifiedCompact
-        newWindow.titlebarAppearsTransparent = true
-        newWindow.styleMask = [.nonactivatingPanel, .borderless]
-        newWindow.level = .mainMenu
-        newWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        
-        if let w = w {
-            let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
-            newWindow.setFrame(.init(origin: position, size: size), display: true)
-        } else if let position = position {
-            newWindow.setFrame(.init(origin: position, size: size), display: true)
-        } else {
-            newWindow.center()
-        }
-    }
-    
     func showWebAppWindow(chat: Chat?, view: NSView, isAppURL: Bool = true) {
         if let chat = chat, let tribeInfo = chat.tribeInfo, let gameURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !gameURL.isEmpty && gameURL.isValidURL,
            let webGameVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {
@@ -479,21 +445,22 @@ class WindowsManager {
                 profilePicture: owner.avatarUrl,
                 callback: { url, token in
                     
-                    let appCtx = AppContext(store: sync)
-                    let roomCtx = RoomContext(store: sync)
+                    self.appCtx = AppContext(store: sync)
+                    self.roomCtx = RoomContext(store: sync)
                     
-                    roomCtx.url = url
-                    roomCtx.token = token
-                    roomCtx.tribeImage = tribeImage
+                    self.roomCtx.url = url
+                    self.roomCtx.token = token
+                    self.roomCtx.tribeImage = tribeImage
                     
                     let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
                         Task { @MainActor in
+                            self.hideCallControlWindow()
                             self.closeIfExists(identifier: link)
                         }
-                    }).environmentObject(appCtx).environmentObject(roomCtx)
+                    }).environmentObject(self.appCtx).environmentObject(self.roomCtx)
                     
                     let hostingController = NSHostingController(rootView: roomContextView)
-                    self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
+                    self.presentWindowForCallVC(vc: hostingController, link: link)
                 },
                 errorCallback: { error in
                     AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
@@ -535,8 +502,7 @@ class WindowsManager {
     
     func presentWindowForCallVC(
         vc: NSViewController,
-        link: String,
-        delegate: NSWindowDelegate? = nil
+        link: String
     ) {
         let screen = NSApplication.shared.keyWindow
         let frame : CGRect = screen?.frame ?? CGRect(x: 0, y: 0, width: 400, height: 400)
@@ -549,7 +515,7 @@ class WindowsManager {
             minSize: CGSize(width: 350, height: 550),
             position: position,
             identifier: link,
-            delegate: delegate,
+            delegate: self,
             styleMask: [.fullSizeContentView, .titled, .closable, .miniaturizable, .resizable],
             contentVC: vc
         )
@@ -614,6 +580,110 @@ class WindowsManager {
                 }
             }
         }
+    }
+}
+
+extension WindowsManager : NSWindowDelegate {
+    func windowDidBecomeKey(_ notification: Notification) {
+        hideCallControlWindow()
+    }
+    
+    func windowDidResignKey(_ notification: Notification) {
+        if self.roomCtx.room.connectionState == .connected {
+            presentCallControlWindow()
+        }
+    }
+    
+    func presentCallControlWindow() {
+        let mainScreen = NSScreen.main
+        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 200) / 2 - 135, y: 15)
+        
+        let shareControlView = CallControlView()
+            .environmentObject(roomCtx)
+            .environmentObject(appCtx)
+            .environmentObject(roomCtx.room)
+        
+        let hostingController = NSHostingController(rootView: shareControlView)
+        
+        showControlsPanel(
+            with: "",
+            size: CGSize(width: 270, height: 100),
+            minSize: CGSize(width: 270, height: 100),
+            position: position,
+            identifier: "share-panel",
+            backgroundColor: NSColor.clear,
+            contentVC: hostingController
+        )
+    }
+    
+    func showControlsPanel(
+        with title: String,
+        size: CGSize,
+        minSize: CGSize? = nil,
+        position: CGPoint? = nil,
+        identifier: String? = nil,
+        chatIdentifier: Int? = nil,
+        backgroundColor: NSColor? = nil,
+        contentVC: NSViewController
+    ) {
+        let storedPosition = controlsPanel?.frame.origin ?? position
+        
+        controlsPanel = DraggablePanel(
+            contentRect: .init(origin: .zero, size: size),
+            styleMask: [.nonactivatingPanel, .borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        controlsPanel?.title = title
+        controlsPanel?.minSize = minSize ?? size
+        controlsPanel?.isMovableByWindowBackground = false
+        controlsPanel?.contentViewController = contentVC
+        controlsPanel?.makeKeyAndOrderFront(nil)
+        controlsPanel?.isReleasedWhenClosed = false
+        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
+        controlsPanel?.isOpaque = false
+        controlsPanel?.toolbarStyle = .unifiedCompact
+        controlsPanel?.titlebarAppearsTransparent = true
+        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
+        controlsPanel?.level = .mainMenu
+        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        
+        if let storedPosition = storedPosition {
+            controlsPanel?.setFrame(.init(origin: storedPosition, size: size), display: true)
+        } else {
+            controlsPanel?.center()
+        }
+    }
+    
+    func hideCallControlWindow() {
+        DispatchQueue.main.async {
+            self.controlsPanel?.close()
+        }
+    }
+}
+
+class DraggablePanel: NSPanel {
+    private var initialLocation: CGPoint?
+
+    override func mouseDown(with event: NSEvent) {
+        // Record the initial click location
+        initialLocation = event.locationInWindow
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let initialLocation = initialLocation else { return }
+
+        // Get the new window frame position
+        let currentLocation = event.locationInWindow
+        let deltaX = currentLocation.x - initialLocation.x
+        let deltaY = currentLocation.y - initialLocation.y
+
+        // Update the window's frame origin
+        var newFrame = frame
+        newFrame.origin.x += deltaX
+        newFrame.origin.y += deltaY
+        setFrame(newFrame, display: true)
     }
 }
 

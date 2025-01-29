@@ -52,8 +52,11 @@ final class AppContext: ObservableObject {
         didSet {
             print("didSet outputDevice: \(String(describing: outputDevice))")
             AudioManager.shared.outputDevice = outputDevice
+            reloadAudioDevices()
         }
     }
+    
+    @Published var realOutputDevice: AudioDevice = AudioManager.shared.defaultOutputDevice
     
     @Published var outputDeviceId: String = AudioManager.shared.defaultOutputDevice.deviceId {
         didSet {
@@ -75,7 +78,6 @@ final class AppContext: ObservableObject {
             inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputDeviceId }) ?? AudioManager.shared.defaultInputDevice
         }
     }
-
     #if os(iOS) || os(visionOS) || os(tvOS)
         @Published var preferSpeakerOutput: Bool = true {
             didSet { AudioManager.shared.isSpeakerOutputPreferred = preferSpeakerOutput }
@@ -103,4 +105,18 @@ final class AppContext: ObservableObject {
             }
         }
     }
+    
+    func reloadAudioDevices() {
+        //Audio Output device
+        var defaultOutputDevice = outputDevice
+
+        if defaultOutputDevice.name.isEmpty, let firstDevice = AudioManager.shared.outputDevices.first {
+            defaultOutputDevice = firstDevice
+        }
+
+        let realOutputDevice = AudioManager.shared.outputDevices.first(where: { $0.name == defaultOutputDevice.name && $0.deviceId != "default" }) ?? defaultOutputDevice
+
+        self.realOutputDevice = realOutputDevice
+    }
+
 }

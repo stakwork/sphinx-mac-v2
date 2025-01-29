@@ -9,9 +9,11 @@
 import SwiftUI
 import LiveKit
 import SDWebImageSwiftUI
+import SFSafeSymbols
 
 struct CallControlView: View {
     @EnvironmentObject var roomCtx: RoomContext
+    @EnvironmentObject var appCtx: AppContext
     @EnvironmentObject var room: Room
     
     @State var isCameraPublishingBusy = false
@@ -76,7 +78,11 @@ struct CallControlView: View {
                                 try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
                             }
                         } label: {
-                            Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
+                            let enabledMicImage: SFSymbol = appCtx.realOutputDevice.name.lowercased().contains("airpods") ? .airpodspro : ((appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")) ? .headphones : .micFill)
+                            
+                            let disabledMicImage: SFSymbol = appCtx.realOutputDevice.name.lowercased().contains("airpods") ? .airpodspro : ((appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")) ? .headphones : .micSlashFill)
+                            
+                            Image(systemSymbol: isMicrophoneEnabled ? enabledMicImage : disabledMicImage)
                                 .renderingMode(.template)
                                 .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                                 .font(.system(size: 18))

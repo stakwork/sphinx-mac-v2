@@ -98,7 +98,6 @@ struct RoomContextView: View {
                                 self.enableCamera()
                             }
                         }, onCallEnded: {
-                            self.roomCtx.hideCallControlWindow()
                             self.onCallEnded?()
                         })
                         appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")

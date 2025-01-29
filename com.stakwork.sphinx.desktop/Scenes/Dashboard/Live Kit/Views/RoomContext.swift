@@ -94,7 +94,7 @@ final class RoomContext: NSObject, ObservableObject {
     
     var colors: [String: Color] = [:]
     
-    var controlsPanel: DraggablePanel? = nil
+//    var controlsPanel: DraggablePanel? = nil
 
     public init(
         store: ValueStore<Preferences>
@@ -361,105 +361,105 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
     }
 }
 
-extension RoomContext: NSWindowDelegate {
-    func windowDidBecomeKey(_ notification: Notification) {
-        hideCallControlWindow()
-    }
-    
-    func windowDidResignKey(_ notification: Notification) {
-        if self.room.connectionState == .connected {
-            presentCallControlWindow()
-        }
-    }
-    
-    func presentCallControlWindow() {
-        let mainScreen = NSScreen.main
-        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 200) / 2 - 135, y: 15)
-        
-        let shareControlView = CallControlView()
-            .environmentObject(self)
-            .environmentObject(self.room)
-        
-        let hostingController = NSHostingController(rootView: shareControlView)
-        
-        showControlsPanel(
-            with: "",
-            size: CGSize(width: 270, height: 100),
-            minSize: CGSize(width: 270, height: 100),
-            position: position,
-            identifier: "share-panel",
-            backgroundColor: NSColor.clear,
-            contentVC: hostingController
-        )
-    }
-    
-    func showControlsPanel(
-        with title: String,
-        size: CGSize,
-        minSize: CGSize? = nil,
-        position: CGPoint? = nil,
-        identifier: String? = nil,
-        chatIdentifier: Int? = nil,
-        backgroundColor: NSColor? = nil,
-        contentVC: NSViewController
-    ) {
-        let storedPosition = controlsPanel?.frame.origin ?? position
-        
-        controlsPanel = DraggablePanel(
-            contentRect: .init(origin: .zero, size: size),
-            styleMask: [.nonactivatingPanel, .borderless],
-            backing: .buffered,
-            defer: false
-        )
-        
-        controlsPanel?.title = title
-        controlsPanel?.minSize = minSize ?? size
-        controlsPanel?.isMovableByWindowBackground = false
-        controlsPanel?.contentViewController = contentVC
-        controlsPanel?.makeKeyAndOrderFront(nil)
-        controlsPanel?.isReleasedWhenClosed = false
-        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
-        controlsPanel?.isOpaque = false
-        controlsPanel?.toolbarStyle = .unifiedCompact
-        controlsPanel?.titlebarAppearsTransparent = true
-        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
-        controlsPanel?.level = .mainMenu
-        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        
-        if let storedPosition = storedPosition {
-            controlsPanel?.setFrame(.init(origin: storedPosition, size: size), display: true)
-        } else {
-            controlsPanel?.center()
-        }
-    }
-    
-    func hideCallControlWindow() {
-        DispatchQueue.main.async {
-            self.controlsPanel?.close()
-        }
-    }
-}
+//extension RoomContext: NSWindowDelegate {
+//    func windowDidBecomeKey(_ notification: Notification) {
+//        hideCallControlWindow()
+//    }
+//    
+//    func windowDidResignKey(_ notification: Notification) {
+//        if self.room.connectionState == .connected {
+//            presentCallControlWindow()
+//        }
+//    }
+//    
+//    func presentCallControlWindow() {
+//        let mainScreen = NSScreen.main
+//        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 200) / 2 - 135, y: 15)
+//        
+//        let shareControlView = CallControlView()
+//            .environmentObject(self)
+//            .environmentObject(self.room)
+//        
+//        let hostingController = NSHostingController(rootView: shareControlView)
+//        
+//        showControlsPanel(
+//            with: "",
+//            size: CGSize(width: 270, height: 100),
+//            minSize: CGSize(width: 270, height: 100),
+//            position: position,
+//            identifier: "share-panel",
+//            backgroundColor: NSColor.clear,
+//            contentVC: hostingController
+//        )
+//    }
+//    
+//    func showControlsPanel(
+//        with title: String,
+//        size: CGSize,
+//        minSize: CGSize? = nil,
+//        position: CGPoint? = nil,
+//        identifier: String? = nil,
+//        chatIdentifier: Int? = nil,
+//        backgroundColor: NSColor? = nil,
+//        contentVC: NSViewController
+//    ) {
+//        let storedPosition = controlsPanel?.frame.origin ?? position
+//        
+//        controlsPanel = DraggablePanel(
+//            contentRect: .init(origin: .zero, size: size),
+//            styleMask: [.nonactivatingPanel, .borderless],
+//            backing: .buffered,
+//            defer: false
+//        )
+//        
+//        controlsPanel?.title = title
+//        controlsPanel?.minSize = minSize ?? size
+//        controlsPanel?.isMovableByWindowBackground = false
+//        controlsPanel?.contentViewController = contentVC
+//        controlsPanel?.makeKeyAndOrderFront(nil)
+//        controlsPanel?.isReleasedWhenClosed = false
+//        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
+//        controlsPanel?.isOpaque = false
+//        controlsPanel?.toolbarStyle = .unifiedCompact
+//        controlsPanel?.titlebarAppearsTransparent = true
+//        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
+//        controlsPanel?.level = .mainMenu
+//        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+//        
+//        if let storedPosition = storedPosition {
+//            controlsPanel?.setFrame(.init(origin: storedPosition, size: size), display: true)
+//        } else {
+//            controlsPanel?.center()
+//        }
+//    }
+//    
+//    func hideCallControlWindow() {
+//        DispatchQueue.main.async {
+//            self.controlsPanel?.close()
+//        }
+//    }
+//}
 
-class DraggablePanel: NSPanel {
-    private var initialLocation: CGPoint?
-
-    override func mouseDown(with event: NSEvent) {
-        // Record the initial click location
-        initialLocation = event.locationInWindow
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        guard let initialLocation = initialLocation else { return }
-
-        // Get the new window frame position
-        let currentLocation = event.locationInWindow
-        let deltaX = currentLocation.x - initialLocation.x
-        let deltaY = currentLocation.y - initialLocation.y
-
-        // Update the window's frame origin
-        var newFrame = frame
-        newFrame.origin.x += deltaX
-        newFrame.origin.y += deltaY
-        setFrame(newFrame, display: true)
-    }
-}
+//class DraggablePanel: NSPanel {
+//    private var initialLocation: CGPoint?
+//
+//    override func mouseDown(with event: NSEvent) {
+//        // Record the initial click location
+//        initialLocation = event.locationInWindow
+//    }
+//
+//    override func mouseDragged(with event: NSEvent) {
+//        guard let initialLocation = initialLocation else { return }
+//
+//        // Get the new window frame position
+//        let currentLocation = event.locationInWindow
+//        let deltaX = currentLocation.x - initialLocation.x
+//        let deltaY = currentLocation.y - initialLocation.y
+//
+//        // Update the window's frame origin
+//        var newFrame = frame
+//        newFrame.origin.x += deltaX
+//        newFrame.origin.y += deltaY
+//        setFrame(newFrame, display: true)
+//    }
+//}
