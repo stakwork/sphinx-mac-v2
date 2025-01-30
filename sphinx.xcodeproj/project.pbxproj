@@ -566,6 +566,8 @@
 		47F258DB2541E54000122A5A /* PodcastPaymentsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F258DA2541E53F00122A5A /* PodcastPaymentsHelper.swift */; };
 		47F58A82268E4CAC00B223E0 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 47F58A81268E4CAC00B223E0 /* README.md */; };
 		47F865FF2D4964C4006A2641 /* CallControlView.swift in Resources */ = {isa = PBXBuildFile; fileRef = 47DCF7E52D495FAE007A57A9 /* CallControlView.swift */; };
+		47F866012D4A71B5006A2641 /* MaterialSymbols-Outlined.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47F866002D4A71B4006A2641 /* MaterialSymbols-Outlined.ttf */; };
+		47F866022D4A72D5006A2641 /* MaterialSymbols-Outlined.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 47F866002D4A71B4006A2641 /* MaterialSymbols-Outlined.ttf */; };
 		47F8824725656CB0002A7E71 /* SocketStringReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822925656CB0002A7E71 /* SocketStringReader.swift */; };
 		47F8824825656CB0002A7E71 /* SocketLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822A25656CB0002A7E71 /* SocketLogger.swift */; };
 		47F8824925656CB0002A7E71 /* SocketExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8822B25656CB0002A7E71 /* SocketExtensions.swift */; };
@@ -679,6 +681,7 @@
 			dstPath = Fonts;
 			dstSubfolderSpec = 7;
 			files = (
+				47F866022D4A72D5006A2641 /* MaterialSymbols-Outlined.ttf in CopyFiles */,
 				4709B14A2C6C00FB0077AA61 /* Roboto-Black.ttf in CopyFiles */,
 				4709B14B2C6C00FB0077AA61 /* Roboto-Thin.ttf in CopyFiles */,
 				476AAA932A1E5EB20092AC87 /* MaterialIcons.ttf in CopyFiles */,
@@ -1512,6 +1515,7 @@
 		47EB025829B21D9D0032CFB5 /* VoIPRequestMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoIPRequestMessage.swift; sourceTree = "<group>"; };
 		47F258DA2541E53F00122A5A /* PodcastPaymentsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPaymentsHelper.swift; sourceTree = "<group>"; };
 		47F58A81268E4CAC00B223E0 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		47F866002D4A71B4006A2641 /* MaterialSymbols-Outlined.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MaterialSymbols-Outlined.ttf"; sourceTree = "<group>"; };
 		47F8822925656CB0002A7E71 /* SocketStringReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketStringReader.swift; sourceTree = "<group>"; };
 		47F8822A25656CB0002A7E71 /* SocketLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketLogger.swift; sourceTree = "<group>"; };
 		47F8822B25656CB0002A7E71 /* SocketExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketExtensions.swift; sourceTree = "<group>"; };
@@ -1764,6 +1768,7 @@
 		4703F0552481C5F600282186 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				47F866002D4A71B4006A2641 /* MaterialSymbols-Outlined.ttf */,
 				4709B1482C6C00740077AA61 /* Roboto-Black.ttf */,
 				4771589C2BE511D200E2101D /* Roboto-Thin.ttf */,
 				476AAA8F2A1E5E670092AC87 /* MaterialIcons.ttf */,
@@ -3913,6 +3918,7 @@
 				474274AB28EC77AE000C3D51 /* TribeTagView.xib in Resources */,
 				473E1F492AC5BEBF00DC1CDC /* ThreadHeaderView.xib in Resources */,
 				479496582AB88C6D00C42D1E /* NewPaidAttachmentView.xib in Resources */,
+				47F866012D4A71B5006A2641 /* MaterialSymbols-Outlined.ttf in Resources */,
 				4726A43F24C628DA005A66B4 /* tri-tone.caf in Resources */,
 				478ED5BE25D6FCF000940132 /* ConnectingView.xib in Resources */,
 				CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */,
@@ -5511,8 +5517,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/livekit/client-sdk-swift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.16;
+				branch = "hiroshi/adm-audioengine2";
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

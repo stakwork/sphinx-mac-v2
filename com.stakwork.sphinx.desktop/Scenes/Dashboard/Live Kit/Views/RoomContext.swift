@@ -17,8 +17,16 @@
 import LiveKit
 import SwiftUI
 
+protocol RoomContextDelegate: AnyObject {
+    func presentCallControlWindowWith(roomCtx: RoomContext)
+    func hideCallControlWindow()
+}
+
 // This class contains the logic to control behavior of the whole app.
 final class RoomContext: NSObject, ObservableObject {
+    
+    weak var delegate: RoomContextDelegate?
+    
     let jsonEncoder = JSONEncoder()
     let jsonDecoder = JSONDecoder()
     
@@ -82,24 +90,44 @@ final class RoomContext: NSObject, ObservableObject {
 
     @Published var focusParticipant: Participant?
 
-    @Published var showMessagesView: Bool = false
     @Published var showParticipantsView: Bool = false
-    @Published var messages: [ExampleRoomMessage] = []
 
     @Published var textFieldString: String = ""
     
-    @State var didStartRecording = false
+    //Recording
+    @Published var didStartRecording = false
+    @Published var isProcessingRecordRequest = false
+    @Published var shouldAnimate = false
+    @Published private var timer: Timer?
 
     var _connectTask: Task<Void, Error>?
     
     var colors: [String: Color] = [:]
     
-    var controlsPanel: NSPanel? = nil
+    func startAnimation() {
+        if let _ = timer {
+            return
+        }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 0.7)) {
+                self.shouldAnimate.toggle()
+            }
+        }
+    }
+    
+    func stopAnimation() {
+        timer?.invalidate()
+        timer = nil
+        shouldAnimate = false
+    }
+    
 
     public init(
-        store: ValueStore<Preferences>
+        store: ValueStore<Preferences>,
+        delegate: RoomContextDelegate
     ) {
         self.store = store
+        self.delegate = delegate
         
         super.init()
         
@@ -188,28 +216,6 @@ final class RoomContext: NSObject, ObservableObject {
         await room.disconnect()
     }
 
-    func sendMessage() {
-        // Make sure the message is not empty
-        guard !textFieldString.isEmpty else { return }
-
-        let roomMessage = ExampleRoomMessage(messageId: UUID().uuidString,
-                                             senderSid: room.localParticipant.sid,
-                                             senderIdentity: room.localParticipant.identity,
-                                             text: textFieldString)
-        textFieldString = ""
-        messages.append(roomMessage)
-
-        Task.detached { [weak self] in
-            guard let self else { return }
-            do {
-                let json = try self.jsonEncoder.encode(roomMessage)
-                try await self.room.localParticipant.publish(data: json)
-            } catch {
-                print("Failed to encode data \(error)")
-            }
-        }
-    }
-
     #if os(macOS)
         weak var screenShareTrack: LocalTrackPublication?
 
@@ -266,9 +272,7 @@ extension RoomContext: RoomDelegate {
                         self.shouldShowDisconnectReason = true
                         // Reset state
                         self.focusParticipant = nil
-                        self.showMessagesView = false
                         self.textFieldString = ""
-                        self.messages.removeAll()
                         // self.objectWillChange.send()
                     }
                 }
@@ -292,24 +296,7 @@ extension RoomContext: RoomDelegate {
     }
 
     func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String) {
-        do {
-            let roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
-            // Update UI from main queue
-            Task.detached { @MainActor [weak self] in
-                guard let self else { return }
-
-                withAnimation {
-                    // Add messages to the @Published messages property
-                    // which will trigger the UI to update
-                    self.messages.append(roomMessage)
-                    // Show the messages view when new messages arrive
-                    self.showMessagesView = true
-                }
-            }
-
-        } catch {
-            print("Failed to decode data \(error)")
-        }
+        print("didReceiveData")
     }
 
     func room(_: Room, participant _: Participant, trackPublication _: TrackPublication, didReceiveTranscriptionSegments segments: [TranscriptionSegment]) {
@@ -363,81 +350,13 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
 
 extension RoomContext: NSWindowDelegate {
     func windowDidBecomeKey(_ notification: Notification) {
-        hideCallControlWindow()
+        delegate?.hideCallControlWindow()
     }
     
     func windowDidResignKey(_ notification: Notification) {
         if self.room.connectionState == .connected {
-            presentCallControlWindow()
-        }
-    }
-    
-    func presentCallControlWindow() {
-        let mainScreen = NSScreen.main
-        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 200) / 2 - 135, y: 15)
-        
-        let shareControlView = CallControlView()
-            .environmentObject(self)
-            .environmentObject(self.room)
-        
-        let hostingController = NSHostingController(rootView: shareControlView)
-        
-        showControlsPanel(
-            with: "",
-            size: CGSize(width: 270, height: 80),
-            minSize: CGSize(width: 270, height: 80),
-            position: position,
-            identifier: "share-panel",
-            backgroundColor: NSColor.clear,
-            contentVC: hostingController
-        )
-    }
-    
-    func showControlsPanel(
-        with title: String,
-        size: CGSize,
-        minSize: CGSize? = nil,
-        centeredIn w: NSWindow? = nil,
-        position: CGPoint? = nil,
-        identifier: String? = nil,
-        chatIdentifier: Int? = nil,
-        backgroundColor: NSColor? = nil,
-        contentVC: NSViewController
-    ) {
-        controlsPanel = NSPanel(
-            contentRect: .init(origin: .zero, size: size),
-            styleMask: [.nonactivatingPanel, .borderless],
-            backing: .buffered,
-            defer: false
-        )
-        
-        controlsPanel?.title = title
-        controlsPanel?.minSize = minSize ?? size
-        controlsPanel?.isMovableByWindowBackground = false
-        controlsPanel?.contentViewController = contentVC
-        controlsPanel?.makeKeyAndOrderFront(nil)
-        controlsPanel?.isReleasedWhenClosed = false
-        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.Body
-        controlsPanel?.isOpaque = false
-        controlsPanel?.toolbarStyle = .unifiedCompact
-        controlsPanel?.titlebarAppearsTransparent = true
-        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
-        controlsPanel?.level = .mainMenu
-        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        
-        if let w = w {
-            let position = CGPoint(x: w.frame.origin.x + (w.frame.width - size.width) / 2, y: w.frame.origin.y + (w.frame.height - size.height) / 2)
-            controlsPanel?.setFrame(.init(origin: position, size: size), display: true)
-        } else if let position = position {
-            controlsPanel?.setFrame(.init(origin: position, size: size), display: true)
-        } else {
-            controlsPanel?.center()
-        }
-    }
-    
-    func hideCallControlWindow() {
-        DispatchQueue.main.async {
-            self.controlsPanel?.close()
+            self.delegate?.hideCallControlWindow()
+            self.delegate?.presentCallControlWindowWith(roomCtx: self)
         }
     }
 }
