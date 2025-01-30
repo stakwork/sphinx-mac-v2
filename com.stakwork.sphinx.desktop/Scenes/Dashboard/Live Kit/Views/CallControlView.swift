@@ -78,48 +78,37 @@ struct CallControlView: View {
                                 try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
                             }
                         } label: {
-                            let isAirpods = appCtx.realOutputDevice.name.lowercased().contains("airpods")
-                            let isHeadphones = appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")
-                            
-                            let enabledMicImage: SFSymbol = isAirpods ? .airpodspro : (isHeadphones ? .headphones : .micFill)
-                            let disabledMicImage: SFSymbol = isAirpods ? .airpodspro : (isHeadphones ? .headphones : .micSlashFill)
-                            
-                            if (isAirpods || isHeadphones) && !isMicrophoneEnabled {
-                                ZStack {
-                                    Image(systemSymbol: isMicrophoneEnabled ? enabledMicImage : disabledMicImage)
+                            ZStack {
+                                let isAirpods = appCtx.realOutputDevice.name.lowercased().contains("airpods")
+                                let isHeadphones = appCtx.realOutputDevice.name.lowercased().contains("headphone") || appCtx.realOutputDevice.name.lowercased().contains("earbuds")
+                                
+                                if isAirpods || isHeadphones {
+                                    Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
+                                        .renderingMode(.template)
+                                        .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
+                                        .font(.system(size: 20))
+                                        .frame(width: 20)
+                                        .frame(height: 20)
+                                        .padding(.trailing, 8)
+                                        .padding(.top, 8)
+                                    
+                                    let deviceImage: SFSymbol = isAirpods ? .airpodspro : (isHeadphones ? .headphones : .laptopcomputer)
+                                    
+                                    Image(systemSymbol: deviceImage)
+                                        .renderingMode(.template)
+                                        .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
+                                        .font(.system(size: 10))
+                                        .frame(width: 10)
+                                        .frame(height: 10)
+                                        .padding(.leading, 22)
+                                        .padding(.bottom, 22)
+                                } else {
+                                    Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
                                         .renderingMode(.template)
                                         .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
                                         .font(.system(size: 18))
                                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    
-                                    Canvas { context, size in
-                                        let line = Path { path in
-                                            path.move(to: CGPoint(x: 0, y: 0))
-                                            path.addLine(to: CGPoint(x: size.width, y: size.height))
-                                        }
-                                        context.stroke(line, with: .color(Color(NSColor(hex: "#2f1312"))), lineWidth: 3)
-                                    }
-                                    .frame(width: 18, height: 18)
-                                    .padding(11)
-                                    
-                                    Canvas { context, size in
-                                        let line = Path { path in
-                                            path.move(to: CGPoint(x: 0, y: 0))
-                                            path.addLine(to: CGPoint(x: size.width, y: size.height))
-                                        }
-                                        context.stroke(line, with: .color(Color(NSColor(hex: "#FF6F6F"))), lineWidth: 1)
-                                    }
-                                    .frame(width: 18, height: 18)
-                                    .padding(11)
                                 }
-                                .frame(height: 40.0)
-                                .frame(width: 40.0)
-                            } else {
-                                Image(systemSymbol: isMicrophoneEnabled ? enabledMicImage : disabledMicImage)
-                                    .renderingMode(.template)
-                                    .foregroundColor(isMicrophoneEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
-                                    .font(.system(size: 18))
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
                         .disabled(isMicrophonePublishingBusy)
