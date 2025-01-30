@@ -33,9 +33,6 @@ struct RoomSwitchView: View {
             if let localParticipantName = room.localParticipant.name {
                 elements.append(localParticipantName)
             }
-//            if let localParticipantIdentity = room.localParticipant.identity {
-//                elements.append(String(describing: localParticipantIdentity))
-//            }
             return elements.joined(separator: " ")
         }
 
@@ -52,10 +49,6 @@ struct RoomSwitchView: View {
             } else {
                 ConnectView()
             }
-        }
-//        .navigationTitle(computeTitle())
-        .onChange(of: shouldShowRoomView) { _ in
-            
         }
     }
 }
@@ -98,7 +91,6 @@ struct RoomContextView: View {
                                 self.enableCamera()
                             }
                         }, onCallEnded: {
-                            self.roomCtx.hideCallControlWindow()
                             self.onCallEnded?()
                         })
                         appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")

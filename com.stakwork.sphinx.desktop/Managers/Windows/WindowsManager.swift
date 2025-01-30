@@ -18,6 +18,8 @@ class WindowsManager {
         return Static.instance
     }
     
+    var controlsPanel: DraggablePanel? = nil
+    
     func saveWindowState() {
         if let keyWindow = NSApplication.shared.keyWindow {
             //            let menuCollapsed = (keyWindow.contentViewController as? DashboardViewController)?.isLeftMenuCollapsed() ?? false
@@ -480,7 +482,7 @@ class WindowsManager {
                 callback: { url, token in
                     
                     let appCtx = AppContext(store: sync)
-                    let roomCtx = RoomContext(store: sync)
+                    let roomCtx = RoomContext(store: sync, delegate: self)
                     
                     roomCtx.url = url
                     roomCtx.token = token
@@ -488,6 +490,7 @@ class WindowsManager {
                     
                     let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
                         Task { @MainActor in
+                            self.hideCallControlWindow()
                             self.closeIfExists(identifier: link)
                         }
                     }).environmentObject(appCtx).environmentObject(roomCtx)
@@ -614,6 +617,102 @@ class WindowsManager {
                 }
             }
         }
+    }
+}
+
+extension WindowsManager : RoomContextDelegate {
+    func presentCallControlWindowWith(roomCtx: RoomContext) {
+        DispatchQueue.main.async {
+            let mainScreen = NSScreen.main
+            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 166) / 2 - 155, y: 15)
+            
+            let shareControlView = CallControlView()
+                .environmentObject(roomCtx)
+                .environmentObject(roomCtx.room)
+            
+            let hostingController = NSHostingController(rootView: shareControlView)
+            
+            self.showControlsPanel(
+                with: "",
+                size: CGSize(width: 332, height: 100),
+                minSize: CGSize(width: 332, height: 100),
+                position: position,
+                identifier: "share-panel",
+                backgroundColor: NSColor.clear,
+                contentVC: hostingController
+            )
+        }
+    }
+    
+    func showControlsPanel(
+        with title: String,
+        size: CGSize,
+        minSize: CGSize? = nil,
+        position: CGPoint? = nil,
+        identifier: String? = nil,
+        chatIdentifier: Int? = nil,
+        backgroundColor: NSColor? = nil,
+        contentVC: NSViewController
+    ) {
+        let storedPosition = controlsPanel?.frame.origin ?? position
+        
+        controlsPanel = DraggablePanel(
+            contentRect: .init(origin: .zero, size: size),
+            styleMask: [.nonactivatingPanel, .borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        controlsPanel?.title = title
+        controlsPanel?.minSize = minSize ?? size
+        controlsPanel?.isMovableByWindowBackground = false
+        controlsPanel?.contentViewController = contentVC
+        controlsPanel?.makeKeyAndOrderFront(nil)
+        controlsPanel?.isReleasedWhenClosed = false
+        controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.BadgeRed
+        controlsPanel?.isOpaque = false
+        controlsPanel?.toolbarStyle = .unifiedCompact
+        controlsPanel?.titlebarAppearsTransparent = true
+        controlsPanel?.styleMask = [.nonactivatingPanel, .borderless]
+        controlsPanel?.level = .mainMenu
+        controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        controlsPanel?.becomesKeyOnlyIfNeeded = false
+        
+        if let storedPosition = storedPosition {
+            controlsPanel?.setFrame(.init(origin: storedPosition, size: size), display: true)
+        } else {
+            controlsPanel?.center()
+        }
+    }
+    
+    func hideCallControlWindow() {
+        DispatchQueue.main.async {
+            self.controlsPanel?.close()
+        }
+    }
+}
+
+class DraggablePanel: NSPanel {
+    private var initialLocation: CGPoint?
+
+    override func mouseDown(with event: NSEvent) {
+        // Record the initial click location
+        initialLocation = event.locationInWindow
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let initialLocation = initialLocation else { return }
+
+        // Get the new window frame position
+        let currentLocation = event.locationInWindow
+        let deltaX = currentLocation.x - initialLocation.x
+        let deltaY = currentLocation.y - initialLocation.y
+
+        // Update the window's frame origin
+        var newFrame = frame
+        newFrame.origin.x += deltaX
+        newFrame.origin.y += deltaY
+        setFrame(newFrame, display: true)
     }
 }
 

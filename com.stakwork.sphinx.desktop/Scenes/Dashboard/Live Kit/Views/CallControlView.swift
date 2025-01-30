@@ -27,6 +27,43 @@ struct CallControlView: View {
     
     @State private var onHover = false
     
+    private func toggleRecording() {
+        guard let roomName = room.name else {
+            return
+        }
+        roomCtx.isProcessingRecordRequest = true
+        
+        let urlAction = roomCtx.didStartRecording ? "stop" : "start"
+        var isoStringWithMilliseconds: String? = nil
+        
+        if !roomCtx.didStartRecording {
+            let currentDate = Date()
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            isoStringWithMilliseconds = isoFormatter.string(from: currentDate)
+        }
+        
+        DispatchQueue.main.async {
+            self.roomCtx.didStartRecording.toggle()
+        }
+        
+        API.sharedInstance.toggleLiveKitRecording(
+            room: roomName,
+            now: isoStringWithMilliseconds,
+            action: urlAction,
+            callback: { success in
+                if !success {
+                    DispatchQueue.main.async {
+                        self.roomCtx.didStartRecording.toggle()
+                    }
+                }
+                DispatchQueue.main.async {
+                    self.roomCtx.isProcessingRecordRequest = false
+                }
+            }
+        )
+    }
+    
     private func stopRecording() {
         guard let roomName = room.name else {
             return
@@ -153,6 +190,47 @@ struct CallControlView: View {
                                 NSCursor.arrow.set()
                             }
                         }
+                        
+                        // Toggle recording
+                        Button {
+                            Task { @MainActor in
+                                if roomCtx.isProcessingRecordRequest {
+                                    return
+                                }
+                                if (room.isRecording && roomCtx.didStartRecording) || !room.isRecording {
+                                    toggleRecording()
+                                }
+                            }
+                        } label: {
+                            Image(systemSymbol: room.isRecording && roomCtx.didStartRecording ? .stopCircle : .recordCircle)
+                                .renderingMode(.template)
+                                .foregroundColor(room.isRecording ? Color(NSColor(hex: "#FF6F6F")) : Color.white)
+                                .font(.system(size: 25))
+                                .opacity(roomCtx.shouldAnimate ? 0.4 : 1.0)
+                                .onAppear {
+                                    if room.isRecording {
+                                        roomCtx.startAnimation()
+                                    }
+                                }
+                                .frame(height: 40.0)
+                                .frame(width: 40.0)
+                        }
+                        .frame(height: 40.0)
+                        .frame(width: 40.0)
+                        .background(
+                            Color(NSColor.Sphinx.MainBottomIcons)
+                                .opacity(0.1)
+                                .cornerRadius(8.0)
+                        )
+                        .contentShape(Rectangle())
+                        .buttonStyle(.borderless)
+                        .onHover { isHover in
+                            if isHover && ((room.isRecording && roomCtx.didStartRecording) || !room.isRecording) {
+                                NSCursor.pointingHand.set()
+                            } else {
+                                NSCursor.arrow.set()
+                            }
+                        }
 
                         // Toggle Share Screen enabled
                         Button(action: {
@@ -239,19 +317,29 @@ struct CallControlView: View {
                     }
                 }
                 .frame(height: 80)
+                .frame(width: 300)
                 .padding(.horizontal, 16.0)
                 .background(
-                    onHover ? Color.clear.cornerRadius(8.0) : Color(NSColor.black).cornerRadius(8.0)
+                    onHover ? Color.clear.cornerRadius(8.0) : Color.black.opacity(0.9).cornerRadius(8.0)
                 )
             }
         }
-        .frame(width: 270)
+        .frame(width: 332)
         .background(
-            onHover ? Color(NSColor.black).cornerRadius(8.0) : Color.clear.cornerRadius(8.0)
+            onHover ? Color.black.opacity(0.9).cornerRadius(8.0) : Color.clear.cornerRadius(8.0)
         )
         .frame(height: 100)
         .onHover { hovering in
             onHover = hovering
+        }.onChange(of: room.isRecording) { newValue in
+            self.roomCtx.shouldAnimate = newValue
+            
+            if newValue {
+                roomCtx.startAnimation()
+            } else {
+                roomCtx.stopAnimation()
+                roomCtx.didStartRecording = false
+            }
         }
     }
 }

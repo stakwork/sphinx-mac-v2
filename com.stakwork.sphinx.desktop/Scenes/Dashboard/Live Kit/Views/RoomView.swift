@@ -87,25 +87,15 @@ struct RoomView: View {
     @ObservedObject private var windowAccess = WindowAccess()
 
     @State private var showConnectionTime = true
-    @State private var canSwitchCameraPosition = false
-    
-    @State private var isProcessingRecordRequest = false
-    @State private var shouldAnimate = false
+    @State private var canSwitchCameraPosition = false    
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
-    
-    private func startAnimation() {
-        shouldAnimate = true
-        withAnimation(.easeInOut(duration: 0.7).repeatForever(autoreverses: true)) {
-            shouldAnimate.toggle()
-        }
-    }
     
     private func toggleRecording() {
         guard let roomName = room.name else {
             return
         }
-        isProcessingRecordRequest = true
+        roomCtx.isProcessingRecordRequest = true
         
         let urlAction = roomCtx.didStartRecording ? "stop" : "start"
         var isoStringWithMilliseconds: String? = nil
@@ -117,26 +107,43 @@ struct RoomView: View {
             isoStringWithMilliseconds = isoFormatter.string(from: currentDate)
         }
         
+        self.roomCtx.didStartRecording.toggle()
+        
+        self.newMessageBubbleHelper.showGenericMessageView(
+            text: self.roomCtx.didStartRecording ? "Starting call recording. Please wait..." : "Stopping call recording. Please wait...",
+            delay: 5,
+            textColor: NSColor.white,
+            backColor: NSColor.Sphinx.BadgeRed,
+            backAlpha: 1.0
+        )
+        
         API.sharedInstance.toggleLiveKitRecording(
             room: roomName,
             now: isoStringWithMilliseconds,
             action: urlAction,
             callback: { success in
-                if success {
+                if !success {
                     DispatchQueue.main.async {
-                        self.roomCtx.didStartRecording = !self.roomCtx.didStartRecording
-                        
-                        self.newMessageBubbleHelper.showGenericMessageView(
-                            text: self.roomCtx.didStartRecording ? "Starting call recording. Please wait..." : "Stopping call recording. Please wait...",
-                            delay: 5,
-                            textColor: NSColor.white,
-                            backColor: NSColor.Sphinx.BadgeRed,
-                            backAlpha: 1.0
-                        )
+                        self.roomCtx.didStartRecording.toggle()
                     }
                 }
-                self.isProcessingRecordRequest = false
+                DispatchQueue.main.async {
+                    self.roomCtx.isProcessingRecordRequest = false
+                }
             }
+        )
+    }
+    
+    private func stopRecording() {
+        guard let roomName = room.name else {
+            return
+        }
+        
+        API.sharedInstance.toggleLiveKitRecording(
+            room: roomName,
+            now: nil,
+            action: "stop",
+            callback: { _ in }
         )
     }
 
@@ -161,10 +168,7 @@ struct RoomView: View {
     }
 
     func scrollToBottom(_ scrollView: ScrollViewProxy) {
-        guard let last = roomCtx.messages.last else { return }
-        withAnimation {
-            scrollView.scrollTo(last.id)
-        }
+        
     }
     
     func scrollToTop(_ scrollView: ScrollViewProxy) {
@@ -172,57 +176,6 @@ struct RoomView: View {
         withAnimation {
             scrollView.scrollTo(first.id)
         }
-    }
-
-    func messagesView(geometry: GeometryProxy) -> some View {
-        VStack(spacing: 0) {
-            ScrollViewReader { scrollView in
-                ScrollView(.vertical, showsIndicators: true) {
-                    LazyVStack(alignment: .center, spacing: 0) {
-                        ForEach(roomCtx.messages) {
-                            messageView($0)
-                        }
-                    }
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 7)
-                }
-                .onAppear(perform: {
-                    // Scroll to bottom when first showing the messages list
-                    scrollToBottom(scrollView)
-                })
-                .onChange(of: roomCtx.messages, perform: { _ in
-                    // Scroll to bottom when there is a new message
-                    scrollToBottom(scrollView)
-                })
-                .frame(
-                    minWidth: 0,
-                    maxWidth: .infinity,
-                    minHeight: 0,
-                    maxHeight: .infinity,
-                    alignment: .topLeading
-                )
-            }
-            HStack(spacing: 0) {
-                TextField("Enter message", text: $roomCtx.textFieldString)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .disableAutocorrection(true)
-                Button {
-                    roomCtx.sendMessage()
-                } label: {
-                    Image(systemSymbol: .paperplaneFill)
-                        .foregroundColor(roomCtx.textFieldString.isEmpty ? nil : Color(NSColor.Sphinx.PrimaryGreen))
-                }
-                .buttonStyle(.borderless)
-            }
-            .padding()
-            .background(Color(NSColor.gray))
-        }
-        .background(Color(NSColor.darkGray))
-        .cornerRadius(8)
-        .frame(
-            minWidth: 0,
-            maxWidth: geometry.isTall ? .infinity : 320
-        )
     }
     
     func participantView(_ participant: Participant) -> some View {
@@ -517,10 +470,6 @@ struct RoomView: View {
         .frame(
             width: 360
         )
-        //        .frame(
-        //            minWidth: 0,
-        //            maxWidth: geometry.isTall ? .infinity : 320
-        //        )
     }
 
     func sortedParticipants() -> [Participant] {
@@ -569,10 +518,6 @@ struct RoomView: View {
                     minHeight: 0,
                     maxHeight: .infinity
                 )
-                // Show messages view if enabled
-                if roomCtx.showMessagesView {
-                    messagesView(geometry: geometry)
-                }
                 
                 // Show participants view if enabled
                 if roomCtx.showParticipantsView {
@@ -741,6 +686,42 @@ struct RoomView: View {
                             NSCursor.arrow.set()
                         }
                     }
+                    
+                    // Toggle recording
+                    Button {
+                        Task { @MainActor in
+                            if roomCtx.isProcessingRecordRequest {
+                                return
+                            }
+                            if (room.isRecording && roomCtx.didStartRecording) || !room.isRecording {
+                                toggleRecording()
+                            }
+                        }
+                    } label: {
+                        Image(systemSymbol: room.isRecording && roomCtx.didStartRecording ? .stopCircle : .recordCircle)
+                            .renderingMode(.template)
+                            .foregroundColor(room.isRecording ? Color(NSColor(hex: "#FF6F6F")) : Color.white)
+                            .font(.system(size: 25))
+                            .opacity(roomCtx.shouldAnimate ? 0.4 : 1.0)
+                            .frame(height: 40.0)
+                            .frame(width: 40.0)
+                    }
+                    .frame(height: 40.0)
+                    .frame(width: 40.0)
+                    .background(
+                        Color(NSColor.Sphinx.MainBottomIcons)
+                            .opacity(0.1)
+                            .cornerRadius(8.0)
+                    )
+                    .contentShape(Rectangle())
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover && ((room.isRecording && roomCtx.didStartRecording) || !room.isRecording) {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
 
                     // Toggle Share Screen enabled
                     Button(action: {
@@ -792,25 +773,13 @@ struct RoomView: View {
                            NSCursor.arrow.set()
                        }
                    }
-
-                    // Toggle messages view (chat example)
-//                    Button(action: {
-//                        withAnimation {
-//                            roomCtx.showMessagesView.toggle()
-//                        }
-//                    },
-//                    label: {
-//                        Image(systemSymbol: .messageFill)
-//                            .renderingMode(.template)
-//                            .foregroundColor(roomCtx.showMessagesView ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-//                    }).buttonStyle(.borderless)
                 }.padding(5)
 
                 // Disconnect
                 Button(action: {
                    Task {
                        if roomCtx.didStartRecording && room.isRecording {
-                           toggleRecording()
+                           stopRecording()
                        }
                        await roomCtx.disconnect()
                    }
@@ -843,23 +812,6 @@ struct RoomView: View {
             
             HStack(spacing: 13.0) {
                 Spacer()
-                
-                if room.isRecording {
-                    Image(systemSymbol: .recordCircle)
-                        .renderingMode(.template)
-                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                        .font(.system(size: 30))
-                        .frame(height: 40.0)
-                        .frame(width: 40.0)
-                        .opacity(shouldAnimate ? 0.4 : 1.0)
-                        .onAppear {
-                            startAnimation()
-                        }
-                        .onDisappear {
-                            shouldAnimate = false
-                            roomCtx.didStartRecording = false
-                        }
-                }
                 
                 HStack(spacing: 4.0) {
                     Button(action: {
@@ -928,26 +880,6 @@ struct RoomView: View {
                         } label: {
                             Text("Open in Browser")
                         }
-                        
-                        if room.isRecording && roomCtx.didStartRecording && !isProcessingRecordRequest {
-                            Button {
-                                Task { @MainActor in
-                                    toggleRecording()
-                                    isGearMenuPresented.toggle()
-                                }
-                            } label: {
-                                Text("Stop Recording")
-                            }
-                        } else if !room.isRecording && !isProcessingRecordRequest {
-                            Button {
-                                Task { @MainActor in
-                                    toggleRecording()
-                                    isGearMenuPresented.toggle()
-                                }
-                            } label: {
-                                Text("Start Recording")
-                            }
-                        }
 
                         Divider()
 
@@ -963,12 +895,12 @@ struct RoomView: View {
                         Group {
                             Picker("Output device", selection: $appCtx.outputDeviceId) {
                                 ForEach(AudioManager.shared.outputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System default (\(appCtx.realOutputDevice.name))" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                             Picker("Input device", selection: $appCtx.inputDeviceId) {
                                 ForEach(AudioManager.shared.inputDevices) { device in
-                                    Text(device.isDefault ? "Default" : "\(device.name)").tag(device.deviceId)
+                                    Text(device.isDefault ? "System default (\(appCtx.realInputDevice.name))" : "\(device.name)").tag(device.deviceId)
                                 }
                             }
                         }
@@ -1031,6 +963,7 @@ struct RoomView: View {
                     }
                 }
             }
+            appCtx.reloadAudioDevices()
         }.onChange(of: room.isRecording) { newValue in
             self.newMessageBubbleHelper.showGenericMessageView(
                 text: newValue ? "Recording in progress.\nPlease be aware this call is being recorded." : "Recording ended.\nThis call is no longer being recorded.",
@@ -1040,7 +973,14 @@ struct RoomView: View {
                 backAlpha: 1.0
             )
             
-            self.shouldAnimate = newValue
+            self.roomCtx.shouldAnimate = newValue
+            
+            if newValue {
+                roomCtx.startAnimation()
+            } else {
+                roomCtx.stopAnimation()
+                roomCtx.didStartRecording = false
+            }
         }
     }
 }
@@ -1124,36 +1064,36 @@ struct ParticipantLayout<Content: View>: View {
                             }
                         }
                     }
-                //            case 6:
-                //                if geometry.isTall {
-                //                    VStack {
-                //                        HStack {
-                //                            views[0]
-                //                            views[1]
-                //                        }
-                //                        HStack {
-                //                            views[2]
-                //                            views[3]
-                //                        }
-                //                        HStack {
-                //                            views[4]
-                //                            views[5]
-                //                        }
-                //                    }
-                //                } else {
-                //                    VStack {
-                //                        HStack {
-                //                            views[0]
-                //                            views[1]
-                //                            views[2]
-                //                        }
-                //                        HStack {
-                //                            views[3]
-                //                            views[4]
-                //                            views[5]
-                //                        }
-                //                    }
-                //                }
+                    case 6:
+                        if geometry.isTall {
+                            VStack {
+                                HStack {
+                                    views[0]
+                                    views[1]
+                                }
+                                HStack {
+                                    views[2]
+                                    views[3]
+                                }
+                                HStack {
+                                    views[4]
+                                    views[5]
+                                }
+                            }
+                        } else {
+                            VStack {
+                                HStack {
+                                    views[0]
+                                    views[1]
+                                    views[2]
+                                }
+                                HStack {
+                                    views[3]
+                                    views[4]
+                                    views[5]
+                                }
+                            }
+                        }
                 default:
                     let c = computeColumn(with: geometry)
                     VStack(spacing: spacing) {
