@@ -225,7 +225,7 @@ extension SphinxOnionManager {
         }
         
         guard let selfContact = UserContact.getOwner(),
-              let nickname = (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
+              let nickname = (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.replacingOccurrences(of: " ", with: "_"),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
             return (nil, "Owner not found")
@@ -1203,7 +1203,7 @@ extension SphinxOnionManager {
         newMessage.tag = message.tag
         
         if let myAlias = chat.myAlias ?? owner?.nickname, chat.isPublicGroup() {
-            newMessage.push = content?.contains("@\(myAlias)") == true
+            newMessage.push = content?.contains("@\(myAlias) ") == true
         } else {
             newMessage.push = false
         }
