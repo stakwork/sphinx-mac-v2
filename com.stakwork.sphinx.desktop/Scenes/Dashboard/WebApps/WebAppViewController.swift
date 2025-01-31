@@ -18,21 +18,27 @@ class WebAppViewController: NSViewController {
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
     
     var webView: WKWebView!
-    var gameURL: String! = nil
-    var chat: Chat! = nil
+    var appURL: String! = nil
+    var chat: Chat? = nil
     var finishLoadingTimer : Timer? = nil
     
     let webAppHelper = WebAppHelper()
     
-    static func instantiate(chat: Chat, isAppURL: Bool = true) -> WebAppViewController? {
+    static func instantiate(
+        chat: Chat? = nil,
+        appURL: String! = nil,
+        isAppURL: Bool = true
+    ) -> WebAppViewController? {
         let viewController = StoryboardScene.Dashboard.webAppViewController.instantiate()
         viewController.chat = chat
         
-        guard let tribeInfo = chat.tribeInfo, let gameURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !gameURL.isEmpty else {
+        if let appURL = appURL {
+            viewController.appURL = appURL
+        } else if let tribeInfo = chat?.tribeInfo, let appUrl = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appUrl.isEmpty {
+            viewController.appURL = appUrl
+        } else {
             return nil
         }
-        
-        viewController.gameURL = gameURL
         
         return viewController
     }
@@ -101,14 +107,14 @@ class WebAppViewController: NSViewController {
     }
     
     func configureAuthorizeView(_ dict: [String: AnyObject]) {
-        let viewHeight = authorizeAppView.configureFor(url: gameURL, delegate: self, dict: dict, showBudgetField: false)
+        let viewHeight = authorizeAppView.configureFor(url: appURL, delegate: self, dict: dict, showBudgetField: false)
         authorizeAppViewHeight.constant = viewHeight
         authorizeAppView.layoutSubtreeIfNeeded()
         toggleAuthorizationView(show: true)
     }
     
     func configureBudgetView(_ dict: [String: AnyObject]) {
-        let viewHeight = authorizeAppView.configureFor(url: gameURL, delegate: self, dict: dict, showBudgetField: true)
+        let viewHeight = authorizeAppView.configureFor(url: appURL, delegate: self, dict: dict, showBudgetField: true)
         authorizeAppViewHeight.constant = viewHeight
         authorizeAppView.layoutSubtreeIfNeeded()
         toggleAuthorizationView(show: true)
@@ -123,13 +129,13 @@ class WebAppViewController: NSViewController {
     }
     
     func loadPage() {
-        var url: String = gameURL
+        var url: String = appURL
         
-        if let tribeUUID = chat.tribeInfo?.uuid ?? chat.uuid {
+        if let tribeUUID = chat?.tribeInfo?.uuid ?? chat?.uuid {
             url = url.withURLParam(key: "uuid", value: tribeUUID)
         }
         
-        if let host = chat.host {
+        if let host = chat?.host {
             url = url.withURLParam(key: "host", value: host)
         }
         
@@ -179,14 +185,14 @@ extension WebAppViewController : AuthorizeAppViewDelegate {
     
     func shouldAuthorizeBudgetWith(amount: Int, dict: [String : AnyObject]) {
         webAppHelper.authorizeWebApp(amount: amount, dict: dict, completion: {
-            self.chat.updateWebAppLastDate()
+            self.chat?.updateWebAppLastDate()
             self.shouldCloseAuthorizeView()
         })
     }
     
     func shouldAuthorizeWith(dict: [String : AnyObject]) {
         webAppHelper.authorizeNoBudget(dict: dict, completion: {
-            self.chat.updateWebAppLastDate()
+            self.chat?.updateWebAppLastDate()
             self.shouldCloseAuthorizeView()
         })
     }
