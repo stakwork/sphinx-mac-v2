@@ -54,6 +54,10 @@ class DeepLinksHandlerHelper {
                 case "share_contact":
                     let userInfo: [String: Any] = ["query" : query]
                     NotificationCenter.default.post(name: .onShareContactDeeplink, object: nil, userInfo: userInfo)
+                case "webapp":
+                    if let url = url.getWebAppUrl() {
+                        WindowsManager.sharedInstance.showWebAppWindow(url: url)
+                    }
                 case "call":
                     if let link = url.getCallLink() {
                         WindowsManager.sharedInstance.showCallWindow(link: link)

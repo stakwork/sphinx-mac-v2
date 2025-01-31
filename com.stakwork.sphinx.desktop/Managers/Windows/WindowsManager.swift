@@ -445,8 +445,8 @@ class WindowsManager {
     }
     
     func showWebAppWindow(chat: Chat?, view: NSView, isAppURL: Bool = true) {
-        if let chat = chat, let tribeInfo = chat.tribeInfo, let gameURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !gameURL.isEmpty && gameURL.isValidURL,
-           let webGameVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {
+        if let chat = chat, let tribeInfo = chat.tribeInfo, let appURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appURL.isEmpty && appURL.isValidURL,
+           let webAppVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {
             
             let appTitle = chat.name ?? ""
             let screen = NSApplication.shared.keyWindow
@@ -460,7 +460,31 @@ class WindowsManager {
                           position: position,
                           identifier: chat.getWebAppIdentifier(),
                           styleMask: [.titled, .resizable, .closable],
-                          contentVC: webGameVC)
+                          contentVC: webAppVC)
+        } else {
+            AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+        }
+    }
+    
+    func showWebAppWindow(url: String, isAppURL: Bool = true) {
+        if !url.isEmpty && url.isValidURL, let webAppVC = WebAppViewController.instantiate(appURL: url) {
+            
+            let appTitle = "Web App"
+            
+            guard let screen = NSApplication.shared.keyWindow else {
+                return
+            }
+            
+            let frame: CGRect = screen.frame
+            let position = screen.frame.origin
+            
+            showNewWindow(with: appTitle,
+                          size: CGSize(width: frame.width, height: frame.height),
+                          minSize: CGSize(width: 350, height: 550),
+                          position: position,
+                          identifier: url,
+                          styleMask: [.titled, .resizable, .closable],
+                          contentVC: webAppVC)
         } else {
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
         }
