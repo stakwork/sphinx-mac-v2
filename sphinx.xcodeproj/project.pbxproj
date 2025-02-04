@@ -5517,8 +5517,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/livekit/client-sdk-swift";
 			requirement = {
-				branch = "hiroshi/adm-audioengine2";
-				kind = branch;
+				kind = exactVersion;
+				version = 2.1.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
