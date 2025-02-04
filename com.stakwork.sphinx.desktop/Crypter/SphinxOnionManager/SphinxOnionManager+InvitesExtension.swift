@@ -21,7 +21,9 @@ extension SphinxOnionManager{//invites related
     func requestInviteCode(amountMsat: Int) -> (Bool, String?) {
         guard let seed = getAccountSeed(),
               let selfContact = UserContact.getOwner(),
-              let nickname = selfContact.nickname else
+              let nickname = selfContact.nickname,
+              let pubkey = selfContact.publicKey,
+              let routeHint = selfContact.routeHint else
         {
             return (false, nil)
         }
@@ -35,7 +37,9 @@ extension SphinxOnionManager{//invites related
                 amtMsat: UInt64(amountMsat),
                 myAlias: nickname,
                 tribeHost: tribesServerIP,
-                tribePubkey: defaultTribePubkey
+                tribePubkey: defaultTribePubkey,
+                inviterPubkey: pubkey,
+                inviterRouteHint: routeHint
             )
             
             let _ = handleRunReturn(rr: rr)
