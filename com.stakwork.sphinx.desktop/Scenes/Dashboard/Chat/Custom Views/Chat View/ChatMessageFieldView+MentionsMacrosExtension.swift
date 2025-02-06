@@ -22,7 +22,8 @@ extension ChatMessageFieldView {
             let rangeLocation = messageTextView.rangeLocation
             
             let startIndex = text.index(text.startIndex, offsetBy: (initialPosition ?? 0) - typedMentionText.count)
-            let endIndex = text.index(text.startIndex, offsetBy: (initialPosition ?? 0))
+            let safeOffset = min(text.count, (initialPosition ?? 0))
+            let endIndex = text.index(text.startIndex, offsetBy: safeOffset)
                                     
             // insertText triggers the textDidChange delegate method
             // whereas setting the string directly does not, which is
