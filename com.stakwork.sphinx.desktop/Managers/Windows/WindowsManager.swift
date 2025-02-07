@@ -418,7 +418,12 @@ class WindowsManager {
         contentVC: NSViewController
     ) {
         
-        let newWindow = NSPanel(contentRect: .init(origin: .zero, size: size), styleMask: [.nonactivatingPanel, .borderless], backing: .buffered, defer: false)
+        let newWindow = NSPanel(
+            contentRect: .init(origin: .zero, size: size),
+            styleMask: [.nonactivatingPanel, .borderless],
+            backing: .buffered,
+            defer: false
+        )
         
         newWindow.title = title
         newWindow.minSize = minSize ?? size
@@ -505,7 +510,6 @@ class WindowsManager {
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
                 callback: { url, token in
-                    
                     let appCtx = AppContext(store: sync)
                     let roomCtx = RoomContext(store: sync, delegate: self)
                     
@@ -692,7 +696,7 @@ extension WindowsManager : RoomContextDelegate {
         controlsPanel?.minSize = minSize ?? size
         controlsPanel?.isMovableByWindowBackground = false
         controlsPanel?.contentViewController = contentVC
-        controlsPanel?.makeKeyAndOrderFront(nil)
+        controlsPanel?.orderFront(nil)
         controlsPanel?.isReleasedWhenClosed = false
         controlsPanel?.backgroundColor = backgroundColor ?? NSColor.Sphinx.BadgeRed
         controlsPanel?.isOpaque = false
