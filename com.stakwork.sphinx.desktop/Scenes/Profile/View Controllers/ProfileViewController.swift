@@ -52,6 +52,9 @@ class ProfileViewController: NSViewController {
     @IBOutlet weak var saveButton: CustomButton!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
+    @IBOutlet weak var timezoneField: NSTextField!
+    @IBOutlet weak var datetimeField: NSTextField!
+    
     let kSwitchOnLeading: CGFloat = 25
     let kSwitchOffLeading: CGFloat = 2
     
@@ -129,6 +132,8 @@ class ProfileViewController: NSViewController {
         userNameField.delegate = self
         meetingServerField.delegate = self
         meetingAmountField.delegate = self
+        
+        updateTimeAndDate()
     }
     
     func addDraggingViewClickListener() {
@@ -390,5 +395,16 @@ class ProfileViewController: NSViewController {
     
     @IBAction func disconnectMQTTButtonClicked(_ sender: Any) {
         CrypterManager.sharedInstance.resetMQTTConnection()
+    }
+    
+    private func updateTimeAndDate() {
+        let timezone = TimeZone.current
+        let formattedIdentifier = timezone.identifier.replacingOccurrences(of: "_", with: " ")
+        timezoneField.stringValue = formattedIdentifier
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = timezone
+        datetimeField.stringValue = dateFormatter.string(from: Date())
     }
 }
