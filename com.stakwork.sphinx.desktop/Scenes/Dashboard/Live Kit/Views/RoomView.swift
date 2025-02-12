@@ -981,6 +981,14 @@ struct RoomView: View {
                 roomCtx.stopAnimation()
                 roomCtx.didStartRecording = false
             }
+        }.onChange(of: room.connectionState) { newValue in
+            if newValue == .connected {
+                Task { @MainActor in
+                    if roomCtx.shouldStartRecording {
+                        toggleRecording()
+                    }
+                }
+            }
         }
     }
 }
