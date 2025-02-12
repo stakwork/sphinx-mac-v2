@@ -224,14 +224,14 @@ extension SphinxOnionManager {
             return (nil, "Account seed not found")
         }
         
+        let isTribe = recipContact == nil
+        
         guard let selfContact = UserContact.getOwner(),
-              let nickname = (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.replacingOccurrences(of: " ", with: "_"),
+              let nickname = isTribe ? (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.replacingOccurrences(of: " ", with: "_") : (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
             return (nil, "Owner not found")
         }
-        
-        let isTribe = recipContact == nil
         
         guard let (contentJSONString, mediaToken) = formatMsg(
             content: content,
