@@ -66,8 +66,9 @@ class GroupRequestView: NSView, LoadableNib {
             messageLabel.stringValue = String(format: "member.request".localized, senderAlias)
         }
         
-        messageView.fillColor = (rejected ? NSColor.Sphinx.BadgeRed.withAlphaComponent(0.7) : (approved ? NSColor.Sphinx.PrimaryGreen.withAlphaComponent(0.7) : NSColor.Sphinx.ReceivedMsgBG))
+        messageView.fillColor = (rejected ? NSColor.Sphinx.MemberApprovalRejected : (approved ? NSColor.Sphinx.MemberApprovalAccepted : NSColor.Sphinx.ReceivedMsgBG))
         messageView.borderColor = (rejected || approved) ? NSColor.clear : NSColor.Sphinx.LightDivider
+        messageLabel.textColor = (rejected || approved) ? NSColor.white : NSColor.Sphinx.Text
     }
     
     @IBAction func doneButtonClicked(_ sender: Any) {
