@@ -62,10 +62,10 @@
                                                                 <rect key="frame" x="0.0" y="30" width="147" height="145"/>
                                                             </customView>
                                                             <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dlX-63-RI8">
-                                                                <rect key="frame" x="147" y="80" width="242" height="59"/>
+                                                                <rect key="frame" x="147" y="56" width="242" height="93"/>
                                                                 <subviews>
                                                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gOq-cf-1sn">
-                                                                        <rect key="frame" x="-2" y="35" width="246" height="24"/>
+                                                                        <rect key="frame" x="-2" y="69" width="246" height="24"/>
                                                                         <constraints>
                                                                             <constraint firstAttribute="width" constant="242" id="LFG-fM-p1j"/>
                                                                         </constraints>
@@ -76,10 +76,10 @@
                                                                         </textFieldCell>
                                                                     </textField>
                                                                     <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ow9-C1-UCY">
-                                                                        <rect key="frame" x="0.0" y="0.0" width="40" height="27"/>
+                                                                        <rect key="frame" x="0.0" y="46" width="40" height="15"/>
                                                                         <subviews>
                                                                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="Qww-ku-CHE">
-                                                                                <rect key="frame" x="-2" y="12" width="12" height="15"/>
+                                                                                <rect key="frame" x="-2" y="0.0" width="12" height="15"/>
                                                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="0" id="55s-p9-FFw">
                                                                                     <font key="font" size="12" name="Montserrat-Regular"/>
                                                                                     <color key="textColor" name="Text"/>
@@ -87,7 +87,7 @@
                                                                                 </textFieldCell>
                                                                             </textField>
                                                                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bpk-CQ-VVf">
-                                                                                <rect key="frame" x="14" y="0.0" width="28" height="27"/>
+                                                                                <rect key="frame" x="14" y="0.0" width="28" height="15"/>
                                                                                 <constraints>
                                                                                     <constraint firstAttribute="height" constant="27" id="Cwa-0I-vB3"/>
                                                                                 </constraints>
@@ -98,6 +98,9 @@
                                                                                 </textFieldCell>
                                                                             </textField>
                                                                         </subviews>
+                                                                        <constraints>
+                                                                            <constraint firstAttribute="height" constant="15" id="CEv-q5-40g"/>
+                                                                        </constraints>
                                                                         <visibilityPriorities>
                                                                             <integer value="1000"/>
                                                                             <integer value="1000"/>
@@ -107,19 +110,6 @@
                                                                             <real value="3.4028234663852886e+38"/>
                                                                         </customSpacing>
                                                                     </stackView>
-                                                                </subviews>
-                                                                <visibilityPriorities>
-                                                                    <integer value="1000"/>
-                                                                    <integer value="1000"/>
-                                                                </visibilityPriorities>
-                                                                <customSpacing>
-                                                                    <real value="3.4028234663852886e+38"/>
-                                                                    <real value="3.4028234663852886e+38"/>
-                                                                </customSpacing>
-                                                            </stackView>
-                                                            <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" misplaced="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jRQ-dx-LK6">
-                                                                <rect key="frame" x="147" y="45" width="128" height="38"/>
-                                                                <subviews>
                                                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="b42-rU-mQG">
                                                                         <rect key="frame" x="-2" y="23" width="86" height="15"/>
                                                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Continent/City" id="etP-V9-x8R">
@@ -140,8 +130,12 @@
                                                                 <visibilityPriorities>
                                                                     <integer value="1000"/>
                                                                     <integer value="1000"/>
+                                                                    <integer value="1000"/>
+                                                                    <integer value="1000"/>
                                                                 </visibilityPriorities>
                                                                 <customSpacing>
+                                                                    <real value="3.4028234663852886e+38"/>
+                                                                    <real value="3.4028234663852886e+38"/>
                                                                     <real value="3.4028234663852886e+38"/>
                                                                     <real value="3.4028234663852886e+38"/>
                                                                 </customSpacing>
@@ -158,22 +152,20 @@
                                                             <constraint firstAttribute="bottom" secondItem="89d-TV-nWd" secondAttribute="bottom" id="2cS-qj-VMU"/>
                                                             <constraint firstItem="89d-TV-nWd" firstAttribute="leading" secondItem="CJN-ne-0yf" secondAttribute="leading" id="7qG-RB-LUN"/>
                                                             <constraint firstItem="nue-LR-bQ1" firstAttribute="centerX" secondItem="7F9-f5-sNH" secondAttribute="centerX" id="BJs-12-ZcL"/>
-                                                            <constraint firstItem="jRQ-dx-LK6" firstAttribute="leading" secondItem="dlX-63-RI8" secondAttribute="leading" id="DIE-cb-e7j"/>
-                                                            <constraint firstItem="jRQ-dx-LK6" firstAttribute="leading" secondItem="CJN-ne-0yf" secondAttribute="leading" constant="147" id="DMW-uS-cU9"/>
-                                                            <constraint firstItem="89d-TV-nWd" firstAttribute="top" secondItem="dlX-63-RI8" secondAttribute="bottom" constant="50" id="Egg-Q0-chW"/>
-                                                            <constraint firstItem="jRQ-dx-LK6" firstAttribute="leading" secondItem="mMF-23-bgh" secondAttribute="trailing" id="LnP-uI-lNX"/>
                                                             <constraint firstItem="89d-TV-nWd" firstAttribute="top" secondItem="mMF-23-bgh" secondAttribute="bottom" id="PbG-LU-QDf"/>
                                                             <constraint firstItem="7F9-f5-sNH" firstAttribute="leading" secondItem="CJN-ne-0yf" secondAttribute="leading" constant="30" id="Pf5-Pn-Mj5"/>
                                                             <constraint firstItem="mMF-23-bgh" firstAttribute="leading" secondItem="CJN-ne-0yf" secondAttribute="leading" id="VD8-p6-BBI"/>
                                                             <constraint firstItem="7F9-f5-sNH" firstAttribute="top" secondItem="CJN-ne-0yf" secondAttribute="top" constant="30" id="VJy-MY-si3"/>
+                                                            <constraint firstAttribute="trailing" secondItem="dlX-63-RI8" secondAttribute="trailing" constant="25" id="ZT0-AT-pxf"/>
                                                             <constraint firstItem="mMF-23-bgh" firstAttribute="top" secondItem="CJN-ne-0yf" secondAttribute="top" id="a7w-Ta-UqI"/>
-                                                            <constraint firstItem="89d-TV-nWd" firstAttribute="top" secondItem="jRQ-dx-LK6" secondAttribute="bottom" constant="18" id="bVk-HK-DdW"/>
                                                             <constraint firstItem="nue-LR-bQ1" firstAttribute="top" secondItem="7F9-f5-sNH" secondAttribute="bottom" constant="7" id="d5T-RK-fag"/>
                                                             <constraint firstAttribute="trailing" secondItem="89d-TV-nWd" secondAttribute="trailing" id="eqw-4P-Baw"/>
                                                             <constraint firstAttribute="bottom" secondItem="p7P-rd-yFo" secondAttribute="bottom" id="fVC-Mn-DNv"/>
                                                             <constraint firstItem="p7P-rd-yFo" firstAttribute="leading" secondItem="CJN-ne-0yf" secondAttribute="leading" id="sYz-TN-zP0"/>
                                                             <constraint firstAttribute="height" constant="175" id="uJ2-TU-jVk"/>
                                                             <constraint firstItem="p7P-rd-yFo" firstAttribute="top" secondItem="CJN-ne-0yf" secondAttribute="top" id="wDJ-Cc-4Mc"/>
+                                                            <constraint firstItem="dlX-63-RI8" firstAttribute="leading" secondItem="mMF-23-bgh" secondAttribute="trailing" id="wsQ-9A-PZc"/>
+                                                            <constraint firstItem="dlX-63-RI8" firstAttribute="centerY" secondItem="mMF-23-bgh" secondAttribute="centerY" id="yYq-cs-gO9"/>
                                                         </constraints>
                                                     </customView>
                                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="oph-VU-pT0">
