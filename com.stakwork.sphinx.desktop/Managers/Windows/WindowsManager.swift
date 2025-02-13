@@ -514,6 +514,7 @@ class WindowsManager {
                     let roomCtx = RoomContext(store: sync, delegate: self)
                     
                     roomCtx.url = url
+                    roomCtx.startRecording = link.contains("record=true")
                     roomCtx.token = token
                     roomCtx.tribeImage = tribeImage
                     

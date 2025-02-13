@@ -55,7 +55,7 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
             frame: lineFrame
         )
         leftLineContainer.wantsLayer = true
-        leftLineContainer.layer?.addSublayer(leftLineLayer)
+        leftLineContainer.layer?.addSublayer(leftLineLayer)        
     }
     
     func configureWith(

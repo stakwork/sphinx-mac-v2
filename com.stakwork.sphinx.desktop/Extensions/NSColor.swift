@@ -111,6 +111,9 @@ extension NSColor {
         public static let ActivePriceTag = color("ActivePriceTag")
         public static let SelectedMention = color("SelectedMention")
         
+        public static let MemberApprovalAccepted = color("MemberApprovalAccepted")
+        public static let MemberApprovalRejected = color("MemberApprovalRejected")
+        
         private static func color(_ name: String) -> NSColor {
             return NSColor(named: NSColor.Name(name)) ?? NSColor.magenta
         }

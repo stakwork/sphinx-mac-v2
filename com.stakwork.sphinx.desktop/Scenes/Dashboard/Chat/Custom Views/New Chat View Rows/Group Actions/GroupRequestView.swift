@@ -14,11 +14,14 @@ class GroupRequestView: NSView, LoadableNib {
     
     @IBOutlet var contentView: NSView!
     
+    @IBOutlet weak var messageView: NSBox!
     @IBOutlet weak var messageLabel: NSTextField!
+    @IBOutlet weak var cancelButtonContainer: NSBox!
     @IBOutlet weak var cancelButton: CustomButton!
+    @IBOutlet weak var doneButtonContainer: NSBox!
     @IBOutlet weak var doneButton: CustomButton!
     
-    static let kViewHeight: CGFloat = 65
+    static let kViewHeight: CGFloat = 90
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -52,8 +55,8 @@ class GroupRequestView: NSView, LoadableNib {
         doneButton.isEnabled = !isActiveMember && pending
         cancelButton.isEnabled = !isActiveMember && pending
 
-        doneButton.alphaValue = rejected ? 0.3 : 1.0
-        cancelButton.alphaValue = approved ? 0.3 : 1.0
+        doneButtonContainer.isHidden = rejected || approved
+        cancelButtonContainer.isHidden = rejected || approved
         
         if approved {
             messageLabel.stringValue = String(format: "admin.request.approved".localized, senderAlias)
@@ -62,6 +65,10 @@ class GroupRequestView: NSView, LoadableNib {
         } else {
             messageLabel.stringValue = String(format: "member.request".localized, senderAlias)
         }
+        
+        messageView.fillColor = (rejected ? NSColor.Sphinx.MemberApprovalRejected : (approved ? NSColor.Sphinx.MemberApprovalAccepted : NSColor.Sphinx.ReceivedMsgBG))
+        messageView.borderColor = (rejected || approved) ? NSColor.clear : NSColor.Sphinx.LightDivider
+        messageLabel.textColor = (rejected || approved) ? NSColor.white : NSColor.Sphinx.Text
     }
     
     @IBAction func doneButtonClicked(_ sender: Any) {
