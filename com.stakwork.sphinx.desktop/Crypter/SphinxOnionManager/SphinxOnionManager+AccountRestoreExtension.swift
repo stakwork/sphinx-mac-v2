@@ -786,7 +786,9 @@ extension SphinxOnionManager {
     }
     
     func processDeletedRestoredMessages() {
-        for deleteRequest in TransactionMessage.getMessageDeletionRequests() {
+        let deleteRequests = TransactionMessage.getMessageDeletionRequests()
+        
+        for deleteRequest in deleteRequests {
             if let replyUUID = deleteRequest.replyUUID,
                let messageToDelete = TransactionMessage.getMessageWith(uuid: replyUUID)
             {

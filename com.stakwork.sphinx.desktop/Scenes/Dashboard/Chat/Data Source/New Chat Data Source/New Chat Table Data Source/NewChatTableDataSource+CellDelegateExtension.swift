@@ -1153,7 +1153,7 @@ extension NewChatTableDataSource {
             }
         }
         
-        if let rowIndex = rowIndex, tableCellState == nil {
+        if let rowIndex = rowIndex, tableCellState == nil && messageTableCellStateArray.count > rowIndex {
             return (rowIndex, messageTableCellStateArray[rowIndex])
         }
         

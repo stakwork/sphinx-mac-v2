@@ -278,7 +278,7 @@ extension ThreadsListDataSource {
             }
         }
         
-        if let rowIndex = rowIndex, tableCellState == nil {
+        if let rowIndex = rowIndex, tableCellState == nil && threadTableCellStateArray.count > rowIndex {
             return (rowIndex, threadTableCellStateArray[rowIndex])
         }
         
