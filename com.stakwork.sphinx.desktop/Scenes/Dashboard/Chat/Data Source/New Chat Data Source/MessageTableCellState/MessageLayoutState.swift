@@ -66,6 +66,7 @@ struct BubbleMessageLayoutState {
         var showLockIcon: Bool
         var showExpiredSent: Bool
         var showExpiredReceived: Bool
+        var showScheduleIcon: Bool
         var expirationTimestamp: String?
         var timestamp: String
         var messageDate: Date
@@ -82,6 +83,7 @@ struct BubbleMessageLayoutState {
             showLockIcon: Bool,
             showExpiredSent: Bool,
             showExpiredReceived: Bool,
+            showScheduleIcon: Bool,
             expirationTimestamp: String?,
             timestamp: String,
             messageDate: Date
@@ -97,6 +99,7 @@ struct BubbleMessageLayoutState {
             self.showLockIcon = showLockIcon
             self.showExpiredSent = showExpiredSent
             self.showExpiredReceived = showExpiredReceived
+            self.showScheduleIcon = showScheduleIcon
             self.expirationTimestamp = expirationTimestamp
             self.timestamp = timestamp
             self.messageDate = messageDate
