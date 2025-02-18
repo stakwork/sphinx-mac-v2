@@ -194,18 +194,23 @@ struct MessageTableCellState {
         let timestampFormat = isThread ? "EEE dd, hh:mm a" : "hh:mm a"
         let timestamp = (message.date ?? Date()).getStringDate(format: timestampFormat)
         
+        let showBoltIcon = message.isConfirmedAsReceived()
+        let showBoltGreyIcon = !message.isConfirmedAsReceived() && (message.isDirectPayment() || message.isPayment())
+        let showFailedContainer = isSent && message.failed()
+        
         var statusHeader = BubbleMessageLayoutState.StatusHeader(
             senderName: (chat.isConversation() ? nil : message.senderAlias),
             color: ChatHelper.getSenderColorFor(message: message),
             showSent: isSent,
             showSendingIcon: isSent && message.pending() && message.isProvisional(),
-            showBoltIcon: message.isConfirmedAsReceived(),
-            showBoltGreyIcon: !message.isConfirmedAsReceived() && (message.isDirectPayment() || message.isPayment()),
-            showFailedContainer: isSent && message.failed(),
+            showBoltIcon: showBoltIcon,
+            showBoltGreyIcon: showBoltGreyIcon,
+            showFailedContainer: showFailedContainer,
             errorMessage: message.errorMessage ?? "message.failed".localized,
             showLockIcon: true,
             showExpiredSent: message.isInvoice() && !message.isPaid() && !isSent,
             showExpiredReceived: message.isInvoice() && !message.isPaid() && isSent,
+            showScheduleIcon: !showBoltIcon && !showBoltGreyIcon && !showFailedContainer && isSent,
             expirationTimestamp: expirationTimestamp,
             timestamp: timestamp,
             messageDate: message.date ?? Date()

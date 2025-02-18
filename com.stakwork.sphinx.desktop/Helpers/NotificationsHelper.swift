@@ -6,8 +6,10 @@
 //  Copyright © 2020 Sphinx. All rights reserved.
 //
 
+import Cocoa
 import Foundation
 import UserNotifications
+import UniformTypeIdentifiers
 
 class NotificationsHelper : NSObject {
     
@@ -241,10 +243,10 @@ class NotificationsHelper : NSObject {
                     let attachment = try UNNotificationAttachment(
                         identifier: "image",
                         url: url,
-                        options: [UNNotificationAttachmentOptionsTypeHintKey: kUTTypePNG as String]
+                        options: [UNNotificationAttachmentOptionsTypeHintKey: UTType.png.identifier]
                     )
                     notification.attachments = [attachment]
-                } catch let error {
+                } catch _ {
                     print("The attachment was not loaded.")
                 }
             } else if let chat = message.chat, let cachedImage = chat.getCachedImage(), let url = saveImageToDisk(image: cachedImage, name: "notificationImage") {
@@ -252,7 +254,7 @@ class NotificationsHelper : NSObject {
                     let attachment = try UNNotificationAttachment(
                         identifier: "image",
                         url: url,
-                        options: [UNNotificationAttachmentOptionsTypeHintKey: kUTTypePNG as String]
+                        options: [UNNotificationAttachmentOptionsTypeHintKey: UTType.png.identifier]
                     )
                     notification.attachments = [attachment]
                 } catch {

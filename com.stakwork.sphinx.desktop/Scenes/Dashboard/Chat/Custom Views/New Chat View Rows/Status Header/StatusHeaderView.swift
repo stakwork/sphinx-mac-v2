@@ -90,7 +90,7 @@ class StatusHeaderView: NSView, LoadableNib {
         configureWith(expirationTimestamp: statusHeader.expirationTimestamp)
         
         let thirtySecondsAgo = Date().addingTimeInterval(-30)
-        let isScheduleVisible = !statusHeader.showBoltIcon && !statusHeader.showBoltGreyIcon && statusHeader.messageDate < thirtySecondsAgo
+        let isScheduleVisible = statusHeader.showScheduleIcon && statusHeader.messageDate < thirtySecondsAgo
         sentScheduleIcon.isHidden = !isScheduleVisible
         
 //        if !isScheduleVisible {
