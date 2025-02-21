@@ -597,10 +597,7 @@ struct RoomView: View {
                 Spacer()
                 
                 Group {
-                    let isCameraEnabled = room.localParticipant.isCameraEnabled()
                     let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
-                    let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
-                    
                     // Toggle microphone enabled
                     Button {
                         Task {
@@ -633,6 +630,7 @@ struct RoomView: View {
                         }
                     }
 
+                    let isCameraEnabled = room.localParticipant.isCameraEnabled()
                     // Toggle Video enabled
                     Group {
                         Button(action: {
@@ -723,56 +721,56 @@ struct RoomView: View {
                         }
                     }
 
-                    // Toggle Share Screen enabled
+                    let isScreenShareEnabled = room.localParticipant.isScreenShareEnabled()
+                    
                     Button(action: {
-                       if #available(macOS 12.3, *) {
-                           if isScreenShareEnabled {
-                               // Turn off screen share
-                               Task {
-                                   isScreenSharePublishingBusy = true
-                                   defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                                   try await roomCtx.setScreenShareMacOS(isEnabled: false)
-                               }
-                           } else {
-                               screenPickerPresented = true
-                           }
-                       }
-                   },
-                   label: {
-                       Image(systemSymbol: .rectangleFillOnRectangleFill)
-                           .renderingMode(.template)
-                           .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
-                           .font(.system(size: 16))
-                           .frame(maxWidth: .infinity, maxHeight: .infinity)
-                   }).popover(isPresented: $screenPickerPresented) {
                         if #available(macOS 12.3, *) {
-                            ScreenShareSourcePickerView { source in
+                            if isScreenShareEnabled {
+                                // Turn off screen share
+                                Task {
+                                    isScreenSharePublishingBusy = true
+                                    defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
+                                    try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                                }
+                            } else {
+                                screenPickerPresented = true
+                            }
+                        }
+                    },
+                    label: {
+                        Image(systemSymbol: .rectangleFillOnRectangleFill)
+                            .renderingMode(.template)
+                            .foregroundColor(isScreenShareEnabled ? Color(NSColor.Sphinx.PrimaryGreen) : Color.white)
+                            .font(.system(size: 16))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }).popover(isPresented: $screenPickerPresented) {
+                        if #available(macOS 12.3, *) {
+                            ScreenSharePopoverView(screenPickerPresented: $screenPickerPresented) { source in
                                 Task {
                                     isScreenSharePublishingBusy = true
                                     defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
                                     try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
                                 }
-                                screenPickerPresented = false
-                            }.padding()
+                            }
                         }
-                   }
-                   .disabled(isScreenSharePublishingBusy)
-                   .frame(height: 40.0)
-                   .frame(width: 40.0)
-                   .background(
-                       Color(NSColor.Sphinx.MainBottomIcons)
-                           .opacity(0.1)
-                           .cornerRadius(8.0)
-                   )
-                   .contentShape(Rectangle())
-                   .buttonStyle(.borderless)
-                   .onHover { isHover in
-                       if isHover {
-                           NSCursor.pointingHand.set()
-                       } else {
-                           NSCursor.arrow.set()
-                       }
-                   }
+                    }
+                    .disabled(isScreenSharePublishingBusy)
+                    .frame(height: 40.0)
+                    .frame(width: 40.0)
+                    .background(
+                        Color(NSColor.Sphinx.MainBottomIcons)
+                            .opacity(0.1)
+                            .cornerRadius(8.0)
+                    )
+                    .contentShape(Rectangle())
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in
+                        if isHover {
+                            NSCursor.pointingHand.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
+                    }
                 }.padding(5)
 
                 // Disconnect
@@ -931,6 +929,25 @@ struct RoomView: View {
     func optionsButton() -> some View {
         Group {
             
+        }
+    }
+    
+    struct ScreenSharePopoverView: View, Equatable {
+        static func == (lhs: RoomView.ScreenSharePopoverView, rhs: RoomView.ScreenSharePopoverView) -> Bool {
+            return lhs.screenPickerPresented == rhs.screenPickerPresented
+        }
+        
+        @Binding var screenPickerPresented: Bool
+        var onSelect: (MacOSScreenCaptureSource) -> Void
+
+        var body: some View {
+            if #available(macOS 12.3, *) {
+                ScreenShareSourcePickerView { source in
+                    onSelect(source)
+                    screenPickerPresented = false
+                }
+                .padding()
+            }
         }
     }
 

@@ -19,6 +19,7 @@ class WindowsManager {
     }
     
     var controlsPanel: DraggablePanel? = nil
+    var openedWindowIdentifiers: [String] = []
     
     func saveWindowState() {
         if let keyWindow = NSApplication.shared.keyWindow {
@@ -504,7 +505,13 @@ class WindowsManager {
             return
         }
         
+        if openedWindowIdentifiers.contains(link) {
+            return
+        }
+        
         if let room = link.liveKitRoomName {
+            openedWindowIdentifiers.append(link)
+            
             API.sharedInstance.getLiveKitToken(
                 room: room,
                 alias: owner.nickname ?? "",
@@ -520,6 +527,7 @@ class WindowsManager {
                     
                     let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
                         Task { @MainActor in
+                            self.openedWindowIdentifiers.removeAll(where: { $0 == link })
                             self.hideCallControlWindow()
                             self.closeIfExists(identifier: link)
                         }
@@ -529,6 +537,7 @@ class WindowsManager {
                     self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
                 },
                 errorCallback: { error in
+                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
                     AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
                 }
             )
