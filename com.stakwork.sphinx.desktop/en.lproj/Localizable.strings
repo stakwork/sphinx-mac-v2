@@ -100,7 +100,7 @@
 "you.joined.tribe" = "You have joined the tribe";
 "added.to.group" = "%@ has been added to group";
 "tribe.kick" = "The admin has removed\nyou from this tribe";
-"tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";
+"tribe.kick.as.admin" = "You've removed a member from this tribe";
 "tribe.deleted" = "The admin has deleted\nthis tribe";
 "member.request" = "%@ wants to\njoin the tribe";
 "member.request.rejected" = "The admin \ndeclined your request";

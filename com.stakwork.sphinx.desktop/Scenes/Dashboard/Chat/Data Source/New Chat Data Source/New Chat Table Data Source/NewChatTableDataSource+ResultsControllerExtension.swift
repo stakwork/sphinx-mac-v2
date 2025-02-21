@@ -191,6 +191,10 @@ extension NewChatTableDataSource {
 
         for (index, message) in filteredThreadMessages.enumerated() {
             
+            if message.isGroupKickMessage() && chat.isTribeICreated {
+                continue
+            }
+            
             invoiceData = (
                 invoiceData.0 + ((message.isPayment() && message.isIncoming(ownerId: owner.id)) ? -1 : 0),
                 invoiceData.1 + ((message.isPayment() && message.isOutgoing(ownerId: owner.id)) ? -1 : 0)

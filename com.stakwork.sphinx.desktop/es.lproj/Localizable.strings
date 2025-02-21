@@ -98,7 +98,7 @@
 "you.joined.tribe" = "Te has unido a la tribu";
 "added.to.group" = "%@ ha sido agregado al grupo";
 "tribe.kick" = "El administrador te ha\neliminado de esta tribu";
-"tribe.kick.as.admin" = "Has eliminado a %@ de \nesta tribu";
+"tribe.kick.as.admin" = "Has eliminado a un miembro de esta tribu";
 "tribe.deleted" = "El administrador\nha eliminado esta tribu";
 "member.request" = "%@ desea\nunirse a la tribu";
 "member.request.rejected" = "El administrados \nha denegado tu solicitud";

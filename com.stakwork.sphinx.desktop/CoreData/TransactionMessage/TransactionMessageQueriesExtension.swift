@@ -669,8 +669,6 @@ extension TransactionMessage {
         on chat: Chat
     ) -> TransactionMessage? {
         
-        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
-        
         var typesToExclude = typesToExcludeFromChat
         typesToExclude.append(TransactionMessageType.boost.rawValue)
         
