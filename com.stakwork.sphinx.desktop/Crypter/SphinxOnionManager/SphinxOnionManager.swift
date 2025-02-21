@@ -452,6 +452,7 @@ class SphinxOnionManager : NSObject {
                 self.messageRestoreCallback = nil
 
                 self.getReads()
+                getMuteLevels()
                 self.syncNewMessages()
             }
         }

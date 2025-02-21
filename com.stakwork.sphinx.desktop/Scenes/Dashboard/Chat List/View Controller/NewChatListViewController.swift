@@ -430,7 +430,7 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         if let contact = contact ?? chat?.getContact() {
             
             let deleteContactItem = NSMenuItem(
-                title: (contact.isInvite() ? "delete.invite" : "delete.contact").localized,
+                title: (chat == nil ? "delete.invite" : "delete.contact").localized,
                 action: #selector(self.handleMenuItemClick(_:)),
                 keyEquivalent: ""
             )

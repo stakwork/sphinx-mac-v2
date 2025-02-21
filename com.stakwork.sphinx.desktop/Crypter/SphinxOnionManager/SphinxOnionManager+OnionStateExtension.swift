@@ -67,7 +67,7 @@ extension SphinxOnionManager {
         }
         
         keys.append(contentsOf: mutationKeys)
-        mutationKeys = keys
+        mutationKeys = Array(Set(keys))
     }
     
     func handleStateToDelete(stateToDelete:[String]){
