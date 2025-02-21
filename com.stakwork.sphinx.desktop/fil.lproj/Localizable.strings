@@ -99,7 +99,7 @@
 "you.joined.tribe" = "Sumali ka sa tribo";
 "added.to.group"  = "Naidagdag si %@ sa grupo";
 "tribe.kick"  = "Inalis ka ng admin sa tribong ito";
-"tribe.kick.as.admin" = "You've removed %@ from \nthis tribe";
+"tribe.kick.as.admin" = "You've removed a member from this tribe";
 "tribe.deleted"  = "Tinanggal ng admin ang kanyang tribo";
 "member.request" = "Gusto ni %@ na sumali sa tribo";
 "member.request.rejected" = "Tinanggihan ng admin ang iyong request";
