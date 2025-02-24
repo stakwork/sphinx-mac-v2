@@ -11,7 +11,7 @@ import LiveKit
 import KeychainAccess
 import AVFoundation
 
-@MainActor let sync = ValueStore<Preferences>(store: Keychain(service: "group.com.gl.sphinx.v2"),
+@MainActor let sync = ValueStore<Preferences>(store: Keychain(),
                                               key: "preferences",
                                               default: Preferences())
 
