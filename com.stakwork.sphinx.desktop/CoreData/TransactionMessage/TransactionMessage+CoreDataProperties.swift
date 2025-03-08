@@ -44,7 +44,7 @@ extension TransactionMessage {
     @NSManaged public var push: Bool
     @NSManaged public var errorMessage: String?
     @NSManaged public var tag: String?
-    
+    @NSManaged public var remoteTimezoneIdentifier: String?
     @NSManaged public var mediaKey: String?
     @NSManaged public var mediaType: String?
     @NSManaged public var mediaToken: String?
