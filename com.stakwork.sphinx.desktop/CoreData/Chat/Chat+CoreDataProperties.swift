@@ -42,7 +42,10 @@ extension Chat {
     @NSManaged public var pinnedMessageUUID: String?
     @NSManaged public var isTribeICreated: Bool
     @NSManaged public var secondBrainUrl: String?
-    
+    @NSManaged public var timezoneEnabled: Bool
+    @NSManaged public var timezoneIdentifier: String?
+    @NSManaged public var remoteTimezoneIdentifier: String?
+    @NSManaged public var timezoneUpdated: Bool
     @NSManaged public var messages: NSSet?
     @NSManaged public var subscription: Subscription?
     @NSManaged public var contentFeed: ContentFeed?
