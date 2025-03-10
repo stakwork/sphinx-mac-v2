@@ -547,8 +547,8 @@ extension TransactionMessage {
                 return true
             }
             if status == TransactionMessageStatus.pending.rawValue, let date = date {
-                let tenMinutesAgo = Date().addingTimeInterval(-10 * 60)
-                return date < tenMinutesAgo
+                let thirtySecondsAgo = Date().addingTimeInterval(-30)
+                return date < thirtySecondsAgo
             }
             
             return false
