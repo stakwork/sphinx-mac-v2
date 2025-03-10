@@ -164,6 +164,8 @@
 "address-book.can-not-delete-contact-title" = "Hindi matanggal ang contact";
 "address-book.can-not-delete-contact-message" = "Hindi matatanggal ang mga kumpirmadong contact";
 "messages.encrypted.disclaimer" = "Ang mga mensahe at tawag ay sinigurado gamit ang end-to-end na pag-encrypt";
+"new.to.sphinx" = "New to Sphinx";
+"already.on.sphinx" = "Already on Sphinx";
 
 //INVITE
 "add.people"  = "Magdagdag ng mga Tao";

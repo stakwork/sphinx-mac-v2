@@ -301,7 +301,7 @@ class WindowsManager {
                 dashboardVC.presenterBackButton.isHidden = true
                 
                 showOnCurrentWindow(
-                    with: "Contact".localized,
+                    with: "new.contact".localized,
                     identifier: "contact-custom-window",
                     contentVC: addFriendVC,
                     hideDivider: true,
