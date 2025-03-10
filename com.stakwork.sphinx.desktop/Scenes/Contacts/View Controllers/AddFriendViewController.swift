@@ -36,6 +36,7 @@ class AddFriendViewController: NSViewController {
         advanceTo(
             vc: inviteVC,
             identifier: "new-invite-window",
+            title: "New To Sphinx",
             height: 600
         )
     }
@@ -48,17 +49,19 @@ class AddFriendViewController: NSViewController {
         
         advanceTo(
             vc: contactVC,
-            identifier: "new-contact-window"
+            identifier: "new-contact-window",
+            title: "Already On Sphinx"
         )
     }
     
     func advanceTo(
         vc: NSViewController,
         identifier: String,
+        title: String = "Contacts".localized,
         height: CGFloat? = nil
     ) {
         WindowsManager.sharedInstance.showOnCurrentWindow(
-            with: "Contact".localized,
+            with: title.localized,
             identifier: identifier,
             contentVC: vc,
             hideDivider: true,
