@@ -130,11 +130,23 @@ extension SphinxOnionManager {
         invoiceString: String?,
         tribeKickMember: String? = nil,
         paidAttachmentMediaToken:String? = nil,
-        isTribe:Bool
+        isTribe:Bool,
+        chat: Chat? = nil
     ) -> (String?, String?)? {
         
         var msg: [String: Any] = ["content": content ]
         var mt: String? = nil
+
+        if let chat = chat, chat.timezoneEnabled, chat.timezoneUpdated {
+          let timezoneToSend = chat.timezoneIdentifier ?? TimeZone.current.identifier
+            let timezoneMetadata = ["timezone": timezoneToSend]
+            if let metadataJSON = try? JSONSerialization.data(withJSONObject: timezoneMetadata),
+              let metadataString = String(data: metadataJSON, encoding: .utf8) {
+                msg["metadata"] = metadataString
+                chat.timezoneUpdated = false
+                chat.managedObjectContext?.saveContext()
+            }
+        }
 
         switch TransactionMessage.TransactionMessageType(rawValue: Int(type)) {
         case .message, .boost, .delete, .call, .groupLeave, .memberReject, .memberApprove,.groupDelete:
@@ -217,7 +229,9 @@ extension SphinxOnionManager {
         replyUUID: String?,
         invoiceString: String? = nil,
         tribeKickMember: String? = nil,
-        paidAttachmentMediaToken:String? = nil
+        paidAttachmentMediaToken:String? = nil,
+        isTribe: Bool,
+        chat: Chat?
     ) -> (TransactionMessage?, String?) {
         
         guard let seed = getAccountSeed() else {
@@ -1217,6 +1231,14 @@ extension SphinxOnionManager {
            let _ = TransactionMessage.getInvoiceWith(paymentHash: ph)
         {
             newMessage.setPaymentInvoiceAsPaid()
+        }
+
+        if let timezone = message.timezone {
+            if chat.isGroup() {
+                newMessage.remoteTimezoneIdentifier = timezone
+            } else {
+                chat.remoteTimezoneIdentifier = timezone
+            }
         }
         
         if (delaySave == false) {
