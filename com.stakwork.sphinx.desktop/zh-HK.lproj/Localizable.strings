@@ -165,6 +165,8 @@
 "address-book.can-not-delete-contact-title" = "無法刪除聯絡人";
 "address-book.can-not-delete-contact-message" = "已確認的聯絡人無法刪除";
 "messages.encrypted.disclaimer" = "透過端對端加密保護訊息和通話的安全";
+"new.to.sphinx" = "Sphinx 新手";
+"already.on.sphinx" = "已經在 Sphinx 上了";
 
 //INVITE
 "add.people" = "添加人員";
