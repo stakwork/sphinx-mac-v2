@@ -443,7 +443,7 @@
                                                                             <rect key="frame" x="30" y="550" width="340" height="75"/>
                                                                             <subviews>
                                                                                 <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Je0-5F-jpa">
-                                                                                    <rect key="frame" x="-2" y="36" width="120" height="14"/>
+                                                                                    <rect key="frame" x="-2" y="36" width="119" height="14"/>
                                                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="Time to Stake (hours)" id="iio-v7-V2C">
                                                                                         <font key="font" size="12" name="Roboto-Regular"/>
                                                                                         <color key="textColor" name="SecondaryText"/>
@@ -1612,17 +1612,7 @@
                                                 <constraint firstItem="tix-lT-SOU" firstAttribute="leading" secondItem="BmW-hY-63S" secondAttribute="leading" constant="30" id="hqo-P8-blg"/>
                                             </constraints>
                                         </customView>
-                                        <customView id="xyD-Cf-bIy">
-                                            <rect key="frame" x="0.0" y="306" width="414" height="96"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <subviews>
-                                                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VP9-dM-AUB">
-                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="96"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                </customView>
-                                            </subviews>
-                                        </customView>
-                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="DFj-7T-bIo">
+                                        <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DFj-7T-bIo">
                                             <rect key="frame" x="0.0" y="437" width="414" height="90"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="8Mq-v6-JG7" customClass="GroupPinView" customModule="Sphinx" customModuleProvider="target">
@@ -1635,6 +1625,21 @@
                                                 <constraint firstItem="8Mq-v6-JG7" firstAttribute="top" secondItem="DFj-7T-bIo" secondAttribute="top" id="Qa1-5X-s25"/>
                                                 <constraint firstAttribute="trailing" secondItem="8Mq-v6-JG7" secondAttribute="trailing" constant="30" id="lA4-iX-RKC"/>
                                                 <constraint firstAttribute="bottom" secondItem="8Mq-v6-JG7" secondAttribute="bottom" constant="15" id="pGY-Ss-5gf"/>
+                                            </constraints>
+                                        </customView>
+                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="xyD-Cf-bIy">
+                                            <rect key="frame" x="0.0" y="380" width="414" height="147"/>
+                                            <subviews>
+                                                <customView translatesAutoresizingMaskIntoConstraints="NO" id="VP9-dM-AUB" customClass="TimezoneSharingView" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="30" y="0.0" width="354" height="147"/>
+                                                </customView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="147" id="5Fw-Y5-tIy"/>
+                                                <constraint firstItem="VP9-dM-AUB" firstAttribute="leading" secondItem="xyD-Cf-bIy" secondAttribute="leading" constant="30" id="62Z-ht-9lt"/>
+                                                <constraint firstAttribute="bottom" secondItem="VP9-dM-AUB" secondAttribute="bottom" id="HFB-ew-Tbk"/>
+                                                <constraint firstItem="VP9-dM-AUB" firstAttribute="top" secondItem="xyD-Cf-bIy" secondAttribute="top" id="qlI-vu-ZsJ"/>
+                                                <constraint firstAttribute="trailing" secondItem="VP9-dM-AUB" secondAttribute="trailing" constant="30" id="sM2-a2-nzc"/>
                                             </constraints>
                                         </customView>
                                         <box hidden="YES" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="25" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="sZo-gO-gYo">
@@ -1687,8 +1692,10 @@
                                         </textField>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="xyD-Cf-bIy" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="0xw-Cr-i4i"/>
                                         <constraint firstAttribute="trailing" secondItem="C70-zX-0vt" secondAttribute="trailing" id="20G-4n-a3y"/>
                                         <constraint firstItem="fhA-TS-JQN" firstAttribute="centerX" secondItem="sZo-gO-gYo" secondAttribute="centerX" id="5T7-Qs-Guv"/>
+                                        <constraint firstItem="xyD-Cf-bIy" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="bottom" id="7kk-TN-Gx6"/>
                                         <constraint firstAttribute="bottom" secondItem="sZo-gO-gYo" secondAttribute="bottom" constant="40" id="98o-mu-mDk"/>
                                         <constraint firstItem="DFj-7T-bIo" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="bottom" id="HK4-mP-1g4"/>
                                         <constraint firstAttribute="trailing" secondItem="Rm1-Wr-wv9" secondAttribute="trailing" id="LbY-I9-dBU"/>
@@ -1696,6 +1703,7 @@
                                         <constraint firstItem="BmW-hY-63S" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ahY-Z2-cAi"/>
                                         <constraint firstAttribute="trailing" secondItem="BmW-hY-63S" secondAttribute="trailing" id="bl0-9e-mvs"/>
                                         <constraint firstItem="C70-zX-0vt" firstAttribute="leading" secondItem="PAz-66-15l" secondAttribute="leading" id="ef4-6Z-PrL"/>
+                                        <constraint firstAttribute="trailing" secondItem="xyD-Cf-bIy" secondAttribute="trailing" id="hLi-x1-G9g"/>
                                         <constraint firstAttribute="trailing" secondItem="DFj-7T-bIo" secondAttribute="trailing" id="iln-r1-N3C"/>
                                         <constraint firstItem="fhA-TS-JQN" firstAttribute="top" secondItem="sZo-gO-gYo" secondAttribute="bottom" constant="10" id="q8e-J9-nRc"/>
                                         <constraint firstItem="sZo-gO-gYo" firstAttribute="centerX" secondItem="PAz-66-15l" secondAttribute="centerX" id="rsx-EF-Zm8"/>
