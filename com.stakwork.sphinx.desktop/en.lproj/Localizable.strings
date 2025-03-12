@@ -166,6 +166,8 @@
 "address-book.can-not-delete-contact-title" = "Can not delete contact";
 "address-book.can-not-delete-contact-message" = "Confirmed contacts can not be deleted";
 "messages.encrypted.disclaimer" = "Messages and calls are secured with end-to-end encryption";
+"new.to.sphinx" = "New to Sphinx";
+"already.on.sphinx" = "Already on Sphinx";
 
 //INVITE
 "add.people" = "Add People";

@@ -160,6 +160,8 @@
 "address-book.can-not-delete-contact-title" = "No se puede eliminar el contacto";
 "address-book.can-not-delete-contact-message" = "Los contactos confirmados no se pueden eliminar";
 "messages.encrypted.disclaimer" = "Los mensajes y las llamadas están protegidos con cifrado de extremo a extremo";
+"new.to.sphinx" = "Nuevo en Sphinx";
+"already.on.sphinx" = "Usuario de Sphinx";
 
 //INVITE
 "group.details" = "Detalles del Grupo";

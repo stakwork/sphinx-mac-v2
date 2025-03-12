@@ -26,6 +26,7 @@ class ContactDetailsViewController: NSCollectionViewItem {
     @IBOutlet weak var routeHintLabel: NSTextField!
     @IBOutlet weak var removeContactButtonBack: NSBox!
     @IBOutlet weak var removeContactButton: CustomButton!
+    @IBOutlet weak var timezoneSharingView: TimezoneSharingView!
     
     var contact: UserContact? = nil
     
