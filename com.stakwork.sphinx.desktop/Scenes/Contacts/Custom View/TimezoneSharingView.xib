@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="TimezoneSharingView" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="contentView" destination="c22-O7-iKe" id="Vy2-Jl-2BV"/>
+                <outlet property="shareTimezoneSwitch" destination="DaQ-cK-K5F" id="bNo-PY-Qio"/>
+                <outlet property="shareTimezoneSwitchBox" destination="eq1-mV-GWo" id="eWb-1w-8ZU"/>
+                <outlet property="shareTimezoneSwitchButton" destination="DaQ-cK-K5F" id="MS7-Oc-Uyu"/>
+                <outlet property="shareTimezoneSwitchCircle" destination="eq1-mV-GWo" id="cVQ-aB-Lbt"/>
+                <outlet property="shareTimezoneSwitchContainer" destination="mbQ-ED-rj4" id="H8w-1X-Caz"/>
+                <outlet property="timezoneField" destination="LKp-Pf-eVJ" id="U9n-Tp-E5g"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="c22-O7-iKe">
+            <rect key="frame" x="0.0" y="0.0" width="325" height="211"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <customView ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IIb-FX-Khb">
+                    <rect key="frame" x="1" y="32" width="324" height="65"/>
+                    <subviews>
+                        <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oT4-Np-RVa">
+                            <rect key="frame" x="-2" y="36" width="60" height="14"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="Tiimezone" id="AVP-Jy-cDY">
+                                <font key="font" size="12" name="Roboto-Regular"/>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField focusRingType="none" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LKp-Pf-eVJ">
+                            <rect key="frame" x="0.0" y="1" width="354" height="28"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="28" id="ThV-78-I9M"/>
+                            </constraints>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" drawsBackground="YES" id="SZG-Yh-ni0">
+                                <font key="font" size="17" name="Roboto-Regular"/>
+                                <color key="textColor" name="Text"/>
+                                <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                            </textFieldCell>
+                        </textField>
+                        <box ambiguous="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="MVH-6H-Dj8">
+                            <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
+                            <view key="contentView" ambiguous="YES" id="i3h-Sz-0Zv">
+                                <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </view>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="KY4-yt-pxz"/>
+                            </constraints>
+                            <color key="fillColor" name="LightDivider"/>
+                        </box>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="MVH-6H-Dj8" firstAttribute="top" secondItem="LKp-Pf-eVJ" secondAttribute="bottom" id="G1Y-2F-fDH"/>
+                        <constraint firstItem="LKp-Pf-eVJ" firstAttribute="top" secondItem="oT4-Np-RVa" secondAttribute="bottom" constant="7" id="Tha-AJ-6tP"/>
+                        <constraint firstAttribute="bottom" secondItem="MVH-6H-Dj8" secondAttribute="bottom" id="Whb-av-STy"/>
+                        <constraint firstAttribute="height" constant="65" id="dO2-nz-325"/>
+                        <constraint firstItem="oT4-Np-RVa" firstAttribute="leading" secondItem="IIb-FX-Khb" secondAttribute="leading" id="mdW-d9-JPs"/>
+                        <constraint firstItem="MVH-6H-Dj8" firstAttribute="leading" secondItem="IIb-FX-Khb" secondAttribute="leading" id="rsg-7b-lir"/>
+                        <constraint firstItem="LKp-Pf-eVJ" firstAttribute="leading" secondItem="IIb-FX-Khb" secondAttribute="leading" id="zZ8-Ji-9Au"/>
+                    </constraints>
+                </customView>
+                <customView ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0xO-XS-XOW">
+                    <rect key="frame" x="1" y="128" width="325" height="50"/>
+                    <subviews>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tmd-zC-T2u">
+                            <rect key="frame" x="-2" y="15" width="254" height="20"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="250" id="EFn-vj-9x3"/>
+                            </constraints>
+                            <textFieldCell key="cell" title="Share Timezone" id="dnh-TM-vZ0">
+                                <font key="font" size="17" name="Roboto-Regular"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <box ambiguous="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="mbQ-ED-rj4">
+                            <rect key="frame" x="304" y="11" width="50" height="28"/>
+                            <view key="contentView" id="ldh-m4-y2V">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="28"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="eq1-mV-GWo">
+                                        <rect key="frame" x="2" y="2" width="23" height="24"/>
+                                        <view key="contentView" id="rhk-E5-Bol">
+                                            <rect key="frame" x="0.0" y="0.0" width="23" height="24"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="23" id="VkN-2u-z2Z"/>
+                                        </constraints>
+                                        <color key="fillColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                    </box>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="eq1-mV-GWo" secondAttribute="bottom" constant="2" id="KBR-cl-Ufm"/>
+                                    <constraint firstItem="eq1-mV-GWo" firstAttribute="top" secondItem="ldh-m4-y2V" secondAttribute="top" constant="2" id="Ujn-8K-x7v"/>
+                                    <constraint firstItem="eq1-mV-GWo" firstAttribute="leading" secondItem="ldh-m4-y2V" secondAttribute="leading" constant="2" id="zGq-aI-PPA"/>
+                                </constraints>
+                            </view>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="20" placeholder="YES" id="0DU-xY-UiF"/>
+                                <constraint firstAttribute="height" constant="28" id="2e4-CJ-gE2"/>
+                            </constraints>
+                            <color key="fillColor" name="PrimaryBlue"/>
+                        </box>
+                        <button verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DaQ-cK-K5F" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                            <rect key="frame" x="304" y="11" width="50" height="28"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="Ngt-E2-bNU">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="DaQ-cK-K5F" firstAttribute="leading" secondItem="mbQ-ED-rj4" secondAttribute="leading" id="0vV-zj-JVu"/>
+                        <constraint firstItem="Tmd-zC-T2u" firstAttribute="leading" secondItem="0xO-XS-XOW" secondAttribute="leading" id="4PM-wq-1LP"/>
+                        <constraint firstItem="DaQ-cK-K5F" firstAttribute="bottom" secondItem="mbQ-ED-rj4" secondAttribute="bottom" id="I6O-PL-UoR"/>
+                        <constraint firstItem="DaQ-cK-K5F" firstAttribute="trailing" secondItem="mbQ-ED-rj4" secondAttribute="trailing" id="L7e-l5-kr5"/>
+                        <constraint firstAttribute="height" constant="50" id="Ycy-Qa-bcf"/>
+                        <constraint firstAttribute="trailing" secondItem="mbQ-ED-rj4" secondAttribute="trailing" id="m6n-RT-2yU"/>
+                        <constraint firstItem="mbQ-ED-rj4" firstAttribute="centerY" secondItem="0xO-XS-XOW" secondAttribute="centerY" id="mfc-pP-Zaa"/>
+                        <constraint firstItem="DaQ-cK-K5F" firstAttribute="top" secondItem="mbQ-ED-rj4" secondAttribute="top" id="uYD-br-fpY"/>
+                    </constraints>
+                </customView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="IIb-FX-Khb" firstAttribute="top" secondItem="0xO-XS-XOW" secondAttribute="bottom" constant="32" id="Y3n-Mc-W5d"/>
+                <constraint firstItem="0xO-XS-XOW" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" constant="32" id="meZ-Xc-RdU"/>
+                <constraint firstAttribute="bottom" secondItem="IIb-FX-Khb" secondAttribute="bottom" constant="32" id="vzF-CI-oDt"/>
+            </constraints>
+            <point key="canvasLocation" x="168.5" y="-36.5"/>
+        </customView>
+    </objects>
+    <resources>
+        <namedColor name="LightDivider">
+            <color red="0.86274509803921573" green="0.8784313725490196" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryBlue">
+            <color red="0.38039215686274508" green="0.54117647058823526" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SecondaryText">
+            <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Text">
+            <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

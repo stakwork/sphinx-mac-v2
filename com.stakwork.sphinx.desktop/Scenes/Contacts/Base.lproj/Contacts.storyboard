@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -157,7 +157,7 @@
                                             <rect key="frame" x="32" y="390" width="350" height="75"/>
                                             <subviews>
                                                 <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Mjl-Ie-3uv">
-                                                    <rect key="frame" x="-2" y="36" width="66" height="14"/>
+                                                    <rect key="frame" x="-2" y="36" width="67" height="14"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="Nickname *" id="bfZ-y3-PQn">
                                                         <font key="font" size="12" name="Roboto-Regular"/>
                                                         <color key="textColor" name="SecondaryText"/>
@@ -468,11 +468,11 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z0E-J2-qHJ">
-                                            <rect key="frame" x="32" y="300" width="325" height="114"/>
+                                        <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z0E-J2-qHJ">
+                                            <rect key="frame" x="32" y="190" width="325" height="224"/>
                                             <subviews>
-                                                <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N9s-aH-7B1">
-                                                    <rect key="frame" x="0.0" y="58" width="325" height="56"/>
+                                                <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N9s-aH-7B1">
+                                                    <rect key="frame" x="0.0" y="168" width="325" height="56"/>
                                                     <subviews>
                                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="va8-bl-pYN">
                                                             <rect key="frame" x="-2" y="21" width="291" height="15"/>
@@ -512,8 +512,8 @@
                                                         <real value="3.4028234663852886e+38"/>
                                                     </customSpacing>
                                                 </stackView>
-                                                <box boxType="custom" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="ejM-jI-0cC">
-                                                    <rect key="frame" x="0.0" y="57" width="325" height="1"/>
+                                                <box ambiguous="YES" boxType="custom" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="ejM-jI-0cC">
+                                                    <rect key="frame" x="0.0" y="167" width="325" height="1"/>
                                                     <view key="contentView" id="NBr-e2-Gr6">
                                                         <rect key="frame" x="0.0" y="0.0" width="325" height="1"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -523,8 +523,8 @@
                                                     </constraints>
                                                     <color key="fillColor" name="Divider2"/>
                                                 </box>
-                                                <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KAz-MO-g20">
-                                                    <rect key="frame" x="0.0" y="1" width="325" height="56"/>
+                                                <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="16" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" ambiguous="YES" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KAz-MO-g20">
+                                                    <rect key="frame" x="0.0" y="111" width="325" height="56"/>
                                                     <subviews>
                                                         <textField focusRingType="none" horizontalHuggingPriority="1000" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="UZu-73-eil">
                                                             <rect key="frame" x="-2" y="21" width="51" height="15"/>
@@ -557,8 +557,8 @@
                                                         <real value="3.4028234663852886e+38"/>
                                                     </customSpacing>
                                                 </stackView>
-                                                <box boxType="custom" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="u5k-fJ-08U">
-                                                    <rect key="frame" x="0.0" y="0.0" width="325" height="1"/>
+                                                <box ambiguous="YES" boxType="custom" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="u5k-fJ-08U">
+                                                    <rect key="frame" x="0.0" y="110" width="325" height="1"/>
                                                     <view key="contentView" id="3aw-JC-CrP">
                                                         <rect key="frame" x="0.0" y="0.0" width="325" height="1"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -569,13 +569,13 @@
                                                     <color key="fillColor" name="Divider2"/>
                                                 </box>
                                                 <stackView hidden="YES" distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ari-Gw-Mqa">
-                                                    <rect key="frame" x="0.0" y="58" width="325" height="56"/>
+                                                    <rect key="frame" x="0.0" y="168" width="325" height="56"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="56" id="DzU-U6-W28"/>
                                                     </constraints>
                                                 </stackView>
                                                 <box hidden="YES" boxType="custom" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="KrC-Fm-fFZ">
-                                                    <rect key="frame" x="0.0" y="113" width="325" height="1"/>
+                                                    <rect key="frame" x="0.0" y="223" width="325" height="1"/>
                                                     <view key="contentView" id="W4t-Ci-16A">
                                                         <rect key="frame" x="0.0" y="0.0" width="325" height="1"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -585,6 +585,9 @@
                                                     </constraints>
                                                     <color key="fillColor" name="Divider2"/>
                                                 </box>
+                                                <customView ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PZr-Ed-mg6" customClass="TimezoneSharingView" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="0.0" y="0.0" width="325" height="110"/>
+                                                </customView>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="trailing" secondItem="u5k-fJ-08U" secondAttribute="trailing" id="1nK-38-IvS"/>
@@ -608,8 +611,10 @@
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
+                                                <integer value="1000"/>
                                             </visibilityPriorities>
                                             <customSpacing>
+                                                <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
@@ -724,6 +729,7 @@
                         <outlet property="removeContactButton" destination="TNq-bF-ZxC" id="LaF-cb-pwX"/>
                         <outlet property="removeContactButtonBack" destination="KHp-hv-qB8" id="KcI-mF-AYa"/>
                         <outlet property="routeHintLabel" destination="RAs-lM-JCN" id="ztB-m5-hPM"/>
+                        <outlet property="timezoneSharingView" destination="PZr-Ed-mg6" id="db4-PG-CMZ"/>
                     </connections>
                 </viewController>
                 <customObject id="ZxU-gW-qxK" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
