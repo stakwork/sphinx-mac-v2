@@ -11,7 +11,7 @@ import SwiftyJSON
 
 class TribeMembersDataSource : NSObject {
     
-    var chat: Chat?
+    var chat: Chat!
     
     var members = [GroupContact]()
     var pendingMembers = [GroupContact]()
@@ -145,6 +145,8 @@ class TribeMembersDataSource : NSObject {
         
         var lastLetter = ""
         
+        let timezones = TransactionMessage.getTimezonesByAlias(for: contacts.map({ $0["alias"].stringValue }), in: chat)
+        
         for contact in  contacts {
             let id = contact.getJSONId() ?? SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: 100_000)
             let nickname = contact["alias"].stringValue
@@ -163,6 +165,7 @@ class TribeMembersDataSource : NSObject {
                 groupContact.pubkey = pubkey
                 groupContact.selected = false
                 groupContact.firstOnLetter = (initialString != lastLetter)
+                groupContact.timezone = timezones[nickname]
                 
                 lastLetter = initialString
                 

@@ -336,7 +336,8 @@ extension SphinxOnionManager {
         text: String,
         sendingAttachment: Bool,
         threadUUID: String?,
-        replyUUID: String?
+        replyUUID: String?,
+        metaDataString: String? = nil
     ) -> Bool {
         let contentBytes: Int = 18
         let attachmentBytes: Int = 389
@@ -355,6 +356,10 @@ extension SphinxOnionManager {
         
         if threadUUID != nil {
             bytes += threadBytes
+        }
+        
+        if let metaDataString = metaDataString {
+            bytes += metaDataString.byteSize()
         }
         
         return bytes <= 869
@@ -581,6 +586,26 @@ extension SphinxOnionManager {
         } else if let owner = UserContact.getOwner() {
             localMsg.senderAlias = owner.nickname
             localMsg.senderPic = owner.avatarUrl
+        }
+        
+        if
+            let msg = remoteMsg.message,
+            let innerContent = MessageInnerContent(JSONString: msg),
+            let metadataString = innerContent.metadata,
+            let metadataData = metadataString.data(using: .utf8)
+        {
+            do {
+                if
+                    let metadataDict = try JSONSerialization.jsonObject(with: metadataData, options: []) as? [String: Any],
+                    let timezone = metadataDict["timezone"] as? String
+                {
+                    if localMsg.chat?.isPublicGroup() == true {
+                        localMsg.remoteTimezoneIdentifier = timezone
+                    }
+                }
+            } catch {
+                print("Error parsing metadata JSON: \(error)")
+            }
         }
         
         localMsg.senderId = UserData.sharedInstance.getUserId()

@@ -452,11 +452,24 @@ extension NewChatViewController : ChatBottomViewDelegate {
     ) -> Bool {
         let sendingAttachment = chatBottomView.isSendingMedia()
         
+        var metadataString: String? = nil
+
+        if let chat = chat, chat.timezoneEnabled, chat.timezoneUpdated {
+            if let timezoneIdentifier = chat.timezoneIdentifier {
+                let timezoneMetadata = ["timezone": timezoneIdentifier]
+                if let metadataJSON = try? JSONSerialization.data(withJSONObject: timezoneMetadata),
+                   let metadataS = String(data: metadataJSON, encoding: .utf8) {
+                      metadataString = metadataS
+                }
+            }
+        }
+        
         return SphinxOnionManager.sharedInstance.isMessageLengthValid(
             text: text,
             sendingAttachment: sendingAttachment,
             threadUUID: self.newChatViewModel.replyingTo?.uuid,
-            replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID
+            replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID,
+            metaDataString: metadataString
         )
     }
 }

@@ -14,6 +14,7 @@ struct GroupContact {
     var nickname: String? = nil
     var avatarUrl: String? = nil
     var pubkey: String? = nil
+    var timezone: String? = nil
     var selected: Bool = false
     var firstOnLetter: Bool = false
     
