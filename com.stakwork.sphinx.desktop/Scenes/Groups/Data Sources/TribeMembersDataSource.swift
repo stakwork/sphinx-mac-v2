@@ -318,17 +318,17 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
     func approveButtonClicked(item: NSCollectionViewItem) {
         guard let index = collectionView.indexPath(for: item)?.item else { return }
         
-        guard let chat = chat, let contactId = self.pendingMembers[index].id else {
+        guard let chat = chat, let alias = self.pendingMembers[index].nickname else {
             return
         }
         
-        guard let message = TransactionMessage.getLastGroupRequestFor(contactId: contactId, in: chat) else {
+        guard let message = TransactionMessage.getLastGroupRequestFor(senderAlias: alias, in: chat) else {
             return
         }
         
         self.loading = true
         
-        respondToRequest(message: message, action: "approved", completion: { [weak self] (chat, message) in
+        respondToRequest(message: message, chat: chat, type: TransactionMessage.TransactionMessageType.memberApprove, completion: { [weak self] (chat) in
             guard let self else { return }
             self.reloadContacts(chat: chat)
         })
@@ -337,17 +337,17 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
     func declineButtonClicked(item: NSCollectionViewItem) {
         guard let index = collectionView.indexPath(for: item)?.item else { return }
         
-        guard let chat = chat, let contactId = self.pendingMembers[index].id else {
+        guard let chat = chat, let alias = self.pendingMembers[index].nickname else {
             return
         }
         
-        guard let message = TransactionMessage.getLastGroupRequestFor(contactId: contactId, in: chat) else {
+        guard let message = TransactionMessage.getLastGroupRequestFor(senderAlias: alias, in: chat) else {
             return
         }
         
         self.loading = true
         
-        respondToRequest(message: message, action: "rejected", completion: { [weak self] (chat, message) in
+        respondToRequest(message: message, chat: chat, type: TransactionMessage.TransactionMessageType.memberReject, completion: { [weak self] (chat) in
             guard let self else { return }
             self.reloadContacts(chat: chat)
         })
@@ -355,9 +355,22 @@ extension TribeMembersDataSource: GroupContactListItemDelegate {
     
     func respondToRequest(
         message: TransactionMessage,
-        action: String,
-        completion: @escaping (Chat, TransactionMessage) -> ()
+        chat: Chat,
+        type: TransactionMessage.TransactionMessageType,
+        completion: @escaping (Chat) -> ()
     ) {
-        ///Implement approve/reject from pending members list
+        guard let uuid = message.uuid else {
+            return
+        }
+        
+        SphinxOnionManager.sharedInstance.approveOrRejectTribeJoinRequest(
+            requestUuid: uuid,
+            chat: chat,
+            type: type
+        )
+        
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+            completion(chat)
+        })
     }
 }
