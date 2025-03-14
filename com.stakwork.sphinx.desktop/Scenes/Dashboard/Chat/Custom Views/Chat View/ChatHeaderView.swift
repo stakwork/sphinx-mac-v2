@@ -36,6 +36,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var contributedSatsLabel: NSTextField!
     @IBOutlet weak var contributionSign: NSTextField!
     @IBOutlet weak var tribePriceLabel: NSTextField!
+    @IBOutlet weak var remoteTimezoneIdentifier: NSTextField!
     @IBOutlet weak var lockSign: NSTextField!
     @IBOutlet weak var boltSign: NSTextField!
     @IBOutlet weak var scheduleIcon: NSTextField!
@@ -152,6 +153,11 @@ class ChatHeaderView: NSView, LoadableNib {
         setVolumeState()
         configureImageOrInitials()
         configureContributionsAndPrices()
+        configureTimezoneInfo()
+    }
+    
+    func configureTimezoneInfo() {
+        remoteTimezoneIdentifier.stringValue = chat?.remoteTimezoneIdentifier?.replacingOccurrences(of: "_", with: " ") ?? ""
     }
     
     func configureHeaderBasicInfo() {
@@ -270,6 +276,11 @@ class ChatHeaderView: NSView, LoadableNib {
                 "\(prices.0)",
                 "\(prices.1)"
             )
+            contributionsContainer.isHidden = false
+            remoteTimezoneIdentifier.isHidden = true
+        } else if let remoteTimezone = chat?.remoteTimezoneIdentifier, remoteTimezone.isNotEmpty {
+            tribePriceLabel.isHidden = true
+            remoteTimezoneIdentifier.isHidden = false
             contributionsContainer.isHidden = false
         } else {
             contributionsContainer.isHidden = true
