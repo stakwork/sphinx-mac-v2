@@ -70,6 +70,15 @@ class ContactDetailsViewController: NSCollectionViewItem {
         contactDate.stringValue = String.init(format: "contact.connected.since".localized, contact.createdAt?.getStringDate(format: "MMMM dd, YYYY") ?? "")
         publicKeyLabel.stringValue = contact.publicKey ?? ""
         routeHintLabel.stringValue = contact.routeHint ?? ""
+
+        if let chat = contact.getChat() {
+            timezoneSharingView.configure(
+                enabled: chat.timezoneEnabled,
+                identifier: chat.timezoneIdentifier
+            )
+        } else {
+            timezoneSharingView.configure(enabled: false, identifier: nil)
+        }
     }
     
     @IBAction func contactAvatarButtonClicked(_ sender: Any) {

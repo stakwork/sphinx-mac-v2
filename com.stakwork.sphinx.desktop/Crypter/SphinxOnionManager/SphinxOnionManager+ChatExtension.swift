@@ -230,8 +230,7 @@ extension SphinxOnionManager {
         invoiceString: String? = nil,
         tribeKickMember: String? = nil,
         paidAttachmentMediaToken:String? = nil,
-        isTribe: Bool,
-        chat: Chat?
+        isTribe: Bool? = nil
     ) -> (TransactionMessage?, String?) {
         
         guard let seed = getAccountSeed() else {
@@ -1237,7 +1236,9 @@ extension SphinxOnionManager {
             if chat.isGroup() {
                 newMessage.remoteTimezoneIdentifier = timezone
             } else {
-                chat.remoteTimezoneIdentifier = timezone
+                if !isV2Restore || chat.remoteTimezoneIdentifier == nil {
+                    chat.remoteTimezoneIdentifier = timezone
+                }
             }
         }
         
