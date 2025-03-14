@@ -120,7 +120,7 @@ extension SphinxOnionManager {
         content: String,
         type: UInt8,
         muid: String? = nil,
-        purchaseItemAmount:Int? = nil,
+        purchaseItemAmount: Int? = nil,
         recipPubkey: String? = nil,
         mediaKey: String? = nil,
         mediaType: String? = "file",
@@ -129,12 +129,26 @@ extension SphinxOnionManager {
         replyUUID: String?,
         invoiceString: String?,
         tribeKickMember: String? = nil,
-        paidAttachmentMediaToken:String? = nil,
-        isTribe:Bool
+        paidAttachmentMediaToken: String? = nil,
+        isTribe: Bool,
+        chat: Chat? = nil
     ) -> (String?, String?)? {
         
         var msg: [String: Any] = ["content": content ]
         var mt: String? = nil
+        
+        if let chat = chat, chat.timezoneEnabled, chat.timezoneUpdated {
+            let timezoneToSend = chat.timezoneIdentifier ?? TimeZone.current.identifier
+            let timezoneMetadata = ["timezone": timezoneToSend]
+            
+            if let metadataJSON = try? JSONSerialization.data(withJSONObject: timezoneMetadata),
+               let metadataString = String(data: metadataJSON, encoding: .utf8) {
+                msg["metadata"] = metadataString
+                
+                chat.timezoneUpdated = false
+                chat.managedObjectContext?.saveContext()
+            }
+        }
 
         switch TransactionMessage.TransactionMessageType(rawValue: Int(type)) {
         case .message, .boost, .delete, .call, .groupLeave, .memberReject, .memberApprove,.groupDelete:
@@ -246,7 +260,8 @@ extension SphinxOnionManager {
             invoiceString: invoiceString,
             tribeKickMember: tribeKickMember, 
             paidAttachmentMediaToken: paidAttachmentMediaToken,
-            isTribe: isTribe
+            isTribe: isTribe,
+            chat: chat
         ) else {
             return (nil, "Msg json format issue")
         }
@@ -321,7 +336,8 @@ extension SphinxOnionManager {
         text: String,
         sendingAttachment: Bool,
         threadUUID: String?,
-        replyUUID: String?
+        replyUUID: String?,
+        metaDataString: String? = nil
     ) -> Bool {
         let contentBytes: Int = 18
         let attachmentBytes: Int = 389
@@ -340,6 +356,10 @@ extension SphinxOnionManager {
         
         if threadUUID != nil {
             bytes += threadBytes
+        }
+        
+        if let metaDataString = metaDataString {
+            bytes += metaDataString.byteSize()
         }
         
         return bytes <= 869
@@ -566,6 +586,26 @@ extension SphinxOnionManager {
         } else if let owner = UserContact.getOwner() {
             localMsg.senderAlias = owner.nickname
             localMsg.senderPic = owner.avatarUrl
+        }
+        
+        if
+            let msg = remoteMsg.message,
+            let innerContent = MessageInnerContent(JSONString: msg),
+            let metadataString = innerContent.metadata,
+            let metadataData = metadataString.data(using: .utf8)
+        {
+            do {
+                if
+                    let metadataDict = try JSONSerialization.jsonObject(with: metadataData, options: []) as? [String: Any],
+                    let timezone = metadataDict["timezone"] as? String
+                {
+                    if localMsg.chat?.isPublicGroup() == true {
+                        localMsg.remoteTimezoneIdentifier = timezone
+                    }
+                }
+            } catch {
+                print("Error parsing metadata JSON: \(error)")
+            }
         }
         
         localMsg.senderId = UserData.sharedInstance.getUserId()
@@ -1217,6 +1257,16 @@ extension SphinxOnionManager {
            let _ = TransactionMessage.getInvoiceWith(paymentHash: ph)
         {
             newMessage.setPaymentInvoiceAsPaid()
+        }
+        
+        if let timezone = message.timezone {
+            if chat.isGroup() {
+                newMessage.remoteTimezoneIdentifier = timezone
+            } else {
+                if !isV2Restore || chat.remoteTimezoneIdentifier == nil {
+                    chat.remoteTimezoneIdentifier = timezone
+                }
+            }
         }
         
         if (delaySave == false) {

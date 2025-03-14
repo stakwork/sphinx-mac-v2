@@ -35,7 +35,9 @@ class StatusHeaderView: NSView, LoadableNib {
     
     @IBOutlet weak var expiredInvoiceReceivedHeader: NSStackView!
     @IBOutlet weak var expiredInvoiceReceivedLabel: NSTextField!
-
+    
+    @IBOutlet weak var remoteTimezoneIdentifier: NSTextField!
+    
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
@@ -88,6 +90,14 @@ class StatusHeaderView: NSView, LoadableNib {
         expiredInvoiceReceivedHeader.isHidden = !statusHeader.showExpiredReceived
         
         configureWith(expirationTimestamp: statusHeader.expirationTimestamp)
+        
+        
+        if let identifier = statusHeader.remoteTimezoneIdentifier?.replacingOccurrences(of: "_", with: " "), !identifier.isEmpty {
+            remoteTimezoneIdentifier.isHidden = false
+            remoteTimezoneIdentifier.stringValue = identifier
+        } else {
+            remoteTimezoneIdentifier.isHidden = true
+        }
         
         let thirtySecondsAgo = Date().addingTimeInterval(-30)
         let isScheduleVisible = statusHeader.showScheduleIcon && statusHeader.messageDate < thirtySecondsAgo

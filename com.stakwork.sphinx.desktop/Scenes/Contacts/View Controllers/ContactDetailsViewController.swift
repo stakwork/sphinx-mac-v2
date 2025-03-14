@@ -26,6 +26,7 @@ class ContactDetailsViewController: NSCollectionViewItem {
     @IBOutlet weak var routeHintLabel: NSTextField!
     @IBOutlet weak var removeContactButtonBack: NSBox!
     @IBOutlet weak var removeContactButton: CustomButton!
+    @IBOutlet weak var timezoneSharingView: TimezoneSharingView!
     
     var contact: UserContact? = nil
     
@@ -69,6 +70,13 @@ class ContactDetailsViewController: NSCollectionViewItem {
         contactDate.stringValue = String.init(format: "contact.connected.since".localized, contact.createdAt?.getStringDate(format: "MMMM dd, YYYY") ?? "")
         publicKeyLabel.stringValue = contact.publicKey ?? ""
         routeHintLabel.stringValue = contact.routeHint ?? ""
+        
+        if let chat = contact.getChat() {
+            timezoneSharingView.configureViewWith(chat: chat)
+            timezoneSharingView.isHidden = false
+        } else {
+            timezoneSharingView.isHidden = true
+        }
     }
     
     @IBAction func contactAvatarButtonClicked(_ sender: Any) {

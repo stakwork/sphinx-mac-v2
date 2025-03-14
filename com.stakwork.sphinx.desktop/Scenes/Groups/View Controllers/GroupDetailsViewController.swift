@@ -36,6 +36,7 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var adminNameLabel: NSTextField!
     @IBOutlet weak var adminRoleLabel: NSTextField!
     @IBOutlet weak var adminInfoContainerView: NSView!
+    @IBOutlet weak var timezoneSharingView: TimezoneSharingView!
     
     
     var chat: Chat! = nil
@@ -80,6 +81,9 @@ class GroupDetailsViewController: NSViewController {
         adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.width / 2
         adminAvatarImageView.layer?.masksToBounds = true
         
+        timezoneSharingView.configureViewWith(chat: chat)
+        timezoneSharingView.isHidden = false
+        
         loading = true
         
         optionsButton.cursor = .pointingHand
@@ -103,7 +107,7 @@ class GroupDetailsViewController: NSViewController {
             
             watchdogTimer.cancel()
             
-            if let tribeMemberArray = tribeMembers["confirmedMembers"] as? [TribeMembersRRObject] {
+            if let _ = tribeMembers["confirmedMembers"] as? [TribeMembersRRObject] {
                 self.chat?.isTribeICreated = true
                 self.chat?.managedObjectContext?.saveContext()
                 self.setGroupInfo()

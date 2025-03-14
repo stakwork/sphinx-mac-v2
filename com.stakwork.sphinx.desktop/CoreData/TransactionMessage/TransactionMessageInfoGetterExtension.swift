@@ -453,6 +453,10 @@ extension TransactionMessage {
         return isPayment() || isInvoice() || isGroupActionMessage() || isDeleted()
     }
     
+    func isTribeTimezoneMsg() -> Bool {
+        return chat?.isPublicGroup() == true && remoteTimezoneIdentifier?.isNotEmpty == true
+    }
+    
     func isDirectPayment() -> Bool {
         return type == TransactionMessageType.directPayment.rawValue
     }
@@ -1022,7 +1026,15 @@ extension TransactionMessage {
     
     //Grouping Logic
     func shouldAvoidGrouping() -> Bool {
-        return pending() || failed() || isDeleted() || isInvoice() || isPayment() || isGroupActionMessage() || (isDirectPayment() && confirmed())
+        return
+            pending() ||
+            failed() ||
+            isDeleted() ||
+            isInvoice() ||
+            isPayment() ||
+            isGroupActionMessage() ||
+            (isDirectPayment() && confirmed()) ||
+            isTribeTimezoneMsg()
     }
     
     func hasSameSenderThanMessage(_ message: TransactionMessage) -> Bool {

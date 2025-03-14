@@ -404,7 +404,6 @@
 "call" = "Call";
 "error.getting.token.title" = "Error getting token";
 "error.getting.token.description" = "There was an error getting a token to join the call. Please try again later";
-
 "users" = "users";
 "optional.message.placeholder" = "Optional Message...";
 "price.required" = "Price is required";
@@ -428,8 +427,8 @@
 "pages" = "pages";
 "page" = "page";
 "pdf.description" = "PDF - %@ - Page %d of %d";
-
 "contact.connected.since" = "Connected since %@";
+"timezone.changed" = "Timezone settings for this chat are saved \nonly on this device. If you use the app on another\ndevice, you'll need to set the timezone again.";
 
 //OTHER
 "create.call" = "Create Call";

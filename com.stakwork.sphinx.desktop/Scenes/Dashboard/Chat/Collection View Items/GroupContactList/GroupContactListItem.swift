@@ -26,6 +26,7 @@ class GroupContactListItem: NSCollectionViewItem {
     @IBOutlet weak var actionsContainer: NSView!
     @IBOutlet weak var approveButton: CustomButton!
     @IBOutlet weak var declineButton: CustomButton!
+    @IBOutlet weak var timezoneLabel: NSTextField!
     
     weak var delegate: GroupContactListItemDelegate?
     
@@ -66,6 +67,13 @@ class GroupContactListItem: NSCollectionViewItem {
             )
         }
         
+        timezoneLabel.isHidden = true
+
+        if let timezone = item.timezone, timezone.isNotEmpty {
+            timezoneLabel.stringValue = timezone
+            timezoneLabel.isHidden = false
+        }
+        
         deleteButtonContainer.isHidden = item.isOwner
         divider.isHidden = isLastItem
         actionsContainer.isHidden = true
@@ -93,6 +101,7 @@ class GroupContactListItem: NSCollectionViewItem {
             )
         }
         
+        timezoneLabel.isHidden = true
         deleteButtonContainer.isHidden = true
         divider.isHidden = isLastItem
         actionsContainer.isHidden = false

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -18,6 +18,7 @@
                 <outlet property="receivedLockIcon" destination="ZXl-Nk-CBe" id="rpk-ic-jtj"/>
                 <outlet property="receivedSenderLabel" destination="TfG-jr-Pu0" id="CXU-wZ-gbr"/>
                 <outlet property="receivedStatusHeader" destination="haw-vJ-q8h" id="jOI-eh-5VO"/>
+                <outlet property="remoteTimezoneIdentifier" destination="XGA-YB-g5y" id="gyb-bH-noR"/>
                 <outlet property="sentDateLabel" destination="zny-2h-q5u" id="RLe-4H-FRY"/>
                 <outlet property="sentErrorIcon" destination="6dM-NL-tMC" id="nID-Sk-acq"/>
                 <outlet property="sentErrorMessage" destination="dWg-bw-UBP" id="V3F-AJ-o8Z"/>
@@ -120,13 +121,23 @@
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </textFieldCell>
                         </textField>
+                        <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XGA-YB-g5y">
+                            <rect key="frame" x="-2" y="6" width="89" height="11"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="America/Argentina" id="3h6-TY-yI7">
+                                <font key="font" size="10" name="Roboto-Regular"/>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
                     </subviews>
                     <visibilityPriorities>
                         <integer value="1000"/>
                         <integer value="1000"/>
                         <integer value="1000"/>
+                        <integer value="1000"/>
                     </visibilityPriorities>
                     <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>

@@ -741,4 +741,41 @@ extension TransactionMessage {
             return []
         }
     }
+    
+    static func getTimezonesByAlias(
+        for senderAliases: [String],
+        in chat: Chat,
+        context: NSManagedObjectContext? = nil
+    ) -> [String: String] {
+        let context = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        let predicate = NSPredicate(
+            format: "chat == %@ && senderAlias IN %@ AND remoteTimezoneIdentifier != nil",
+            chat,
+            senderAliases
+        )
+
+        // Sort by senderAlias and then by date (descending)
+        let sortDescriptors = [
+            NSSortDescriptor(key: "date", ascending: false)
+        ]
+
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            managedContext: context
+        )
+
+        var groupedMessages: [String: String] = [:]
+
+        for message in messages {
+            if let sender = message.senderAlias, sender.isNotEmpty {
+                if groupedMessages[sender] == nil {
+                    groupedMessages[sender] = message.remoteTimezoneIdentifier
+                }
+            }
+        }
+        return groupedMessages
+    }
 }
