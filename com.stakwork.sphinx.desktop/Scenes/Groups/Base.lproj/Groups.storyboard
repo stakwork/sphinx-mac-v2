@@ -1771,7 +1771,7 @@
                         <outlet property="saveButton" destination="WX6-me-j3C" id="tNa-jx-Z7n"/>
                         <outlet property="saveButtonContainer" destination="sZo-gO-gYo" id="3WF-FZ-lml"/>
                         <outlet property="saveLoadingWheel" destination="jyC-Ha-wNh" id="cK8-6m-b1W"/>
-                        <outlet property="timezoneSharingView" destination="VP9-dM-AUB" id="4BZ-pa-4T9"/>
+                        <outlet property="timezoneSharingView" destination="VP9-dM-AUB" id="h5f-yR-TfL"/>
                         <outlet property="tribeMemberInfoContainer" destination="BmW-hY-63S" id="yla-sg-kWf"/>
                         <outlet property="tribeMemberInfoContainerHeight" destination="7Jz-hl-F0a" id="Y9B-MB-G1G"/>
                         <outlet property="tribeMemberInfoView" destination="tix-lT-SOU" id="ZfE-Sv-bdq"/>

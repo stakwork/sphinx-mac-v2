@@ -429,6 +429,7 @@
 "error.getting.token.title" = "取得令牌時發生錯誤";
 "error.getting.token.description" = "取得加入通話的令牌時發生錯誤。請稍後重試";
 "contact.connected.since" = "%@起已上線";
+"timezone.changed" = "此聊天的時區設定只會儲存在此裝置上。\n如果你在其他裝置使用此應用程式，\n你需要重新設定時區。";
 
 //OTHER
 "create.call" = "創建通話";
