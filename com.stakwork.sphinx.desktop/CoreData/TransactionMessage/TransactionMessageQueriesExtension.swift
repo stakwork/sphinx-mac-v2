@@ -464,8 +464,8 @@ extension TransactionMessage {
         return messages
     }
     
-        static func getLastGroupRequestFor(contactId: Int, in chat: Chat) -> TransactionMessage? {
-        let predicate = NSPredicate(format: "senderId == %d AND chat == %@ AND type == %d", contactId, chat, TransactionMessageType.memberRequest.rawValue)
+        static func getLastGroupRequestFor(senderAlias: String, in chat: Chat) -> TransactionMessage? {
+        let predicate = NSPredicate(format: "senderAlias == %@ AND chat == %@ AND type == %d", senderAlias, chat, TransactionMessageType.memberRequest.rawValue)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "TransactionMessage", fetchLimit: 1)
         
