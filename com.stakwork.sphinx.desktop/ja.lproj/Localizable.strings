@@ -429,6 +429,7 @@
 "error.getting.token.description" = "通話に参加するためのトークンの取得中にエラーが発生しました。しばらくしてからもう一度お試しください。";
 "contact.connected.since" = "%@から接続";
 "timezone.changed" = "このチャットのタイムゾーン設定は、\nこのデバイスのみに保存されます。\n他のデバイスでアプリを使用する場合は、\nタイムゾーンを再設定する必要があります。";
+"message.limit.reached" = "文字数の上限に達しました。\nメッセージを編集または送信してください。";
 
 //OTHER
 "create.call" = "通話を作成";

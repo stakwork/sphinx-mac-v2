@@ -11,7 +11,7 @@ import Cocoa
 
 extension NewChatViewController {
     func setMessageFieldActive() {
-        guard let chat = chat else {
+        guard let _ = chat else {
             return
         }
         chatBottomView.setMessageFieldActive()
@@ -450,13 +450,25 @@ extension NewChatViewController : ChatBottomViewDelegate {
     func isMessageLengthValid(
         text: String
     ) -> Bool {
-        return SphinxOnionManager.sharedInstance.isMessageLengthValid(
+        let messageLengthValid = SphinxOnionManager.sharedInstance.isMessageLengthValid(
             text: text,
             sendingAttachment: chatBottomView.isSendingMedia(),
             threadUUID: self.newChatViewModel.replyingTo?.uuid,
             replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID,
             metaDataString: chat?.getMetaDataJsonStringValue()
         )
+        
+        if !messageLengthValid {
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: "message.limit.reached".localized,
+                delay: 5,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.BadgeRed,
+                backAlpha: 1.0
+            )
+        }
+        
+        return messageLengthValid
     }
 }
 

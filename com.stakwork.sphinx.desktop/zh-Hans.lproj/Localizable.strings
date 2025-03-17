@@ -429,6 +429,7 @@
 "error.getting.token.description" = "获取加入通话的令牌时出错。请稍后重试";
 "contact.connected.since" = "%@日起连接";
 "timezone.changed" = "此聊天的时区设置仅保存在此设备上。\n如果您在其他设备上使用应用程序，\n则需要重新设置时区。";
+"message.limit.reached" = "已达字符上限。请编辑或发送您的消息。";
 
 //OTHER
 "create.call" = "创建通话";
