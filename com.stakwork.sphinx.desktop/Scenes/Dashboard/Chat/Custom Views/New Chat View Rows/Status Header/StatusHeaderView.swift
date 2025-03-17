@@ -90,14 +90,7 @@ class StatusHeaderView: NSView, LoadableNib {
         expiredInvoiceReceivedHeader.isHidden = !statusHeader.showExpiredReceived
         
         configureWith(expirationTimestamp: statusHeader.expirationTimestamp)
-        
-        
-        if let identifier = statusHeader.remoteTimezoneIdentifier?.replacingOccurrences(of: "_", with: " "), !identifier.isEmpty {
-            remoteTimezoneIdentifier.isHidden = false
-            remoteTimezoneIdentifier.stringValue = identifier
-        } else {
-            remoteTimezoneIdentifier.isHidden = true
-        }
+        configureTimezoneWith(timezoneString: statusHeader.remoteTimezoneIdentifier)
         
         let thirtySecondsAgo = Date().addingTimeInterval(-30)
         let isScheduleVisible = statusHeader.showScheduleIcon && statusHeader.messageDate < thirtySecondsAgo
@@ -120,6 +113,23 @@ class StatusHeaderView: NSView, LoadableNib {
             uploadingLabel.stringValue = String(format: "uploaded.progress".localized, uploadProgressData.progress)
         } else {
             uploadingHeader.isHidden = true
+        }
+    }
+    
+    func configureTimezoneWith(timezoneString: String?) {
+        remoteTimezoneIdentifier.isHidden = true
+        
+        if let timezoneString = timezoneString {
+            let timezone = TimeZone(abbreviation: timezoneString) ?? TimeZone(identifier: timezoneString)
+            
+            if let timezone = timezone {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "hh:mm a"
+                dateFormatter.timeZone = timezone
+
+                remoteTimezoneIdentifier.stringValue = "\(dateFormatter.string(from: Date())) \(timezone.abbreviation() ?? timezone.identifier)"
+                remoteTimezoneIdentifier.isHidden = false
+            }
         }
     }
     

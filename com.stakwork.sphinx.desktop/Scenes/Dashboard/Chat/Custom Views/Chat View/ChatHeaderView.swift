@@ -157,7 +157,20 @@ class ChatHeaderView: NSView, LoadableNib {
     }
     
     func configureTimezoneInfo() {
-        remoteTimezoneIdentifier.stringValue = chat?.remoteTimezoneIdentifier?.replacingOccurrences(of: "_", with: " ") ?? ""
+        remoteTimezoneIdentifier.isHidden = true
+        
+        if let timezoneString = chat?.remoteTimezoneIdentifier {
+            let timezone = TimeZone(abbreviation: timezoneString) ?? TimeZone(identifier: timezoneString)
+            
+            if let timezone = timezone {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "hh:mm a"
+                dateFormatter.timeZone = timezone
+
+                remoteTimezoneIdentifier.stringValue = "\(dateFormatter.string(from: Date())) \(timezone.abbreviation() ?? timezone.identifier)"
+                remoteTimezoneIdentifier.isHidden = false
+            }
+        }
     }
     
     func configureHeaderBasicInfo() {
