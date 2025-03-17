@@ -22,6 +22,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var chatInitialsLabel: NSTextField!
     @IBOutlet weak var nameLabel: NSTextField!
     @IBOutlet weak var lockSignLabel: NSTextField!
+    @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var inviteIconLabel: NSTextField!
     @IBOutlet weak var failedMessageIcon: NSTextField!
     @IBOutlet weak var messageLabel: NSTextField!
@@ -308,6 +309,8 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         willNotifyAllMsgs: Bool,
         willNotifyOnlyMentions: Bool
     ) {
+        scheduleIcon.isHidden = true
+        
         if let invite = chatListObject.getInvite(), chatListObject.isPending() {
             
             let (icon, iconColor, text) = invite.getDataForRow()
@@ -368,6 +371,13 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                 dateLabel.isHidden = false
                 
                 failedMessageIcon.isHidden = !isFailedMessage
+                
+                if lastMessage.isOutgoing(ownerId: owner.id), !lastMessage.isConfirmedAsReceived() && !lastMessage.failed() {
+                    let thirtySecondsAgo = Date().addingTimeInterval(-30)
+                    if lastMessage.messageDate < thirtySecondsAgo {
+                        scheduleIcon.isHidden = false
+                    }
+                }
             } else {
                 messageLabel.superview?.isHidden = true
                 dateLabel.isHidden = true

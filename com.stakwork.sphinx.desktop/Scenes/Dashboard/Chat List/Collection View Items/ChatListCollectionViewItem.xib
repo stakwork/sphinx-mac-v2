@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -109,16 +109,27 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="69t-GJ-bIF">
+                                            <rect key="frame" x="-2" y="4" width="19" height="15"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="schedule" id="1up-th-h8P">
+                                                <font key="font" size="15" name="MaterialIcons-Regular"/>
+                                                <color key="textColor" name="SphinxOrange"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="3Zj-Kl-BUt" firstAttribute="centerY" secondItem="DGs-Cx-Khc" secondAttribute="centerY" id="6dJ-bm-tvL"/>
+                                        <constraint firstItem="69t-GJ-bIF" firstAttribute="centerY" secondItem="3Zj-Kl-BUt" secondAttribute="centerY" id="C0E-fE-IAs"/>
                                         <constraint firstItem="DGs-Cx-Khc" firstAttribute="centerY" secondItem="tfQ-XL-WAx" secondAttribute="centerY" id="xxw-9e-Ygv"/>
                                     </constraints>
                                     <visibilityPriorities>
                                         <integer value="1000"/>
                                         <integer value="1000"/>
+                                        <integer value="1000"/>
                                     </visibilityPriorities>
                                     <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                     </customSpacing>
@@ -404,6 +415,7 @@
                 <outlet property="nameLabel" destination="DGs-Cx-Khc" id="uZS-gj-XC5"/>
                 <outlet property="pendingContactClockIconImageView" destination="NwQ-jc-CBa" id="QN4-bX-zjl"/>
                 <outlet property="pendingContactDashedLineContainerView" destination="j73-IW-Rh1" id="Kse-2g-QT9"/>
+                <outlet property="scheduleIcon" destination="69t-GJ-bIF" id="2aL-Xi-PTA"/>
                 <outlet property="unreadMessageBadgeContainer" destination="d30-ku-ihf" id="p25-1h-hyI"/>
                 <outlet property="unreadMessageBadgeLabel" destination="cmn-Qv-gK9" id="5xK-xp-KZc"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="86j-r6-cnA"/>
@@ -436,6 +448,9 @@
         </namedColor>
         <namedColor name="SecondaryText">
             <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SphinxOrange">
+            <color red="1" green="0.74099999666213989" blue="0.34900000691413879" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="sphinxWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
