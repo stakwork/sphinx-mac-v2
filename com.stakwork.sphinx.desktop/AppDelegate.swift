@@ -289,6 +289,8 @@ import WebKit
                 object: nil
             )
             
+            Chat.processTimezoneChanges()
+            
             getDashboardVC()?.reconnectToServer()
             
             feedsManager.restoreContentFeedStatusInBackground()

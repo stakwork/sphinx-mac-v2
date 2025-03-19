@@ -84,6 +84,8 @@ class NewChatViewController: DashboardSplittedViewController {
     var podcastPlayerVC: NewPodcastPlayerViewController? = nil
     var threadVC: NewChatViewController? = nil
     
+    let newMessageBubbleHelper = NewMessageBubbleHelper()
+    
     static func instantiate(
         contactId: Int? = nil,
         chatId: Int? = nil,

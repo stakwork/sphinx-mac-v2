@@ -43,7 +43,7 @@ extension UserContact {
             let formatSpecifier = "%i"
 
             return NSPredicate(
-                format: "%K \(keyword) \(formatSpecifier) AND contactKey != NULL",
+                format: "%K \(keyword) \(formatSpecifier) AND contactKey != nil",
                 "id",
                 id
             )

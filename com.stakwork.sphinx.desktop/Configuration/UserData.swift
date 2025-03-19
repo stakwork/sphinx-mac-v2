@@ -60,6 +60,8 @@ class UserData {
     
     func completeSignup() {
         signupStep = SignupHelper.SignupStep.SignupComplete.rawValue
+        
+        UserDefaults.Keys.didMigrateToTZ.set(true)
     }
     
     func resetSignup() {

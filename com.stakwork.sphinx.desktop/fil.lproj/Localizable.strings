@@ -426,6 +426,7 @@
 "error.getting.token.description" = "Nagkaroon ng error sa pagkuha ng token para sumali sa tawag. Pakisubukang muli mamaya";
 "contact.connected.since" = "Nakakonekta mula noong %@";
 "timezone.changed" = "Ang setting ng time zone para sa chat na ito\nnaka-save lamang sa device na ito.\nKung gagamitin mo ang app sa ibang device,\nkakailanganin mong itakda ulit ang time zone.";
+"message.limit.reached" = "Naabot na ang limitasyon ng mga karakter.\nI-edit o ipadala ang iyong mensahe.";
 
 //OTHER
 "create.call"  = "Lumikha ng Tawag";
