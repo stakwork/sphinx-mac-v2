@@ -94,6 +94,8 @@ extension NewChatListViewController {
         
         var objectId: String
         var messageId: Int?
+        var messageStatus: Int?
+        var message30SecOld: Bool
         var messageSeen: Bool
         var unseenCount: Int
         var contactStatus: Int?
@@ -104,6 +106,8 @@ extension NewChatListViewController {
         init(
             objectId: String,
             messageId: Int?,
+            messageStatus: Int?,
+            message30SecOld: Bool,
             messageSeen: Bool,
             unseenCount: Int,
             contactStatus: Int?,
@@ -114,6 +118,8 @@ extension NewChatListViewController {
         {
             self.objectId = objectId
             self.messageId = messageId
+            self.messageStatus = messageStatus
+            self.message30SecOld = message30SecOld
             self.messageSeen = messageSeen
             self.unseenCount = unseenCount
             self.contactStatus = contactStatus
@@ -126,6 +132,8 @@ extension NewChatListViewController {
             let isEqual =
                 lhs.objectId == rhs.objectId &&
                 lhs.messageId == rhs.messageId &&
+                lhs.messageStatus == rhs.messageStatus &&
+                lhs.message30SecOld == rhs.message30SecOld &&
                 lhs.messageSeen == rhs.messageSeen &&
                 lhs.unseenCount == rhs.unseenCount &&
                 lhs.contactStatus == rhs.contactStatus &&
@@ -336,6 +344,8 @@ extension NewChatListViewController {
             DataSourceItem(
                 objectId: element.getObjectId(),
                 messageId: element.lastMessage?.id,
+                messageStatus: element.lastMessage?.status,
+                message30SecOld: (element.lastMessage?.date ?? Date()) < Date().addingTimeInterval(-30),
                 messageSeen: element.isSeen(ownerId: owner.id),
                 unseenCount: element.unseenMessagesCount,
                 contactStatus: element.getContactStatus(),
