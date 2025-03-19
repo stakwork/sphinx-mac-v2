@@ -372,7 +372,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                 
                 failedMessageIcon.isHidden = !isFailedMessage
                 
-                if lastMessage.isOutgoing(ownerId: owner.id), !lastMessage.isConfirmedAsReceived() && !lastMessage.failed() {
+                if lastMessage.isPendingMessage(ownerId: owner.id) {
                     let thirtySecondsAgo = Date().addingTimeInterval(-30)
                     if lastMessage.messageDate < thirtySecondsAgo {
                         scheduleIcon.isHidden = false

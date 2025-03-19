@@ -219,6 +219,12 @@ extension TransactionMessage {
         return getDirection(id: ownerId ?? UserData.sharedInstance.getUserId()) == TransactionMessageDirection.outgoing
     }
     
+    func isPendingMessage(
+        ownerId: Int? = nil
+    ) -> Bool {
+        return isOutgoing(ownerId: ownerId) && !isConfirmedAsReceived() && !failed() && (isTextMessage() || isAttachment())
+    }
+    
     func isSeen(
         ownerId: Int
     ) -> Bool {
