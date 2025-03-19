@@ -202,7 +202,7 @@ public class Chat: NSManagedObject {
         return self.status == ChatStatus.approved.rawValue
     }
     
-    static func getAll() -> [Chat] {
+    static func getAll(context: NSManagedObjectContext? = nil) -> [Chat] {
         let predicate: NSPredicate? = nil
         
 //        var predicate: NSPredicate! = nil
@@ -214,7 +214,7 @@ public class Chat: NSManagedObject {
 //            predicate = NSPredicate(format: "pin = %@", currentPin)
 //        }
         
-        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: [], entityName: "Chat")
+        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: [], entityName: "Chat", managedContext: context)
         return chats
     }
     
@@ -309,7 +309,7 @@ public class Chat: NSManagedObject {
     }
     
     public static func getPrivateChats() -> [Chat] {
-        let predicate = NSPredicate(format: "pin != null")
+        let predicate = NSPredicate(format: "pin != nil")
         let chats: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: [], entityName: "Chat")
         return chats
     }
@@ -924,6 +924,57 @@ public class Chat: NSManagedObject {
     
     public func isEncrypted() -> Bool {
         return true
+    }
+    
+    public static func processTimezoneChanges() {
+        DispatchQueue.global(qos: .background).async {
+            let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+            
+            backgroundContext.perform {
+                let didMigrateToTZ: Bool = UserDefaults.Keys.didMigrateToTZ.get(defaultValue: false)
+                
+                if !didMigrateToTZ {
+                    Chat.resetTimezones(context: backgroundContext)
+                }
+                
+                if let systemTimezone: String? = UserDefaults.Keys.systemTimezone.get() {
+                    if systemTimezone != TimeZone.current.abbreviation() {
+                        Chat.setChatsToTimezoneUpdated(context: backgroundContext)
+                    }
+                }
+                
+                UserDefaults.Keys.systemTimezone.set(TimeZone.current.abbreviation())
+                UserDefaults.Keys.didMigrateToTZ.set(true)
+                
+                backgroundContext.saveContext()
+            }
+        }
+    }
+    
+    public static func resetTimezones(context: NSManagedObjectContext) {
+        let chats: [Chat] = Chat.getAll(context: context)
+        
+        for chat in chats {
+            chat.remoteTimezoneIdentifier = nil
+            chat.timezoneIdentifier = nil
+            chat.timezoneEnabled = true
+            chat.timezoneUpdated = true
+        }
+    }
+    
+    public static func setChatsToTimezoneUpdated(context: NSManagedObjectContext) {
+        let predicate = NSPredicate(format: "timezoneIdentifier == nil && timezoneEnabled == true")
+        
+        let chats: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: [],
+            entityName: "Chat",
+            managedContext: context
+        )
+        
+        for chat in chats {
+            chat.timezoneUpdated = true
+        }
     }
     
     func removedFromGroup() -> Bool {

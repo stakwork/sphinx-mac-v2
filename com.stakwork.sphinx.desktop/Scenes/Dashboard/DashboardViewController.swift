@@ -105,6 +105,7 @@ class DashboardViewController: NSViewController {
         addPresenterVC()
         addDetailVCPresenter()
         
+        Chat.processTimezoneChanges()
         connectToServer()
         askForNotificationsPermission()
     }
@@ -358,6 +359,34 @@ class DashboardViewController: NSViewController {
             
             if isRestore {
                 self.finishUserInfoSetup()
+            }
+        }
+    }
+    
+    func processTimezoneChanges() {
+        DispatchQueue.global(qos: .background).async {
+            let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+            
+            backgroundContext.perform { [weak self] in
+                guard let _ = self else {
+                    return
+                }
+                let didMigrateToTZ: Bool = UserDefaults.Keys.didMigrateToTZ.get(defaultValue: false)
+                
+                if !didMigrateToTZ {
+                    Chat.resetTimezones(context: backgroundContext)
+                }
+                
+                if let systemTimezone: String? = UserDefaults.Keys.systemTimezone.get() {
+                    if systemTimezone != TimeZone.current.abbreviation() {
+                        Chat.setChatsToTimezoneUpdated(context: backgroundContext)
+                    }
+                }
+                
+                UserDefaults.Keys.systemTimezone.set(TimeZone.current.abbreviation())
+                UserDefaults.Keys.didMigrateToTZ.set(true)
+                
+                backgroundContext.saveContext()
             }
         }
     }

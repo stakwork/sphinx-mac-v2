@@ -478,7 +478,7 @@ extension TransactionMessage {
         let userId = UserData.sharedInstance.getUserId(context: context)
 
         let predicate = NSPredicate(
-            format: "(senderId != %d || type == %d) AND NOT (type IN %@) AND seen == %@ AND chat != null AND id >= 0 AND chat.seen == %@ AND (chat.notify == %d OR (chat.notify == %d AND push == %@))",
+            format: "(senderId != %d || type == %d) AND NOT (type IN %@) AND seen == %@ AND chat != nil AND id >= 0 AND chat.seen == %@ AND (chat.notify == %d OR (chat.notify == %d AND push == %@))",
             userId,
             TransactionMessage.TransactionMessageType.groupJoin.rawValue,
             [
