@@ -281,6 +281,11 @@ class ChatListViewController : DashboardSplittedViewController {
         }
     }
     
+    func shouldReloadChatRowWith(chatId: Int?) {
+        contactChatsContainerViewController.shouldReloadChatRowWith(chatId: chatId)
+        tribeChatsContainerViewController.shouldReloadChatRowWith(chatId: chatId)
+    }
+    
     @IBAction func addContactButtonClicked(_ sender: Any) {
         let addFriendVC = AddFriendViewController.instantiate(delegate: self, dismissDelegate: self)
         

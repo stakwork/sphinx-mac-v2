@@ -779,6 +779,10 @@ extension DashboardViewController : DashboardVCDelegate {
         }
     }
     
+    func shouldReloadChatRowWith(chatId: Int?) {
+        listViewController?.shouldReloadChatRowWith(chatId: chatId)
+    }
+    
     func goToInviteCodeString(inviteCode: String) {
         if inviteCode == "" {
             return

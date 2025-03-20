@@ -81,6 +81,12 @@ class NewChatListViewController: NSViewController {
         configureDataSource()
     }
     
+    func shouldReloadChatRowWith(chatId: Int?) {
+        if let indexOf = chatListObjects.firstIndex(where: { chatId == $0.getChat()?.id }) {
+            chatsCollectionView.reloadItems(at: [IndexPath(item: indexOf, section: 0)])
+        }
+    }
+    
 }
 
 // MARK: - Layout & Data Structure
