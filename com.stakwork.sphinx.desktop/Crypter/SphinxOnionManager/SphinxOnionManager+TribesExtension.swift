@@ -119,7 +119,7 @@ extension SphinxOnionManager {
                 state: loadOnionStateAsData(),
                 tribePubkey: tribePubkey,
                 tribeRouteHint: routeHint,
-                alias: (alias ?? "Unknown").replacingOccurrences(of: " ", with: "_"),
+                alias: (alias ?? "Unknown").fixedAlias,
                 amtMsat: UInt64(joinAmountMsats),
                 isPrivate: isPrivate
             )
