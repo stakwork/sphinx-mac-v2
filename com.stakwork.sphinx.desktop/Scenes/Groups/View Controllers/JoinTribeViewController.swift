@@ -146,8 +146,7 @@ class JoinTribeViewController: NSViewController {
         tribeMemberInfoView.configureWith(
             vc: self,
             alias: owner?.nickname,
-            picture: owner?.getPhotoUrl(),
-            shouldFixAlias: true
+            picture: owner?.getPhotoUrl()
         )
         
         loadingGroup = false

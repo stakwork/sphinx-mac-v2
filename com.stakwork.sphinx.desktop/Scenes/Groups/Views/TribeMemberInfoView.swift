@@ -57,14 +57,13 @@ class TribeMemberInfoView: NSView, LoadableNib {
     func configureWith(
         vc: NSViewController,
         alias: String?,
-        picture: String? = nil,
-        shouldFixAlias: Bool = false
+        picture: String? = nil
     ) {
         if let vc = vc as? TribeMemberInfoDelegate {
             self.delegate = vc
         }
         
-        aliasTextField.stringValue = (shouldFixAlias ? alias?.fixedAlias : alias) ?? ""
+        aliasTextField.stringValue = (alias ?? "").fixedAlias
         pictureTextField.stringValue = picture ?? ""
         
         aliasTextField.delegate = self
