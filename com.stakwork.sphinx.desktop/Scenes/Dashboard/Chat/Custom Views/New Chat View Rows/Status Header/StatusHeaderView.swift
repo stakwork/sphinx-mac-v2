@@ -120,7 +120,7 @@ class StatusHeaderView: NSView, LoadableNib {
         remoteTimezoneIdentifier.isHidden = true
         
         if let timezoneString = timezoneString {
-            remoteTimezoneIdentifier.stringValue = timezoneString
+            remoteTimezoneIdentifier.stringValue = "/  \(timezoneString)"
             remoteTimezoneIdentifier.isHidden = false
         }
     }

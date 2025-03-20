@@ -113,18 +113,18 @@
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </textFieldCell>
                         </textField>
-                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZXl-Nk-CBe">
-                            <rect key="frame" x="102" y="3" width="16" height="12"/>
-                            <textFieldCell key="cell" lineBreakMode="clipping" title="lock" id="wYb-4H-rgU">
-                                <font key="font" size="12" name="MaterialIcons-Regular"/>
-                                <color key="textColor" name="SecondaryText"/>
-                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            </textFieldCell>
-                        </textField>
                         <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XGA-YB-g5y">
                             <rect key="frame" x="-2" y="6" width="89" height="11"/>
                             <textFieldCell key="cell" lineBreakMode="clipping" title="America/Argentina" id="3h6-TY-yI7">
                                 <font key="font" size="10" name="Roboto-Regular"/>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZXl-Nk-CBe">
+                            <rect key="frame" x="102" y="3" width="16" height="12"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="lock" id="wYb-4H-rgU">
+                                <font key="font" size="12" name="MaterialIcons-Regular"/>
                                 <color key="textColor" name="SecondaryText"/>
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                             </textFieldCell>
