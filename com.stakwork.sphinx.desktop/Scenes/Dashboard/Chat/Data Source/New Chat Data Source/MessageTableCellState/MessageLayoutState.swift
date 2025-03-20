@@ -70,7 +70,7 @@ struct BubbleMessageLayoutState {
         var expirationTimestamp: String?
         var timestamp: String
         var messageDate: Date
-        var remoteTimezoneIdentifier: String?
+        var timezoneString: String?
         
         init(
             senderName: String?,
@@ -88,7 +88,7 @@ struct BubbleMessageLayoutState {
             expirationTimestamp: String?,
             timestamp: String,
             messageDate: Date,
-            remoteTimezoneIdentifier: String? = nil
+            timezoneString: String? = nil
         ) {
             self.senderName = senderName
             self.color = color
@@ -105,7 +105,7 @@ struct BubbleMessageLayoutState {
             self.expirationTimestamp = expirationTimestamp
             self.timestamp = timestamp
             self.messageDate = messageDate
-            self.remoteTimezoneIdentifier = remoteTimezoneIdentifier
+            self.timezoneString = timezoneString
         }
     }
     
