@@ -90,7 +90,7 @@ class StatusHeaderView: NSView, LoadableNib {
         expiredInvoiceReceivedHeader.isHidden = !statusHeader.showExpiredReceived
         
         configureWith(expirationTimestamp: statusHeader.expirationTimestamp)
-        configureTimezoneWith(timezoneString: statusHeader.remoteTimezoneIdentifier)
+        configureTimezoneWith(timezoneString: statusHeader.timezoneString)
         
         let thirtySecondsAgo = Date().addingTimeInterval(-30)
         let isScheduleVisible = statusHeader.showScheduleIcon && statusHeader.messageDate < thirtySecondsAgo
@@ -120,16 +120,8 @@ class StatusHeaderView: NSView, LoadableNib {
         remoteTimezoneIdentifier.isHidden = true
         
         if let timezoneString = timezoneString {
-            let timezone = TimeZone(abbreviation: timezoneString) ?? TimeZone(identifier: timezoneString)
-            
-            if let timezone = timezone {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "hh:mm a"
-                dateFormatter.timeZone = timezone
-
-                remoteTimezoneIdentifier.stringValue = "\(dateFormatter.string(from: Date())) \(timezone.abbreviation() ?? timezone.identifier)"
-                remoteTimezoneIdentifier.isHidden = false
-            }
+            remoteTimezoneIdentifier.stringValue = timezoneString
+            remoteTimezoneIdentifier.isHidden = false
         }
     }
     
