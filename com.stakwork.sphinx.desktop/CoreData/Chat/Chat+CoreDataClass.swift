@@ -374,12 +374,24 @@ public class Chat: NSManagedObject {
             }
             if let alias = message.senderAlias, alias.isNotEmpty {
                 if let picture = message.senderPic, picture.isNotEmpty {
+                    if message.isGroupLeaveMessage() {
+                        if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
+                            aliasesAndPics.remove(at: index)
+                        }
+                        continue
+                    }
                     if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
                         self.aliasesAndPics.append(
                             (alias, message.senderPic ?? "")
                         )
                     }
                 } else {
+                    if message.isGroupLeaveMessage() {
+                        if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+                            aliasesAndPics.remove(at: index)
+                        }
+                        continue
+                    }
                     if !aliasesAndPics.contains(where: { $0.0 == alias }) {
                         self.aliasesAndPics.append(
                             (alias, message.senderPic ?? "")
