@@ -127,13 +127,13 @@
                             </customSpacing>
                         </stackView>
                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="eH1-GB-wrF">
-                            <rect key="frame" x="22" y="0.0" width="527" height="50"/>
+                            <rect key="frame" x="22" y="0.0" width="583" height="50"/>
                             <subviews>
                                 <stackView distribution="equalSpacing" orientation="vertical" alignment="leading" spacing="3" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jwx-pk-wRo">
-                                    <rect key="frame" x="0.0" y="3" width="519" height="44"/>
+                                    <rect key="frame" x="0.0" y="3" width="575" height="44"/>
                                     <subviews>
                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="puL-ef-n3H">
-                                            <rect key="frame" x="-2" y="30" width="523" height="14"/>
+                                            <rect key="frame" x="-2" y="30" width="579" height="14"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Unknown" id="rRt-hC-3GE">
                                                 <font key="font" size="12" name="Roboto-Medium"/>
                                                 <color key="textColor" name="SphinxOrange"/>
@@ -141,7 +141,7 @@
                                             </textFieldCell>
                                         </textField>
                                         <textField focusRingType="none" translatesAutoresizingMaskIntoConstraints="NO" id="LMq-zJ-1iz">
-                                            <rect key="frame" x="-2" y="0.0" width="523" height="16"/>
+                                            <rect key="frame" x="-2" y="0.0" width="579" height="16"/>
                                             <textFieldCell key="cell" title="Label" id="267-xo-kC9">
                                                 <font key="font" size="14" name="Roboto-Light"/>
                                                 <color key="textColor" name="Text"/>
@@ -170,8 +170,8 @@
                                 <constraint firstItem="jwx-pk-wRo" firstAttribute="leading" secondItem="eH1-GB-wrF" secondAttribute="leading" id="fgQ-RV-Qq6"/>
                             </constraints>
                         </customView>
-                        <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="tA5-8v-xHS">
-                            <rect key="frame" x="556" y="0.0" width="49" height="50"/>
+                        <box hidden="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="tA5-8v-xHS">
+                            <rect key="frame" x="0.0" y="0.0" width="49" height="50"/>
                             <view key="contentView" id="VH4-PX-aJb">
                                 <rect key="frame" x="0.0" y="0.0" width="49" height="50"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

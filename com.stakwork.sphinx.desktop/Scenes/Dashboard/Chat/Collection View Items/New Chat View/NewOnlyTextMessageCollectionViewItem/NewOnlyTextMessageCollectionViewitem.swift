@@ -89,7 +89,7 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         searchingTerm: String?,
         indexPath: IndexPath,
         collectionViewWidth: CGFloat,
-        replyViewAdditionalHeight: CGFloat
+        replyViewAdditionalHeight: CGFloat?
     ) {
         var mutableMessageCellState = messageCellState
         

@@ -20,7 +20,7 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
         searchingTerm: String?,
         indexPath: IndexPath,
         collectionViewWidth: CGFloat,
-        replyViewAdditionalHeight: CGFloat
+        replyViewAdditionalHeight: CGFloat?
     )
 }
 

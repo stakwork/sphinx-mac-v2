@@ -42,8 +42,6 @@ class NewMessageReplyView: NSView, LoadableNib {
     @IBOutlet weak var viewButton: CustomButton!
     
     static let kViewHeight: CGFloat = 50.0
-    static let kViewWidth: CGFloat = 418.0
-    static let kViewWithMediaWidth: CGFloat = 371.0
     static let kViewLabelVerticalMargins: CGFloat = 34.0
     
     var isMouseOver: Bool = false
@@ -81,7 +79,11 @@ class NewMessageReplyView: NSView, LoadableNib {
         viewButton.isHidden = false
         closeButtonContainer.isHidden = true
         
-        messageLabel.textColor = bubble.direction.isIncoming() ? NSColor.Sphinx.WashedOutReceivedText : NSColor.Sphinx.WashedOutSentText
+        if isMouseOver {
+            messageLabel.textColor = NSColor.Sphinx.Text.withAlphaComponent(0.9)
+        } else {
+            messageLabel.textColor = bubble.direction.isIncoming() ? NSColor.Sphinx.WashedOutReceivedText : NSColor.Sphinx.WashedOutSentText
+        }
         
         coloredLineView.fillColor = messageReply.color
         senderLabel.textColor = messageReply.color
@@ -230,11 +232,10 @@ class NewMessageReplyView: NSView, LoadableNib {
         if !isMouseOver && !trackingMouseOver {
             
             trackingMouseOver = true
-            
-            let labelWidth = mediaContainerView.isHidden ? NewMessageReplyView.kViewWidth : NewMessageReplyView.kViewWithMediaWidth
+
             let expandedViewHeight = ChatHelper.getTextHeightFor(
                 text: messageLabel.stringValue,
-                width: labelWidth,
+                width: self.messageLabel.frame.width,
                 font: messageLabel.font,
                 labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
                 labelHorizontalMargins: 0

@@ -13,11 +13,11 @@ extension NewMessageCollectionViewItem {
     func configureWith(
         messageReply: BubbleMessageLayoutState.MessageReply?,
         and bubble: BubbleMessageLayoutState.Bubble,
-        replyViewAdditionalHeight: CGFloat
+        replyViewAdditionalHeight: CGFloat?
     ) {
         if let messageReply = messageReply {
-            replyViewHeightConstraint.constant = NewMessageReplyView.kViewHeight + replyViewAdditionalHeight
-            messageReplyView.configureWith(messageReply: messageReply, and: bubble, delegate: self, isMouseOver: replyViewAdditionalHeight > 0)
+            replyViewHeightConstraint.constant = NewMessageReplyView.kViewHeight + (replyViewAdditionalHeight ?? 0)
+            messageReplyView.configureWith(messageReply: messageReply, and: bubble, delegate: self, isMouseOver: replyViewAdditionalHeight != nil)
             messageReplyView.layoutSubtreeIfNeeded()
             messageReplyView.isHidden = false
         }

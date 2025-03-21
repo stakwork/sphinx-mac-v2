@@ -69,7 +69,7 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
         searchingTerm: String?,
         indexPath: IndexPath,
         collectionViewWidth: CGFloat,
-        replyViewAdditionalHeight: CGFloat
+        replyViewAdditionalHeight: CGFloat?
     ) {
         hideAllSubviews()
         

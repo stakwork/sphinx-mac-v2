@@ -80,7 +80,7 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         searchingTerm: String?,
         indexPath: IndexPath,
         collectionViewWidth: CGFloat,
-        replyViewAdditionalHeight: CGFloat
+        replyViewAdditionalHeight: CGFloat?
     ) {
         hideAllSubviews()
         

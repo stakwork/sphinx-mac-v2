@@ -135,7 +135,7 @@ extension NewChatTableDataSource {
             searchingTerm: self.searchingTerm,
             indexPath: indexPath,
             collectionViewWidth: collectionView.frame.width,
-            replyViewAdditionalHeight: (replyViewAdditionalHeight ?? 0)
+            replyViewAdditionalHeight: replyViewAdditionalHeight
         )
 
         return (cell as? NSCollectionViewItem) ?? NSCollectionViewItem()
