@@ -13,6 +13,7 @@ extension Notification.Name {
     static let shouldUpdateDashboard = Notification.Name("shouldUpdateDashboard")
     static let shouldResetChat = Notification.Name("shouldResetChat")
     static let shouldReloadViews = Notification.Name("shouldReloadViews")
+    static let shouldReloadChatLists = Notification.Name("shouldReloadChatLists")
     static let shouldReloadTribeData = Notification.Name("shouldReloadTribeData")
     static let onPubKeyClick = Notification.Name("onPubKeyClick")
     static let onJoinTribeClick = Notification.Name("onJoinTribeClick")

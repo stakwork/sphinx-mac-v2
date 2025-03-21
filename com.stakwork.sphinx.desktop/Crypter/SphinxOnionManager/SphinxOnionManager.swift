@@ -371,6 +371,7 @@ class SphinxOnionManager : NSObject {
             if !isV2Restore {
                 getReads()
                 getMuteLevels()
+                getMessagesStatusForPendingMessages()
                 hideRestoreViewCallback?(false)
             }
             return
@@ -452,7 +453,7 @@ class SphinxOnionManager : NSObject {
                 self.messageRestoreCallback = nil
 
                 self.getReads()
-                getMuteLevels()
+                self.getMuteLevels()
                 self.syncNewMessages()
             }
         }

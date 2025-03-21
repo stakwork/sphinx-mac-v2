@@ -160,6 +160,14 @@ class DashboardViewController: NSViewController {
         }
         
         NotificationCenter.default.addObserver(
+            forName: .shouldReloadChatLists,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            self?.reloadChatLists()
+        }
+        
+        NotificationCenter.default.addObserver(
             forName: .shouldResetChat,
             object: nil,
             queue: OperationQueue.main
@@ -348,6 +356,7 @@ class DashboardViewController: NSViewController {
     func refreshUnreadStatus(){
         SphinxOnionManager.sharedInstance.getReads()
         SphinxOnionManager.sharedInstance.getMuteLevels()
+        SphinxOnionManager.sharedInstance.getMessagesStatusForPendingMessages()
     }
     
     func hideRestoreViewCallback(isRestore: Bool){
@@ -622,6 +631,11 @@ class DashboardViewController: NSViewController {
         self.listViewController?.contactChatsContainerViewController.forceReload()
         self.listViewController?.tribeChatsContainerViewController.forceReload()
         self.newDetailViewController?.forceReload()
+    }
+    
+    func reloadChatLists() {
+        self.listViewController?.contactChatsContainerViewController.forceReload()
+        self.listViewController?.tribeChatsContainerViewController.forceReload()
     }
     
     func reloadData() {

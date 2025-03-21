@@ -661,6 +661,8 @@ extension SphinxOnionManager {
                             }
                             
                             self.backgroundContext.saveContext()
+                            
+                            NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil)
                         }
                     }
                 } catch {

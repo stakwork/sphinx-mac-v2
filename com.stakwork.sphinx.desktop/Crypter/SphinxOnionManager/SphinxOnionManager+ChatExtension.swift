@@ -1826,6 +1826,33 @@ extension SphinxOnionManager {
         }
     }
     
+    func getMessagesStatusForPendingMessages() {
+        let dispatchQueue = DispatchQueue.global(qos: .utility)
+        dispatchQueue.async {
+            let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+            
+            backgroundContext.performAndWait {
+                let messages = TransactionMessage.getAllNotConfirmed()
+                
+                if messages.isEmpty {
+                    return
+                }
+                
+                Task {
+                    for i in stride(from: 0, to: messages.count, by: 200) {
+                        let chunk = Array(messages[i..<min(i + 200, messages.count)])
+                        
+                        let tags = chunk.compactMap({ $0.tag })
+                        
+                        SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
+                        
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                    }
+                }
+            }
+        }
+    }
+    
     func getMessagesStatusFor(tags: [String]) {
         guard let seed = getAccountSeed() else{
             return
