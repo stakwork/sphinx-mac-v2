@@ -55,6 +55,25 @@ extension TransactionMessage {
         return messages
     }
     
+    static func getAllNotConfirmed() -> [TransactionMessage] {
+        let predicate = NSPredicate(
+            format: "senderId == %d AND (status == %d OR status == %d)",
+            UserData.sharedInstance.getUserId(),
+            TransactionMessage.TransactionMessageStatus.confirmed.rawValue,
+            TransactionMessage.TransactionMessageStatus.pending.rawValue
+        )
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            fetchLimit: 1000
+        )
+        
+        return messages
+    }
+    
     static func getAllInvoices() -> [TransactionMessage] {
         let predicate = NSPredicate(format: "type == %d", TransactionMessage.TransactionMessageType.invoice.rawValue)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
