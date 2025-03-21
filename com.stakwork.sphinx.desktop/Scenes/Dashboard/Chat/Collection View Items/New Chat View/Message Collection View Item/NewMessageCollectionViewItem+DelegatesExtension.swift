@@ -22,6 +22,18 @@ extension NewMessageCollectionViewItem : NewMessageReplyViewDelegate {
             delegate?.didTapMessageReplyFor(messageId: messageId, and: rowIndex)
         }
     }
+    
+    func onReplyViewMouseOver(additionalViewHeight: CGFloat) {
+        if let messageId = messageId {
+            delegate?.onReplyViewMouseOver(messageId: messageId, rowIndex: rowIndex, additionalHeight: additionalViewHeight)
+        }
+    }
+    
+    func onReplyViewMouseExit() {
+        if let messageId = messageId {
+            delegate?.onReplyViewMouseExit(messageId: messageId, rowIndex: rowIndex)
+        }
+    }
 }
 
 extension NewMessageCollectionViewItem : LinkPreviewDelegate {

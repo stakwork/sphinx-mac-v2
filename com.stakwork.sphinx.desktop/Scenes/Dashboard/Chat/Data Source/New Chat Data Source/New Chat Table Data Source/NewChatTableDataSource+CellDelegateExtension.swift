@@ -23,6 +23,42 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         }
     }
     
+    func onReplyViewMouseOver(messageId: Int, rowIndex: Int, additionalHeight: CGFloat) {
+        replyViewAdditionalHeight[messageId] = additionalHeight
+        
+        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+    }
+    
+    func onReplyViewMouseExit(messageId: Int, rowIndex: Int) {
+        replyViewAdditionalHeight[messageId] = nil
+        
+        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+    }
+    
+    func updateMessageTableCellStateFor(
+        rowIndex: Int,
+        messageId: Int
+    ) {
+        if let tableCellState = getTableCellStateFor(
+            messageId: messageId,
+            and: rowIndex
+        )
+        {
+            self.saveSnapshotCurrentState()
+            var snapshot = self.dataSource.snapshot()
+            
+            if snapshot.itemIdentifiers.contains(tableCellState.1) {
+                dataSourceQueue.sync {
+                    snapshot.reloadItems([tableCellState.1])
+                    
+                    DispatchQueue.main.async {
+                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                    }
+                }
+            }
+        }
+    }
+    
     func shouldLoadTribeInfoFor(
         messageId: Int,
         and rowIndex: Int

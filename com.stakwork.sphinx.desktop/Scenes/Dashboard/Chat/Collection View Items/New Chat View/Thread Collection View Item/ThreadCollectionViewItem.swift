@@ -94,7 +94,8 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
-        collectionViewWidth: CGFloat
+        collectionViewWidth: CGFloat,
+        replyViewAdditionalHeight: CGFloat?
     ) {
         hideAllSubviews()
         

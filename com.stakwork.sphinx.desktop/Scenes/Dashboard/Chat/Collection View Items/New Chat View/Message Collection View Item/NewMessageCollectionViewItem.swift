@@ -26,6 +26,7 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
     
     ///First Container
     @IBOutlet weak var messageReplyView: NewMessageReplyView!
+    @IBOutlet weak var replyViewHeightConstraint: NSLayoutConstraint!
     
     ///Second Container
     @IBOutlet weak var invoicePaymentView: InvoicePaymentView!
@@ -78,7 +79,8 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
-        collectionViewWidth: CGFloat
+        collectionViewWidth: CGFloat,
+        replyViewAdditionalHeight: CGFloat?
     ) {
         hideAllSubviews()
         
@@ -112,7 +114,11 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         ) 
         
         ///Message Reply
-        configureWith(messageReply: mutableMessageCellState.messageReply, and: bubble)
+        configureWith(
+            messageReply: mutableMessageCellState.messageReply,
+            and: bubble,
+            replyViewAdditionalHeight: replyViewAdditionalHeight
+        )
 
         ///Paid Content
         configureWith(paidContent: mutableMessageCellState.paidContent, and: bubble)
