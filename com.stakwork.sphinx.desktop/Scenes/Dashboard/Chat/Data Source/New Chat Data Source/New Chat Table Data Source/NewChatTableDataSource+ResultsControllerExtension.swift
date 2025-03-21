@@ -122,6 +122,7 @@ extension NewChatTableDataSource {
         let tribeData = (dataSourceItem.linkTribe?.uuid != nil) ? self.preloaderHelper.tribesData[dataSourceItem.linkTribe!.uuid] : nil
         let linkData = (dataSourceItem.linkWeb?.link != nil) ? self.preloaderHelper.linksData[dataSourceItem.linkWeb!.link] : nil
         let uploadProgressData = (dataSourceItem.messageId != nil) ? self.uploadingProgress[dataSourceItem.messageId!] : nil
+        let replyViewAdditionalHeight = (dataSourceItem.messageId != nil) ? self.replyViewAdditionalHeight[dataSourceItem.messageId!] : nil
 
         cell?.configureWith(
             messageCellState: dataSourceItem,
@@ -133,7 +134,8 @@ extension NewChatTableDataSource {
             delegate: self,
             searchingTerm: self.searchingTerm,
             indexPath: indexPath,
-            collectionViewWidth: collectionView.frame.width
+            collectionViewWidth: collectionView.frame.width,
+            replyViewAdditionalHeight: (replyViewAdditionalHeight ?? 0)
         )
 
         return (cell as? NSCollectionViewItem) ?? NSCollectionViewItem()

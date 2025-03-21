@@ -320,6 +320,7 @@ class ChatHelper {
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        replyViewAdditionalHeight: CGFloat? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         var mutableTableCellState = tableCellState
@@ -372,7 +373,8 @@ class ChatHelper {
             tableCellState,
             linkData: linkData,
             tribeData: tribeData,
-            mediaData: mediaData
+            mediaData: mediaData,
+            replyViewAdditionalHeight: replyViewAdditionalHeight
         )
         
         return textHeight + (kGeneralMargin * 2) + statusHeaderheight + viewsHeight
@@ -526,7 +528,7 @@ class ChatHelper {
                 text: text,
                 width: width,
                 font: font,
-                labelMargins: 0
+                labelVerticalMargins: 0
             )
         }
         
@@ -537,14 +539,15 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
-        mediaData: MessageTableCellState.MediaData? = nil
+        mediaData: MessageTableCellState.MediaData? = nil,
+        replyViewAdditionalHeight: CGFloat? = nil
     ) -> CGFloat {
         
         var mutableTableCellState = tableCellState
         var viewsHeight: CGFloat = 0.0
         
         if let _ = mutableTableCellState.replyingMessage {
-            viewsHeight += NewMessageReplyView.kViewHeight
+            viewsHeight += NewMessageReplyView.kViewHeight + (replyViewAdditionalHeight ?? 0)
         }
         
         if let _ = mutableTableCellState.directPayment {
@@ -649,7 +652,8 @@ class ChatHelper {
         boldMatches: [NSTextCheckingResult]? = [],
         linkMatches: [NSTextCheckingResult]? = [],
         linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = [],
-        labelMargins: CGFloat? = nil
+        labelVerticalMargins: CGFloat? = nil,
+        labelHorizontalMargins: CGFloat? = nil
     ) -> CGFloat {
         let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
         let attributedString = NSMutableAttributedString(string: text, attributes: attrs)
@@ -737,8 +741,8 @@ class ChatHelper {
             }
         }
         
-        let kLabelHorizontalMargins: CGFloat = 32.0
-        let kLabelVerticalMargins: CGFloat = labelMargins ?? 32.0
+        let kLabelHorizontalMargins: CGFloat = labelHorizontalMargins ?? 32.0
+        let kLabelVerticalMargins: CGFloat = labelVerticalMargins ?? 32.0
         
         let textHeight = attributedString.boundingRect(
             with: NSSize(width: width - kLabelHorizontalMargins, height: CGFLOAT_MAX),

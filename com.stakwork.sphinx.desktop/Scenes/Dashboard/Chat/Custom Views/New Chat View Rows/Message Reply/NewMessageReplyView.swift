@@ -11,6 +11,8 @@ import Cocoa
 @objc protocol NewMessageReplyViewDelegate: AnyObject {
     @objc optional func didTapMessageReplyView()
     @objc optional func didCloseReplyView()
+    @objc optional func onReplyViewMouseOver(additionalViewHeight: CGFloat)
+    @objc optional func onReplyViewMouseExit()
 }
 
 class NewMessageReplyView: NSView, LoadableNib {
@@ -40,6 +42,12 @@ class NewMessageReplyView: NSView, LoadableNib {
     @IBOutlet weak var viewButton: CustomButton!
     
     static let kViewHeight: CGFloat = 50.0
+    static let kViewWidth: CGFloat = 418.0
+    static let kViewWithMediaWidth: CGFloat = 371.0
+    static let kViewLabelVerticalMargins: CGFloat = 34.0
+    
+    var isMouseOver: Bool = false
+    var trackingMouseOver: Bool = false
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -61,8 +69,10 @@ class NewMessageReplyView: NSView, LoadableNib {
     func configureWith(
         messageReply: BubbleMessageLayoutState.MessageReply,
         and bubble: BubbleMessageLayoutState.Bubble,
-        delegate: NewMessageReplyViewDelegate? = nil
+        delegate: NewMessageReplyViewDelegate? = nil,
+        isMouseOver: Bool
     ) {
+        self.isMouseOver = isMouseOver
         self.delegate = delegate
         
         self.wantsLayer = true
@@ -191,6 +201,67 @@ class NewMessageReplyView: NSView, LoadableNib {
     
     func resetAndHide() {
         self.isHidden = true
+    }
+    
+    private var trackingArea: NSTrackingArea?
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        // Remove existing tracking area if it exists
+        if let trackingArea = trackingArea {
+            self.removeTrackingArea(trackingArea)
+        }
+
+        // Create a new tracking area
+        let newTrackingArea = NSTrackingArea(
+            rect: self.bounds,
+            options: [.mouseEnteredAndExited, .activeInKeyWindow],
+            owner: self,
+            userInfo: nil
+        )
+
+        self.addTrackingArea(newTrackingArea)
+        self.trackingArea = newTrackingArea
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        super.mouseEntered(with: event)
+        if !isMouseOver && !trackingMouseOver {
+            
+            trackingMouseOver = true
+            
+            let labelWidth = mediaContainerView.isHidden ? NewMessageReplyView.kViewWidth : NewMessageReplyView.kViewWithMediaWidth
+            let expandedViewHeight = ChatHelper.getTextHeightFor(
+                text: messageLabel.stringValue,
+                width: labelWidth,
+                font: messageLabel.font,
+                labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
+                labelHorizontalMargins: 0
+            )
+
+            let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
+            delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
+            isMouseOver = true
+            
+            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+                self.trackingMouseOver = false
+            })
+        }
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        super.mouseExited(with: event)
+        if isMouseOver && !trackingMouseOver {
+            
+            trackingMouseOver = true
+
+            delegate?.onReplyViewMouseExit?()
+            
+            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+                self.trackingMouseOver = false
+            })
+        }
     }
     
     @IBAction func replyButtonClicked(_ sender: Any) {

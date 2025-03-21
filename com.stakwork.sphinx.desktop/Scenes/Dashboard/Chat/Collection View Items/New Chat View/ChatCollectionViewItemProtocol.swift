@@ -19,7 +19,8 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
-        collectionViewWidth: CGFloat
+        collectionViewWidth: CGFloat,
+        replyViewAdditionalHeight: CGFloat
     )
 }
 
@@ -40,6 +41,8 @@ protocol ChatCollectionViewItemDelegate: AnyObject {
     //Actions handling
     ///Message reply
     func didTapMessageReplyFor(messageId: Int, and rowIndex: Int)
+    func onReplyViewMouseOver(messageId: Int, rowIndex: Int, additionalHeight: CGFloat)
+    func onReplyViewMouseExit(messageId: Int, rowIndex: Int)
     ///Avatar view
     func didTapAvatarViewFor(messageId: Int, and rowIndex: Int)
     ///Call Links

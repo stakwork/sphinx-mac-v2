@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -116,7 +116,7 @@
                                                 <customView horizontalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="3Zu-1O-esC" customClass="NewMessageReplyView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="1482" width="500" height="50"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" priority="750" constant="50" id="k9G-sk-rjV"/>
+                                                        <constraint firstAttribute="height" constant="50" id="k9G-sk-rjV"/>
                                                     </constraints>
                                                 </customView>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="q5m-wU-yEJ" customClass="DirectPaymentView" customModule="Sphinx" customModuleProvider="target">
@@ -479,6 +479,7 @@
                 <outlet property="receivedArrow" destination="Viu-pF-fdW" id="sI8-ku-0Uj"/>
                 <outlet property="receivedMessageMarginView" destination="QnT-Cm-qyW" id="Oxy-Wv-At8"/>
                 <outlet property="receivedMessageMenuButton" destination="UQJ-sx-Qvb" id="t4G-tu-bin"/>
+                <outlet property="replyViewHeightConstraint" destination="k9G-sk-rjV" id="cyT-Z2-St7"/>
                 <outlet property="rightLineContainer" destination="aXK-p2-lS1" id="DcE-ln-Vxt"/>
                 <outlet property="rightPaymentDot" destination="Mxe-5f-yrE" id="MIc-KT-ceu"/>
                 <outlet property="sentArrow" destination="RsB-r9-lHO" id="jc9-ch-K5Z"/>

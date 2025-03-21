@@ -127,7 +127,7 @@ extension TransactionsDataSource : NSCollectionViewDelegateFlowLayout {
                 text: transaction.errorMessage ?? "",
                 width: kViewWidth - kErrorMessageHorizontalMargins,
                 font: NSFont(name: "Roboto-Regular", size: 14.0)!,
-                labelMargins: kErrorMessageBottomMargin
+                labelVerticalMargins: kErrorMessageBottomMargin
             )
             
             return NSSize(width: collectionView.frame.size.width, height: kViewDefaultHeight + textHeight)
