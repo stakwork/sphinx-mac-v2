@@ -228,6 +228,12 @@ class GroupDetailsViewController: NSViewController {
             return
         }
         
+        let didChangeAlias = self.chat.myAlias != alias
+        
+        if didChangeAlias && self.chat.timezoneEnabled {
+            self.chat.timezoneUpdated = true
+        }
+        
         self.chat.myAlias = alias
         self.chat.myPhotoUrl = photoUrl ?? self.chat.myPhotoUrl
         self.chat.saveChat()

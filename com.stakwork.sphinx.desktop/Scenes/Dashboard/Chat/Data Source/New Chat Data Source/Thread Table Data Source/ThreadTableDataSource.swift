@@ -108,6 +108,7 @@ class ThreadTableDataSource : NewChatTableDataSource {
             tribeAdmin: tribeAdmin,
             bubbleState: MessageTableCellState.BubbleState.Isolated,
             boostMessages: boostMessages,
+            timezoneData: chat.timezoneData,
             isThreadHeaderMessage: true
         )
         

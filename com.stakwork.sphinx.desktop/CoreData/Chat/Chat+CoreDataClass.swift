@@ -18,6 +18,7 @@ public class Chat: NSManagedObject {
     
     var tribeInfo: GroupsManager.TribeInfo? = nil
     var aliasesAndPics: [(String, String)] = []
+    var timezoneData: [String: String] = [:]
     
     public enum ChatType: Int {
         case conversation = 0
@@ -373,6 +374,9 @@ public class Chat: NSManagedObject {
                 continue
             }
             if let alias = message.senderAlias, alias.isNotEmpty {
+                if let remoteTimezoneIdentifier = message.remoteTimezoneIdentifier, remoteTimezoneIdentifier.isNotEmpty {
+                    timezoneData[alias] = remoteTimezoneIdentifier
+                }
                 if let picture = message.senderPic, picture.isNotEmpty {
                     if message.isGroupLeaveMessage() {
                         if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
