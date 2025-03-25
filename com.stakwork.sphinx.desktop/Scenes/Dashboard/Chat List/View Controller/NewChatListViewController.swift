@@ -81,12 +81,40 @@ class NewChatListViewController: NSViewController {
         configureDataSource()
     }
     
-    func shouldReloadChatRowWith(chatId: Int?) {
-        if let indexOf = chatListObjects.firstIndex(where: { chatId == $0.getChat()?.id }) {
-            chatsCollectionView.reloadItems(at: [IndexPath(item: indexOf, section: 0)])
-        }
+    func shouldReloadChatRowWith(chatId: Int) {
+        shouldReloadChatRowsFor(chatIds: [chatId])
     }
     
+    func shouldReloadChatRowsFor(chatIds: [Int]) {
+        self.dataSourceQueue.sync {
+            
+            guard let dataSource = self.dataSource else {
+                return
+            }
+            
+            var snapshot = dataSource.snapshot()
+            var itemIdentifiers: [DataSourceItem] = []
+            
+            let indexes = self.chatListObjects.indices.filter {
+                if let chatId = self.chatListObjects[$0].getChat()?.id {
+                    return chatIds.contains( chatId )
+                }
+                return false
+            }
+            
+            for index in indexes {
+                if index < snapshot.itemIdentifiers.count {
+                    itemIdentifiers.append(snapshot.itemIdentifiers[index])
+                }
+            }
+            
+            snapshot.reloadItems(itemIdentifiers)
+            
+            DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: true)
+            }
+        }
+    }
 }
 
 // MARK: - Layout & Data Structure

@@ -10,7 +10,7 @@ import Cocoa
 
 protocol DashboardVCDelegate: AnyObject {
     func didClickOnChatRow(chatId: Int?, contactId: Int?)
-    func shouldReloadChatRowWith(chatId: Int?)
+    func shouldReloadChatRowWith(chatId: Int)
     func shouldShowRestoreModal(with progress: Int, label: String, buttonEnabled: Bool)
     func shouldHideRetoreModal()
     func shouldShowFullMediaFor(message: TransactionMessage)
