@@ -45,10 +45,11 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         )
         {
             self.saveSnapshotCurrentState()
-            var snapshot = self.dataSource.snapshot()
             
-            if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+            dataSourceQueue.async {
+                var snapshot = self.dataSource.snapshot()
+            
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
                     snapshot.reloadItems([tableCellState.1])
                     
                     DispatchQueue.main.async {
@@ -615,10 +616,10 @@ extension NewChatTableDataSource {
         }
 
         if let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex) {
-            var snapshot = self.dataSource.snapshot()
+            mediaReloadQueue.async {
+                var snapshot = self.dataSource.snapshot()
 
-            if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                mediaReloadQueue.sync {
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
                     snapshot.reloadItems([tableCellState.1])
                     
                     DispatchQueue.main.async {
@@ -651,10 +652,10 @@ extension NewChatTableDataSource {
             )
 
             self.saveSnapshotCurrentState()
-            var snapshot = self.dataSource.snapshot()
+            dataSourceQueue.async {
+                var snapshot = self.dataSource.snapshot()
             
-            if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                if snapshot.itemIdentifiers.contains(tableCellState.1) {
                     snapshot.reloadItems([tableCellState.1])
                     
                     DispatchQueue.main.async {
@@ -677,11 +678,12 @@ extension NewChatTableDataSource {
             if updatedUploadProgressData.progress < 100 {
                 self.uploadingProgress[messageId] = updatedUploadProgressData
                 
-                var snapshot = self.dataSource.snapshot()
+                self.dataSourceQueue.async {
+                    var snapshot = self.dataSource.snapshot()
 
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
                         snapshot.reloadItems([tableCellState.1])
+                        
                         DispatchQueue.main.async {
                             self.dataSource.apply(snapshot, animatingDifferences: false)
                         }
@@ -714,10 +716,11 @@ extension NewChatTableDataSource {
                 if !(self.collectionView.indexPathsForVisibleItems().map { $0.item }).contains(rowIndex) {
                     return
                 }
-                var snapshot = self.dataSource.snapshot()
                 
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                self.dataSourceQueue.async {
+                    var snapshot = self.dataSource.snapshot()
+                
+                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
                         snapshot.reloadItems([tableCellState.1])
                         DispatchQueue.main.async {
                             self.dataSource.apply(snapshot, animatingDifferences: true)

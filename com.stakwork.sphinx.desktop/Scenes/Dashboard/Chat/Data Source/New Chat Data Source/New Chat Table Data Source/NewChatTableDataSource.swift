@@ -126,8 +126,8 @@ class NewChatTableDataSource : NSObject {
     var UIUpdateIndex = 0
     
     ///Data source updates queue
-    let dataSourceQueue = DispatchQueue(label: "chat.datasourceQueue", attributes: .concurrent)
-    let mediaReloadQueue = DispatchQueue(label: "chat.media.datasourceQueue", attributes: .concurrent)
+    let dataSourceQueue = DispatchQueue(label: "chat.datasourceQueue", qos: .userInteractive)
+    let mediaReloadQueue = DispatchQueue(label: "chat.media.datasourceQueue", qos: .userInteractive)
     
     ///Constants
     static let kThreadHeaderRowIndex = -10
