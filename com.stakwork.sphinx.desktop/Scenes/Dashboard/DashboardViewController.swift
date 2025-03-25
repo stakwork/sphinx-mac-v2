@@ -163,8 +163,29 @@ class DashboardViewController: NSViewController {
             forName: .shouldReloadChatLists,
             object: nil,
             queue: OperationQueue.main
-        ) { [weak self] _ in
-            self?.reloadChatLists()
+        ) { [weak self] (n: Notification) in
+            if let chatIds = n.userInfo?["chat-ids"] as? [Int] {
+                self?.reloadChatListsFor(chatIds: chatIds)
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .chatNotificationClicked,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
+                
+                if chat.isPublicGroup() {
+                    self?.contactsService.selectedTribeId = chat.getObjectId()
+                    self?.listViewController?.setActiveTab(.tribes)
+                } else {
+                    self?.contactsService.selectedFriendId = chat.getObjectId()
+                    self?.listViewController?.setActiveTab(.friends)
+                }
+                
+                self?.shouldGoToChat(chatId: chat.id)
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -633,9 +654,9 @@ class DashboardViewController: NSViewController {
         self.newDetailViewController?.forceReload()
     }
     
-    func reloadChatLists() {
-        self.listViewController?.contactChatsContainerViewController.forceReload()
-        self.listViewController?.tribeChatsContainerViewController.forceReload()
+    func reloadChatListsFor(chatIds: [Int]) {
+        self.listViewController?.contactChatsContainerViewController.shouldReloadChatRowsFor(chatIds: chatIds)
+        self.listViewController?.tribeChatsContainerViewController.shouldReloadChatRowsFor(chatIds: chatIds)
     }
     
     func reloadData() {
