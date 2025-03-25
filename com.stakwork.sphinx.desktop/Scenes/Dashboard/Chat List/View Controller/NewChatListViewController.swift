@@ -86,7 +86,7 @@ class NewChatListViewController: NSViewController {
     }
     
     func shouldReloadChatRowsFor(chatIds: [Int]) {
-        self.dataSourceQueue.async {
+        self.dataSourceQueue.sync {
             
             guard let dataSource = self.dataSource else {
                 return
