@@ -814,7 +814,7 @@ extension DashboardViewController : DashboardVCDelegate {
         }
     }
     
-    func shouldReloadChatRowWith(chatId: Int?) {
+    func shouldReloadChatRowWith(chatId: Int) {
         listViewController?.shouldReloadChatRowWith(chatId: chatId)
     }
     

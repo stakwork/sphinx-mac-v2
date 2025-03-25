@@ -81,10 +81,8 @@ class NewChatListViewController: NSViewController {
         configureDataSource()
     }
     
-    func shouldReloadChatRowWith(chatId: Int?) {
-        if let chatId = chatId {
-            shouldReloadChatRowsFor(chatIds: [chatId])
-        }
+    func shouldReloadChatRowWith(chatId: Int) {
+        shouldReloadChatRowsFor(chatIds: [chatId])
     }
     
     func shouldReloadChatRowsFor(chatIds: [Int]) {

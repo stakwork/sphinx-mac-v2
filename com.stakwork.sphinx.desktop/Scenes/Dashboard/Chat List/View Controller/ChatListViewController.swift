@@ -281,7 +281,7 @@ class ChatListViewController : DashboardSplittedViewController {
         }
     }
     
-    func shouldReloadChatRowWith(chatId: Int?) {
+    func shouldReloadChatRowWith(chatId: Int) {
         contactChatsContainerViewController.shouldReloadChatRowWith(chatId: chatId)
         tribeChatsContainerViewController.shouldReloadChatRowWith(chatId: chatId)
     }
