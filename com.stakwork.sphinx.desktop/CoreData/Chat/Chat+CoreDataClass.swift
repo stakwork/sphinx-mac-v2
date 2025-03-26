@@ -357,7 +357,7 @@ public class Chat: NSManagedObject {
                 forceAllMsgs: true
             )
             
-            self.processAliasesFrom(messages: messages)
+            self.processAliasesFrom(messages: messages.reversed())
         }
     }
     
@@ -384,7 +384,9 @@ public class Chat: NSManagedObject {
                         }
                         continue
                     }
-                    if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
+                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
+                    } else if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
                         self.aliasesAndPics.append(
                             (alias, message.senderPic ?? "")
                         )
@@ -396,7 +398,9 @@ public class Chat: NSManagedObject {
                         }
                         continue
                     }
-                    if !aliasesAndPics.contains(where: { $0.0 == alias }) {
+                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
+                    } else {
                         self.aliasesAndPics.append(
                             (alias, message.senderPic ?? "")
                         )
