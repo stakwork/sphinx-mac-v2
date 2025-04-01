@@ -873,6 +873,25 @@ struct MessageTableCellState {
         let senderInfo: (NSColor, String, String?) = getSenderInfo(message: message)
         let messageContent = message.bubbleMessageContentString ?? ""
         let date = (message.date ?? Date())
+        var timestamp = "\(date.getStringDate(format: "MMMM dd", showToday: true)), \(date.getStringDate(format: "hh:mm a"))"
+        
+        var timezoneString: String? = nil
+        var timezone: TimeZone? = nil
+        
+        if let timezoneIdentifier = (message.chat?.isGroup() == true) ? message.remoteTimezoneIdentifier : nil {
+            timezone = TimeZone(abbreviation: timezoneIdentifier) ?? TimeZone(identifier: timezoneIdentifier)
+        } else if let senderAlias = message.senderAlias, let timezoneIdentifier = timezoneData[senderAlias] {
+            timezone = TimeZone(abbreviation: timezoneIdentifier) ?? TimeZone(identifier: timezoneIdentifier)
+        }
+        
+        if let timezone = timezone {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "hh:mm a"
+            dateFormatter.timeZone = timezone
+
+            timezoneString = "\(dateFormatter.string(from: message.date ?? Date())) \(timezone.abbreviation() ?? timezone.identifier)"
+            timestamp = "\(timestamp) / \(timezoneString!)"
+        }
         
         return NoBubbleMessageLayoutState.ThreadOriginalMessage(
             text: messageContent.removingMarkdownDelimiters,
@@ -883,7 +902,7 @@ struct MessageTableCellState {
             senderPic: senderInfo.2,
             senderAlias: senderInfo.1,
             senderColor: senderInfo.0,
-            timestamp: "\(date.getStringDate(format: "MMM dd", showToday: true)), \(date.getStringDate(format: "hh:mm a"))"
+            timestamp: timestamp
         )
     }()
     
