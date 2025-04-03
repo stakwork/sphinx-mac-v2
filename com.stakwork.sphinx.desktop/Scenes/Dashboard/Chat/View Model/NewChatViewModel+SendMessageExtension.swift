@@ -124,6 +124,7 @@ extension NewChatViewModel {
                 let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
                 WindowsManager.sharedInstance.showCallWindow(
                     link: linkUrl,
+                    shouldStartRecording: chat?.hasSecondBrainApp() == true || chat?.hasWebApp() == true,
                     tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
                 )
             }
@@ -173,25 +174,16 @@ extension NewChatViewModel {
     }
     
     func sendCallMessage(link: String) {
-        let type = (self.chat?.isGroup() == false) ?
-            TransactionMessage.TransactionMessageType.call.rawValue :
-            TransactionMessage.TransactionMessageType.message.rawValue
+        let voipRequestMessage = VoIPRequestMessage()
+        voipRequestMessage.recurring = false
+        voipRequestMessage.link = link
+        voipRequestMessage.cron = ""
         
-        var messageText = link
-        
-        if type == TransactionMessage.TransactionMessageType.call.rawValue {
-            
-            let voipRequestMessage = VoIPRequestMessage()
-            voipRequestMessage.recurring = false
-            voipRequestMessage.link = link
-            voipRequestMessage.cron = ""
-            
-            messageText = voipRequestMessage.getCallLinkMessage() ?? link
-        }
+        let messageText = voipRequestMessage.getCallLinkMessage() ?? link
         
         self.shouldSendMessage(
             text: messageText,
-            type: type,
+            type: TransactionMessage.TransactionMessageType.call.rawValue,
             provisionalMessage: nil,
             completion: { _, _ in }
         )

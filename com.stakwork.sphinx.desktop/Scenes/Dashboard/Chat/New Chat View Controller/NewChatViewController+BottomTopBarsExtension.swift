@@ -514,7 +514,11 @@ extension NewChatViewController : ActionsDelegate {
     }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {
-        let link = VideoCallHelper.createCallMessage(mode: mode)
+        let link = VideoCallHelper.createCallMessage(
+            mode: mode,
+            secondBrainUrl: chat?.getSecondBrainUrl(),
+            appUrl: chat?.getAppUrl()
+        )
         newChatViewModel.sendCallMessage(link: link)
     }
     
