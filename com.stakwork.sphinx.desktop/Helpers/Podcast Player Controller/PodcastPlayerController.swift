@@ -42,7 +42,7 @@ let sounds = [
     "skip30v4.caf"
 ]
 
-class PodcastPlayerController {
+class PodcastPlayerController: NSObject {
     
     var delegates = [String : PlayerDelegate]()
     
@@ -86,7 +86,9 @@ class PodcastPlayerController {
     
     let dispatchSemaphore = DispatchSemaphore(value: 1)
     
-    init() {
+    override init() {
+        super.init()
+        
         let dispatchQueue = DispatchQueue.global(qos: .background)
         dispatchQueue.async {
             self.preloadAll()

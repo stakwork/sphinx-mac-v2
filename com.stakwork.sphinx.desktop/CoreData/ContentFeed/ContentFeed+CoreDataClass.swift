@@ -27,7 +27,7 @@ public class ContentFeed: NSManagedObject {
         
         var contentFeed: ContentFeed
         
-        ContentFeed.deleteFeedWith(feedId: feedId)
+        let itemsData = ContentFeed.deleteFeedWith(feedId: feedId)
         
         guard let items = json[CodingKeys.items.rawValue].array, items.count > 0 else {
             return nil
@@ -66,7 +66,11 @@ public class ContentFeed: NSManagedObject {
         
         if let items = json[CodingKeys.items.rawValue].array {
             for item in items {
-                let i = ContentFeedItem.createObjectFrom(json: item, context: context)
+                let i = ContentFeedItem.createObjectFrom(
+                    json: item,
+                    context: context,
+                    itemsData: itemsData
+                )
                 i?.contentFeed = contentFeed
             }
         }
@@ -185,9 +189,15 @@ public class ContentFeed: NSManagedObject {
             url: tribesServerURL,
             callback: { feedJSON in
                 if let contentFeed = contentFeed {
+                    let itemsData = contentFeed.getItemsData()
+                    
                     if let items = feedJSON[ContentFeed.CodingKeys.items.rawValue].array {
                         for item in items {
-                            let i = ContentFeedItem.createObjectFrom(json: item, context: managedObjectContext)
+                            let i = ContentFeedItem.createObjectFrom(
+                                json: item,
+                                context: managedObjectContext,
+                                itemsData: itemsData
+                            )
                             i?.contentFeed = contentFeed
                         }
                     }

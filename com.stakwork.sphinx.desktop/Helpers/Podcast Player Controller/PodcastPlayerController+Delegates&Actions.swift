@@ -91,6 +91,8 @@ extension PodcastPlayerController {
     func play(
         _ podcastData: PodcastData
     ) {
+        ChaptersManager.sharedInstance.processChaptersData(episodeId: podcastData.episodeId)
+        
         setAudioSession()
         
         if let pd = self.podcastData, isPlaying {
@@ -166,25 +168,43 @@ extension PodcastPlayerController {
             }
         }
         
+        @MainActor
         func playAssetAfterLoad(_ playerItem: CachingPlayerItem) {
-            if self.player == nil {
-                self.player = AVPlayer(playerItem: playerItem)
-            } else {
-                self.player?.replaceCurrentItem(with: playerItem)
-            }
-            self.player?.rate = podcastData.speed
+            playerItem.preferredForwardBufferDuration = 5
             
-            self.player?.pause()
-            self.player?.automaticallyWaitsToMinimizeStalling = false
+            if player == nil {
+                player = AVPlayer(playerItem: playerItem)
+            } else {
+                player?.replaceCurrentItem(with: playerItem)
+            }
+            
+            player?.rate = podcastData.speed
+            player?.pause()
+            player?.automaticallyWaitsToMinimizeStalling = false
+            
+            let addObserverToPlayerItem: () -> Void = { [weak self] in
+                guard let self = self else { return }
+                playerItem.addObserver(self, forKeyPath: "status", options: [.new], context: nil)
+            }
             
             if let currentTime = podcastData.currentTime, currentTime > 0 {
-                self.player?.seek(to: CMTime(seconds: Double(currentTime), preferredTimescale: 1)) { _ in
-                    self.player?.play()
-                    self.didStartPlaying(playerItem)
+                player?.seek(to: CMTime(seconds: Double(currentTime), preferredTimescale: 1)) { _ in
+                    addObserverToPlayerItem()
                 }
             } else {
+                addObserverToPlayerItem()
+            }
+        }
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "status" {
+            if self.player?.currentItem?.status == .readyToPlay {
                 self.player?.play()
-                self.didStartPlaying(playerItem)
+                
+                if let playerItem = self.player?.currentItem {
+                    self.didStartPlaying(playerItem)
+                }
             }
         }
     }
