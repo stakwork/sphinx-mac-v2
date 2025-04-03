@@ -33,7 +33,7 @@ class ChaptersManager : NSObject {
         processChaptersData(episodeId: episodeId, completion: { (success, chaptersData) in
             if success && chaptersData.count > 0 {
                 DispatchQueue.main.async {
-//                    NotificationCenter.default.post(name: .refreshFeedDataAndUI, object: nil)
+                    NotificationCenter.default.post(name: .refreshFeedDataAndUI, object: nil)
                 }
             }
         })

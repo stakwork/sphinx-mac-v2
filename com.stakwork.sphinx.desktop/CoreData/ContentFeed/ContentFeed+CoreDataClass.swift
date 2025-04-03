@@ -89,6 +89,8 @@ public class ContentFeed: NSManagedObject {
             }
         }
         
+        contentFeed.managedObjectContext?.saveContext()
+        
         return contentFeed
     }
     
@@ -97,30 +99,22 @@ public class ContentFeed: NSManagedObject {
         chatId: Int,
         completion: @escaping (String?) -> ()
     ) {
-        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-        
-        backgroundContext.perform {
-            let backgroundChat: Chat? = Chat.getChatWith(id: chatId, managedContext: backgroundContext)
+        fetchContentFeed(
+            at: feedUrl,
+            chat: nil,
+            persistingIn: CoreDataManager.sharedManager.persistentContainer.viewContext
+        ) { result in
             
-            fetchContentFeed(
-                at: feedUrl,
-                chat: backgroundChat,
-                persistingIn: backgroundContext
-            ) { result in
+            if case .success(let contentFeed) = result {
+                let feedId = contentFeed.feedID
                 
-                if case .success(let contentFeed) = result {
-                    let feedId = contentFeed.feedID
-                    
-                    backgroundContext.saveContext()
-                    
-                    DispatchQueue.main.async {
-                        completion(feedId)
-                    }
-                    return
+                DispatchQueue.main.async {
+                    completion(feedId)
                 }
-                
-                completion(nil)
+                return
             }
+            
+            completion(nil)
         }
     }
     

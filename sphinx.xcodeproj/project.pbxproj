@@ -52,6 +52,8 @@
 		4717B6652D9EC9D000E3681E /* API+ChaptersNodesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */; };
 		4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */; };
 		4717B66B2D9ECA8D00E3681E /* Chapter+Computed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */; };
+		4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */; };
+		4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */; };
 		47180EDD25E02E2B00C1CA05 /* CommonWelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */; };
 		471946BC2BF25ABA00D05216 /* API+VersionsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */; };
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
@@ -927,6 +929,8 @@
 		4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersManager.swift; sourceTree = "<group>"; };
 		4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+Computed.swift"; sourceTree = "<group>"; };
 		4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 5.xcdatamodel"; sourceTree = "<group>"; };
+		4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterView.swift; sourceTree = "<group>"; };
+		4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeChapterView.xib; sourceTree = "<group>"; };
 		47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWelcomeViewController.swift; sourceTree = "<group>"; };
 		471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "API+VersionsExtension.swift"; sourceTree = "<group>"; };
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
@@ -1773,6 +1777,8 @@
 				473633F12555DCF9007405F2 /* PodcastSatsView.xib */,
 				473BC88E2600EEFE0070E519 /* NewEpisodeAlertView.swift */,
 				473BC8942600FB320070E519 /* NewEpisodeAlertView.xib */,
+				4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */,
+				4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -3969,6 +3975,7 @@
 				4726A43C24C628DA005A66B4 /* bells.caf in Resources */,
 				479496212AB2076600C42D1E /* PodcastBoostView.xib in Resources */,
 				47D676062C11F2DD0002914E /* KeyboardReplyView.xib in Resources */,
+				4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */,
 				4734D39D2417E3D500D6957E /* Assets.xcassets in Resources */,
 				477ADCD62A1E5A85004E74CE /* PinMessageBarView.xib in Resources */,
 				47C1D605248EABEA00718B28 /* GroupAddedContactCollectionViewItem.xib in Resources */,
@@ -4316,6 +4323,7 @@
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
 				4789E27724F42295003991BE /* SettingsTabsView.swift in Sources */,
+				4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */,
 				4708C2012A55C0AA00274AD4 /* UserContact+FetchUtils.swift in Sources */,
 				474A668F24990643002C2D10 /* MenuOptionsView.swift in Sources */,
 				4794966B2AB8B03800C42D1E /* MessageNoBubbleCollectionViewItem+DelegatesExtension.swift in Sources */,

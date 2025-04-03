@@ -205,4 +205,22 @@ extension PodcastEpisode {
         return link
     }
     
+    func getAdTimestamps() -> [(Int, Int)] {
+        guard let chapters = chapters else {
+            return []
+        }
+        
+        var timestamps: [(Int, Int)] = []
+        
+        for (index, chapter) in chapters.enumerated() {
+            if chapter.isAd {
+                let nextChapterStart = chapters[index + 1].timestamp.toSeconds()
+                let adStart = chapter.timestamp.toSeconds()
+                timestamps.append((adStart, nextChapterStart))
+            }
+        }
+        
+        return timestamps
+    }
+    
 }

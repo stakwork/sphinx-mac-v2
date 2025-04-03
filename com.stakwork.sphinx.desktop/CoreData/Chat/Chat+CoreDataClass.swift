@@ -851,15 +851,15 @@ public class Chat: NSManagedObject {
                     
                     if let feedUrl = self.tribeInfo?.feedUrl, !feedUrl.isEmpty {
                         ContentFeed.fetchChatFeedContentInBackground(feedUrl: feedUrl, chatId: self.id) { feedId in
-                            if let feedId = feedId {
-                                self.contentFeed = ContentFeed.getFeedById(feedId: feedId)
+                            if let feedId = feedId, let feed = ContentFeed.getFeedById(feedId: feedId) {
+                                self.contentFeed = feed
                                 self.saveChat()
                             }
                             completion()
                         }
                         return
                     } else if let existingFeed = self.contentFeed {
-                        ContentFeed.deleteFeedWith(feedId: existingFeed.feedID)
+                        let _ = ContentFeed.deleteFeedWith(feedId: existingFeed.feedID)
                     }
                     completion()
                 },
