@@ -137,7 +137,7 @@ extension PodcastEpisodesDataSource : NSCollectionViewDelegate, NSCollectionView
             for: indexPath
         ) as! PodcastEpisodesHeaderView
         
-        view.configureWith(count: podcast.episodesArray.count)
+        view.configureWith(count: podcast.episodesArray.count, delegate: self)
         view.addShadow(location: VerticalLocation.bottom, color: NSColor.black, opacity: 0.2, radius: 3.0)
         
         return view
@@ -173,6 +173,14 @@ extension PodcastEpisodesDataSource : PodcastPlayerViewDelegate {
     
     func shouldSyncPodcast() {
         feedsManager.saveContentFeedStatus(for: podcast.feedID)
+    }
+}
+
+extension PodcastEpisodesDataSource : PodcastEpisodesHeaderViewDelegate {
+    func skipAdsButtonClicked() -> Bool {
+        let newValue = !podcast.skipAds
+        podcast.skipAds = newValue
+        return newValue
     }
 }
 
@@ -245,6 +253,24 @@ extension PodcastEpisodesDataSource:PodcastEpisodeCollectionViewItemDelegate{
             } completionHandler: { _ in
                 self.collectionView.collectionViewLayout?.invalidateLayout()
             }
+        }
+    }
+    
+    func episodePlayTapped(episode: PodcastEpisode) {
+        guard let podcastData = podcast.getPodcastData(
+            episodeId: episode.itemID
+        ) else {
+            return
+        }
+        
+        if podcastPlayerController.isPlaying(episodeId: episode.itemID) {
+            podcastPlayerController.submitAction(
+                UserAction.Pause(podcastData)
+            )
+        } else {
+            podcastPlayerController.submitAction(
+                UserAction.Play(podcastData)
+            )
         }
     }
 }

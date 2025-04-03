@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -21,7 +21,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="zjk-wQ-z0v">
-                                <rect key="frame" x="28" y="22" width="71" height="16"/>
+                                <rect key="frame" x="14" y="22" width="71" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="EPISODES" id="am9-m3-bo3">
                                     <font key="font" size="13" name="Montserrat-Regular"/>
                                     <color key="textColor" name="SecondaryText"/>
@@ -29,17 +29,61 @@
                                 </textFieldCell>
                             </textField>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ah6-wS-sXe">
-                                <rect key="frame" x="105" y="22" width="21" height="16"/>
+                                <rect key="frame" x="91" y="22" width="21" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="50" id="zdX-ZV-k5y">
                                     <font key="font" size="13" name="Montserrat-Regular"/>
                                     <color key="textColor" name="ReceivedIcon"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <box boxType="custom" borderType="none" cornerRadius="15" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="CJd-El-584">
+                                <rect key="frame" x="315" y="15" width="149" height="30"/>
+                                <view key="contentView" id="N1R-Ye-lQY">
+                                    <rect key="frame" x="0.0" y="0.0" width="149" height="30"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hlX-bx-AAU">
+                                            <rect key="frame" x="14" y="8" width="121" height="15"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="SKIP ADS ENABLED" id="Z7j-pj-rAN">
+                                                <font key="font" size="13" name="Roboto-Bold"/>
+                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="SKF-cQ-pU7" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="149" height="30"/>
+                                            <buttonCell key="cell" type="bevel" title="Button" bezelStyle="rounded" alignment="center" transparent="YES" imageScaling="proportionallyDown" inset="2" id="cBD-mh-0XG">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="30" id="xEV-d4-KDr"/>
+                                            </constraints>
+                                            <connections>
+                                                <action selector="skipAdsButtonClicked:" target="c22-O7-iKe" id="9vz-fV-rIC"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="SKF-cQ-pU7" secondAttribute="trailing" id="3RF-Zk-1Em"/>
+                                        <constraint firstItem="SKF-cQ-pU7" firstAttribute="leading" secondItem="N1R-Ye-lQY" secondAttribute="leading" id="AEC-ru-g8v"/>
+                                        <constraint firstAttribute="trailing" secondItem="hlX-bx-AAU" secondAttribute="trailing" constant="16" id="DOS-2n-4gB"/>
+                                        <constraint firstItem="hlX-bx-AAU" firstAttribute="centerY" secondItem="N1R-Ye-lQY" secondAttribute="centerY" id="L9e-4r-gM9"/>
+                                        <constraint firstItem="SKF-cQ-pU7" firstAttribute="top" secondItem="N1R-Ye-lQY" secondAttribute="top" id="aK6-c4-z47"/>
+                                        <constraint firstItem="hlX-bx-AAU" firstAttribute="leading" secondItem="N1R-Ye-lQY" secondAttribute="leading" constant="16" id="f0O-Of-MNW"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="g4v-YO-WBr"/>
+                                </constraints>
+                                <color key="fillColor" name="PrimaryGreen"/>
+                            </box>
                         </subviews>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="CJd-El-584" secondAttribute="trailing" constant="16" id="C5z-rx-OUh"/>
                             <constraint firstItem="zjk-wQ-z0v" firstAttribute="centerY" secondItem="cAo-Al-AWk" secondAttribute="centerY" id="DiA-rw-e4I"/>
-                            <constraint firstItem="zjk-wQ-z0v" firstAttribute="leading" secondItem="cAo-Al-AWk" secondAttribute="leading" constant="30" id="MhL-ml-iGr"/>
+                            <constraint firstItem="CJd-El-584" firstAttribute="centerY" secondItem="cAo-Al-AWk" secondAttribute="centerY" id="MBI-UC-kZf"/>
+                            <constraint firstItem="zjk-wQ-z0v" firstAttribute="leading" secondItem="cAo-Al-AWk" secondAttribute="leading" constant="16" id="MhL-ml-iGr"/>
                             <constraint firstItem="Ah6-wS-sXe" firstAttribute="leading" secondItem="zjk-wQ-z0v" secondAttribute="trailing" constant="10" id="SWL-WX-apV"/>
                             <constraint firstItem="Ah6-wS-sXe" firstAttribute="centerY" secondItem="cAo-Al-AWk" secondAttribute="centerY" id="ljt-Yh-bTX"/>
                         </constraints>
@@ -56,6 +100,9 @@
             <connections>
                 <outlet property="episodesCountLabel" destination="Ah6-wS-sXe" id="AX1-gN-Hed"/>
                 <outlet property="episodesLabel" destination="zjk-wQ-z0v" id="3bF-9X-Db3"/>
+                <outlet property="skipAdsButton" destination="SKF-cQ-pU7" id="c9C-l7-2Mv"/>
+                <outlet property="skipAdsContainer" destination="CJd-El-584" id="Tqc-C5-LUH"/>
+                <outlet property="skipAdsLabel" destination="hlX-bx-AAU" id="XGe-PD-8G3"/>
             </connections>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
@@ -63,6 +110,9 @@
     <resources>
         <namedColor name="HeaderBG">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryGreen">
+            <color red="0.28627450980392155" green="0.78823529411764703" blue="0.59607843137254901" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="ReceivedIcon">
             <color red="0.50980392156862742" green="0.70588235294117652" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

@@ -57,9 +57,9 @@
                     </constraints>
                     <color key="fillColor" name="ReceivedMsgBG"/>
                 </box>
-                <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ey6-HI-0j7" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="4" y="0.0" width="476" height="40"/>
-                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" transparent="YES" imageScaling="proportionallyDown" inset="2" id="Cwc-gE-fsI">
+                <button translatesAutoresizingMaskIntoConstraints="NO" id="ey6-HI-0j7" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="4" y="0.0" width="141" height="40"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="Cwc-gE-fsI">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -72,7 +72,7 @@
                 </button>
             </subviews>
             <constraints>
-                <constraint firstItem="ey6-HI-0j7" firstAttribute="trailing" secondItem="lsd-4T-3is" secondAttribute="trailing" constant="16" id="8HJ-zo-yEr"/>
+                <constraint firstItem="ey6-HI-0j7" firstAttribute="trailing" secondItem="rzq-2e-Cva" secondAttribute="trailing" constant="16" id="8Pf-ru-o2S"/>
                 <constraint firstAttribute="trailing" secondItem="lsd-4T-3is" secondAttribute="trailing" constant="16" id="8fM-XL-X2d"/>
                 <constraint firstAttribute="trailing" secondItem="b0M-jS-4FC" secondAttribute="trailing" constant="16" id="99O-tA-lum"/>
                 <constraint firstItem="rzq-2e-Cva" firstAttribute="leading" secondItem="qCE-Kz-inC" secondAttribute="trailing" constant="4" id="KwT-ds-1mz"/>
@@ -80,8 +80,8 @@
                 <constraint firstItem="ey6-HI-0j7" firstAttribute="leading" secondItem="qCE-Kz-inC" secondAttribute="leading" constant="-16" id="Rs7-Cb-D6h"/>
                 <constraint firstAttribute="bottom" secondItem="b0M-jS-4FC" secondAttribute="bottom" id="V8p-6P-Fbl"/>
                 <constraint firstItem="b0M-jS-4FC" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="16" id="chl-zR-xqV"/>
+                <constraint firstItem="ey6-HI-0j7" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="ftG-rH-eul"/>
                 <constraint firstItem="lsd-4T-3is" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="kwP-XL-l4a"/>
-                <constraint firstItem="ey6-HI-0j7" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="w5p-da-ZR9"/>
                 <constraint firstItem="qCE-Kz-inC" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="20" symbolic="YES" id="wuB-c3-Xls"/>
                 <constraint firstItem="qCE-Kz-inC" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="ypK-ob-4hh"/>
             </constraints>

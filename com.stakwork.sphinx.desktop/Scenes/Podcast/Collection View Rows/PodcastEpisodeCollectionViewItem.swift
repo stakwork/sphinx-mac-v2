@@ -10,6 +10,7 @@ import Cocoa
 
 protocol PodcastEpisodeCollectionViewItemDelegate: NSObject {
     func episodeShareTapped(episode: PodcastEpisode)
+    func episodePlayTapped(episode: PodcastEpisode)
     func episodeChaptersTapped(episode: PodcastEpisode, with index: Int)
     func chaptersButtonTappedFor(episode: PodcastEpisode, on cell: NSCollectionViewItem)
 }
@@ -21,7 +22,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     @IBOutlet weak var episodeImageView: NSImageView!
     @IBOutlet weak var episodeNameLabel: NSTextField!
     @IBOutlet weak var divider: NSBox!
-    @IBOutlet weak var itemButton: CustomButton!
+    @IBOutlet weak var playButton: CustomButton!
     @IBOutlet weak var datePublishedLabel: NSTextField!
     @IBOutlet weak var playTimeProgressView: NSView!
     @IBOutlet weak var playTimeProgressViewBox: NSBox!
@@ -46,7 +47,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        itemButton.cursor = .pointingHand
+        playButton.cursor = .pointingHand
         chaptersButton.cursor = .pointingHand
         
         durationProgressView.wantsLayer = true
@@ -189,6 +190,12 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     
     @IBAction func moreButtonTapped(_ sender: Any){
         showMore()
+    }
+    
+    @IBAction func playButtonClicked(_ sender: Any) {
+        if let episode = episode {
+            delegate?.episodePlayTapped(episode: episode)
+        }
     }
     
     @IBAction func chaptersButtonClicked(_ sender: Any) {

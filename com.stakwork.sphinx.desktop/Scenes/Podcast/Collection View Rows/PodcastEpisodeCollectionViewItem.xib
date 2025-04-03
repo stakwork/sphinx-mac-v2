@@ -201,16 +201,6 @@
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="playerListOptions" id="4kX-CD-1hL"/>
                     <color key="contentTintColor" name="SecondaryText"/>
                 </imageView>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8qo-6d-wZT" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="40" width="363" height="200"/>
-                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" enabled="NO" imageScaling="proportionallyDown" inset="2" id="MIn-nU-81g">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="200" id="KZ0-sE-2Mb"/>
-                    </constraints>
-                </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="y4A-Kx-hpH">
                     <rect key="frame" x="47" y="44" width="62" height="60"/>
                     <buttonCell key="cell" type="push" bezelStyle="rounded" alignment="center" borderStyle="border" transparent="YES" imageScaling="proportionallyDown" inset="2" id="yEb-oQ-LfH">
@@ -267,6 +257,16 @@
                         <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     </textFieldCell>
                 </textField>
+                <button verticalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="8qo-6d-wZT" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="317" y="61" width="33" height="29"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="MIn-nU-81g">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="playButtonClicked:" target="EH6-74-rM0" id="4m4-xi-cwR"/>
+                    </connections>
+                </button>
                 <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fvv-cO-Z0y">
                     <rect key="frame" x="0.0" y="41" width="363" height="0.0"/>
                 </stackView>
@@ -284,12 +284,14 @@
             </subviews>
             <constraints>
                 <constraint firstItem="AoM-mI-i6S" firstAttribute="leading" secondItem="tqY-TH-Vpv" secondAttribute="trailing" constant="16" id="0oK-RO-nPQ"/>
+                <constraint firstItem="8qo-6d-wZT" firstAttribute="bottom" secondItem="R63-Jh-gvJ" secondAttribute="bottom" constant="2" id="2rl-xV-bf8"/>
                 <constraint firstItem="eg8-8z-FEX" firstAttribute="leading" secondItem="RED-Sa-3aL" secondAttribute="trailing" constant="6" id="4FN-Wp-hPz"/>
                 <constraint firstItem="tqY-TH-Vpv" firstAttribute="leading" secondItem="uH4-AM-CPO" secondAttribute="trailing" constant="8" id="4wR-p3-ayc"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="centerY" secondItem="AzQ-fN-4Wr" secondAttribute="centerY" id="6EA-qX-xgL"/>
                 <constraint firstItem="A6W-Sl-cE8" firstAttribute="top" secondItem="Vze-cd-cg3" secondAttribute="bottom" constant="16" id="6mB-cE-WUS"/>
                 <constraint firstItem="y4A-Kx-hpH" firstAttribute="top" secondItem="AzQ-fN-4Wr" secondAttribute="top" id="6no-ru-aDe"/>
                 <constraint firstAttribute="trailing" secondItem="fvv-cO-Z0y" secondAttribute="trailing" id="8uD-0y-OKG"/>
+                <constraint firstItem="8qo-6d-wZT" firstAttribute="trailing" secondItem="R63-Jh-gvJ" secondAttribute="trailing" constant="2" id="960-Qm-BHp"/>
                 <constraint firstItem="tqY-TH-Vpv" firstAttribute="centerY" secondItem="uH4-AM-CPO" secondAttribute="centerY" id="9AA-ua-Sn9"/>
                 <constraint firstItem="AVp-bx-kcf" firstAttribute="leading" secondItem="AoM-mI-i6S" secondAttribute="leading" id="AFL-vT-StN"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="leading" secondItem="AzQ-fN-4Wr" secondAttribute="trailing" constant="6" id="Ala-tg-L7N"/>
@@ -299,14 +301,12 @@
                 <constraint firstItem="AVp-bx-kcf" firstAttribute="top" secondItem="AoM-mI-i6S" secondAttribute="top" id="FiK-gU-D3d"/>
                 <constraint firstItem="y4A-Kx-hpH" firstAttribute="leading" secondItem="AzQ-fN-4Wr" secondAttribute="leading" id="G47-Cx-pjD"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="leading" secondItem="RED-Sa-3aL" secondAttribute="leading" id="Gdu-Yu-3XP"/>
-                <constraint firstItem="8qo-6d-wZT" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="HR2-ku-XRM"/>
                 <constraint firstItem="Vze-cd-cg3" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="IY3-TX-F7H"/>
-                <constraint firstItem="8qo-6d-wZT" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="Ida-zZ-Y5i"/>
                 <constraint firstItem="eg8-8z-FEX" firstAttribute="centerY" secondItem="RED-Sa-3aL" secondAttribute="centerY" id="JMO-L2-7bd"/>
                 <constraint firstItem="y4A-Kx-hpH" firstAttribute="trailing" secondItem="AzQ-fN-4Wr" secondAttribute="trailing" id="JX9-QZ-3S6"/>
                 <constraint firstItem="Tj4-FF-Rke" firstAttribute="centerX" secondItem="R63-Jh-gvJ" secondAttribute="centerX" id="Llh-EC-8QP"/>
+                <constraint firstItem="8qo-6d-wZT" firstAttribute="leading" secondItem="R63-Jh-gvJ" secondAttribute="leading" constant="-2" id="LrT-m3-pSl"/>
                 <constraint firstItem="uH4-AM-CPO" firstAttribute="leading" secondItem="g1Z-gy-QGr" secondAttribute="trailing" constant="8" id="MPL-wx-EBk"/>
-                <constraint firstAttribute="trailing" secondItem="8qo-6d-wZT" secondAttribute="trailing" id="OYf-Z0-Z7f"/>
                 <constraint firstItem="wLi-JI-Ya9" firstAttribute="trailing" secondItem="RED-Sa-3aL" secondAttribute="trailing" id="RDH-K1-9oW"/>
                 <constraint firstItem="y4A-Kx-hpH" firstAttribute="bottom" secondItem="AzQ-fN-4Wr" secondAttribute="bottom" id="RH5-8o-78w"/>
                 <constraint firstItem="AVp-bx-kcf" firstAttribute="bottom" secondItem="AoM-mI-i6S" secondAttribute="bottom" id="RcZ-oK-nqN"/>
@@ -328,6 +328,7 @@
                 <constraint firstItem="AzQ-fN-4Wr" firstAttribute="centerY" secondItem="Ghv-yV-XUo" secondAttribute="centerY" id="nkf-YB-gEa"/>
                 <constraint firstItem="AzQ-fN-4Wr" firstAttribute="leading" secondItem="Ghv-yV-XUo" secondAttribute="trailing" constant="6" id="oee-1y-s5N"/>
                 <constraint firstItem="Ghv-yV-XUo" firstAttribute="centerX" secondItem="A6W-Sl-cE8" secondAttribute="centerX" id="reI-fl-nGI"/>
+                <constraint firstItem="8qo-6d-wZT" firstAttribute="top" secondItem="R63-Jh-gvJ" secondAttribute="top" constant="-2" id="tlF-y7-rPW"/>
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
         </customView>
@@ -345,10 +346,10 @@
                 <outlet property="durationViewBox" destination="CtL-5X-MHs" id="x5w-rE-9Pf"/>
                 <outlet property="episodeImageView" destination="wv7-cj-loH" id="wqs-U4-Ozq"/>
                 <outlet property="episodeNameLabel" destination="32U-yj-2RQ" id="4Md-gs-ZLM"/>
-                <outlet property="itemButton" destination="8qo-6d-wZT" id="2pN-yO-CMS"/>
                 <outlet property="mediaTypeIconImageView" destination="A6W-Sl-cE8" id="nE7-Oe-tzc"/>
                 <outlet property="playArrow" destination="R63-Jh-gvJ" id="BTd-Wd-VeZ"/>
                 <outlet property="playArrowBack" destination="Tj4-FF-Rke" id="3aP-Nf-50k"/>
+                <outlet property="playButton" destination="8qo-6d-wZT" id="uFf-kf-fLq"/>
                 <outlet property="playTimeProgressView" destination="AVp-bx-kcf" id="ATT-e8-LqX"/>
                 <outlet property="playTimeProgressViewBox" destination="92u-1s-5TC" id="iaH-vR-ppr"/>
                 <outlet property="playedCheckmark" destination="wIx-up-XjY" id="STk-ib-l7c"/>
