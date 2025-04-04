@@ -499,6 +499,7 @@ class WindowsManager {
     func startLiveKitCall(
         link: String,
         audioOnly: Bool,
+        shouldStartRecording: Bool = false,
         tribeImage: String? = nil
     ) {
         guard let owner = UserContact.getOwner() else {
@@ -517,24 +518,29 @@ class WindowsManager {
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
                 callback: { url, token in
-                    let appCtx = AppContext(store: sync)
-                    let roomCtx = RoomContext(store: sync, delegate: self)
-                    
-                    roomCtx.url = url
-                    roomCtx.startRecording = link.contains("record=true")
-                    roomCtx.token = token
-                    roomCtx.tribeImage = tribeImage
-                    
-                    let roomContextView = RoomContextView(audioOnly: audioOnly, onCallEnded: {
-                        Task { @MainActor in
-                            self.openedWindowIdentifiers.removeAll(where: { $0 == link })
-                            self.hideCallControlWindow()
-                            self.closeIfExists(identifier: link)
-                        }
-                    }).environmentObject(appCtx).environmentObject(roomCtx)
-                    
-                    let hostingController = NSHostingController(rootView: roomContextView)
-                    self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
+                    DispatchQueue.main.async {
+                        let appCtx = AppContext(store: sync)
+                        let roomCtx = RoomContext(store: sync, delegate: self)
+                        
+                        roomCtx.url = url
+                        roomCtx.startRecording = link.contains("record=true")
+                        roomCtx.token = token
+                        roomCtx.tribeImage = tribeImage
+                        
+                        let roomContextView = RoomContextView(
+                            audioOnly: audioOnly,
+                            shouldStartRecording: shouldStartRecording,
+                            onCallEnded: {
+                                Task { @MainActor in
+                                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
+                                    self.hideCallControlWindow()
+                                    self.closeIfExists(identifier: link)
+                                }
+                        }).environmentObject(appCtx).environmentObject(roomCtx)
+                        
+                        let hostingController = NSHostingController(rootView: roomContextView)
+                        self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
+                    }
                 },
                 errorCallback: { error in
                     self.openedWindowIdentifiers.removeAll(where: { $0 == link })
@@ -547,6 +553,7 @@ class WindowsManager {
     func showCallWindow(
         link: String,
         audioOnly: Bool = false,
+        shouldStartRecording: Bool = false,
         tribeImage: String? = nil
     ) {
         
@@ -565,6 +572,7 @@ class WindowsManager {
             startLiveKitCall(
                 link: link,
                 audioOnly: audioOnly || link.contains("startAudioOnly"),
+                shouldStartRecording: shouldStartRecording,
                 tribeImage: tribeImage
             )
             return

@@ -25,9 +25,33 @@ class VideoCallHelper {
         return mode
     }
     
-    public static func createCallMessage(mode: CallMode) -> String {
+    public static func createCallMessage(
+        mode: CallMode,
+        secondBrainUrl: String? = nil,
+        appUrl: String? = nil
+    ) -> String {
         let time = Date.timeIntervalSinceReferenceDate
-        let room = "\(API.sharedInstance.kVideoCallServer)/rooms\(TransactionMessage.kCallRoomName).\(time)"
+        var graphUrl: String? = nil
+        
+        if let secondBrainUrl = secondBrainUrl, !secondBrainUrl.isEmpty {
+            if let url = URL(string: secondBrainUrl), let host = url.host {
+                graphUrl = host
+            } else {
+                graphUrl = secondBrainUrl
+            }
+        } else if let appUrl = appUrl, !appUrl.isEmpty {
+            if let url = URL(string: appUrl), let host = url.host {
+                graphUrl = host
+            } else {
+                graphUrl = appUrl
+            }
+        }
+        
+        var room = "\(API.sharedInstance.kVideoCallServer)/rooms\(TransactionMessage.kCallRoomName).\(time)"
+        
+        if let graphUrl = graphUrl {
+            room = "\(API.sharedInstance.kVideoCallServer)/rooms\(TransactionMessage.kCallRoomName).-\(graphUrl)-.\(time)"
+        }
         
         if mode == .Audio {
             return room + "?startAudioOnly=true"

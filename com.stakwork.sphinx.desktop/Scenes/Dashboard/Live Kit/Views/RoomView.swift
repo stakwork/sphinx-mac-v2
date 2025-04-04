@@ -89,7 +89,15 @@ struct RoomView: View {
     @State private var showConnectionTime = true
     @State private var canSwitchCameraPosition = false    
     
+    var shouldStartRecording: Bool = true
+    
     let newMessageBubbleHelper = NewMessageBubbleHelper()
+    
+    init(
+        shouldStartRecording: Bool = false
+    ) {
+        self.shouldStartRecording = shouldStartRecording
+    }
     
     private func toggleRecording() {
         guard let roomName = room.name else {
@@ -972,6 +980,13 @@ struct RoomView: View {
         .onAppear {
             Task { @MainActor in
                 canSwitchCameraPosition = try await CameraCapturer.canSwitchPosition()
+            }
+            Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                Task { @MainActor in
+                    if self.shouldStartRecording {
+                        self.toggleRecording()
+                    }
+                }
             }
             Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
                 Task { @MainActor in

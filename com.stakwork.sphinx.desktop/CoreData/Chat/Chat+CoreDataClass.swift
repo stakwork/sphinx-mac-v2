@@ -900,6 +900,13 @@ public class Chat: NSManagedObject {
         return nil
     }
     
+    func getSecondBrainUrl() -> String? {
+        if let tribeInfo = self.tribeInfo, let secondBrainUrl = tribeInfo.secondBrainUrl, !secondBrainUrl.isEmpty {
+            return secondBrainUrl
+        }
+        return nil
+    }
+    
     func getFeedUrl() -> String? {
         if let tribeInfo = self.tribeInfo, let feedUrl = tribeInfo.feedUrl, !feedUrl.isEmpty {
             return feedUrl

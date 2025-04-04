@@ -19,6 +19,14 @@ struct RoomSwitchView: View {
     @EnvironmentObject var appCtx: AppContext
     @EnvironmentObject var roomCtx: RoomContext
     @EnvironmentObject var room: Room
+    
+    var shouldStartRecording: Bool = true
+    
+    init(
+        shouldStartRecording: Bool = false
+    ) {
+        self.shouldStartRecording = shouldStartRecording
+    }
 
     var shouldShowRoomView: Bool {
         true
@@ -45,7 +53,7 @@ struct RoomSwitchView: View {
                 .ignoresSafeArea()
 
             if shouldShowRoomView {
-                RoomView()
+                RoomView(shouldStartRecording: self.shouldStartRecording)
             } else {
                 ConnectView()
             }
@@ -59,17 +67,23 @@ struct RoomContextView: View {
     @EnvironmentObject var roomCtx: RoomContext
     
     var audioOnly: Bool = true
+    var shouldStartRecording: Bool = true
     
     typealias OnCallEnded = () -> Void
     private var onCallEnded: OnCallEnded? = nil
     
-    init(audioOnly: Bool, onCallEnded: OnCallEnded? = nil) {
+    init(
+        audioOnly: Bool,
+        shouldStartRecording: Bool = false,
+        onCallEnded: OnCallEnded? = nil
+    ) {
         self.audioOnly = audioOnly
+        self.shouldStartRecording = shouldStartRecording
         self.onCallEnded = onCallEnded
     }
     
     var body: some View {
-        RoomSwitchView()
+        RoomSwitchView(shouldStartRecording: self.shouldStartRecording)
             .ignoresSafeArea()
             .environmentObject(roomCtx)
             .environmentObject(roomCtx.room)
