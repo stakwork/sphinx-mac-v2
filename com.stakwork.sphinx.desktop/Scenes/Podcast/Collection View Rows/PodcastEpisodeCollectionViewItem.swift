@@ -9,17 +9,20 @@
 import Cocoa
 
 protocol PodcastEpisodeCollectionViewItemDelegate: NSObject {
-    func episodeShareTapped(episode:PodcastEpisode)
+    func episodeShareTapped(episode: PodcastEpisode)
+    func episodePlayTapped(episode: PodcastEpisode)
+    func episodeChaptersTapped(episode: PodcastEpisode, with index: Int)
+    func chaptersButtonTappedFor(episode: PodcastEpisode, on cell: NSCollectionViewItem)
 }
 
-class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelectionVCDelegate {
+class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelectionVCDelegate, ChapterViewDelegate {
 
     @IBOutlet weak var playArrowBack: NSBox!
     @IBOutlet weak var playArrow: NSTextField!
     @IBOutlet weak var episodeImageView: NSImageView!
     @IBOutlet weak var episodeNameLabel: NSTextField!
     @IBOutlet weak var divider: NSBox!
-    @IBOutlet weak var itemButton: CustomButton!
+    @IBOutlet weak var playButton: CustomButton!
     @IBOutlet weak var datePublishedLabel: NSTextField!
     @IBOutlet weak var playTimeProgressView: NSView!
     @IBOutlet weak var playTimeProgressViewBox: NSBox!
@@ -31,8 +34,12 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     @IBOutlet weak var timeRemainingLabel: NSTextField!
     @IBOutlet weak var shareButton: NSImageView!
     @IBOutlet weak var mediaTypeIconImageView: NSImageView!
-    @IBOutlet weak var downloadIconImage:NSImageView!
+    @IBOutlet weak var downloadIconImage: NSImageView!
     @IBOutlet weak var currentTimeProgressWidth : NSLayoutConstraint!
+    @IBOutlet weak var chaptersButton: CustomButton!
+    @IBOutlet weak var chaptersContainer: NSStackView!
+    
+    let kChapterHeight: CGFloat = 40
     
     var episode:PodcastEpisode? = nil
     weak var delegate: PodcastEpisodeCollectionViewItemDelegate? = nil
@@ -40,7 +47,8 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        itemButton.cursor = .pointingHand
+        playButton.cursor = .pointingHand
+        chaptersButton.cursor = .pointingHand
         
         durationProgressView.wantsLayer = true
         playTimeProgressView.wantsLayer = true
@@ -63,7 +71,8 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         podcast: PodcastFeed?,
         and episode: PodcastEpisode,
         isLastRow: Bool,
-        playing: Bool
+        playing: Bool,
+        expanded: Bool
     ) {
         self.episode = episode
         
@@ -95,6 +104,15 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         
         divider.isHidden = isLastRow
         
+        if expanded {
+            configureWithChapters(episode.chapters ?? [])
+        } else {
+            removeChaptersViews()
+        }
+        
+        chaptersButton.isHidden = (episode.chapters?.count ?? 0) == 0
+        chaptersButton.contentTintColor = expanded ? NSColor.Sphinx.Text : NSColor.Sphinx.Text.withAlphaComponent(0.5)
+        
         let duration = episode.duration ?? 0
         let currentTime = episode.currentTime ?? 0
         
@@ -123,6 +141,37 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         }
     }
     
+    func removeChaptersViews() {
+        for view in chaptersContainer.subviews {
+            view.removeFromSuperview()
+        }
+    }
+    
+    func configureWithChapters(
+        _ chapters: [Chapter]
+    ) {
+        removeChaptersViews()
+        
+        for (index, chapter) in chapters.enumerated() {
+            let newChapterView = EpisodeChapterView()
+            newChapterView.heightAnchor.constraint(equalToConstant: kChapterHeight).isActive = true
+            
+            newChapterView.configureWith(
+                chapter: chapter,
+                delegate: self,
+                index: index
+            )
+            
+            chaptersContainer.addArrangedSubview(newChapterView)
+        }
+    }
+    
+    func shouldPlayChapterWith(index: Int) {
+        if let episode = episode {
+            delegate?.episodeChaptersTapped(episode: episode, with: index)
+        }
+    }
+    
     func toggleWasPlayed() {
         self.episode?.wasPlayed = (!(self.episode?.wasPlayed ?? true))
         shouldReloadList()
@@ -142,6 +191,18 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         showMore()
     }
     
+    @IBAction func playButtonClicked(_ sender: Any) {
+        if let episode = episode {
+            delegate?.episodePlayTapped(episode: episode)
+        }
+    }
+    
+    @IBAction func chaptersButtonClicked(_ sender: Any) {
+        if let episode = episode {
+            delegate?.chaptersButtonTappedFor(episode: episode, on: self)
+        }
+    }
+    
     func showMore() {
         guard let episode = episode, let feedId = episode.feedID else {
             return
@@ -150,6 +211,19 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         guard let feed = ContentFeed.getFeedById(feedId: feedId) else {
             return
         }
+        
+        let chaptersCount = episode.chapters?.count ?? 0
+        let kViewWithoutChaptersHeight: Int = 488
+        let kViewWithChaptersHeight: Int = 516
+        let kViewHeaderHeight: Int = 80
+        let kChapterViewHeight: Int = 40
+        
+        var height: Int = kViewWithoutChaptersHeight + kViewHeaderHeight
+        
+        if chaptersCount > 0 {
+            height = kViewWithChaptersHeight + kViewHeaderHeight + kChapterViewHeight * chaptersCount
+        }
+        
             
         let detailVC = PodcastDetailSelectionVC.instantiate(
             podcast: PodcastFeed.convertFrom(contentFeed: feed),
@@ -162,7 +236,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
             identifier: "podcast-details-window",
             contentVC: detailVC,
             hideDivider: false,
-            height: 600
+            height: CGFloat(height)
         )
     }
     

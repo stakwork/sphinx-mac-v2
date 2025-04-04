@@ -513,7 +513,7 @@
 "logout.text" = "Are you sure you want to logout? All data and preferences will be deleted.";
 "enter.code.placeholder" = "Enter code...";
 "keychain.restore" = "Restore from Keychain";
-"podcast.details" = "Podcast Details & Options";
+"podcast.details" = "Episode Details and Chapters";
 "my.lsats" = "My L402s";
 "code.not.supported" = "Code not supported";
 "enter.restore.pin" = "Enter Restore PIN";

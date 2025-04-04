@@ -262,6 +262,11 @@ class CoreDataManager {
         }
         saveContext()
     }
+    
+    func deleteObject(object: NSManagedObject, context: NSManagedObjectContext? = nil) {
+        let managedContext = context ?? persistentContainer.viewContext
+        managedContext.delete(object)
+    }
 }
 
 extension NSManagedObjectContext {

@@ -510,7 +510,7 @@
 "logout.text" = "您確定要登出嗎？所有數據和偏好設置將被刪除。";
 "enter.code.placeholder" = "輸入代碼...";
 "keychain.restore" = "從鑰匙串恢復";
-"podcast.details" = "播客詳情和選項";
+"podcast.details" = "劇集詳情和章節";
 "my.lsats" = "我的L402s";
 "code.not.supported" = "不支援代碼";
 "enter.restore.pin" = "輸入恢復PIN碼";

@@ -49,6 +49,14 @@
 		4709B14A2C6C00FB0077AA61 /* Roboto-Black.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4709B1482C6C00740077AA61 /* Roboto-Black.ttf */; };
 		4709B14B2C6C00FB0077AA61 /* Roboto-Thin.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4771589C2BE511D200E2101D /* Roboto-Thin.ttf */; };
 		470E0B33247C743900177D8A /* LoadingMoreCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470E0B31247C743900177D8A /* LoadingMoreCollectionViewItem.swift */; };
+		4717B6652D9EC9D000E3681E /* API+ChaptersNodesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */; };
+		4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */; };
+		4717B66B2D9ECA8D00E3681E /* Chapter+Computed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */; };
+		4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */; };
+		4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */; };
+		4717B6722D9FF70A00E3681E /* EpisodeChaptersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */; };
+		4717B6752D9FF76100E3681E /* EpisodeChapterItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */; };
+		4717B6762D9FF76100E3681E /* EpisodeChapterItemView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */; };
 		47180EDD25E02E2B00C1CA05 /* CommonWelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */; };
 		471946BC2BF25ABA00D05216 /* API+VersionsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */; };
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
@@ -920,6 +928,15 @@
 		4708C21E2A58959900274AD4 /* ChatMessageFieldView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatMessageFieldView.xib; sourceTree = "<group>"; };
 		4709B1482C6C00740077AA61 /* Roboto-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Black.ttf"; sourceTree = "<group>"; };
 		470E0B31247C743900177D8A /* LoadingMoreCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingMoreCollectionViewItem.swift; sourceTree = "<group>"; };
+		4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+ChaptersNodesExtension.swift"; sourceTree = "<group>"; };
+		4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersManager.swift; sourceTree = "<group>"; };
+		4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+Computed.swift"; sourceTree = "<group>"; };
+		4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 5.xcdatamodel"; sourceTree = "<group>"; };
+		4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterView.swift; sourceTree = "<group>"; };
+		4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeChapterView.xib; sourceTree = "<group>"; };
+		4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChaptersDataSource.swift; sourceTree = "<group>"; };
+		4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterItemView.swift; sourceTree = "<group>"; };
+		4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeChapterItemView.xib; sourceTree = "<group>"; };
 		47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWelcomeViewController.swift; sourceTree = "<group>"; };
 		471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "API+VersionsExtension.swift"; sourceTree = "<group>"; };
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
@@ -1733,6 +1750,7 @@
 		470396EA2537292F007F9C23 /* Data Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */,
 				CE9BA45E29D76A8E000C8837 /* PodcastDetailSelectionVM.swift */,
 				470396EB2537293E007F9C23 /* PodcastEpisodesDataSource.swift */,
 				47B6F528258BC40600D64A41 /* PodcastLiveDataSource.swift */,
@@ -1750,6 +1768,8 @@
 				475B686D2991A928000EF29C /* PodcastPlayerCollectionViewItem */,
 				47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */,
 				47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */,
+				4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */,
+				4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */,
 			);
 			path = "Collection View Rows";
 			sourceTree = "<group>";
@@ -1766,6 +1786,8 @@
 				473633F12555DCF9007405F2 /* PodcastSatsView.xib */,
 				473BC88E2600EEFE0070E519 /* NewEpisodeAlertView.swift */,
 				473BC8942600FB320070E519 /* NewEpisodeAlertView.xib */,
+				4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */,
+				4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -1847,6 +1869,22 @@
 				473E1F482AC5BEBF00DC1CDC /* ThreadHeaderView.xib */,
 			);
 			path = "Chat View";
+			sourceTree = "<group>";
+		};
+		4717B6662D9ECA3700E3681E /* Chapters Manager */ = {
+			isa = PBXGroup;
+			children = (
+				4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */,
+			);
+			path = "Chapters Manager";
+			sourceTree = "<group>";
+		};
+		4717B6692D9ECA7E00E3681E /* Chapter */ = {
+			isa = PBXGroup;
+			children = (
+				4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */,
+			);
+			path = Chapter;
 			sourceTree = "<group>";
 		};
 		4720990C24834DEA00426028 /* Libraries */ = {
@@ -2021,6 +2059,7 @@
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				4717B6662D9ECA3700E3681E /* Chapters Manager */,
 				4733ED282CB43A9700078EF2 /* ColorsManager */,
 				475B686429917537000EF29C /* Feeds */,
 				475B68472991605D000EF29C /* Actions Manager */,
@@ -2192,6 +2231,7 @@
 			children = (
 				47EB025729B21D7F0032CFB5 /* Parsing Objects */,
 				4744FA5D2469A41100C5FD94 /* API.swift */,
+				4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */,
 				4744FA692469A45B00C5FD94 /* API+AttachmentsExtension.swift */,
 				4744FA6D2469A47100C5FD94 /* API+GroupsExtension.swift */,
 				47308E2225083FCF00FFAC6F /* API+GiphyExtension.swift */,
@@ -2484,6 +2524,7 @@
 		475B67FD29915C65000EF29C /* Podcast */ = {
 			isa = PBXGroup;
 			children = (
+				4717B6692D9ECA7E00E3681E /* Chapter */,
 				475B683429915DB9000EF29C /* Podcast Destination */,
 				475B683329915DB4000EF29C /* Podcast Model */,
 				475B683229915DAB000EF29C /* Podcast Episode */,
@@ -3908,6 +3949,7 @@
 				47469D692ACEE899004F0490 /* ChatSearchTextFieldView.xib in Resources */,
 				4794965D2AB8A70500C42D1E /* GroupActionsView.xib in Resources */,
 				4726A43924C628DA005A66B4 /* synth.caf in Resources */,
+				4717B6762D9FF76100E3681E /* EpisodeChapterItemView.xib in Resources */,
 				474E466C2AB0BDD10098AD24 /* DeletedMessageView.xib in Resources */,
 				4708C2102A5884F800274AD4 /* ChatHeaderView.xib in Resources */,
 				4771589B2BE4334600E2101D /* TribeMemberHeaderView.xib in Resources */,
@@ -3943,6 +3985,7 @@
 				4726A43C24C628DA005A66B4 /* bells.caf in Resources */,
 				479496212AB2076600C42D1E /* PodcastBoostView.xib in Resources */,
 				47D676062C11F2DD0002914E /* KeyboardReplyView.xib in Resources */,
+				4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */,
 				4734D39D2417E3D500D6957E /* Assets.xcassets in Resources */,
 				477ADCD62A1E5A85004E74CE /* PinMessageBarView.xib in Resources */,
 				47C1D605248EABEA00718B28 /* GroupAddedContactCollectionViewItem.xib in Resources */,
@@ -4135,6 +4178,7 @@
 				4744FA932469CA2D00C5FD94 /* TransactionMessageMediaExtension.swift in Sources */,
 				478ED5A025D560A300940132 /* SphinxReady.swift in Sources */,
 				478ED5AC25D5730A00940132 /* CCSecureTextField.swift in Sources */,
+				4717B6722D9FF70A00E3681E /* EpisodeChaptersDataSource.swift in Sources */,
 				475B72192BB1CC2C003AD969 /* Server+CoreDataProperties.swift in Sources */,
 				4744FA8A2469C9F800C5FD94 /* Subscription+CoreDataClass.swift in Sources */,
 				479496632AB8A78A00C42D1E /* GroupRemovedView.swift in Sources */,
@@ -4162,6 +4206,7 @@
 				CE1FA8FE2A01B6680014360C /* LsatListTableCellView.swift in Sources */,
 				4708C2132A58851900274AD4 /* ChatBottomView.swift in Sources */,
 				478ED59C25D55EA600940132 /* ProfileImageView.swift in Sources */,
+				4717B6752D9FF76100E3681E /* EpisodeChapterItemView.swift in Sources */,
 				4744FA772469A83E00C5FD94 /* Date.swift in Sources */,
 				4744FAD5246B2D0200C5FD94 /* AnimationHelper.swift in Sources */,
 				4744FAA72469CEE100C5FD94 /* Int.swift in Sources */,
@@ -4279,6 +4324,7 @@
 				479751CC246C750600D2106B /* NSWindow.swift in Sources */,
 				475B682A29915D72000EF29C /* ContentFeedPaymentDestination+CoreDataClass.swift in Sources */,
 				4708C2072A55EF5900274AD4 /* NSFont.swift in Sources */,
+				4717B66B2D9ECA8D00E3681E /* Chapter+Computed.swift in Sources */,
 				47AF0D552553175B00C98398 /* PodcastPlayerCollectionViewItem.swift in Sources */,
 				47E771322472D04F00C9CFEB /* Cache.swift in Sources */,
 				479751F5246DE43300D2106B /* MediaLoader.swift in Sources */,
@@ -4287,7 +4333,9 @@
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
+				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
 				4789E27724F42295003991BE /* SettingsTabsView.swift in Sources */,
+				4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */,
 				4708C2012A55C0AA00274AD4 /* UserContact+FetchUtils.swift in Sources */,
 				474A668F24990643002C2D10 /* MenuOptionsView.swift in Sources */,
 				4794966B2AB8B03800C42D1E /* MessageNoBubbleCollectionViewItem+DelegatesExtension.swift in Sources */,
@@ -4474,6 +4522,7 @@
 				470708A024AE65D600A98DCA /* ChatChatListExtension.swift in Sources */,
 				4726A42A24C62729005A66B4 /* NotificationsHelper.swift in Sources */,
 				47E19DD92BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift in Sources */,
+				4717B6652D9EC9D000E3681E /* API+ChaptersNodesExtension.swift in Sources */,
 				478ED58425D47C4900940132 /* ConnectingView.swift in Sources */,
 				475723AB247ED3AC001ADC7E /* AudioPlayerHelper.swift in Sources */,
 				47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */,
@@ -5554,12 +5603,13 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */,
 				77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */,
 				473873AF2CD929C400CBBC28 /* com_stakwork_sphinx_desktop 3.xcdatamodel */,
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */;
+			currentVersion = 4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

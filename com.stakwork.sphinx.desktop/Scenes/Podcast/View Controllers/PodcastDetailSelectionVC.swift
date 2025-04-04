@@ -26,6 +26,10 @@ class PodcastDetailSelectionVC : NSViewController{
     @IBOutlet weak var dotView2 : NSView!
     @IBOutlet weak var timeRemainingLabel : NSTextField!
     @IBOutlet weak var collectionView: NSCollectionView!
+    @IBOutlet weak var chaptersContainer: NSView!
+    @IBOutlet weak var chaptersTitle: NSTextField!
+    @IBOutlet weak var chaptersCollectionView: NSCollectionView!
+    @IBOutlet weak var divider: NSBox!
     
     weak var delegate : PodcastDetailSelectionVCDelegate!
     
@@ -40,9 +44,22 @@ class PodcastDetailSelectionVC : NSViewController{
         )
     }()
     
+    lazy var episodeChapterDS: EpisodeChaptersDataSource = {
+        return EpisodeChaptersDataSource(
+            collectionView: chaptersCollectionView,
+            episode: episode
+        )
+    }()
+    
     override func viewDidLoad() {
+        divider.wantsLayer = true
+        divider.layer?.backgroundColor = NSColor.Sphinx.SecondaryText.withAlphaComponent(0.5).cgColor
+        chaptersContainer.isHidden = (episode.chapters?.count ?? 0) == 0
+        
         adjustUI(episode: episode, podcast: podcast)
+        
         podcastDetailSelectionVM.setupCollectionView()
+        episodeChapterDS.setupCollectionView()
     }
     
     static func instantiate(
@@ -58,7 +75,10 @@ class PodcastDetailSelectionVC : NSViewController{
         return viewController
     }
     
-    func adjustUI(episode:PodcastEpisode,podcast:PodcastFeed?){
+    func adjustUI(
+        episode: PodcastEpisode,
+        podcast: PodcastFeed?
+    ){
         episodeTitleLabel.maximumNumberOfLines = 3
         episodeTitleLabel.cell?.wraps = true
         mediaTypeImageView.wantsLayer = true
@@ -83,7 +103,6 @@ class PodcastDetailSelectionVC : NSViewController{
         )
         
         timeRemainingLabel.stringValue = timeString
-        
         
         let imageUrl = episode.imageURLPath ?? podcast?.imageURLPath
         

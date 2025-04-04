@@ -34,6 +34,9 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var liveCollectionView: NSCollectionView!
     @IBOutlet weak var boostButtonView: BoostButtonView!
     @IBOutlet weak var audioLoadingWheel: NSProgressIndicator!
+    @IBOutlet weak var advertContainer: NSBox!
+    @IBOutlet weak var advertLabel: NSTextField!
+    @IBOutlet weak var chaptersContainer: NSView!
     
     weak var delegate: PodcastPlayerViewDelegate?
     
@@ -42,6 +45,7 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     
 //    var livePodcastDataSource: PodcastLiveDataSource? = nil
     var liveMessages: [Int: [TransactionMessage]] = [:]
+    var chapterInfoEpisodeId: String? = nil
     
     let kDurationLineMargins: CGFloat = 64
     
@@ -51,6 +55,7 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     var podcast: PodcastFeed! = nil
     
     var dragging = false
+    var skippingAdvert = false
     
     var audioLoading = false {
         didSet {
@@ -67,13 +72,10 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        /*
-        DispatchQueue.main.async {
-            self.episodeImageView.wantsLayer = true
-            self.episodeImageView.imageScaling = .scaleProportionallyUpOrDown
-        }
-        */
         boostButtonView.delegate = self
+        
+        NotificationCenter.default.removeObserver(self, name: .refreshFeedDataAndUI, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshPodcastInfo), name: .refreshFeedDataAndUI, object: nil)
     }
     
     func configureWith(
@@ -89,6 +91,13 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
         
         podcastPlayerController.addDelegate(self, withKey: PodcastDelegateKeys.PodcastPlayerView.rawValue)
         
+        setupView()
+    }
+    
+    @objc func refreshPodcastInfo() {
+        if let feed = ContentFeed.getFeedById(feedId: podcast.feedID) {
+            self.podcast = PodcastFeed.convertFrom(contentFeed: feed)
+        }
         setupView()
     }
     

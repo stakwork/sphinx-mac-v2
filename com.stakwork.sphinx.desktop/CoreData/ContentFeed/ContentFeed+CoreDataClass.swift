@@ -27,7 +27,7 @@ public class ContentFeed: NSManagedObject {
         
         var contentFeed: ContentFeed
         
-        ContentFeed.deleteFeedWith(feedId: feedId)
+        let itemsData = ContentFeed.deleteFeedWith(feedId: feedId)
         
         guard let items = json[CodingKeys.items.rawValue].array, items.count > 0 else {
             return nil
@@ -66,7 +66,11 @@ public class ContentFeed: NSManagedObject {
         
         if let items = json[CodingKeys.items.rawValue].array {
             for item in items {
-                let i = ContentFeedItem.createObjectFrom(json: item, context: context)
+                let i = ContentFeedItem.createObjectFrom(
+                    json: item,
+                    context: context,
+                    itemsData: itemsData
+                )
                 i?.contentFeed = contentFeed
             }
         }
@@ -85,6 +89,8 @@ public class ContentFeed: NSManagedObject {
             }
         }
         
+        contentFeed.managedObjectContext?.saveContext()
+        
         return contentFeed
     }
     
@@ -93,30 +99,22 @@ public class ContentFeed: NSManagedObject {
         chatId: Int,
         completion: @escaping (String?) -> ()
     ) {
-        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-        
-        backgroundContext.perform {
-            let backgroundChat: Chat? = Chat.getChatWith(id: chatId, managedContext: backgroundContext)
+        fetchContentFeed(
+            at: feedUrl,
+            chat: nil,
+            persistingIn: CoreDataManager.sharedManager.persistentContainer.viewContext
+        ) { result in
             
-            fetchContentFeed(
-                at: feedUrl,
-                chat: backgroundChat,
-                persistingIn: backgroundContext
-            ) { result in
+            if case .success(let contentFeed) = result {
+                let feedId = contentFeed.feedID
                 
-                if case .success(let contentFeed) = result {
-                    let feedId = contentFeed.feedID
-                    
-                    backgroundContext.saveContext()
-                    
-                    DispatchQueue.main.async {
-                        completion(feedId)
-                    }
-                    return
+                DispatchQueue.main.async {
+                    completion(feedId)
                 }
-                
-                completion(nil)
+                return
             }
+            
+            completion(nil)
         }
     }
     
@@ -185,9 +183,15 @@ public class ContentFeed: NSManagedObject {
             url: tribesServerURL,
             callback: { feedJSON in
                 if let contentFeed = contentFeed {
+                    let itemsData = contentFeed.getItemsData()
+                    
                     if let items = feedJSON[ContentFeed.CodingKeys.items.rawValue].array {
                         for item in items {
-                            let i = ContentFeedItem.createObjectFrom(json: item, context: managedObjectContext)
+                            let i = ContentFeedItem.createObjectFrom(
+                                json: item,
+                                context: managedObjectContext,
+                                itemsData: itemsData
+                            )
                             i?.contentFeed = contentFeed
                         }
                     }

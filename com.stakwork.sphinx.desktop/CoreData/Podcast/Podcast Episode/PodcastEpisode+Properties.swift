@@ -26,6 +26,8 @@ public class PodcastEpisode: NSObject {
     public var people: [String] = []
     public var topics: [String] = []
     public var destination: PodcastDestination? = nil
+    public var referenceId: String? = nil
+    public var chapters: Array<Chapter>? = nil
 
     //For recommendations podcast
     public var type: String?
@@ -115,8 +117,49 @@ extension PodcastEpisode {
         podcastEpisode.type = ActionsManager.PODCAST_TYPE
         podcastEpisode.feedID = feed?.feedID
         podcastEpisode.feedUrlPath = feed?.feedURLPath
+        podcastEpisode.referenceId = contentFeedItem.referenceId
+        
+        if let chaptersData = contentFeedItem.chaptersData {
+            let chapters = PodcastEpisode.getChaptersFrom(json: chaptersData)
+            podcastEpisode.chapters = chapters
+        }
         
         return podcastEpisode
+    }
+    
+    public static func getChaptersFrom(json: String) -> [Chapter] {
+        var chapters: [Chapter] = []
+        
+        if let jsonData = json.data(using: .utf8) {
+            do {
+                let graphData = try JSONDecoder().decode(GraphData.self, from: jsonData)
+                
+                for node in graphData.nodes {
+                    let timestamp: TimeInterval = node.date_added_to_graph
+                    let date = Date(timeIntervalSince1970: timestamp)
+                    
+                    if node.node_type == "Chapter" {
+                        chapters.append(
+                            Chapter(
+                                dateAddedToGraph: date,
+                                nodeType: node.node_type,
+                                isAd: (node.properties.is_ad == "True") ? true : false,
+                                name: node.properties.name ?? node.properties.episode_title ?? "Unknown",
+                                sourceLink: node.properties.source_link ?? "Unknown",
+                                timestamp: node.properties.timestamp ?? "Unknown",
+                                referenceId: node.ref_id
+                            )
+                        )
+                    }
+                }
+            } catch {
+                print("Error decoding JSON: \(error)")
+            }
+        } else {
+            print("Failed to convert string to Data.")
+        }
+        
+        return chapters.sorted(by: { $0.timestamp.toSeconds() < $1.timestamp.toSeconds() })
     }
     
     var isMusicClip: Bool {
@@ -160,6 +203,24 @@ extension PodcastEpisode {
             link! += "&atTime=\(timestamp)"
         }
         return link
+    }
+    
+    func getAdTimestamps() -> [(Int, Int)] {
+        guard let chapters = chapters else {
+            return []
+        }
+        
+        var timestamps: [(Int, Int)] = []
+        
+        for (index, chapter) in chapters.enumerated() {
+            if chapter.isAd {
+                let nextChapterStart = chapters[index + 1].timestamp.toSeconds()
+                let adStart = chapter.timestamp.toSeconds()
+                timestamps.append((adStart, nextChapterStart))
+            }
+        }
+        
+        return timestamps
     }
     
 }

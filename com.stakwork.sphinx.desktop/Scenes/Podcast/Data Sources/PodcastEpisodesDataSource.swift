@@ -12,7 +12,7 @@ import Cocoa
 protocol PodcastEpisodesDSDelegate : AnyObject {
     func shouldShareClip(comment: PodcastComment)
     func shouldSendBoost(message: String, amount: Int, animation: Bool) -> TransactionMessage?
-    func shouldCopyShareLink(link:String)
+    func shouldCopyShareLink(link: String)
 }
 
 class PodcastEpisodesDataSource : NSObject {
@@ -22,12 +22,14 @@ class PodcastEpisodesDataSource : NSObject {
     public static let kPlayerRowHeight: CGFloat = 670
     
     let kRowHeight: CGFloat = 200
+    let kChapterHeight: CGFloat = 40
     let kHeaderHeight: CGFloat = 60
     
     var collectionView: NSCollectionView! = nil
     
     var chat: Chat! = nil
     var podcast: PodcastFeed! = nil
+    var episodesExpanded: [Int: Bool] = [:]
     
     let podcastPlayerController = PodcastPlayerController.sharedInstance
     let feedsManager = FeedsManager.sharedInstance
@@ -38,7 +40,6 @@ class PodcastEpisodesDataSource : NSObject {
         podcastFeed: PodcastFeed,
         delegate: PodcastEpisodesDSDelegate
     ) {
-        
         super.init()
         
         self.chat = chat
@@ -59,8 +60,8 @@ class PodcastEpisodesDataSource : NSObject {
     }
 }
 
+
 extension PodcastEpisodesDataSource : NSCollectionViewDataSource {
-  
     func numberOfSections(in collectionView: NSCollectionView) -> Int {
         return 2
     }
@@ -89,7 +90,13 @@ extension PodcastEpisodesDataSource : NSCollectionViewDataSource {
             let isLastRow = indexPath.item == podcast.episodesArray.count - 1
             let isPlaying = podcastPlayerController.isPlaying(episodeId: episode.itemID)
             
-            collectionViewItem.configureWith(podcast: podcast, and: episode, isLastRow: isLastRow, playing: isPlaying)
+            collectionViewItem.configureWith(
+                podcast: podcast,
+                and: episode,
+                isLastRow: isLastRow,
+                playing: isPlaying,
+                expanded: episodesExpanded[indexPath.item] ?? false
+            )
             collectionViewItem.delegate = self
             
         } else if let collectionViewItem = item as? PodcastPlayerCollectionViewItem {
@@ -104,6 +111,15 @@ extension PodcastEpisodesDataSource : NSCollectionViewDelegate, NSCollectionView
         if indexPath.section == 0 {
             return NSSize(width: self.collectionView.frame.width, height: PodcastEpisodesDataSource.kPlayerRowHeight)
         }
+        
+        let episodes = podcast.episodesArray
+        let episode = episodes[indexPath.item]
+        
+        if episodesExpanded[indexPath.item] ?? false {
+            let height = kRowHeight + (CGFloat((episode.chapters?.count ?? 0)) * kChapterHeight)
+            return NSSize(width: self.collectionView.frame.width, height: height)
+        }
+        
         return NSSize(width: self.collectionView.frame.width, height: kRowHeight)
     }
     
@@ -121,7 +137,7 @@ extension PodcastEpisodesDataSource : NSCollectionViewDelegate, NSCollectionView
             for: indexPath
         ) as! PodcastEpisodesHeaderView
         
-        view.configureWith(count: podcast.episodesArray.count)
+        view.configureWith(count: podcast.episodesArray.count, delegate: self)
         view.addShadow(location: VerticalLocation.bottom, color: NSColor.black, opacity: 0.2, radius: 3.0)
         
         return view
@@ -160,6 +176,14 @@ extension PodcastEpisodesDataSource : PodcastPlayerViewDelegate {
     }
 }
 
+extension PodcastEpisodesDataSource : PodcastEpisodesHeaderViewDelegate {
+    func skipAdsButtonClicked() -> Bool {
+        let newValue = !podcast.skipAds
+        podcast.skipAds = newValue
+        return newValue
+    }
+}
+
 
 extension PodcastEpisodesDataSource:PodcastEpisodeCollectionViewItemDelegate{
     func episodeShareTapped(episode: PodcastEpisode) {
@@ -180,5 +204,73 @@ extension PodcastEpisodesDataSource:PodcastEpisodeCollectionViewItemDelegate{
                 cancelLabel: "Share from Current Time"
             )
             
+    }
+    
+    func episodeChaptersTapped(episode: PodcastEpisode, with index: Int) {
+        let podcastPlayerController = PodcastPlayerController.sharedInstance
+        
+        if let chapter = episode.chapters?[index] {
+            var newTime = chapter.timestamp.toSeconds()
+            newTime = max(newTime, 0)
+            newTime = min(newTime, podcast.duration)
+            
+            guard let podcastData = podcast.getPodcastData(
+                episodeId: episode.itemID,
+                currentTime: newTime
+            ) else {
+                return
+            }
+            
+            if podcastPlayerController.isPlaying(episodeId: episode.itemID) {
+                podcastPlayerController.submitAction(
+                    UserAction.Seek(podcastData)
+                )
+            } else {
+                podcastPlayerController.submitAction(
+                    UserAction.Play(podcastData)
+                )
+            }
+        }
+    }
+    
+    func chaptersButtonTappedFor(episode: PodcastEpisode, on cell: NSCollectionViewItem) {
+        if let indexPath = collectionView.indexPath(for: cell) {
+            var indexRowsToUpdate: [IndexPath] = [indexPath]
+            
+            for (index, _) in episodesExpanded.enumerated() {
+                if index != indexPath.item {
+                    if (episodesExpanded[index] ?? false) {
+                        indexRowsToUpdate.append(IndexPath(item: index, section: 0))
+                    }
+                    episodesExpanded[index] = false
+                }
+            }
+            
+            episodesExpanded[indexPath.item] = !(episodesExpanded[indexPath.item] ?? false)
+            
+            collectionView.animator().performBatchUpdates {
+                self.collectionView.reloadItems(at: Set(indexRowsToUpdate))
+            } completionHandler: { _ in
+                self.collectionView.collectionViewLayout?.invalidateLayout()
+            }
+        }
+    }
+    
+    func episodePlayTapped(episode: PodcastEpisode) {
+        guard let podcastData = podcast.getPodcastData(
+            episodeId: episode.itemID
+        ) else {
+            return
+        }
+        
+        if podcastPlayerController.isPlaying(episodeId: episode.itemID) {
+            podcastPlayerController.submitAction(
+                UserAction.Pause(podcastData)
+            )
+        } else {
+            podcastPlayerController.submitAction(
+                UserAction.Play(podcastData)
+            )
+        }
     }
 }

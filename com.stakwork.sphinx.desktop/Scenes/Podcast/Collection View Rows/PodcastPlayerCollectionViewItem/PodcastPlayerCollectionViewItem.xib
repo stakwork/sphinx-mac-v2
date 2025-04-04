@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -100,6 +100,12 @@
                     </constraints>
                     <color key="fillColor" name="ReceivedIcon"/>
                 </box>
+                <customView translatesAutoresizingMaskIntoConstraints="NO" id="oGv-4i-JxJ">
+                    <rect key="frame" x="32" y="127" width="336" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="N2L-lK-Fvu"/>
+                    </constraints>
+                </customView>
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="uyu-EV-v3y" customClass="MouseDraggableView" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="32" y="127" width="336" height="40"/>
                     <constraints>
@@ -109,6 +115,30 @@
                 <progressIndicator hidden="YES" wantsLayer="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="tj6-2r-uMr">
                     <rect key="frame" x="294" y="122" width="16" height="16"/>
                 </progressIndicator>
+                <box hidden="YES" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="16" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="4ns-1t-qnO">
+                    <rect key="frame" x="134" y="131" width="133" height="32"/>
+                    <view key="contentView" id="Is6-g2-Aqx">
+                        <rect key="frame" x="0.0" y="0.0" width="133" height="32"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bOf-DJ-fiz">
+                                <rect key="frame" x="10" y="4" width="113" height="24"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Ad detected" id="6Dd-rK-gw7">
+                                    <font key="font" size="20" name="Roboto-Medium"/>
+                                    <color key="textColor" name="TextInverted"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="bOf-DJ-fiz" firstAttribute="leading" secondItem="Is6-g2-Aqx" secondAttribute="leading" constant="12" id="3C9-FY-IeR"/>
+                            <constraint firstAttribute="trailing" secondItem="bOf-DJ-fiz" secondAttribute="trailing" constant="12" id="4zi-G9-FMe"/>
+                            <constraint firstItem="bOf-DJ-fiz" firstAttribute="top" secondItem="Is6-g2-Aqx" secondAttribute="top" constant="4" id="AFx-gE-mlC"/>
+                            <constraint firstAttribute="bottom" secondItem="bOf-DJ-fiz" secondAttribute="bottom" constant="4" id="xsO-BX-aTh"/>
+                        </constraints>
+                    </view>
+                    <color key="fillColor" name="Text"/>
+                </box>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="j3a-5W-Ger">
                     <rect key="frame" x="30" y="122" width="57" height="15"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="00:00:00" id="RzW-4K-am1">
@@ -225,7 +255,7 @@
                     <rect key="frame" x="170" y="83" width="62" height="25"/>
                     <popUpButtonCell key="cell" type="push" title="1.5x" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="vvz-nS-T2e" id="nWR-JK-nFl">
                         <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="menu"/>
+                        <font key="font" metaFont="message"/>
                         <menu key="menu" id="uZk-bc-9N6">
                             <items>
                                 <menuItem title="1.5x" state="on" id="vvz-nS-T2e"/>
@@ -245,12 +275,14 @@
             <constraints>
                 <constraint firstItem="wkU-Xv-7th" firstAttribute="top" secondItem="EfV-pV-zKD" secondAttribute="bottom" constant="10" id="1sW-t9-eYt"/>
                 <constraint firstItem="uyu-EV-v3y" firstAttribute="leading" secondItem="du4-Uv-efo" secondAttribute="leading" id="2Sq-Ro-Z6d"/>
+                <constraint firstItem="4ns-1t-qnO" firstAttribute="centerX" secondItem="uyu-EV-v3y" secondAttribute="centerX" id="2xw-uN-dPy"/>
                 <constraint firstItem="35Y-CZ-In6" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="31c-DO-TzT"/>
                 <constraint firstItem="wkU-Xv-7th" firstAttribute="leading" secondItem="epe-yP-uMg" secondAttribute="trailing" id="48k-Es-Gls"/>
                 <constraint firstItem="aCz-Sz-VhK" firstAttribute="trailing" secondItem="du4-Uv-efo" secondAttribute="trailing" id="4yM-ec-P0b"/>
                 <constraint firstItem="j3a-5W-Ger" firstAttribute="leading" secondItem="du4-Uv-efo" secondAttribute="leading" id="51q-bz-H8a"/>
                 <constraint firstItem="k5A-VQ-0lA" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="6Lu-tK-FRC"/>
                 <constraint firstItem="Gje-cP-dDc" firstAttribute="centerY" secondItem="jXX-Qx-eeZ" secondAttribute="centerY" id="6zZ-Ae-dYU"/>
+                <constraint firstItem="oGv-4i-JxJ" firstAttribute="top" secondItem="uyu-EV-v3y" secondAttribute="top" id="94M-la-4Tb"/>
                 <constraint firstAttribute="trailing" secondItem="35Y-CZ-In6" secondAttribute="trailing" id="9t8-k1-jdk"/>
                 <constraint firstItem="k5A-VQ-0lA" firstAttribute="top" secondItem="NHp-dV-cDu" secondAttribute="bottom" id="9vf-Wm-810"/>
                 <constraint firstItem="k5A-VQ-0lA" firstAttribute="top" secondItem="35Y-CZ-In6" secondAttribute="bottom" id="BA8-wc-6N3"/>
@@ -262,6 +294,7 @@
                 <constraint firstItem="zXx-n0-mtn" firstAttribute="leading" secondItem="Ye5-bz-UmZ" secondAttribute="trailing" id="IsM-zY-XXY"/>
                 <constraint firstItem="una-Hn-RvR" firstAttribute="top" secondItem="uyu-EV-v3y" secondAttribute="bottom" constant="50" id="JjU-dC-f0g"/>
                 <constraint firstAttribute="trailing" secondItem="du4-Uv-efo" secondAttribute="trailing" constant="32" id="M6d-Ms-vXk"/>
+                <constraint firstItem="oGv-4i-JxJ" firstAttribute="bottom" secondItem="uyu-EV-v3y" secondAttribute="bottom" id="Qtu-Ls-TI9"/>
                 <constraint firstItem="aCz-Sz-VhK" firstAttribute="top" secondItem="du4-Uv-efo" secondAttribute="bottom" constant="8" id="SSl-xO-1do"/>
                 <constraint firstItem="u4B-WC-vJh" firstAttribute="top" secondItem="k5A-VQ-0lA" secondAttribute="bottom" constant="24" id="SsT-gw-7g2"/>
                 <constraint firstItem="jXX-Qx-eeZ" firstAttribute="top" secondItem="du4-Uv-efo" secondAttribute="top" id="UBH-PT-m2M"/>
@@ -274,10 +307,13 @@
                 <constraint firstItem="u4B-WC-vJh" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="32" id="apb-BM-cIp"/>
                 <constraint firstItem="jXX-Qx-eeZ" firstAttribute="bottom" secondItem="du4-Uv-efo" secondAttribute="bottom" id="asZ-Pt-we1"/>
                 <constraint firstItem="tj6-2r-uMr" firstAttribute="centerY" secondItem="aCz-Sz-VhK" secondAttribute="centerY" id="bxj-aO-Riv"/>
+                <constraint firstItem="oGv-4i-JxJ" firstAttribute="leading" secondItem="uyu-EV-v3y" secondAttribute="leading" id="c36-qT-seO"/>
                 <constraint firstItem="wkU-Xv-7th" firstAttribute="bottom" secondItem="Ye5-bz-UmZ" secondAttribute="bottom" id="drz-UT-XyR"/>
                 <constraint firstItem="uyu-EV-v3y" firstAttribute="trailing" secondItem="du4-Uv-efo" secondAttribute="trailing" id="elN-vW-Kqw"/>
                 <constraint firstItem="Ye5-bz-UmZ" firstAttribute="centerY" secondItem="una-Hn-RvR" secondAttribute="centerY" id="fCH-74-rf1"/>
                 <constraint firstItem="epe-yP-uMg" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="32" id="fJ2-yh-JWZ"/>
+                <constraint firstItem="oGv-4i-JxJ" firstAttribute="trailing" secondItem="uyu-EV-v3y" secondAttribute="trailing" id="fP0-dE-eW7"/>
+                <constraint firstItem="4ns-1t-qnO" firstAttribute="centerY" secondItem="uyu-EV-v3y" secondAttribute="centerY" id="g3v-an-O77"/>
                 <constraint firstItem="zXx-n0-mtn" firstAttribute="bottom" secondItem="Ye5-bz-UmZ" secondAttribute="bottom" id="jRD-bn-mgG"/>
                 <constraint firstItem="Ye5-bz-UmZ" firstAttribute="leading" secondItem="wkU-Xv-7th" secondAttribute="trailing" id="krf-R2-yto"/>
                 <constraint firstAttribute="trailing" secondItem="cvm-EV-YVC" secondAttribute="trailing" constant="23.5" id="kyK-F1-qXT"/>
@@ -297,8 +333,11 @@
         </customView>
         <collectionViewItem id="0Dg-MA-C20" customClass="PodcastPlayerCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="advertContainer" destination="4ns-1t-qnO" id="WmR-Wv-cqc"/>
+                <outlet property="advertLabel" destination="bOf-DJ-fiz" id="UKB-qR-Wp6"/>
                 <outlet property="audioLoadingWheel" destination="tj6-2r-uMr" id="4C5-kk-oPs"/>
                 <outlet property="boostButtonView" destination="cvm-EV-YVC" id="YN0-OY-SOZ"/>
+                <outlet property="chaptersContainer" destination="oGv-4i-JxJ" id="RYk-MM-E78"/>
                 <outlet property="currentTimeDot" destination="Gje-cP-dDc" id="o4a-s9-2QG"/>
                 <outlet property="currentTimeLabel" destination="j3a-5W-Ger" id="6M8-im-vFU"/>
                 <outlet property="durationLabel" destination="aCz-Sz-VhK" id="eOy-D0-IU7"/>
@@ -332,6 +371,9 @@
         </namedColor>
         <namedColor name="Text">
             <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TextInverted">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="WashedOutSentText">
             <color red="0.69019607843137254" green="0.71764705882352942" blue="0.73725490196078436" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

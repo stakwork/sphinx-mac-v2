@@ -45,6 +45,13 @@ typealias HardwareSeedCallback = ((Bool) -> ())
 //TribeMembers
 typealias ChatContactsCallback = (([JSON]) -> ())
 
+//GraphMindset
+typealias CheckNodeCallback = ((API.CheckNodeResponse) -> ())
+typealias GetNodeChaptersCallback = ((String) -> ())
+typealias GetNodeStatusCallback = ((API.NodeStatusResponse) -> ())
+typealias CreateRunCallback = ((API.CreateRunResponse) -> ())
+typealias StatusProjectCallback = ((Bool) -> ())
+
 extension API {
     enum RequestError: Swift.Error {
         case failedToCreateRequestURL
@@ -90,7 +97,7 @@ class API {
     
     public static let kJitsiCallServer = "https://jitsi.sphinx.chat"
     public static let kLiveKitCallServer = "https://chat.sphinx.chat"
-
+    public static let kGraphMindsetUrl = "https://graphmindset.sphinx.chat/api"
     
     var storedVideoCallServer: String? = nil
     public var kVideoCallServer : String {
