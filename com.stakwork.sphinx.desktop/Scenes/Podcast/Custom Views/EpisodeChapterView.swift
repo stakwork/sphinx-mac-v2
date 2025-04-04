@@ -41,8 +41,7 @@ class EpisodeChapterView: NSView, LoadableNib {
     func configureWith(
         chapter: Chapter,
         delegate: ChapterViewDelegate?,
-        index: Int,
-        episodeRow: Bool
+        index: Int
     ) {
         self.delegate = delegate
         self.index = index

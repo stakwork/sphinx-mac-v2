@@ -509,7 +509,7 @@
 "logout.text" = "您确定要注销吗？所有数据和偏好设置将被删除。";
 "enter.code.placeholder" = "输入代码...";
 "keychain.restore" = "从密钥链恢复";
-"podcast.details" = "播客详情和选项";
+"podcast.details" = "剧集详情和章节";
 "my.lsats" = "我的L402s";
 "code.not.supported" = "代码不受支持";
 "enter.restore.pin" = "输入恢复PIN码";

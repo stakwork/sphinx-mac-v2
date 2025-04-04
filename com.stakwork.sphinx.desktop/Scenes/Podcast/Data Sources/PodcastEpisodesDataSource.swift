@@ -248,7 +248,7 @@ extension PodcastEpisodesDataSource:PodcastEpisodeCollectionViewItemDelegate{
             
             episodesExpanded[indexPath.item] = !(episodesExpanded[indexPath.item] ?? false)
             
-            collectionView.performBatchUpdates {
+            collectionView.animator().performBatchUpdates {
                 self.collectionView.reloadItems(at: Set(indexRowsToUpdate))
             } completionHandler: { _ in
                 self.collectionView.collectionViewLayout?.invalidateLayout()

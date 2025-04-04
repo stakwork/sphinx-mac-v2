@@ -159,8 +159,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
             newChapterView.configureWith(
                 chapter: chapter,
                 delegate: self,
-                index: index,
-                episodeRow: true
+                index: index
             )
             
             chaptersContainer.addArrangedSubview(newChapterView)
@@ -212,6 +211,19 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
         guard let feed = ContentFeed.getFeedById(feedId: feedId) else {
             return
         }
+        
+        let chaptersCount = episode.chapters?.count ?? 0
+        let kViewWithoutChaptersHeight: Int = 488
+        let kViewWithChaptersHeight: Int = 516
+        let kViewHeaderHeight: Int = 80
+        let kChapterViewHeight: Int = 40
+        
+        var height: Int = kViewWithoutChaptersHeight + kViewHeaderHeight
+        
+        if chaptersCount > 0 {
+            height = kViewWithChaptersHeight + kViewHeaderHeight + kChapterViewHeight * chaptersCount
+        }
+        
             
         let detailVC = PodcastDetailSelectionVC.instantiate(
             podcast: PodcastFeed.convertFrom(contentFeed: feed),
@@ -224,7 +236,7 @@ class PodcastEpisodeCollectionViewItem: NSCollectionViewItem, PodcastDetailSelec
             identifier: "podcast-details-window",
             contentVC: detailVC,
             hideDivider: false,
-            height: 600
+            height: CGFloat(height)
         )
     }
     

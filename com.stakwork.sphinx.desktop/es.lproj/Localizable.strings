@@ -513,7 +513,7 @@
 "logout.text" = "Estas seguro que deseas desonectarse? La información y preferencias de tu cuenta serán eliminadas.";
 "enter.code.placeholder" = "Ingresa el código...";
 "keychain.restore" = "Restaurar desde Keychain";
-"podcast.details" = "Podcast Detalles & Opciones";
+"podcast.details" = "Detalles del episodio y capítulos";
 "my.lsats" = "Mis L402s";
 "code.not.supported" = "Código no soportado";
 "enter.restore.pin" = "Ingresa tu PIN";

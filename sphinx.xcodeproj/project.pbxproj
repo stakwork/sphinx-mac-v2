@@ -54,6 +54,9 @@
 		4717B66B2D9ECA8D00E3681E /* Chapter+Computed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */; };
 		4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */; };
 		4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */; };
+		4717B6722D9FF70A00E3681E /* EpisodeChaptersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */; };
+		4717B6752D9FF76100E3681E /* EpisodeChapterItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */; };
+		4717B6762D9FF76100E3681E /* EpisodeChapterItemView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */; };
 		47180EDD25E02E2B00C1CA05 /* CommonWelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */; };
 		471946BC2BF25ABA00D05216 /* API+VersionsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */; };
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
@@ -931,6 +934,9 @@
 		4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 5.xcdatamodel"; sourceTree = "<group>"; };
 		4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterView.swift; sourceTree = "<group>"; };
 		4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeChapterView.xib; sourceTree = "<group>"; };
+		4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChaptersDataSource.swift; sourceTree = "<group>"; };
+		4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterItemView.swift; sourceTree = "<group>"; };
+		4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EpisodeChapterItemView.xib; sourceTree = "<group>"; };
 		47180EDB25E02E2B00C1CA05 /* CommonWelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWelcomeViewController.swift; sourceTree = "<group>"; };
 		471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "API+VersionsExtension.swift"; sourceTree = "<group>"; };
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
@@ -1744,6 +1750,7 @@
 		470396EA2537292F007F9C23 /* Data Sources */ = {
 			isa = PBXGroup;
 			children = (
+				4717B6712D9FF70400E3681E /* EpisodeChaptersDataSource.swift */,
 				CE9BA45E29D76A8E000C8837 /* PodcastDetailSelectionVM.swift */,
 				470396EB2537293E007F9C23 /* PodcastEpisodesDataSource.swift */,
 				47B6F528258BC40600D64A41 /* PodcastLiveDataSource.swift */,
@@ -1761,6 +1768,8 @@
 				475B686D2991A928000EF29C /* PodcastPlayerCollectionViewItem */,
 				47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */,
 				47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */,
+				4717B6732D9FF76100E3681E /* EpisodeChapterItemView.swift */,
+				4717B6742D9FF76100E3681E /* EpisodeChapterItemView.xib */,
 			);
 			path = "Collection View Rows";
 			sourceTree = "<group>";
@@ -3940,6 +3949,7 @@
 				47469D692ACEE899004F0490 /* ChatSearchTextFieldView.xib in Resources */,
 				4794965D2AB8A70500C42D1E /* GroupActionsView.xib in Resources */,
 				4726A43924C628DA005A66B4 /* synth.caf in Resources */,
+				4717B6762D9FF76100E3681E /* EpisodeChapterItemView.xib in Resources */,
 				474E466C2AB0BDD10098AD24 /* DeletedMessageView.xib in Resources */,
 				4708C2102A5884F800274AD4 /* ChatHeaderView.xib in Resources */,
 				4771589B2BE4334600E2101D /* TribeMemberHeaderView.xib in Resources */,
@@ -4168,6 +4178,7 @@
 				4744FA932469CA2D00C5FD94 /* TransactionMessageMediaExtension.swift in Sources */,
 				478ED5A025D560A300940132 /* SphinxReady.swift in Sources */,
 				478ED5AC25D5730A00940132 /* CCSecureTextField.swift in Sources */,
+				4717B6722D9FF70A00E3681E /* EpisodeChaptersDataSource.swift in Sources */,
 				475B72192BB1CC2C003AD969 /* Server+CoreDataProperties.swift in Sources */,
 				4744FA8A2469C9F800C5FD94 /* Subscription+CoreDataClass.swift in Sources */,
 				479496632AB8A78A00C42D1E /* GroupRemovedView.swift in Sources */,
@@ -4195,6 +4206,7 @@
 				CE1FA8FE2A01B6680014360C /* LsatListTableCellView.swift in Sources */,
 				4708C2132A58851900274AD4 /* ChatBottomView.swift in Sources */,
 				478ED59C25D55EA600940132 /* ProfileImageView.swift in Sources */,
+				4717B6752D9FF76100E3681E /* EpisodeChapterItemView.swift in Sources */,
 				4744FA772469A83E00C5FD94 /* Date.swift in Sources */,
 				4744FAD5246B2D0200C5FD94 /* AnimationHelper.swift in Sources */,
 				4744FAA72469CEE100C5FD94 /* Int.swift in Sources */,

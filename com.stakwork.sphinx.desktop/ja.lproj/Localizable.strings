@@ -510,7 +510,7 @@
 "logout.text" = "ログアウトしてもよろしいですか？すべてのデータと設定が削除されます。";
 "enter.code.placeholder" = "コードを入力...";
 "keychain.restore" = "キーチェーンから復元";
-"podcast.details" = "ポッドキャストの詳細とオプション";
+"podcast.details" = "エピソードの詳細と章";
 "my.lsats" = "私のL402s";
 "code.not.supported" = "コードがサポートされていません";
 "enter.restore.pin" = "復元PINを入力";
