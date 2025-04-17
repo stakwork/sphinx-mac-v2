@@ -74,7 +74,7 @@ extension API {
         // Create the request
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             // Handle the response
-            if let error = error {
+            if let _ = error {
                 callback(false)
                 return
             }
@@ -95,7 +95,7 @@ extension API {
             }
             
             // Handle response data
-            if let responseString = String(data: data, encoding: .utf8) {
+            if let _ = String(data: data, encoding: .utf8) {
                 callback(false)
             } else {
                 callback(false)

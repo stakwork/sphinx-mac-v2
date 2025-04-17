@@ -1044,7 +1044,7 @@ extension NewChatTableDataSource {
 
 extension NewChatTableDataSource {
     func startVideoCall(link: String, audioOnly: Bool) {
-        var linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
+        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
         delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly)
     }
 }
