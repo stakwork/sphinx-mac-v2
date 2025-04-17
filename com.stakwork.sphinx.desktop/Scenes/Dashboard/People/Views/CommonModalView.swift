@@ -46,6 +46,7 @@ class CommonModalView: NSView, ModalViewInterface {
         var amount : Int? = nil
         var verificationSignature : String? = nil
         var ts : Int? = nil
+        var callback: String? = nil
         var info : [String: AnyObject] = [:]
         var jsonBody : JSON = JSON()
         
@@ -122,6 +123,9 @@ class CommonModalView: NSView, ModalViewInterface {
                         break
                     case "token":
                         authInfo?.token = value
+                        break
+                    case "callback":
+                        authInfo?.callback = value
                         break
                     case "amount":
                         if let intValue = Int(value) {
