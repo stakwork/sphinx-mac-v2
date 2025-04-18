@@ -51,8 +51,6 @@ extension ThreadTableDataSource {
         
         var groupingDate: Date? = nil
         var invoiceData: (Int, Int) = (0, 0)
-        
-        chat.processAliasesFrom(messages: messages)
 
         for (index, message) in messages.enumerated() {
             

@@ -366,6 +366,9 @@ public class Chat: NSManagedObject {
     ) {
         let ownerId = UserData.sharedInstance.getUserId()
         
+        let declinedRequestResponses = messages.filter { $0.isDeclinedRequest() }
+        let declinedRequestResponsesDictionary = Dictionary(uniqueKeysWithValues: declinedRequestResponses.map { ($0.replyUUID, $0) })
+        
         for message in messages {
             if !message.isIncoming(ownerId: ownerId) {
                 continue
@@ -378,6 +381,18 @@ public class Chat: NSManagedObject {
                     timezoneData[alias] = remoteTimezoneIdentifier
                 }
                 if let picture = message.senderPic, picture.isNotEmpty {
+                    if message.isMemberRequest() {
+                        if
+                            let originalRequestMsg = declinedRequestResponsesDictionary[message.uuid],
+                            let alias = originalRequestMsg.senderAlias, alias.isNotEmpty,
+                            let picture = originalRequestMsg.senderPic, picture.isNotEmpty
+                        {
+                            if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
+                                aliasesAndPics.remove(at: index)
+                            }
+                            continue
+                        }
+                    }
                     if message.isGroupLeaveMessage() {
                         if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
                             aliasesAndPics.remove(at: index)
@@ -392,6 +407,17 @@ public class Chat: NSManagedObject {
                         )
                     }
                 } else {
+                    if message.isMemberRequest() {
+                        if
+                            let originalRequestMsg = declinedRequestResponsesDictionary[message.uuid],
+                            let alias = originalRequestMsg.senderAlias, alias.isNotEmpty
+                        {
+                            if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+                                aliasesAndPics.remove(at: index)
+                            }
+                            continue
+                        }
+                    }
                     if message.isGroupLeaveMessage() {
                         if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
                             aliasesAndPics.remove(at: index)
