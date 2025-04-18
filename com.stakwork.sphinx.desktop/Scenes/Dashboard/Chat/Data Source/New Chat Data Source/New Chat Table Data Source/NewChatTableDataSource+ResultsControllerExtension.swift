@@ -178,8 +178,6 @@ extension NewChatTableDataSource {
         
         var groupingDate: Date? = nil
         var invoiceData: (Int, Int) = (0, 0)
-        
-        chat.processAliasesFrom(messages: messages)
 
         let filteredThreadMessages: [TransactionMessage] = filterThreadMessagesFrom(
             messages: messages,
@@ -810,7 +808,8 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
-                    self.messagesArray = messages.reversed()
+                    self.chat?.processAliasesFrom(messages: messages.reversed())
+                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
                     
                     if !(self.delegate?.isOnStandardMode() ?? true) {
                         return
