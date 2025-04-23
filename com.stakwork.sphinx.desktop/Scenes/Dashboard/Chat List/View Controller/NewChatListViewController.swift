@@ -172,6 +172,7 @@ extension NewChatListViewController {
                 lhs.unseenCount == rhs.unseenCount &&
                 lhs.contactStatus == rhs.contactStatus &&
                 lhs.inviteStatus == rhs.inviteStatus &&
+                lhs.inviteStatus == rhs.inviteStatus &&
                 lhs.notify == rhs.notify &&
                 lhs.selected == rhs.selected
             
@@ -180,6 +181,14 @@ extension NewChatListViewController {
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(objectId)
+            hasher.combine(messageId)
+            hasher.combine(messageStatus)
+            hasher.combine(message30SecOld)
+            hasher.combine(messageSeen)
+            hasher.combine(unseenCount)
+            hasher.combine(contactStatus)
+            hasher.combine(notify)
+            hasher.combine(selected)
         }
     }
 

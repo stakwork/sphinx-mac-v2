@@ -122,7 +122,8 @@ extension ThreadTableDataSource {
         
         updateSnapshot(UIUpdateIndex: UIUpdateIndex)
         
-        delegate?.configureNewMessagesIndicatorWith(newMsgCount: messages.count)
+//        delegate?.configureNewMessagesIndicatorWith(newMsgCount: messages.count)
+        delegate?.configureNewMessagesIndicatorWith(newMsgCount: 0)
         delegate?.shouldReloadThreadHeader()
     }
     

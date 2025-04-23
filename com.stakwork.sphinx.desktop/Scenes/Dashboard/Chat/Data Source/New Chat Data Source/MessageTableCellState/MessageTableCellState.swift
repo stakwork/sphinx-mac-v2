@@ -1011,6 +1011,7 @@ extension MessageTableCellState : Hashable {
         var mutableRhs = rhs
         
         return
+            mutableLhs.hashMessageId             == mutableRhs.hashMessageId &&
             mutableLhs.messageToShow?.id         == mutableRhs.messageToShow?.id &&
             mutableLhs.messageId                 == mutableRhs.messageId &&
             mutableLhs.messageStatus             == mutableRhs.messageStatus &&
@@ -1027,6 +1028,16 @@ extension MessageTableCellState : Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.hashMessageId)
+        hasher.combine(self.messageToShow?.id)
+        hasher.combine(self.messageId)
+        hasher.combine(self.messageStatus)
+        hasher.combine(self.messageType)
+        hasher.combine(self.bubbleState)
+        hasher.combine(self.messageString)
+        hasher.combine(self.boostMessages.count)
+        hasher.combine(self.separatorDate)
+        hasher.combine(self.threadMessages.count)
+        hasher.combine(self.memberRequestResponse?.id)
     }
     
     func getUniqueIdentifier() -> Int {
