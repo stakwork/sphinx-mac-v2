@@ -257,6 +257,9 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             chatImageView.layer?.cornerRadius = chatImageView.frame.height / 2
             
             renderContactInitialsLabel(for: chatListObject)
+            
+            chatImageView.isHidden = true
+            chatInitialsView.isHidden = false
 
             if
                 let imageURLPath = chatListObject.getPhotoUrl()?.removeDuplicatedProtocol(),
@@ -268,9 +271,6 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                     scaleMode: .aspectFill
                 )
                 
-                chatImageView.isHidden = false
-                chatInitialsView.isHidden = true
-                
                 chatImageView.sd_setImage(
                     with: imageURL,
                     placeholderImage: NSImage(named: "profileAvatar"),
@@ -280,6 +280,8 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                     completed: { [weak self] (image, error,_,_) in
                         if (error == nil) {
                             self?.chatImageView.image = image
+                            self?.chatImageView.isHidden = false
+                            self?.chatInitialsView.isHidden = true
                         }
                     }
                 )

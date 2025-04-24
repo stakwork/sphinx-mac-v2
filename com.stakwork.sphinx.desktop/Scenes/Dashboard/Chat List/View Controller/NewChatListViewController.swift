@@ -86,8 +86,7 @@ class NewChatListViewController: NSViewController {
     }
     
     func shouldReloadChatRowsFor(chatIds: [Int]) {
-        self.dataSourceQueue.sync {
-            
+        DispatchQueue.main.async {
             guard let dataSource = self.dataSource else {
                 return
             }
@@ -110,9 +109,7 @@ class NewChatListViewController: NSViewController {
             
             snapshot.reloadItems(itemIdentifiers)
             
-            DispatchQueue.main.async {
-                self.dataSource.apply(snapshot, animatingDifferences: true)
-            }
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
 }
@@ -172,7 +169,6 @@ extension NewChatListViewController {
                 lhs.unseenCount == rhs.unseenCount &&
                 lhs.contactStatus == rhs.contactStatus &&
                 lhs.inviteStatus == rhs.inviteStatus &&
-                lhs.inviteStatus == rhs.inviteStatus &&
                 lhs.notify == rhs.notify &&
                 lhs.selected == rhs.selected
             
@@ -187,6 +183,7 @@ extension NewChatListViewController {
             hasher.combine(messageSeen)
             hasher.combine(unseenCount)
             hasher.combine(contactStatus)
+            hasher.combine(inviteStatus)
             hasher.combine(notify)
             hasher.combine(selected)
         }
@@ -374,32 +371,32 @@ extension NewChatListViewController {
             return
         }
         
-        var snapshot = DataSourceSnapshot()
+        DispatchQueue.main.async {
+            var snapshot = DataSourceSnapshot()
 
-        snapshot.appendSections(CollectionViewSection.allCases)
-        
-        let selectedObjectId = (tab == .Friends) ?
-            contactsService.selectedFriendId :
-            contactsService.selectedTribeId
+            snapshot.appendSections(CollectionViewSection.allCases)
+            
+            let selectedObjectId = (self.tab == .Friends) ?
+                self.contactsService.selectedFriendId :
+                self.contactsService.selectedTribeId
 
-        let items = chatListObjects.enumerated().map { (index, element) in
+            let items = self.chatListObjects.enumerated().map { (index, element) in
+                
+                DataSourceItem(
+                    objectId: element.getObjectId(),
+                    messageId: element.lastMessage?.id,
+                    messageStatus: element.lastMessage?.status,
+                    message30SecOld: (element.lastMessage?.date ?? Date()) < Date().addingTimeInterval(-30),
+                    messageSeen: element.isSeen(ownerId: owner.id),
+                    unseenCount: element.unseenMessagesCount,
+                    contactStatus: element.getContactStatus(),
+                    inviteStatus: element.getInviteStatus(),
+                    notify: element.getChat()?.notify ?? Chat.NotificationLevel.SeeAll.rawValue,
+                    selected: selectedObjectId == element.getObjectId()
+                )
+                
+            }
             
-            DataSourceItem(
-                objectId: element.getObjectId(),
-                messageId: element.lastMessage?.id,
-                messageStatus: element.lastMessage?.status,
-                message30SecOld: (element.lastMessage?.date ?? Date()) < Date().addingTimeInterval(-30),
-                messageSeen: element.isSeen(ownerId: owner.id),
-                unseenCount: element.unseenMessagesCount,
-                contactStatus: element.getContactStatus(),
-                inviteStatus: element.getInviteStatus(),
-                notify: element.getChat()?.notify ?? Chat.NotificationLevel.SeeAll.rawValue,
-                selected: selectedObjectId == element.getObjectId()
-            )
-            
-        }
-        
-        dataSourceQueue.sync {
             snapshot.appendItems(items, toSection: .all)
             
             self.dataSource.apply(snapshot, animatingDifferences: true) {
