@@ -504,6 +504,8 @@
 		47C6236125091C02005D265C /* GiphySearchCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C6235F25091C02005D265C /* GiphySearchCollectionViewItem.swift */; };
 		47C6236225091C02005D265C /* GiphySearchCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47C6236025091C02005D265C /* GiphySearchCollectionViewItem.xib */; };
 		47C6236525091E6B005D265C /* GiphySearchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C6236425091E6B005D265C /* GiphySearchDataSource.swift */; };
+		47C6F4C82DC28A5300B0EDC4 /* FloatingAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C6F4C72DC28A5300B0EDC4 /* FloatingAudioPlayer.swift */; };
+		47C6F4CA2DC28A6000B0EDC4 /* FloatingAudioPlayer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47C6F4C92DC28A6000B0EDC4 /* FloatingAudioPlayer.xib */; };
 		47C7D71127874A12006D2809 /* AuthExternalView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47C7D71327874A12006D2809 /* AuthExternalView.xib */; };
 		47C7D71B27874A44006D2809 /* PersonModalView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47C7D71D27874A44006D2809 /* PersonModalView.xib */; };
 		47C7D72527874A67006D2809 /* PeopleTorActionsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47C7D72727874A67006D2809 /* PeopleTorActionsView.xib */; };
@@ -1458,6 +1460,8 @@
 		47C6235F25091C02005D265C /* GiphySearchCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphySearchCollectionViewItem.swift; sourceTree = "<group>"; };
 		47C6236025091C02005D265C /* GiphySearchCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GiphySearchCollectionViewItem.xib; sourceTree = "<group>"; };
 		47C6236425091E6B005D265C /* GiphySearchDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphySearchDataSource.swift; sourceTree = "<group>"; };
+		47C6F4C72DC28A5300B0EDC4 /* FloatingAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingAudioPlayer.swift; sourceTree = "<group>"; };
+		47C6F4C92DC28A6000B0EDC4 /* FloatingAudioPlayer.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FloatingAudioPlayer.xib; sourceTree = "<group>"; };
 		47C7D71227874A12006D2809 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AuthExternalView.xib; sourceTree = "<group>"; };
 		47C7D71827874A17006D2809 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AuthExternalView.strings; sourceTree = "<group>"; };
 		47C7D71A27874A18006D2809 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/AuthExternalView.strings; sourceTree = "<group>"; };
@@ -1788,6 +1792,8 @@
 				473BC8942600FB320070E519 /* NewEpisodeAlertView.xib */,
 				4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */,
 				4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */,
+				47C6F4C72DC28A5300B0EDC4 /* FloatingAudioPlayer.swift */,
+				47C6F4C92DC28A6000B0EDC4 /* FloatingAudioPlayer.xib */,
 			);
 			path = "Custom Views";
 			sourceTree = "<group>";
@@ -3939,6 +3945,7 @@
 				4744FAAB2469D1BC00C5FD94 /* Colors.xcassets in Resources */,
 				478ED5DA25D6FD6B00940132 /* ProfileImageView.xib in Resources */,
 				478ED5FC25DC624D00940132 /* ChangePinView.xib in Resources */,
+				47C6F4CA2DC28A6000B0EDC4 /* FloatingAudioPlayer.xib in Resources */,
 				4726A41324C0D173005A66B4 /* HealthCheckView.xib in Resources */,
 				47C1D609248EABFB00718B28 /* GroupContactCollectionViewItem.xib in Resources */,
 				479751F0246DBF2B00D2106B /* ChatListCollectionViewItem.xib in Resources */,
@@ -4477,6 +4484,7 @@
 				479751E5246D909F00D2106B /* WalletBalanceService.swift in Sources */,
 				470708A624B36C8A00A98DCA /* MetaDataCache.swift in Sources */,
 				93E479242BD1C80800D0C9AB /* DashboardDetailViewController.swift in Sources */,
+				47C6F4C82DC28A5300B0EDC4 /* FloatingAudioPlayer.swift in Sources */,
 				4744FA9D2469CD0B00C5FD94 /* AttachmentsManager.swift in Sources */,
 				473E1F2C2AC45BB500DC1CDC /* ThreadRepliesView.swift in Sources */,
 				473BC88F2600EEFF0070E519 /* NewEpisodeAlertView.swift in Sources */,

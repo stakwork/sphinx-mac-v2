@@ -54,7 +54,7 @@
                         <constraint firstAttribute="height" constant="76" id="mcu-AB-GA9"/>
                     </constraints>
                 </customView>
-                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" mirrorLayoutDirectionWhenInternationalizing="never" translatesAutoresizingMaskIntoConstraints="NO" id="u4B-WC-vJh">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" mirrorLayoutDirectionWhenInternationalizing="never" translatesAutoresizingMaskIntoConstraints="NO" id="u4B-WC-vJh">
                     <rect key="frame" x="30" y="194" width="340" height="26"/>
                     <constraints>
                         <constraint firstAttribute="height" relation="lessThanOrEqual" constant="50" id="xfc-8c-N9L"/>
@@ -121,7 +121,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="133" height="32"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bOf-DJ-fiz">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bOf-DJ-fiz">
                                 <rect key="frame" x="10" y="4" width="113" height="24"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Ad detected" id="6Dd-rK-gw7">
                                     <font key="font" size="20" name="Roboto-Medium"/>
@@ -139,7 +139,7 @@
                     </view>
                     <color key="fillColor" name="Text"/>
                 </box>
-                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="j3a-5W-Ger">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="j3a-5W-Ger">
                     <rect key="frame" x="30" y="122" width="57" height="15"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="00:00:00" id="RzW-4K-am1">
                         <font key="font" metaFont="cellTitle"/>
@@ -147,7 +147,7 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
-                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aCz-Sz-VhK">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aCz-Sz-VhK">
                     <rect key="frame" x="313" y="122" width="57" height="15"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="00:00:00" id="p6h-tj-Fjl">
                         <font key="font" metaFont="cellTitle"/>
