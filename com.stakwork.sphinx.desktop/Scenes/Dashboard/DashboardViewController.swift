@@ -89,6 +89,7 @@ class DashboardViewController: NSViewController {
         
         setupObservers()
         addEscapeMonitor()
+        addFloatingPlayer()
     }
     
     override func viewWillAppear() {
@@ -317,6 +318,13 @@ class DashboardViewController: NSViewController {
         if let escapeMonitor = escapeMonitor {
             NSEvent.removeMonitor(escapeMonitor)
         }
+    }
+    
+    func addFloatingPlayer() {
+        let floatingView = FloatingAudioPlayer(frame: NSRect(x: 15, y: 10, width: 320, height: 192))
+        floatingView.wantsLayer = true
+
+        self.view.addSubview(floatingView)
     }
     
     func askForNotificationsPermission() {

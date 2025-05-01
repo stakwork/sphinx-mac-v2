@@ -49,19 +49,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="302" height="174"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="DaL-in-wGI" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="275" y="150" width="15" height="12"/>
-                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="fullSrceenIcon" imagePosition="only" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="qAw-6d-ado">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <color key="bezelColor" name="Text"/>
-                                <color key="contentTintColor" name="Text"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="15" id="6RS-OI-Xzc"/>
-                                    <constraint firstAttribute="height" constant="12" id="iqi-OR-lsE"/>
-                                </constraints>
-                            </button>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="vyz-j4-jrr">
                                 <rect key="frame" x="16" y="90" width="270" height="68"/>
                                 <subviews>
@@ -115,7 +102,19 @@
                                     <constraint firstItem="eTW-nB-U3d" firstAttribute="leading" secondItem="szI-6q-ocA" secondAttribute="trailing" constant="12" id="rrO-ls-FIJ"/>
                                 </constraints>
                             </customView>
-                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="xXV-OO-VUf">
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="DaL-in-wGI" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="275" y="150" width="15" height="12"/>
+                                <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="fullSrceenIcon" imagePosition="only" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="qAw-6d-ado">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <color key="contentTintColor" name="Text"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="15" id="6RS-OI-Xzc"/>
+                                    <constraint firstAttribute="height" constant="12" id="iqi-OR-lsE"/>
+                                </constraints>
+                            </button>
+                            <box boxType="custom" borderType="none" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="xXV-OO-VUf">
                                 <rect key="frame" x="16" y="76" width="270" height="4"/>
                                 <view key="contentView" id="Oc9-k4-aLb">
                                     <rect key="frame" x="0.0" y="0.0" width="270" height="4"/>
@@ -126,7 +125,7 @@
                                 </constraints>
                                 <color key="fillColor" name="Text"/>
                             </box>
-                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="O3I-47-5Wo">
+                            <box boxType="custom" borderType="none" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="O3I-47-5Wo">
                                 <rect key="frame" x="16" y="76" width="0.0" height="4"/>
                                 <view key="contentView" id="amc-LI-EWj">
                                     <rect key="frame" x="0.0" y="0.0" width="0.0" height="4"/>
@@ -264,7 +263,7 @@
                     <color key="fillColor" name="Divider2"/>
                 </box>
                 <box boxType="custom" borderType="none" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Zvy-5T-Gml">
-                    <rect key="frame" x="2" y="170" width="20" height="20"/>
+                    <rect key="frame" x="4" y="168" width="20" height="20"/>
                     <view key="contentView" id="776-PL-Wif">
                         <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -276,7 +275,7 @@
                     <color key="fillColor" name="Text"/>
                 </box>
                 <button translatesAutoresizingMaskIntoConstraints="NO" id="xXX-CN-9Px" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="2" y="170" width="20" height="20"/>
+                    <rect key="frame" x="4" y="168" width="20" height="20"/>
                     <buttonCell key="cell" type="square" title="close" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="lCd-vt-Jhd">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" size="16" name="MaterialIcons-Regular"/>
@@ -290,7 +289,7 @@
             </subviews>
             <constraints>
                 <constraint firstItem="VYl-sp-Ni8" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="9" id="3Pl-ng-Crb"/>
-                <constraint firstItem="Zvy-5T-Gml" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" constant="2" id="4kA-fL-2yG"/>
+                <constraint firstItem="Zvy-5T-Gml" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" constant="4" id="4kA-fL-2yG"/>
                 <constraint firstItem="VYl-sp-Ni8" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" constant="9" id="4nA-VJ-Z0m"/>
                 <constraint firstItem="xXX-CN-9Px" firstAttribute="bottom" secondItem="Zvy-5T-Gml" secondAttribute="bottom" id="6kq-xU-wwG"/>
                 <constraint firstItem="xXX-CN-9Px" firstAttribute="leading" secondItem="Zvy-5T-Gml" secondAttribute="leading" id="7KP-Tj-1hJ"/>
@@ -298,7 +297,7 @@
                 <constraint firstAttribute="bottom" secondItem="dFw-pJ-54u" secondAttribute="bottom" id="AsO-yH-ve3"/>
                 <constraint firstAttribute="bottom" secondItem="VYl-sp-Ni8" secondAttribute="bottom" constant="9" id="Bjt-Dg-6HU"/>
                 <constraint firstItem="xXX-CN-9Px" firstAttribute="trailing" secondItem="Zvy-5T-Gml" secondAttribute="trailing" id="ZLV-PT-2g1"/>
-                <constraint firstItem="Zvy-5T-Gml" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="2" id="bQ5-DW-bAq"/>
+                <constraint firstItem="Zvy-5T-Gml" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="4" id="bQ5-DW-bAq"/>
                 <constraint firstItem="dFw-pJ-54u" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="igM-AV-qY1"/>
                 <constraint firstItem="dFw-pJ-54u" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="jjD-WJ-qEX"/>
                 <constraint firstAttribute="trailing" secondItem="VYl-sp-Ni8" secondAttribute="trailing" constant="9" id="pfO-rV-UjH"/>

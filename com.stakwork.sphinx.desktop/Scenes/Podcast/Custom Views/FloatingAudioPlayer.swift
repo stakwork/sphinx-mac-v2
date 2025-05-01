@@ -38,6 +38,9 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     var dragging = false
 //    var skippingAdvert = false
     
+    private var trackingArea: NSTrackingArea?
+    private var initialLocation: NSPoint = .zero
+    
     var audioLoading = false {
         didSet {
             playButton.isHidden = audioLoading
@@ -69,6 +72,60 @@ class FloatingAudioPlayer: NSView, LoadableNib {
         setupView()
     }
     
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        if let existing = trackingArea {
+            removeTrackingArea(existing)
+        }
+
+        trackingArea = NSTrackingArea(
+            rect: bounds,
+            options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect],
+            owner: self,
+            userInfo: nil
+        )
+
+        if let trackingArea = trackingArea {
+            addTrackingArea(trackingArea)
+        }
+    }
+    
+    override func mouseEntered(with event: NSEvent) {
+        togggleDraggingElements(show: true)
+    }
+    
+    override func mouseExited(with event: NSEvent) {
+        togggleDraggingElements(show: false)
+    }
+    
+    override func mouseDown(with event: NSEvent) {
+        guard let _ = self.window else { return }
+        initialLocation = convert(event.locationInWindow, from: nil)
+    }
+    
+    override func mouseUp(with event: NSEvent) {
+        ///Move to corners?
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        guard let superview = self.superview else { return }
+
+        let newLocation = convert(event.locationInWindow, from: nil)
+        let deltaX = newLocation.x - initialLocation.x
+        let deltaY = newLocation.y - initialLocation.y
+
+        var newFrame = frame
+        newFrame.origin.x += deltaX
+        newFrame.origin.y += deltaY
+
+        // Optional: Clamp to parent bounds
+        newFrame.origin.x = max(0, min(newFrame.origin.x, superview.bounds.width - frame.width))
+        newFrame.origin.y = max(0, min(newFrame.origin.y, superview.bounds.height - frame.height))
+
+        frame.origin = newFrame.origin
+    }
+    
     func setupView() {
         fullScreenButton.cursor = .pointingHand
         backward15Button.cursor = .pointingHand
@@ -79,14 +136,23 @@ class FloatingAudioPlayer: NSView, LoadableNib {
         episodeImageView.rounded = true
         episodeImageView.radius = 10
         episodeImageView.gravity = .resizeAspectFill
+        episodeImageView.image = NSImage(named: "podcastPlaceholder")
         
         draggingBackgroundBox.alphaValue = 0.1
         
         fullScreenButton.contentTintColor = NSColor.Sphinx.Text
-        fullScreenButton.alphaValue = 0.5
+        fullScreenButton.alphaValue = 1
         
         durationBox.alphaValue = 0.1
         currentTimeBox.alphaValue = 0.75
+        
+        togggleDraggingElements(show: false)
+    }
+    
+    func togggleDraggingElements(show: Bool) {
+        draggingBackgroundBox.isHidden = !show
+        closeButtonCircle.isHidden = !show
+        closeButton.isHidden = !show
     }
     
 }
