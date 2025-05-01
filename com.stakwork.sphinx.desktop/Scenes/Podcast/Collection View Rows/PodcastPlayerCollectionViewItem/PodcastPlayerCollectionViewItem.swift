@@ -44,7 +44,7 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     let feedBoostHelper = FeedBoostHelper()
     
 //    var livePodcastDataSource: PodcastLiveDataSource? = nil
-    var liveMessages: [Int: [TransactionMessage]] = [:]
+//    var liveMessages: [Int: [TransactionMessage]] = [:]
     var chapterInfoEpisodeId: String? = nil
     
     let kDurationLineMargins: CGFloat = 64
