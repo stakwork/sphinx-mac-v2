@@ -9,6 +9,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="FloatingAudioPlayer" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="audioLoadingWheel" destination="Vc9-dU-aiy" id="xr2-hz-KJn"/>
                 <outlet property="backward15Button" destination="I4N-FF-Pml" id="oe8-iF-3yq"/>
                 <outlet property="chaptersContainer" destination="UCP-Q0-nBl" id="M2g-4V-Ngd"/>
                 <outlet property="closeButton" destination="xXX-CN-9Px" id="3Fq-qd-ZtN"/>
@@ -190,8 +191,12 @@
                                                     <constraint firstAttribute="height" constant="32" id="paM-Me-lcc"/>
                                                 </constraints>
                                             </button>
+                                            <progressIndicator hidden="YES" wantsLayer="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Vc9-dU-aiy">
+                                                <rect key="frame" x="8" y="8" width="16" height="16"/>
+                                            </progressIndicator>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstItem="Vc9-dU-aiy" firstAttribute="centerX" secondItem="xPQ-NS-yxV" secondAttribute="centerX" id="3Yj-5O-Cwb"/>
                                             <constraint firstItem="XnJ-IM-MEv" firstAttribute="leading" secondItem="319-f4-xd0" secondAttribute="leading" id="7tY-zI-jVn"/>
                                             <constraint firstItem="XnJ-IM-MEv" firstAttribute="trailing" secondItem="319-f4-xd0" secondAttribute="trailing" id="Bep-cF-LsL"/>
                                             <constraint firstAttribute="bottom" secondItem="XnJ-IM-MEv" secondAttribute="bottom" id="HLy-6Z-UOo"/>
@@ -200,6 +205,7 @@
                                             <constraint firstItem="XnJ-IM-MEv" firstAttribute="centerY" secondItem="319-f4-xd0" secondAttribute="centerY" id="Z69-1G-KBi"/>
                                             <constraint firstItem="XnJ-IM-MEv" firstAttribute="leading" secondItem="xPQ-NS-yxV" secondAttribute="leading" id="akK-Eb-rPt"/>
                                             <constraint firstAttribute="trailing" secondItem="XnJ-IM-MEv" secondAttribute="trailing" id="hnr-8E-jrD"/>
+                                            <constraint firstItem="Vc9-dU-aiy" firstAttribute="centerY" secondItem="xPQ-NS-yxV" secondAttribute="centerY" id="iBc-mD-Nsa"/>
                                             <constraint firstItem="XnJ-IM-MEv" firstAttribute="top" secondItem="xPQ-NS-yxV" secondAttribute="top" id="zoD-CK-e1C"/>
                                         </constraints>
                                     </customView>

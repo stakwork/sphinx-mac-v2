@@ -28,6 +28,7 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     @IBOutlet weak var playButton: CustomButton!
     @IBOutlet weak var closeButtonCircle: NSBox!
     @IBOutlet weak var closeButton: CustomButton!
+    @IBOutlet weak var audioLoadingWheel: NSProgressIndicator!
     
     @IBOutlet weak var currentTimeWidthConstraint: NSLayoutConstraint!
     
@@ -39,7 +40,14 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     
     var audioLoading = false {
         didSet {
-//            LoadingWheelHelper.toggleLoadingWheel(loading: audioLoading, loadingWheel: audioLoadingWheel, color: NSColor.Sphinx.Text, controls: [])
+            playButton.isHidden = audioLoading
+            
+            LoadingWheelHelper.toggleLoadingWheel(
+                loading: audioLoading,
+                loadingWheel: audioLoadingWheel,
+                color: NSColor.Sphinx.Text,
+                controls: []
+            )
         }
     }
     
