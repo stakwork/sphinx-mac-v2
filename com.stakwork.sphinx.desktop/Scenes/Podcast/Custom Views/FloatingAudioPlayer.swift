@@ -171,7 +171,10 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     }
     
     @objc func presentFloatingPlayer() {
-        if podcastPlayerController.isPlaying && self.isHidden {
+//        if podcastPlayerController.isPlaying && self.isHidden {
+//            self.isHidden = false
+//        }
+        if let _ = podcast, self.isHidden {
             self.isHidden = false
         }
     }
@@ -201,6 +204,8 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     }
     
     @IBAction func fullScreenPlayerButtonClicked(_ sender: Any) {
+        self.isHidden = true
+        
         let podcastPlayerVC = NewPodcastPlayerViewController.instantiate(
             chat: podcast.chat,
             podcast: podcast,

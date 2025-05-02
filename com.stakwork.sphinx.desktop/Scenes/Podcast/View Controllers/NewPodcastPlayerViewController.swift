@@ -30,6 +30,8 @@ class NewPodcastPlayerViewController: NSViewController {
     override func viewDidLayout() {
         super.viewDidLayout()
         
+        self.view.window?.delegate = self
+        
         playerCollectionView.collectionViewLayout?.invalidateLayout()
         
         NotificationCenter.default.addObserver(
@@ -99,5 +101,11 @@ extension NewPodcastPlayerViewController : PodcastEpisodesDSDelegate {
     
     func shouldCopyShareLink(link: String) {
         ClipboardHelper.copyToClipboard(text: link)
+    }
+}
+
+extension NewPodcastPlayerViewController : NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
 }

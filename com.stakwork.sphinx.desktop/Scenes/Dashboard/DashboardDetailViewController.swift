@@ -125,6 +125,12 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
     }
     
     func closeButtonTapped() {
+        closeButtonTapped(isOpeningPodcastVC: false)
+    }
+    
+    func closeButtonTapped(
+        isOpeningPodcastVC: Bool = false
+    ) {
         guard let addedVC else { return }
         for vc in addedVC {
             if let vc {
@@ -134,6 +140,10 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
         self.addedVC?.removeAll()
         self.addedTitles?.removeAll()
         dismissDelegate?.closeButtonTapped()
+        
+        if isOpeningPodcastVC {
+            return
+        }
         
         NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
@@ -170,7 +180,9 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
             }
             
             if let newVC = newVC {
-                closeButtonTapped()
+                closeButtonTapped(
+                    isOpeningPodcastVC: newVC.isKind(of: NewPodcastPlayerViewController.self)
+                )
                 
                 WindowsManager.sharedInstance.presentWindowForRightPanelVC(
                     vc: newVC,
