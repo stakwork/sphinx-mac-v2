@@ -24,8 +24,23 @@ extension NewChatViewController {
             return
         }
         
+        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+        
+        addPodcastVC(
+            chat: chat,
+            podcast: podcast,
+            deepLinkData: deepLinkData
+        )
+    }
+    
+    func addPodcastVC(
+        chat: Chat?,
+        podcast: PodcastFeed,
+        deepLinkData: DeeplinkData? = nil
+    ) {
         podcastPlayerVC = NewPodcastPlayerViewController.instantiate(
             chat: chat,
+            podcast: podcast,
             delegate: self,
             deepLinkData: deepLinkData
         )

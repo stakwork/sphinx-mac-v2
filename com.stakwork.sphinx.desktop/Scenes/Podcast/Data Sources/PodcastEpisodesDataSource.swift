@@ -27,7 +27,7 @@ class PodcastEpisodesDataSource : NSObject {
     
     var collectionView: NSCollectionView! = nil
     
-    var chat: Chat! = nil
+    var chat: Chat? = nil
     var podcast: PodcastFeed! = nil
     var episodesExpanded: [Int: Bool] = [:]
     
@@ -36,7 +36,7 @@ class PodcastEpisodesDataSource : NSObject {
     
     init(
         collectionView: NSCollectionView,
-        chat: Chat,
+        chat: Chat?,
         podcastFeed: PodcastFeed,
         delegate: PodcastEpisodesDSDelegate
     ) {

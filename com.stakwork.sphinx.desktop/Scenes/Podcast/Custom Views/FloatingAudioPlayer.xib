@@ -61,28 +61,25 @@
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="Ln7-AC-vE3"/>
                                     </imageView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="4" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eTW-nB-U3d">
-                                        <rect key="frame" x="80" y="18" width="178" height="32"/>
+                                        <rect key="frame" x="80" y="17" width="178" height="34"/>
                                         <subviews>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="x45-pg-kCA">
-                                                <rect key="frame" x="-2" y="18" width="87" height="14"/>
-                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Podcast Title" id="wEy-3k-AzP">
+                                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="x45-pg-kCA">
+                                                <rect key="frame" x="-2" y="18" width="87" height="16"/>
+                                                <textFieldCell key="cell" title="Podcast Title" id="wEy-3k-AzP">
                                                     <font key="font" size="14" name="Roboto-Medium"/>
                                                     <color key="textColor" name="Text"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                             </textField>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KSz-mX-UX7">
+                                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KSz-mX-UX7">
                                                 <rect key="frame" x="-2" y="0.0" width="70" height="14"/>
-                                                <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Episode title" id="Jbh-cX-nnk">
+                                                <textFieldCell key="cell" title="Episode title" id="Jbh-cX-nnk">
                                                     <font key="font" size="12" name="Roboto-Regular"/>
                                                     <color key="textColor" name="SecondaryText"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                             </textField>
                                         </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="32" id="Cxw-Qu-3BW"/>
-                                        </constraints>
                                         <visibilityPriorities>
                                             <integer value="1000"/>
                                             <integer value="1000"/>
@@ -113,6 +110,9 @@
                                     <constraint firstAttribute="width" constant="15" id="6RS-OI-Xzc"/>
                                     <constraint firstAttribute="height" constant="12" id="iqi-OR-lsE"/>
                                 </constraints>
+                                <connections>
+                                    <action selector="fullScreenPlayerButtonClicked:" target="-2" id="JYP-HR-rsY"/>
+                                </connections>
                             </button>
                             <box boxType="custom" borderType="none" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="xXV-OO-VUf">
                                 <rect key="frame" x="16" y="76" width="270" height="4"/>
@@ -163,6 +163,9 @@
                                             <constraint firstAttribute="width" constant="24" id="3Q0-XT-PP1"/>
                                             <constraint firstAttribute="height" constant="32" id="yus-JK-PJN"/>
                                         </constraints>
+                                        <connections>
+                                            <action selector="moveBackButtonClicked:" target="-2" id="ffa-Xa-q3T"/>
+                                        </connections>
                                     </button>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="xPQ-NS-yxV">
                                         <rect key="frame" x="76" y="0.0" width="32" height="32"/>
@@ -189,6 +192,9 @@
                                                     <constraint firstAttribute="width" constant="32" id="0kP-gX-iAh"/>
                                                     <constraint firstAttribute="height" constant="32" id="paM-Me-lcc"/>
                                                 </constraints>
+                                                <connections>
+                                                    <action selector="playButtonClicked:" target="-2" id="s3W-Ar-Lcb"/>
+                                                </connections>
                                             </button>
                                             <progressIndicator hidden="YES" wantsLayer="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="Vc9-dU-aiy">
                                                 <rect key="frame" x="8" y="8" width="16" height="16"/>
@@ -219,6 +225,9 @@
                                             <constraint firstAttribute="height" constant="32" id="WHk-3m-BB0"/>
                                             <constraint firstAttribute="width" constant="24" id="r20-7y-42p"/>
                                         </constraints>
+                                        <connections>
+                                            <action selector="moveForwardButtonClicked:" target="-2" id="FrK-xO-6p1"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <constraints>
@@ -285,6 +294,9 @@
                         <constraint firstAttribute="width" constant="20" id="01t-Zt-FxI"/>
                         <constraint firstAttribute="height" constant="20" id="5mY-6a-uH7"/>
                     </constraints>
+                    <connections>
+                        <action selector="closeButtonClicked:" target="-2" id="2h0-R5-iTa"/>
+                    </connections>
                 </button>
             </subviews>
             <constraints>

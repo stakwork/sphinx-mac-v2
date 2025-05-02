@@ -134,6 +134,8 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
         self.addedVC?.removeAll()
         self.addedTitles?.removeAll()
         dismissDelegate?.closeButtonTapped()
+        
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
     
     func openInNSTapped() {
@@ -157,16 +159,17 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
                     threadUUID: vc.threadUUID
                 )
             } else if let vc = last as? NewPodcastPlayerViewController, let delegate = vc.delegate {
-                newVC = NewPodcastPlayerViewController.instantiate(
-                    chat: vc.chat,
-                    delegate: delegate,
-                    deepLinkData: vc.deepLinkData
-                )
+                if let podcast = vc.podcast {
+                    newVC = NewPodcastPlayerViewController.instantiate(
+                        chat: podcast.chat,
+                        podcast: podcast,
+                        delegate: delegate,
+                        deepLinkData: vc.deepLinkData
+                    )
+                }
             }
             
             if let newVC = newVC {
-                closeButtonTapped()
-                
                 closeButtonTapped()
                 
                 WindowsManager.sharedInstance.presentWindowForRightPanelVC(

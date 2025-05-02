@@ -126,7 +126,24 @@ class FloatingAudioPlayer: NSView, LoadableNib {
         frame.origin = newFrame.origin
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: .onPodcastPlayerClosed,
+            object: nil
+        )
+    }
+    
     func setupView() {
+        self.isHidden = true
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(presentFloatingPlayer),
+            name: .onPodcastPlayerClosed,
+            object: nil
+        )
+        
         fullScreenButton.cursor = .pointingHand
         backward15Button.cursor = .pointingHand
         forward30Button.cursor = .pointingHand
@@ -146,15 +163,96 @@ class FloatingAudioPlayer: NSView, LoadableNib {
         durationBox.alphaValue = 0.1
         currentTimeBox.alphaValue = 0.75
         
+        audioLoadingWheel.set(tintColor: NSColor.Sphinx.Text)
+        
         togggleDraggingElements(show: false)
+        
+        podcastPlayerController.addDelegate(self, withKey: PodcastDelegateKeys.FloatingPlayer.rawValue)
+    }
+    
+    @objc func presentFloatingPlayer() {
+        if podcastPlayerController.isPlaying && self.isHidden {
+            self.isHidden = false
+        }
     }
     
     func togggleDraggingElements(show: Bool) {
+        let isPlaying = podcastPlayerController.isPlaying
+        
         draggingBackgroundBox.isHidden = !show
-        closeButtonCircle.isHidden = !show
-        closeButton.isHidden = !show
+        closeButtonCircle.isHidden = !show || isPlaying
+        closeButton.isHidden = !show || isPlaying
     }
     
+    @IBAction func moveBackButtonClicked(_ sender: Any) {
+        seekTo(seconds: -15)
+    }
+    
+    @IBAction func moveForwardButtonClicked(_ sender: Any) {
+        seekTo(seconds: 30)
+    }
+    
+    @IBAction func playButtonClicked(_ sender: Any) {
+        togglePlayState()
+    }
+    
+    @IBAction func closeButtonClicked(_ sender: Any) {
+        self.isHidden = true
+    }
+    
+    @IBAction func fullScreenPlayerButtonClicked(_ sender: Any) {
+        let podcastPlayerVC = NewPodcastPlayerViewController.instantiate(
+            chat: podcast.chat,
+            podcast: podcast,
+            delegate: nil,
+            deepLinkData: nil
+        )
+        
+        WindowsManager.sharedInstance.presentWindowForRightPanelVC(
+            vc: podcastPlayerVC,
+            identifier: "generic-windows",
+            title: "",
+            minWidth: 450,
+            resizable: true
+        )
+    }
+    
+    func seekTo(seconds: Double) {
+        var newTime = podcast.currentTime + Int(seconds)
+        newTime = max(newTime, 0)
+        newTime = min(newTime, podcast.duration)
+        
+        guard let podcastData = podcast.getPodcastData(
+            currentTime: newTime
+        ) else {
+            return
+        }
+        
+        setProgress(
+            duration: podcastData.duration ?? 0,
+            currentTime: newTime
+        )
+        
+        podcastPlayerController.submitAction(
+            UserAction.Seek(podcastData)
+        )
+    }
+    
+    func togglePlayState() {
+        guard let podcastData = podcast.getPodcastData() else {
+            return
+        }
+        
+        if podcastPlayerController.isPlaying(podcastId: podcastData.podcastId) {
+            podcastPlayerController.submitAction(
+                UserAction.Pause(podcastData)
+            )
+        } else {
+            podcastPlayerController.submitAction(
+                UserAction.Play(podcastData)
+            )
+        }
+    }
 }
 
 extension FloatingAudioPlayer : PlayerDelegate {
@@ -223,6 +321,7 @@ extension FloatingAudioPlayer : PlayerDelegate {
             loadImage(imageURL: imageURL)
         }
 
+        podcastTitleLabel.stringValue = podcast.title ?? ""
         episodeTitleLabel.stringValue = podcast.getCurrentEpisode()?.title ?? ""
         
         loadTime()

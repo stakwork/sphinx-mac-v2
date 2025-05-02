@@ -855,6 +855,8 @@ extension DashboardViewController : DashboardVCDelegate {
         newDetailViewController = newChatVCController
 
         deeplinkData = nil
+        
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
     
     func shouldShowFullMediaFor(message: TransactionMessage) {

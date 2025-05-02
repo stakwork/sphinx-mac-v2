@@ -51,7 +51,7 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     
     let speedValues = ["0.5x", "0.8x", "1x", "1.2x", "1.5x", "2.1x"]
     
-    var chat: Chat! = nil
+    var chat: Chat? = nil
     var podcast: PodcastFeed! = nil
     
     var dragging = false
@@ -79,7 +79,7 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     }
     
     func configureWith(
-        chat: Chat,
+        chat: Chat?,
         podcast: PodcastFeed,
         delegate: PodcastPlayerViewDelegate
     ) {
