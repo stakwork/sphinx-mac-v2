@@ -10,6 +10,7 @@ import Cocoa
 
 protocol FeedListViewControllerDelegate: NSObject {
     func didClickRowWith(contentFeedId: String?)
+    func didClick(item: FeedListViewController.DataSourceItem)
 }
 
 class FeedListViewController: NSViewController {
@@ -464,13 +465,20 @@ extension FeedListViewController {
 
 extension FeedListViewController : NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-        
         collectionView.deselectAll(nil)
         
         if let indexPath = indexPaths.first {
             DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
-                let contentFeed = self.contentFeedObjects[indexPath.item]
-                self.delegate?.didClickRowWith(contentFeedId: contentFeed.feedID)
+                let item = self.dataSource.itemIdentifier(for: indexPath)
+                
+                guard let item = item else {
+                    return
+                }
+                if self.currentMode == .following {
+                    self.delegate?.didClickRowWith(contentFeedId: item.feedId)
+                } else {
+                    self.delegate?.didClick(item: item)
+                }
             })
         }
     }
@@ -481,6 +489,10 @@ extension FeedListViewController : NSFetchedResultsControllerDelegate {
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference
     ) {
+        if currentMode != .following {
+            return
+        }
+        
         if
             let resultController = controller as? NSFetchedResultsController<NSManagedObject>,
             let firstSection = resultController.sections?.first {

@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import CoreData
 
 public let balanceDidChange = "balanceDidChange"
 
@@ -187,6 +188,47 @@ extension ChatListViewController: FeedListViewControllerDelegate {
                 shouldReplace: false,
                 panelFixedWidth: true
             )
+        }
+    }
+    
+    func didClick(item: FeedListViewController.DataSourceItem) {
+        let existingFeedsFetchRequest: NSFetchRequest<ContentFeed> = ContentFeed
+            .FetchRequests
+            .matching(feedID: item.feedId)
+        
+        var fetchRequestResult: [ContentFeed] = []
+        
+        let managedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        managedObjectContext.performAndWait {
+            fetchRequestResult = try! managedObjectContext.fetch(existingFeedsFetchRequest)
+        }
+            
+        if let existingFeed = fetchRequestResult.first {
+            didClickRowWith(contentFeedId: existingFeed.feedID)
+        } else {
+            self.newMessageBubbleHelper.showLoadingWheel()
+            
+            ContentFeed.fetchContentFeed(
+                at: item.feedUrl,
+                chat: nil,
+                searchResultDescription: item.feedDescription,
+                searchResultImageUrl: item.imageUrl,
+                persistingIn: managedObjectContext,
+                then: { result in
+                    
+                    if case .success(let contentFeed) = result {
+                        managedObjectContext.saveContext()
+                        
+                        self.newMessageBubbleHelper.hideLoadingWheel()
+                        
+                        self.didClickRowWith(contentFeedId: contentFeed.feedID)
+                    } else {
+                        self.newMessageBubbleHelper.hideLoadingWheel()
+                        
+                        AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+                    }
+            })
         }
     }
 }
