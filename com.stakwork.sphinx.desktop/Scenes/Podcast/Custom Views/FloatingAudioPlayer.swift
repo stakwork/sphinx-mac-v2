@@ -342,7 +342,7 @@ extension FloatingAudioPlayer : PlayerDelegate {
             progress: nil
         )
         
-        episodeImageView.gravity = .resizeAspect
+        episodeImageView.gravity = .resizeAspectFill
     }
     
     func loadTime() {

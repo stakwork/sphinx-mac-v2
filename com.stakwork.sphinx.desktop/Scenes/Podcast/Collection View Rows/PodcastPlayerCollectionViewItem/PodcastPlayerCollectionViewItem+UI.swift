@@ -16,6 +16,12 @@ extension PodcastPlayerCollectionViewItem {
         podcastSatsView.configureWith(chat: chat)
         showInfo()
         configureControls()
+        configureSubscribeButton()
+    }
+    
+    func configureSubscribeButton() {
+        subscribeButtonContainer.isHidden = (chat != nil)
+        subscribeButton.title = podcast.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
     }
     
     func addMessagesFor(ts: Int) {
@@ -109,8 +115,6 @@ extension PodcastPlayerCollectionViewItem {
             options: [.highPriority],
             progress: nil
         )
-        
-        episodeImageView.gravity = .resizeAspect
     }
     
     func setProgress(

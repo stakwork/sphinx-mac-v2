@@ -77,7 +77,7 @@ class FeedListViewController: NSViewController {
     
     func configureFetchResultsController() {
         ///Feeds results controller
-        let feedsFetchRequest = ContentFeed.FetchRequests.default()
+        let feedsFetchRequest = ContentFeed.FetchRequests.followedFeeds()
 
         feedsResultsController = NSFetchedResultsController(
             fetchRequest: feedsFetchRequest,

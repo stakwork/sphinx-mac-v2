@@ -37,6 +37,11 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var advertContainer: NSBox!
     @IBOutlet weak var advertLabel: NSTextField!
     @IBOutlet weak var chaptersContainer: NSView!
+    @IBOutlet weak var subscribeButtonContainer: NSBox!
+    @IBOutlet weak var subscribeButton: CustomButton!
+    @IBOutlet weak var shareClipButton: CustomButton!
+    @IBOutlet weak var moveBackButton: CustomButton!
+    @IBOutlet weak var moveForwardButton: CustomButton!
     
     weak var delegate: PodcastPlayerViewDelegate?
     
@@ -76,6 +81,12 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
         
         NotificationCenter.default.removeObserver(self, name: .refreshFeedDataAndUI, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(refreshPodcastInfo), name: .refreshFeedDataAndUI, object: nil)
+        
+        subscribeButton.cursor = .pointingHand
+        shareClipButton.cursor = .pointingHand
+        moveBackButton.cursor = .pointingHand
+        moveForwardButton.cursor = .pointingHand
+        playPauseButton.cursor = .pointingHand
     }
     
     func configureWith(
@@ -217,5 +228,15 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
             
             delegate?.shouldSyncPodcast()
         }
+    }
+    
+    @IBAction func subscribeButtonClicked(_ sender: Any) {
+        podcast.subscribed.toggle()
+        
+        let contentFeed: ContentFeed? = ContentFeed.getFeedById(feedId: podcast.feedID)
+        contentFeed?.subscribed.toggle()
+        contentFeed?.managedObjectContext?.saveContext()
+        
+        subscribeButton.title = contentFeed?.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
     }
 }
