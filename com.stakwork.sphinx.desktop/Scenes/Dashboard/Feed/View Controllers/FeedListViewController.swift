@@ -30,12 +30,21 @@ class FeedListViewController: NSViewController {
     
     var feedsResultsController: NSFetchedResultsController<ContentFeed>!
     
+    var searchTimer: Timer? = nil
+    
     private let itemContentInsets = NSDirectionalEdgeInsets(
         top: 0,
         leading: 0,
         bottom: 0,
         trailing: 0
     )
+    
+    enum FeedMode: Int, Hashable {
+        case following
+        case search
+    }
+    
+    var currentMode: FeedMode = .following
     
     static func instantiate(
         delegate: FeedListViewControllerDelegate?
@@ -52,13 +61,16 @@ class FeedListViewController: NSViewController {
     }
     
     func loadFeedsList() {
-        feedsResultsController?.delegate = nil
-        feedsResultsController = nil
-        
+        resetFetchResultsController()
         registerViews()
         configureCollectionView()
         configureDataSource()
         configureFetchResultsController()
+    }
+    
+    func resetFetchResultsController() {
+        feedsResultsController?.delegate = nil
+        feedsResultsController = nil
     }
     
     func configureFetchResultsController() {
@@ -79,6 +91,68 @@ class FeedListViewController: NSViewController {
         } catch {}
     }
     
+    func resetSearch() {
+        currentMode = .following
+        updateSnapshot(with: [], completion: nil)
+        resetFetchResultsController()
+        configureFetchResultsController()
+    }
+    
+    func searchWith(searchQuery: String) {
+        if searchQuery.isEmpty {
+            resetSearch()
+            return
+        }
+        
+        currentMode = .search
+        updateSnapshot(with: [], completion: nil)
+        
+        searchTimer?.invalidate()
+        searchTimer = Timer.scheduledTimer(
+            timeInterval: 0.5,
+            target: self,
+            selector: #selector(fetchRemoteResults(timer:)),
+            userInfo: ["search_query": searchQuery],
+            repeats: false
+        )
+    }
+    
+    @objc func fetchRemoteResults(timer: Timer) {
+        if let userInfo = timer.userInfo as? [String: Any] {
+            if let searchQuery = userInfo["search_query"] as? String {
+                API.sharedInstance.searchForFeeds(
+                    with: FeedType.Podcast,
+                    matching: searchQuery
+                ) { [weak self] result in
+                    guard let self = self else { return }
+                    
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let results):
+                            
+                            let items = results.map {
+                                DataSourceItem(
+                                    feedUrl: $0.feedURLPath,
+                                    feedId: $0.feedId,
+                                    title: $0.title,
+                                    authorName: $0.feedDescription,
+                                    imageUrl: $0.imageUrl,
+                                    feedDescription: $0.feedDescription,
+                                    feedKindValue: $0.feedType.rawValue
+                                )
+                            }
+                            
+                            self.updateSnapshot(with: items, completion: nil)
+                            
+                        case .failure(_):
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 // MARK: - Layout & Data Structure
@@ -94,6 +168,7 @@ extension FeedListViewController {
         var feedId: String
         var title: String
         var authorName: String?
+        var imageUrl: String?
         var feedDescription: String?
         var feedKindValue: Int16
 
@@ -102,6 +177,7 @@ extension FeedListViewController {
             feedId: String,
             title: String,
             authorName: String?,
+            imageUrl: String?,
             feedDescription: String?,
             feedKindValue: Int16
         )
@@ -110,6 +186,7 @@ extension FeedListViewController {
             self.feedId = feedId
             self.title = title
             self.authorName = authorName
+            self.imageUrl = imageUrl
             self.feedDescription = feedDescription
             self.feedKindValue = feedKindValue
         }
@@ -120,6 +197,7 @@ extension FeedListViewController {
                 lhs.feedId == rhs.feedId &&
                 lhs.title == rhs.title &&
                 lhs.authorName == rhs.authorName &&
+                lhs.imageUrl == rhs.imageUrl &&
                 lhs.feedDescription == rhs.feedDescription &&
                 lhs.feedKindValue == rhs.feedKindValue
             
@@ -131,6 +209,7 @@ extension FeedListViewController {
             hasher.combine(feedId)
             hasher.combine(title)
             hasher.combine(authorName)
+            hasher.combine(imageUrl)
             hasher.combine(feedDescription)
             hasher.combine(feedKindValue)
         }
@@ -178,7 +257,7 @@ extension FeedListViewController {
     func makeSectionHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(50)
+            heightDimension: .absolute(50)
         )
 
         return NSCollectionLayoutBoundarySupplementaryItem(
@@ -254,10 +333,6 @@ extension FeedListViewController {
     }
     
     func configureDataSource() {
-        if let _ = dataSource {
-            return
-        }
-        
         guard let _ = feedsCollectionView else {
             return
         }
@@ -273,7 +348,7 @@ extension FeedListViewController {
             itemProvider: makeCellProvider()
         )
         
-        dataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) in
+        dataSource.supplementaryViewProvider = { [weak self] (collectionView, kind, indexPath) in
             if kind == NSCollectionView.elementKindSectionHeader {
                 guard let headerView = collectionView.makeSupplementaryView(
                     ofKind: kind,
@@ -282,7 +357,10 @@ extension FeedListViewController {
                 ) as? (NSView & NSCollectionViewElement) else {
                     return nil
                 }
-                // Optionally configure the view with self?.data
+                
+                let title = self?.currentMode == .following ? "Following" : "Directory"
+                (headerView as? FeedListHeaderView)?.renderWith(title: title)
+                
                 return headerView
             }
             return nil
@@ -296,8 +374,8 @@ extension FeedListViewController {
 extension FeedListViewController {
 
     func makeCellProvider() -> DataSource.ItemProvider {
-        { [weak self] (collectionView, indexPath, chatItem) -> NSCollectionViewItem? in
-            guard let self else {
+        { [weak self] (collectionView, indexPath, dataSourceItem) -> NSCollectionViewItem? in
+            guard let _ = self else {
                 return nil
             }
             
@@ -313,7 +391,7 @@ extension FeedListViewController {
                 ) as? CollectionViewCell else { return nil }
 
                 cell.render(
-                    with: self.contentFeedObjects[indexPath.item]
+                    with: dataSourceItem
                 )
 
                 return cell
@@ -328,8 +406,26 @@ extension FeedListViewController {
     func updateSnapshot(
         completion: (() -> ())? = nil
     ) {
-        configureDataSource()
+        let items = self.contentFeedObjects.enumerated().map { (index, element) in
+            
+            DataSourceItem(
+                feedUrl: element.feedURL?.absoluteString ?? "",
+                feedId: element.feedID,
+                title: element.title ?? "",
+                authorName: element.authorName,
+                imageUrl: element.imageToShow,
+                feedDescription: element.feedDescription,
+                feedKindValue: element.feedKindValue
+            )
+        }
         
+        updateSnapshot(with: items, completion: completion)
+    }
+    
+    func updateSnapshot(
+        with items: [DataSourceItem],
+        completion: (() -> ())? = nil
+    ) {
         guard let _ = dataSource else {
             return
         }
@@ -338,22 +434,15 @@ extension FeedListViewController {
             var snapshot = DataSourceSnapshot()
 
             snapshot.appendSections(CollectionViewSection.allCases)
-
-            let items = self.contentFeedObjects.enumerated().map { (index, element) in
-                
-                DataSourceItem(
-                    feedUrl: element.feedURL?.absoluteString ?? "",
-                    feedId: element.feedID,
-                    title: element.title ?? "",
-                    authorName: element.authorName,
-                    feedDescription: element.feedDescription,
-                    feedKindValue: element.feedKindValue
-                )
-            }
             
             snapshot.appendItems(items, toSection: .all)
             
             self.dataSource.apply(snapshot, animatingDifferences: true) {
+                
+                let sectionIndex = CollectionViewSection.all.rawValue
+                self.feedsCollectionView.collectionViewLayout?.invalidateLayout()
+                self.feedsCollectionView.reloadSections(IndexSet(integer: sectionIndex))
+                
                 completion?()
             }
         }

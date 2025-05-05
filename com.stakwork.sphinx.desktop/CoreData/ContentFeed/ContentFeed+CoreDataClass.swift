@@ -151,6 +151,10 @@ public class ContentFeed: NSManagedObject {
         )
     }
     
+    var imageToShow: String? {
+        return imageURL?.absoluteString ?? chat?.photoUrl ?? itemsArray.first?.imageURL?.absoluteString
+    }
+    
     public static func fetchFeedItems(
         feedUrl: String,
         feedId: String,

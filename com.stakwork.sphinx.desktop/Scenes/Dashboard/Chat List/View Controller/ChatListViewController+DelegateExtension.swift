@@ -123,7 +123,12 @@ extension ChatListViewController : NSTextFieldDelegate {
             let currentString = (searchField?.stringValue ?? "")
             searchClearButton.isHidden = currentString.isEmpty
             searchIcon.isHidden = !currentString.isEmpty
-            contactsService.updateChatListWith(term: currentString)
+            
+            if contactsService.selectedTab == .feed {
+                feedContainerViewController.searchWith(searchQuery: currentString)
+            } else {
+                contactsService.updateChatListWith(term: currentString)
+            }
         }
     }
 }
@@ -141,9 +146,25 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
         to index: Int
     ) {
         if let tab = DashboardTab(rawValue: index) {
+            resetFeedSearch(tab: tab)
             contactsService.selectedTab = tab
-            
             setActiveTab(tab)
+        }
+    }
+    
+    func resetFeedSearch(tab: DashboardTab) {
+        let fromFeed = contactsService.selectedTab == .feed
+        let toFeed = tab == .feed
+        
+        if (fromFeed || toFeed) && searchField.stringValue.isNotEmpty {
+            searchField.stringValue = ""
+            searchClearButton.isHidden = true
+            searchIcon.isHidden = false
+            contactsService.resetSearches()
+        }
+        
+        if fromFeed {
+            feedContainerViewController.resetSearch()
         }
     }
 }

@@ -35,12 +35,12 @@ class FeedListCollectionViewItem: NSCollectionViewItem {
     }
     
     func render(
-        with contentFeed: ContentFeed
+        with item: FeedListViewController.DataSourceItem
     ) {
-        feedNameLabel.stringValue = contentFeed.title ?? "Podcast"
-        hostNameLabel.stringValue = contentFeed.authorName ?? contentFeed.feedDescription ?? ""
+        feedNameLabel.stringValue = item.title
+        hostNameLabel.stringValue = item.authorName ?? item.feedDescription ?? ""
         
-        if let imageURL = contentFeed.imageURL {
+        if let imageURLString = item.imageUrl, let imageURL = URL(string: imageURLString) {
             
             let transformer = SDImageResizingTransformer(
                 size: CGSize(width: feedImageView.bounds.size.width * 2, height: feedImageView.bounds.size.height * 2),

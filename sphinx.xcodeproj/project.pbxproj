@@ -324,6 +324,8 @@
 		477CE0372DC90A13004110E8 /* FeedListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */; };
 		477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0392DC91656004110E8 /* FeedListHeaderView.swift */; };
 		477CE03E2DC9166C004110E8 /* FeedListHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */; };
+		477CE0402DC92571004110E8 /* API+FeedSearchExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE03F2DC9256A004110E8 /* API+FeedSearchExtension.swift */; };
+		477CE0422DC925B6004110E8 /* FeedSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0412DC925B2004110E8 /* FeedSearchResult.swift */; };
 		4787F89E247C14FD00CCE8B9 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89D247C14FD00CCE8B9 /* CGFloat.swift */; };
 		4787F8A0247C16B200CCE8B9 /* ChatSmallAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */; };
 		4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */; };
@@ -1229,6 +1231,8 @@
 		477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListCollectionViewItem.xib; sourceTree = "<group>"; };
 		477CE0392DC91656004110E8 /* FeedListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListHeaderView.swift; sourceTree = "<group>"; };
 		477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListHeaderView.xib; sourceTree = "<group>"; };
+		477CE03F2DC9256A004110E8 /* API+FeedSearchExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+FeedSearchExtension.swift"; sourceTree = "<group>"; };
+		477CE0412DC925B2004110E8 /* FeedSearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedSearchResult.swift; sourceTree = "<group>"; };
 		4787F89D247C14FD00CCE8B9 /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSmallAvatarView.swift; sourceTree = "<group>"; };
 		4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSmallAvatarView.xib; sourceTree = "<group>"; };
@@ -2258,6 +2262,7 @@
 				471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */,
 				473615F62C359D0000EE3334 /* API+V2Extension.swift */,
 				4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */,
+				477CE03F2DC9256A004110E8 /* API+FeedSearchExtension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -3561,6 +3566,7 @@
 		47EB025729B21D7F0032CFB5 /* Parsing Objects */ = {
 			isa = PBXGroup;
 			children = (
+				477CE0412DC925B2004110E8 /* FeedSearchResult.swift */,
 				47EB025829B21D9D0032CFB5 /* VoIPRequestMessage.swift */,
 				CE1FA8F72A0199C20014360C /* LSATObject.swift */,
 			);
@@ -4563,6 +4569,7 @@
 				475B686C2991A91D000EF29C /* PodcastPlayerCollectionViewItem+Delegates.swift in Sources */,
 				47D03DE2250BB2810077A968 /* AddFriendViewController.swift in Sources */,
 				4726A41124C0D165005A66B4 /* HealthCheckView.swift in Sources */,
+				477CE0422DC925B6004110E8 /* FeedSearchResult.swift in Sources */,
 				47E7713B2472E76500C9CFEB /* NSBezierPath.swift in Sources */,
 				473633F02555DCEE007405F2 /* PodcastSatsView.swift in Sources */,
 				4758189E28ECA956006F32A2 /* CreateTribeViewModel.swift in Sources */,
@@ -4570,6 +4577,7 @@
 				475B681729915D01000EF29C /* ContentFeed+CoreDataClass.swift in Sources */,
 				4794964D2AB4930F00C42D1E /* PodcastAudioView.swift in Sources */,
 				47F8824C25656CB0002A7E71 /* SocketParsable.swift in Sources */,
+				477CE0402DC92571004110E8 /* API+FeedSearchExtension.swift in Sources */,
 				47FEE21E2A66F35200646C4E /* NewAudioPlayerHelper.swift in Sources */,
 				47F8825625656CB0002A7E71 /* SocketIOClientConfiguration.swift in Sources */,
 				473E1F382AC46DCF00DC1CDC /* ThreadCollectionView+BubbleExtension.swift in Sources */,

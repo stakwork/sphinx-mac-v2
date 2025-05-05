@@ -8,10 +8,11 @@
 
 import Cocoa
 
-class FeedListHeaderView: NSView, LoadableNib {
+class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     
     @IBOutlet var contentView: NSView!
-
+    @IBOutlet weak var headerLabel: NSTextField!
+    
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
@@ -26,4 +27,13 @@ class FeedListHeaderView: NSView, LoadableNib {
         loadViewFromNib()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        headerLabel.stringValue = ""
+    }
+    
+    func renderWith(title: String) {
+        headerLabel.stringValue = title
+    }
 }

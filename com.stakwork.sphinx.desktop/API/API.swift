@@ -80,6 +80,7 @@ class API {
     var uploadRequest: UploadRequest?
     var giphyRequest: DataRequest?
     var giphyRequestType: GiphyHelper.SearchType = GiphyHelper.SearchType.Gifs
+    var podcastSearchRequest: DataRequest?
     
     let messageBubbleHelper = NewMessageBubbleHelper()
     
