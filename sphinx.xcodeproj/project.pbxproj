@@ -322,6 +322,8 @@
 		477CE0322DC908EA004110E8 /* FeedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0312DC908EA004110E8 /* FeedListViewController.swift */; };
 		477CE0362DC90A13004110E8 /* FeedListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0342DC90A13004110E8 /* FeedListCollectionViewItem.swift */; };
 		477CE0372DC90A13004110E8 /* FeedListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */; };
+		477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0392DC91656004110E8 /* FeedListHeaderView.swift */; };
+		477CE03E2DC9166C004110E8 /* FeedListHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */; };
 		4787F89E247C14FD00CCE8B9 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89D247C14FD00CCE8B9 /* CGFloat.swift */; };
 		4787F8A0247C16B200CCE8B9 /* ChatSmallAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */; };
 		4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */; };
@@ -1225,6 +1227,8 @@
 		477CE0312DC908EA004110E8 /* FeedListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListViewController.swift; sourceTree = "<group>"; };
 		477CE0342DC90A13004110E8 /* FeedListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListCollectionViewItem.swift; sourceTree = "<group>"; };
 		477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListCollectionViewItem.xib; sourceTree = "<group>"; };
+		477CE0392DC91656004110E8 /* FeedListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListHeaderView.swift; sourceTree = "<group>"; };
+		477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListHeaderView.xib; sourceTree = "<group>"; };
 		4787F89D247C14FD00CCE8B9 /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSmallAvatarView.swift; sourceTree = "<group>"; };
 		4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSmallAvatarView.xib; sourceTree = "<group>"; };
@@ -2716,6 +2720,7 @@
 		477CE02B2DC90874004110E8 /* Feed */ = {
 			isa = PBXGroup;
 			children = (
+				477CE0382DC915F1004110E8 /* Views */,
 				477CE0332DC909EF004110E8 /* Collection View Items */,
 				477CE02C2DC90879004110E8 /* View Controllers */,
 			);
@@ -2737,6 +2742,15 @@
 				477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */,
 			);
 			path = "Collection View Items";
+			sourceTree = "<group>";
+		};
+		477CE0382DC915F1004110E8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				477CE0392DC91656004110E8 /* FeedListHeaderView.swift */,
+				477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		4789E26F24F42132003991BE /* Profile */ = {
@@ -3919,6 +3933,7 @@
 				475F0BA324F7EBCD0032EDC4 /* Contacts.storyboard in Resources */,
 				CE326B52294A179200821A53 /* ChatMentionAutocompleteCell.xib in Resources */,
 				4797E83224BCC10000D13270 /* Pin.storyboard in Resources */,
+				477CE03E2DC9166C004110E8 /* FeedListHeaderView.xib in Resources */,
 				479496542AB4BD6300C42D1E /* SentPaidDetails.xib in Resources */,
 				4794964F2AB4931700C42D1E /* PodcastAudioView.xib in Resources */,
 				4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */,
@@ -4373,6 +4388,7 @@
 				470396F325373CF9007F9C23 /* MouseDraggableView.swift in Sources */,
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
+				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,

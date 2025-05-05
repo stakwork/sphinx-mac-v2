@@ -912,9 +912,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView wantsLayer="YES" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Thf-yu-2xi">
+                            <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Thf-yu-2xi">
                                 <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" drawsBackground="NO" id="hXw-TJ-Fq5">
                                     <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -940,6 +939,12 @@
                                 </scroller>
                             </scrollView>
                         </subviews>
+                        <constraints>
+                            <constraint firstItem="Thf-yu-2xi" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" id="MQi-EA-bIB"/>
+                            <constraint firstAttribute="bottom" secondItem="Thf-yu-2xi" secondAttribute="bottom" id="Oyn-cb-sNR"/>
+                            <constraint firstItem="Thf-yu-2xi" firstAttribute="leading" secondItem="3FK-ci-Axa" secondAttribute="leading" id="hNz-No-KGT"/>
+                            <constraint firstAttribute="trailing" secondItem="Thf-yu-2xi" secondAttribute="trailing" id="ntH-Md-xim"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="feedsCollectionView" destination="mSA-Zs-s4H" id="FOn-lS-wKh"/>

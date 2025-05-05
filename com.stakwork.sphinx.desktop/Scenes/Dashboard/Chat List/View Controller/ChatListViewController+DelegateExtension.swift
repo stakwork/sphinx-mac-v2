@@ -149,8 +149,24 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
 }
 
 extension ChatListViewController: FeedListViewControllerDelegate {
-    func didClickRowWith(contentFeedId: Int?) {
-        
+    func didClickRowWith(contentFeedId: String?) {
+        if let contentFeedId = contentFeedId, let contentFeed = ContentFeed.getFeedById(feedId: contentFeedId) {
+            let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+            
+            let podcastPlayerVC = NewPodcastPlayerViewController.instantiate(
+                chat: podcast.chat,
+                podcast: podcast,
+                delegate: nil
+            )
+            
+            WindowsManager.sharedInstance.showVCOnRightPanelWindow(
+                with: "Podcast",
+                identifier: "podcast-window",
+                contentVC: podcastPlayerVC,
+                shouldReplace: false,
+                panelFixedWidth: true
+            )
+        }
     }
 }
 

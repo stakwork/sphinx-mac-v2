@@ -9,7 +9,7 @@
 import Cocoa
 
 protocol FeedListViewControllerDelegate: NSObject {
-    func didClickRowWith(contentFeedId: Int?)
+    func didClickRowWith(contentFeedId: String?)
 }
 
 class FeedListViewController: NSViewController {
@@ -157,6 +157,12 @@ extension FeedListViewController {
                 forItemWithIdentifier: NSUserInterfaceItemIdentifier(rawValue: CollectionViewCell.reuseID)
             )
         }
+        
+        feedsCollectionView.register(
+            FeedListHeaderView.self,
+            forSupplementaryViewOfKind: NSCollectionView.elementKindSectionHeader,
+            withIdentifier: NSUserInterfaceItemIdentifier("FeedListHeaderView")
+        )
     }
 
 
@@ -172,7 +178,7 @@ extension FeedListViewController {
     func makeSectionHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(80)
+            heightDimension: .estimated(50)
         )
 
         return NSCollectionLayoutBoundarySupplementaryItem(
@@ -201,7 +207,9 @@ extension FeedListViewController {
 
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .none
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8.0, leading: 0, bottom: 8.0, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0.0, leading: 0, bottom: 0.0, trailing: 0)
+        
+        section.boundarySupplementaryItems = [makeSectionHeader()]
 
         return section
     }
@@ -260,10 +268,27 @@ extension FeedListViewController {
     }
     
     func makeDataSource() -> DataSource {
-        return DataSource(
+        let dataSource = DataSource(
             collectionView: feedsCollectionView,
             itemProvider: makeCellProvider()
         )
+        
+        dataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) in
+            if kind == NSCollectionView.elementKindSectionHeader {
+                guard let headerView = collectionView.makeSupplementaryView(
+                    ofKind: kind,
+                    withIdentifier: NSUserInterfaceItemIdentifier("FeedListHeaderView"),
+                    for: indexPath
+                ) as? (NSView & NSCollectionViewElement) else {
+                    return nil
+                }
+                // Optionally configure the view with self?.data
+                return headerView
+            }
+            return nil
+        }
+        
+        return dataSource
     }
 }
 
@@ -338,28 +363,14 @@ extension FeedListViewController {
 extension FeedListViewController : NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         
-//        collectionView.deselectAll(nil)
-//        
-//        if let indexPath = indexPaths.first {
-//            
-//            if (tab == .Friends) {
-//                contactsService.selectedFriendId = self.chatListObjects[indexPath.item].getObjectId()
-//            } else {
-//                contactsService.selectedTribeId = self.chatListObjects[indexPath.item].getObjectId()
-//            }
-//            
-//            updateSnapshot()
-//            
-//            DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
-//                let chat = self.chatListObjects[indexPath.item] as? Chat
-//                let contact = self.chatListObjects[indexPath.item] as? UserContact
-//                
-//                self.delegate?.didClickRowAt(
-//                    chatId: chat?.id,
-//                    contactId: contact?.id
-//                )
-//            })
-//        }
+        collectionView.deselectAll(nil)
+        
+        if let indexPath = indexPaths.first {
+            DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
+                let contentFeed = self.contentFeedObjects[indexPath.item]
+                self.delegate?.didClickRowWith(contentFeedId: contentFeed.feedID)
+            })
+        }
     }
 }
 
