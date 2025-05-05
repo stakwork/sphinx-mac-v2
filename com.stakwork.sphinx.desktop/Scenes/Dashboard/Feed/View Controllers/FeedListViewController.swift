@@ -41,7 +41,8 @@ class FeedListViewController: NSViewController {
     
     enum FeedMode: Int, Hashable {
         case following
-        case search
+        case searching
+        case searchResults
     }
     
     var currentMode: FeedMode = .following
@@ -104,7 +105,7 @@ class FeedListViewController: NSViewController {
             return
         }
         
-        currentMode = .search
+        currentMode = .searching
         updateSnapshot(with: [], completion: nil)
         
         searchTimer?.invalidate()
@@ -142,6 +143,7 @@ class FeedListViewController: NSViewController {
                                 )
                             }
                             
+                            self.currentMode = .searchResults
                             self.updateSnapshot(with: items, completion: nil)
                             
                         case .failure(_):
@@ -358,7 +360,18 @@ extension FeedListViewController {
                     return nil
                 }
                 
-                let title = self?.currentMode == .following ? "Following" : "Directory"
+                var title = "Following"
+                switch(self?.currentMode) {
+                case .searching:
+                    title = "Searching..."
+                    break
+                case .searchResults:
+                    title = "Search Results"
+                    break
+                default:
+                    break
+                }
+                
                 (headerView as? FeedListHeaderView)?.renderWith(title: title)
                 
                 return headerView
@@ -437,7 +450,7 @@ extension FeedListViewController {
             
             snapshot.appendItems(items, toSection: .all)
             
-            self.dataSource.apply(snapshot, animatingDifferences: true) {
+            self.dataSource.apply(snapshot, animatingDifferences: false) {
                 
                 let sectionIndex = CollectionViewSection.all.rawValue
                 self.feedsCollectionView.collectionViewLayout?.invalidateLayout()
