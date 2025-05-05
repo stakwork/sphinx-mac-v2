@@ -171,10 +171,7 @@ class FloatingAudioPlayer: NSView, LoadableNib {
     }
     
     @objc func presentFloatingPlayer() {
-//        if podcastPlayerController.isPlaying && self.isHidden {
-//            self.isHidden = false
-//        }
-        if let _ = podcast, self.isHidden {
+        if let _ = podcast, self.isHidden && podcastPlayerController.isPlaying {
             self.isHidden = false
         }
     }
