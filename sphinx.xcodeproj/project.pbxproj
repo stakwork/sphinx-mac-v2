@@ -319,6 +319,9 @@
 		477ADCD02A1E5A5F004E74CE /* PinMessageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477ADCCF2A1E5A5F004E74CE /* PinMessageDetailView.swift */; };
 		477ADCD42A1E5A7E004E74CE /* PinMessageBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477ADCD32A1E5A7E004E74CE /* PinMessageBarView.swift */; };
 		477ADCD62A1E5A85004E74CE /* PinMessageBarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477ADCD52A1E5A85004E74CE /* PinMessageBarView.xib */; };
+		477CE0322DC908EA004110E8 /* FeedListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0312DC908EA004110E8 /* FeedListViewController.swift */; };
+		477CE0362DC90A13004110E8 /* FeedListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0342DC90A13004110E8 /* FeedListCollectionViewItem.swift */; };
+		477CE0372DC90A13004110E8 /* FeedListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */; };
 		4787F89E247C14FD00CCE8B9 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89D247C14FD00CCE8B9 /* CGFloat.swift */; };
 		4787F8A0247C16B200CCE8B9 /* ChatSmallAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */; };
 		4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */; };
@@ -1219,6 +1222,9 @@
 		477ADCCF2A1E5A5F004E74CE /* PinMessageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinMessageDetailView.swift; sourceTree = "<group>"; };
 		477ADCD32A1E5A7E004E74CE /* PinMessageBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinMessageBarView.swift; sourceTree = "<group>"; };
 		477ADCD52A1E5A85004E74CE /* PinMessageBarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PinMessageBarView.xib; sourceTree = "<group>"; };
+		477CE0312DC908EA004110E8 /* FeedListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListViewController.swift; sourceTree = "<group>"; };
+		477CE0342DC90A13004110E8 /* FeedListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListCollectionViewItem.swift; sourceTree = "<group>"; };
+		477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListCollectionViewItem.xib; sourceTree = "<group>"; };
 		4787F89D247C14FD00CCE8B9 /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSmallAvatarView.swift; sourceTree = "<group>"; };
 		4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSmallAvatarView.xib; sourceTree = "<group>"; };
@@ -2707,6 +2713,32 @@
 			path = MemberInfo;
 			sourceTree = "<group>";
 		};
+		477CE02B2DC90874004110E8 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				477CE0332DC909EF004110E8 /* Collection View Items */,
+				477CE02C2DC90879004110E8 /* View Controllers */,
+			);
+			path = Feed;
+			sourceTree = "<group>";
+		};
+		477CE02C2DC90879004110E8 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				477CE0312DC908EA004110E8 /* FeedListViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		477CE0332DC909EF004110E8 /* Collection View Items */ = {
+			isa = PBXGroup;
+			children = (
+				477CE0342DC90A13004110E8 /* FeedListCollectionViewItem.swift */,
+				477CE0352DC90A13004110E8 /* FeedListCollectionViewItem.xib */,
+			);
+			path = "Collection View Items";
+			sourceTree = "<group>";
+		};
 		4789E26F24F42132003991BE /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -2844,6 +2876,7 @@
 		479751C2246C72C100D2106B /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
+				477CE02B2DC90874004110E8 /* Feed */,
 				47FCE2B82CD8FB31005DB8AF /* Live Kit */,
 				472504072B73F44E00A12DE3 /* Jitsi Calls */,
 				4797E7482785D1560080B966 /* People */,
@@ -4015,6 +4048,7 @@
 				47DE1C0A2A6881FA0029597B /* DateSeparatorView.xib in Resources */,
 				474E334C248000AA00F7F603 /* AttachmentPriceView.xib in Resources */,
 				479496692AB8A7A000C42D1E /* GroupRequestView.xib in Resources */,
+				477CE0372DC90A13004110E8 /* FeedListCollectionViewItem.xib in Resources */,
 				4797E82424BCC0DA00D13270 /* Groups.storyboard in Resources */,
 				478ED5C525D6FD0F00940132 /* WelcomeView.xib in Resources */,
 			);
@@ -4120,6 +4154,7 @@
 				47B5509E248BD256000514BF /* SendPaymentViewController.swift in Sources */,
 				47F8825C25656CB0002A7E71 /* SocketIOClientSpec.swift in Sources */,
 				4789E27424F421A2003991BE /* ProfileViewController.swift in Sources */,
+				477CE0362DC90A13004110E8 /* FeedListCollectionViewItem.swift in Sources */,
 				47DE1C1C2A69769B0029597B /* NewMessageCollectionViewItem+BubbleExtension.swift in Sources */,
 				4708C1FF2A55BCE300274AD4 /* UserContactsHelper.swift in Sources */,
 				47DE1C282A69DC410029597B /* NewMessageBoostView.swift in Sources */,
@@ -4462,6 +4497,7 @@
 				4720991A24834E0000426028 /* CryptorRSAConstants.swift in Sources */,
 				479496762AB8CA7500C42D1E /* NewChatViewController+MessageMenuExtension.swift in Sources */,
 				47FEE1FC2A65BA4F00646C4E /* NewChatViewController+MentionsExtension.swift in Sources */,
+				477CE0322DC908EA004110E8 /* FeedListViewController.swift in Sources */,
 				475DB98F2D01F57A0011C9BA /* AttachmentPreview.swift in Sources */,
 				478ED59025D5522C00940132 /* WelcomeEmptyViewController.swift in Sources */,
 				47FEE2002A66D3B500646C4E /* MessageLayoutState.swift in Sources */,

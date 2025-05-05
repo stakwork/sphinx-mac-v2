@@ -41,6 +41,8 @@ class ContactsService: NSObject {
                 return 0
             case .tribes:
                 return 1
+            case .feed:
+                return 2
             }
         }
     }
@@ -68,6 +70,9 @@ class ContactsService: NSObject {
         case .tribes:
             tab = "Tribes"
             selectedChatId = selectedTribeId
+        case .feed:
+            tab = "Feed"
+            selectedChatId = nil
         }
         
         if let tab = tab, let selectedChatId = selectedChatId {
@@ -91,6 +96,9 @@ class ContactsService: NSObject {
                 case "Tribes":
                     selectedTab = .tribes
                     selectedTribeId = chat
+                    break
+                case "Feed":
+                    selectedTab = .feed
                     break
                 default:
                     break
@@ -217,6 +225,8 @@ class ContactsService: NSObject {
             {
                 return (chatId, nil)
             }
+            break
+        case .feed:
             break
         }
         return (nil, nil)

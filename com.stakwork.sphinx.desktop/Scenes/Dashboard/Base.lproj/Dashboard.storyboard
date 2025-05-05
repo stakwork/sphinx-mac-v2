@@ -904,6 +904,51 @@
             </objects>
             <point key="canvasLocation" x="-324.5" y="1412.5"/>
         </scene>
+        <!--Feed List View Controller-->
+        <scene sceneID="qIg-B3-Zrm">
+            <objects>
+                <viewController storyboardIdentifier="FeedListViewController" id="H8e-vA-WvQ" customClass="FeedListViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="3FK-ci-Axa">
+                        <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView wantsLayer="YES" fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Thf-yu-2xi">
+                                <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <clipView key="contentView" drawsBackground="NO" id="hXw-TJ-Fq5">
+                                    <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <collectionView selectable="YES" id="mSA-Zs-s4H">
+                                            <rect key="frame" x="0.0" y="0.0" width="409" height="158"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                            <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="DYP-Mi-Z7M">
+                                                <size key="itemSize" width="350" height="85"/>
+                                            </collectionViewFlowLayout>
+                                            <color key="primaryBackgroundColor" name="HeaderBG"/>
+                                        </collectionView>
+                                    </subviews>
+                                    <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="eLg-ZK-N98">
+                                    <rect key="frame" x="1" y="144" width="233" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="a2b-t4-dgp">
+                                    <rect key="frame" x="234" y="1" width="15" height="143"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                        </subviews>
+                    </view>
+                    <connections>
+                        <outlet property="feedsCollectionView" destination="mSA-Zs-s4H" id="FOn-lS-wKh"/>
+                    </connections>
+                </viewController>
+                <customObject id="bw8-xV-D8J" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-324.5" y="1918.5"/>
+        </scene>
         <!--Contact View Controller-->
         <scene sceneID="Vqy-QO-2DZ">
             <objects>
@@ -1508,19 +1553,6 @@
             </objects>
             <point key="canvasLocation" x="-850.5" y="3060"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="B3V-Df-YRb">
-            <objects>
-                <viewController id="Mg3-jq-RWa" sceneMemberID="viewController">
-                    <view key="view" id="aYt-2e-74j">
-                        <rect key="frame" x="0.0" y="0.0" width="686" height="434"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </view>
-                </viewController>
-                <customObject id="esq-hg-Xn5" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="416" y="2868"/>
-        </scene>
         <!--Threads List View Controller-->
         <scene sceneID="g5t-cJ-mgZ">
             <objects>
@@ -1688,7 +1720,7 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="355" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
+                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="356" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -1701,11 +1733,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="doF-IN-pqe">
-                                                            <rect key="frame" x="8" y="0.0" width="350" height="24"/>
+                                                            <rect key="frame" x="8" y="0.0" width="351" height="24"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kLd-Ex-Z8Q">
-                                                                    <rect key="frame" x="0.0" y="4" width="350" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="4" width="351" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Z6P-yR-1id">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1724,7 +1756,7 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
+                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
                                     <rect key="frame" x="1" y="118" width="368" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>

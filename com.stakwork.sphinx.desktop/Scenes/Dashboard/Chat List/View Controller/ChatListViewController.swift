@@ -34,6 +34,7 @@ class ChatListViewController : DashboardSplittedViewController {
                 buttonTitles: [
                     "dashboard.tabs.friends".localized,
                     "dashboard.tabs.tribes".localized,
+                    "dashboard.tabs.feed".localized
                 ],
                 delegate: self
             )
@@ -73,6 +74,10 @@ class ChatListViewController : DashboardSplittedViewController {
             tab: NewChatListViewController.Tab.Tribes,
             delegate: self
         )
+    }()
+    
+    internal lazy var feedContainerViewController: FeedListViewController = {
+        FeedListViewController.instantiate(delegate: self)
     }()
     
     static func instantiate(

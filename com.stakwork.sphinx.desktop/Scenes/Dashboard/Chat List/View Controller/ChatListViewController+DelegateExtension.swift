@@ -148,3 +148,9 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
     }
 }
 
+extension ChatListViewController: FeedListViewControllerDelegate {
+    func didClickRowWith(contentFeedId: Int?) {
+        
+    }
+}
+
