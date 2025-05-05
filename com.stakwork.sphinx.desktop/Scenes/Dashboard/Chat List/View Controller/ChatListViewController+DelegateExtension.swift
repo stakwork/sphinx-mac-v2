@@ -161,7 +161,7 @@ extension ChatListViewController: FeedListViewControllerDelegate {
             
             WindowsManager.sharedInstance.showVCOnRightPanelWindow(
                 with: "Podcast",
-                identifier: "podcast-window",
+                identifier: "podcast-window-\(contentFeedId)",
                 contentVC: podcastPlayerVC,
                 shouldReplace: false,
                 panelFixedWidth: true

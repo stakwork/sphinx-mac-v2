@@ -356,6 +356,7 @@ class WindowsManager {
             detailVC.displayVC(
                 contentVC,
                 vcTitle: title,
+                vcIdentifier: identifier,
                 shouldReplace: shouldReplace,
                 fixedWidth: panelFixedWidth ? DashboardViewController.kRightPanelMaxWidth : nil
             )
