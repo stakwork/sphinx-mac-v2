@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner">
+            <connections>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="192" height="265"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="12" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vyh-nE-KNG">
+                    <rect key="frame" x="16" y="16" width="160" height="233"/>
+                    <subviews>
+                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="eVW-w5-NEH" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="73" width="160" height="160"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="160" id="Io7-Nr-S6k"/>
+                            </constraints>
+                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="SJ0-zW-gO4"/>
+                        </imageView>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="a8O-Z5-ThD">
+                            <rect key="frame" x="-2" y="42" width="164" height="19"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Label from the" id="jYO-PB-cgz">
+                                <font key="font" size="16" name="Roboto-Regular"/>
+                                <color key="textColor" name="Text"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BUx-pH-k3q">
+                            <rect key="frame" x="-2" y="0.0" width="164" height="30"/>
+                            <textFieldCell key="cell" alignment="left" id="LOw-0V-x4R">
+                                <font key="font" size="13" name="Roboto-Regular"/>
+                                <string key="title">Label from the 
+and now?</string>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="a8O-Z5-ThD" firstAttribute="leading" secondItem="Vyh-nE-KNG" secondAttribute="leading" id="0pS-72-lAB"/>
+                        <constraint firstAttribute="trailing" secondItem="a8O-Z5-ThD" secondAttribute="trailing" id="9ro-5Y-vUZ"/>
+                        <constraint firstAttribute="trailing" secondItem="BUx-pH-k3q" secondAttribute="trailing" id="CLm-Sp-4bS"/>
+                        <constraint firstItem="BUx-pH-k3q" firstAttribute="leading" secondItem="Vyh-nE-KNG" secondAttribute="leading" id="sNR-we-4mr"/>
+                    </constraints>
+                    <visibilityPriorities>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                    </visibilityPriorities>
+                    <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                    </customSpacing>
+                </stackView>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="Vyh-nE-KNG" secondAttribute="trailing" constant="16" id="Rfs-ur-vsx"/>
+                <constraint firstItem="Vyh-nE-KNG" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="16" id="Sjx-Ui-nti"/>
+                <constraint firstAttribute="bottom" secondItem="Vyh-nE-KNG" secondAttribute="bottom" constant="16" id="aWf-gY-SrW"/>
+                <constraint firstItem="Vyh-nE-KNG" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="vf1-x8-LeH"/>
+            </constraints>
+            <point key="canvasLocation" x="109" y="154"/>
+        </customView>
+        <customObject id="Zf2-ah-JTZ" customClass="FeedListenCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="itemDescription" destination="BUx-pH-k3q" id="zZZ-tf-wgN"/>
+                <outlet property="itemImageView" destination="eVW-w5-NEH" id="Ckz-KR-gfV"/>
+                <outlet property="itemTitle" destination="a8O-Z5-ThD" id="wgh-ax-GL8"/>
+            </connections>
+        </customObject>
+    </objects>
+    <resources>
+        <namedColor name="SecondaryText">
+            <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Text">
+            <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

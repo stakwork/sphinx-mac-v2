@@ -1089,6 +1089,104 @@
             </objects>
             <point key="canvasLocation" x="824" y="156"/>
         </scene>
+        <!--Feed Listen Dashboard View Controller-->
+        <scene sceneID="Ajw-8t-GTL">
+            <objects>
+                <viewController storyboardIdentifier="FeedListenDashboardViewController" id="CDn-bu-eoC" customClass="FeedListenDashboardViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="pnn-4g-fcu">
+                        <rect key="frame" x="0.0" y="0.0" width="409" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="smR-Ll-3OZ">
+                                <rect key="frame" x="0.0" y="0.0" width="409" height="300"/>
+                                <view key="contentView" id="9Hm-ki-h5W">
+                                    <rect key="frame" x="0.0" y="0.0" width="409" height="300"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <scrollView wantsLayer="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L7c-56-Qzr">
+                                            <rect key="frame" x="0.0" y="0.0" width="409" height="300"/>
+                                            <clipView key="contentView" drawsBackground="NO" id="PCb-PH-9A4">
+                                                <rect key="frame" x="1" y="1" width="407" height="298"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <collectionView id="xJZ-6n-cLM">
+                                                        <rect key="frame" x="0.0" y="0.0" width="407" height="158"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                                        <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="ZBs-yD-sLR">
+                                                            <size key="itemSize" width="50" height="50"/>
+                                                        </collectionViewFlowLayout>
+                                                        <color key="primaryBackgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </collectionView>
+                                                </subviews>
+                                                <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </clipView>
+                                            <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="SdL-rN-Hje">
+                                                <rect key="frame" x="1" y="283" width="407" height="16"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                            <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="L28-4h-0KZ">
+                                                <rect key="frame" x="234" y="1" width="15" height="143"/>
+                                                <autoresizingMask key="autoresizingMask"/>
+                                            </scroller>
+                                        </scrollView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="L7c-56-Qzr" firstAttribute="leading" secondItem="9Hm-ki-h5W" secondAttribute="leading" id="CuW-3e-tD2"/>
+                                        <constraint firstAttribute="trailing" secondItem="L7c-56-Qzr" secondAttribute="trailing" id="T4h-Ej-9rf"/>
+                                        <constraint firstItem="L7c-56-Qzr" firstAttribute="top" secondItem="9Hm-ki-h5W" secondAttribute="top" id="gDS-c2-jW2"/>
+                                        <constraint firstAttribute="bottom" secondItem="L7c-56-Qzr" secondAttribute="bottom" id="jiz-ln-RNs"/>
+                                    </constraints>
+                                </view>
+                                <color key="fillColor" name="Body"/>
+                            </box>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="smR-Ll-3OZ" firstAttribute="top" secondItem="pnn-4g-fcu" secondAttribute="top" id="04W-Gz-gjz"/>
+                            <constraint firstAttribute="bottom" secondItem="smR-Ll-3OZ" secondAttribute="bottom" id="a8t-un-xyF"/>
+                            <constraint firstAttribute="trailing" secondItem="smR-Ll-3OZ" secondAttribute="trailing" id="eDA-Gv-HYJ"/>
+                            <constraint firstItem="smR-Ll-3OZ" firstAttribute="leading" secondItem="pnn-4g-fcu" secondAttribute="leading" id="qYR-8Q-dqw"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="feedCollectionView" destination="xJZ-6n-cLM" id="UMB-o9-zcZ"/>
+                    </connections>
+                </viewController>
+                <customObject id="2FJ-Lf-8OJ" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-324.5" y="2358"/>
+        </scene>
+        <!--Feed Dashboard View Controller-->
+        <scene sceneID="op2-aU-fiz">
+            <objects>
+                <viewController storyboardIdentifier="FeedDashboardViewController" id="Cuy-Eg-s49" customClass="FeedDashboardViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="ZzJ-Gp-6d5">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="MYZ-if-npo">
+                                <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                <view key="contentView" id="a0V-hN-EfR">
+                                    <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <color key="fillColor" name="Body"/>
+                            </box>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="MYZ-if-npo" secondAttribute="trailing" id="c6k-EO-g2z"/>
+                            <constraint firstAttribute="bottom" secondItem="MYZ-if-npo" secondAttribute="bottom" id="h04-si-J0W"/>
+                            <constraint firstItem="MYZ-if-npo" firstAttribute="top" secondItem="ZzJ-Gp-6d5" secondAttribute="top" id="qpG-PZ-oN5"/>
+                            <constraint firstItem="MYZ-if-npo" firstAttribute="leading" secondItem="ZzJ-Gp-6d5" secondAttribute="leading" id="snC-GV-Ceb"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="childContainerView" destination="a0V-hN-EfR" id="S3l-KH-0hq"/>
+                    </connections>
+                </viewController>
+                <customObject id="PJb-va-szN" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-204" y="2769"/>
+        </scene>
         <!--New Chat View Controller-->
         <scene sceneID="ZXt-EC-Kc7">
             <objects>

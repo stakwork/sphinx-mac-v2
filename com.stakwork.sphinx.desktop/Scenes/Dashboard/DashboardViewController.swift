@@ -49,6 +49,7 @@ class DashboardViewController: NSViewController {
     var messageBubbleHelper = NewMessageBubbleHelper()
     
     var newDetailViewController : NewChatViewController? = nil
+    var feedDashboardViewController : FeedDashboardViewController? = nil
     var listViewController : ChatListViewController? = nil
     
     let kDetailSegueIdentifier = "ChatViewControllerSegue"
@@ -772,7 +773,9 @@ extension DashboardViewController : DashboardVCDelegate {
     }
     
     func didSwitchToTab() {
-        let (chatId, contactId) = contactsService.getObjectIdForCurrentSelection()
+        guard let (chatId, contactId) = contactsService.getObjectIdForCurrentSelection() else {
+            return
+        }
         
         if let chatId = chatId {
             didClickOnChatRow(
@@ -784,6 +787,8 @@ extension DashboardViewController : DashboardVCDelegate {
                 chatId: nil,
                 contactId: contactId
             )
+        } else {
+            presentFeedDashboard()
         }
     }
     
@@ -828,13 +833,7 @@ extension DashboardViewController : DashboardVCDelegate {
             return
         }
         
-        if let detailViewController = newDetailViewController {
-            detailViewController.resetVC()
-            
-            self.removeChildVC(child: detailViewController)
-            
-            newDetailViewController = nil
-        }
+        resetDetailViewController()
         
         let chat = chatId != nil ? Chat.getChatWith(id: chatId!) : nil
         let contact = contactId != nil ? UserContact.getContactWith(id: contactId!) : chat?.getConversationContact()
@@ -854,6 +853,41 @@ extension DashboardViewController : DashboardVCDelegate {
         
         newDetailViewController = newChatVCController
 
+        deeplinkData = nil
+        
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
+    }
+    
+    func resetDetailViewController() {
+        if let detailViewController = newDetailViewController {
+            detailViewController.resetVC()
+            
+            self.removeChildVC(child: detailViewController)
+            
+            newDetailViewController = nil
+        }
+        
+        if let feedDashboardVC = feedDashboardViewController {
+            self.removeChildVC(child: feedDashboardVC)
+            
+            feedDashboardViewController = nil
+        }
+    }
+    
+    func presentFeedDashboard() {
+        resetDetailViewController()
+        
+        let feedDashboardVC = FeedDashboardViewController.instantiate()
+        
+        self.addChildVC(
+            child: feedDashboardVC,
+            container: rightSplittedView
+        )
+        
+        dashboardDetailViewController?.closeButtonTapped()
+        
+        feedDashboardViewController = feedDashboardVC
+        
         deeplinkData = nil
         
         NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)

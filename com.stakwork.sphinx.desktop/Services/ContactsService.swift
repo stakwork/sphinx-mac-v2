@@ -202,7 +202,7 @@ class ContactsService: NSObject {
         self.subscriptions = Subscription.getAll()
     }
     
-    func getObjectIdForCurrentSelection() -> (Int?, Int?) {
+    func getObjectIdForCurrentSelection() -> (Int?, Int?)? {
         switch (selectedTab) {
         case .friends:
             if
@@ -227,9 +227,9 @@ class ContactsService: NSObject {
             }
             break
         case .feed:
-            break
+            return (nil, nil)
         }
-        return (nil, nil)
+        return nil
     }
 }
 
