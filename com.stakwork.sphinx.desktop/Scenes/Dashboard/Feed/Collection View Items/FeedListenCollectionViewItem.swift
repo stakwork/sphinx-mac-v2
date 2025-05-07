@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SDWebImage
 
 class FeedListenCollectionViewItem: NSCollectionViewItem {
 
@@ -16,7 +17,35 @@ class FeedListenCollectionViewItem: NSCollectionViewItem {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do view setup here.
+    }
+    
+    func configure(withItem item: PodcastEpisode) {
+        itemTitle.stringValue = item.title ?? ""
+        itemDescription.stringValue = item.formattedDescription
+        itemImageView.image = NSImage(named: "podcastPlaceholder")
+        
+        if let imageURLString = item.imageURLPath, let imageURL = URL(string: imageURLString) {
+            
+            let transformer = SDImageResizingTransformer(
+                size: CGSize(width: itemImageView.bounds.size.width * 2, height: itemImageView.bounds.size.height * 2),
+                scaleMode: .aspectFill
+            )
+            
+            itemImageView.sd_setImage(
+                with: imageURL,
+                placeholderImage: NSImage(named: "podcastPlaceholder"),
+                options: [.lowPriority],
+                context: [.imageTransformer: transformer],
+                progress: nil,
+                completed: { [weak self] (image, error,_,_) in
+                    if (error == nil) {
+                        self?.itemImageView.image = image
+                    } else {
+                        self?.itemImageView.image = NSImage(named: "podcastPlaceholder")
+                    }
+                }
+            )
+        }
     }
     
 }

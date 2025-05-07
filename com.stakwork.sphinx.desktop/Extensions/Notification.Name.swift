@@ -48,4 +48,5 @@ extension Notification.Name {
     
     static let refreshFeedDataAndUI = Notification.Name(rawValue: "refreshFeedDataAndUI")
     static let onPodcastPlayerClosed = Notification.Name(rawValue: "onPodcastPlayerClosed")
+    static let refreshFeedUI = Notification.Name(rawValue: "refreshFeedUI")
 }

@@ -335,6 +335,8 @@
 		4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */; };
 		4789E27424F421A2003991BE /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4789E27324F421A2003991BE /* ProfileViewController.swift */; };
 		4789E27724F42295003991BE /* SettingsTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4789E27624F42295003991BE /* SettingsTabsView.swift */; };
+		478DF8242DCBC64600768D9F /* FeedSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478DF8232DCBC64600768D9F /* FeedSectionHeaderView.swift */; };
+		478DF8262DCBC65000768D9F /* FeedSectionHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 478DF8252DCBC65000768D9F /* FeedSectionHeaderView.xib */; };
 		478ED57725D41ACB00940132 /* SignupButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED57625D41ACB00940132 /* SignupButtonView.swift */; };
 		478ED57925D41ADF00940132 /* SignupButtonView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 478ED57825D41ADF00940132 /* SignupButtonView.xib */; };
 		478ED57B25D41AFD00940132 /* SignupFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED57A25D41AFD00940132 /* SignupFieldView.swift */; };
@@ -1246,6 +1248,9 @@
 		4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSmallAvatarView.xib; sourceTree = "<group>"; };
 		4789E27324F421A2003991BE /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		4789E27624F42295003991BE /* SettingsTabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTabsView.swift; sourceTree = "<group>"; };
+		478DF8232DCBC64600768D9F /* FeedSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedSectionHeaderView.swift; sourceTree = "<group>"; };
+		478DF8252DCBC65000768D9F /* FeedSectionHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedSectionHeaderView.xib; sourceTree = "<group>"; };
+		478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 6.xcdatamodel"; sourceTree = "<group>"; };
 		478ED57625D41ACB00940132 /* SignupButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupButtonView.swift; sourceTree = "<group>"; };
 		478ED57825D41ADF00940132 /* SignupButtonView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SignupButtonView.xib; sourceTree = "<group>"; };
 		478ED57A25D41AFD00940132 /* SignupFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupFieldView.swift; sourceTree = "<group>"; };
@@ -2766,6 +2771,8 @@
 			children = (
 				477CE0392DC91656004110E8 /* FeedListHeaderView.swift */,
 				477CE03D2DC9166C004110E8 /* FeedListHeaderView.xib */,
+				478DF8232DCBC64600768D9F /* FeedSectionHeaderView.swift */,
+				478DF8252DCBC65000768D9F /* FeedSectionHeaderView.xib */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3988,6 +3995,7 @@
 				4726A43E24C628DA005A66B4 /* aurora.caf in Resources */,
 				4726A44024C628DA005A66B4 /* bell.caf in Resources */,
 				478ED5B225D59E1400940132 /* ellipse.gif in Resources */,
+				478DF8262DCBC65000768D9F /* FeedSectionHeaderView.xib in Resources */,
 				478ED5E825D6FDD800940132 /* PinView.xib in Resources */,
 				4797F6542B0E727700A19C58 /* Payments.storyboard in Resources */,
 				4708C2192A5885D200274AD4 /* ChatTopView.xib in Resources */,
@@ -4611,6 +4619,7 @@
 				475723AB247ED3AC001ADC7E /* AudioPlayerHelper.swift in Sources */,
 				47DF91532C4AA34000E8128A /* LSat+CoreDataProperties.swift in Sources */,
 				475DB9972D02029E0011C9BA /* ChatMessageFieldView+AttachmentsPreviewExtension.swift in Sources */,
+				478DF8242DCBC64600768D9F /* FeedSectionHeaderView.swift in Sources */,
 				474568002515148A00D66268 /* URL.swift in Sources */,
 				47C52C4827F61ADF007B43E2 /* HMACSigningManager.swift in Sources */,
 				4705D3A127A06597009C0729 /* RestoreProgressView.swift in Sources */,
@@ -5687,13 +5696,14 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */,
 				4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */,
 				77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */,
 				473873AF2CD929C400CBBC28 /* com_stakwork_sphinx_desktop 3.xcdatamodel */,
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */;
+			currentVersion = 478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

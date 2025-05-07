@@ -17,7 +17,10 @@ class FeedListViewController: NSViewController {
     
     weak var delegate: FeedListViewControllerDelegate?
 
+    @IBOutlet weak var feedsScrollView: NSScrollView!
     @IBOutlet weak var feedsCollectionView: NSCollectionView!
+    @IBOutlet weak var searchPlaceHolder: NSStackView!
+    @IBOutlet weak var searchPlaceHolderImageView: NSImageView!
     
     var contentFeedObjects: [ContentFeed] = []
     
@@ -32,6 +35,7 @@ class FeedListViewController: NSViewController {
     var feedsResultsController: NSFetchedResultsController<ContentFeed>!
     
     var searchTimer: Timer? = nil
+    var isSearchActive = false
     
     private let itemContentInsets = NSDirectionalEdgeInsets(
         top: 0,
@@ -42,6 +46,7 @@ class FeedListViewController: NSViewController {
     
     enum FeedMode: Int, Hashable {
         case following
+        case search
         case searching
         case searchResults
     }
@@ -93,8 +98,18 @@ class FeedListViewController: NSViewController {
         } catch {}
     }
     
+    func toggleSearchFieldActive(_ becameActive: Bool) {
+        isSearchActive = becameActive
+        
+        if currentMode == .following && becameActive {
+            resetSearch()
+        } else if currentMode == .search && !becameActive {
+            resetSearch()
+        }
+    }
+    
     func resetSearch() {
-        currentMode = .following
+        currentMode = isSearchActive ? .search : .following
         updateSnapshot(with: [], completion: nil)
         resetFetchResultsController()
         configureFetchResultsController()
@@ -340,12 +355,16 @@ extension FeedListViewController {
             return
         }
         
-        dataSource = makeDataSource()
+        makeDataSource()
 
         updateSnapshot()
     }
     
-    func makeDataSource() -> DataSource {
+    func makeDataSource() {
+        if let _ = dataSource {
+            return
+        }
+        
         let dataSource = DataSource(
             collectionView: feedsCollectionView,
             itemProvider: makeCellProvider()
@@ -362,6 +381,7 @@ extension FeedListViewController {
                 }
                 
                 var title = "Following"
+                
                 switch(self?.currentMode) {
                 case .searching:
                     title = "Searching..."
@@ -380,7 +400,7 @@ extension FeedListViewController {
             return nil
         }
         
-        return dataSource
+        self.dataSource = dataSource
     }
 }
 
@@ -440,9 +460,7 @@ extension FeedListViewController {
         with items: [DataSourceItem],
         completion: (() -> ())? = nil
     ) {
-        guard let _ = dataSource else {
-            return
-        }
+        makeDataSource()
         
         DispatchQueue.main.async {
             var snapshot = DataSourceSnapshot()
@@ -456,6 +474,7 @@ extension FeedListViewController {
                 let sectionIndex = CollectionViewSection.all.rawValue
                 self.feedsCollectionView.collectionViewLayout?.invalidateLayout()
                 self.feedsCollectionView.reloadSections(IndexSet(integer: sectionIndex))
+                self.feedsScrollView.isHidden = (self.currentMode == .search && items.isEmpty)
                 
                 completion?()
             }

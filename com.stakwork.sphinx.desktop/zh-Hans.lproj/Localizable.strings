@@ -537,6 +537,10 @@
 "mark.as.unplayed" = "标记为未播放";
 "erase.from.device" = "从设备中擦除";
 
+//FEED
+"recently.played" = "最近播放";
+"feed.recently-released" = "最新发布";
+
 //PIN MESSAGE
 "message.pinned" = "消息已固定";
 "message.unpinned" = "消息已取消固定";

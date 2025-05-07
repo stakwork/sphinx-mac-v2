@@ -116,7 +116,8 @@ extension ChatListViewController : NewChatListViewControllerDelegate {
 
 extension ChatListViewController : NSTextFieldDelegate {
     func controlTextDidEndEditing(_ obj: Notification) {
-        searchField?.resignFirstResponder()
+        let _ = searchField?.resignFirstResponder()
+        feedContainerViewController.toggleSearchFieldActive(false)
     }
     
     func controlTextDidChange(_ obj: Notification) {

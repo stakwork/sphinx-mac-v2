@@ -270,7 +270,7 @@ class FeedsManager : NSObject {
     }
     
     func refreshFeedUI() {
-//        NotificationCenter.default.post(name: .refreshFeedUI, object: nil)
+        NotificationCenter.default.post(name: .refreshFeedUI, object: nil)
     }
     
     func getContentFeedFor(
@@ -430,5 +430,11 @@ class FeedsManager : NSObject {
 //            let downloadService = DownloadService.sharedInstance
 //            downloadService.startDownload(lastEpisode)
 //        }
+    }
+    
+    func updateLastConsumedWithFeedID(feedID: String) {
+        if let feed = ContentFeed.getFeedById(feedId: feedID) {
+            feed.updateLastConsumed()
+        }
     }
 }

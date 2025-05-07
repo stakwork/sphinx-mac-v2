@@ -123,6 +123,8 @@ extension PodcastPlayerController {
             return
         }
         
+        FeedsManager.sharedInstance.updateLastConsumedWithFeedID(feedID: podcastData.podcastId)
+        
         runLoadingStateUpdate()
         
         if let player = player, isPlayerItemSetWith(episodeUrl: podcastData.episodeUrl) {
@@ -184,7 +186,7 @@ extension PodcastPlayerController {
             
             let addObserverToPlayerItem: () -> Void = { [weak self] in
                 guard let self = self else { return }
-                playerItem.addObserver(self, forKeyPath: "status", options: [.new], context: nil)
+                playerItem.addObserver(self, forKeyPath: "status", options: [.initial, .new], context: nil)
             }
             
             if let currentTime = podcastData.currentTime, currentTime > 0 {
@@ -198,13 +200,16 @@ extension PodcastPlayerController {
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "status" {
-            if self.player?.currentItem?.status == .readyToPlay {
+        if keyPath == "status", let playerItem = object as? AVPlayerItem {
+            switch playerItem.status {
+            case .readyToPlay:
                 self.player?.play()
                 
                 if let playerItem = self.player?.currentItem {
                     self.didStartPlaying(playerItem)
                 }
+            default:
+                break
             }
         }
     }

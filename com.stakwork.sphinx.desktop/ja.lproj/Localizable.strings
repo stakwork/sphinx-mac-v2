@@ -538,6 +538,10 @@
 "mark.as.unplayed" = "未再生としてマーク";
 "erase.from.device" = "デバイスから消去";
 
+//FEED
+"recently.played" = "最近再生した";
+"feed.recently-released" = "最近リリースされた";
+
 //PIN MESSAGE
 "message.pinned" = "メッセージがピン留めされました";
 "message.unpinned" = "メッセージのピン留めが解除されました";
