@@ -198,9 +198,9 @@ extension FeedListenDashboardViewController {
             
             switch section {
             case .recentlyReleasePods:
-                return self.makeFeedContentSectionLayout(itemHeight: 265.0)
+                return self.makeFeedContentSectionLayout(itemHeight: 300.0)
             case .recentlyPlayedPods:
-                return self.makeFeedContentSectionLayout(itemHeight: 265.0)
+                return self.makeFeedContentSectionLayout(itemHeight: 300.0)
             }
         }
     }
@@ -370,9 +370,10 @@ extension FeedListenDashboardViewController {
             }
 
             switch dataSourceItem {
-            case .listenNowEpisode(let podcastEpisode, _),
-                 .recentlyPlayedEpisode(let podcastEpisode, _):
-                cell.configure(withItem: podcastEpisode)
+            case .listenNowEpisode(let podcastEpisode, _):
+                cell.configure(withItem: podcastEpisode, section: CollectionViewSection.recentlyReleasePods.rawValue)
+            case .recentlyPlayedEpisode(let podcastEpisode, _):
+                cell.configure(withItem: podcastEpisode, section: CollectionViewSection.recentlyPlayedPods.rawValue)
             }
 
             return cell

@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "podcast-index-logo.png",
+      "filename" : "podcast-index-logo@3x 2.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "podcast-index-logo@2x.png",
+      "filename" : "podcast-index-logo@3x 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

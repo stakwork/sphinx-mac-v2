@@ -46,7 +46,7 @@
                                             <rect key="frame" x="14" y="8" width="121" height="15"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="SKIP ADS ENABLED" id="Z7j-pj-rAN">
                                                 <font key="font" size="13" name="Roboto-Bold"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>

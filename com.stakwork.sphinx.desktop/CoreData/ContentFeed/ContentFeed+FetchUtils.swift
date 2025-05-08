@@ -199,7 +199,7 @@ extension ContentFeed {
             let request: NSFetchRequest<ContentFeed> = baseFetchRequest()
             
             request.predicate = Predicates.followedFeeds
-            request.sortDescriptors = []
+            request.sortDescriptors = [ContentFeed.SortDescriptors.nameAscending]
 
             return request
         }
@@ -209,7 +209,7 @@ extension ContentFeed {
             let request: NSFetchRequest<ContentFeed> = baseFetchRequest()
             
             request.predicate = Predicates.podcastFeeds
-            request.sortDescriptors = []
+            request.sortDescriptors = [ContentFeed.SortDescriptors.nameAscending]
 
             return request
         }
@@ -218,7 +218,7 @@ extension ContentFeed {
             let request: NSFetchRequest<ContentFeed> = baseFetchRequest()
             
             request.predicate = Predicates.videoFeeds
-            request.sortDescriptors = []
+            request.sortDescriptors = [ContentFeed.SortDescriptors.nameAscending]
 
             return request
         }

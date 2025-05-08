@@ -24,7 +24,7 @@
             <subviews>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qCE-Kz-inC">
                     <rect key="frame" x="18" y="12" width="83" height="16"/>
-                    <textFieldCell key="cell" lineBreakMode="clipping" title="Episode Title" id="eSk-jE-Z9S">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Episode Title" id="eSk-jE-Z9S">
                         <font key="font" usesAppearanceFont="YES"/>
                         <color key="textColor" name="Text"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -82,6 +82,7 @@
                 <constraint firstItem="b0M-jS-4FC" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="16" id="chl-zR-xqV"/>
                 <constraint firstItem="ey6-HI-0j7" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="ftG-rH-eul"/>
                 <constraint firstItem="lsd-4T-3is" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="kwP-XL-l4a"/>
+                <constraint firstItem="lsd-4T-3is" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="rzq-2e-Cva" secondAttribute="trailing" constant="12" id="pqm-py-Erb"/>
                 <constraint firstItem="qCE-Kz-inC" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="20" symbolic="YES" id="wuB-c3-Xls"/>
                 <constraint firstItem="qCE-Kz-inC" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="ypK-ob-4hh"/>
             </constraints>

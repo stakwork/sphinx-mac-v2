@@ -913,25 +913,25 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <stackView wantsLayer="YES" distribution="fill" orientation="vertical" alignment="centerX" spacing="4" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="f7R-qr-pja">
-                                <rect key="frame" x="105" y="117" width="200" height="200"/>
+                                <rect key="frame" x="105" y="167" width="200" height="200"/>
                                 <subviews>
-                                    <imageView focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="R3r-xM-o2E">
-                                        <rect key="frame" x="62" y="124" width="76" height="76"/>
+                                    <imageView hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="R3r-xM-o2E">
+                                        <rect key="frame" x="0.0" y="124" width="76" height="76"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="76" id="2QV-KX-f6b"/>
                                             <constraint firstAttribute="height" constant="76" id="VPx-nj-QAG"/>
                                         </constraints>
-                                        <imageCell key="cell" scrollable="YES" lineBreakMode="clipping" refusesFirstResponder="YES" focusRingType="none" alignment="left" imageScaling="proportionallyDown" image="podcastIndexLogo" id="cc3-lQ-aA0"/>
+                                        <imageCell key="cell" scrollable="YES" lineBreakMode="clipping" refusesFirstResponder="YES" focusRingType="none" alignment="left" imageScaling="proportionallyDown" image="podcastIndex" id="cc3-lQ-aA0"/>
                                         <color key="contentTintColor" name="PlaceholderText"/>
                                     </imageView>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="IpQ-7K-4fA">
-                                        <rect key="frame" x="0.0" y="84" width="200" height="36"/>
+                                        <rect key="frame" x="0.0" y="84" width="200" height="116"/>
                                     </customView>
                                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EdA-Uc-mf7">
                                         <rect key="frame" x="45" y="56" width="109" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Search over" id="adC-Ii-I3I">
                                             <font key="font" size="20" name="Roboto-Regular"/>
-                                            <color key="textColor" name="PlaceholderText"/>
+                                            <color key="textColor" name="SecondaryText"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -939,7 +939,7 @@
                                         <rect key="frame" x="9" y="28" width="182" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="4 000 000 podcasts" id="gu5-Mb-FpW">
                                             <font key="font" size="20" name="Roboto-Bold"/>
-                                            <color key="textColor" name="PlaceholderText"/>
+                                            <color key="textColor" name="SecondaryText"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -947,7 +947,7 @@
                                         <rect key="frame" x="4" y="0.0" width="192" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="on the Podcast Index" id="aWH-Ip-19W">
                                             <font key="font" size="20" name="Roboto-Regular"/>
-                                            <color key="textColor" name="PlaceholderText"/>
+                                            <color key="textColor" name="SecondaryText"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
@@ -999,7 +999,7 @@
                             </scrollView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="f7R-qr-pja" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" constant="100" id="48O-wo-HGX"/>
+                            <constraint firstItem="f7R-qr-pja" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" constant="50" id="48O-wo-HGX"/>
                             <constraint firstItem="Thf-yu-2xi" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" id="MQi-EA-bIB"/>
                             <constraint firstAttribute="bottom" secondItem="Thf-yu-2xi" secondAttribute="bottom" id="Oyn-cb-sNR"/>
                             <constraint firstItem="f7R-qr-pja" firstAttribute="centerX" secondItem="3FK-ci-Axa" secondAttribute="centerX" id="eRc-Ta-Giy"/>
@@ -1175,7 +1175,7 @@
                                                 <subviews>
                                                     <collectionView selectable="YES" id="xJZ-6n-cLM">
                                                         <rect key="frame" x="0.0" y="0.0" width="409" height="300"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                                        <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
                                                         <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" scrollDirection="horizontal" id="sb6-sO-74H">
                                                             <size key="itemSize" width="192" height="265"/>
                                                         </collectionViewFlowLayout>
@@ -1925,7 +1925,7 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
                                     <rect key="frame" x="1" y="118" width="368" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -3220,7 +3220,7 @@ A
         </image>
         <image name="itemDetailsCopy" width="16" height="16"/>
         <image name="plusIcon" width="20" height="20"/>
-        <image name="podcastIndexLogo" width="76" height="72"/>
+        <image name="podcastIndex" width="114" height="108"/>
         <image name="qrCode" width="21" height="21"/>
         <image name="searchIcon" width="16" height="16"/>
         <image name="tapToCopy" width="18.5" height="32"/>

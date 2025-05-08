@@ -133,5 +133,26 @@ extension Date {
     func changeDays(by days: Int) -> Date {
         return Calendar.current.date(byAdding: .day, value: days, to: self)!
     }
+    
+    var publishDateString: String {
+        let calendar = Calendar.autoupdatingCurrent
+        
+        let dateComponents = calendar.dateComponents(
+            [
+                .year,
+                .month,
+                .day,
+                .hour,
+                .minute,
+                .second,
+            ],
+            from: Date(),
+            to: self
+        )
+
+        return RelativeDateTimeFormatter().localizedString(
+            from: dateComponents
+        )
+    }
 
 }
