@@ -538,6 +538,10 @@
 "mark.as.unplayed"  = "Markahan bilang hindi na-play";
 "erase.from.device" = "Burahin sa Device";
 
+//FEED
+"recently.played" = "Kamakailang Nilalaro";
+"feed.recently-released" = "Kamakailang Inilabas";
+
 //PIN MESSAGE
 "message.pinned" = "Message Pinned";
 "message.unpinned" = "Message Unpinned";

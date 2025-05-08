@@ -10,13 +10,14 @@ import Cocoa
 
 class NewPodcastPlayerViewController: NSViewController {
     
-    weak var delegate: PodcastPlayerViewDelegate?
+    weak var delegate: PodcastPlayerViewDelegate? = nil
     
     @IBOutlet weak var playerCollectionView: NSCollectionView!
     
     var newEpisodeView: NewEpisodeAlertView? = nil
     
-    var chat: Chat! = nil
+    var chat: Chat? = nil
+    var podcast: PodcastFeed! = nil
     var collectionViewDS: PodcastEpisodesDataSource! = nil
     var deepLinkData : DeeplinkData? = nil
 
@@ -28,6 +29,8 @@ class NewPodcastPlayerViewController: NSViewController {
     
     override func viewDidLayout() {
         super.viewDidLayout()
+        
+        self.view.window?.delegate = self
         
         playerCollectionView.collectionViewLayout?.invalidateLayout()
         
@@ -45,12 +48,14 @@ class NewPodcastPlayerViewController: NSViewController {
     }
     
     static func instantiate(
-        chat: Chat,
-        delegate: PodcastPlayerViewDelegate,
+        chat: Chat?,
+        podcast: PodcastFeed,
+        delegate: PodcastPlayerViewDelegate?,
         deepLinkData: DeeplinkData? = nil
     ) -> NewPodcastPlayerViewController {
         let viewController = StoryboardScene.Podcast.newPodcastPlayerViewController.instantiate()
         viewController.chat = chat
+        viewController.podcast = podcast
         viewController.delegate = delegate
         viewController.deepLinkData = deepLinkData
         
@@ -58,11 +63,6 @@ class NewPodcastPlayerViewController: NSViewController {
     }
     
     func showEpisodesTable() {
-        guard let contentFeed = chat.contentFeed else {
-            return
-        }
-        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
-        
         collectionViewDS = PodcastEpisodesDataSource(
             collectionView: playerCollectionView,
             chat: chat,
@@ -101,5 +101,11 @@ extension NewPodcastPlayerViewController : PodcastEpisodesDSDelegate {
     
     func shouldCopyShareLink(link: String) {
         ClipboardHelper.copyToClipboard(text: link)
+    }
+}
+
+extension NewPodcastPlayerViewController : NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
 }

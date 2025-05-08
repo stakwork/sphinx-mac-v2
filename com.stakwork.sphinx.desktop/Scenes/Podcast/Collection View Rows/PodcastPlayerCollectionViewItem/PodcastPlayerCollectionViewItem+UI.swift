@@ -16,6 +16,12 @@ extension PodcastPlayerCollectionViewItem {
         podcastSatsView.configureWith(chat: chat)
         showInfo()
         configureControls()
+        configureSubscribeButton()
+    }
+    
+    func configureSubscribeButton() {
+        subscribeButtonContainer.isHidden = (chat != nil)
+        subscribeButton.title = podcast.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
     }
     
     func addMessagesFor(ts: Int) {
@@ -109,8 +115,6 @@ extension PodcastPlayerCollectionViewItem {
             options: [.highPriority],
             progress: nil
         )
-        
-        episodeImageView.gravity = .resizeAspect
     }
     
     func setProgress(
@@ -172,7 +176,7 @@ extension PodcastPlayerCollectionViewItem {
             let containerHeight: CGFloat = 40
             let chapterDot = NSView(frame: CGRect(x: progressWidth - dotHalfSize, y: (containerHeight / 2) - dotHalfSize, width: dotSize, height: dotSize))
             chapterDot.wantsLayer = true
-            chapterDot.layer?.backgroundColor = (chapter.isAd ? NSColor.Sphinx.SecondaryText : NSColor.white).cgColor
+            chapterDot.layer?.backgroundColor = (chapter.isAd ? NSColor.Sphinx.SecondaryText : NSColor.Sphinx.Text).cgColor
             chapterDot.layer?.cornerRadius = dotHalfSize
             chaptersContainer.addSubview(chapterDot)
         }

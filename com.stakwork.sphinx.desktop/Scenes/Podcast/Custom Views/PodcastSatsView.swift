@@ -19,7 +19,7 @@ class PodcastSatsView: NSView, LoadableNib {
     
     let sliderValues = [0,3,3,5,5,8,8,10,10,20,20,40,40,80,80,100]
     
-    var chat: Chat! = nil
+    var chat: Chat? = nil
     
     var sliderTimer : Timer? = nil
 
@@ -43,10 +43,10 @@ class PodcastSatsView: NSView, LoadableNib {
         sliderTimer = nil
     }
     
-    func configureWith(chat: Chat) {
+    func configureWith(chat: Chat?) {
         self.chat = chat
         
-        if let podcast = chat.getPodcastFeed() {
+        if let podcast = chat?.getPodcastFeed() {
             if let storedAmount = podcast.satsPerMinute {
                 setSliderValue(value: storedAmount)
             } else {
@@ -78,7 +78,7 @@ class PodcastSatsView: NSView, LoadableNib {
         let realValue = sliderValues[sliderValue]
         amountLabel.stringValue = "\(realValue)"
         
-        if let podcast = chat.getPodcastFeed() {
+        if let podcast = chat?.getPodcastFeed() {
             podcast.satsPerMinute = realValue
         }
 
@@ -88,7 +88,7 @@ class PodcastSatsView: NSView, LoadableNib {
     }
     
     @objc func didFinishDragging() {
-        if let podcast = chat.getPodcastFeed() {
+        if let podcast = chat?.getPodcastFeed() {
             FeedsManager.sharedInstance.saveContentFeedStatus(for: podcast.feedID)
         }
     }

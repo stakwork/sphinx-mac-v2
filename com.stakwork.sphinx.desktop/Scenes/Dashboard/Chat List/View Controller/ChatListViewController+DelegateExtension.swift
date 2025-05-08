@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import CoreData
 
 public let balanceDidChange = "balanceDidChange"
 
@@ -115,7 +116,8 @@ extension ChatListViewController : NewChatListViewControllerDelegate {
 
 extension ChatListViewController : NSTextFieldDelegate {
     func controlTextDidEndEditing(_ obj: Notification) {
-        searchField?.resignFirstResponder()
+        let _ = searchField?.resignFirstResponder()
+        feedContainerViewController.toggleSearchFieldActive(false)
     }
     
     func controlTextDidChange(_ obj: Notification) {
@@ -123,7 +125,12 @@ extension ChatListViewController : NSTextFieldDelegate {
             let currentString = (searchField?.stringValue ?? "")
             searchClearButton.isHidden = currentString.isEmpty
             searchIcon.isHidden = !currentString.isEmpty
-            contactsService.updateChatListWith(term: currentString)
+            
+            if contactsService.selectedTab == .feed {
+                feedContainerViewController.searchWith(searchQuery: currentString)
+            } else {
+                contactsService.updateChatListWith(term: currentString)
+            }
         }
     }
 }
@@ -141,9 +148,88 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
         to index: Int
     ) {
         if let tab = DashboardTab(rawValue: index) {
+            resetFeedSearch(tab: tab)
             contactsService.selectedTab = tab
-            
             setActiveTab(tab)
+        }
+    }
+    
+    func resetFeedSearch(tab: DashboardTab) {
+        let fromFeed = contactsService.selectedTab == .feed
+        let toFeed = tab == .feed
+        
+        if (fromFeed || toFeed) && searchField.stringValue.isNotEmpty {
+            searchField.stringValue = ""
+            searchClearButton.isHidden = true
+            searchIcon.isHidden = false
+            contactsService.resetSearches()
+        }
+        
+        if fromFeed {
+            feedContainerViewController.resetSearch()
+        }
+    }
+}
+
+extension ChatListViewController: FeedListViewControllerDelegate {
+    func didClickRowWith(contentFeedId: String?) {
+        if let contentFeedId = contentFeedId, let contentFeed = ContentFeed.getFeedById(feedId: contentFeedId) {
+            let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+            
+            let podcastPlayerVC = NewPodcastPlayerViewController.instantiate(
+                chat: podcast.chat,
+                podcast: podcast,
+                delegate: nil
+            )
+            
+            WindowsManager.sharedInstance.showVCOnRightPanelWindow(
+                with: "Podcast",
+                identifier: "podcast-window-\(contentFeedId)",
+                contentVC: podcastPlayerVC,
+                shouldReplace: false,
+                panelFixedWidth: true
+            )
+        }
+    }
+    
+    func didClick(item: FeedListViewController.DataSourceItem) {
+        let existingFeedsFetchRequest: NSFetchRequest<ContentFeed> = ContentFeed
+            .FetchRequests
+            .matching(feedID: item.feedId)
+        
+        var fetchRequestResult: [ContentFeed] = []
+        
+        let managedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        managedObjectContext.performAndWait {
+            fetchRequestResult = try! managedObjectContext.fetch(existingFeedsFetchRequest)
+        }
+            
+        if let existingFeed = fetchRequestResult.first {
+            didClickRowWith(contentFeedId: existingFeed.feedID)
+        } else {
+            self.newMessageBubbleHelper.showLoadingWheel()
+            
+            ContentFeed.fetchContentFeed(
+                at: item.feedUrl,
+                chat: nil,
+                searchResultDescription: item.feedDescription,
+                searchResultImageUrl: item.imageUrl,
+                persistingIn: managedObjectContext,
+                then: { result in
+                    
+                    if case .success(let contentFeed) = result {
+                        managedObjectContext.saveContext()
+                        
+                        self.newMessageBubbleHelper.hideLoadingWheel()
+                        
+                        self.didClickRowWith(contentFeedId: contentFeed.feedID)
+                    } else {
+                        self.newMessageBubbleHelper.hideLoadingWheel()
+                        
+                        AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+                    }
+            })
         }
     }
 }

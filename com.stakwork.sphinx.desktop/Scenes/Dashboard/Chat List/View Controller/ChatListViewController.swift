@@ -15,7 +15,7 @@ class ChatListViewController : DashboardSplittedViewController {
     @IBOutlet weak var bottomBar: NSView!
     @IBOutlet weak var searchBarContainer: NSView!
     @IBOutlet weak var searchFieldContainer: NSBox!
-    @IBOutlet weak var searchField: NSTextField!
+    @IBOutlet weak var searchField: SearchTextField!
     @IBOutlet weak var loadingChatsBox: NSBox!
     @IBOutlet weak var loadingChatsWheel: NSProgressIndicator!
     @IBOutlet weak var searchClearButton: NSButton!
@@ -34,6 +34,7 @@ class ChatListViewController : DashboardSplittedViewController {
                 buttonTitles: [
                     "dashboard.tabs.friends".localized,
                     "dashboard.tabs.tribes".localized,
+                    "dashboard.tabs.feed".localized
                 ],
                 delegate: self
             )
@@ -75,6 +76,10 @@ class ChatListViewController : DashboardSplittedViewController {
         )
     }()
     
+    internal lazy var feedContainerViewController: FeedListViewController = {
+        FeedListViewController.instantiate(delegate: self)
+    }()
+    
     static func instantiate(
         delegate: DashboardVCDelegate?
     ) -> ChatListViewController {
@@ -92,6 +97,7 @@ class ChatListViewController : DashboardSplittedViewController {
         contactsService.configureFetchResultsController()
         
         prepareView()
+        
         setActiveTab(
             contactsService.selectedTab,
             loadData: false
@@ -245,6 +251,10 @@ class ChatListViewController : DashboardSplittedViewController {
         )
         
         searchField.delegate = self
+        searchField.onFocusCallback = {
+            self.feedContainerViewController.toggleSearchFieldActive(true)
+        }
+        
         menuListView.delegate = self
         
         self.view.window?.makeFirstResponder(self)
@@ -528,4 +538,14 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
         )
     }
 }
+
+class SearchTextField : NSTextField {
+    var onFocusCallback: (() -> ())? = nil
+    
+    override func becomeFirstResponder() -> Bool {
+        onFocusCallback?()
+        return super.becomeFirstResponder()
+    }
+}
+
 

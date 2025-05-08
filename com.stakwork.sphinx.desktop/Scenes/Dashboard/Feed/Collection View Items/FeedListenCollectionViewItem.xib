@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="192" height="300"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Pub-vF-r3s">
+                    <rect key="frame" x="0.0" y="0.0" width="192" height="300"/>
+                    <view key="contentView" id="1wN-h3-g5h">
+                        <rect key="frame" x="0.0" y="0.0" width="192" height="300"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                    <color key="fillColor" name="Body"/>
+                </box>
+                <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vyh-nE-KNG">
+                    <rect key="frame" x="16" y="16" width="160" height="268"/>
+                    <subviews>
+                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="eVW-w5-NEH" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="108" width="160" height="160"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="160" id="Io7-Nr-S6k"/>
+                            </constraints>
+                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="SJ0-zW-gO4"/>
+                        </imageView>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="a8O-Z5-ThD">
+                            <rect key="frame" x="-2" y="84" width="164" height="16"/>
+                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Label from the" id="jYO-PB-cgz">
+                                <font key="font" size="14" name="Roboto-Regular"/>
+                                <color key="textColor" name="Text"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BUx-pH-k3q">
+                            <rect key="frame" x="-2" y="37" width="164" height="39"/>
+                            <textFieldCell key="cell" truncatesLastVisibleLine="YES" alignment="left" id="LOw-0V-x4R">
+                                <font key="font" size="11" name="Roboto-Regular"/>
+                                <string key="title">Label from the 
+and now?
+What do you think?</string>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cqg-QV-qaf">
+                            <rect key="frame" x="-2" y="19" width="43" height="10"/>
+                            <textFieldCell key="cell" truncatesLastVisibleLine="YES" alignment="left" title="1 day ago" id="mcF-Tp-Hb9">
+                                <font key="font" size="9" name="Roboto-Regular"/>
+                                <color key="textColor" name="SecondaryText"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <stackView distribution="fill" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="isM-XS-pUu">
+                            <rect key="frame" x="0.0" y="0.0" width="98" height="11"/>
+                            <subviews>
+                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XdO-Mv-B67">
+                                    <rect key="frame" x="-2" y="1" width="54" height="10"/>
+                                    <textFieldCell key="cell" truncatesLastVisibleLine="YES" alignment="left" title="2 hrs 45 min" id="icp-uJ-Rg9">
+                                        <font key="font" size="9" name="Roboto-Regular"/>
+                                        <color key="textColor" name="PrimaryBlue"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <customView translatesAutoresizingMaskIntoConstraints="NO" id="DhS-js-R98">
+                                    <rect key="frame" x="58" y="4" width="40" height="4"/>
+                                    <subviews>
+                                        <box boxType="custom" borderType="none" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="JyN-jp-JjD">
+                                            <rect key="frame" x="0.0" y="0.0" width="40" height="4"/>
+                                            <view key="contentView" id="Scg-g6-rYQ">
+                                                <rect key="frame" x="0.0" y="0.0" width="40" height="4"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            </view>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="4" id="Ggp-mf-Tdc"/>
+                                                <constraint firstAttribute="width" constant="40" id="XmC-1G-sLm"/>
+                                            </constraints>
+                                            <color key="fillColor" name="BlueTextAccent"/>
+                                        </box>
+                                        <box boxType="custom" borderType="none" cornerRadius="2" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="0lM-yg-eEH">
+                                            <rect key="frame" x="0.0" y="0.0" width="20" height="4"/>
+                                            <view key="contentView" id="Knd-4Z-LCJ">
+                                                <rect key="frame" x="0.0" y="0.0" width="20" height="4"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            </view>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="4" id="awi-V6-GsH"/>
+                                                <constraint firstAttribute="width" constant="20" id="tT4-CU-UpN"/>
+                                            </constraints>
+                                            <color key="fillColor" name="BlueTextAccent"/>
+                                        </box>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="JyN-jp-JjD" firstAttribute="leading" secondItem="DhS-js-R98" secondAttribute="leading" id="0GK-IE-u03"/>
+                                        <constraint firstItem="JyN-jp-JjD" firstAttribute="top" secondItem="DhS-js-R98" secondAttribute="top" id="GyQ-ru-QtI"/>
+                                        <constraint firstAttribute="height" constant="4" id="Lwi-p8-LUA"/>
+                                        <constraint firstAttribute="width" constant="40" id="Wmw-w5-sVZ"/>
+                                        <constraint firstItem="0lM-yg-eEH" firstAttribute="top" secondItem="DhS-js-R98" secondAttribute="top" id="YM7-TY-bcP"/>
+                                        <constraint firstAttribute="bottom" secondItem="0lM-yg-eEH" secondAttribute="bottom" id="g5v-Vr-tbs"/>
+                                        <constraint firstItem="0lM-yg-eEH" firstAttribute="leading" secondItem="DhS-js-R98" secondAttribute="leading" id="rz4-C2-uPM"/>
+                                        <constraint firstAttribute="bottom" secondItem="JyN-jp-JjD" secondAttribute="bottom" id="wB1-cZ-Gva"/>
+                                    </constraints>
+                                </customView>
+                            </subviews>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="a8O-Z5-ThD" firstAttribute="leading" secondItem="Vyh-nE-KNG" secondAttribute="leading" id="0pS-72-lAB"/>
+                        <constraint firstAttribute="trailing" secondItem="a8O-Z5-ThD" secondAttribute="trailing" id="9ro-5Y-vUZ"/>
+                        <constraint firstAttribute="trailing" secondItem="BUx-pH-k3q" secondAttribute="trailing" id="CLm-Sp-4bS"/>
+                        <constraint firstItem="BUx-pH-k3q" firstAttribute="leading" secondItem="Vyh-nE-KNG" secondAttribute="leading" id="sNR-we-4mr"/>
+                    </constraints>
+                    <visibilityPriorities>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                    </visibilityPriorities>
+                    <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                    </customSpacing>
+                </stackView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="Pub-vF-r3s" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="4B8-dc-Sau"/>
+                <constraint firstAttribute="bottom" secondItem="Pub-vF-r3s" secondAttribute="bottom" id="Gn3-We-rcV"/>
+                <constraint firstAttribute="trailing" secondItem="Vyh-nE-KNG" secondAttribute="trailing" constant="16" id="Rfs-ur-vsx"/>
+                <constraint firstItem="Vyh-nE-KNG" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="16" id="Sjx-Ui-nti"/>
+                <constraint firstAttribute="bottom" secondItem="Vyh-nE-KNG" secondAttribute="bottom" constant="16" id="aWf-gY-SrW"/>
+                <constraint firstAttribute="trailing" secondItem="Pub-vF-r3s" secondAttribute="trailing" id="gNx-0E-c92"/>
+                <constraint firstItem="Pub-vF-r3s" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="okC-ef-Xyw"/>
+                <constraint firstItem="Vyh-nE-KNG" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="vf1-x8-LeH"/>
+            </constraints>
+            <point key="canvasLocation" x="109" y="154"/>
+        </customView>
+        <customObject id="Zf2-ah-JTZ" customClass="FeedListenCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="currentTimeBox" destination="0lM-yg-eEH" id="tF2-kK-Lze"/>
+                <outlet property="currentTimeWidthConstraint" destination="tT4-CU-UpN" id="Sek-la-FAD"/>
+                <outlet property="durationBox" destination="JyN-jp-JjD" id="evv-VP-M4G"/>
+                <outlet property="durationContainer" destination="isM-XS-pUu" id="IpN-fA-C24"/>
+                <outlet property="durationLabel" destination="XdO-Mv-B67" id="0C9-qq-Rt7"/>
+                <outlet property="itemDescription" destination="BUx-pH-k3q" id="zZZ-tf-wgN"/>
+                <outlet property="itemImageView" destination="eVW-w5-NEH" id="Ckz-KR-gfV"/>
+                <outlet property="itemTitle" destination="a8O-Z5-ThD" id="wgh-ax-GL8"/>
+                <outlet property="releasedDateLabel" destination="cqg-QV-qaf" id="icD-pB-2uf"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="qQA-di-eiI"/>
+            </connections>
+        </customObject>
+    </objects>
+    <resources>
+        <namedColor name="BlueTextAccent">
+            <color red="0.36470588235294116" green="0.5607843137254902" blue="0.8666666666666667" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Body">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryBlue">
+            <color red="0.38039215686274508" green="0.54117647058823526" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SecondaryText">
+            <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Text">
+            <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

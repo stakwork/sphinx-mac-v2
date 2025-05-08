@@ -37,6 +37,11 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var advertContainer: NSBox!
     @IBOutlet weak var advertLabel: NSTextField!
     @IBOutlet weak var chaptersContainer: NSView!
+    @IBOutlet weak var subscribeButtonContainer: NSBox!
+    @IBOutlet weak var subscribeButton: CustomButton!
+    @IBOutlet weak var shareClipButton: CustomButton!
+    @IBOutlet weak var moveBackButton: CustomButton!
+    @IBOutlet weak var moveForwardButton: CustomButton!
     
     weak var delegate: PodcastPlayerViewDelegate?
     
@@ -44,14 +49,14 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     let feedBoostHelper = FeedBoostHelper()
     
 //    var livePodcastDataSource: PodcastLiveDataSource? = nil
-    var liveMessages: [Int: [TransactionMessage]] = [:]
+//    var liveMessages: [Int: [TransactionMessage]] = [:]
     var chapterInfoEpisodeId: String? = nil
     
     let kDurationLineMargins: CGFloat = 64
     
     let speedValues = ["0.5x", "0.8x", "1x", "1.2x", "1.5x", "2.1x"]
     
-    var chat: Chat! = nil
+    var chat: Chat? = nil
     var podcast: PodcastFeed! = nil
     
     var dragging = false
@@ -76,10 +81,16 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
         
         NotificationCenter.default.removeObserver(self, name: .refreshFeedDataAndUI, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(refreshPodcastInfo), name: .refreshFeedDataAndUI, object: nil)
+        
+        subscribeButton.cursor = .pointingHand
+        shareClipButton.cursor = .pointingHand
+        moveBackButton.cursor = .pointingHand
+        moveForwardButton.cursor = .pointingHand
+        playPauseButton.cursor = .pointingHand
     }
     
     func configureWith(
-        chat: Chat,
+        chat: Chat?,
         podcast: PodcastFeed,
         delegate: PodcastPlayerViewDelegate
     ) {
@@ -217,5 +228,15 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
             
             delegate?.shouldSyncPodcast()
         }
+    }
+    
+    @IBAction func subscribeButtonClicked(_ sender: Any) {
+        podcast.subscribed.toggle()
+        
+        let contentFeed: ContentFeed? = ContentFeed.getFeedById(feedId: podcast.feedID)
+        contentFeed?.subscribed.toggle()
+        contentFeed?.managedObjectContext?.saveContext()
+        
+        subscribeButton.title = contentFeed?.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
     }
 }

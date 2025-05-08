@@ -148,7 +148,7 @@ extension ChatsSegmentedControl {
         stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         stackView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
         
-        stackView.widthAnchor.constraint(equalToConstant: kButtonWidth * 2).isActive = true
+        stackView.widthAnchor.constraint(equalToConstant: kButtonWidth * 3).isActive = true
     }
     
     private var selectorPosition: CGFloat {

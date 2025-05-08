@@ -16,6 +16,7 @@ public class PodcastFeed: NSObject {
     public var author: String?
     public var datePublished: Date?
     public var dateUpdated: Date?
+    public var dateLastConsumed: Date?
     public var generator: String?
     public var imageURLPath: String?
     public var feedURLPath: String?
@@ -70,6 +71,7 @@ extension PodcastFeed {
         podcastFeed.feedURLPath = contentFeed.feedURL?.absoluteString
         podcastFeed.datePublished = contentFeed.datePublished
         podcastFeed.dateUpdated = contentFeed.dateUpdated
+        podcastFeed.dateLastConsumed = contentFeed.dateLastConsumed
         podcastFeed.author = contentFeed.authorName
         podcastFeed.imageURLPath = contentFeed.imageURL?.absoluteString
         podcastFeed.generator = contentFeed.generator

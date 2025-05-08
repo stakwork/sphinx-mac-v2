@@ -21,6 +21,8 @@ class FeedsManager : NSObject {
     
     let podcastPlayerController = PodcastPlayerController.sharedInstance
     
+    var fetchingItemsInBackground = false
+    
     // MARK: - Content Feed fetch requests
     
     func fetchFeeds(
@@ -53,17 +55,17 @@ class FeedsManager : NSObject {
     }
     
     func saveContentFeedStatus(){
-        let feeds = fetchFeeds()
-        
-        if feeds.isEmpty {
-            return
-        }
-        
-        let contentFeedStatuses: [ContentFeedStatus] = feeds.map({
-            return self.getContentFeedStatus(for: $0)
-        })
-        
-        let contentFeedStatusParams = contentFeedStatuses.map({ $0.toJSON() })
+//        let feeds = fetchFeeds()
+//        
+//        if feeds.isEmpty {
+//            return
+//        }
+//        
+//        let contentFeedStatuses: [ContentFeedStatus] = feeds.map({
+//            return self.getContentFeedStatus(for: $0)
+//        })
+//        
+//        let contentFeedStatusParams = contentFeedStatuses.map({ $0.toJSON() })
 
 //        API.sharedInstance.saveContentFeedStatusesToRemote(
 //            params: contentFeedStatusParams,
@@ -141,6 +143,22 @@ class FeedsManager : NSObject {
 //                completionCallback?()
 //            }
 //        )
+    }
+    
+    func fetchFeedItemsInBackground() {
+        if fetchingItemsInBackground {
+            return
+        }
+        fetchingItemsInBackground = true
+        
+        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
+        dispatchQueue.async {
+            self.fetchNewItems() {
+                DelayPerformedHelper.performAfterDelay(seconds: 3000, completion: {
+                    self.fetchingItemsInBackground = false
+                })
+            }
+        }
     }
     
     func restoreContentFeedStatusInBackground() {
@@ -270,7 +288,7 @@ class FeedsManager : NSObject {
     }
     
     func refreshFeedUI() {
-//        NotificationCenter.default.post(name: .refreshFeedUI, object: nil)
+        NotificationCenter.default.post(name: .refreshFeedUI, object: nil)
     }
     
     func getContentFeedFor(
@@ -337,7 +355,7 @@ class FeedsManager : NSObject {
     }
     
     // MARK: - Pre load and cache content feeds
-    func fetchNewItems() {
+    func fetchNewItems(completion: (() -> ())? = nil) {
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
         context.perform {
@@ -363,6 +381,7 @@ class FeedsManager : NSObject {
             
             context.saveContext()
             self.refreshFeedUI()
+            completion?()
         }
     }
     
@@ -430,5 +449,11 @@ class FeedsManager : NSObject {
 //            let downloadService = DownloadService.sharedInstance
 //            downloadService.startDownload(lastEpisode)
 //        }
+    }
+    
+    func updateLastConsumedWithFeedID(feedID: String) {
+        if let feed = ContentFeed.getFeedById(feedId: feedID) {
+            feed.updateLastConsumed()
+        }
     }
 }

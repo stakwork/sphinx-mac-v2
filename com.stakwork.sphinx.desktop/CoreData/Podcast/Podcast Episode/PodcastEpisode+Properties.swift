@@ -112,7 +112,13 @@ extension PodcastEpisode {
         podcastEpisode.episodeDescription = contentFeedItem.itemDescription
         podcastEpisode.urlPath = contentFeedItem.enclosureURL?.absoluteString
         podcastEpisode.linkURLPath = contentFeedItem.linkURL?.absoluteString
-        podcastEpisode.imageURLPath = contentFeedItem.imageURL?.absoluteString
+        
+        if let itemImage = contentFeedItem.imageURL?.absoluteString {
+            podcastEpisode.imageURLPath = itemImage
+        } else if let feedImage = feed?.imageURLPath {
+            podcastEpisode.imageURLPath = feedImage
+        }
+        
         podcastEpisode.title = contentFeedItem.title
         podcastEpisode.type = ActionsManager.PODCAST_TYPE
         podcastEpisode.feedID = feed?.feedID

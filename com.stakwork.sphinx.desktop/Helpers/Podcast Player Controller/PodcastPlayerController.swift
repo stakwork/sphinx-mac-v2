@@ -28,6 +28,7 @@ enum UserAction {
 enum PodcastDelegateKeys: String {
     case PodcastPlayerView = "PodcastPlayerView"
     case ChatDataSource = "ChatDataSource"
+    case FloatingPlayer = "FloatingPlayer"
 }
 
 let kSecondsBeforePMT = 60

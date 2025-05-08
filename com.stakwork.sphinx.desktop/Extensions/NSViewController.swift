@@ -27,6 +27,13 @@ extension NSViewController {
         }
     }
     
+    func removeAllChildren() {
+        for child in self.children {
+            child.removeFromParent()
+            child.view.removeFromSuperview()
+        }
+    }
+    
     func configureVCForTesting(_ views: [NSView], identifiers: [String], _ rootView: NSView) {
         rootView.setAccessibilityChildren(views)
         views.forEach { newView in

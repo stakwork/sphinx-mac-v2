@@ -293,7 +293,7 @@ import WebKit
             
             getDashboardVC()?.reconnectToServer()
             
-            feedsManager.restoreContentFeedStatusInBackground()
+            feedsManager.fetchFeedItemsInBackground()
         }
     }
     

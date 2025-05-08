@@ -51,7 +51,6 @@ internal enum StoryboardScene {
         
         internal static let chatListViewController = SceneType<ChatListViewController>(storyboard: Dashboard.self, identifier: "ChatListViewController")
         
-        @available(macOS 10.15.1, *)
         internal static let newChatListViewController = SceneType<NewChatListViewController>(storyboard: Dashboard.self, identifier: "NewChatListViewController")
         
         internal static let newChatViewController = SceneType<NewChatViewController>(storyboard: Dashboard.self, identifier: "NewChatViewController")
@@ -75,6 +74,12 @@ internal enum StoryboardScene {
         internal static let jitsiCallWebViewController = SceneType<JitsiCallWebViewController>(storyboard: Dashboard.self, identifier: "JitsiCallWebViewController")
         
         internal static let newShareQrCodeViewController = SceneType<NewShareQrCodeViewController>(storyboard: Dashboard.self, identifier: "NewShareQrCodeViewController")
+        
+        internal static let feedListViewController = SceneType<FeedListViewController>(storyboard: Dashboard.self, identifier: "FeedListViewController")
+        
+        internal static let feedDashboardViewController = SceneType<FeedDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedDashboardViewController")
+        
+        internal static let feedListenDashboardViewController = SceneType<FeedListenDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedListenDashboardViewController")
     }
     
     internal enum Groups: StoryboardType {

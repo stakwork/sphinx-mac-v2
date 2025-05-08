@@ -12,6 +12,7 @@ extension ChatListViewController {
     enum DashboardTab: Int, Hashable {
         case friends
         case tribes
+        case feed
     }
 }
 
@@ -24,6 +25,8 @@ extension ChatListViewController {
     ) {
         let newViewController = mainContentViewController(forActiveTab: tab)
 
+        removeAllChildren()
+        
         addChildVC(
             child: newViewController,
             container: chatListVCContainer
@@ -62,6 +65,8 @@ extension ChatListViewController {
             return contactChatsContainerViewController
         case .tribes:
             return tribeChatsContainerViewController
+        case .feed:
+            return feedContainerViewController
         }
     }
     

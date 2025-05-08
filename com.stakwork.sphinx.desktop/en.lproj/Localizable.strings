@@ -60,6 +60,7 @@
 //Dashboard
 "dashboard.tabs.friends" = "Friends";
 "dashboard.tabs.tribes" = "Tribes";
+"dashboard.tabs.feed" = "Feed";
 
 //GROUPS
 "group.details" = "Group Details";
@@ -540,6 +541,10 @@
 "share" = "Share";
 "mark.as.unplayed" = "Mark as Unplayed";
 "erase.from.device" = "Erase from Device";
+
+//FEED
+"recently.played" = "Recently Played";
+"feed.recently-released" = "Recently Released";
 
 //PIN MESSAGE
 "message.pinned" = "Message Pinned";

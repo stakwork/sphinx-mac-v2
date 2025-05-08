@@ -541,6 +541,10 @@
 "mark.as.unplayed" = "Marcar como no leído";
 "erase.from.device" = "Borrar del despositivo";
 
+//FEED
+"feed.recently-released" = "Lanzado Recientemente";
+"recently.played" = "Reproducido recientemente";
+
 //PIN MESSAGE
 "message.pinned" = "Mensaje Fijado";
 "message.unpinned" = "Mensaje Removido";

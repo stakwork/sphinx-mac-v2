@@ -94,6 +94,11 @@ public class ContentFeed: NSManagedObject {
         return contentFeed
     }
     
+    func updateLastConsumed(){
+        dateLastConsumed = Date()
+        managedObjectContext?.saveContext()
+    }
+    
     public static func fetchChatFeedContentInBackground(
         feedUrl: String,
         chatId: Int,
@@ -149,6 +154,10 @@ public class ContentFeed: NSManagedObject {
                 completionHandler?(.failure((API.RequestError.failedToFetchContentFeed)))
             }
         )
+    }
+    
+    var imageToShow: String? {
+        return imageURL?.absoluteString ?? chat?.photoUrl ?? itemsArray.first?.imageURL?.absoluteString
     }
     
     public static func fetchFeedItems(
