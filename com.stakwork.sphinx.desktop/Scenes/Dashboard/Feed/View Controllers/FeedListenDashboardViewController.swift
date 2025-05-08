@@ -274,8 +274,10 @@ extension FeedListenDashboardViewController {
                 DataSourceItem.listenNowEpisode(episode, episode.currentTime ?? 0)
             }
 
-        snapshot.appendSections([CollectionViewSection.recentlyReleasePods])
-        snapshot.appendItems(recentlyReleasedEpisodes, toSection: .recentlyReleasePods)
+        if !recentlyReleasedEpisodes.isEmpty {
+            snapshot.appendSections([CollectionViewSection.recentlyReleasePods])
+            snapshot.appendItems(recentlyReleasedEpisodes, toSection: .recentlyReleasePods)
+        }
 
         // Handle recently played episodes
         let recentlyPlayedEpisodes = allPodcastFeeds

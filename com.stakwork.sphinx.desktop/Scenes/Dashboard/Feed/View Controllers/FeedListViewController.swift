@@ -474,7 +474,8 @@ extension FeedListViewController {
                 let sectionIndex = CollectionViewSection.all.rawValue
                 self.feedsCollectionView.collectionViewLayout?.invalidateLayout()
                 self.feedsCollectionView.reloadSections(IndexSet(integer: sectionIndex))
-                self.feedsScrollView.isHidden = (self.currentMode == .search && items.isEmpty)
+                
+                self.feedsScrollView.isHidden = ((self.currentMode == .search || self.currentMode == .following) && items.isEmpty)
                 
                 completion?()
             }
