@@ -21,6 +21,7 @@ class FeedListViewController: NSViewController {
     @IBOutlet weak var feedsCollectionView: NSCollectionView!
     @IBOutlet weak var searchPlaceHolder: NSStackView!
     @IBOutlet weak var searchPlaceHolderImageView: NSImageView!
+    @IBOutlet weak var noResultsFoundLabel: NSTextField!
     
     var contentFeedObjects: [ContentFeed] = []
     
@@ -49,6 +50,7 @@ class FeedListViewController: NSViewController {
         case search
         case searching
         case searchResults
+        case noResultsFound
     }
     
     var currentMode: FeedMode = .following
@@ -161,8 +163,9 @@ class FeedListViewController: NSViewController {
                             
                             self.currentMode = .searchResults
                             self.updateSnapshot(with: items, completion: nil)
-                            
                         case .failure(_):
+                            self.currentMode = .noResultsFound
+                            self.updateSnapshot(with: [], completion: nil)
                             break
                         }
                     }
@@ -475,7 +478,10 @@ extension FeedListViewController {
                 self.feedsCollectionView.collectionViewLayout?.invalidateLayout()
                 self.feedsCollectionView.reloadSections(IndexSet(integer: sectionIndex))
                 
-                self.feedsScrollView.isHidden = ((self.currentMode == .search || self.currentMode == .following) && items.isEmpty)
+                self.feedsScrollView.isHidden = ((self.currentMode == .search || self.currentMode == .following || self.currentMode == .noResultsFound) && items.isEmpty)
+                self.noResultsFoundLabel.isHidden = (self.currentMode != .noResultsFound)
+                self.searchPlaceHolder.isHidden = (self.currentMode == .noResultsFound)
+                
                 
                 completion?()
             }
