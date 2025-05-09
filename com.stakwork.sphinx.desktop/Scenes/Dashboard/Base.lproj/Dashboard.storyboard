@@ -971,6 +971,14 @@
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Ug-4b-CnQ">
+                                <rect key="frame" x="128" y="255" width="154" height="24"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="No results found" id="21t-v4-b3n">
+                                    <font key="font" size="20" name="Roboto-Bold"/>
+                                    <color key="textColor" name="SecondaryText"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <scrollView hidden="YES" wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Thf-yu-2xi">
                                 <rect key="frame" x="0.0" y="0.0" width="409" height="417"/>
                                 <clipView key="contentView" drawsBackground="NO" id="hXw-TJ-Fq5">
@@ -1002,7 +1010,9 @@
                             <constraint firstItem="f7R-qr-pja" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" constant="50" id="48O-wo-HGX"/>
                             <constraint firstItem="Thf-yu-2xi" firstAttribute="top" secondItem="3FK-ci-Axa" secondAttribute="top" id="MQi-EA-bIB"/>
                             <constraint firstAttribute="bottom" secondItem="Thf-yu-2xi" secondAttribute="bottom" id="Oyn-cb-sNR"/>
+                            <constraint firstItem="1Ug-4b-CnQ" firstAttribute="centerX" secondItem="f7R-qr-pja" secondAttribute="centerX" id="aDu-kk-y8P"/>
                             <constraint firstItem="f7R-qr-pja" firstAttribute="centerX" secondItem="3FK-ci-Axa" secondAttribute="centerX" id="eRc-Ta-Giy"/>
+                            <constraint firstItem="1Ug-4b-CnQ" firstAttribute="centerY" secondItem="f7R-qr-pja" secondAttribute="centerY" id="gCc-3S-st9"/>
                             <constraint firstItem="Thf-yu-2xi" firstAttribute="leading" secondItem="3FK-ci-Axa" secondAttribute="leading" id="hNz-No-KGT"/>
                             <constraint firstAttribute="trailing" secondItem="Thf-yu-2xi" secondAttribute="trailing" id="ntH-Md-xim"/>
                         </constraints>
@@ -1010,6 +1020,7 @@
                     <connections>
                         <outlet property="feedsCollectionView" destination="mSA-Zs-s4H" id="FOn-lS-wKh"/>
                         <outlet property="feedsScrollView" destination="Thf-yu-2xi" id="v74-Qb-sLg"/>
+                        <outlet property="noResultsFoundLabel" destination="1Ug-4b-CnQ" id="GY9-5w-KO0"/>
                         <outlet property="searchPlaceHolder" destination="f7R-qr-pja" id="a3m-wj-TmJ"/>
                         <outlet property="searchPlaceHolderImageView" destination="R3r-xM-o2E" id="hIN-8E-h0Q"/>
                     </connections>
@@ -1883,13 +1894,13 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" headerView="Ozr-nQ-aat" viewBased="YES" id="tAU-dA-PJa">
-                                            <rect key="frame" x="0.0" y="0.0" width="368" height="105"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="369" height="105"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="17" height="0.0"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="356" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
+                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="356.5" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -1925,7 +1936,7 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
+                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
                                     <rect key="frame" x="1" y="118" width="368" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -1934,7 +1945,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" wantsLayer="YES" id="Ozr-nQ-aat">
-                                    <rect key="frame" x="0.0" y="0.0" width="368" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="369" height="28"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
