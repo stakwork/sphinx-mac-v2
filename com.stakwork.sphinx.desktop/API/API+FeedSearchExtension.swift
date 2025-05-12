@@ -37,7 +37,6 @@ extension API {
     ) {
         
         let route = (type == FeedType.Podcast) ? "search_podcasts" : "search_youtube"
-        let hostProtocol = SphinxOnionManager.sharedInstance.isProductionEnv ? "https" : "http"
         let urlPath = "\(API.tribesV1Url)/\(route)"
         
         var urlComponents = URLComponents(string: urlPath)!

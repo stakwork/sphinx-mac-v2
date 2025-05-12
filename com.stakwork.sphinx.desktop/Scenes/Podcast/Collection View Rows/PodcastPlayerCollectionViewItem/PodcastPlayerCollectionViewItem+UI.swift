@@ -141,13 +141,19 @@ extension PodcastPlayerCollectionViewItem {
         progressLineWidth.constant = progressWidth
         progressLine.layoutSubtreeIfNeeded()
         
-        addChaptersDots(duration: duration)
+        DispatchQueue.main.async {
+            self.addChaptersDots(duration: duration)
+        }
     }
     
     func addChaptersDots(
         duration: Int
     ) {
         guard let episode = podcast.getCurrentEpisode() else {
+            return
+        }
+        
+        if duration <= 0 {
             return
         }
         

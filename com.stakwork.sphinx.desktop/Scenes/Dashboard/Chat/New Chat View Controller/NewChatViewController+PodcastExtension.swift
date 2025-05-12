@@ -62,9 +62,7 @@ extension NewChatViewController {
 }
 
 extension NewChatViewController : PodcastPlayerViewDelegate {
-    func shouldReloadEpisodesTable() {
-        
-    }
+    func shouldReloadEpisodesTable() {}
     
     func shouldShareClip(comment: PodcastComment) {
         let isAtBottom = isChatAtBottom()

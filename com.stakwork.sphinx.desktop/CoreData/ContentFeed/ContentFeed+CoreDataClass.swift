@@ -22,8 +22,13 @@ public class ContentFeed: NSManagedObject {
             return nil
         }
         
+        let feedType = FeedType(rawValue: json[CodingKeys.feedKindValue.rawValue].int16Value)?.rawValue ?? 0
         let feedUrl = json[CodingKeys.feedURL.rawValue].stringValue
         let feedId = fId.fixedFeedId(feedUrl: feedUrl)
+        
+        if feedType != FeedType.Podcast.rawValue {
+            return nil
+        }
         
         var contentFeed: ContentFeed
         
@@ -42,7 +47,7 @@ public class ContentFeed: NSManagedObject {
         contentFeed.feedURL = URL(string: feedUrl)
         contentFeed.feedID = feedId
         contentFeed.title = json[CodingKeys.title.rawValue].stringValue
-        contentFeed.feedKindValue = FeedType(rawValue: json[CodingKeys.feedKindValue.rawValue].int16Value)?.rawValue ?? 0
+        contentFeed.feedKindValue = feedType
         contentFeed.ownerURL = URL(string: json[CodingKeys.ownerURL.rawValue].stringValue)
         contentFeed.generator = json[CodingKeys.generator.rawValue].stringValue
         contentFeed.authorName = json[CodingKeys.authorName.rawValue].stringValue

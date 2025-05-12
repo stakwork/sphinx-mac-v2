@@ -160,6 +160,9 @@ extension PodcastEpisodesDataSource : NSCollectionViewDelegate, NSCollectionView
 
 extension PodcastEpisodesDataSource : PodcastPlayerViewDelegate {
     func shouldReloadEpisodesTable() {
+        if let feed = ContentFeed.getFeedById(feedId: podcast.feedID) {
+            self.podcast = PodcastFeed.convertFrom(contentFeed: feed)
+        }
         self.collectionView.reloadSections(IndexSet(integer: 1))
     }
     
