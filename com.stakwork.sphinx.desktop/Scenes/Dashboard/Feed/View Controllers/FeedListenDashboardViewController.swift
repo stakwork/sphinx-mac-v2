@@ -263,7 +263,6 @@ extension FeedListenDashboardViewController {
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-
     func makeSnapshotForCurrentState() -> DataSourceSnapshot {
         var snapshot = DataSourceSnapshot()
 

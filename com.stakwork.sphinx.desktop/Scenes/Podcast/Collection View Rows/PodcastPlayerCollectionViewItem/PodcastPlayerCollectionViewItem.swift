@@ -110,6 +110,8 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
             self.podcast = PodcastFeed.convertFrom(contentFeed: feed)
         }
         setupView()
+        
+        delegate?.shouldReloadEpisodesTable()
     }
     
     func togglePlayState() {

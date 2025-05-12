@@ -11,18 +11,18 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
-            <rect key="frame" x="0.0" y="0.0" width="400" height="670"/>
+            <rect key="frame" x="0.0" y="0.0" width="400" height="639"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NHp-dV-cDu" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="320" width="400" height="350"/>
+                    <rect key="frame" x="0.0" y="289" width="400" height="350"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="350" id="pRh-XP-ws7"/>
                     </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" id="0xQ-FE-iyG"/>
                 </imageView>
                 <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35Y-CZ-In6" customClass="DisabledScrollView" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="320" width="400" height="350"/>
+                    <rect key="frame" x="0.0" y="289" width="400" height="350"/>
                     <clipView key="contentView" drawsBackground="NO" id="VGL-6o-u3K">
                         <rect key="frame" x="0.0" y="0.0" width="400" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -49,7 +49,7 @@
                     </scroller>
                 </scrollView>
                 <box boxType="custom" borderType="none" cornerRadius="15" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="k1x-HA-sgt">
-                    <rect key="frame" x="266" y="620" width="114" height="30"/>
+                    <rect key="frame" x="266" y="589" width="114" height="30"/>
                     <view key="contentView" id="fu3-pt-s5O">
                         <rect key="frame" x="0.0" y="0.0" width="114" height="30"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -79,17 +79,14 @@
                     <color key="fillColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </box>
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="k5A-VQ-0lA" customClass="PodcastSatsView" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="244" width="400" height="76"/>
+                    <rect key="frame" x="0.0" y="213" width="400" height="76"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="76" id="mcu-AB-GA9"/>
                     </constraints>
                 </customView>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" mirrorLayoutDirectionWhenInternationalizing="never" translatesAutoresizingMaskIntoConstraints="NO" id="u4B-WC-vJh">
-                    <rect key="frame" x="30" y="194" width="340" height="26"/>
-                    <constraints>
-                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="50" id="xfc-8c-N9L"/>
-                    </constraints>
-                    <textFieldCell key="cell" alignment="center" title="..." id="Ype-xF-qpo">
+                    <rect key="frame" x="30" y="177" width="340" height="26"/>
+                    <textFieldCell key="cell" truncatesLastVisibleLine="YES" alignment="center" title="..." id="Ype-xF-qpo">
                         <font key="font" metaFont="system" size="22"/>
                         <color key="textColor" name="Text"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -326,7 +323,7 @@
                 <constraint firstAttribute="trailing" secondItem="du4-Uv-efo" secondAttribute="trailing" constant="32" id="M6d-Ms-vXk"/>
                 <constraint firstItem="oGv-4i-JxJ" firstAttribute="bottom" secondItem="uyu-EV-v3y" secondAttribute="bottom" id="Qtu-Ls-TI9"/>
                 <constraint firstItem="aCz-Sz-VhK" firstAttribute="top" secondItem="du4-Uv-efo" secondAttribute="bottom" constant="8" id="SSl-xO-1do"/>
-                <constraint firstItem="u4B-WC-vJh" firstAttribute="top" secondItem="k5A-VQ-0lA" secondAttribute="bottom" constant="24" id="SsT-gw-7g2"/>
+                <constraint firstItem="u4B-WC-vJh" firstAttribute="top" secondItem="k5A-VQ-0lA" secondAttribute="bottom" constant="10" id="SsT-gw-7g2"/>
                 <constraint firstItem="jXX-Qx-eeZ" firstAttribute="top" secondItem="du4-Uv-efo" secondAttribute="top" id="UBH-PT-m2M"/>
                 <constraint firstItem="wkU-Xv-7th" firstAttribute="top" secondItem="Ye5-bz-UmZ" secondAttribute="top" id="V9J-Sw-pyC"/>
                 <constraint firstItem="j3a-5W-Ger" firstAttribute="centerY" secondItem="aCz-Sz-VhK" secondAttribute="centerY" id="Vea-Il-Cuf"/>
@@ -359,6 +356,7 @@
                 <constraint firstItem="Ye5-bz-UmZ" firstAttribute="leading" secondItem="una-Hn-RvR" secondAttribute="leading" id="uHH-vu-y9j"/>
                 <constraint firstAttribute="trailing" secondItem="NHp-dV-cDu" secondAttribute="trailing" id="uQF-DK-vrg"/>
                 <constraint firstItem="EfV-pV-zKD" firstAttribute="centerX" secondItem="una-Hn-RvR" secondAttribute="centerX" id="umP-hR-IaB"/>
+                <constraint firstItem="oGv-4i-JxJ" firstAttribute="top" secondItem="u4B-WC-vJh" secondAttribute="bottom" constant="10" id="w7P-0Y-tz0"/>
                 <constraint firstItem="cvm-EV-YVC" firstAttribute="centerY" secondItem="Ye5-bz-UmZ" secondAttribute="centerY" id="zBN-cc-bob"/>
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
