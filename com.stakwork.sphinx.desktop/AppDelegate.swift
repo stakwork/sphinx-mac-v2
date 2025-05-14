@@ -83,6 +83,14 @@ import WebKit
     
     func application(_ application: NSApplication, open urls: [URL]) {
         if urls.count > 0 {
+            if !UserData.sharedInstance.isUserLogged() {
+                for url in urls {
+                    DeepLinksHandlerHelper.handleInviteDeepLink(url: url)
+                }
+                if let initialVC = getSignupVC() {
+                    initialVC.handleLinkQueries()
+                }
+            }
             if let _ = getDashboardWindow() {
                 for url in urls {
                     DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
@@ -218,9 +226,18 @@ import WebKit
         return nil
     }
      
-     func getDashboardVC() -> DashboardViewController? {
+    func getDashboardVC() -> DashboardViewController? {
+        for w in NSApplication.shared.windows {
+            if let vc = w.contentViewController as? DashboardViewController {
+                return vc
+            }
+        }
+        return nil
+    }
+     
+     func getSignupVC() -> WelcomeInitialViewController? {
          for w in NSApplication.shared.windows {
-             if let vc = w.contentViewController as? DashboardViewController {
+             if let vc = w.contentViewController as? WelcomeInitialViewController {
                  return vc
              }
          }

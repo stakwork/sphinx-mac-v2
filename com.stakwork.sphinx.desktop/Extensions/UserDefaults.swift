@@ -33,6 +33,7 @@ extension UserDefaults {
         public static let paymentProcessedInvites = DefaultKey<[String]>("paymentProcessedInvites")
         public static let isRestoring = DefaultKey<Bool>("isRestoring")
         public static let linkQuery = DefaultKey<String>("linkQuery")
+        public static let inviteCode = DefaultKey<String>("inviteCode")
         public static let lastPinDate = DefaultKey<Date>("lastPinDate")
         public static let pinHours = DefaultKey<Int>("pinHours")
         public static let inviteServerURL = DefaultKey<String>("inviteServerURL")
@@ -77,6 +78,7 @@ extension UserDefaults {
         let notificationType = UserDefaults.Keys.notificationType.get(defaultValue: 0)
         let notificationSound = UserDefaults.Keys.notificationSound.get(defaultValue: "tri-tone.caf")
         let size = UserDefaults.Keys.messagesSize.get(defaultValue: MessagesSize.Medium.rawValue)
+        let inviteCode: String? = UserDefaults.Keys.inviteCode.get()
 
         deleteAllKeys()
 
@@ -84,6 +86,10 @@ extension UserDefaults {
         UserDefaults.Keys.notificationType.set(notificationType)
         UserDefaults.Keys.notificationSound.set(notificationSound)
         UserDefaults.Keys.messagesSize.set(size)
+        
+        if let inviteCode = inviteCode {
+            UserDefaults.Keys.inviteCode.set(inviteCode)
+        }
 
         UserDefaults.standard.synchronize()
     }

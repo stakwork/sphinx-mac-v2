@@ -35,8 +35,23 @@ class WelcomeInitialViewController: NSViewController {
         existingUserView.configureWith(title: "existing.user".localized, icon: "", tag: Buttons.ExistingUser.rawValue, delegate: self)
     }
     
+    func handleLinkQueries() {
+        DispatchQueue.main.async {
+            if let code: String = UserDefaults.Keys.inviteCode.get() {
+                let welcomeCodeVC = WelcomeCodeViewController.instantiate(
+                    mode: SignupHelper.SignupMode.NewUser,
+                    inviteCode: code
+                )
+                self.view.window?.replaceContentBy(vc: welcomeCodeVC)
+                UserDefaults.Keys.inviteCode.removeValue()
+            }
+        }
+    }
+    
     override func viewDidAppear() {
         super.viewDidAppear()
+        
+        handleLinkQueries()
         
         AnimationHelper.animateViewWith(duration: 0.3, animationsBlock: {
             self.leftContainer.alphaValue = 1.0

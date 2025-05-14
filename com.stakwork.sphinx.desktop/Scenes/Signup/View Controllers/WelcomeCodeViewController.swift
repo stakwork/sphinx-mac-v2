@@ -32,16 +32,19 @@ class WelcomeCodeViewController: NSViewController {
     }
     
     var mode = SignupHelper.SignupMode.NewUser
+    var inviteCode: String? = nil
     
     let messageBubbleHelper = NewMessageBubbleHelper()
     let userData = UserData.sharedInstance
     let som = SphinxOnionManager.sharedInstance
     
     static func instantiate(
-        mode: SignupHelper.SignupMode
+        mode: SignupHelper.SignupMode,
+        inviteCode: String? = nil
     ) -> WelcomeCodeViewController {
         let viewController = StoryboardScene.Signup.welcomeCodeViewController.instantiate()
         viewController.mode = mode
+        viewController.inviteCode = inviteCode
         return viewController
     }
 
@@ -65,7 +68,14 @@ class WelcomeCodeViewController: NSViewController {
         submitButton.buttonDisabled = true
         
         let placeholder = isNewUser ? "paste.invitation.code" : "paste.keys"
-        codeField.configureWith(placeHolder: placeholder.localized, label: "", backgroundColor: NSColor.white, field: .Code, delegate: self)
+        
+        codeField.configureWith(
+            placeHolder: placeholder.localized,
+            label: "",
+            backgroundColor: NSColor.white,
+            field: .Code,
+            delegate: self
+        )
         
         let label = (isNewUser ? "signup.label" : "restore.label").localized
         let boldLabels = isNewUser ? ["signup.label.bold.1".localized, "signup.label.bold.2".localized] : ["restore.label.bold".localized]
@@ -78,6 +88,12 @@ class WelcomeCodeViewController: NSViewController {
         )
         
         leftImageView.image = NSImage(named: isNewUser ? "newUserImage" : "existingUserImage")
+        
+        if let inviteCode = inviteCode {
+            codeField.textField.stringValue = inviteCode
+            let valid = validateCode(code: inviteCode)
+            submitButton.buttonDisabled = !valid
+        }
     }
     
     var isNewUser: Bool {
@@ -246,12 +262,8 @@ extension WelcomeCodeViewController : SignupButtonViewDelegate {
 
 extension WelcomeCodeViewController : SignupFieldViewDelegate {
     func didChangeText(text: String) {
-        if text == NSPasteboard.general.string(forType: .string) {
-            let valid = validateCode(code: text)
-            submitButton.buttonDisabled = !valid
-            return
-        }
-        submitButton.buttonDisabled = text.isEmpty
+        let valid = validateCode(code: text)
+        submitButton.buttonDisabled = !valid
     }
     
     func validateCode(code: String) -> Bool {
