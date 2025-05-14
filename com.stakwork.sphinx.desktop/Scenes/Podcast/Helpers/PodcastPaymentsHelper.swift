@@ -27,8 +27,6 @@ class PodcastPaymentsHelper {
         clipSenderPubKey: String? = nil,
         uuid: String? = nil
     ) {
-        
-        
         let suggestedAmount = getPodcastAmount(podcastFeed)
         let satsAmt = boostAmount ?? suggestedAmount
         let myPubKey = UserData.sharedInstance.getUserPubKey()
@@ -49,7 +47,6 @@ class PodcastPaymentsHelper {
             let podcastFeed = podcastFeed,
             !destinations.isEmpty
         {
-            
             streamSats(
                 podcastId: podcastFeed.feedID,
                 podcatsDestinations: destinations,

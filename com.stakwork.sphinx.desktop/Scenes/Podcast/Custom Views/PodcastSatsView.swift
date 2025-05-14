@@ -12,6 +12,7 @@ class PodcastSatsView: NSView, LoadableNib {
     
     @IBOutlet var contentView: NSView!
     
+    @IBOutlet weak var backgroundBox: NSBox!
     @IBOutlet weak var titleLabel: NSTextField!
     @IBOutlet weak var amountLabel: NSTextField!
     @IBOutlet weak var amountSlider: NSSlider!
@@ -19,7 +20,7 @@ class PodcastSatsView: NSView, LoadableNib {
     
     let sliderValues = [0,3,3,5,5,8,8,10,10,20,20,40,40,80,80,100]
     
-    var chat: Chat? = nil
+    var podcast: PodcastFeed! = nil
     
     var sliderTimer : Timer? = nil
 
@@ -30,6 +31,8 @@ class PodcastSatsView: NSView, LoadableNib {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         loadViewFromNib()
+        
+        backgroundBox.alphaValue = 0.5
         
         configureSlider()
         
@@ -43,16 +46,21 @@ class PodcastSatsView: NSView, LoadableNib {
         sliderTimer = nil
     }
     
-    func configureWith(chat: Chat?) {
-        self.chat = chat
+    func configureWith(podcast: PodcastFeed) {
+        self.podcast = podcast
         
-        if let podcast = chat?.getPodcastFeed() {
-            if let storedAmount = podcast.satsPerMinute {
-                setSliderValue(value: storedAmount)
-            } else {
-                let suggested = podcast.model?.suggestedSats ?? 0
-                setSliderValue(value: suggested)
-            }
+        if podcast.destinationsArray.isEmpty {
+            isHidden = true
+            return
+        }
+        
+        isHidden = false
+        
+        if let storedAmount = podcast.satsPerMinute {
+            setSliderValue(value: storedAmount)
+        } else {
+            let suggested = podcast.model?.suggestedSats ?? 0
+            setSliderValue(value: suggested)
         }
     }
     
@@ -78,7 +86,7 @@ class PodcastSatsView: NSView, LoadableNib {
         let realValue = sliderValues[sliderValue]
         amountLabel.stringValue = "\(realValue)"
         
-        if let podcast = chat?.getPodcastFeed() {
+        if let podcast = podcast {
             podcast.satsPerMinute = realValue
         }
 
@@ -88,7 +96,7 @@ class PodcastSatsView: NSView, LoadableNib {
     }
     
     @objc func didFinishDragging() {
-        if let podcast = chat?.getPodcastFeed() {
+        if let podcast = podcast {
             FeedsManager.sharedInstance.saveContentFeedStatus(for: podcast.feedID)
         }
     }

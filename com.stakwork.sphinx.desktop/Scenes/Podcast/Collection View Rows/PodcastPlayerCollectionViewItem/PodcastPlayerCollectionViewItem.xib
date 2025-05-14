@@ -15,20 +15,20 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NHp-dV-cDu" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="289" width="400" height="350"/>
+                    <rect key="frame" x="0.0" y="213" width="400" height="426"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="350" id="pRh-XP-ws7"/>
+                        <constraint firstAttribute="height" constant="426" id="pRh-XP-ws7"/>
                     </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" id="0xQ-FE-iyG"/>
                 </imageView>
-                <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35Y-CZ-In6" customClass="DisabledScrollView" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="0.0" y="289" width="400" height="350"/>
+                <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="35Y-CZ-In6" customClass="DisabledScrollView" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="213" width="400" height="426"/>
                     <clipView key="contentView" drawsBackground="NO" id="VGL-6o-u3K">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="350"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="426"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView id="MFz-Dp-jBt">
-                                <rect key="frame" x="0.0" y="0.0" width="400" height="158"/>
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="426"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" id="NX6-bl-pLY">
                                     <size key="itemSize" width="50" height="50"/>
@@ -311,8 +311,6 @@
                 <constraint firstItem="Gje-cP-dDc" firstAttribute="centerY" secondItem="jXX-Qx-eeZ" secondAttribute="centerY" id="6zZ-Ae-dYU"/>
                 <constraint firstItem="oGv-4i-JxJ" firstAttribute="top" secondItem="uyu-EV-v3y" secondAttribute="top" id="94M-la-4Tb"/>
                 <constraint firstAttribute="trailing" secondItem="35Y-CZ-In6" secondAttribute="trailing" id="9t8-k1-jdk"/>
-                <constraint firstItem="k5A-VQ-0lA" firstAttribute="top" secondItem="NHp-dV-cDu" secondAttribute="bottom" id="9vf-Wm-810"/>
-                <constraint firstItem="k5A-VQ-0lA" firstAttribute="top" secondItem="35Y-CZ-In6" secondAttribute="bottom" id="BA8-wc-6N3"/>
                 <constraint firstItem="du4-Uv-efo" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="32" id="FSP-Jc-mti"/>
                 <constraint firstItem="35Y-CZ-In6" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="G0J-jI-Agd"/>
                 <constraint firstItem="Ye5-bz-UmZ" firstAttribute="trailing" secondItem="una-Hn-RvR" secondAttribute="trailing" id="GrB-Jp-w2K"/>
@@ -346,6 +344,7 @@
                 <constraint firstItem="k1x-HA-sgt" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="20" id="kGG-yZ-EwY"/>
                 <constraint firstItem="Ye5-bz-UmZ" firstAttribute="leading" secondItem="wkU-Xv-7th" secondAttribute="trailing" id="krf-R2-yto"/>
                 <constraint firstAttribute="trailing" secondItem="cvm-EV-YVC" secondAttribute="trailing" constant="23.5" id="kyK-F1-qXT"/>
+                <constraint firstItem="k5A-VQ-0lA" firstAttribute="bottom" secondItem="NHp-dV-cDu" secondAttribute="bottom" id="lQi-Hi-SNC"/>
                 <constraint firstItem="epe-yP-uMg" firstAttribute="centerY" secondItem="Ye5-bz-UmZ" secondAttribute="centerY" id="mEP-xb-hg4"/>
                 <constraint firstItem="NHp-dV-cDu" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="mmD-xR-hqF"/>
                 <constraint firstItem="zXx-n0-mtn" firstAttribute="top" secondItem="Ye5-bz-UmZ" secondAttribute="top" id="pam-dJ-f5m"/>
@@ -357,6 +356,7 @@
                 <constraint firstAttribute="trailing" secondItem="NHp-dV-cDu" secondAttribute="trailing" id="uQF-DK-vrg"/>
                 <constraint firstItem="EfV-pV-zKD" firstAttribute="centerX" secondItem="una-Hn-RvR" secondAttribute="centerX" id="umP-hR-IaB"/>
                 <constraint firstItem="oGv-4i-JxJ" firstAttribute="top" secondItem="u4B-WC-vJh" secondAttribute="bottom" constant="10" id="w7P-0Y-tz0"/>
+                <constraint firstItem="35Y-CZ-In6" firstAttribute="bottom" secondItem="NHp-dV-cDu" secondAttribute="bottom" id="xpa-jl-WkK"/>
                 <constraint firstItem="cvm-EV-YVC" firstAttribute="centerY" secondItem="Ye5-bz-UmZ" secondAttribute="centerY" id="zBN-cc-bob"/>
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>

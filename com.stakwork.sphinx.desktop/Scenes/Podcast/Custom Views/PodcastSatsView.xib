@@ -11,6 +11,7 @@
             <connections>
                 <outlet property="amountLabel" destination="2bp-RA-bo2" id="518-WP-7ar"/>
                 <outlet property="amountSlider" destination="32c-KP-aib" id="0gO-P3-1CJ"/>
+                <outlet property="backgroundBox" destination="Saw-HY-BvW" id="ZPw-Md-0KQ"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="Ado-O9-3Jt"/>
                 <outlet property="suggestedAmountOutOfRangeLabel" destination="pZw-4N-hMT" id="XqH-oq-1g4"/>
                 <outlet property="titleLabel" destination="LWP-Mt-Uu1" id="5fX-58-LlT"/>
@@ -22,6 +23,14 @@
             <rect key="frame" x="0.0" y="0.0" width="480" height="76"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
+                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Saw-HY-BvW">
+                    <rect key="frame" x="0.0" y="0.0" width="480" height="76"/>
+                    <view key="contentView" id="7V2-gf-2eM">
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="76"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                    <color key="fillColor" name="Body"/>
+                </box>
                 <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="bS9-p4-ABZ">
                     <rect key="frame" x="0.0" y="0.0" width="480" height="76"/>
                     <view key="contentView" id="Ujy-Id-hCX">
@@ -72,13 +81,16 @@
                             <constraint firstAttribute="trailing" secondItem="32c-KP-aib" secondAttribute="trailing" constant="20" id="vgu-sX-CeJ"/>
                         </constraints>
                     </view>
-                    <color key="fillColor" name="Body"/>
                 </box>
             </subviews>
             <constraints>
+                <constraint firstItem="Saw-HY-BvW" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="59p-op-wQF"/>
+                <constraint firstItem="Saw-HY-BvW" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="7Kn-0E-1l1"/>
+                <constraint firstAttribute="trailing" secondItem="Saw-HY-BvW" secondAttribute="trailing" id="89A-nU-5wq"/>
                 <constraint firstAttribute="bottom" secondItem="bS9-p4-ABZ" secondAttribute="bottom" id="EwP-jG-NrL"/>
                 <constraint firstAttribute="trailing" secondItem="bS9-p4-ABZ" secondAttribute="trailing" id="Lx2-sz-qhr"/>
                 <constraint firstItem="bS9-p4-ABZ" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="XJ2-ZQ-74S"/>
+                <constraint firstAttribute="bottom" secondItem="Saw-HY-BvW" secondAttribute="bottom" id="eQ6-JV-oN2"/>
                 <constraint firstItem="bS9-p4-ABZ" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="el7-l2-2Jz"/>
             </constraints>
             <point key="canvasLocation" x="139" y="154"/>
