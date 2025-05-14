@@ -68,4 +68,19 @@ class DeepLinksHandlerHelper {
             }
         }
     }
+    
+    static func handleInviteDeepLink(url: URL) {
+        if UserData.sharedInstance.isUserLogged() {
+            return
+        }
+        
+        if let action = url.getLinkAction() {
+            switch(action) {
+            case "i":
+                UserDefaults.Keys.inviteCode.set(url.absoluteString)
+            default:
+                break
+            }
+        }
+    }
 }
