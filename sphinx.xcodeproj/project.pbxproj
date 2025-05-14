@@ -215,6 +215,7 @@
 		47469D692ACEE899004F0490 /* ChatSearchTextFieldView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47469D682ACEE899004F0490 /* ChatSearchTextFieldView.xib */; };
 		47469D6B2ACEF53F004F0490 /* NewChatViewController+SearchMessagesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47469D6A2ACEF53F004F0490 /* NewChatViewController+SearchMessagesExtension.swift */; };
 		47469D6F2AD7101C004F0490 /* ThreadVCContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47469D6E2AD7101C004F0490 /* ThreadVCContainer.swift */; };
+		474A65F82DD3D3ED0024F489 /* TimeZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474A65F72DD3D3E90024F489 /* TimeZone.swift */; };
 		474A66842497CAFE002C2D10 /* MessageReplyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474A66832497CAFE002C2D10 /* MessageReplyView.swift */; };
 		474A66862497CB0A002C2D10 /* MessageReplyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474A66852497CB0A002C2D10 /* MessageReplyView.xib */; };
 		474A66882498F3E6002C2D10 /* MessageOptionsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474A66872498F3E6002C2D10 /* MessageOptionsHelper.swift */; };
@@ -1109,6 +1110,7 @@
 		47469D682ACEE899004F0490 /* ChatSearchTextFieldView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSearchTextFieldView.xib; sourceTree = "<group>"; };
 		47469D6A2ACEF53F004F0490 /* NewChatViewController+SearchMessagesExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+SearchMessagesExtension.swift"; sourceTree = "<group>"; };
 		47469D6E2AD7101C004F0490 /* ThreadVCContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadVCContainer.swift; sourceTree = "<group>"; };
+		474A65F72DD3D3E90024F489 /* TimeZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZone.swift; sourceTree = "<group>"; };
 		474A66832497CAFE002C2D10 /* MessageReplyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReplyView.swift; sourceTree = "<group>"; };
 		474A66852497CB0A002C2D10 /* MessageReplyView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageReplyView.xib; sourceTree = "<group>"; };
 		474A66872498F3E6002C2D10 /* MessageOptionsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageOptionsHelper.swift; sourceTree = "<group>"; };
@@ -2118,6 +2120,7 @@
 		47393E632461DB1F00E6F93E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				474A65F72DD3D3E90024F489 /* TimeZone.swift */,
 				47393E642461DB2C00E6F93E /* String.swift */,
 				4744FA542469900800C5FD94 /* UserDefaults.swift */,
 				4744FA762469A83E00C5FD94 /* Date.swift */,
@@ -4609,6 +4612,7 @@
 				4720991924834E0000426028 /* CryptorRSAErrors.swift in Sources */,
 				47FEE1F42A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift in Sources */,
 				479F657D2487EAD50015A16A /* DraggingDestinationView.swift in Sources */,
+				474A65F82DD3D3ED0024F489 /* TimeZone.swift in Sources */,
 				47FEE20F2A66DB5E00646C4E /* NewChatTableDataSource+ScrollExtension.swift in Sources */,
 				CE9BA45F29D76A8E000C8837 /* PodcastDetailSelectionVM.swift in Sources */,
 				470708A024AE65D600A98DCA /* ChatChatListExtension.swift in Sources */,
@@ -5451,7 +5455,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 159;
+				CURRENT_PROJECT_VERSION = 163;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5488,7 +5492,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 159;
+				CURRENT_PROJECT_VERSION = 163;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;

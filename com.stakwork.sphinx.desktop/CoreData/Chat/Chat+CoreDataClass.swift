@@ -1081,7 +1081,7 @@ public class Chat: NSManagedObject {
         var metaData: String? = nil
         
         if self.timezoneEnabled, self.timezoneUpdated {
-            if let timezoneToSend = TimeZone(identifier: self.timezoneIdentifier ?? TimeZone.current.identifier)?.abbreviation() {
+            if let timezoneToSend = TimeZone(identifier: self.timezoneIdentifier ?? TimeZone.current.identifier)?.gmtOffsetAbbreviation() {
                 let timezoneMetadata = ["tz": timezoneToSend]
                 
                 if let metadataJSON = try? JSONSerialization.data(withJSONObject: timezoneMetadata),
