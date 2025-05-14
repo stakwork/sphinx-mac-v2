@@ -13,7 +13,7 @@ extension PodcastPlayerCollectionViewItem {
     func setupView() {
         audioLoading = podcastPlayerController.isPlaying(podcastId: podcast.feedID)
         
-        podcastSatsView.configureWith(chat: chat)
+        podcastSatsView.configureWith(podcast: podcast)
         showInfo()
         configureControls()
         configureSubscribeButton()
