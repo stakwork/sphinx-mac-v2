@@ -355,7 +355,7 @@ class NewChatViewController: DashboardSplittedViewController {
         
         WindowsManager.sharedInstance.showVCOnRightPanelWindow(
             with: "thread-chat".localized,
-            identifier: "thread-chat-identifier",
+            identifier: "thread-chat-identifier-\(threadID)",
             contentVC: threadVC,
             shouldReplace: false,
             panelFixedWidth: true
