@@ -84,6 +84,9 @@ class ThreadHeaderView: NSView, LoadableNib {
         fileInfoView.wantsLayer = true
         fileInfoView.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
         fileInfoView.layer?.cornerRadius = 9
+        
+        newMessageLabel.textContainerInset = NSSize(width: 0, height: 0)
+        newMessageLabel.textContainer?.lineFragmentPadding = 0
     }
     
     func hideAllViews() {
