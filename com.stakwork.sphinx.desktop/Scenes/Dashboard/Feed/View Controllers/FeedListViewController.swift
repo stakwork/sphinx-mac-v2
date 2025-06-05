@@ -368,6 +368,10 @@ extension FeedListViewController {
             return
         }
         
+        guard let feedsCollectionView = feedsCollectionView else {
+            return
+        }
+        
         let dataSource = DataSource(
             collectionView: feedsCollectionView,
             itemProvider: makeCellProvider()
@@ -464,6 +468,10 @@ extension FeedListViewController {
         completion: (() -> ())? = nil
     ) {
         makeDataSource()
+        
+        guard let _ = dataSource else {
+            return
+        }
         
         DispatchQueue.main.async {
             var snapshot = DataSourceSnapshot()
