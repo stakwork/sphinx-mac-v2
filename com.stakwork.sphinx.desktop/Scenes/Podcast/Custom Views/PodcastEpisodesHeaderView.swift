@@ -36,6 +36,7 @@ class PodcastEpisodesHeaderView: NSView {
     
     func configureWith(
         count: Int,
+        skipAdsEnabled: Bool,
         delegate: PodcastEpisodesHeaderViewDelegate?
     ) {
         self.delegate = delegate
@@ -43,6 +44,8 @@ class PodcastEpisodesHeaderView: NSView {
         skipAdsButton.cursor = .pointingHand
         episodesLabel.stringValue = "episodes".localized.uppercased()
         episodesCountLabel.stringValue = "\(count)"
+        
+        configureSkipAdsButton(enable: skipAdsEnabled)
     }
     
     @IBAction func skipAdsButtonClicked(_ sender: Any) {

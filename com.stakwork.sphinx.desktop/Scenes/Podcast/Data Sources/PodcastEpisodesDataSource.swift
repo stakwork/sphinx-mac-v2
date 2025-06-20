@@ -137,7 +137,11 @@ extension PodcastEpisodesDataSource : NSCollectionViewDelegate, NSCollectionView
             for: indexPath
         ) as! PodcastEpisodesHeaderView
         
-        view.configureWith(count: podcast.episodesArray.count, delegate: self)
+        view.configureWith(
+            count: podcast.episodesArray.count,
+            skipAdsEnabled: podcast.skipAds,
+            delegate: self
+        )
         view.addShadow(location: VerticalLocation.bottom, color: NSColor.black, opacity: 0.2, radius: 3.0)
         
         return view
