@@ -10,6 +10,9 @@ import Cocoa
 
 extension NewChatViewController {
     func processChatAliases() {
+        if isThread {
+            return
+        }
         chat?.processAliases()
     }
     

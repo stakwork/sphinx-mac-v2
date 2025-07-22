@@ -808,7 +808,12 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
-                    self.chat?.processAliasesFrom(messages: messages.reversed())
+                    
+                    if !isThread {
+                        ///Do not processes aliases and timezone on thread since it came from chat
+                        self.chat?.processAliasesFrom(messages: messages.reversed())
+                    }
+                    
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
                     
                     if !(self.delegate?.isOnStandardMode() ?? true) {

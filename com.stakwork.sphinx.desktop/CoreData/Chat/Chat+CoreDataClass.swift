@@ -349,8 +349,7 @@ public class Chat: NSManagedObject {
             guard let self = self else {
                 return
             }
-            self.aliasesAndPics = []
-            
+
             let messages = self.getAllMessages(
                 limit: 2000,
                 context: backgroundContext,
@@ -364,6 +363,9 @@ public class Chat: NSManagedObject {
     func processAliasesFrom(
         messages: [TransactionMessage]
     ) {
+        self.aliasesAndPics = []
+        self.timezoneData = [:]
+        
         let ownerId = UserData.sharedInstance.getUserId()
         
         let declinedRequestResponses = messages.filter { $0.isDeclinedRequest() }
@@ -434,6 +436,17 @@ public class Chat: NSManagedObject {
                 }
             }
         }
+        
+        let aliasesWithoutTimezone: [String] = aliasesAndPics.compactMap { tuple in
+            timezoneData[tuple.0] == nil ? tuple.0 : nil
+        }
+        
+        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self)
+        
+        timezoneData = timezoneData.merging(newTimezoneMap) { (existing, new) in
+            return existing  // Keep original value
+        }
+        
     }
     
     func isDateBeforeThreeMonthsAgo(_ date: Date) -> Bool {

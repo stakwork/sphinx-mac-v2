@@ -172,6 +172,8 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
                 newVC = NewChatViewController.instantiate(
                     contactId: vc.contact?.id,
                     chatId: vc.chat?.id,
+                    timezoneData: vc.chat?.timezoneData,
+                    aliasesAndPics: vc.chat?.aliasesAndPics,
                     delegate: vc.delegate,
                     chatVCDelegate: nil,
                     threadUUID: vc.threadUUID

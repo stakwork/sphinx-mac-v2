@@ -89,6 +89,8 @@ class NewChatViewController: DashboardSplittedViewController {
     static func instantiate(
         contactId: Int? = nil,
         chatId: Int? = nil,
+        timezoneData: [String: String]? = nil,
+        aliasesAndPics: [(String, String)]? = nil,
         delegate: DashboardVCDelegate? = nil,
         chatVCDelegate: NewChatViewControllerDelegate? = nil,
         deepLinkData : DeeplinkData? = nil,
@@ -101,6 +103,9 @@ class NewChatViewController: DashboardSplittedViewController {
         
         if let chatId = chatId {
             let chat = Chat.getChatWith(id: chatId)
+            chat?.timezoneData = timezoneData ?? [:]
+            chat?.aliasesAndPics = aliasesAndPics ?? []
+            
             viewController.chat = chat
             viewController.tribeAdmin = chat?.getAdmin() ?? owner
         }
@@ -342,6 +347,8 @@ class NewChatViewController: DashboardSplittedViewController {
         threadVC = NewChatViewController.instantiate(
             contactId: self.contact?.id,
             chatId: self.chat?.id,
+            timezoneData: self.chat?.timezoneData,
+            aliasesAndPics: self.chat?.aliasesAndPics,
             delegate: delegate,
             chatVCDelegate: self,
             threadUUID: threadID

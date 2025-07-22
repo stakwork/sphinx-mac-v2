@@ -132,6 +132,12 @@ class NewChatTableDataSource : NSObject {
     ///Constants
     static let kThreadHeaderRowIndex = -10
     
+    var isThread: Bool {
+        get {
+            return false
+        }
+    }
+    
     init(
         chat: Chat?,
         contact: UserContact?,
