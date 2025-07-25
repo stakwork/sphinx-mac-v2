@@ -538,11 +538,14 @@ extension SphinxOnionManager {
         if let topic = topic, let payload = payload {
             let byteArray: [UInt8] = [UInt8](payload)
             
+            let message = CocoaMQTTMessage(
+                topic: topic,
+                payload: byteArray
+            )
+            message.qos = .qos0
+            
             self.mqtt?.publish(
-                CocoaMQTTMessage(
-                    topic: topic,
-                    payload: byteArray
-                )
+                message
             )
             return true
         }
