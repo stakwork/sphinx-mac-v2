@@ -331,6 +331,7 @@
 		477CE0462DCA5177004110E8 /* FeedListenDashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0452DCA5177004110E8 /* FeedListenDashboardViewController.swift */; };
 		477CE0492DCA619C004110E8 /* FeedListenCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 477CE0482DCA619C004110E8 /* FeedListenCollectionViewItem.xib */; };
 		477CE04A2DCA619C004110E8 /* FeedListenCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477CE0472DCA619C004110E8 /* FeedListenCollectionViewItem.swift */; };
+		4784C2012E391FC50041D6F0 /* NoMomentumScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4784C2002E391FBE0041D6F0 /* NoMomentumScrollView.swift */; };
 		4787F89E247C14FD00CCE8B9 /* CGFloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89D247C14FD00CCE8B9 /* CGFloat.swift */; };
 		4787F8A0247C16B200CCE8B9 /* ChatSmallAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */; };
 		4787F8A2247C16C600CCE8B9 /* ChatSmallAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */; };
@@ -1245,6 +1246,7 @@
 		477CE0452DCA5177004110E8 /* FeedListenDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListenDashboardViewController.swift; sourceTree = "<group>"; };
 		477CE0472DCA619C004110E8 /* FeedListenCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListenCollectionViewItem.swift; sourceTree = "<group>"; };
 		477CE0482DCA619C004110E8 /* FeedListenCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedListenCollectionViewItem.xib; sourceTree = "<group>"; };
+		4784C2002E391FBE0041D6F0 /* NoMomentumScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoMomentumScrollView.swift; sourceTree = "<group>"; };
 		4787F89D247C14FD00CCE8B9 /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		4787F89F247C16B200CCE8B9 /* ChatSmallAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSmallAvatarView.swift; sourceTree = "<group>"; };
 		4787F8A1247C16C600CCE8B9 /* ChatSmallAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatSmallAvatarView.xib; sourceTree = "<group>"; };
@@ -2365,6 +2367,7 @@
 		4744FACD246AF68800C5FD94 /* Custom Classes */ = {
 			isa = PBXGroup;
 			children = (
+				4784C2002E391FBE0041D6F0 /* NoMomentumScrollView.swift */,
 				4744FACE246AF6A400C5FD94 /* AspectFillNSImageView.swift */,
 				4744FAD2246B10C300C5FD94 /* CCTextField.swift */,
 				478ED5AB25D5730A00940132 /* CCSecureTextField.swift */,
@@ -4389,6 +4392,7 @@
 				474274A928EC77A5000C3D51 /* TribeTagView.swift in Sources */,
 				CE38D91329E0823800F271CD /* DisplayInvoiceVC.swift in Sources */,
 				4707089A24AE657700A98DCA /* MediaDownloader.swift in Sources */,
+				4784C2012E391FC50041D6F0 /* NoMomentumScrollView.swift in Sources */,
 				473E1F4C2AC5E59200DC1CDC /* ThreadsListViewController.swift in Sources */,
 				47FEE21C2A66E2EE00646C4E /* MessagesPreloaderHelper.swift in Sources */,
 				479496782AB9EEED00C42D1E /* NewChatViewModel.swift in Sources */,

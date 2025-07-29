@@ -50,7 +50,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if collectionView.getDistanceToBottom() < 10 {
             didScrollToBottom()
-        } else if collectionViewScroll.documentYOffset <= 0 {
+        } else if collectionViewScroll.documentYOffset <= 1000 {
             didScrollToTop()
         } else {
             didScrollOutOfBottomArea()
@@ -82,16 +82,15 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             return
         }
         
+        collectionViewScroll.verticalScrollElasticity = .none
         loadingMoreItems = true
         
         loadMoreItems()
     }
     
     @objc func loadMoreItems() {
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: { [weak self] in
-            guard let self = self else { return }
-            self.configureResultsController(items: self.messagesCount + 50)
-        })
+        collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
+        configureResultsController(items: messagesCount + 50)
     }
     
     @objc func shouldHideNewMsgsIndicator() -> Bool {
