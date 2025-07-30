@@ -70,6 +70,7 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     @IBOutlet weak var lastReplyMessageLabel: MessageTextField!
     @IBOutlet weak var lastReplyMessageLabelLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var lastReplyMessageLabelTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet weak var lastReplyMessageBoostView: NewMessageBoostView!
     
     @IBOutlet weak var leftLineContainer: NSBox!
     @IBOutlet weak var rightLineContainer: NSBox!
@@ -157,6 +158,10 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         configureLastReplyWith(
             genericFile: mutableMessageCellState.genericFile,
             mediaData: mediaData
+        )
+        configureLastReplyWith(
+            boosts: mutableMessageCellState.boosts,
+            and: bubble
         )
         
         ///Thread

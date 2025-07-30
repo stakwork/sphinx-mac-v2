@@ -554,10 +554,6 @@ struct MessageTableCellState {
     
     lazy var boosts: BubbleMessageLayoutState.Boosts? = {
         
-        if threadMessages.count > 1 {
-            return nil
-        }
-        
         guard let message = message, boostMessages.count > 0 else {
             return nil
         }

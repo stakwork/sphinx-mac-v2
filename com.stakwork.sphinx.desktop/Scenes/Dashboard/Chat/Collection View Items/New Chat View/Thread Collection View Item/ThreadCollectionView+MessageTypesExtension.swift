@@ -338,7 +338,7 @@ extension ThreadCollectionViewItem {
                     
                     let nsRange = textCheckingResult.range
                     
-                    if let text = messageContent.text {
+                    if let _ = messageContent.text {
                         if let url = URL(string: link)  {
                             attributedString.addAttributes(
                                 [
@@ -472,6 +472,16 @@ extension ThreadCollectionViewItem {
                     )
                 }
             }
+        }
+    }
+    
+    func configureLastReplyWith(
+        boosts: BubbleMessageLayoutState.Boosts?,
+        and bubble: BubbleMessageLayoutState.Bubble
+    ) {
+        if let boosts = boosts {
+            lastReplyMessageBoostView.configureWith(boosts: boosts, and: bubble)
+            lastReplyMessageBoostView.isHidden = false
         }
     }
 }

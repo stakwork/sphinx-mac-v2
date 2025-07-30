@@ -1894,7 +1894,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" headerView="Ozr-nQ-aat" viewBased="YES" id="tAU-dA-PJa">
-                                            <rect key="frame" x="0.0" y="0.0" width="369" height="105"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="368" height="105"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="17" height="0.0"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1913,11 +1913,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="doF-IN-pqe">
-                                                            <rect key="frame" x="8" y="0.0" width="351" height="24"/>
+                                                            <rect key="frame" x="8" y="0.0" width="352" height="24"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kLd-Ex-Z8Q">
-                                                                    <rect key="frame" x="0.0" y="4" width="351" height="16"/>
+                                                                    <rect key="frame" x="0.0" y="4" width="352" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Z6P-yR-1id">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1945,7 +1945,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" wantsLayer="YES" id="Ozr-nQ-aat">
-                                    <rect key="frame" x="0.0" y="0.0" width="369" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="368" height="28"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>

@@ -298,6 +298,10 @@ class ChatHelper {
             viewsHeight += FileInfoView.kViewHeight
         }
         
+        if let _ = mutableTableCellState.boosts {
+            viewsHeight += NewMessageBoostView.kViewHeight
+        }
+        
         if let text = mutableTableCellState.messageContent?.text, text.isNotEmpty {
             lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
                 text,

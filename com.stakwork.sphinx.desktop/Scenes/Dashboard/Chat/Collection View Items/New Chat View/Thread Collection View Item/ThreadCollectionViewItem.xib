@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -35,17 +35,17 @@
                     </constraints>
                 </box>
                 <box horizontalHuggingPriority="1000" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="8" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="YWa-SY-0um">
-                    <rect key="frame" x="60" y="790" width="400" height="816"/>
+                    <rect key="frame" x="60" y="740" width="400" height="866"/>
                     <view key="contentView" id="XBi-4A-5G5">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="816"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="866"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </view>
                     <color key="fillColor" name="SentMsgBG"/>
                 </box>
                 <box horizontalHuggingPriority="1000" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="8" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="2Bm-CJ-TFa">
-                    <rect key="frame" x="60" y="790" width="400" height="399"/>
+                    <rect key="frame" x="60" y="740" width="400" height="449"/>
                     <view key="contentView" id="Bpi-kt-bLJ">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="399"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="449"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </view>
                     <color key="fillColor" name="ReceivedMsgBG"/>
@@ -96,10 +96,10 @@
                                     </constraints>
                                 </customView>
                                 <stackView distribution="fill" orientation="vertical" alignment="trailing" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PqZ-pq-8i0">
-                                    <rect key="frame" x="44" y="788" width="400" height="866"/>
+                                    <rect key="frame" x="44" y="738" width="400" height="916"/>
                                     <subviews>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="QIj-fa-qcL">
-                                            <rect key="frame" x="0.0" y="816" width="400" height="50"/>
+                                            <rect key="frame" x="0.0" y="866" width="400" height="50"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="Kv2-Gm-iRV" customClass="StatusHeaderView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="0.0" width="400" height="17"/>
@@ -116,13 +116,13 @@
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="3st-ai-IfQ" customClass="AudioMessageView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="756" width="400" height="60"/>
+                                            <rect key="frame" x="0.0" y="806" width="400" height="60"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="60" id="YrW-MO-hT0"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="gyx-Sw-rjN">
-                                            <rect key="frame" x="0.0" y="586" width="400" height="170"/>
+                                            <rect key="frame" x="0.0" y="636" width="400" height="170"/>
                                             <subviews>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="HWv-ck-qic" customClass="MediaMessageView" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="-9" width="400" height="179"/>
@@ -137,13 +137,13 @@
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="RIJ-Mw-fdZ" customClass="FileInfoView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="524" width="400" height="62"/>
+                                            <rect key="frame" x="0.0" y="574" width="400" height="62"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="62" id="LBw-3F-gP3"/>
                                             </constraints>
                                         </customView>
                                         <customView horizontalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="4D1-XE-gCv">
-                                            <rect key="frame" x="0.0" y="474" width="400" height="50"/>
+                                            <rect key="frame" x="0.0" y="524" width="400" height="50"/>
                                             <subviews>
                                                 <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="9" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Bhe-Ws-xQ5">
                                                     <rect key="frame" x="0.0" y="0.0" width="400" height="50"/>
@@ -174,37 +174,37 @@
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="Ybx-OY-dzA" customClass="ThreadRepliesView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="390" width="400" height="84"/>
+                                            <rect key="frame" x="0.0" y="440" width="400" height="84"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="84" id="hBM-MH-227"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="LIg-v5-fUP" customClass="ThreadLastMessageHeader" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="340" width="400" height="50"/>
+                                            <rect key="frame" x="0.0" y="390" width="400" height="50"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="36" id="30h-Cr-0Xm"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="UdL-Mg-uQw" customClass="AudioMessageView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="280" width="400" height="60"/>
+                                            <rect key="frame" x="0.0" y="330" width="400" height="60"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="60" id="YwI-p1-u9g"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="cx7-Ub-j6B" customClass="MediaMessageView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="110" width="400" height="170"/>
+                                            <rect key="frame" x="0.0" y="160" width="400" height="170"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="170" id="xKa-iJ-nnu"/>
                                             </constraints>
                                         </customView>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="Gm0-An-OhM" customClass="FileInfoView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="48" width="400" height="62"/>
+                                            <rect key="frame" x="0.0" y="98" width="400" height="62"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" priority="750" constant="62" id="hvE-7A-Jat"/>
                                             </constraints>
                                         </customView>
                                         <customView horizontalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="jgc-0k-iDb">
-                                            <rect key="frame" x="0.0" y="0.0" width="400" height="48"/>
+                                            <rect key="frame" x="0.0" y="50" width="400" height="48"/>
                                             <subviews>
                                                 <textField focusRingType="none" horizontalHuggingPriority="1000" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="KIy-KQ-GvG" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
                                                     <rect key="frame" x="14" y="16" width="372" height="16"/>
@@ -223,6 +223,12 @@
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="KIy-KQ-GvG" secondAttribute="trailing" constant="16" id="fqU-az-kNb"/>
                                                 <constraint firstItem="KIy-KQ-GvG" firstAttribute="top" secondItem="jgc-0k-iDb" secondAttribute="top" constant="16" id="nhs-FX-BQJ"/>
                                                 <constraint firstAttribute="bottom" secondItem="KIy-KQ-GvG" secondAttribute="bottom" constant="16" id="o0O-Td-A57"/>
+                                            </constraints>
+                                        </customView>
+                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="tXy-dy-Emp" customClass="NewMessageBoostView" customModule="Sphinx" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="400" height="50"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" priority="750" constant="41" id="Knq-d2-fGa"/>
                                             </constraints>
                                         </customView>
                                     </subviews>
@@ -263,8 +269,10 @@
                                         <integer value="1000"/>
                                         <integer value="1000"/>
                                         <integer value="1000"/>
+                                        <integer value="1000"/>
                                     </visibilityPriorities>
                                     <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
@@ -361,6 +369,7 @@
                 <outlet property="lastReplyFileDetailsView" destination="Gm0-An-OhM" id="QoC-lK-Ilb"/>
                 <outlet property="lastReplyLabelHeightConstraint" destination="Osu-wL-52V" id="LfI-3H-6Bt"/>
                 <outlet property="lastReplyMediaMessageView" destination="cx7-Ub-j6B" id="Oxx-WS-2a3"/>
+                <outlet property="lastReplyMessageBoostView" destination="tXy-dy-Emp" id="DaE-2v-S4Q"/>
                 <outlet property="lastReplyMessageLabel" destination="KIy-KQ-GvG" id="jx1-aB-SOi"/>
                 <outlet property="lastReplyMessageLabelLeadingConstraint" destination="KMu-tX-hCb" id="oIP-Pj-wzP"/>
                 <outlet property="lastReplyMessageLabelTrailingConstraint" destination="RWt-dY-vtN" id="OLR-zp-6AU"/>
