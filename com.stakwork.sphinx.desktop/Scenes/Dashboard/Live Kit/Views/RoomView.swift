@@ -759,7 +759,7 @@ struct RoomView: View {
                                     defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
                                     try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
                                 }
-                            }
+                            }.environmentObject(roomCtx)
                         }
                     }
                     .disabled(isScreenSharePublishingBusy)
@@ -941,6 +941,8 @@ struct RoomView: View {
     }
     
     struct ScreenSharePopoverView: View, Equatable {
+        @EnvironmentObject var roomCtx: RoomContext
+        
         static func == (lhs: RoomView.ScreenSharePopoverView, rhs: RoomView.ScreenSharePopoverView) -> Bool {
             return lhs.screenPickerPresented == rhs.screenPickerPresented
         }
@@ -950,7 +952,7 @@ struct RoomView: View {
 
         var body: some View {
             if #available(macOS 12.3, *) {
-                ScreenShareSourcePickerView { source in
+                ScreenShareSourcePickerView() { source in
                     onSelect(source)
                     screenPickerPresented = false
                 }

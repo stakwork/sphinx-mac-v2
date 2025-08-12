@@ -19,6 +19,7 @@ class WindowsManager {
     }
     
     var controlsPanel: DraggablePanel? = nil
+    var controlsPanelId: UInt32? = nil
     var openedWindowIdentifiers: [String] = []
     
     func saveWindowState() {
@@ -534,7 +535,7 @@ class WindowsManager {
                             onCallEnded: {
                                 Task { @MainActor in
                                     self.openedWindowIdentifiers.removeAll(where: { $0 == link })
-                                    self.hideCallControlWindow()
+                                    self.hideCallControlWindow(forceClose: true)
                                     self.closeIfExists(identifier: link)
                                 }
                         }).environmentObject(appCtx).environmentObject(roomCtx)
@@ -669,27 +670,44 @@ class WindowsManager {
 }
 
 extension WindowsManager : RoomContextDelegate {
-    func presentCallControlWindowWith(roomCtx: RoomContext) {
-        DispatchQueue.main.async {
+    func createControlsPanel() {
+        if controlsPanel == nil {
             let mainScreen = NSScreen.main
-            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 166) / 2 - 155, y: 15)
+            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
             
-            let shareControlView = CallControlView()
-                .environmentObject(roomCtx)
-                .environmentObject(roomCtx.room)
-            
-            let hostingController = NSHostingController(rootView: shareControlView)
-            
-            self.showControlsPanel(
-                with: "",
-                size: CGSize(width: 332, height: 100),
-                minSize: CGSize(width: 332, height: 100),
-                position: position,
-                identifier: "share-panel",
-                backgroundColor: NSColor.clear,
-                contentVC: hostingController
+            controlsPanel = DraggablePanel(
+                contentRect: .init(origin: .zero, size: CGSize(width: 332, height: 100)),
+                styleMask: [.nonactivatingPanel, .borderless],
+                backing: .buffered,
+                defer: false
             )
+            controlsPanel?.setFrame(.init(origin: position, size: CGSize(width: 332, height: 100)), display: true)
         }
+        
+        if let controlsPanel = controlsPanel {
+            controlsPanelId = UInt32(controlsPanel.windowNumber)
+        }
+    }
+    
+    func presentCallControlWindowWith(roomCtx: RoomContext) {
+        let mainScreen = NSScreen.main
+        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
+        
+        let shareControlView = CallControlView()
+            .environmentObject(roomCtx)
+            .environmentObject(roomCtx.room)
+        
+        let hostingController = NSHostingController(rootView: shareControlView)
+        
+        self.showControlsPanel(
+            with: "",
+            size: CGSize(width: 332, height: 100),
+            minSize: CGSize(width: 332, height: 100),
+            position: position,
+            identifier: "share-panel",
+            backgroundColor: NSColor.clear,
+            contentVC: hostingController
+        )
     }
     
     func showControlsPanel(
@@ -701,15 +719,12 @@ extension WindowsManager : RoomContextDelegate {
         chatIdentifier: Int? = nil,
         backgroundColor: NSColor? = nil,
         contentVC: NSViewController
-    ) {
+    ){
         let storedPosition = controlsPanel?.frame.origin ?? position
         
-        controlsPanel = DraggablePanel(
-            contentRect: .init(origin: .zero, size: size),
-            styleMask: [.nonactivatingPanel, .borderless],
-            backing: .buffered,
-            defer: false
-        )
+        if controlsPanel == nil {
+            createControlsPanel()
+        }
         
         controlsPanel?.title = title
         controlsPanel?.minSize = minSize ?? size
@@ -725,6 +740,7 @@ extension WindowsManager : RoomContextDelegate {
         controlsPanel?.level = .mainMenu
         controlsPanel?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         controlsPanel?.becomesKeyOnlyIfNeeded = false
+        controlsPanel?.alphaValue = 1
         
         if let storedPosition = storedPosition {
             controlsPanel?.setFrame(.init(origin: storedPosition, size: size), display: true)
@@ -733,9 +749,11 @@ extension WindowsManager : RoomContextDelegate {
         }
     }
     
-    func hideCallControlWindow() {
-        DispatchQueue.main.async {
+    func hideCallControlWindow(forceClose: Bool = false) {
+        if forceClose {
             self.controlsPanel?.close()
+        } else {
+            self.controlsPanel?.alphaValue = 0
         }
     }
 }
