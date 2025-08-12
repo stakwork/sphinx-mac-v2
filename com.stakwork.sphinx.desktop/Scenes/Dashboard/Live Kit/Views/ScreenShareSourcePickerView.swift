@@ -43,12 +43,13 @@ class ScreenShareSourcePickerCtrl: ObservableObject {
         }
 
         let sources = try await MacOSScreenCapturer.sources(for: mode == .display ? .display : .window, includeCurrentApplication: true)
-        let panelID = WindowsManager.sharedInstance.controlsPanelId
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
         let options = ScreenShareCaptureOptions(
             dimensions: .h360_43,
             fps: 5,
             includeCurrentApplication: true,
-            excludeWindowIDs: (panelID != nil) ? [panelID!] : []
+            excludeWindowIDs: windowsToExcludeIds
         )
         let _newTracks = sources.map { LocalVideoTrack.createMacOSScreenShareTrack(source: $0, options: options) }
 

@@ -145,7 +145,8 @@ final class RoomContext: NSObject, ObservableObject {
         
         self.delegate?.createControlsPanel()
         
-        let panelID = WindowsManager.sharedInstance.controlsPanelId
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
         let screenShareOptions = ScreenShareCaptureOptions(
             dimensions: .h1080_169,
             fps: 30,
@@ -153,7 +154,7 @@ final class RoomContext: NSObject, ObservableObject {
             appAudio: false,
             useBroadcastExtension: false,
             includeCurrentApplication: false,
-            excludeWindowIDs: (panelID != nil) ? [panelID!] : []
+            excludeWindowIDs: windowsToExcludeIds
         )
         let roomOptions = RoomOptions(defaultScreenShareCaptureOptions: screenShareOptions)
         
@@ -210,7 +211,8 @@ final class RoomContext: NSObject, ObservableObject {
             e2eeOptions = E2EEOptions(keyProvider: keyProvider)
         }
 
-        let panelID = WindowsManager.sharedInstance.controlsPanelId
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
         let roomOptions = RoomOptions(
             defaultCameraCaptureOptions: CameraCaptureOptions(
                 dimensions: .h1080_169
@@ -218,7 +220,7 @@ final class RoomContext: NSObject, ObservableObject {
             defaultScreenShareCaptureOptions: ScreenShareCaptureOptions(
                 dimensions: .h1080_169,
                 includeCurrentApplication: true,
-                excludeWindowIDs: (panelID != nil) ? [panelID!] : []
+                excludeWindowIDs: windowsToExcludeIds
             ),
             defaultVideoPublishOptions: VideoPublishOptions(
                 simulcast: simulcast
@@ -254,12 +256,13 @@ final class RoomContext: NSObject, ObservableObject {
         @available(macOS 12.3, *)
         func setScreenShareMacOS(isEnabled: Bool, screenShareSource: MacOSScreenCaptureSource? = nil) async throws {
             if isEnabled, let screenShareSource {
-                let panelID = WindowsManager.sharedInstance.controlsPanelId
+                let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+                
                 let track = LocalVideoTrack.createMacOSScreenShareTrack(
                     source: screenShareSource,
                     options: ScreenShareCaptureOptions(
                         includeCurrentApplication: true,
-                        excludeWindowIDs: (panelID != nil) ? [panelID!] : []
+                        excludeWindowIDs: windowsToExcludeIds
                     )
                 )
                 let options = VideoPublishOptions(preferredCodec: VideoCodec.h264)

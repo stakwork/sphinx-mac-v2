@@ -22,6 +22,21 @@ class WindowsManager {
     var controlsPanelId: UInt32? = nil
     var openedWindowIdentifiers: [String] = []
     
+    func getWindowsToExclude() -> [UInt32] {
+        var windowIds: [UInt32] = []
+        
+        if let controlsPanelId = controlsPanelId {
+            windowIds.append(controlsPanelId)
+        }
+        
+        if let callWindow = getLiveKitCallWindow() {
+            windowIds.append(UInt32(callWindow.windowNumber))
+        }
+        
+        return windowIds
+        
+    }
+    
     func saveWindowState() {
         if let keyWindow = NSApplication.shared.keyWindow {
             //            let menuCollapsed = (keyWindow.contentViewController as? DashboardViewController)?.isLeftMenuCollapsed() ?? false
