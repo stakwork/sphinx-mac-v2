@@ -172,7 +172,7 @@ extension TransactionsDataSource : NSCollectionViewDataSource {
 
 extension TransactionsDataSource {
     func scrollViewDidScroll() {
-        if collectionView.getDistanceToBottom() < 60 && !insertingRows {
+        if collectionView.getDistanceToBottom() < 200 && !insertingRows {
             insertingRows = true
 
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
