@@ -212,7 +212,12 @@ class ProfileViewController: NSViewController {
     @IBAction func qrCodeButtonClicked(_ sender: Any) {
         if let profile = UserContact.getOwner(), let address = profile.getAddress(), !address.isEmpty {
             let shareInviteCodeVC = ShareInviteCodeViewController.instantiate(qrCodeString: address, viewMode: .PubKey)
-            advanceTo(vc: shareInviteCodeVC, title: "pubkey.upper".localized.localizedCapitalized, height: 600)
+            advanceTo(
+                vc: shareInviteCodeVC,
+                identifier: "public-key-qr-window",
+                title: "pubkey.upper".localized.localizedCapitalized,
+                height: 600
+            )
         }
     }
     
@@ -250,26 +255,34 @@ class ProfileViewController: NSViewController {
         let pinCodeVC = EnterPinViewController.instantiate(mode: .Export, subtitle: subtitle)
         pinCodeVC.doneCompletion = { pin in
             if let mnemonic = UserData.sharedInstance.getMnemonic(enteredPin: pin) {
-                SphinxOnionManager.sharedInstance.vc = self
-                SphinxOnionManager.sharedInstance.showMnemonicToUser(mnemonic: mnemonic, callback: {})
-                SphinxOnionManager.sharedInstance.vc = nil
-                
-                WindowsManager.sharedInstance.backToProfile()
+                let shareInviteCodeVC = ShareInviteCodeViewController.instantiate(qrCodeString: mnemonic, viewMode: .Mnemonic)
+                self.advanceTo(
+                    vc: shareInviteCodeVC,
+                    identifier: "mnemonic-window",
+                    title: "profile.mnemonic-enter-title".localized.localizedCapitalized,
+                    height: 600
+                )
             } else {
                 AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
             }
         }
-        advanceTo(vc: pinCodeVC, title: "enter.restore.pin".localized, height: 440)
+        advanceTo(
+            vc: pinCodeVC,
+            identifier: "enter-restore-pin-window",
+            title: "enter.restore.pin".localized,
+            height: 440
+        )
     }
     
     func advanceTo(
         vc: NSViewController,
+        identifier: String,
         title: String,
         height: CGFloat? = nil
     ) {
         WindowsManager.sharedInstance.showOnCurrentWindow(
             with: title,
-            identifier: "enter-restore-pin-window",
+            identifier: identifier,
             contentVC: vc,
             hideDivider: true,
             hideBackButton: false,

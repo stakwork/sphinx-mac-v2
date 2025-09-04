@@ -27,7 +27,12 @@ extension ProfileViewController {
                 WindowsManager.sharedInstance.backToProfile()
             })
         }
-        advanceTo(vc: changePinCodeVC, title: "pin.change".localized, height: 500)
+        advanceTo(
+            vc: changePinCodeVC,
+            identifier: "pin-change-window",
+            title: "pin.change".localized,
+            height: 500
+        )
     }
     
     func uploadImage() {

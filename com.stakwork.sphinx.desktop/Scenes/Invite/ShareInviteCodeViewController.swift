@@ -22,6 +22,7 @@ class ShareInviteCodeViewController: NSViewController {
         case TribeQR = 2
         case RouteHint = 3
         case Invoice = 4
+        case Mnemonic = 5
     }
     
     var viewMode = ViewMode.Invite
@@ -55,6 +56,8 @@ class ShareInviteCodeViewController: NSViewController {
             copiedStrind = "route.hint.copied.clipboard".localized
         case .Invoice:
             copiedStrind = "invoice.copied.clipboard".localized
+        case .Mnemonic:
+            copiedStrind = "profile.mnemonic-copied".localized
         }
     }
     
