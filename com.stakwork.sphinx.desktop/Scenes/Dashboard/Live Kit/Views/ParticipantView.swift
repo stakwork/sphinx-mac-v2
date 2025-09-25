@@ -65,11 +65,9 @@ struct ParticipantView: View {
                    let track = publication.track as? VideoTrack,
                    appCtx.videoViewVisible
                 {
-                    let isScreenSharing = roomCtx.room.localParticipant.isScreenShareEnabled()
-                    
                     ZStack(alignment: .center) {
                         SwiftUIVideoView(track,
-                                         layoutMode: isScreenSharing ? .fit : .fill,
+                                         layoutMode: .fit,
                                          mirrorMode: appCtx.videoViewMirrored ? .mirror : .auto,
                                          renderMode: appCtx.preferSampleBufferRendering ? .sampleBuffer : .auto,
                                          pinchToZoomOptions: appCtx.videoViewPinchToZoomOptions,
@@ -152,10 +150,8 @@ struct ParticipantView: View {
                     // Show the sub-video view
                     if let subVideoTrack = participant.subVideoTrack {
                         
-                        let isScreenSharing = roomCtx.room.localParticipant.isScreenShareEnabled()
-                        
                         SwiftUIVideoView(subVideoTrack,
-                                         layoutMode: isScreenSharing ? .fit : .fill,
+                                         layoutMode: .fit,
                                          mirrorMode: appCtx.videoViewMirrored ? .mirror : .auto)
                             .background(Color.black)
                             .aspectRatio(contentMode: .fit)

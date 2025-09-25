@@ -590,7 +590,7 @@ class GroupsManager {
                 let chatJSON = JSON(chatDict)
                 let resultantChat = Chat.insertChat(chat: chatJSON)
                 resultantChat?.status = (chatDict["private"] as? Bool ?? false) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
-                resultantChat?.type = (chatDict["private"] as? Bool ?? false) ? Chat.ChatType.privateGroup.rawValue : Chat.ChatType.publicGroup.rawValue
+                resultantChat?.type = Chat.ChatType.publicGroup.rawValue
                 resultantChat?.managedObjectContext?.saveContext()
                 completion(resultantChat)
             },
