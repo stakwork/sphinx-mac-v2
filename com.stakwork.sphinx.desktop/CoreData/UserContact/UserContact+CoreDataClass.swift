@@ -164,7 +164,13 @@ public class UserContact: NSManagedObject {
         let userId = UserData.sharedInstance.getUserId(context: context)
         let predicate = NSPredicate(format: "(contactIds == %@ OR contactIds == %@) AND type = %d", [userId, self.id], [self.id, userId], Chat.ChatType.conversation.rawValue)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
-        conversation = CoreDataManager.sharedManager.getObjectOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "Chat")
+        
+        conversation = CoreDataManager.sharedManager.getObjectOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            managedContext: context
+        )
     }
 
     public static func getAll() -> [UserContact] {
@@ -332,6 +338,21 @@ public class UserContact: NSManagedObject {
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         let contact:UserContact? = CoreDataManager.sharedManager.getObjectOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "UserContact",managedContext: managedContext)
         return contact
+    }
+    
+    public static func getContactsWithInviteCode(
+        inviteCode: [String],
+        managedContext: NSManagedObjectContext? = nil
+    ) -> [UserContact] {
+        let predicate = NSPredicate(format: "sentInviteCode IN %@", inviteCode)
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        let contacts: [UserContact] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "UserContact",
+            managedContext: managedContext
+        )
+        return contacts
     }
     
     public static func getContactWithDisregardStatus(

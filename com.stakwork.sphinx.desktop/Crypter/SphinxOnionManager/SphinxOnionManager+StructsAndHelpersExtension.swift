@@ -212,12 +212,17 @@ struct GenericIncomingMessage: Mappable {
     var photoUrl: String? = nil
     var tag: String? = nil
     var tz: String? = nil
+    
 
     init?(map: Map) {}
     
-    init(msg: Msg) {
-        
-        if let sender = msg.sender, let csr = ContactServerResponse(JSONString: sender) {
+    init(
+        msg: Msg,
+        csr: ContactServerResponse?,
+        innerContent: MessageInnerContent?,
+        isTribeMessage: Bool
+    ) {
+        if let csr = csr {
             if let fromMe = msg.fromMe, fromMe == true, let sentTo = msg.sentTo {
                 self.senderPubkey = sentTo
             } else {
@@ -229,9 +234,7 @@ struct GenericIncomingMessage: Mappable {
         
         var innerContentAmount : UInt64? = nil
         
-        if let message = msg.message,
-           let innerContent = MessageInnerContent(JSONString: message)
-        {
+        if let innerContent = innerContent {
             self.content = innerContent.content
             self.replyUuid = innerContent.replyUuid
             self.threadUuid = innerContent.threadUuid
@@ -250,7 +253,7 @@ struct GenericIncomingMessage: Mappable {
                 self.fullContactInfo = innerContent.fullContactInfo
             }
             
-            let isTribe = SphinxOnionManager.sharedInstance.isTribeMessage(senderPubkey: senderPubkey ?? "")
+            let isTribe = isTribeMessage
             
             if let timestamp = msg.timestamp, isTribe == false {
                 self.timestamp = Int(timestamp)

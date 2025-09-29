@@ -58,7 +58,10 @@ public class Chat: NSManagedObject {
         }
     }
     
-    static func insertChat(chat: JSON) -> Chat? {
+    static func insertChat(
+        chat: JSON,
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
         if let id = chat.getJSONId() {
             let name = chat["name"].string ?? ""
             let photoUrl = chat["photo_url"].string ?? chat["img"].string ?? ""
@@ -140,10 +143,11 @@ public class Chat: NSManagedObject {
         pendingContactIds: [NSNumber],
         date: Date,
         isTribeICreated: Bool = false,
-        metaData: String?
+        metaData: String?,
+        context: NSManagedObjectContext? = nil
     ) -> Chat? {
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         
         let chat = getChatInstance(id: id, managedContext: managedContext)
         chat.id = id

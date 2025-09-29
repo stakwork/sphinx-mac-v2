@@ -48,21 +48,25 @@ extension NewChatTableDataSource {
 //    }
     
     @objc func restorePreloadedOrLoadMessages() {
-        guard let chat = chat else {
-            return
-        }
-        
-        if let preloadedMessagesState = preloaderHelper.getPreloadedMessagesState(for: chat.id) {
-            messageTableCellStateArray = preloadedMessagesState.messageCellStates
-            updatePreloadedSnapshot()
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
-                guard let self = self else { return }
-                self.configureResultsController(items: max(self.dataSource.snapshot().numberOfItems, preloadedMessagesState.resultsControllerCount))
-            })
-        } else {
+//        guard let chat = chat else {
+//            return
+//        }
+//        
+//        if let preloadedMessagesState = preloaderHelper.getPreloadedMessagesState(for: chat.id) {
+//            messageTableCellStateArray = preloadedMessagesState.messageCellStates
+//            updatePreloadedSnapshot()
+//            
+//            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
+//                guard let self = self else { return }
+//                self.configureResultsController(
+//                    items: max(self.dataSource.snapshot().numberOfItems, preloadedMessagesState.resultsControllerCount)
+//                )
+//                fetchMoreItems()
+//            })
+//        } else {
             configureResultsController(items: max(dataSource.snapshot().numberOfItems, 100))
-        }
+//            fetchMoreItems()
+//        }
     }
     
     @objc func saveMessagesToPreloader() {

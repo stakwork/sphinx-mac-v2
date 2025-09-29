@@ -146,7 +146,8 @@ extension NewChatTableDataSource {
     
     @objc func processMessages(
         messages: [TransactionMessage],
-        UIUpdateIndex: Int
+        UIUpdateIndex: Int,
+        showLoadingMore: Bool
     ) {
         let chat = chat ?? contact?.getFakeChat()
         
@@ -162,6 +163,7 @@ extension NewChatTableDataSource {
         
         var newMsgCount = 0
         var array: [MessageTableCellState] = []
+        var searchM: [(Int, MessageTableCellState)] = []
         
         let contact = chat.getConversationContact()
         
@@ -171,7 +173,7 @@ extension NewChatTableDataSource {
         let requestResponsesMap = getMemberRequestResponsesMapFor(messages: messages)
         let purchaseMessagesMap = getPurchaseMessagesMapFor(messages: messages)
         
-        let threadMessagesMap = getThreadMessagesFor(messages: messages)
+        let threadMessagesMap = isSearching ? [:] : getThreadMessagesFor(messages: messages)
         let linkContactsArray = getLinkContactsArrayFor(messages: messages)
         let linkTribesArray = getLinkTribesArrayFor(messages: messages)
         let webLinksArray = getWebLinksArrayFor(messages: messages)
@@ -179,7 +181,7 @@ extension NewChatTableDataSource {
         var groupingDate: Date? = nil
         var invoiceData: (Int, Int) = (0, 0)
 
-        let filteredThreadMessages: [TransactionMessage] = filterThreadMessagesFrom(
+        let filteredThreadMessages: [TransactionMessage] = isSearching ? messages : filterThreadMessagesFrom(
             messages: messages,
             threadMessagesMap: threadMessagesMap
         )
@@ -264,11 +266,13 @@ extension NewChatTableDataSource {
             
             newMsgCount += getNewMessageCountFor(message: message, and: owner)
             
-            processForSearch(
+            if let match = processForSearch(
                 message: message,
                 messageTableCellState: messageTableCellState,
                 index: array.count - 1
-            )
+            ) {
+                searchM.append(match)
+            }
         }
         
         messageTableCellStateArray = array
@@ -277,12 +281,10 @@ extension NewChatTableDataSource {
             UIUpdateIndex: UIUpdateIndex
         ) {
             self.delegate?.configureNewMessagesIndicatorWith(
-                newMsgCount: newMsgCount
+                newMsgCount: 0
             )
             
-            DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
-                self.finishSearchProcess()
-            })
+            self.finishSearchProcess(matches: searchM)
         }
     }
     
@@ -324,7 +326,11 @@ extension NewChatTableDataSource {
     }
     
     func forceReload() {
-        processMessages(messages: messagesArray, UIUpdateIndex: self.UIUpdateIndex)
+        processMessages(
+            messages: messagesArray,
+            UIUpdateIndex: self.UIUpdateIndex,
+            showLoadingMore: false
+        )
         reloadAllVisibleRows()
     }
     
@@ -823,7 +829,11 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
-                    self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
+                    self.processMessages(
+                        messages: self.messagesArray,
+                        UIUpdateIndex: self.UIUpdateIndex,
+                        showLoadingMore: true
+                    )
                     self.configureSecondaryMessagesResultsController()
                     self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
                 }
@@ -834,7 +844,11 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                 
                 self.UIUpdateIndex += 1
                 
-                self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
+                self.processMessages(
+                    messages: self.messagesArray,
+                    UIUpdateIndex: self.UIUpdateIndex,
+                    showLoadingMore: true
+                )
             }
             
             refreshEmptyView()

@@ -50,7 +50,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if collectionView.getDistanceToBottom() < 10 {
             didScrollToBottom()
-        } else if collectionViewScroll.documentYOffset <= 1000 {
+        } else if collectionViewScroll.documentYOffset <= 5000 {
             didScrollToTop()
         } else {
             didScrollOutOfBottomArea()
@@ -78,6 +78,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     }
     
     func didScrollToTop() {
+        if isSearching {
+            return
+        }
+        
         if loadingMoreItems {
             return
         }
@@ -91,6 +95,51 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     @objc func loadMoreItems() {
         collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
         configureResultsController(items: messagesCount + 50)
+    }
+    
+    func fetchMoreItems() {
+        if isThread {
+            return
+        }
+        if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
+            if let chat = chat {
+                let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+                var minIndex: Int? = nil
+                let itemsPerPage = 100
+                
+                backgroundContext.perform {
+                    minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+                    
+                    if let minIndex = minIndex {
+                        if (minIndex - 1) <= 0 {
+                            return
+                        }
+                        DispatchQueue.global(qos: .background).async {
+                            SphinxOnionManager.sharedInstance.startChatMsgBlockFetch(
+                                startIndex: minIndex - 1,
+                                itemsPerPage: itemsPerPage,
+                                stopIndex: 0,
+                                publicKey: publicKey
+                            ) { messagesCount in
+                                self.loadMoreItems()
+                                
+                                if messagesCount <= 0 {
+                                    self.processMessages(
+                                        messages: self.messagesArray,
+                                        UIUpdateIndex: self.UIUpdateIndex,
+                                        showLoadingMore: false
+                                    )
+                                    
+                                    if self.isSearching {
+                                        self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     @objc func shouldHideNewMsgsIndicator() -> Bool {

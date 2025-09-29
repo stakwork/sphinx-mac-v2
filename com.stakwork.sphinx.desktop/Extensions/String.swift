@@ -655,8 +655,12 @@ extension String {
         }
     }
     
-    var isMessagesFetchResponse : Bool {
-        return self.contains("/batch") 
+    var isMessagesFetchResponseTopic : Bool {
+        return self.contains("/batch")
+    }
+    
+    var isMessageInRealTimeTopic : Bool {
+        return self.contains("/stream")
     }
     
     var amountWithoutSpaces: String {

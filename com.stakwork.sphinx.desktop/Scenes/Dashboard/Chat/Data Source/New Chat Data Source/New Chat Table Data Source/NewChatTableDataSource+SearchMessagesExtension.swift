@@ -13,10 +13,7 @@ extension NewChatTableDataSource {
         let searchTerm = term.trim()
         
         if searchTerm.isNotEmpty && searchTerm.count > 2 {
-            performSearch(
-                term: searchTerm,
-                itemsCount: max(500, self.messagesArray.count)
-            )
+            performSearch(term: searchTerm)
         } else {
             
             if searchTerm.count > 0 {
@@ -28,32 +25,24 @@ extension NewChatTableDataSource {
     }
     
     func performSearch(
-        term: String,
-        itemsCount: Int
+        term: String
     ) {
-        guard let chat = chat else {
+        guard let _ = chat else {
             return
         }
         
         let isNewSearch = searchingTerm != term
-        let isNewPage = itemsCount > self.messagesArray.count
         
         searchingTerm = term
         
-        if isNewPage {
-            ///Start listening with this limit to prevent scroll jump on search cancel
-            ///If listening was set with lower count, then on cancel could jump since less items are available
-            self.configureResultsController(items: itemsCount)
-        }
-        
-        if isNewPage || isNewSearch {
-            ///Process messages if loading more items or doing a new search
-            self.messagesArray = TransactionMessage.getAllMessagesFor(chat: chat, limit: itemsCount)
-                .filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() })
-                .reversed()
-            
-            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
-            self.isLastSearchPage = self.messagesArray.count < itemsCount
+        if isNewSearch {
+            processMessages(
+                messages: messagesArray,
+                UIUpdateIndex: self.UIUpdateIndex,
+                showLoadingMore: false
+            )
+        } else {
+            fetchMoreItems()
         }
     }
     
@@ -67,7 +56,15 @@ extension NewChatTableDataSource {
             index: currentSearchMatchIndex
         )
         
-        reloadAllVisibleRows()
+        processMessages(
+            messages: messagesArray,
+            UIUpdateIndex: self.UIUpdateIndex,
+            showLoadingMore: false
+        )
+        
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+            self.reloadAllVisibleRows()
+        })
     }
     
     func shouldEndSearch() {
@@ -79,54 +76,55 @@ extension NewChatTableDataSource {
         message: TransactionMessage,
         messageTableCellState: MessageTableCellState,
         index: Int
-    ) {
+    ) -> (Int, MessageTableCellState)? {
         guard let searchingTerm = searchingTerm else {
-            return
+            return nil
         }
         
         if message.isBotHTMLResponse() || message.isPayment() || message.isInvoice() || message.isDeleted() {
-            return
+            return nil
         }
         
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             if messageContent.lowercased().contains(searchingTerm.lowercased()) {
-                searchMatches.append(
-                    (index, messageTableCellState)
-                )
+                return (index, messageTableCellState)
             }
         }
+        return nil
     }
     
     func startSearchProcess() {
         searchMatches = []
     }
     
-    func finishSearchProcess() {
+    func finishSearchProcess(matches: [(Int, MessageTableCellState)]) {
         guard let _ = searchingTerm else {
             return
         }
         
-        if searchMatches.isEmpty {
-            loadMoreItemForSearch()
-            return
+        searchMatches = matches
+        
+        ///Invert indexes
+        let itemsCount = messageTableCellStateArray.count
+        
+        for (index, indexAndMessageTableCellState) in searchMatches.enumerated() {
+            searchMatches[index] = (
+                itemsCount - indexAndMessageTableCellState.0 - 1,
+                indexAndMessageTableCellState.1
+            )
         }
         
-        let isNewSearch = currentSearchMatchIndex == 0
-        let oldSearchIndex = currentSearchMatchIndex
-
         searchMatches = searchMatches.reversed()
-
-        ///should scroll to first results after current scroll position
-        if isNewSearch {
-            currentSearchMatchIndex = searchMatches.firstIndex(
-                where: {
-                    $0.0 <= (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item > $1.item }).first?.item ?? 0)
-                }
-            ) ?? 0
-        }
         
-        let isAtSameIndex = oldSearchIndex == currentSearchMatchIndex
-
+        ///should scroll to first results after current scroll position
+        let newIndex = searchMatches.firstIndex(
+            where: {
+                $0.0 <= (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item > $1.item }).first?.item ?? 0)
+            }
+        ) ?? 0
+        let didChangeIndex = currentSearchMatchIndex == 0 || currentSearchMatchIndex != newIndex
+        currentSearchMatchIndex = newIndex
+        
         ///Show search results
         DispatchQueue.main.async {
             self.delegate?.didFinishSearchingWith(
@@ -134,29 +132,27 @@ extension NewChatTableDataSource {
                 index: self.currentSearchMatchIndex
             )
             
-            self.reloadAllVisibleRows() {
-                self.scrollToSearchAt(
-                    index: self.currentSearchMatchIndex,
-                    shouldActuallyScroll: isNewSearch || !isAtSameIndex
-                )
-            }
+            self.reloadAllVisibleRows()
+            
+            self.scrollToSearchAt(
+                index: self.currentSearchMatchIndex,
+                shouldScroll: didChangeIndex
+            )
         }
     }
     
     func scrollToSearchAt(
         index: Int,
-        animated: Bool = false,
-        shouldActuallyScroll: Bool = true
+        shouldScroll: Bool = true
     ) {
         if searchMatches.count > index && index >= 0 {
             let searchMatchIndex = searchMatches[index].0
             
-            ///It won't scroll if it's loading more items in the past
-            if shouldActuallyScroll {
+            if shouldScroll {
                 collectionView.scrollToIndex(
                     targetIndex: searchMatchIndex,
-                    animated: animated,
-                    position: NSCollectionView.ScrollPosition.top
+                    animated: true,
+                    position: NSCollectionView.ScrollPosition.nearestVerticalEdge
                 )
             }
 
@@ -167,17 +163,11 @@ extension NewChatTableDataSource {
     }
     
     func loadMoreItemForSearch() {
-        if isLastSearchPage {
-            delegate?.shouldToggleSearchLoadingWheel(active: false)
-            return
-        }
-
         delegate?.shouldToggleSearchLoadingWheel(active: true)
-
-        DelayPerformedHelper.performAfterDelay(seconds: 0.2, completion: {
+        
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             self.performSearch(
-                term: self.searchingTerm ?? "",
-                itemsCount: self.messagesArray.count + 500
+                term: self.searchingTerm ?? ""
             )
         })
     }
