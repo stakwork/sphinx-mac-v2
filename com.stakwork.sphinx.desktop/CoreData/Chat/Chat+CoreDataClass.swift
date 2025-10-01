@@ -113,7 +113,8 @@ public class Chat: NSManagedObject {
                 pendingContactIds: pendingContactIds,
                 date: date,
                 isTribeICreated: isTribeICreated,
-                metaData: metaData
+                metaData: metaData,
+                context: context
             )
             
             return chat
@@ -246,11 +247,18 @@ public class Chat: NSManagedObject {
         return chats
     }
     
-    static func getAllTribes() -> [Chat] {
+    static func getAllTribes(
+        context: NSManagedObjectContext? = nil
+    ) -> [Chat] {
         let predicate = NSPredicate(format: "type == %d", Chat.ChatType.publicGroup.rawValue)
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "Chat")
+        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            managedContext: context
+        )
         return chats
     }
     

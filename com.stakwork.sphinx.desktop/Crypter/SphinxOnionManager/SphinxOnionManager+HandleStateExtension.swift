@@ -50,8 +50,8 @@ extension SphinxOnionManager {
                     return
                 }
             
-                self.backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-                self.backgroundContext.perform { [weak self] in
+                var context = backgroundContext
+                context.perform { [weak self] in
                     guard let self = self else {
                         return
                     }
@@ -68,7 +68,7 @@ extension SphinxOnionManager {
                     ///Handling generic msgs restore
                     self.processGenericMessages(topic: topic, rr: rr)
                     
-                    self.backgroundContext.saveContext()
+                    context.saveContext()
                     
                     ///Handling restore callbacks
                     self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
@@ -512,15 +512,15 @@ extension SphinxOnionManager {
     }
     
     func handleMessageStatusByTag(rr: RunReturn) {
-        let context = CoreDataManager.sharedManager.getBackgroundContext()
-        context.performAndWait { [weak self] in
-            guard let self = self else {
-                return
-            }
-            if let sentStatusJSON = rr.sentStatus,
-               let sentStatus = SentStatus(JSONString: sentStatusJSON),
-               let tag = sentStatus.tag
-            {
+        if let sentStatusJSON = rr.sentStatus,
+           let sentStatus = SentStatus(JSONString: sentStatusJSON),
+           let tag = sentStatus.tag
+        {
+            let context = backgroundContext
+            context.performAndWait { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 if let cachedMessage = TransactionMessage.getMessageWith(tag: tag, context: self.backgroundContext) {
                     if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
@@ -542,8 +542,8 @@ extension SphinxOnionManager {
                         status: sentStatus.status ?? SphinxOnionManager.kFailedStatus
                     )
                 }
+                context.saveContext()
             }
-            context.saveContext()
         }
     }
     
@@ -653,12 +653,12 @@ extension SphinxOnionManager {
     }
     
     func handleMessagesStatus(tags: String?) {
-        let context = CoreDataManager.sharedManager.getBackgroundContext()
-        context.performAndWait { [weak self] in
-            guard let self = self else {
-                return
-            }
-            if let tags = tags {
+        if let tags = tags {
+            let context = backgroundContext
+            context.performAndWait { [weak self] in
+                guard let _ = self else {
+                    return
+                }
                 if let data = tags.data(using: .utf8) {
                     do {
                         if let array = try JSON(data: data).array {
@@ -710,8 +710,8 @@ extension SphinxOnionManager {
                         print("Error decoding JSON: \(error)")
                     }
                 }
+                context.saveContext()
             }
-            context.saveContext()
         }
     }
 }

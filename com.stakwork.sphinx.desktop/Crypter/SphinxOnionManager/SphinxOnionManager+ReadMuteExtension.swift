@@ -10,14 +10,14 @@ import Foundation
 
 extension SphinxOnionManager {
     func handleReadStatus(rr: RunReturn) {
-        let context = CoreDataManager.sharedManager.getBackgroundContext()
-        context.performAndWait { [weak self] in
-            guard let self = self else {
-                return
-            }
-            var chatListUnreadDict = [Int: Int]()
-            
-            if let lastRead = rr.lastRead {
+        var chatListUnreadDict = [Int: Int]()
+        
+        if let lastRead = rr.lastRead {
+            let context = backgroundContext
+            context.performAndWait { [weak self] in
+                guard let self = self else {
+                    return
+                }
                 let lastReadMap = parse(jsonString: lastRead)
                 
                 let pubKeys = lastReadMap.compactMap({ $0.key })
@@ -42,19 +42,20 @@ extension SphinxOnionManager {
                     }
                 }
                 self.updateChatReadStatus(chatListUnreadDict: chatListUnreadDict, context: context)
+                
+                context.saveContext()
             }
-            
-            func updateLastReadIndex(
-                chatId: Int,
-                lastReadId: Int
-            ) {
-                if let existingLastReadForChat = chatListUnreadDict[chatId], lastReadId > existingLastReadForChat {
-                    chatListUnreadDict[chatId] = lastReadId
-                } else if !chatListUnreadDict.keys.contains(chatId) {
-                    chatListUnreadDict[chatId] = lastReadId
-                }
+        }
+        
+        func updateLastReadIndex(
+            chatId: Int,
+            lastReadId: Int
+        ) {
+            if let existingLastReadForChat = chatListUnreadDict[chatId], lastReadId > existingLastReadForChat {
+                chatListUnreadDict[chatId] = lastReadId
+            } else if !chatListUnreadDict.keys.contains(chatId) {
+                chatListUnreadDict[chatId] = lastReadId
             }
-            context.saveContext()
         }
     }
 
@@ -80,7 +81,10 @@ extension SphinxOnionManager {
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {
-        let context = CoreDataManager.sharedManager.getBackgroundContext()
+        if pubkeyToMuteLevelDict.isEmpty {
+            return
+        }
+        let context = backgroundContext
         context.performAndWait { [weak self] in
             guard let _ = self else {
                 return
