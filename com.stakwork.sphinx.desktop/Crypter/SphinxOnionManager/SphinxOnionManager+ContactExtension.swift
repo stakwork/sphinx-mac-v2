@@ -272,9 +272,6 @@ extension SphinxOnionManager {//contacts related
                 )
             }
         }
-        
-//        managedContext.saveContext()
-        
     }
     
     //MARK: END Contact Add helpers

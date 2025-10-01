@@ -50,7 +50,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if collectionView.getDistanceToBottom() < 10 {
             didScrollToBottom()
-        } else if collectionViewScroll.documentYOffset <= 5000 {
+        } else if collectionViewScroll.documentYOffset <= 40 {
             didScrollToTop()
         } else {
             didScrollOutOfBottomArea()
@@ -89,12 +89,18 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         collectionViewScroll.verticalScrollElasticity = .none
         loadingMoreItems = true
         
-        loadMoreItems()
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+            self.fetchMoreItems()
+        })
+    }
+    
+    func loadMoreItems(itemsCount: Int) {
+        collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
+        configureResultsController(items: messagesCount + itemsCount)
     }
     
     @objc func loadMoreItems() {
-        collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
-        configureResultsController(items: messagesCount + 50)
+        loadMoreItems(itemsCount: 50)
     }
     
     func fetchMoreItems() {
@@ -121,8 +127,6 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                 stopIndex: 0,
                                 publicKey: publicKey
                             ) { messagesCount in
-                                self.loadMoreItems()
-                                
                                 if messagesCount <= 0 {
                                     self.processMessages(
                                         messages: self.messagesArray,
@@ -133,6 +137,8 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                     if self.isSearching {
                                         self.delegate?.shouldToggleSearchLoadingWheel(active: false)
                                     }
+                                } else {
+                                    self.loadMoreItems(itemsCount: messagesCount)
                                 }
                             }
                         }

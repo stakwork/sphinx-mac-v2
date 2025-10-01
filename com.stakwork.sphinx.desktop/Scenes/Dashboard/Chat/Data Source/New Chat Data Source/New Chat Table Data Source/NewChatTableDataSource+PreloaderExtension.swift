@@ -65,30 +65,39 @@ extension NewChatTableDataSource {
 //            })
 //        } else {
             configureResultsController(items: max(dataSource.snapshot().numberOfItems, 100))
-//            fetchMoreItems()
 //        }
     }
     
     @objc func saveMessagesToPreloader() {
-        let collectionViewOffsetY = collectionViewScroll.documentYOffset + collectionViewScroll.contentInsets.top
-        let firstVisibleItem = collectionView.indexPathForItem(at: NSPoint(x: 0, y: collectionViewOffsetY))?.item ?? 0
-        
-        guard let chat = chat, collectionView.numberOfSections > 0 && firstVisibleItem > 0 else {
-            return
-        }
-        
-        let numberOfItems = collectionView.numberOfItems(inSection: 0)
-        
-        preloaderHelper.add(
-            messageStateArray: messageTableCellStateArray.endSubarray(size: (numberOfItems - firstVisibleItem) + 10),
-            resultsControllerCount: messagesCount,
-            for: chat.id
-        )
+//        let collectionViewOffsetY = collectionViewScroll.documentYOffset + collectionViewScroll.contentInsets.top
+//        let firstVisibleItem = collectionView.indexPathForItem(at: NSPoint(x: 0, y: collectionViewOffsetY))?.item ?? 0
+//        
+//        guard let chat = chat, collectionView.numberOfSections > 0 && firstVisibleItem > 0 else {
+//            return
+//        }
+//        
+//        let numberOfItems = collectionView.numberOfItems(inSection: 0)
+//        
+//        preloaderHelper.add(
+//            messageStateArray: messageTableCellStateArray.endSubarray(size: (numberOfItems - firstVisibleItem) + 10),
+//            resultsControllerCount: messagesCount,
+//            for: chat.id
+//        )
     }
     
     @objc func saveSnapshotCurrentState() {
         saveScrollPosition()
         saveMessagesToPreloader()
+    }
+    
+    func deleteSnapshotCurrentState() {
+        guard let chatId = chat?.id else {
+            return
+        }
+        
+        self.preloaderHelper.reset(
+            for: chatId
+        )
     }
     
     @objc func restoreScrollLastPosition() {

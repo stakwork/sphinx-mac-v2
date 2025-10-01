@@ -50,7 +50,7 @@ extension SphinxOnionManager {
                     return
                 }
             
-                var context = backgroundContext
+                let context = backgroundContext
                 context.perform { [weak self] in
                     guard let self = self else {
                         return

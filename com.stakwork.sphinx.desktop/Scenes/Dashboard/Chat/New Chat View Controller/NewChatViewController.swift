@@ -174,7 +174,7 @@ class NewChatViewController: DashboardSplittedViewController {
     override func viewWillDisappear() {
         super.viewWillDisappear()
         
-        chatTableDataSource?.saveSnapshotCurrentState()
+        chatTableDataSource?.deleteSnapshotCurrentState()
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
@@ -183,7 +183,16 @@ class NewChatViewController: DashboardSplittedViewController {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.chat?.setChatMessagesAsSeen()
             })
+        }        
+    }
+    
+    override func viewDidDisappear() {
+        super.viewDidDisappear()
+        
+        guard let chat = chat else {
+            return
         }
+        SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
     }
     
     override func viewDidLayout() {

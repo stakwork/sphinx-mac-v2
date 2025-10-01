@@ -45,6 +45,7 @@ struct MessageTableCellState {
     var invoiceData: (Bool, Bool) = (false, false)
     var timezoneData: [String: String] = [:]
     var isThreadHeaderMessage: Bool = false
+    var isLoadingMoreMessages: Bool = false
     
     ///Generic rows Data
     var separatorDate: Date? = nil
@@ -69,7 +70,8 @@ struct MessageTableCellState {
         linkWeb: LinkWeb? = nil,
         invoiceData: (Bool, Bool) = (false, false),
         timezoneData: [String: String] = [:],
-        isThreadHeaderMessage: Bool = false
+        isThreadHeaderMessage: Bool = false,
+        isLoadingMoreMessages: Bool = false
     ) {
         self.message = message
         self.threadOriginalMessage = threadOriginalMessage
@@ -97,6 +99,7 @@ struct MessageTableCellState {
         self.timezoneData = timezoneData
         
         self.isThreadHeaderMessage = isThreadHeaderMessage
+        self.isLoadingMoreMessages = isLoadingMoreMessages
     }
     
     ///Reply
@@ -776,6 +779,15 @@ struct MessageTableCellState {
         )
     }()
     
+    lazy var loadingMore: NoBubbleMessageLayoutState.LoadingMore? = {
+    
+        guard isLoadingMoreMessages else {
+            return nil
+        }
+        
+        return NoBubbleMessageLayoutState.LoadingMore()
+    }()
+    
     lazy var groupMemberNotification: NoBubbleMessageLayoutState.GroupMemberNotification? = {
         
         guard let message = message, let ownerPubKey = owner.publicKey,
@@ -958,7 +970,7 @@ struct MessageTableCellState {
     
     var isMessageRow: Bool {
         mutating get {
-            return dateSeparator == nil
+            return dateSeparator == nil && isLoadingMoreMessages == false
         }
     }
 }
@@ -1019,7 +1031,8 @@ extension MessageTableCellState : Hashable {
             mutableLhs.separatorDate             == mutableRhs.separatorDate &&
             mutableLhs.paidContent?.status       == mutableRhs.paidContent?.status &&
             mutableLhs.threadMessages.count      == mutableRhs.threadMessages.count &&
-            mutableLhs.memberRequestResponse?.id == mutableRhs.memberRequestResponse?.id
+            mutableLhs.memberRequestResponse?.id == mutableRhs.memberRequestResponse?.id &&
+            mutableLhs.isLoadingMoreMessages     == mutableRhs.isLoadingMoreMessages
     }
 
     func hash(into hasher: inout Hasher) {
@@ -1034,6 +1047,7 @@ extension MessageTableCellState : Hashable {
         hasher.combine(self.separatorDate)
         hasher.combine(self.threadMessages.count)
         hasher.combine(self.memberRequestResponse?.id)
+        hasher.combine(self.isLoadingMoreMessages)
     }
     
     func getUniqueIdentifier() -> Int {

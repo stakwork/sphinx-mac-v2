@@ -150,7 +150,7 @@ public class Chat: NSManagedObject {
         
         let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         
-        let chat = getChatInstance(id: id, managedContext: managedContext)
+        let chat = Chat(context: managedContext) as Chat
         chat.id = id
         chat.name = name
         chat.photoUrl = photoUrl

@@ -601,8 +601,6 @@ extension SphinxOnionManager {
         }
         
         localMsg.senderId = owner?.id ?? UserData.sharedInstance.getUserId(context: backgroundContext)
-//        assignReceiverId(localMsg: localMsg)
-//        localMsg.managedObjectContext?.saveContext()
         
         return localMsg
     }
@@ -1528,8 +1526,6 @@ extension SphinxOnionManager {
         newMessage.chat = contact.getChat()
         newMessage.chat?.seen = false
         newMessage.messageContent = msg.message
-        
-//        managedContext.saveContext()
     }
     
     func updateContactInfoFromMessage(

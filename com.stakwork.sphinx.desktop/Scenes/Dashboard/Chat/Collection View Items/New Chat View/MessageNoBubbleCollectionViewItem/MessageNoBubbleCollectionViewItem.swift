@@ -18,6 +18,7 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
     @IBOutlet weak var dateSeparatorView: DateSeparatorView!
     @IBOutlet weak var deletedMessageView: DeletedMessageView!
     @IBOutlet weak var groupActionsView: GroupActionsView!
+    @IBOutlet weak var loadingMoreMessagesView: LoadingMoreMessagesView!
     
     @IBOutlet weak var leftLineContainer: NSBox!
     @IBOutlet weak var rightLineContainer: NSBox!
@@ -33,6 +34,7 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
         dateSeparatorView.isHidden = true
         deletedMessageView.isHidden = true
         groupActionsView.isHidden = true
+        loadingMoreMessagesView.isHidden = true
     }
     
     func setupViews() {
@@ -86,6 +88,9 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
         
         ///Date separator
         configureWith(dateSeparator: mutableMessageCellState.dateSeparator)
+        
+        ///Loading More
+        configureWith(loadingMore: mutableMessageCellState.loadingMore)
         
         ///Group notifications
         configureWith(groupMemberNotification: mutableMessageCellState.groupMemberNotification)
@@ -152,6 +157,15 @@ class MessageNoBubbleCollectionViewItem: NSCollectionViewItem, ChatCollectionVie
                 andDelegate: self
             )
             groupActionsView.isHidden = false
+        }
+    }
+    
+    func configureWith(
+        loadingMore: NoBubbleMessageLayoutState.LoadingMore?
+    ) {
+        if let _ = loadingMore {
+            loadingMoreMessagesView.isHidden = false
+            loadingMoreMessagesView.configure()
         }
     }
     

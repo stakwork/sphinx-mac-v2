@@ -582,6 +582,8 @@
 		47E19DE52BB4A22E00A0E596 /* ImportSeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E19DE42BB4A22E00A0E596 /* ImportSeedView.swift */; };
 		47E19DE72BB4A23B00A0E596 /* ImportSeedView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47E19DE62BB4A23B00A0E596 /* ImportSeedView.xib */; };
 		47E19DEB2BB7191500A0E596 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 47E19DE82BB716A600A0E596 /* PrivacyInfo.xcprivacy */; };
+		47E30E902E8D7627009D1F5A /* LoadingMoreMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E30E8F2E8D7627009D1F5A /* LoadingMoreMessagesView.swift */; };
+		47E30E922E8D7634009D1F5A /* LoadingMoreMessagesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47E30E912E8D7634009D1F5A /* LoadingMoreMessagesView.xib */; };
 		47E7712B2472C51500C9CFEB /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E7712A2472C51500C9CFEB /* Constants.swift */; };
 		47E7712D2472C5F100C9CFEB /* ChatHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E7712C2472C5F100C9CFEB /* ChatHelper.swift */; };
 		47E771322472D04F00C9CFEB /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E771312472D04F00C9CFEB /* Cache.swift */; };
@@ -1561,6 +1563,8 @@
 		47E19DE42BB4A22E00A0E596 /* ImportSeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSeedView.swift; sourceTree = "<group>"; };
 		47E19DE62BB4A23B00A0E596 /* ImportSeedView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImportSeedView.xib; sourceTree = "<group>"; };
 		47E19DE82BB716A600A0E596 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		47E30E8F2E8D7627009D1F5A /* LoadingMoreMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingMoreMessagesView.swift; sourceTree = "<group>"; };
+		47E30E912E8D7634009D1F5A /* LoadingMoreMessagesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingMoreMessagesView.xib; sourceTree = "<group>"; };
 		47E7712A2472C51500C9CFEB /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		47E7712C2472C5F100C9CFEB /* ChatHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHelper.swift; sourceTree = "<group>"; };
 		47E771312472D04F00C9CFEB /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
@@ -3361,6 +3365,7 @@
 		47DE1BF12A68138B0029597B /* New Chat View Rows */ = {
 			isa = PBXGroup;
 			children = (
+				47E30E8E2E8D7617009D1F5A /* Loading More */,
 				473E1F2A2AC45B9E00DC1CDC /* Threads */,
 				4794966C2AB8B50000C42D1E /* Invoices */,
 				479496592AB8A6ED00C42D1E /* Group Actions */,
@@ -3508,6 +3513,15 @@
 				4733ED2B2CB43FBF00078EF2 /* SphinxOnionManager+OnionStateExtension.swift */,
 			);
 			path = SphinxOnionManager;
+			sourceTree = "<group>";
+		};
+		47E30E8E2E8D7617009D1F5A /* Loading More */ = {
+			isa = PBXGroup;
+			children = (
+				47E30E8F2E8D7627009D1F5A /* LoadingMoreMessagesView.swift */,
+				47E30E912E8D7634009D1F5A /* LoadingMoreMessagesView.xib */,
+			);
+			path = "Loading More";
 			sourceTree = "<group>";
 		};
 		47E771152472C1A700C9CFEB /* Data Source */ = {
@@ -4024,6 +4038,7 @@
 				474C7A3E28D213E1007A3E17 /* NotificationLevelView.xib in Resources */,
 				4744FAAB2469D1BC00C5FD94 /* Colors.xcassets in Resources */,
 				478ED5DA25D6FD6B00940132 /* ProfileImageView.xib in Resources */,
+				47E30E922E8D7634009D1F5A /* LoadingMoreMessagesView.xib in Resources */,
 				478ED5FC25DC624D00940132 /* ChangePinView.xib in Resources */,
 				47C6F4CA2DC28A6000B0EDC4 /* FloatingAudioPlayer.xib in Resources */,
 				4726A41324C0D173005A66B4 /* HealthCheckView.xib in Resources */,
@@ -4212,6 +4227,7 @@
 				4730EF6F2CDBD1020014581F /* PublishOptionsView.swift in Sources */,
 				47D676042C11F2D00002914E /* KeyboardReplyView.swift in Sources */,
 				47469D672ACEE892004F0490 /* ChatSearchTextFieldView.swift in Sources */,
+				47E30E902E8D7627009D1F5A /* LoadingMoreMessagesView.swift in Sources */,
 				47F8825F25656CB0002A7E71 /* SocketAckEmitter.swift in Sources */,
 				475B683029915D8A000EF29C /* ContentFeedPaymentModel+CoreDataProperties.swift in Sources */,
 				479751CA246C732C00D2106B /* DashboardViewController.swift in Sources */,

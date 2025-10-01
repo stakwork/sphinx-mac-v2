@@ -591,6 +591,8 @@ struct NoBubbleMessageLayoutState {
         }
     }
     
+    struct LoadingMore {}
+    
     struct ThreadOriginalMessage {
         var text: String
         var linkMatches: [NSTextCheckingResult]

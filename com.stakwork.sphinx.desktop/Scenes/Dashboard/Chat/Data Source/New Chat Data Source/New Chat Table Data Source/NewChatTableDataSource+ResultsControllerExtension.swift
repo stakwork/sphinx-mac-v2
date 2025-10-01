@@ -59,16 +59,17 @@ extension NewChatTableDataSource {
         }
        
         scrolledAtBottom = false
-    
-        self.saveSnapshotCurrentState()
         
         DispatchQueue.main.async {
-            CoreDataManager.sharedManager.saveContext()
+            self.saveSnapshotCurrentState()
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
                 self.restoreScrollLastPosition()
-                self.loadingMoreItems = false
                 self.isFirstLoad = false
+                
+                DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                    self.loadingMoreItems = false
+                })
                 
                 completion?()
             }
@@ -190,6 +191,18 @@ extension NewChatTableDataSource {
             threadMessages: filteredThreadMessages,
             threadMessagesMap: threadMessagesMap
         )
+        
+        if showLoadingMore {
+            array.append(
+                MessageTableCellState(
+                    chat: chat,
+                    owner: owner,
+                    contact: contact,
+                    tribeAdmin: tribeAdmin,
+                    isLoadingMoreMessages: true
+                )
+            )
+        }
 
         for (index, message) in filteredThreadMessages.enumerated() {
             
@@ -218,7 +231,8 @@ extension NewChatTableDataSource {
                 in: filteredThreadMessages,
                 and: originalMessagesMap,
                 groupingDate: &groupingDate,
-                isThreadRow: threadMessages.count > 1
+                isThreadRow: threadMessages.count > 1,
+                showLoadingMore: showLoadingMore
             )
             
             if let separatorDate = bubbleStateAndDate.1 {
@@ -284,7 +298,9 @@ extension NewChatTableDataSource {
                 newMsgCount: 0
             )
             
-            self.finishSearchProcess(matches: searchM)
+            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                self.finishSearchProcess(matches: searchM)
+            })
         }
     }
     
@@ -380,7 +396,8 @@ extension NewChatTableDataSource {
         and originalMessagesMap: [String: TransactionMessage],
         groupingDate: inout Date?,
         isThreadRow: Bool = false,
-        threadHeaderMessage: TransactionMessage? = nil
+        threadHeaderMessage: TransactionMessage? = nil,
+        showLoadingMore: Bool = false
     ) -> (MessageTableCellState.BubbleState?, Date?) {
         
         var previousMessage = (index > 0) ? messages[index - 1] : nil
@@ -402,7 +419,7 @@ extension NewChatTableDataSource {
             if Date.isDifferentDay(firstDate: previousMessageDate, secondDate: date) {
                 separatorDate = date
             }
-        } else if previousMessage == nil {
+        } else if previousMessage == nil && !showLoadingMore {
             separatorDate = message.date
         }
         
@@ -815,40 +832,38 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
                     
-                    if !isThread {
-                        ///Do not processes aliases and timezone on thread since it came from chat
-                        self.chat?.processAliasesFrom(messages: messages.reversed())
+                    DispatchQueue.global(qos: .userInteractive).async {
+                        if !self.isThread {
+                            ///Do not processes aliases and timezone on thread since it came from chat
+                            self.chat?.processAliasesFrom(messages: messages.reversed())
+                        }
+                        
+                        self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
+                        
+                        self.UIUpdateIndex += 1
+                        
+                        self.updateMessagesStatusesFrom(messages: self.messagesArray)
+                        self.processMessages(
+                            messages: self.messagesArray,
+                            UIUpdateIndex: self.UIUpdateIndex,
+                            showLoadingMore: true
+                        )
+                        self.configureSecondaryMessagesResultsController()
+                        DispatchQueue.main.async {
+                            self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
+                        }
                     }
-                    
-                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
-                    
-                    if !(self.delegate?.isOnStandardMode() ?? true) {
-                        return
-                    }
-                    
-                    self.UIUpdateIndex += 1
-                    
-                    self.updateMessagesStatusesFrom(messages: self.messagesArray)
+                }
+            } else {
+                self.UIUpdateIndex += 1
+                
+                DispatchQueue.global(qos: .userInteractive).async {
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
                         showLoadingMore: true
                     )
-                    self.configureSecondaryMessagesResultsController()
-                    self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
                 }
-            } else {
-                if !(self.delegate?.isOnStandardMode() ?? true) {
-                    return
-                }
-                
-                self.UIUpdateIndex += 1
-                
-                self.processMessages(
-                    messages: self.messagesArray,
-                    UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: true
-                )
             }
             
             refreshEmptyView()

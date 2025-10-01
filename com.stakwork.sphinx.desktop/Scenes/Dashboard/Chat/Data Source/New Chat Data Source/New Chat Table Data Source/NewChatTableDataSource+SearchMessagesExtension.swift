@@ -102,28 +102,20 @@ extension NewChatTableDataSource {
             return
         }
         
-        searchMatches = matches
-        
-        ///Invert indexes
-        let itemsCount = messageTableCellStateArray.count
-        
-        for (index, indexAndMessageTableCellState) in searchMatches.enumerated() {
-            searchMatches[index] = (
-                itemsCount - indexAndMessageTableCellState.0 - 1,
-                indexAndMessageTableCellState.1
-            )
-        }
-        
-        searchMatches = searchMatches.reversed()
+        let isNewSearch = currentSearchMatchIndex == 0
+
+        searchMatches = matches.reversed()
         
         ///should scroll to first results after current scroll position
-        let newIndex = searchMatches.firstIndex(
-            where: {
-                $0.0 <= (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item > $1.item }).first?.item ?? 0)
-            }
-        ) ?? 0
-        let didChangeIndex = currentSearchMatchIndex == 0 || currentSearchMatchIndex != newIndex
-        currentSearchMatchIndex = newIndex
+        if isNewSearch {
+            let firstVisibleIndex = (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item < $1.item }).first?.item ?? 0)
+            let newIndex = searchMatches.firstIndex(
+                where: {
+                    $0.0 <= firstVisibleIndex
+                }
+            ) ?? 0
+            currentSearchMatchIndex = newIndex
+        }
         
         ///Show search results
         DispatchQueue.main.async {
@@ -132,11 +124,9 @@ extension NewChatTableDataSource {
                 index: self.currentSearchMatchIndex
             )
             
-            self.reloadAllVisibleRows()
-            
             self.scrollToSearchAt(
                 index: self.currentSearchMatchIndex,
-                shouldScroll: didChangeIndex
+                shouldScroll: isNewSearch
             )
         }
     }
@@ -151,13 +141,13 @@ extension NewChatTableDataSource {
             if shouldScroll {
                 collectionView.scrollToIndex(
                     targetIndex: searchMatchIndex,
-                    animated: true,
-                    position: NSCollectionView.ScrollPosition.nearestVerticalEdge
+                    animated: false,
+                    position: NSCollectionView.ScrollPosition.top
                 )
-            }
-
-            if index + 1 == searchMatches.count {
-                loadMoreItemForSearch()
+                
+                if index + 1 == searchMatches.count {
+                    loadMoreItemForSearch()
+                }
             }
         }
     }
