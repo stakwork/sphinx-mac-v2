@@ -846,7 +846,8 @@ extension SphinxOnionManager {
                         genericIncomingMessage: genericIncomingMsg,
                         contact: contactsMap[genericIncomingMsg?.senderPubkey ?? ""],
                         tribe: tribesMap[senderInfo?.pubkey ?? ""],
-                        owner: owner
+                        owner: owner,
+                        shouldSendPush: topic?.isMessageInRealTimeTopic == true
                     )
                 }
                 
@@ -861,7 +862,8 @@ extension SphinxOnionManager {
                         genericIncomingMessage: genericIncomingMsg,
                         contact: contactsMap[genericIncomingMsg?.senderPubkey ?? ""],
                         tribe: tribesMap[senderInfo?.pubkey ?? ""],
-                        owner: owner
+                        owner: owner,
+                        shouldSendPush: topic?.isMessageInRealTimeTopic == true
                     )
                 }
                 
@@ -887,7 +889,8 @@ extension SphinxOnionManager {
                         genericIncomingMessage: genericIncomingMsg,
                         contact: contactsMap[genericIncomingMsg?.senderPubkey ?? ""],
                         tribe: tribesMap[senderInfo?.pubkey ?? ""],
-                        owner: owner
+                        owner: owner,
+                        shouldSendPush: topic?.isMessageInRealTimeTopic == true
                     )
                 }
                 
@@ -899,7 +902,8 @@ extension SphinxOnionManager {
                         genericIncomingMessage: genericIncomingMsg,
                         contact: contactsMap[genericIncomingMsg?.senderPubkey ?? ""],
                         tribe: tribesMap[senderInfo?.pubkey ?? ""],
-                        owner: owner
+                        owner: owner,
+                        shouldSendPush: topic?.isMessageInRealTimeTopic == true
                     )
                 }
                 
@@ -1056,7 +1060,8 @@ extension SphinxOnionManager {
         genericIncomingMessage: GenericIncomingMessage?,
         contact: UserContact?,
         tribe: Chat?,
-        owner: UserContact? = nil
+        owner: UserContact? = nil,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         guard let _ = message.index,
               let _ = message.uuid,
@@ -1079,7 +1084,8 @@ extension SphinxOnionManager {
             owner: owner,
             date: date,
             type: Int(type),
-            fromMe: message.fromMe ?? false
+            fromMe: message.fromMe ?? false,
+            shouldSendPush: shouldSendPush
         )
     }
     
@@ -1091,7 +1097,8 @@ extension SphinxOnionManager {
         genericIncomingMessage: GenericIncomingMessage?,
         contact: UserContact?,
         tribe: Chat?,
-        owner: UserContact? = nil
+        owner: UserContact? = nil,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         
         guard let _ = message.index,
@@ -1116,7 +1123,8 @@ extension SphinxOnionManager {
             date: date,
             amount: Int(message.msat ?? 0),
             type: Int(type),
-            fromMe: message.fromMe ?? false
+            fromMe: message.fromMe ?? false,
+            shouldSendPush: shouldSendPush
         )
     }
     
@@ -1167,7 +1175,8 @@ extension SphinxOnionManager {
         genericIncomingMessage: GenericIncomingMessage?,
         contact: UserContact?,
         tribe: Chat?,
-        owner: UserContact? = nil
+        owner: UserContact? = nil,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         ///Check for sender information
         guard let csr =  senderInfo,
@@ -1177,7 +1186,7 @@ extension SphinxOnionManager {
         }
         
         if let chat = tribe {
-            return restoreGroupJoinMsg(
+            let message = restoreGroupJoinMsg(
                 message: message,
                 existingMessage: existingMessage,
                 senderInfo: senderInfo,
@@ -1185,6 +1194,10 @@ extension SphinxOnionManager {
                 chat: chat,
                 didCreateTribe: false
             )
+            if shouldSendPush {
+                sendNotification(message: message)
+            }
+            return message
         } else {
             print("Tribe not found")
         }
@@ -1199,7 +1212,8 @@ extension SphinxOnionManager {
         genericIncomingMessage: GenericIncomingMessage?,
         contact: UserContact?,
         tribe: Chat?,
-        owner: UserContact? = nil
+        owner: UserContact? = nil,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         guard let type = message.type,
               let _ = message.sender,
@@ -1222,7 +1236,8 @@ extension SphinxOnionManager {
             owner: owner,
             date: date,
             type: Int(type),
-            fromMe: message.fromMe ?? false
+            fromMe: message.fromMe ?? false,
+            shouldSendPush: shouldSendPush
         ) else {
             return nil
         }
@@ -1286,7 +1301,8 @@ extension SphinxOnionManager {
         genericIncomingMessage: GenericIncomingMessage?,
         contact: UserContact?,
         tribe: Chat?,
-        owner: UserContact? = nil
+        owner: UserContact? = nil,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         guard let type = message.type,
               let _ = message.sender,
@@ -1319,7 +1335,8 @@ extension SphinxOnionManager {
                     date: date,
                     amount: amount * 1000,
                     type: Int(type),
-                    fromMe: message.fromMe ?? false
+                    fromMe: message.fromMe ?? false,
+                    shouldSendPush: shouldSendPush
                 ) {
                     newMessage.messageContent = prd.getMemo()
                     newMessage.paymentHash = paymentHash
@@ -1347,7 +1364,8 @@ extension SphinxOnionManager {
         amount: Int = 0,
         type: Int? = nil,
         status: Int? = nil,
-        fromMe: Bool = false
+        fromMe: Bool = false,
+        shouldSendPush: Bool = false
     ) -> TransactionMessage? {
         
         let content = message.content
@@ -1470,6 +1488,10 @@ extension SphinxOnionManager {
         }
                 
         newMessage.setAsLastMessage()
+        
+        if shouldSendPush {
+            sendNotification(message: newMessage)
+        }
         
         return newMessage
     }
