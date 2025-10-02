@@ -71,9 +71,9 @@ extension NewChatViewModel {
             replyUUID: replyingTo?.uuid
         )
         
-        let _ = validMessage?.makeProvisional(chat: self.chat)
+        let message = validMessage?.makeProvisional(chat: self.chat)
         
-        updateSnapshotWith(message: validMessage)
+        updateSnapshotWith(message: message)
         
         completion(validMessage != nil, errorMsg)
         

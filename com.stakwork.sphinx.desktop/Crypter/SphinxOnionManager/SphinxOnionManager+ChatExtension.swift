@@ -303,8 +303,9 @@ extension SphinxOnionManager {
             
             if let _ = metaData {
                 chat.timezoneUpdated = false
-//                chat.managedObjectContext?.saveContext()
             }
+            
+            (context ?? chat.managedObjectContext)?.saveContext()
             
             return (sentMessage, nil)
         } catch let error {

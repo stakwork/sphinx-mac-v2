@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,22 +19,22 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="c22-O7-iKe">
-            <rect key="frame" x="0.0" y="0.0" width="300" height="200"/>
+            <rect key="frame" x="0.0" y="0.0" width="300" height="120"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <box boxType="custom" borderType="none" cornerRadius="10" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="aeA-0N-eAN">
-                    <rect key="frame" x="0.0" y="0.0" width="300" height="200"/>
+                    <rect key="frame" x="0.0" y="0.0" width="300" height="120"/>
                     <view key="contentView" id="GnT-FL-mKu">
-                        <rect key="frame" x="0.0" y="0.0" width="300" height="200"/>
+                        <rect key="frame" x="0.0" y="0.0" width="300" height="120"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <box boxType="custom" borderType="none" cornerRadius="25" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="gv4-oQ-Hfu">
+                            <box hidden="YES" boxType="custom" borderType="none" cornerRadius="25" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="gv4-oQ-Hfu">
                                 <rect key="frame" x="29" y="29" width="242" height="50"/>
                                 <view key="contentView" id="Jm5-UT-dXn">
                                     <rect key="frame" x="0.0" y="0.0" width="242" height="50"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="P3F-TS-2Ug">
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="P3F-TS-2Ug">
                                             <rect key="frame" x="56" y="16" width="130" height="18"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="CONTINUE LATER" id="ubE-x3-XPp">
                                                 <font key="font" size="14" name="Montserrat-SemiBold"/>
@@ -67,8 +67,8 @@
                                 </constraints>
                                 <color key="fillColor" name="PrimaryBlue"/>
                             </box>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Poo-Al-UhC">
-                                <rect key="frame" x="80" y="150" width="140" height="18"/>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Poo-Al-UhC">
+                                <rect key="frame" x="81" y="70" width="138" height="18"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Resuming Restore..." id="ody-bu-dn4">
                                     <font key="font" size="15" name="Roboto-Regular"/>
                                     <color key="textColor" name="MainBottomIcons"/>
@@ -76,17 +76,17 @@
                                 </textFieldCell>
                             </textField>
                             <progressIndicator maxValue="100" doubleValue="50" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="mKS-jU-tp6">
-                                <rect key="frame" x="29" y="108" width="242" height="20"/>
+                                <rect key="frame" x="29" y="28" width="242" height="20"/>
                             </progressIndicator>
                         </subviews>
                         <constraints>
                             <constraint firstItem="mKS-jU-tp6" firstAttribute="leading" secondItem="GnT-FL-mKu" secondAttribute="leading" constant="29" id="ACa-9D-XyU"/>
+                            <constraint firstItem="mKS-jU-tp6" firstAttribute="top" secondItem="Poo-Al-UhC" secondAttribute="bottom" constant="23" id="EGN-ns-oQJ"/>
                             <constraint firstItem="gv4-oQ-Hfu" firstAttribute="leading" secondItem="GnT-FL-mKu" secondAttribute="leading" constant="29" id="ENj-Nl-01H"/>
                             <constraint firstItem="Poo-Al-UhC" firstAttribute="top" secondItem="GnT-FL-mKu" secondAttribute="top" constant="32" id="KSW-rg-nk7"/>
                             <constraint firstItem="Poo-Al-UhC" firstAttribute="centerX" secondItem="GnT-FL-mKu" secondAttribute="centerX" id="LDl-Xz-Rru"/>
                             <constraint firstAttribute="trailing" secondItem="gv4-oQ-Hfu" secondAttribute="trailing" constant="29" id="jeH-gu-QhD"/>
                             <constraint firstAttribute="trailing" secondItem="mKS-jU-tp6" secondAttribute="trailing" constant="29" id="jtx-27-ETB"/>
-                            <constraint firstItem="gv4-oQ-Hfu" firstAttribute="top" secondItem="mKS-jU-tp6" secondAttribute="bottom" constant="30" id="k6J-YG-8DD"/>
                             <constraint firstAttribute="bottom" secondItem="gv4-oQ-Hfu" secondAttribute="bottom" constant="29" id="yEa-5T-21W"/>
                         </constraints>
                     </view>

@@ -1022,7 +1022,7 @@ extension SphinxOnionManager {
         processDeletedRestoredMessages()
         updateIsPaidAllMessages()
         
-        CoreDataManager.sharedManager.saveContext()
+        backgroundContext.saveContext()
         
         isV2InitialSetup = false
         contactRestoreCallback = nil

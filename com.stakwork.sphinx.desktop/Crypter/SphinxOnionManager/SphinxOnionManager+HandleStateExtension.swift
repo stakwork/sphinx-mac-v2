@@ -50,12 +50,12 @@ extension SphinxOnionManager {
                     return
                 }
             
-                let context = backgroundContext
+                let context = self.backgroundContext
                 context.perform { [weak self] in
                     guard let self = self else {
                         return
                     }
-                    
+
                     ///handling tribes restore
                     self.restoreTribesFrom(dictionary: dictionary, rr: rr)
                     
@@ -535,7 +535,6 @@ extension SphinxOnionManager {
                     if cachedMessage.paymentHash == nil {
                         cachedMessage.paymentHash = sentStatus.paymentHash
                     }
-                    
                 } else {
                     self.onPaymentStatusReceivedFor(
                         tag: tag,

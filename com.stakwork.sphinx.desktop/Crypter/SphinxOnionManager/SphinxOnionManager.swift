@@ -119,7 +119,7 @@ class SphinxOnionManager : NSObject {
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-    var backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+    let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
     
     //MARK: Hardcoded Values!
     var serverIP: String {
@@ -374,9 +374,6 @@ class SphinxOnionManager : NSObject {
     ) {
         if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             if !isV2Restore {
-                getReads()
-                getMuteLevels()
-                getMessagesStatusForPendingMessages()
                 hideRestoreViewCallback?(false)
             }
             return

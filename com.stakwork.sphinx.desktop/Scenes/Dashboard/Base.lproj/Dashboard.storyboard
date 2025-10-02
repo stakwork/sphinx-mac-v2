@@ -1894,7 +1894,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" headerView="Ozr-nQ-aat" viewBased="YES" id="tAU-dA-PJa">
-                                            <rect key="frame" x="0.0" y="0.0" width="368" height="105"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="369" height="105"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="17" height="0.0"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1945,7 +1945,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" wantsLayer="YES" id="Ozr-nQ-aat">
-                                    <rect key="frame" x="0.0" y="0.0" width="368" height="28"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="369" height="28"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
@@ -2068,9 +2068,9 @@
                                             </constraints>
                                         </customView>
                                         <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="urb-a9-06C" customClass="RestoreProgressView" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="145" y="100" width="300" height="200"/>
+                                            <rect key="frame" x="145" y="140" width="300" height="120"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="200" id="FFn-Zk-pCB"/>
+                                                <constraint firstAttribute="height" constant="120" id="FFn-Zk-pCB"/>
                                                 <constraint firstAttribute="width" constant="300" id="I7b-VO-Clf"/>
                                             </constraints>
                                         </customView>
