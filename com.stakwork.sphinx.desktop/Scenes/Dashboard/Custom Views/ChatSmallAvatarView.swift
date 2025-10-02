@@ -159,7 +159,6 @@ class ChatSmallAvatarView: NSView, LoadableNib {
         )
         
         profileInitialContainer.isHidden = true
-        self.imageUrl = url.absoluteString
         
         profileImageView.sd_setImage(
             with: url,
@@ -167,10 +166,11 @@ class ChatSmallAvatarView: NSView, LoadableNib {
             options: [.scaleDownLargeImages, .decodeFirstFrameOnly, .progressiveLoad],
             context: [.imageTransformer: transformer],
             progress: nil,
-            completed: { (image, error, _, _) in
+            completed: { (image, error, _, url) in
                 if let image = image, error == nil {
                     self.profileImageView.image = image
                     self.profileImageView.isHidden = false
+                    self.imageUrl = url?.absoluteString
                 }
             }
 

@@ -831,39 +831,35 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
-                    
-                    DispatchQueue.global(qos: .userInteractive).async {
-                        if !self.isThread {
-                            ///Do not processes aliases and timezone on thread since it came from chat
-                            self.chat?.processAliasesFrom(messages: messages.reversed())
-                        }
-                        
-                        self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
-                        
-                        self.UIUpdateIndex += 1
-                        
-                        self.updateMessagesStatusesFrom(messages: self.messagesArray)
-                        self.processMessages(
-                            messages: self.messagesArray,
-                            UIUpdateIndex: self.UIUpdateIndex,
-                            showLoadingMore: true
-                        )
-                        self.configureSecondaryMessagesResultsController()
-                        DispatchQueue.main.async {
-                            self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
-                        }
+                    if !self.isThread {
+                        ///Do not processes aliases and timezone on thread since it came from chat
+                        self.chat?.processAliasesFrom(messages: messages.reversed())
                     }
-                }
-            } else {
-                self.UIUpdateIndex += 1
-                
-                DispatchQueue.global(qos: .userInteractive).async {
+                    
+                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
+                    
+                    self.UIUpdateIndex += 1
+                    
+                    self.updateMessagesStatusesFrom(messages: self.messagesArray)
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
                         showLoadingMore: true
                     )
+                    self.configureSecondaryMessagesResultsController()
+                    
+                    DispatchQueue.main.async {
+                        self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
+                    }
                 }
+            } else {
+                self.UIUpdateIndex += 1
+                
+                self.processMessages(
+                    messages: self.messagesArray,
+                    UIUpdateIndex: self.UIUpdateIndex,
+                    showLoadingMore: true
+                )
             }
             
             refreshEmptyView()
