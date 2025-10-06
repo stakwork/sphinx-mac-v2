@@ -374,6 +374,7 @@ class SphinxOnionManager : NSObject {
     ) {
         if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             if !isV2Restore {
+                getReads()
                 hideRestoreViewCallback?(false)
             }
             return
