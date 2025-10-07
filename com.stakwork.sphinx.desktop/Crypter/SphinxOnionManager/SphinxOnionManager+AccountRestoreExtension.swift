@@ -1070,7 +1070,8 @@ extension SphinxOnionManager {
     ) {
         message.seen = true
         chat.seen = true
-        chat.lastMessage = shouldSetLastMessage ? message : nil
+        
+        chat.lastMessage = shouldSetLastMessage ? message : chat.lastMessage
         
         if let maxMessageIndex = TransactionMessage.getMaxIndex() {
             let _  = SphinxOnionManager.sharedInstance.setReadLevel(

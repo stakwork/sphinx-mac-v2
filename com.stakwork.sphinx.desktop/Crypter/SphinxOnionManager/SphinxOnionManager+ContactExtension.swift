@@ -157,6 +157,10 @@ extension SphinxOnionManager {//contacts related
         
         let filteredMsgs = rr.msgs.filter({ $0.type != nil && allowedTypes.contains($0.type!) })
         
+        if filteredMsgs.isEmpty {
+            return
+        }
+        
         let messageIndexes = filteredMsgs.compactMap({
             if let index = $0.index, let indexInt = Int(index) {
                 return indexInt

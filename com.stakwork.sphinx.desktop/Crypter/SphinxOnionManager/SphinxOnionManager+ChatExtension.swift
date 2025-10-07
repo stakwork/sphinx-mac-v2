@@ -1416,6 +1416,10 @@ extension SphinxOnionManager {
                 )
             }
             
+            if contact.isPending() {
+                contact.status = UserContact.Status.Confirmed.rawValue
+            }
+            
         } else if let tribeChat = tribe {
             chat = tribeChat
             senderId = tribeChat.id
