@@ -284,7 +284,10 @@ extension SphinxOnionManager {
         }
         
         let chats = Chat.getAll()
-        let chatPubKeys = chats.compactMap({ $0.ownerPubkey })
+        let contacts = UserContact.getPendingContacts()
+        
+        let allPubKeys = chats.compactMap({ $0.ownerPubkey }) + contacts.compactMap({ $0.publicKey })
+        let chatPubKeys = Array(Set(allPubKeys))
         
         let currentIndex = 0
         
