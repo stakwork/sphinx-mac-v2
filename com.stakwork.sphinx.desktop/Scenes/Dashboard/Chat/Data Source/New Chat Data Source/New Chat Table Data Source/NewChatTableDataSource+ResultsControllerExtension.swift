@@ -60,14 +60,16 @@ extension NewChatTableDataSource {
        
         scrolledAtBottom = false
         
+        let loadingMoreItems = self.dataSource.snapshot().numberOfItems < snapshot.numberOfItems
+        
         DispatchQueue.main.async {
-            self.saveSnapshotCurrentState()
+            if loadingMoreItems { self.saveSnapshotCurrentState() }
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                self.restoreScrollLastPosition()
+                if loadingMoreItems { self.restoreScrollLastPosition() }
                 self.isFirstLoad = false
                 
-                DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
                     self.loadingMoreItems = false
                 })
                 
@@ -841,10 +843,11 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
+                    
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: true
+                        showLoadingMore: !self.allItemsLoaded && messages.count >= 100
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -855,10 +858,12 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             } else {
                 self.UIUpdateIndex += 1
                 
+                let messages = messagesResultsController.sections?.first?.objects as? [TransactionMessage] ?? []
+                
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: true
+                    showLoadingMore: !self.allItemsLoaded && messages.count >= 100
                 )
             }
             

@@ -86,6 +86,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             return
         }
         
+        if allItemsLoaded {
+            return
+        }
+        
         collectionViewScroll.verticalScrollElasticity = .none
         loadingMoreItems = true
         
@@ -127,7 +131,9 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                 stopIndex: 0,
                                 publicKey: publicKey
                             ) { messagesCount in
-                                if messagesCount <= 0 {
+                                if messagesCount < itemsPerPage {
+                                    self.allItemsLoaded = true
+                                    
                                     self.processMessages(
                                         messages: self.messagesArray,
                                         UIUpdateIndex: self.UIUpdateIndex,

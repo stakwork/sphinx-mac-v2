@@ -87,7 +87,7 @@ extension NewChatTableDataSource {
     
     @objc func saveSnapshotCurrentState() {
         saveScrollPosition()
-        saveMessagesToPreloader()
+//        saveMessagesToPreloader()
     }
     
     func deleteSnapshotCurrentState() {

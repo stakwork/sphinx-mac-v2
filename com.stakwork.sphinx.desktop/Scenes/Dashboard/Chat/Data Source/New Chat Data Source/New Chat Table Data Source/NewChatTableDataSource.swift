@@ -116,6 +116,7 @@ class NewChatTableDataSource : NSObject {
     ///Scroll and pagination
     var messagesCount = 0
     var loadingMoreItems = false
+    var allItemsLoaded = false
     var scrolledAtBottom = false
     var scrollViewDesiredOffset: CGFloat? = nil
     var isFirstLoad = true
