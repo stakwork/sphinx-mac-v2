@@ -838,7 +838,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                         self.chat?.processAliasesFrom(messages: messages.reversed())
                     }
                     
-                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
+                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
                     
                     self.UIUpdateIndex += 1
                     

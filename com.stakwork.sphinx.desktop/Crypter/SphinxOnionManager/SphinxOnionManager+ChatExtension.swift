@@ -2100,6 +2100,7 @@ extension SphinxOnionManager {
     
     func getFetchMinIndex(
         fetchRequest: NSFetchRequest<TransactionMessage>,
+        count: Int,
         context: NSManagedObjectContext
     ) -> Int? {
         var objects: [TransactionMessage] = [TransactionMessage]()
@@ -2108,6 +2109,10 @@ extension SphinxOnionManager {
             try objects = context.fetch(fetchRequest)
         } catch let error as NSError {
             print("Error: " + error.localizedDescription)
+        }
+        
+        if objects.count < count {
+            return nil
         }
         
         return objects.last?.id
@@ -2127,7 +2132,11 @@ extension SphinxOnionManager {
                         with: count
                     )
                     
-                    if let thresholdId = self.getFetchMinIndex(fetchRequest: fetchRequest, context: backgroundContext) {
+                    if let thresholdId = self.getFetchMinIndex(
+                        fetchRequest: fetchRequest,
+                        count: count,
+                        context: backgroundContext
+                    ) {
                         print("🔍 Will delete messages with id < \(thresholdId) from chat \(chat.id)")
                         
                         // Step 2: Create fetch request for messages to delete

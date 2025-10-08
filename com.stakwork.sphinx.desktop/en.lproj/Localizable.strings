@@ -104,7 +104,7 @@
 "tribe.kick.as.admin" = "You've removed a member from this tribe";
 "tribe.deleted" = "The admin has deleted\nthis tribe";
 "member.request" = "%@ wants to\njoin the tribe";
-"member.request.rejected" = "The admin \ndeclined your request";
+"member.request.rejected" = "The admin\ndeclined your request";
 "member.request.approved" = "Welcome! You’re now a member";
 "admin.request.approved" = "You have approved the\nrequest from %@";
 "admin.request.rejected" = "You have declined the\nrequest from %@";
