@@ -348,17 +348,19 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                 
                 let isFailedMessage = lastMessage.failed()
 
-                messageLabel.font = Constants.kMessagePreviewFont
-                
                 if isFailedMessage {
                     messageLabel.textColor = .Sphinx.PrimaryRed
+                    messageLabel.font = Constants.kMessagePreviewFont
                 } else {
-                    if (hasUnreadMessages && willNotifyAllMsgs) {
+                    if (hasUnreadMessages) {
                         messageLabel.textColor = .Sphinx.TextMessages
+                        messageLabel.font = Constants.kMessageUnreadPreviewFont
                     } else if (willNotifyOnlyMentions && hasUnreadMentions) {
                         messageLabel.textColor = .Sphinx.TextMessages
+                        messageLabel.font = Constants.kMessageUnreadPreviewFont
                     } else {
                         messageLabel.textColor = .Sphinx.SecondaryText
+                        messageLabel.font = Constants.kMessagePreviewFont
                     }
                 }
                 
