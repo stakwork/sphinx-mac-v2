@@ -337,7 +337,7 @@ extension RoomContext: RoomDelegate {
         }
     }
 
-    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String) {
+    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, _: EncryptionType) {
         print("didReceiveData")
     }
 
