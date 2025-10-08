@@ -2045,7 +2045,7 @@ extension SphinxOnionManager {
         dispatchQueue.async {
             let backgroundContext = self.backgroundContext
             
-            backgroundContext.performAndWait {
+            backgroundContext.perform {
                 let messages = TransactionMessage.getAllNotConfirmed()
                 
                 if messages.isEmpty {

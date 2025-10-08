@@ -517,7 +517,7 @@ extension SphinxOnionManager {
            let tag = sentStatus.tag
         {
             let context = backgroundContext
-            context.performAndWait { [weak self] in
+            context.perform { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -654,7 +654,7 @@ extension SphinxOnionManager {
     func handleMessagesStatus(tags: String?) {
         if let tags = tags {
             let context = backgroundContext
-            context.performAndWait { [weak self] in
+            context.perform { [weak self] in
                 guard let _ = self else {
                     return
                 }

@@ -413,7 +413,7 @@ extension SphinxOnionManager {
                 state: loadOnionStateAsData(),
                 lastMsgIdx: UInt64(lastMessageIndex),
                 limit: UInt32(msgCountLimit),
-                reverse: true,
+                reverse: reverse,
                 contact: publicKey
             )
             let _ = handleRunReturn(rr: rr)
