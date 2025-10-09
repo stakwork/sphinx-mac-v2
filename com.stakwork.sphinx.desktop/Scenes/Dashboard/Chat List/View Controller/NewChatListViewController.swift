@@ -590,5 +590,7 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         }
                 
         CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
+        
+        delegate?.shouldResetContactView()
     }
 }
