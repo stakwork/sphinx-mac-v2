@@ -68,7 +68,8 @@ extension NewChatViewModel {
             provisionalMessage: provisionalMessage,
             msgType: UInt8(type),
             threadUUID: tuuid,
-            replyUUID: replyingTo?.uuid
+            replyUUID: replyingTo?.uuid,
+            forceIncludeTimezone: wasTimezoneNotSentRecently()
         )
         
         let message = validMessage?.makeProvisional(chat: self.chat)

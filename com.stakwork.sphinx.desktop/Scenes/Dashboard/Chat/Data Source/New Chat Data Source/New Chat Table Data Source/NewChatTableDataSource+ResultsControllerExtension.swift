@@ -839,6 +839,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     }
                     
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
+                    self.processTimezoneNotSentRecently()
                     
                     self.UIUpdateIndex += 1
                     
@@ -910,5 +911,11 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     func resetFetchedResultsControllers() {
         additionMessagesResultsController = nil
         messagesResultsController = nil
+    }
+    
+    func processTimezoneNotSentRecently() {
+        let ownerId = UserData.sharedInstance.getUserId()
+        let sentMessagesWithTimezone = messagesArray.filter({ $0.remoteTimezoneIdentifier != nil && $0.isOutgoing(ownerId: ownerId) })
+        timezoneNotSentRecently = sentMessagesWithTimezone.isEmpty
     }
 }

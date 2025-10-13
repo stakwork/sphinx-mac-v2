@@ -1102,10 +1102,12 @@ public class Chat: NSManagedObject {
         return nil
     }
     
-    func getMetaDataJsonStringValue() -> String? {
+    func getMetaDataJsonStringValue(
+        forceIncludeTimezone: Bool = false
+    ) -> String? {
         var metaData: String? = nil
         
-        if self.timezoneEnabled, self.timezoneUpdated {
+        if (self.timezoneEnabled && self.timezoneUpdated) || forceIncludeTimezone {
             if let timezoneToSend = TimeZone(identifier: self.timezoneIdentifier ?? TimeZone.current.identifier)?.gmtOffsetAbbreviation() {
                 let timezoneMetadata = ["tz": timezoneToSend]
                 
