@@ -110,6 +110,11 @@ extension NewChatTableDataSource {
 
             ///Find index of stored first visible item
             if let index = messageTableCellStateArray.firstIndex(where: { $0.getUniqueIdentifier() == scrollState.firstRowId}) {
+                
+                let numberOfItems = collectionView.numberOfItems(inSection: 0)
+                guard index < numberOfItems else {
+                    return
+                }
                 ///Scroll to stored first visible item
                 collectionView.scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .top)
 

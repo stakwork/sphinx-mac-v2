@@ -2047,7 +2047,7 @@ extension SphinxOnionManager {
             let backgroundContext = self.backgroundContext
             
             backgroundContext.perform {
-                let messages = TransactionMessage.getAllNotConfirmed()
+                let messages = TransactionMessage.getAllNotConfirmed(context: backgroundContext)
                 
                 if messages.isEmpty {
                     return

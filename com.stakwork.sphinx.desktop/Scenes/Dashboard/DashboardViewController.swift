@@ -375,7 +375,7 @@ class DashboardViewController: NSViewController {
             self.listViewController?.headerLoading = false
             
             self.shouldHideRetoreModal()
-            self.refreshUnreadStatus()
+            self.refreshUnreadStatus()  
             
             if isRestore {
                 self.finishUserInfoSetup()
