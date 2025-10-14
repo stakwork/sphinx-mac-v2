@@ -355,18 +355,28 @@ public class Chat: NSManagedObject {
             return
         }
         
-        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform { [weak self] in
+        context.perform { [weak self] in
             guard let self = self else {
                 return
             }
 
-            let messages = self.getAllMessages(
-                limit: 2000,
-                context: backgroundContext,
-                forceAllMsgs: true
+            let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+                predicate: TransactionMessage.getPredicate(
+                    chat: self,
+                    threadUUID: nil,
+                    typesToExclude: [],
+                    pinnedMessageId: nil
+                ),
+                sortDescriptors: [],
+                entityName: "TransactionMessage",
+                managedContext: context
             )
+            
+            if messages.isEmpty {
+                return
+            }
             
             self.processAliasesFrom(messages: messages.reversed())
         }

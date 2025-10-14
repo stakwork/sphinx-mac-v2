@@ -373,7 +373,7 @@ extension TransactionMessage {
     ) -> NSPredicate {
         if let tuid = threadUUID {
             return NSPredicate(
-                format: "chat == %@ AND (NOT (type IN %@) || (type == %d && replyUUID = nil)) AND threadUUID == %@",
+                format: "chat == %@ AND (NOT (type IN %@) OR (type == %d && replyUUID = nil)) AND threadUUID == %@",
                 chat,
                 typesToExclude,
                 TransactionMessageType.boost.rawValue,
@@ -383,7 +383,7 @@ extension TransactionMessage {
         } else {
             if let pinnedMessageId = pinnedMessageId {
                 return NSPredicate(
-                    format: "chat == %@ AND id >= %d AND (NOT (type IN %@) || (type == %d && replyUUID = nil))",
+                    format: "chat == %@ AND id >= %d AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
                     chat,
                     pinnedMessageId - 200,
                     typesToExclude,
@@ -391,7 +391,7 @@ extension TransactionMessage {
                 )
             } else {
                 return NSPredicate(
-                    format: "chat == %@ AND (NOT (type IN %@) || (type == %d && replyUUID = nil))",
+                    format: "chat == %@ AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
                     chat,
                     typesToExclude,
                     TransactionMessageType.boost.rawValue
