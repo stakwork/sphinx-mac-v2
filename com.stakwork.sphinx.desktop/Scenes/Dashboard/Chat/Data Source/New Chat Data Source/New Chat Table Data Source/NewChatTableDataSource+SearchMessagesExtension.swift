@@ -56,20 +56,13 @@ extension NewChatTableDataSource {
             index: currentSearchMatchIndex
         )
         
-        processMessages(
-            messages: messagesArray,
-            UIUpdateIndex: self.UIUpdateIndex,
-            showLoadingMore: false
-        )
-        
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+        DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
             self.reloadAllVisibleRows()
         })
     }
     
     func shouldEndSearch() {
         resetResults()
-        forceReload()
     }
     
     func processForSearch(
@@ -108,7 +101,7 @@ extension NewChatTableDataSource {
         
         ///should scroll to first results after current scroll position
         if isNewSearch {
-            let firstVisibleIndex = (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item < $1.item }).first?.item ?? 0)
+            let firstVisibleIndex = (collectionView.indexPathsForVisibleItems().sorted(by: { return $0.item > $1.item }).first?.item ?? 0)
             let newIndex = searchMatches.firstIndex(
                 where: {
                     $0.0 <= firstVisibleIndex

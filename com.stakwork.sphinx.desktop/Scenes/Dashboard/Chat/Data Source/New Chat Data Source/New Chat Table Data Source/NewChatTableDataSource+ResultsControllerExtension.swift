@@ -349,7 +349,6 @@ extension NewChatTableDataSource {
             UIUpdateIndex: self.UIUpdateIndex,
             showLoadingMore: false
         )
-        reloadAllVisibleRows()
     }
     
     func getMessagesCount() -> Int {
