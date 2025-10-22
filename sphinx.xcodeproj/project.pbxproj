@@ -130,6 +130,7 @@
 		473633F02555DCEE007405F2 /* PodcastSatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473633EF2555DCED007405F2 /* PodcastSatsView.swift */; };
 		473633F22555DCF9007405F2 /* PodcastSatsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 473633F12555DCF9007405F2 /* PodcastSatsView.xib */; };
 		473633F42555DEC0007405F2 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473633F32555DEC0007405F2 /* CustomSliderCell.swift */; };
+		473829922EA916E2007E045A /* PaddedTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829912EA916E2007E045A /* PaddedTextFieldCell.swift */; };
 		473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 473873B12CD9507500CBBC28 /* ReplayKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		47393E622461DAF900E6F93E /* SymmetricEncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */; };
 		47393E652461DB2C00E6F93E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E642461DB2C00E6F93E /* String.swift */; };
@@ -1024,6 +1025,7 @@
 		473633EF2555DCED007405F2 /* PodcastSatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSatsView.swift; sourceTree = "<group>"; };
 		473633F12555DCF9007405F2 /* PodcastSatsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastSatsView.xib; sourceTree = "<group>"; };
 		473633F32555DEC0007405F2 /* CustomSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
+		473829912EA916E2007E045A /* PaddedTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldCell.swift; sourceTree = "<group>"; };
 		473873AF2CD929C400CBBC28 /* com_stakwork_sphinx_desktop 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 3.xcdatamodel"; sourceTree = "<group>"; };
 		473873B12CD9507500CBBC28 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymmetricEncryptionManager.swift; sourceTree = "<group>"; };
@@ -2388,6 +2390,7 @@
 				474A6694249BE4BB002C2D10 /* DisabledScrollView.swift */,
 				473633F32555DEC0007405F2 /* CustomSliderCell.swift */,
 				47DE1C332A6AF5FA0029597B /* ShimmeringView.swift */,
+				473829912EA916E2007E045A /* PaddedTextFieldCell.swift */,
 			);
 			path = "Custom Classes";
 			sourceTree = "<group>";
@@ -4396,6 +4399,7 @@
 				47BDEDF124F466C4001688F3 /* ProfileViewControllerExtension.swift in Sources */,
 				47DE1C2C2A69E0BA0029597B /* MessageBoostImageView.swift in Sources */,
 				479496492AB3A59500C42D1E /* AudioMessageView.swift in Sources */,
+				473829922EA916E2007E045A /* PaddedTextFieldCell.swift in Sources */,
 				47F8825B25656CB0002A7E71 /* SocketRawView.swift in Sources */,
 				47FEE1F62A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift in Sources */,
 				474A66882498F3E6002C2D10 /* MessageOptionsHelper.swift in Sources */,

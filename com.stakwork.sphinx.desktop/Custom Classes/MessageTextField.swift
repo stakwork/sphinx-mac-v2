@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class MessageTextField: CCTextField, NSTextViewDelegate {
+class MessageTextField: PaddedTextField, NSTextViewDelegate {
     func textViewDidChangeSelection(_ notification: Notification) {
         if let textView = notification.object as? NSTextView {
             textView.selectedTextAttributes = [NSAttributedString.Key.backgroundColor : color]

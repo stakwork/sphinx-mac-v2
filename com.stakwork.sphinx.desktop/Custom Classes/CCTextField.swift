@@ -13,7 +13,7 @@ class CCTextField: NSTextField {
     var onFocusChange: (Bool) -> Void = { _ in }
     
     @IBInspectable
-    var color = NSColor.Sphinx.Text
+    var color = NSColor.black
     
     override func awakeFromNib() {
         super.awakeFromNib()

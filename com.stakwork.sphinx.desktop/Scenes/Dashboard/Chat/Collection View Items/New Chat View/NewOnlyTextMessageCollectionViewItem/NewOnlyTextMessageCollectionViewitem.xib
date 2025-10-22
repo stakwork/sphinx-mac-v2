@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -114,7 +114,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="200" height="251"/>
                                             <subviews>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="7nT-GT-4h9" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
-                                                    <rect key="frame" x="14" y="16" width="172" height="219"/>
+                                                    <rect key="frame" x="-2" y="16" width="204" height="219"/>
                                                     <textFieldCell key="cell" selectable="YES" alignment="left" title="Label" id="Agh-jn-c7r">
                                                         <font key="font" size="14" name="Roboto-Regular"/>
                                                         <color key="textColor" name="Text"/>
@@ -124,11 +124,11 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="7nT-GT-4h9" firstAttribute="top" secondItem="d54-Qo-HA4" secondAttribute="top" constant="16" id="fGG-cn-7As"/>
-                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7nT-GT-4h9" secondAttribute="trailing" constant="16" id="ilx-Za-SbU"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7nT-GT-4h9" secondAttribute="trailing" id="ilx-Za-SbU"/>
                                                 <constraint firstAttribute="bottom" secondItem="7nT-GT-4h9" secondAttribute="bottom" constant="16" id="mYP-R2-K19"/>
-                                                <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="d54-Qo-HA4" secondAttribute="leading" constant="16" id="rR7-3W-nxf"/>
-                                                <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" secondItem="d54-Qo-HA4" secondAttribute="leading" constant="16" id="w2g-8z-QSW"/>
-                                                <constraint firstAttribute="trailing" secondItem="7nT-GT-4h9" secondAttribute="trailing" constant="16" id="zAt-KU-ECV"/>
+                                                <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="d54-Qo-HA4" secondAttribute="leading" id="rR7-3W-nxf"/>
+                                                <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" secondItem="d54-Qo-HA4" secondAttribute="leading" id="w2g-8z-QSW"/>
+                                                <constraint firstAttribute="trailing" secondItem="7nT-GT-4h9" secondAttribute="trailing" id="zAt-KU-ECV"/>
                                             </constraints>
                                         </customView>
                                     </subviews>
@@ -222,7 +222,7 @@
                 <constraint firstItem="Ew2-CA-NMt" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="3pu-ew-YOe"/>
                 <constraint firstItem="RqW-7V-PIs" firstAttribute="leading" secondItem="ahx-cg-gFk" secondAttribute="leading" constant="-19" id="4uw-sC-TvV"/>
                 <constraint firstItem="OSP-ED-UHM" firstAttribute="top" secondItem="ahx-cg-gFk" secondAttribute="top" constant="5" id="Bs8-hJ-pSU"/>
-                <constraint firstItem="ahx-cg-gFk" firstAttribute="trailing" secondItem="7nT-GT-4h9" secondAttribute="trailing" constant="16" id="JWZ-vo-Kwr"/>
+                <constraint firstItem="ahx-cg-gFk" firstAttribute="trailing" secondItem="7nT-GT-4h9" secondAttribute="trailing" id="JWZ-vo-Kwr"/>
                 <constraint firstItem="k0I-pC-Pcm" firstAttribute="top" secondItem="ahx-cg-gFk" secondAttribute="top" id="Lhu-Ie-QSO"/>
                 <constraint firstItem="k0I-pC-Pcm" firstAttribute="trailing" secondItem="ahx-cg-gFk" secondAttribute="trailing" constant="7" id="NBb-fs-FCc"/>
                 <constraint firstItem="JZc-bH-qgu" firstAttribute="top" secondItem="ahx-cg-gFk" secondAttribute="top" id="NkQ-KS-Pu2"/>
@@ -238,7 +238,7 @@
                 <constraint firstAttribute="trailing" secondItem="kkf-o1-Jqa" secondAttribute="trailing" constant="16" id="bSD-O7-hHT"/>
                 <constraint firstItem="kkf-o1-Jqa" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="bmg-SO-gzn"/>
                 <constraint firstAttribute="bottom" secondItem="Ew2-CA-NMt" secondAttribute="bottom" id="fAe-zT-lKr"/>
-                <constraint firstItem="ahx-cg-gFk" firstAttribute="leading" secondItem="7nT-GT-4h9" secondAttribute="leading" constant="-16" id="imt-Gw-D6F"/>
+                <constraint firstItem="ahx-cg-gFk" firstAttribute="leading" secondItem="7nT-GT-4h9" secondAttribute="leading" id="imt-Gw-D6F"/>
                 <constraint firstItem="Ew2-CA-NMt" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="76" id="uXE-gB-czc"/>
             </constraints>
             <point key="canvasLocation" x="-40" y="154"/>
