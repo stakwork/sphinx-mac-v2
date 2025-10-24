@@ -313,7 +313,17 @@ extension SphinxOnionManager {//contacts related
         date: Date? = nil,
         context: NSManagedObjectContext? = nil
     ) -> UserContact {
-        let contact = UserContact(context: context ?? managedContext)
+        
+        var contact: UserContact! = nil
+        
+        if let code = code {
+            contact = UserContact.getContactWithInviteCode(inviteCode: code, managedContext: context ?? managedContext)
+        }
+        
+        if contact == nil {
+            contact = UserContact(context: context ?? managedContext)
+        }
+        
         contact.id = uniqueIntHashFromString(stringInput: UUID().uuidString)
         contact.publicKey = pubkey
         contact.routeHint = routeHint
