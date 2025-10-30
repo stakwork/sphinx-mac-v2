@@ -16,7 +16,7 @@ protocol DashboardVCDelegate: AnyObject {
     func shouldShowFullMediaFor(message: TransactionMessage)
     func shouldShowFullMediaFor(url: String)
     func shouldToggleLeftView(show: Bool?)
-    func didSwitchToTab()
+    func didSwitchToTab(_ tab: ChatListViewController.DashboardTab)
     func shouldResetContactView()
     func shouldResetTribeView()
 }

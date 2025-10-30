@@ -34,9 +34,9 @@ class ChatsSegmentedControl: NSView {
     )!
     
     public var selectorViewColor: NSColor = .Sphinx.PrimaryBlue
-    public var selectorWidthRatio: CGFloat = 0.667
+    public var selectorWidthRatio: CGFloat = 1.0
     
-    let kButtonWidth: CGFloat = 86.0
+    let kButtonWidth: CGFloat = 65.0
     let kButtonHeight: CGFloat = 48.0
     
     
@@ -146,9 +146,12 @@ extension ChatsSegmentedControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
         stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-        stackView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
         
-        stackView.widthAnchor.constraint(equalToConstant: kButtonWidth * 3).isActive = true
+        let leftConstraint = stackView.leftAnchor.constraint(equalTo: self.leftAnchor)
+        leftConstraint.constant = 12
+        leftConstraint.isActive = true
+        
+        stackView.widthAnchor.constraint(equalToConstant: kButtonWidth * 4).isActive = true
     }
     
     private var selectorPosition: CGFloat {
@@ -158,9 +161,9 @@ extension ChatsSegmentedControl {
     private func configureSelectorView() {
         selectorView = NSView(
             frame: CGRect(
-                x: selectorPosition + (kButtonWidth * 0.2),
+                x: 12 + selectorPosition,
                 y: 0,
-                width: kButtonWidth * 0.6,
+                width: kButtonWidth,
                 height: 3
             )
         )
@@ -244,7 +247,7 @@ extension ChatsSegmentedControl {
         
         AnimationHelper.animateViewWith(duration: 0.3, animationsBlock: {
             
-            self.selectorView.frame.origin.x = self.selectorPosition + (self.kButtonWidth * 0.2)
+            self.selectorView.frame.origin.x = 12 + self.selectorPosition
             
             let selectedButton = self.buttons[self.contactsService.selectedTabIndex]
             
@@ -270,7 +273,7 @@ extension ChatsSegmentedControl {
         buttonTitleBadges = buttonContainers!.map { view in
             let badgeView = NSView(
                 frame: .init(
-                    x: kButtonWidth / 2 + 30,
+                    x: kButtonWidth / 2 + 20,
                     y: kButtonHeight - 15,
                     width: 5.0,
                     height: 5.0

@@ -131,6 +131,14 @@
 		473633F22555DCF9007405F2 /* PodcastSatsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 473633F12555DCF9007405F2 /* PodcastSatsView.xib */; };
 		473633F42555DEC0007405F2 /* CustomSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473633F32555DEC0007405F2 /* CustomSliderCell.swift */; };
 		473829922EA916E2007E045A /* PaddedTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829912EA916E2007E045A /* PaddedTextFieldCell.swift */; };
+		473829942EB3B690007E045A /* StatusBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829932EB3B68B007E045A /* StatusBarButton.swift */; };
+		473829982EB3BBB9007E045A /* ContentItemsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829972EB3BBB8007E045A /* ContentItemsManager.swift */; };
+		473829A02EB3E313007E045A /* GraphListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4738299F2EB3E313007E045A /* GraphListViewController.swift */; };
+		473829A42EB3F3FB007E045A /* ContentItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829A32EB3F3F5007E045A /* ContentItem+CoreDataProperties.swift */; };
+		473829A62EB3F403007E045A /* ContentItem+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829A52EB3F3FE007E045A /* ContentItem+CoreDataClass.swift */; };
+		473829A82EB3F407007E045A /* ContentItem+FetchUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829A72EB3F406007E045A /* ContentItem+FetchUtils.swift */; };
+		473829B12EB404F4007E045A /* GraphListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473829AF2EB404F4007E045A /* GraphListCollectionViewItem.swift */; };
+		473829B22EB404F4007E045A /* GraphListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 473829B02EB404F4007E045A /* GraphListCollectionViewItem.xib */; };
 		473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 473873B12CD9507500CBBC28 /* ReplayKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		47393E622461DAF900E6F93E /* SymmetricEncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */; };
 		47393E652461DB2C00E6F93E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47393E642461DB2C00E6F93E /* String.swift */; };
@@ -1026,6 +1034,15 @@
 		473633F12555DCF9007405F2 /* PodcastSatsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastSatsView.xib; sourceTree = "<group>"; };
 		473633F32555DEC0007405F2 /* CustomSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSliderCell.swift; sourceTree = "<group>"; };
 		473829912EA916E2007E045A /* PaddedTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldCell.swift; sourceTree = "<group>"; };
+		473829932EB3B68B007E045A /* StatusBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarButton.swift; sourceTree = "<group>"; };
+		473829972EB3BBB8007E045A /* ContentItemsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentItemsManager.swift; sourceTree = "<group>"; };
+		4738299F2EB3E313007E045A /* GraphListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphListViewController.swift; sourceTree = "<group>"; };
+		473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 7.xcdatamodel"; sourceTree = "<group>"; };
+		473829A32EB3F3F5007E045A /* ContentItem+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentItem+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		473829A52EB3F3FE007E045A /* ContentItem+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentItem+CoreDataClass.swift"; sourceTree = "<group>"; };
+		473829A72EB3F406007E045A /* ContentItem+FetchUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentItem+FetchUtils.swift"; sourceTree = "<group>"; };
+		473829AF2EB404F4007E045A /* GraphListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphListCollectionViewItem.swift; sourceTree = "<group>"; };
+		473829B02EB404F4007E045A /* GraphListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GraphListCollectionViewItem.xib; sourceTree = "<group>"; };
 		473873AF2CD929C400CBBC28 /* com_stakwork_sphinx_desktop 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 3.xcdatamodel"; sourceTree = "<group>"; };
 		473873B12CD9507500CBBC28 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		47393E612461DAF900E6F93E /* SymmetricEncryptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymmetricEncryptionManager.swift; sourceTree = "<group>"; };
@@ -2099,6 +2116,50 @@
 			path = com.stakwork.sphinx.desktopTests;
 			sourceTree = "<group>";
 		};
+		4738299B2EB3E2DE007E045A /* Graph */ = {
+			isa = PBXGroup;
+			children = (
+				4738299E2EB3E2F5007E045A /* View Controllers */,
+				4738299D2EB3E2ED007E045A /* Collection View Items */,
+				4738299C2EB3E2E6007E045A /* Views */,
+			);
+			path = Graph;
+			sourceTree = "<group>";
+		};
+		4738299C2EB3E2E6007E045A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		4738299D2EB3E2ED007E045A /* Collection View Items */ = {
+			isa = PBXGroup;
+			children = (
+				473829AF2EB404F4007E045A /* GraphListCollectionViewItem.swift */,
+				473829B02EB404F4007E045A /* GraphListCollectionViewItem.xib */,
+			);
+			path = "Collection View Items";
+			sourceTree = "<group>";
+		};
+		4738299E2EB3E2F5007E045A /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				4738299F2EB3E313007E045A /* GraphListViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		473829A22EB3F3E8007E045A /* ContentItem */ = {
+			isa = PBXGroup;
+			children = (
+				473829A72EB3F406007E045A /* ContentItem+FetchUtils.swift */,
+				473829A52EB3F3FE007E045A /* ContentItem+CoreDataClass.swift */,
+				473829A32EB3F3F5007E045A /* ContentItem+CoreDataProperties.swift */,
+			);
+			path = ContentItem;
+			sourceTree = "<group>";
+		};
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
@@ -2303,6 +2364,7 @@
 		4744FA782469C55A00C5FD94 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				473829A22EB3F3E8007E045A /* ContentItem */,
 				47DF91512C4AA32900E8128A /* LSat */,
 				475B72172BB1CC19003AD969 /* Server */,
 				475B67FD29915C65000EF29C /* Podcast */,
@@ -2373,6 +2435,8 @@
 		4744FACD246AF68800C5FD94 /* Custom Classes */ = {
 			isa = PBXGroup;
 			children = (
+				473829972EB3BBB8007E045A /* ContentItemsManager.swift */,
+				473829932EB3B68B007E045A /* StatusBarButton.swift */,
 				4784C2002E391FBE0041D6F0 /* NoMomentumScrollView.swift */,
 				4744FACE246AF6A400C5FD94 /* AspectFillNSImageView.swift */,
 				4744FAD2246B10C300C5FD94 /* CCTextField.swift */,
@@ -2927,6 +2991,7 @@
 		479751C2246C72C100D2106B /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
+				4738299B2EB3E2DE007E045A /* Graph */,
 				477CE02B2DC90874004110E8 /* Feed */,
 				47FCE2B82CD8FB31005DB8AF /* Live Kit */,
 				472504072B73F44E00A12DE3 /* Jitsi Calls */,
@@ -3995,6 +4060,7 @@
 				479496412AB3805600C42D1E /* DirectPaymentView.xib in Resources */,
 				474A66862497CB0A002C2D10 /* MessageReplyView.xib in Resources */,
 				4726A43D24C628DA005A66B4 /* tweet.caf in Resources */,
+				473829B22EB404F4007E045A /* GraphListCollectionViewItem.xib in Resources */,
 				47975203246F018300D2106B /* ChatAvatarView.xib in Resources */,
 				47DE1BF62A6813C50029597B /* StatusHeaderView.xib in Resources */,
 				4797F6532B0E396700A19C58 /* TransactionCollectionViewItem.xib in Resources */,
@@ -4208,6 +4274,7 @@
 				4744FACF246AF6A400C5FD94 /* AspectFillNSImageView.swift in Sources */,
 				4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */,
 				475B683829915DF5000EF29C /* PodcastModel+Properties.swift in Sources */,
+				473829982EB3BBB9007E045A /* ContentItemsManager.swift in Sources */,
 				4730EF6B2CDBD0C90014581F /* CustomViews.swift in Sources */,
 				474274A528EC7275000C3D51 /* TribeTagsView.swift in Sources */,
 				475B684B29916552000EF29C /* Array.swift in Sources */,
@@ -4283,6 +4350,7 @@
 				479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */,
 				47FEE2072A66DB1800646C4E /* NewChatTableDataSource.swift in Sources */,
 				473437AF24DB12E000950F25 /* ContactViewController.swift in Sources */,
+				473829A62EB3F403007E045A /* ContentItem+CoreDataClass.swift in Sources */,
 				47E77141247326EE00C9CFEB /* NSCollectionView.swift in Sources */,
 				473E1F4E2AC5E73300DC1CDC /* ThreadsListShimmeringView.swift in Sources */,
 				479E7D9525AE02F80092595B /* GroupPinView.swift in Sources */,
@@ -4309,6 +4377,7 @@
 				470396EC2537293E007F9C23 /* PodcastEpisodesDataSource.swift in Sources */,
 				47FEE1F82A61B5F100646C4E /* NewChatViewController+TribeExtension.swift in Sources */,
 				77CFCEC32D80D370008B2BB7 /* TimezoneSharingView.swift in Sources */,
+				473829B12EB404F4007E045A /* GraphListCollectionViewItem.swift in Sources */,
 				4797E74B2785D2420080B966 /* AuthExternalView.swift in Sources */,
 				93A06CF72BD7E43C003EF2B2 /* NewChatHeaderView.swift in Sources */,
 				47F258DB2541E54000122A5A /* PodcastPaymentsHelper.swift in Sources */,
@@ -4493,6 +4562,7 @@
 				47180EDD25E02E2B00C1CA05 /* CommonWelcomeViewController.swift in Sources */,
 				479751C1246C57CE00D2106B /* NSViewWithTag.swift in Sources */,
 				4702BCF0248FE5C400EE9394 /* ShareInviteCodeViewController.swift in Sources */,
+				473829A02EB3E313007E045A /* GraphListViewController.swift in Sources */,
 				478ED59625D55C0700940132 /* WelcomeLightningViewController.swift in Sources */,
 				475B685B29917395000EF29C /* PodcastPlayerController+Payments.swift in Sources */,
 				47F8824F25656CB0002A7E71 /* SocketManager.swift in Sources */,
@@ -4514,12 +4584,14 @@
 				473633F42555DEC0007405F2 /* CustomSliderCell.swift in Sources */,
 				4794965B2AB8A6FC00C42D1E /* GroupActionsView.swift in Sources */,
 				47FEE2112A66DB6D00646C4E /* NewChatTableDataSource+AttachmentsExtension.swift in Sources */,
+				473829A82EB3F407007E045A /* ContentItem+FetchUtils.swift in Sources */,
 				93FED3642BE238CD008B8DDD /* GroupContactListItem.swift in Sources */,
 				47FEE20D2A66DB4E00646C4E /* NewChatTableDataSource+PreloaderExtension.swift in Sources */,
 				478F07D924E45E6000EE32A3 /* GiphyHelper.swift in Sources */,
 				47B550AC248C20EE000514BF /* PaymentTemplatesDataSource.swift in Sources */,
 				47469D622ACEE73E004F0490 /* ChatSearchResultsBar.swift in Sources */,
 				475B680529915C9E000EF29C /* ActionTrack+CoreDataClass.swift in Sources */,
+				473829942EB3B690007E045A /* StatusBarButton.swift in Sources */,
 				475B682F29915D8A000EF29C /* ContentFeedPaymentModel+CoreDataClass.swift in Sources */,
 				CE326B4B294295C600821A53 /* ChatMentionAutocompleteDataSource.swift in Sources */,
 				479A03FC258814240093DB30 /* DeepLinksHandlerHelper.swift in Sources */,
@@ -4545,6 +4617,7 @@
 				479F65792487D0F40015A16A /* IntermitentAlphaAnimatedView.swift in Sources */,
 				4797E74D2785D24D0080B966 /* PersonModalView.swift in Sources */,
 				473615F72C359D0000EE3334 /* API+V2Extension.swift in Sources */,
+				473829A42EB3F3FB007E045A /* ContentItem+CoreDataProperties.swift in Sources */,
 				47FEE2222A66F5F800646C4E /* NewOnlyTextMessageCollectionViewitem.swift in Sources */,
 				AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */,
 				47C1D604248EABEA00718B28 /* GroupAddedContactCollectionViewItem.swift in Sources */,
@@ -5724,6 +5797,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */,
 				478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */,
 				4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */,
 				77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */,
@@ -5731,7 +5805,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */;
+			currentVersion = 473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -20,6 +20,7 @@ import WebKit
     let onionConnector = SphinxOnionConnector.sharedInstance
     
     var statusBarItem: NSStatusItem!
+     var dragDropView: StatusBarButton?
     
     @IBOutlet weak var appearanceMenu: NSMenu!
     @IBOutlet weak var notificationTypeMenu: NSMenu!
@@ -63,6 +64,10 @@ import WebKit
         SphinxOnionManager.sharedInstance.storeOnionStateInMemory()
         
         setInitialVC()
+        
+//        ContentItemsManager.shared.removeAll()
+        let allItems = ContentItemsManager.shared.load()
+        print("ALL ITEMS: \(allItems)")
     }
     
     func clearWebkitCache() {
@@ -137,11 +142,115 @@ import WebKit
         statusBarItem.button?.image = NSImage(named: "extraIcon")
         statusBarItem.button?.imageScaling = .scaleProportionallyDown
         statusBarItem.button?.action = #selector(activateApp)
+        
+        if let button = statusBarItem?.button {
+            if let buttonFrame = button.superview?.frame {
+                
+                dragDropView = StatusBarButton(frame: buttonFrame)
+                dragDropView?.onDrop = { [weak self] urls, text in
+                    self?.handleDrop(urls: urls, text: text)
+                }
+                
+                button.addSubview(dragDropView!)
+                dragDropView?.frame = button.bounds
+                dragDropView?.autoresizingMask = [.width, .height]
+            }
+        }
+        
+        setupMenu()
     }
+     
+    func handleDrop(urls: [URL], text: String?) {
+        if !urls.isEmpty {
+            handleFiles(urls)
+        } else if let text = text {
+            handleText(text)
+        }
+    }
+     
+    func handleText(_ text: String) {
+        ContentItemsManager.shared.add(value: text)
+        showNotification(title: "Personal Graph", body: "Text received and saved to queue")
+     }
+     
+     func handleImage(_ image: NSImage) {
+        if let data = image.tiffRepresentation,
+            let bitmap = NSBitmapImageRep(data: data),
+            let pngData = bitmap.representation(using: .png, properties: [:]) {
+             
+             let url = FileManager.default.temporaryDirectory.appendingPathComponent("dropped_image.png")
+             try? pngData.write(to: url)
+             
+             ContentItemsManager.shared.add(value: url.path)
+             showNotification(title: "Personal Graph", body: "Image received and saved to queue")
+        }
+     }
+     
+     func handleFiles(_ urls: [URL]) {
+         ContentItemsManager.shared.addMultiple(urls.map({ $0.absoluteString }))
+         showNotification(title: "Personal Graph", body: "\(urls.count) file(s) received and saved to queue")
+     }
+     
+    func setupMenu() {
+        let menu = NSMenu()
+         
+        menu.addItem(
+            NSMenuItem(
+                title: "Paste from Clipboard",
+                action: #selector(pasteFromClipboard),
+                keyEquivalent: "v"
+            )
+        )
+         
+        menu.addItem(NSMenuItem.separator())
+         
+        menu.addItem(
+            NSMenuItem(
+                title: "Quit",
+                action: #selector(NSApplication.terminate(_:)),
+                keyEquivalent: "q")
+        )
+         
+        statusBarItem?.menu = menu
+    }
+     
+    @objc func pasteFromClipboard() {
+         let pasteboard = NSPasteboard.general
+         
+         if let string = pasteboard.string(forType: .string) {
+             handleText(string)
+         } else if let image = pasteboard.readObjects(forClasses: [NSImage.self])?.first as? NSImage {
+             handleImage(image)
+         } else if let fileURL = pasteboard.readObjects(forClasses: [NSURL.self])?.first as? URL {
+             handleFiles([fileURL])
+         }
+     }
     
     @objc func activateApp() {
-        NSApplication.shared.activate(ignoringOtherApps: true)
+//        NSApplication.shared.activate(ignoringOtherApps: true)
     }
+     
+    func showNotification(title: String, body: String) {
+        if NSApplication.shared.isActive {
+            newMessageBubbleHelper.showGenericMessageView(
+                text: "Personal Graph: \(body)",
+                delay: 7,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryGreen,
+                backAlpha: 1.0
+            )
+        } else {
+            sendNotification(title: title, text: body)
+        }
+     }
+     
+     func showAlert(_ message: String) {
+         let alert = NSAlert()
+         alert.messageText = message
+         alert.alertStyle = .informational
+         alert.addButton(withTitle: "OK")
+         alert.runModal()
+     }
     
     func setAppSettings() {
         let savedAppearance = UserDefaults.Keys.appAppearance.get(defaultValue: 0)

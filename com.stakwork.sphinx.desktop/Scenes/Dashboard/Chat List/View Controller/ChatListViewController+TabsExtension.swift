@@ -13,6 +13,7 @@ extension ChatListViewController {
         case friends
         case tribes
         case feed
+        case graph
     }
 }
 
@@ -38,7 +39,7 @@ extension ChatListViewController {
         
         if shouldSwitchChat {
             DispatchQueue.main.async {
-                self.delegate?.didSwitchToTab()
+                self.delegate?.didSwitchToTab(tab)
             }
         }
     }
@@ -67,6 +68,8 @@ extension ChatListViewController {
             return tribeChatsContainerViewController
         case .feed:
             return feedContainerViewController
+        case .graph:
+            return graphContainerViewController
         }
     }
     

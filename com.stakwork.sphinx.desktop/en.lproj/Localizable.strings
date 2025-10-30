@@ -61,6 +61,7 @@
 "dashboard.tabs.friends" = "Friends";
 "dashboard.tabs.tribes" = "Tribes";
 "dashboard.tabs.feed" = "Feed";
+"dashboard.tabs.graph" = "Graph";
 
 //GROUPS
 "group.details" = "Group Details";
