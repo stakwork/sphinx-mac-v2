@@ -7,7 +7,7 @@
 //
 
 import Cocoa
-import WebKit
+@preconcurrency import WebKit
 
 class WebAppViewController: NSViewController {
     
@@ -16,28 +16,32 @@ class WebAppViewController: NSViewController {
     @IBOutlet weak var authorizeAppViewHeight: NSLayoutConstraint!
     @IBOutlet weak var loadingView: NSImageView!
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
+    @IBOutlet weak var personalGraphLabelContainer: NSBox!
+    @IBOutlet weak var personalGraphLabel: NSTextField!
     
     var webView: WKWebView!
     var appURL: String! = nil
     var chat: Chat? = nil
     var finishLoadingTimer : Timer? = nil
+    var isPersonalGraph: Bool = false
     
     let webAppHelper = WebAppHelper()
     
     static func instantiate(
         chat: Chat? = nil,
         appURL: String! = nil,
-        isAppURL: Bool = true
+        isAppURL: Bool = true,
+        isPersonalGraph: Bool = false
     ) -> WebAppViewController? {
         let viewController = StoryboardScene.Dashboard.webAppViewController.instantiate()
+        
         viewController.chat = chat
+        viewController.isPersonalGraph = isPersonalGraph
         
         if let appURL = appURL {
             viewController.appURL = appURL
         } else if let tribeInfo = chat?.tribeInfo, let appUrl = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appUrl.isEmpty {
             viewController.appURL = appUrl
-        } else {
-            return nil
         }
         
         return viewController
@@ -52,14 +56,32 @@ class WebAppViewController: NSViewController {
         authorizeModalContainer.isHidden = true
         authorizeModalContainer.alphaValue = 0.0
         
-        addWebView()
-        loadPage()
+        personalGraphLabelContainer.fillColor = NSColor.Sphinx.Body
     }
     
     override func viewDidAppear() {
         super.viewDidAppear()
         
         view.window?.delegate = self
+        
+        addAndLoadWebView()
+    }
+    
+    func addAndLoadWebView() {
+        self.appURL = isPersonalGraph ? API.sharedInstance.kPersonalGraphUrl : self.appURL
+        
+        let shouldShowPersonalGraphLabel = isPersonalGraph && (appURL.isEmpty || appURL == nil)
+        personalGraphLabelContainer.isHidden = !shouldShowPersonalGraphLabel
+        loadingIndicator.isHidden = true
+        
+        guard let appURL = appURL, !appURL.isEmpty else {
+            return
+        }
+        if webView != nil {
+            return
+        }
+        addWebView()
+        loadPage()
     }
     
     func addWebView() {
@@ -89,6 +111,7 @@ class WebAppViewController: NSViewController {
     
     func addLoadingView(){
         loadingView.isHidden = false
+        loadingIndicator.isHidden = false
         loadingView.image = #imageLiteral(resourceName: "whiteIcon")
         loadingIndicator.startAnimation(self)
     }

@@ -216,13 +216,11 @@ import WebKit
      
     @objc func pasteFromClipboard() {
          let pasteboard = NSPasteboard.general
-         
-         if let string = pasteboard.string(forType: .string) {
+        
+        if let fileURL = pasteboard.readObjects(forClasses: [NSURL.self])?.first as? URL {
+            handleFiles([fileURL])
+        } else if let string = pasteboard.string(forType: .string) {
              handleText(string)
-         } else if let image = pasteboard.readObjects(forClasses: [NSImage.self])?.first as? NSImage {
-             handleImage(image)
-         } else if let fileURL = pasteboard.readObjects(forClasses: [NSURL.self])?.first as? URL {
-             handleFiles([fileURL])
          }
      }
     

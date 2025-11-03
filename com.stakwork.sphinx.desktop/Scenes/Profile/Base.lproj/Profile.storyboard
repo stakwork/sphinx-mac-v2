@@ -12,24 +12,24 @@
             <objects>
                 <viewController storyboardIdentifier="ProfileViewController" id="nVT-b1-Xti" customClass="ProfileViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="DCL-gk-gFq">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="970"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="1057"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="QZT-Th-kJF">
-                                <rect key="frame" x="-1" y="-1" width="416" height="972"/>
+                                <rect key="frame" x="-1" y="-1" width="416" height="1059"/>
                                 <clipView key="contentView" id="xw6-s1-8TD">
-                                    <rect key="frame" x="1" y="1" width="414" height="970"/>
+                                    <rect key="frame" x="1" y="1" width="414" height="1057"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <box fixedFrame="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="HjE-2e-2l5">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="970"/>
+                                            <rect key="frame" x="0.0" y="87" width="414" height="1057"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <view key="contentView" id="tRl-Sj-r5m">
-                                                <rect key="frame" x="0.0" y="0.0" width="414" height="970"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="1057"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="CJN-ne-0yf">
-                                                        <rect key="frame" x="0.0" y="795" width="414" height="175"/>
+                                                        <rect key="frame" x="0.0" y="882" width="414" height="175"/>
                                                         <subviews>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="p7P-rd-yFo">
                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="175"/>
@@ -169,16 +169,16 @@
                                                         </constraints>
                                                     </customView>
                                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="oph-VU-pT0">
-                                                        <rect key="frame" x="0.0" y="100" width="414" height="695"/>
+                                                        <rect key="frame" x="0.0" y="100" width="414" height="782"/>
                                                         <subviews>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="hU7-ep-KB9">
-                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="695"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="782"/>
                                                                 <view key="contentView" id="IcK-rJ-22N">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="695"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="782"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="jyB-wQ-NSl">
-                                                                            <rect key="frame" x="0.0" y="360" width="414" height="325"/>
+                                                                            <rect key="frame" x="0.0" y="447" width="414" height="325"/>
                                                                             <view key="contentView" id="1ss-we-VeZ">
                                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="325"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -533,13 +533,13 @@ with contacts</string>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="Lm2-Ec-4d5">
-                                                                            <rect key="frame" x="0.0" y="150" width="414" height="200"/>
+                                                                            <rect key="frame" x="0.0" y="150" width="414" height="287"/>
                                                                             <view key="contentView" id="I4u-t6-6C6">
-                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="200"/>
+                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="287"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                                 <subviews>
                                                                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="fT1-lo-hQw">
-                                                                                        <rect key="frame" x="30" y="125" width="354" height="75"/>
+                                                                                        <rect key="frame" x="30" y="212" width="354" height="75"/>
                                                                                         <subviews>
                                                                                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tuy-Zq-nPl">
                                                                                                 <rect key="frame" x="-2" y="36" width="103" height="14"/>
@@ -586,7 +586,7 @@ with contacts</string>
                                                                                         </constraints>
                                                                                     </customView>
                                                                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="9bU-0q-LWG">
-                                                                                        <rect key="frame" x="30" y="38" width="354" height="75"/>
+                                                                                        <rect key="frame" x="30" y="125" width="354" height="75"/>
                                                                                         <subviews>
                                                                                             <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Uvb-lZ-Yc2">
                                                                                                 <rect key="frame" x="-2" y="36" width="85" height="14"/>
@@ -632,9 +632,59 @@ with contacts</string>
                                                                                             <constraint firstAttribute="bottom" secondItem="d2X-7B-Wjh" secondAttribute="bottom" id="xkV-wT-egp"/>
                                                                                         </constraints>
                                                                                     </customView>
+                                                                                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="Sok-h6-bWE">
+                                                                                        <rect key="frame" x="30" y="38" width="354" height="75"/>
+                                                                                        <subviews>
+                                                                                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2f0-yz-Rqi">
+                                                                                                <rect key="frame" x="-2" y="36" width="111" height="14"/>
+                                                                                                <textFieldCell key="cell" lineBreakMode="clipping" title="Personal Graph URL" id="LAO-Rp-Pbd">
+                                                                                                    <font key="font" size="12" name="Roboto-Regular"/>
+                                                                                                    <color key="textColor" name="SecondaryText"/>
+                                                                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                                                </textFieldCell>
+                                                                                            </textField>
+                                                                                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7ly-yu-fif">
+                                                                                                <rect key="frame" x="0.0" y="1" width="354" height="28"/>
+                                                                                                <constraints>
+                                                                                                    <constraint firstAttribute="height" constant="28" id="6Mu-ng-Jib"/>
+                                                                                                </constraints>
+                                                                                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" drawsBackground="YES" id="0Xo-MR-gZu">
+                                                                                                    <font key="font" size="17" name="Roboto-Regular"/>
+                                                                                                    <color key="textColor" name="Text"/>
+                                                                                                    <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                                                </textFieldCell>
+                                                                                            </textField>
+                                                                                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="X3n-pq-VwK">
+                                                                                                <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
+                                                                                                <view key="contentView" id="eiF-1K-fK4">
+                                                                                                    <rect key="frame" x="0.0" y="0.0" width="354" height="1"/>
+                                                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                                                </view>
+                                                                                                <constraints>
+                                                                                                    <constraint firstAttribute="height" constant="1" id="eKy-cS-v20"/>
+                                                                                                </constraints>
+                                                                                                <color key="fillColor" name="LightDivider"/>
+                                                                                            </box>
+                                                                                        </subviews>
+                                                                                        <constraints>
+                                                                                            <constraint firstAttribute="trailing" secondItem="X3n-pq-VwK" secondAttribute="trailing" id="0aY-Pa-SsK"/>
+                                                                                            <constraint firstItem="7ly-yu-fif" firstAttribute="leading" secondItem="Sok-h6-bWE" secondAttribute="leading" id="APv-1e-H1t"/>
+                                                                                            <constraint firstAttribute="height" constant="75" id="DsS-mg-dra"/>
+                                                                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="2f0-yz-Rqi" secondAttribute="trailing" constant="20" symbolic="YES" id="ILC-uu-evw"/>
+                                                                                            <constraint firstItem="2f0-yz-Rqi" firstAttribute="leading" secondItem="Sok-h6-bWE" secondAttribute="leading" id="Moy-Cv-G49"/>
+                                                                                            <constraint firstItem="X3n-pq-VwK" firstAttribute="leading" secondItem="Sok-h6-bWE" secondAttribute="leading" id="dRW-uu-LPo"/>
+                                                                                            <constraint firstAttribute="bottom" secondItem="X3n-pq-VwK" secondAttribute="bottom" id="kuH-bk-TVj"/>
+                                                                                            <constraint firstAttribute="trailing" secondItem="7ly-yu-fif" secondAttribute="trailing" id="q3Y-Fa-2ys"/>
+                                                                                            <constraint firstItem="2f0-yz-Rqi" firstAttribute="top" secondItem="Sok-h6-bWE" secondAttribute="top" constant="25" id="qFD-I7-2ot"/>
+                                                                                            <constraint firstItem="X3n-pq-VwK" firstAttribute="top" secondItem="7ly-yu-fif" secondAttribute="bottom" id="qGM-nU-LU2"/>
+                                                                                        </constraints>
+                                                                                    </customView>
                                                                                 </subviews>
                                                                                 <constraints>
+                                                                                    <constraint firstItem="Sok-h6-bWE" firstAttribute="top" secondItem="9bU-0q-LWG" secondAttribute="bottom" constant="12" id="9SC-5M-n74"/>
+                                                                                    <constraint firstAttribute="trailing" secondItem="Sok-h6-bWE" secondAttribute="trailing" constant="30" id="BHh-30-C1v"/>
                                                                                     <constraint firstItem="9bU-0q-LWG" firstAttribute="leading" secondItem="I4u-t6-6C6" secondAttribute="leading" constant="30" id="I2C-W4-ZBu"/>
+                                                                                    <constraint firstItem="Sok-h6-bWE" firstAttribute="leading" secondItem="I4u-t6-6C6" secondAttribute="leading" constant="30" id="PkL-ce-xL3"/>
                                                                                     <constraint firstItem="9bU-0q-LWG" firstAttribute="top" secondItem="fT1-lo-hQw" secondAttribute="bottom" constant="12" id="ZGZ-Vu-Vy8"/>
                                                                                     <constraint firstItem="fT1-lo-hQw" firstAttribute="leading" secondItem="I4u-t6-6C6" secondAttribute="leading" constant="30" id="aUw-MR-FcS"/>
                                                                                     <constraint firstAttribute="trailing" secondItem="fT1-lo-hQw" secondAttribute="trailing" constant="30" id="fKF-zv-M1e"/>
@@ -643,7 +693,7 @@ with contacts</string>
                                                                                 </constraints>
                                                                             </view>
                                                                             <constraints>
-                                                                                <constraint firstAttribute="height" constant="200" id="aNz-Km-kOG"/>
+                                                                                <constraint firstAttribute="height" constant="287" id="aNz-Km-kOG"/>
                                                                             </constraints>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
@@ -742,14 +792,14 @@ with contacts</string>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstAttribute="bottom" secondItem="hU7-ep-KB9" secondAttribute="bottom" id="NWP-L5-gyA"/>
-                                                            <constraint firstAttribute="height" constant="695" id="PYJ-qc-X2M"/>
+                                                            <constraint firstAttribute="height" constant="782" id="PYJ-qc-X2M"/>
                                                             <constraint firstItem="hU7-ep-KB9" firstAttribute="leading" secondItem="oph-VU-pT0" secondAttribute="leading" id="RX6-Pc-DyA"/>
                                                             <constraint firstItem="hU7-ep-KB9" firstAttribute="top" secondItem="oph-VU-pT0" secondAttribute="top" id="ZC9-Xy-eXz"/>
                                                             <constraint firstAttribute="trailing" secondItem="hU7-ep-KB9" secondAttribute="trailing" id="onp-4f-hkZ"/>
                                                         </constraints>
                                                     </customView>
                                                     <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="T8K-Kg-5gY">
-                                                        <rect key="frame" x="0.0" y="240" width="414" height="555"/>
+                                                        <rect key="frame" x="0.0" y="327" width="414" height="555"/>
                                                         <subviews>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="p1M-yS-Ktl">
                                                                 <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
@@ -972,7 +1022,7 @@ with contacts</string>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="E3o-ce-Ogl">
-                                    <rect key="frame" x="399" y="1" width="16" height="970"/>
+                                    <rect key="frame" x="399" y="1" width="16" height="1057"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
@@ -1001,6 +1051,7 @@ with contacts</string>
                         <outlet property="meetingAmountField" destination="cSB-6C-ykQ" id="ufH-ca-1ot"/>
                         <outlet property="meetingServerField" destination="B9a-XE-yci" id="bfK-82-MbZ"/>
                         <outlet property="nameLabel" destination="gOq-cf-1sn" id="HxU-R0-NzF"/>
+                        <outlet property="personalGraphUrlField" destination="7ly-yu-fif" id="tQP-ib-keH"/>
                         <outlet property="pinTimeoutBox" destination="2tJ-IM-OLS" id="g61-mw-gJk"/>
                         <outlet property="pinTimeoutView" destination="ATw-6X-CCR" id="G6t-Jw-Y8E"/>
                         <outlet property="profileImageView" destination="7F9-f5-sNH" id="SNH-gQ-2BX"/>

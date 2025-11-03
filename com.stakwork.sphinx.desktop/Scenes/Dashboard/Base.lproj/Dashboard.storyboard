@@ -162,7 +162,7 @@
                                                                                         <action selector="presenterBackButtonTapped:" target="CCF-9f-b3D" id="fwD-DX-qhF"/>
                                                                                     </connections>
                                                                                 </button>
-                                                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MBT-Hl-oLd">
+                                                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MBT-Hl-oLd">
                                                                                     <rect key="frame" x="32" y="0.0" width="286" height="25"/>
                                                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="6XU-wV-Ecd">
                                                                                         <font key="font" size="22" name="Roboto-Bold"/>
@@ -406,7 +406,7 @@
                                 </constraints>
                                 <color key="borderColor" name="Body"/>
                             </box>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fMy-vz-7jS">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fMy-vz-7jS">
                                 <rect key="frame" x="148" y="372" width="104" height="24"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="User Name" id="roa-ur-NLo">
                                     <font key="font" size="20" name="Roboto-Bold"/>
@@ -423,7 +423,7 @@
                                 </constraints>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="eXk-ze-Vw9"/>
                             </imageView>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E2S-yt-lXm">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E2S-yt-lXm">
                                 <rect key="frame" x="98" y="106" width="204" height="16"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" alignment="center" title="asdjhsad6jhaskjsad78asd7dsjhasjhsd78as" id="bLT-Lq-Avr">
                                     <font key="font" size="14" name="Roboto-Regular"/>
@@ -446,7 +446,7 @@
                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="itemDetailsCopy" id="IV7-yL-XiR"/>
                                             <color key="contentTintColor" name="MainBottomIcons"/>
                                         </imageView>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ToU-5e-o3x">
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ToU-5e-o3x">
                                             <rect key="frame" x="91" y="9" width="34" height="15"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Copy" id="LwG-tr-s0e">
                                                 <font key="font" size="13" name="Roboto-Regular"/>
@@ -927,7 +927,7 @@
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="IpQ-7K-4fA">
                                         <rect key="frame" x="0.0" y="84" width="200" height="116"/>
                                     </customView>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EdA-Uc-mf7">
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EdA-Uc-mf7">
                                         <rect key="frame" x="45" y="56" width="109" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Search over" id="adC-Ii-I3I">
                                             <font key="font" size="20" name="Roboto-Regular"/>
@@ -935,7 +935,7 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Xwg-4f-McQ">
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Xwg-4f-McQ">
                                         <rect key="frame" x="9" y="28" width="182" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="4 000 000 podcasts" id="gu5-Mb-FpW">
                                             <font key="font" size="20" name="Roboto-Bold"/>
@@ -943,7 +943,7 @@
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1bD-Mh-NoU">
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1bD-Mh-NoU">
                                         <rect key="frame" x="4" y="0.0" width="192" height="24"/>
                                         <textFieldCell key="cell" lineBreakMode="clipping" title="on the Podcast Index" id="aWH-Ip-19W">
                                             <font key="font" size="20" name="Roboto-Regular"/>
@@ -971,7 +971,7 @@
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Ug-4b-CnQ">
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1Ug-4b-CnQ">
                                 <rect key="frame" x="128" y="255" width="154" height="24"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="No results found" id="21t-v4-b3n">
                                     <font key="font" size="20" name="Roboto-Bold"/>
@@ -1050,7 +1050,7 @@
                                                 <constraint firstAttribute="height" constant="100" id="rh4-st-D5y"/>
                                             </constraints>
                                         </customView>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aNk-mv-UTA">
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aNk-mv-UTA">
                                             <rect key="frame" x="147" y="133" width="107" height="19"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Contact Name" id="Jwy-W5-tXa">
                                                 <font key="font" size="16" name="Roboto-Medium"/>
@@ -1058,7 +1058,7 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="5Yp-Ei-wYU">
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="5Yp-Ei-wYU">
                                             <rect key="frame" x="18" y="92" width="324" height="16"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="320" id="ky2-3i-CUb"/>
@@ -1077,7 +1077,7 @@
                                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="tapToCopy" id="Egb-uG-XYh"/>
                                                     <color key="contentTintColor" name="SecondaryText"/>
                                                 </imageView>
-                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QTD-Rq-Ec3">
+                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QTD-Rq-Ec3">
                                                     <rect key="frame" x="25" y="14" width="82" height="13"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="CLICK TO COPY" id="JLX-aR-llf">
                                                         <font key="font" metaFont="system" size="10"/>
@@ -1661,16 +1661,43 @@
                                     <constraint firstAttribute="height" constant="16" id="Xic-Rh-cn0"/>
                                 </constraints>
                             </progressIndicator>
+                            <box borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="MM5-rj-E1h">
+                                <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
+                                <view key="contentView" id="WFb-7x-qRP">
+                                    <rect key="frame" x="0.0" y="0.0" width="700" height="600"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jiw-wq-i9Q">
+                                            <rect key="frame" x="239" y="276" width="222" height="48"/>
+                                            <textFieldCell key="cell" alignment="center" id="mf0-ct-UPj">
+                                                <font key="font" size="20" name="Roboto-Regular"/>
+                                                <string key="title">Set your Personal Graph
+URL in your Profile</string>
+                                                <color key="textColor" name="SecondaryText"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Jiw-wq-i9Q" firstAttribute="centerX" secondItem="WFb-7x-qRP" secondAttribute="centerX" id="mdW-9S-BvG"/>
+                                        <constraint firstItem="Jiw-wq-i9Q" firstAttribute="centerY" secondItem="WFb-7x-qRP" secondAttribute="centerY" id="ocx-kc-zFI"/>
+                                    </constraints>
+                                </view>
+                            </box>
                         </subviews>
                         <constraints>
                             <constraint firstItem="AAr-qu-Zrw" firstAttribute="leading" secondItem="lyA-mJ-xUz" secondAttribute="leading" id="3wm-xk-f4Q"/>
                             <constraint firstAttribute="bottom" secondItem="AAr-qu-Zrw" secondAttribute="bottom" id="41Q-Jt-1Zc"/>
+                            <constraint firstAttribute="trailing" secondItem="MM5-rj-E1h" secondAttribute="trailing" id="4tf-0E-Wir"/>
                             <constraint firstAttribute="bottom" secondItem="b1t-Y6-fiA" secondAttribute="bottom" id="8tw-vA-Lsz"/>
                             <constraint firstAttribute="trailing" secondItem="AAr-qu-Zrw" secondAttribute="trailing" id="9aT-Fh-mVo"/>
+                            <constraint firstItem="MM5-rj-E1h" firstAttribute="top" secondItem="lyA-mJ-xUz" secondAttribute="top" id="AFh-i4-2pw"/>
                             <constraint firstItem="b1t-Y6-fiA" firstAttribute="top" secondItem="lyA-mJ-xUz" secondAttribute="top" id="IIr-Tp-JqG"/>
                             <constraint firstItem="AAr-qu-Zrw" firstAttribute="top" secondItem="lyA-mJ-xUz" secondAttribute="top" id="Lct-90-PS9"/>
                             <constraint firstAttribute="trailing" secondItem="b1t-Y6-fiA" secondAttribute="trailing" id="SB6-WY-Au9"/>
                             <constraint firstItem="uE1-k2-bqp" firstAttribute="centerX" secondItem="AAr-qu-Zrw" secondAttribute="centerX" id="aLS-Fg-YYU"/>
+                            <constraint firstAttribute="bottom" secondItem="MM5-rj-E1h" secondAttribute="bottom" id="aht-T3-48C"/>
+                            <constraint firstItem="MM5-rj-E1h" firstAttribute="leading" secondItem="lyA-mJ-xUz" secondAttribute="leading" id="kX5-Cl-hK5"/>
                             <constraint firstItem="uE1-k2-bqp" firstAttribute="centerY" secondItem="AAr-qu-Zrw" secondAttribute="centerY" multiplier="1.5" id="orq-rB-03m"/>
                             <constraint firstItem="b1t-Y6-fiA" firstAttribute="leading" secondItem="lyA-mJ-xUz" secondAttribute="leading" id="rzx-Lf-A5f"/>
                         </constraints>
@@ -1681,6 +1708,8 @@
                         <outlet property="authorizeModalContainer" destination="b1t-Y6-fiA" id="Q7p-LT-5eI"/>
                         <outlet property="loadingIndicator" destination="uE1-k2-bqp" id="3hs-mP-MFi"/>
                         <outlet property="loadingView" destination="AAr-qu-Zrw" id="5OL-Bf-8nd"/>
+                        <outlet property="personalGraphLabel" destination="Jiw-wq-i9Q" id="erG-0H-g4s"/>
+                        <outlet property="personalGraphLabelContainer" destination="MM5-rj-E1h" id="0cv-mK-y7l"/>
                     </connections>
                 </viewController>
                 <customObject id="ngG-D3-GFA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -1775,7 +1804,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yQO-k6-xal">
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yQO-k6-xal">
                                 <rect key="frame" x="165" y="294" width="121" height="18"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="No threads found" id="5ft-7S-C0k">
                                     <font key="font" size="15" name="Roboto-Medium"/>
@@ -1876,7 +1905,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="coY-Ts-3HW">
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="coY-Ts-3HW">
                                 <rect key="frame" x="171" y="219" width="109" height="28"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="28" id="S5J-hE-iFZ"/>
@@ -1900,7 +1929,7 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="356.5" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
+                                                <tableColumn identifier="AutomaticTableColumnIdentifier.0" width="354" minWidth="40" maxWidth="1000" id="3uq-iI-kbV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -1913,11 +1942,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="doF-IN-pqe">
-                                                            <rect key="frame" x="8" y="0.0" width="352" height="24"/>
+                                                            <rect key="frame" x="8" y="0.0" width="349" height="24"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kLd-Ex-Z8Q">
-                                                                    <rect key="frame" x="0.0" y="4" width="352" height="16"/>
+                                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kLd-Ex-Z8Q">
+                                                                    <rect key="frame" x="-2" y="4" width="350" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Z6P-yR-1id">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -1936,7 +1965,7 @@
                                         </tableView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ucU-id-02g">
                                     <rect key="frame" x="1" y="118" width="368" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
@@ -2114,7 +2143,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="igy-z8-Bhv">
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="igy-z8-Bhv">
                                 <rect key="frame" x="148" y="138" width="154" height="24"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="No results found" id="6MN-nT-9xq">
                                     <font key="font" size="20" name="Roboto-Bold"/>

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class GraphListViewController: NSViewController {
+class GraphListViewController: NSViewController {    
     
     @IBOutlet weak var graphScrollView: NSScrollView!
     @IBOutlet weak var graphCollectionView: NSCollectionView!
@@ -29,6 +29,11 @@ class GraphListViewController: NSViewController {
         bottom: 0,
         trailing: 0
     )
+    
+    public enum RightClickedItemActions : Int {
+        case delete
+        case moveToTop
+    }
     
     static func instantiate() -> GraphListViewController {
         let viewController = StoryboardScene.Dashboard.graphListViewController.instantiate()
@@ -126,6 +131,10 @@ extension GraphListViewController {
         var typeDescription : String {
             get {
                 switch(type) {
+                case "image":
+                    return "Image File"
+                case "video":
+                    return "Video File"
                 case "fileURL":
                     return "Local File"
                 case "externalURL":
@@ -343,7 +352,8 @@ extension GraphListViewController {
                 ) as? CollectionViewCell else { return nil }
 
                 cell.render(
-                    with: dataSourceItem
+                    with: dataSourceItem,
+                    and: self
                 )
 
                 return cell
@@ -436,6 +446,80 @@ extension GraphListViewController : NSFetchedResultsControllerDelegate {
             }
             
             updateSnapshot(completion: {})
+        }
+    }
+}
+
+extension GraphListViewController : ContentItemCollectionViewDelegate {
+    func didRightClickOn(item: NSCollectionViewItem) {
+        if let indexPath = graphCollectionView.indexPath(for: item) {
+            let item = self.contentItemObjects[indexPath.item] as ContentItem
+            
+            showContextMenuFor(item: item)
+        }
+    }
+    
+    func showContextMenuFor(
+        item: ContentItem
+    ) {
+        let contextMenu = NSMenu(title: "Context Menu")
+        contextMenu.autoenablesItems = true
+        contextMenu.items = []
+        var newItems = [NSMenuItem]()
+
+        let deleteItem = NSMenuItem(
+            title: "Delete Item",
+            action: #selector(self.handleMenuItemClick(_:)),
+            keyEquivalent: ""
+        )
+        deleteItem.representedObject = item
+        deleteItem.target = self
+        deleteItem.tag = RightClickedItemActions.delete.rawValue
+        deleteItem.isEnabled = true
+        
+        newItems.append(deleteItem)
+        
+        let moveToTopItem = NSMenuItem(
+            title: "Move to Top",
+            action: #selector(self.handleMenuItemClick(_:)),
+            keyEquivalent: ""
+        )
+        moveToTopItem.representedObject = item
+        moveToTopItem.target = self
+        moveToTopItem.tag = RightClickedItemActions.moveToTop.rawValue
+        moveToTopItem.isEnabled = true
+        
+        newItems.append(moveToTopItem)
+        
+        if newItems.isEmpty {
+            return
+        }
+        
+        contextMenu.items = newItems
+        
+        contextMenu.popUp(
+            positioning: contextMenu.item(at: 0),
+            at: NSEvent.mouseLocation,
+            in: nil
+        )
+    }
+    
+    @objc func handleMenuItemClick(_ sender: NSMenuItem) {
+        if let action = RightClickedItemActions(rawValue: sender.tag) {
+            guard let item = (sender.representedObject as? ContentItem) else {
+                return
+            }
+            switch action {
+            case .delete:
+                CoreDataManager.sharedManager.deleteObject(object: item)
+                break
+            case .moveToTop:
+                if let lowestOrderItem = ContentItem.getLowestItemOrder()?.order {
+                    item.order = lowestOrderItem - 1
+                    item.managedObjectContext?.saveContext()
+                }
+                break
+            }
         }
     }
 }

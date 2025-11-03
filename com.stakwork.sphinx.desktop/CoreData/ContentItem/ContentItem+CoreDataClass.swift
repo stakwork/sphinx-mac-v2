@@ -25,6 +25,8 @@ public class ContentItem: NSManagedObject {
     }
     
     enum ContentType: String {
+        case image = "image"
+        case video = "video"
         case fileURL = "fileURL"
         case externalURL = "externalURL"
         case text = "text"
@@ -74,6 +76,23 @@ public class ContentItem: NSManagedObject {
         return contentItem
     }
     
+    static func getLowestItemOrder(
+        managedContext: NSManagedObjectContext? = nil
+    ) -> ContentItem? {
+        let fetchRequest = NSFetchRequest<ContentItem>(entityName: "ContentItem")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+        fetchRequest.fetchLimit = 1
+        
+        let managedContext = managedContext ?? CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            return results.first
+        } catch let error as NSError {
+            return nil
+        }
+    }
+    
     static func getContentItesmWith(
         type: String,
         managedContext: NSManagedObjectContext? = nil
@@ -95,20 +114,28 @@ public class ContentItem: NSManagedObject {
     ) {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
+        let date = Date()
+        
         let contentItem = ContentItem(context: managedContext) as ContentItem
         contentItem.uuid = UUID()
         contentItem.date = Date()
         contentItem.value = value
         contentItem.status = Int16(ContentItemStatus.pending.rawValue)
         contentItem.projectId = nil
+        contentItem.order = Int(date.timeIntervalSince1970)
         
-        if value.hasPrefix("file://") {
+        let result = FileAnalyzer.analyze(value)
+        
+        switch result {
+        case .localImageFile(_):
+            contentItem.type = ContentType.image.rawValue
+        case .localVideoFile(_):
+            contentItem.type = ContentType.video.rawValue
+        case .localFile(_, _):
             contentItem.type = ContentType.fileURL.rawValue
-        } else if value.hasPrefix("http://") || value.hasPrefix("https://") {
+        case .urlString(_):
             contentItem.type = ContentType.externalURL.rawValue
-        } else if let url = URL(string: value), url.scheme != nil {
-            contentItem.type = ContentType.externalURL.rawValue
-        } else {
+        case .plainText(_):
             contentItem.type = ContentType.text.rawValue
         }
 

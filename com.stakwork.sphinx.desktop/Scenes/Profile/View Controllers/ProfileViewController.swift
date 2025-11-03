@@ -45,6 +45,7 @@ class ProfileViewController: NSViewController {
     
     @IBOutlet weak var meetingServerField: NSTextField!
     @IBOutlet weak var meetingAmountField: NSTextField!
+    @IBOutlet weak var personalGraphUrlField: NSTextField!
     @IBOutlet weak var exportKeysButton: CustomButton!
     @IBOutlet weak var pinTimeoutView: PinTimeoutView!
     
@@ -131,6 +132,7 @@ class ProfileViewController: NSViewController {
         
         userNameField.delegate = self
         meetingServerField.delegate = self
+        personalGraphUrlField.delegate = self
         meetingAmountField.delegate = self
         
         updateTimeAndDate()
@@ -196,6 +198,8 @@ class ProfileViewController: NSViewController {
             
             meetingServerField.stringValue = API.sharedInstance.kVideoCallServer
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
+            
+            personalGraphUrlField.stringValue = API.sharedInstance.kPersonalGraphUrl
 //            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }
     }
@@ -359,6 +363,9 @@ class ProfileViewController: NSViewController {
         
         UserContact.kTipAmount = tempTip
         
+        API.sharedInstance.kVideoCallServer = meetingServerField.stringValue
+        API.sharedInstance.kPersonalGraphUrl = personalGraphUrlField.stringValue
+        
         WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
     }
     
@@ -373,9 +380,11 @@ class ProfileViewController: NSViewController {
         let didUpdatePhoto = profileImageUrl != nil || profileImage != nil
         let didChangePinTimeout = UserData.sharedInstance.getPINHours() != pinTimeoutView.getPinHours()
         let actionsTrackingUpdated = isTrackActionsSwitchOn() != UserDefaults.Keys.shouldTrackActions.get(defaultValue: false)
+        let didChangeMettingServer = meetingServerField.stringValue != API.sharedInstance.kVideoCallServer
         let didChangeTipAmount = meetingAmountField.integerValue != UserContact.kTipAmount
+        let didChangeGraphUrl = personalGraphUrlField.stringValue != API.sharedInstance.kPersonalGraphUrl
         
-        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeTipAmount
+        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeMettingServer || didChangeTipAmount || didChangeGraphUrl
     }
     
     func closeOnCompletion(completion: @escaping () -> ()) {

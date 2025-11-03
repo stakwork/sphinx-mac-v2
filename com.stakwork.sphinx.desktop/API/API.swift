@@ -119,6 +119,24 @@ class API {
         }
     }
     
+    var storedPersonalGraphUrl: String? = nil
+    public var kPersonalGraphUrl : String {
+        get {
+            if let storedPersonalGraphUrl = storedPersonalGraphUrl {
+                return storedPersonalGraphUrl
+            }
+            if let personalGraphUrl = UserDefaults.Keys.personalGraphURL.get(defaultValue: ""), personalGraphUrl != "" {
+                self.storedPersonalGraphUrl = personalGraphUrl
+                return personalGraphUrl
+            }
+            return ""
+        }
+        set {
+            self.storedPersonalGraphUrl = newValue
+            UserDefaults.Keys.personalGraphURL.set(newValue)
+        }
+    }
+    
     public static var kHUBServerUrl : String {
         get {
             if let inviteServerURL = UserDefaults.Keys.inviteServerURL.get(defaultValue: ""), inviteServerURL != "" {

@@ -40,7 +40,7 @@ extension ContentItem {
             let request: NSFetchRequest<ContentItem> = baseFetchRequest()
 
             request.predicate = Predicates.all()
-            request.sortDescriptors = []
+            request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
 
             return request
         }

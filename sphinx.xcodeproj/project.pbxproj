@@ -469,6 +469,7 @@
 		479A03ED2587ACE10093DB30 /* TribeMemberInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479A03EC2587ACE10093DB30 /* TribeMemberInfoView.swift */; };
 		479A03F02587E73A0093DB30 /* TribeMemberInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 479A03F22587E73A0093DB30 /* TribeMemberInfoView.xib */; };
 		479A03FC258814240093DB30 /* DeepLinksHandlerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479A03FB258814240093DB30 /* DeepLinksHandlerHelper.swift */; };
+		479B192B2EB8E05500A5B9E2 /* FileAnalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */; };
 		479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */; };
 		479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793524EC3B2B009BA1CD /* WebAppViewController.swift */; };
 		479C793824EC3CCD009BA1CD /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 479C793724EC3CCD009BA1CD /* test.html */; };
@@ -1445,6 +1446,8 @@
 		479A03F82587EA4B0093DB30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Groups.strings; sourceTree = "<group>"; };
 		479A03FA2587EA4E0093DB30 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Groups.strings; sourceTree = "<group>"; };
 		479A03FB258814240093DB30 /* DeepLinksHandlerHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinksHandlerHelper.swift; sourceTree = "<group>"; };
+		479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAnalizer.swift; sourceTree = "<group>"; };
+		479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 8.xcdatamodel"; sourceTree = "<group>"; };
 		479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SphinxOnionConnector.swift; sourceTree = "<group>"; };
 		479C793524EC3B2B009BA1CD /* WebAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppViewController.swift; sourceTree = "<group>"; };
 		479C793724EC3CCD009BA1CD /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
@@ -2303,6 +2306,7 @@
 		4744FA562469904500C5FD94 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */,
 				475B685029917380000EF29C /* Podcast Player Controller */,
 				478F07D724E45E2A00EE32A3 /* Giphy */,
 				47E771302472CA2700C9CFEB /* Audio */,
@@ -4495,6 +4499,7 @@
 				4794967C2AB9EF2600C42D1E /* NewChatViewModel+MessageMenuActionsExtension.swift in Sources */,
 				4744FA8E2469C9F800C5FD94 /* UserInvite+CoreDataProperties.swift in Sources */,
 				4703F046248195AE00282186 /* CachingPlayerItem.swift in Sources */,
+				479B192B2EB8E05500A5B9E2 /* FileAnalizer.swift in Sources */,
 				47F8824D25656CB0002A7E71 /* SocketPacket.swift in Sources */,
 				4744FA6A2469A45B00C5FD94 /* API+AttachmentsExtension.swift in Sources */,
 				4744FAD3246B10C300C5FD94 /* CCTextField.swift in Sources */,
@@ -5797,6 +5802,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */,
 				473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */,
 				478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */,
 				4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */,
@@ -5805,7 +5811,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */;
+			currentVersion = 479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

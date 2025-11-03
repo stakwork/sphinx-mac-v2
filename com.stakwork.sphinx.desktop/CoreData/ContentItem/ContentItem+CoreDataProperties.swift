@@ -20,5 +20,6 @@ extension ContentItem {
     @NSManaged public var date: Date
     @NSManaged public var status: Int16
     @NSManaged public var projectId: String?
+    @NSManaged public var order: Int
 
 }

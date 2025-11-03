@@ -8,7 +8,13 @@
 
 import Cocoa
 
+protocol ContentItemCollectionViewDelegate : NSObject {
+    func didRightClickOn(item: NSCollectionViewItem)
+}
+
 class GraphListCollectionViewItem: NSCollectionViewItem {
+    
+    weak var delegate: ContentItemCollectionViewDelegate?
     
     @IBOutlet weak var typeImageView: AspectFillNSImageView!
     @IBOutlet weak var typeLabel: NSTextField!
@@ -20,10 +26,13 @@ class GraphListCollectionViewItem: NSCollectionViewItem {
     }
     
     func render(
-        with item: GraphListViewController.DataSourceItem
+        with item: GraphListViewController.DataSourceItem,
+        and delegate: ContentItemCollectionViewDelegate?
     ) {
+        self.delegate = delegate
+        
         typeLabel.stringValue = item.typeDescription
-        dateLabel.stringValue = item.date.getStringDate(format: "EEE dd, hh:mm a")
+        dateLabel.stringValue = item.date.getStringDate(format: "EEE dd MMM, hh:mm a")
         statusLabel.stringValue = item.statusString
         
 //        if let type = ContentItem.ContentType(rawValue: item.type) {
@@ -40,6 +49,18 @@ class GraphListCollectionViewItem: NSCollectionViewItem {
 //        }
     }
     
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.control) {
+            self.rightMouseDown(with: event)
+        } else {
+            super.mouseDown(with: event)
+        }
+    }
+
+    
+    override func rightMouseDown(with event: NSEvent) {
+        delegate?.didRightClickOn(item: self)
+    }
 }
 
 extension GraphListCollectionViewItem {

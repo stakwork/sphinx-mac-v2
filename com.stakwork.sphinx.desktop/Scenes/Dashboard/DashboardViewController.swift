@@ -73,8 +73,9 @@ class DashboardViewController: NSViewController {
     internal lazy var graphDashboardViewController: WebAppViewController? = {
         WebAppViewController.instantiate(
             chat: nil,
-            appURL: "https://machinelearning.sphinx.chat/",
-            isAppURL: true
+            appURL: API.sharedInstance.kPersonalGraphUrl,
+            isAppURL: true,
+            isPersonalGraph: true
         )
     }()
     

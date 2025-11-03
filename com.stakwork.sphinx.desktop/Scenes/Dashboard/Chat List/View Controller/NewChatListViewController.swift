@@ -511,7 +511,6 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
             case .deleteContact:
                 guard let contactId = (sender.representedObject as? UserContact)?.id else {
                     return
-                    
                 }
                 initiateDeletion(contactId: contactId)
             case .toggleReadUnread:
