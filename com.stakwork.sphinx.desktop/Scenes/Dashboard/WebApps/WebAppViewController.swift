@@ -68,16 +68,28 @@ class WebAppViewController: NSViewController {
     }
     
     func addAndLoadWebView() {
+        var didChangeAppUrl = false
+        
+        if isPersonalGraph {
+            didChangeAppUrl = self.appURL != API.sharedInstance.kPersonalGraphUrl
+        }
         self.appURL = isPersonalGraph ? API.sharedInstance.kPersonalGraphUrl : self.appURL
         
-        let shouldShowPersonalGraphLabel = isPersonalGraph && (appURL.isEmpty || appURL == nil)
+        let appUrlNotSet = (appURL.isEmpty || appURL == nil)
+        let shouldShowPersonalGraphLabel = isPersonalGraph && appUrlNotSet
         personalGraphLabelContainer.isHidden = !shouldShowPersonalGraphLabel
         loadingIndicator.isHidden = true
         
         guard let appURL = appURL, !appURL.isEmpty else {
+            webView?.isHidden = true
+            toggleAuthorizationView(show: false)
             return
         }
         if webView != nil {
+            if didChangeAppUrl {
+                webView?.isHidden = false
+                loadPage()
+            }
             return
         }
         addWebView()
