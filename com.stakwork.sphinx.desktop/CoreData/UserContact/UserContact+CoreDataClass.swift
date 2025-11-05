@@ -443,7 +443,9 @@ public class UserContact: NSManagedObject {
     
     public func updateLastMessage() {
         if let chat = self.getConversation() {
-            self.lastMessage = chat.getLastMessageToShow(includeContactKeyTypes: true)
+            if let lastM = chat.getLastMessageToShow(includeContactKeyTypes: true) {
+                self.lastMessage = lastM
+            }
         }
     }
     
