@@ -16,9 +16,11 @@ class GraphListCollectionViewItem: NSCollectionViewItem {
     
     weak var delegate: ContentItemCollectionViewDelegate?
     
-    @IBOutlet weak var typeImageView: AspectFillNSImageView!
     @IBOutlet weak var typeLabel: NSTextField!
+    @IBOutlet weak var separator: NSTextField!
+    @IBOutlet weak var textLabel: NSTextField!
     @IBOutlet weak var dateLabel: NSTextField!
+    @IBOutlet weak var iconImageView: NSImageView!
     @IBOutlet weak var statusLabel: NSTextField!
 
     override func viewDidLoad() {
@@ -32,21 +34,36 @@ class GraphListCollectionViewItem: NSCollectionViewItem {
         self.delegate = delegate
         
         typeLabel.stringValue = item.typeDescription
-        dateLabel.stringValue = item.date.getStringDate(format: "EEE dd MMM, hh:mm a")
-        statusLabel.stringValue = item.statusString
         
-//        if let type = ContentItem.ContentType(rawValue: item.type) {
-//            switch(type) {
-//            case .text:
-//                typeImageView.image = NSImage(named: "text.bubble.fill")
-//                break
-//            case .externalURL:
-//                typeImageView.image = NSImage(named: "text.bubble.fill")
-//                break
-//            case .fileURL:
-//                break
-//            }
-//        }
+        if item.status == ContentItem.ContentItemStatus.error.rawValue, item.errorMessage != nil {
+            textLabel.stringValue = item.errorMessage ?? ""
+            textLabel.textColor = NSColor.Sphinx.PrimaryRed
+            textLabel.isHidden = false
+            separator.isHidden = false
+        } else if item.type == ContentItem.ContentType.text.rawValue, item.status == ContentItem.ContentItemStatus.onQueue.rawValue {
+            textLabel.stringValue = item.value
+            textLabel.textColor = NSColor.Sphinx.SecondaryText
+            textLabel.isHidden = false
+            separator.isHidden = false
+        } else {
+            textLabel.isHidden = true
+            separator.isHidden = true
+        }
+        
+        
+        dateLabel.stringValue = item.date.getStringDate(format: "EEE dd MMM, hh:mm a")
+        
+        let status = ContentItem.ContentItemStatus(fromRawValue: Int(item.status))
+        
+        statusLabel.stringValue = item.statusString
+        statusLabel.textColor = status.color
+
+        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+            .applying(.init(hierarchicalColor: status.color))
+
+        if let image = NSImage(systemSymbolName: status.sfSymbol, accessibilityDescription: nil) {
+            iconImageView.image = image.withSymbolConfiguration(config)
+        }
     }
     
     override func mouseDown(with event: NSEvent) {

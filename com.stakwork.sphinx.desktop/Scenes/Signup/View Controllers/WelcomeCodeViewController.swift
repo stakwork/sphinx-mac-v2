@@ -73,7 +73,7 @@ class WelcomeCodeViewController: NSViewController {
             placeHolder: placeholder.localized,
             label: "",
             backgroundColor: NSColor.white,
-            field: .Code,
+            field: NamePinView.Fields.Code.rawValue,
             delegate: self
         )
         

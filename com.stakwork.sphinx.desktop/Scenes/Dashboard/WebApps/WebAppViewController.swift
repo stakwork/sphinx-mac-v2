@@ -27,6 +27,8 @@ class WebAppViewController: NSViewController {
     
     let webAppHelper = WebAppHelper()
     
+    let userData = UserData.sharedInstance
+    
     static func instantiate(
         chat: Chat? = nil,
         appURL: String! = nil,
@@ -65,15 +67,25 @@ class WebAppViewController: NSViewController {
         view.window?.delegate = self
         
         addAndLoadWebView()
+        
+        Task{
+            await S3UploaderManager.sharedInstance.testLocalS3Connection()
+        }
+    }
+    
+    func resizeSubviews(frame: NSRect) {
+        view.frame = frame
+        webView?.frame = frame        
     }
     
     func addAndLoadWebView() {
         var didChangeAppUrl = false
+        let personalGraphUrl = userData.getPersonalGraphUrl()
         
         if isPersonalGraph {
-            didChangeAppUrl = self.appURL != API.sharedInstance.kPersonalGraphUrl
+            didChangeAppUrl = self.appURL != personalGraphUrl
         }
-        self.appURL = isPersonalGraph ? API.sharedInstance.kPersonalGraphUrl : self.appURL
+        self.appURL = isPersonalGraph ? personalGraphUrl : self.appURL
         
         let appUrlNotSet = (appURL.isEmpty || appURL == nil)
         let shouldShowPersonalGraphLabel = isPersonalGraph && appUrlNotSet

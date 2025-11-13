@@ -100,6 +100,8 @@ internal enum StoryboardScene {
         internal static let storyboardName = "Profile"
         
         internal static let profileViewController = SceneType<ProfileViewController>(storyboard: Profile.self, identifier: "ProfileViewController")
+        
+        internal static let setupPersonalGraphViewController = SceneType<SetupPersonalGraphViewController>(storyboard: Profile.self, identifier: "SetupPersonalGraphViewController")
     }
     
     internal enum Contacts: StoryboardType {

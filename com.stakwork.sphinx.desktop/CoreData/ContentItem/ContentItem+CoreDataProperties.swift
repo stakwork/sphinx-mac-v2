@@ -21,5 +21,8 @@ extension ContentItem {
     @NSManaged public var status: Int16
     @NSManaged public var projectId: String?
     @NSManaged public var order: Int
+    @NSManaged public var referenceId: String?
+    @NSManaged public var errorMessage: String?
+    @NSManaged public var lastProcessedAt: Date?
 
 }

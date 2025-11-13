@@ -470,6 +470,11 @@
 		479A03F02587E73A0093DB30 /* TribeMemberInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 479A03F22587E73A0093DB30 /* TribeMemberInfoView.xib */; };
 		479A03FC258814240093DB30 /* DeepLinksHandlerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479A03FB258814240093DB30 /* DeepLinksHandlerHelper.swift */; };
 		479B192B2EB8E05500A5B9E2 /* FileAnalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */; };
+		479B192E2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */; };
+		479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 479B19302EC369B800A5B9E2 /* AWSS3 */; };
+		479B19342EC36AC800A5B9E2 /* S3Uploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19332EC36AC500A5B9E2 /* S3Uploader.swift */; };
+		479B19362EC36E6700A5B9E2 /* S3UploaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */; };
+		479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */; };
 		479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */; };
 		479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793524EC3B2B009BA1CD /* WebAppViewController.swift */; };
 		479C793824EC3CCD009BA1CD /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 479C793724EC3CCD009BA1CD /* test.html */; };
@@ -1448,6 +1453,11 @@
 		479A03FB258814240093DB30 /* DeepLinksHandlerHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinksHandlerHelper.swift; sourceTree = "<group>"; };
 		479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAnalizer.swift; sourceTree = "<group>"; };
 		479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 8.xcdatamodel"; sourceTree = "<group>"; };
+		479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupPersonalGraphViewController.swift; sourceTree = "<group>"; };
+		479B19332EC36AC500A5B9E2 /* S3Uploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3Uploader.swift; sourceTree = "<group>"; };
+		479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3UploaderManager.swift; sourceTree = "<group>"; };
+		479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 9.xcdatamodel"; sourceTree = "<group>"; };
+		479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+ContentItemsExtension.swift"; sourceTree = "<group>"; };
 		479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SphinxOnionConnector.swift; sourceTree = "<group>"; };
 		479C793524EC3B2B009BA1CD /* WebAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppViewController.swift; sourceTree = "<group>"; };
 		479C793724EC3CCD009BA1CD /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
@@ -1744,6 +1754,7 @@
 				4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */,
 				47D03DE7250FC8B90077A968 /* PDFKit.framework in Frameworks */,
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
+				479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */,
 				47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2166,6 +2177,7 @@
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
 				4717B6662D9ECA3700E3681E /* Chapters Manager */,
 				4733ED282CB43A9700078EF2 /* ColorsManager */,
 				475B686429917537000EF29C /* Feeds */,
@@ -2352,6 +2364,7 @@
 				473615F62C359D0000EE3334 /* API+V2Extension.swift */,
 				4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */,
 				477CE03F2DC9256A004110E8 /* API+FeedSearchExtension.swift */,
+				479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -2874,6 +2887,7 @@
 			children = (
 				4789E27324F421A2003991BE /* ProfileViewController.swift */,
 				47BDEDF024F466C4001688F3 /* ProfileViewControllerExtension.swift */,
+				479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -3179,6 +3193,15 @@
 				4797F6522B0E396700A19C58 /* TransactionCollectionViewItem.xib */,
 			);
 			path = "Collection View Item";
+			sourceTree = "<group>";
+		};
+		479B19322EC36ABB00A5B9E2 /* S3 Uploader */ = {
+			isa = PBXGroup;
+			children = (
+				479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */,
+				479B19332EC36AC500A5B9E2 /* S3Uploader.swift */,
+			);
+			path = "S3 Uploader";
 			sourceTree = "<group>";
 		};
 		479C792C24EAD1FB009BA1CD /* Tor */ = {
@@ -3929,6 +3952,7 @@
 				47FCE2B62CD8FABC005DB8AF /* LiveKit */,
 				4730EF5A2CDBCF800014581F /* KeychainAccess */,
 				4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */,
+				479B19302EC369B800A5B9E2 /* AWSS3 */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -4013,6 +4037,7 @@
 				47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */,
 				4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
+				479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
 			projectDirPath = "";
@@ -4351,6 +4376,7 @@
 				473E1F342AC46DB700DC1CDC /* ThreadCollectionView+GeneralSetup.swift in Sources */,
 				47B5508A24898331000514BF /* IntegerValueFormatter.swift in Sources */,
 				47FEE2272A66F6BE00646C4E /* CommonNewMessageCollectionViewItem.swift in Sources */,
+				479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */,
 				479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */,
 				47FEE2072A66DB1800646C4E /* NewChatTableDataSource.swift in Sources */,
 				473437AF24DB12E000950F25 /* ContactViewController.swift in Sources */,
@@ -4383,6 +4409,7 @@
 				77CFCEC32D80D370008B2BB7 /* TimezoneSharingView.swift in Sources */,
 				473829B12EB404F4007E045A /* GraphListCollectionViewItem.swift in Sources */,
 				4797E74B2785D2420080B966 /* AuthExternalView.swift in Sources */,
+				479B19362EC36E6700A5B9E2 /* S3UploaderManager.swift in Sources */,
 				93A06CF72BD7E43C003EF2B2 /* NewChatHeaderView.swift in Sources */,
 				47F258DB2541E54000122A5A /* PodcastPaymentsHelper.swift in Sources */,
 				4708C20E2A5884EC00274AD4 /* ChatHeaderView.swift in Sources */,
@@ -4443,6 +4470,7 @@
 				4794967E2AB9EF3700C42D1E /* NewChatViewModel+AttachmentsExtension.swift in Sources */,
 				475723A2247E96DF001ADC7E /* LoadingWheelHelper.swift in Sources */,
 				4720991C24834E0000426028 /* CryptorRSA.swift in Sources */,
+				479B19342EC36AC800A5B9E2 /* S3Uploader.swift in Sources */,
 				479496282AB33D1200C42D1E /* TribeLinkView.swift in Sources */,
 				931083BF2BE0271B00D03EC9 /* TribeMembersViewController.swift in Sources */,
 				478F07D324E2C7A300EE32A3 /* NSTextView.swift in Sources */,
@@ -4681,6 +4709,7 @@
 				4744FA5E2469A41100C5FD94 /* API.swift in Sources */,
 				47DCF7E62D495FAE007A57A9 /* CallControlView.swift in Sources */,
 				4744FA902469C9F800C5FD94 /* Subscription+CoreDataProperties.swift in Sources */,
+				479B192E2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift in Sources */,
 				47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */,
 				475B68682991A1A2000EF29C /* FeedBoostHelper.swift in Sources */,
 				470E0B33247C743900177D8A /* LoadingMoreCollectionViewItem.swift in Sources */,
@@ -5770,6 +5799,14 @@
 				minimumVersion = 5.3.0;
 			};
 		};
+		479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/awslabs/aws-sdk-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.81;
+			};
+		};
 		47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/livekit/client-sdk-swift";
@@ -5791,6 +5828,11 @@
 			package = 4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */;
 			productName = SFSafeSymbols;
 		};
+		479B19302EC369B800A5B9E2 /* AWSS3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
+			productName = AWSS3;
+		};
 		47FCE2B62CD8FABC005DB8AF /* LiveKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */;
@@ -5802,6 +5844,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */,
 				479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */,
 				473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */,
 				478DF8272DCBCE2200768D9F /* com_stakwork_sphinx_desktop 6.xcdatamodel */,
@@ -5811,7 +5854,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */;
+			currentVersion = 479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

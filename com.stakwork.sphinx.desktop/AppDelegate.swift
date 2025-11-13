@@ -62,12 +62,9 @@ import WebKit
         
         ColorsManager.sharedInstance.storeColorsInMemory()
         SphinxOnionManager.sharedInstance.storeOnionStateInMemory()
+        ContentItemsManager.shared.startBackgroundProcessing()
         
         setInitialVC()
-        
-//        ContentItemsManager.shared.removeAll()
-        let allItems = ContentItemsManager.shared.load()
-        print("ALL ITEMS: \(allItems)")
     }
     
     func clearWebkitCache() {
@@ -170,7 +167,11 @@ import WebKit
      
     func handleText(_ text: String) {
         ContentItemsManager.shared.add(value: text)
-        showNotification(title: "Personal Graph", body: "Text received and saved to queue")
+        if text.isValidURL {
+            showNotification(title: "Personal Graph", body: "External URL received and saved to queue")
+        } else {
+            showNotification(title: "Personal Graph", body: "Text received and saved to queue")
+        }
      }
      
      func handleImage(_ image: NSImage) {
@@ -398,6 +399,7 @@ import WebKit
         WindowsManager.sharedInstance.saveWindowState()
         CoreDataManager.sharedManager.saveContext()
         ContactsService.sharedInstance.saveSelectedChat()
+        ContentItemsManager.shared.stopBackgroundProcessing()
     }
     
     func applicationWillBecomeActive(_ notification: Notification) {

@@ -13,14 +13,61 @@ import SwiftyJSON
 public class ContentItem: NSManagedObject {
     
     enum ContentItemStatus: Int {
-        case pending = 0
-        case sent = 1
+        case onQueue = 0
+        case uploaded = 1
         case processing = 2
         case success = 3
         case error = 4
         
         public init(fromRawValue: Int){
-            self = ContentItemStatus(rawValue: fromRawValue) ?? .pending
+            self = ContentItemStatus(rawValue: fromRawValue) ?? .onQueue
+        }
+        
+        var sfSymbol: String {
+            switch self {
+            case .onQueue:
+                return "clock"
+            case .uploaded:
+                return "arrow.up.circle"
+            case .processing:
+                return "gearshape.2"
+            case .success:
+                return "checkmark.circle"
+            case .error:
+                return "xmark.circle"
+            }
+        }
+        
+        var color: NSColor {
+            switch self {
+            case .onQueue:
+                return NSColor.Sphinx.SecondaryText
+            case .uploaded:
+                return NSColor.Sphinx.PrimaryBlue
+            case .processing:
+                return NSColor.Sphinx.SphinxOrange
+            case .success:
+                return NSColor.Sphinx.PrimaryGreen
+            case .error:
+                return NSColor.Sphinx.PrimaryRed
+            }
+        }
+        
+        var statusString : String {
+            get {
+                switch(self) {
+                case .onQueue:
+                    return "Uploaded"
+                case .processing:
+                    return "Processing"
+                case .success:
+                    return "Succeded"
+                case .error:
+                    return "Failed"
+                default:
+                    return "On Queue"
+                }
+            }
         }
     }
     
@@ -30,6 +77,10 @@ public class ContentItem: NSManagedObject {
         case fileURL = "fileURL"
         case externalURL = "externalURL"
         case text = "text"
+    }
+    
+    func shouldBeUploaded() -> Bool {
+        return type == ContentType.image.rawValue || type == ContentType.video.rawValue || type == ContentType.fileURL.rawValue || type == ContentType.text.rawValue
     }
     
     public static func getAllContentItems(context: NSManagedObjectContext) -> [ContentItem] {
@@ -88,7 +139,7 @@ public class ContentItem: NSManagedObject {
         do {
             let results = try managedContext.fetch(fetchRequest)
             return results.first
-        } catch let error as NSError {
+        } catch _ as NSError {
             return nil
         }
     }
@@ -109,9 +160,25 @@ public class ContentItem: NSManagedObject {
         return contentItems
     }
     
+    static func getContentItesmWith(
+        status: Int,
+        managedContext: NSManagedObjectContext? = nil
+    ) -> [ContentItem] {
+        let predicate = NSPredicate(format: "status == %d", status)
+        
+        let contentItems: [ContentItem] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: [],
+            entityName: "ContentItem",
+            managedContext: managedContext
+        )
+        
+        return contentItems
+    }
+    
     static func saveObjectFrom(
         value: String
-    ) {
+    ) -> ContentItem? {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
         let date = Date()
@@ -120,8 +187,11 @@ public class ContentItem: NSManagedObject {
         contentItem.uuid = UUID()
         contentItem.date = Date()
         contentItem.value = value
-        contentItem.status = Int16(ContentItemStatus.pending.rawValue)
+        contentItem.status = Int16(ContentItemStatus.onQueue.rawValue)
         contentItem.projectId = nil
+        contentItem.referenceId = nil
+        contentItem.errorMessage = nil
+        contentItem.lastProcessedAt = nil
         contentItem.order = Int(date.timeIntervalSince1970)
         
         let result = FileAnalyzer.analyze(value)
@@ -140,5 +210,7 @@ public class ContentItem: NSManagedObject {
         }
 
         managedContext.saveContext()
+        
+        return contentItem
     }
 }

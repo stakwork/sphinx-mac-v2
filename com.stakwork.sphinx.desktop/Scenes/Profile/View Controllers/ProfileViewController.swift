@@ -45,7 +45,6 @@ class ProfileViewController: NSViewController {
     
     @IBOutlet weak var meetingServerField: NSTextField!
     @IBOutlet weak var meetingAmountField: NSTextField!
-    @IBOutlet weak var personalGraphUrlField: NSTextField!
     @IBOutlet weak var exportKeysButton: CustomButton!
     @IBOutlet weak var pinTimeoutView: PinTimeoutView!
     
@@ -132,7 +131,6 @@ class ProfileViewController: NSViewController {
         
         userNameField.delegate = self
         meetingServerField.delegate = self
-        personalGraphUrlField.delegate = self
         meetingAmountField.delegate = self
         
         updateTimeAndDate()
@@ -198,9 +196,6 @@ class ProfileViewController: NSViewController {
             
             meetingServerField.stringValue = API.sharedInstance.kVideoCallServer
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
-            
-            personalGraphUrlField.stringValue = API.sharedInstance.kPersonalGraphUrl
-//            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }
     }
     
@@ -364,7 +359,6 @@ class ProfileViewController: NSViewController {
         UserContact.kTipAmount = tempTip
         
         API.sharedInstance.kVideoCallServer = meetingServerField.stringValue
-        API.sharedInstance.kPersonalGraphUrl = personalGraphUrlField.stringValue
         
         WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
     }
@@ -382,9 +376,8 @@ class ProfileViewController: NSViewController {
         let actionsTrackingUpdated = isTrackActionsSwitchOn() != UserDefaults.Keys.shouldTrackActions.get(defaultValue: false)
         let didChangeMettingServer = meetingServerField.stringValue != API.sharedInstance.kVideoCallServer
         let didChangeTipAmount = meetingAmountField.integerValue != UserContact.kTipAmount
-        let didChangeGraphUrl = personalGraphUrlField.stringValue != API.sharedInstance.kPersonalGraphUrl
         
-        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeMettingServer || didChangeTipAmount || didChangeGraphUrl
+        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeMettingServer || didChangeTipAmount
     }
     
     func closeOnCompletion(completion: @escaping () -> ()) {
@@ -417,6 +410,17 @@ class ProfileViewController: NSViewController {
     
     @IBAction func disconnectMQTTButtonClicked(_ sender: Any) {
         CrypterManager.sharedInstance.resetMQTTConnection()
+    }
+    
+    @IBAction func setupPersonalGraphButtonClicked(_ sender: Any) {
+        let setupPersonalGraphVC = SetupPersonalGraphViewController.instantiate()
+
+        advanceTo(
+            vc: setupPersonalGraphVC,
+            identifier: "setup-personal-graph-window",
+            title: "Personal Graph Setup",
+            height: 600
+        )
     }
     
     private func updateTimeAndDate() {

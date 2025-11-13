@@ -23,7 +23,7 @@ class SignupCommonFieldView: NSView, LoadableNib {
     @IBOutlet weak var fieldBox: NSBox!
     @IBOutlet weak var textField: CCTextField!
     
-    var field: NamePinView.Fields = .Name
+    var field: Int = 0
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)

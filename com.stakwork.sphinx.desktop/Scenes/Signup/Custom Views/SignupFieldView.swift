@@ -10,13 +10,17 @@ import Cocoa
 
 class SignupFieldView: SignupCommonFieldView {
     
-    func configureWith(placeHolder: String,
-                       placeHolderColor: NSColor = NSColor.Sphinx.MainBottomIcons,
-                       label: String,
-                       textColor: NSColor = NSColor(hex: "#3C3F41"),
-                       backgroundColor: NSColor,
-                       field: NamePinView.Fields,
-                       delegate: SignupFieldViewDelegate) {
+    func configureWith(
+        placeHolder: String,
+        placeHolderColor: NSColor = NSColor.Sphinx.MainBottomIcons,
+        label: String,
+        textColor: NSColor = NSColor(hex: "#3C3F41"),
+        backgroundColor: NSColor,
+        field: Int,
+        value: String? = nil,
+        onlyNumbers: Bool = false,
+        delegate: SignupFieldViewDelegate
+    ) {
         
         self.field = field
         self.delegate = delegate
@@ -30,6 +34,19 @@ class SignupFieldView: SignupCommonFieldView {
         textField.color = textColor
         textField.textColor = textColor
         textField.delegate = self
+        
+        textField.stringValue = value ?? ""
+        topLabel.alphaValue = textField.stringValue.isEmpty ? 0.0 : 1.0
+        
+        if onlyNumbers {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .none
+            formatter.allowsFloats = false
+            formatter.minimum = 0
+            formatter.maximum = 999999
+            
+            textField.formatter = formatter
+        }
         
         textField.onFocusChange = { active in
             super.toggleActiveState(active)
@@ -45,7 +62,7 @@ extension SignupFieldView {
     
     func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if (commandSelector == #selector(NSResponder.insertTab(_:))) {
-            self.delegate?.didUseTab?(field: field.rawValue)
+            self.delegate?.didUseTab?(field: field)
             return true
         }
         return false

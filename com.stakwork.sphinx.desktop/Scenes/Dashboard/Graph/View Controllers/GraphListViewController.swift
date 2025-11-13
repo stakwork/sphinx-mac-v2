@@ -92,6 +92,7 @@ extension GraphListViewController {
         var type: String
         var date: Date
         var status: Int16
+        var errorMessage: String?
         var projectId: String?
 
         init(
@@ -100,6 +101,7 @@ extension GraphListViewController {
             type: String,
             date: Date,
             status: Int16,
+            errorMessage: String?,
             projectId: String?
         )
         {
@@ -108,6 +110,7 @@ extension GraphListViewController {
             self.type = type
             self.date = date
             self.status = status
+            self.errorMessage = errorMessage
             self.projectId = projectId
         }
         
@@ -115,7 +118,7 @@ extension GraphListViewController {
             get {
                 switch(status) {
                 case 1:
-                    return "Sent"
+                    return "Uploaded"
                 case 2:
                     return "Processing"
                 case 3:
@@ -123,7 +126,7 @@ extension GraphListViewController {
                 case 4:
                     return "Failed"
                 default:
-                    return "Pending"
+                    return "On Queue"
                 }
             }
         }
@@ -320,7 +323,12 @@ extension GraphListViewController {
                     return nil
                 }
                 
-                (headerView as? FeedListHeaderView)?.renderWith(title: "Graph Items")
+                (headerView as? FeedListHeaderView)?.renderWith(
+                    title: "Graph Items",
+                    backgroundColor: NSColor.Sphinx.Body,
+                    showRefreshButton: true,
+                    delegate: self
+                )
                 
                 return headerView
             }
@@ -374,8 +382,9 @@ extension GraphListViewController {
                 id: element.uuid ?? UUID(),
                 value: element.value,
                 type: element.type,
-                date: element.date,
+                date: element.lastProcessedAt ?? element.date,
                 status: element.status,
+                errorMessage: element.errorMessage,
                 projectId: element.projectId
             )
         }
@@ -521,5 +530,11 @@ extension GraphListViewController : ContentItemCollectionViewDelegate {
                 break
             }
         }
+    }
+}
+
+extension GraphListViewController : FeedListHeaderViewDelegate {
+    func didClickRefreshButton() {
+        ContentItemsManager.shared.startBackgroundProcessing()
     }
 }

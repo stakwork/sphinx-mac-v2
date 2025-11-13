@@ -8,10 +8,18 @@
 
 import Cocoa
 
+protocol FeedListHeaderViewDelegate: AnyObject {
+    func didClickRefreshButton()
+}
+
 class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     
+    weak var delegate: FeedListHeaderViewDelegate?
+    
     @IBOutlet var contentView: NSView!
+    @IBOutlet weak var backgroundColorBox: NSBox!
     @IBOutlet weak var headerLabel: NSTextField!
+    @IBOutlet weak var refreshButton: CustomButton!
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -27,6 +35,10 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
         loadViewFromNib()
     }
     
+    func configureView() {
+        refreshButton.cursor = .pointingHand
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -35,5 +47,22 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     
     func renderWith(title: String) {
         headerLabel.stringValue = title
+    }
+    
+    func renderWith(
+        title: String,
+        backgroundColor: NSColor,
+        showRefreshButton: Bool,
+        delegate: FeedListHeaderViewDelegate?
+    ) {
+        backgroundColorBox.fillColor = backgroundColor
+        
+        headerLabel.stringValue = title
+        
+        refreshButton.isHidden = !showRefreshButton
+    }
+    
+    @IBAction func refreshButtonClicked(_ sender: Any) {
+        delegate?.didClickRefreshButton()
     }
 }
