@@ -19,10 +19,10 @@ class ContentItemsManager {
     
     private init() {}
     
-    func startBackgroundProcessing() {
+    func startBackgroundProcessing(completion: (() -> ())? = nil) {
         print("🟢 Starting background processing service")
         
-        processContentItems()
+        processContentItems(completion: completion)
         
         processingTimer = Timer.scheduledTimer(
             withTimeInterval: processingInterval,
@@ -35,12 +35,12 @@ class ContentItemsManager {
     }
     
     func stopBackgroundProcessing() {
-//        print("🔴 Stopping background processing service")
-//        processingTimer?.invalidate()
-//        processingTimer = nil
+        print("🔴 Stopping background processing service")
+        processingTimer?.invalidate()
+        processingTimer = nil
     }
     
-    func processContentItems() {
+    func processContentItems(completion: (() -> ())? = nil) {
         guard !isProcessing else {
             print("⚠️ Already processing, skipping...")
             return
@@ -51,6 +51,7 @@ class ContentItemsManager {
         Task {
             await performProcessing()
             isProcessing = false
+            completion?()
         }
     }
     
@@ -59,7 +60,7 @@ class ContentItemsManager {
         
         let startTime = Date()
         
-        let uploadedCount = await processUploadedItems()
+        let uploadedCount = await processUploadedAndFailedItems()
         
         let checkedCount = await checkProcessingItems()
         
@@ -70,13 +71,16 @@ class ContentItemsManager {
         print("   - Processing items checked: \(checkedCount)")
     }
     
-    private func processUploadedItems() async -> Int {
+    private func processUploadedAndFailedItems() async -> Int {
         let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
         context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         
         var processedCount = 0
         
-        let items = ContentItem.getContentItesmWith(status: ContentItem.ContentItemStatus.uploaded.rawValue, managedContext: context)
+        let items = ContentItem.getContentItesmWith(
+            statuses: [ContentItem.ContentItemStatus.uploaded.rawValue, ContentItem.ContentItemStatus.error.rawValue],
+            managedContext: context
+        )
         
         for item in items {
             let success = await processItemWithRetry(item, context: context)
@@ -96,7 +100,7 @@ class ContentItemsManager {
         
         var checkedCount = 0
         
-        let items = ContentItem.getContentItesmWith(status: ContentItem.ContentItemStatus.processing.rawValue, managedContext: context)
+        let items = ContentItem.getContentItemsWith(status: ContentItem.ContentItemStatus.processing.rawValue, managedContext: context)
         
         for item in items {
             let success = await checkItemWithRetry(item, context: context)
@@ -180,7 +184,10 @@ class ContentItemsManager {
     }
     
     func add(value: String) {
-        let contentitem = ContentItem.saveObjectFrom(value: value)
+        let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
+        let contentitem = ContentItem.saveObjectFrom(value: value, context: context)
         
         guard let contentitem = contentitem else {
             return
@@ -188,28 +195,38 @@ class ContentItemsManager {
         
         if contentitem.type == ContentItem.ContentType.text.rawValue {
             if let url = createTextFile(content: contentitem.value, fileName: "text.\(Date.timeIntervalSinceReferenceDate).txt") {
-                contentitem.value = url.absoluteString
+                context.perform {
+                    contentitem.value = url.absoluteString
+                }
             } else {
-                contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
-                contentitem.managedObjectContext?.saveContext()
+                context.perform {
+                    contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+                    context.saveContext()
+                }
                 return
             }
         }
         
-        if contentitem.type == ContentItem.ContentType.externalURL.rawValue {
-            contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
-        }
-        
-        if let url = URL(string: contentitem.value), contentitem.shouldBeUploaded() {
+        if let url = URL(string: contentitem.value) {
             Task {
-                if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
-                    contentitem.value = resultUrl
-                    contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
+                if contentitem.shouldBeUploaded() {
+                    if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
+                        await context.perform {
+                            contentitem.value = resultUrl
+                            contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
+                        }
+                        
+                        let _ = await self.processItemWithRetry(contentitem, context: context)
+                    }
+                } else {
+                    let _ = await self.processItemWithRetry(contentitem, context: context)
+                }
+                
+                await context.perform {
+                    context.saveContext()
                 }
             }
         }
-        
-        contentitem.managedObjectContext?.saveContext()
     }
     
     func addMultiple(_ values: [String]) {

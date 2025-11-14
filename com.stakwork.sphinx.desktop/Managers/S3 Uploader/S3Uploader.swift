@@ -35,7 +35,7 @@ class S3Uploader {
         }
         
         self.bucketName = bucketName
-        self.localEndpoint = endpoint ?? UserData.sharedInstance.getPersonalGraphAPIUrl()
+        self.localEndpoint = endpoint ?? UserData.sharedInstance.getPersonalGraphS3Url()
         self.accessKey = accessKey
         self.secretKey = secretKey
         self.region = region
@@ -119,7 +119,6 @@ class S3Uploader {
         let data = try Data(contentsOf: fileURL)
         let contentType = fileURL.mimeType()
         
-        // Build URL: http://localhost:4566/bucket-name/key
         let urlString = "\(endpoint)/\(bucketName)/\(key)"
         
         guard let url = URL(string: urlString) else {

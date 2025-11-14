@@ -18,6 +18,7 @@ class WebAppViewController: NSViewController {
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
     @IBOutlet weak var personalGraphLabelContainer: NSBox!
     @IBOutlet weak var personalGraphLabel: NSTextField!
+    @IBOutlet weak var refreshButton: CustomButton!
     
     var webView: WKWebView!
     var appURL: String! = nil
@@ -59,6 +60,8 @@ class WebAppViewController: NSViewController {
         authorizeModalContainer.alphaValue = 0.0
         
         personalGraphLabelContainer.fillColor = NSColor.Sphinx.Body
+        
+        refreshButton.cursor = .pointingHand
     }
     
     override func viewDidAppear() {
@@ -78,7 +81,7 @@ class WebAppViewController: NSViewController {
         webView?.frame = frame        
     }
     
-    func addAndLoadWebView() {
+    func addAndLoadWebView(forceReload: Bool = false) {
         var didChangeAppUrl = false
         let personalGraphUrl = userData.getPersonalGraphUrl()
         
@@ -94,12 +97,14 @@ class WebAppViewController: NSViewController {
         
         guard let appURL = appURL, !appURL.isEmpty else {
             webView?.isHidden = true
+            refreshButton.isHidden = true
             toggleAuthorizationView(show: false)
             return
         }
         if webView != nil {
-            if didChangeAppUrl {
+            if didChangeAppUrl || forceReload {
                 webView?.isHidden = false
+                refreshButton.isHidden = false
                 loadPage()
             }
             return
@@ -190,6 +195,10 @@ class WebAppViewController: NSViewController {
             let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
             webView.load(request)
         }
+    }
+    
+    @IBAction func refreshButtonClicked(_ sender: Any) {
+        addAndLoadWebView(forceReload: true)
     }
 }
 

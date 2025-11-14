@@ -534,7 +534,7 @@ extension GraphListViewController : ContentItemCollectionViewDelegate {
 }
 
 extension GraphListViewController : FeedListHeaderViewDelegate {
-    func didClickRefreshButton() {
-        ContentItemsManager.shared.startBackgroundProcessing()
+    func didClickRefreshButton(completion: @escaping () -> ()) {
+        ContentItemsManager.shared.startBackgroundProcessing(completion: completion)
     }
 }

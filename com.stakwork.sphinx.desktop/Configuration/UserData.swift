@@ -220,9 +220,23 @@ class UserData {
         return nil
     }
     
-    func getPersonalGraphAPIUrl() -> String? {
+    func getPersonalGraphS3Url() -> String? {
         if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
             return "\(url):4566"
+        }
+        return nil
+    }
+    
+    func getPersonalGraphBoltwallUrl() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):8444/api"
+        }
+        return nil
+    }
+    
+    func getPersonalGraphStakworklUrl() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):3333"
         }
         return nil
     }

@@ -152,7 +152,23 @@ public class ContentItem: NSManagedObject {
         
         let contentItems: [ContentItem] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
-            sortDescriptors: [],
+            sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)],
+            entityName: "ContentItem",
+            managedContext: managedContext
+        )
+        
+        return contentItems
+    }
+    
+    static func getContentItemsWith(
+        status: Int,
+        managedContext: NSManagedObjectContext? = nil
+    ) -> [ContentItem] {
+        let predicate = NSPredicate(format: "status == %d", status)
+        
+        let contentItems: [ContentItem] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)],
             entityName: "ContentItem",
             managedContext: managedContext
         )
@@ -161,14 +177,14 @@ public class ContentItem: NSManagedObject {
     }
     
     static func getContentItesmWith(
-        status: Int,
+        statuses: [Int],
         managedContext: NSManagedObjectContext? = nil
     ) -> [ContentItem] {
-        let predicate = NSPredicate(format: "status == %d", status)
+        let predicate = NSPredicate(format: "status IN %@", statuses)
         
         let contentItems: [ContentItem] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
-            sortDescriptors: [],
+            sortDescriptors: [NSSortDescriptor(key: "order", ascending: true)],
             entityName: "ContentItem",
             managedContext: managedContext
         )
@@ -177,9 +193,10 @@ public class ContentItem: NSManagedObject {
     }
     
     static func saveObjectFrom(
-        value: String
+        value: String,
+        context: NSManagedObjectContext? = nil
     ) -> ContentItem? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         
         let date = Date()
         

@@ -151,9 +151,7 @@ class ChatListViewController : DashboardSplittedViewController {
                         self.contactsService.selectedTab = .friends
                         self.contactsService.selectedFriendId = chat?.getObjectId() ?? user.getObjectId()
                         self.setActiveTab(.friends, shouldSwitchChat: false)
-                    }
-                    
-                    self.dashboardNavigationTabs.updateButtonsOnIndexChange()
+                    }                    
                     
                     self.didClickRowAt(
                         chatId: chat?.id,

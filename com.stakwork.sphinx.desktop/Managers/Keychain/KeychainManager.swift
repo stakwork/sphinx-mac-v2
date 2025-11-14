@@ -25,8 +25,7 @@ class KeychainManager {
         case balance_msats = "mac.balance_msats"
         case personalGraphUrl = "mac.personal_graph_url"
         case personalGraphToken = "mac.personal_graph_token"
-        case personalGraphMediaWorkflowId = "mac.personal_graph_media_workflow_id"
-        case personalGraphWebpageWorkflowId = "mac.personal_graph_webpage_workflow_id"
+        case personalGraphWorkflowId = "mac.personal_graph_workflow_id"
     }
     
     let keychain = Keychain(service: "sphinx-app", accessGroup: KeychainManager.kKeychainGroup).synchronizable(true)

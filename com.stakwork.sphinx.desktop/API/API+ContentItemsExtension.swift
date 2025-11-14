@@ -8,10 +8,17 @@
 
 extension API {
     func checkItemNodeExists(url: String) async throws -> CheckNodeResponse {
-        let apiUrl = "\(API.kGraphMindsetUrl)/add_node?sig=&msg="
+        guard let baseUrl = UserData.sharedInstance.getPersonalGraphBoltwallUrl() else {
+            throw NodeError.missingUrl
+        }
+        let apiUrl = "\(baseUrl)/add_node?sig=&msg="
+        
+        var nodeDataParams = [String: AnyObject]()
+        nodeDataParams["source_link"] = url.fixedYoutubeUrl as AnyObject
         
         var params = [String: AnyObject]()
-        params["url"] = url as AnyObject
+        params["node_type"] = "Multimedia" as AnyObject
+        params["node_data"] = nodeDataParams as AnyObject
         
         guard let request = createRequest(
             apiUrl,
@@ -69,12 +76,18 @@ extension API {
 
     // Custom errors
     enum NodeError: Error, LocalizedError {
+        case missingUrl
+        case missingToken
         case invalidRequest
         case invalidResponse
         case missingData
         
         var errorDescription: String? {
             switch self {
+            case .missingUrl:
+                return "Missing Graph URL"
+            case .missingToken:
+                return "Missing Token"
             case .invalidRequest:
                 return "Error creating request"
             case .invalidResponse:
@@ -86,7 +99,10 @@ extension API {
     }
     
     func checkItemNodeStatus(refId: String) async throws -> NodeStatusResponse {
-        let url = "\(API.kGraphMindsetUrl)/node/\(refId)"
+        guard let baseUrl = UserData.sharedInstance.getPersonalGraphBoltwallUrl() else {
+            throw NodeError.missingUrl
+        }
+        let url = "\(baseUrl)/node/\(refId)"
         
         guard let request = createRequest(
             url,
@@ -131,5 +147,71 @@ extension API {
                 projectId: projectId
             )
         }
+    }
+    
+    func createGraphMindsetRunForItem(
+        url: String,
+        refId: String
+    ) async throws -> CreateRunResponse {
+        guard let baseUrl = UserData.sharedInstance.getPersonalGraphStakworklUrl() else {
+            throw NodeError.missingUrl
+        }
+        
+        guard let token = UserData.sharedInstance.getPersonalGraphValue(
+            with: KeychainManager.KeychainKeys.personalGraphToken
+        ) else {
+            throw NodeError.missingToken
+        }
+        
+        // Build API URL
+        let apiUrl = "\(baseUrl)/api/v1/projects"
+        
+        // Build parameters
+        var varsParams = [String: AnyObject]()
+        varsParams["media_url"] = url as AnyObject
+        varsParams["ref_id"] = refId as AnyObject
+        
+        var attributesParams = [String: AnyObject]()
+        attributesParams["vars"] = varsParams as AnyObject
+        
+        var setVarsParams = [String: AnyObject]()
+        setVarsParams["attributes"] = attributesParams as AnyObject
+        
+        var workflowParams = [String: AnyObject]()
+        workflowParams["set_var"] = setVarsParams as AnyObject
+        
+        var params = [String: AnyObject]()
+        params["name"] = url as AnyObject
+        params["workflow_id"] = 53 as AnyObject
+        params["workflow_params"] = workflowParams as AnyObject
+        
+        // Create request
+        guard let request = createRequest(
+            apiUrl,
+            params: params as NSDictionary,
+            method: "POST",
+            token: token
+        ) else {
+            throw NodeError.invalidRequest
+        }
+        
+        // Perform request
+        let data = try await performSphinxRequest(request)
+        
+        // Parse response
+        guard let dictionary = data as? NSDictionary,
+              let responseData = dictionary["data"] as? NSDictionary,
+              let success = dictionary["success"] as? Bool,
+              success else {
+            throw NodeError.invalidResponse
+        }
+        
+        let projectId = responseData["project_id"] as? Int
+        
+        return CreateRunResponse(
+            success: true,
+            projectId: projectId,
+            refId: refId
+        )
     }
 }

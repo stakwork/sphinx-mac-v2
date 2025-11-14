@@ -12,8 +12,7 @@ class SetupPersonalGraphViewController: NSViewController {
     
     @IBOutlet weak var graphUrlField: SignupFieldView!
     @IBOutlet weak var tokenFieldView: SignupFieldView!
-    @IBOutlet weak var mediaWorkflowFieldView: SignupFieldView!
-    @IBOutlet weak var webpageWorkflowFieldView: SignupFieldView!
+    @IBOutlet weak var workflowFieldView: SignupFieldView!
     @IBOutlet weak var confirmButtonView: SignupButtonView!
     
     let userData = UserData.sharedInstance
@@ -23,8 +22,7 @@ class SetupPersonalGraphViewController: NSViewController {
     public enum Fields: Int {
         case GraphUrl
         case Token
-        case MediaWorkflow
-        case WebpageWorkflow
+        case Workflow
     }
     
     static func instantiate() -> SetupPersonalGraphViewController {
@@ -64,26 +62,15 @@ class SetupPersonalGraphViewController: NSViewController {
             delegate: self
         )
         
-        mediaWorkflowFieldView.configureWith(
-            placeHolder: "Media Workflow ID",
+        workflowFieldView.isHidden = true
+        workflowFieldView.configureWith(
+            placeHolder: "Workflow ID",
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            label: "Media Workflow ID",
+            label: "Workflow ID",
             textColor: NSColor.white,
             backgroundColor: NSColor(hex: "#101317"),
-            field: Fields.MediaWorkflow.rawValue,
-            value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphMediaWorkflowId),
-            onlyNumbers: true,
-            delegate: self
-        )
-        
-        webpageWorkflowFieldView.configureWith(
-            placeHolder: "Web Page Workflow ID",
-            placeHolderColor: NSColor.Sphinx.SecondaryText,
-            label: "Web Page Workflow ID",
-            textColor: NSColor.white,
-            backgroundColor: NSColor(hex: "#101317"),
-            field: Fields.WebpageWorkflow.rawValue,
-            value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphWebpageWorkflowId),
+            field: Fields.Workflow.rawValue,
+            value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphWorkflowId),
             onlyNumbers: true,
             delegate: self
         )
@@ -94,16 +81,10 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
         let graphUrl = graphUrlField.getFieldValue()
         let token = tokenFieldView.getFieldValue()
-        let mediaWorkflowIDString = mediaWorkflowFieldView.getFieldValue()
-        let webpageWorkflowIDString = webpageWorkflowFieldView.getFieldValue()
+        let workflowIDString = workflowFieldView.getFieldValue()
         
-        guard let _ = Int(mediaWorkflowIDString) else {
+        guard let _ = Int(workflowIDString) else {
             valueNotValid(field: "Media Workflow ID")
-            return
-        }
-        
-        guard let _ = Int(webpageWorkflowIDString) else {
-            valueNotValid(field: "Web Page Workflow ID")
             return
         }
         
@@ -119,8 +100,7 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
 
         userData.save(personalGraphValue: graphUrl, for: KeychainManager.KeychainKeys.personalGraphUrl)
         userData.save(personalGraphValue: token, for: KeychainManager.KeychainKeys.personalGraphToken)
-        userData.save(personalGraphValue: mediaWorkflowIDString, for: KeychainManager.KeychainKeys.personalGraphMediaWorkflowId)
-        userData.save(personalGraphValue: webpageWorkflowIDString, for: KeychainManager.KeychainKeys.personalGraphWebpageWorkflowId)
+        userData.save(personalGraphValue: workflowIDString, for: KeychainManager.KeychainKeys.personalGraphWorkflowId)
         
         WindowsManager.sharedInstance.backToProfile()
     }
@@ -143,8 +123,8 @@ extension SetupPersonalGraphViewController : SignupFieldViewDelegate {
     
     func isValid() -> Bool {
         return tokenFieldView.getFieldValue().length > 0 &&
-               mediaWorkflowFieldView.getFieldValue().length > 0 && Int(mediaWorkflowFieldView.getFieldValue()) != nil &&
-               webpageWorkflowFieldView.getFieldValue().length > 0 && Int(webpageWorkflowFieldView.getFieldValue()) != nil
+        graphUrlField.getFieldValue().isValidURL
+//        && workflowFieldView.getFieldValue().length > 0 && Int(workflowFieldView.getFieldValue()) != nil
     }
     
     func didUseTab(field: Int) {
@@ -156,13 +136,10 @@ extension SetupPersonalGraphViewController : SignupFieldViewDelegate {
             case .GraphUrl:
                 self.view.window?.makeFirstResponder(self.tokenFieldView.getTextField())
                 break
-            case .Token:
-                self.view.window?.makeFirstResponder(self.mediaWorkflowFieldView.getTextField())
-                break
-            case .MediaWorkflow:
-                self.view.window?.makeFirstResponder(self.webpageWorkflowFieldView.getTextField())
-                break
-            case .WebpageWorkflow:
+//            case .Token:
+//                self.view.window?.makeFirstResponder(self.workflowFieldView.getTextField())
+//                break
+            case .Workflow:
                 self.view.window?.makeFirstResponder(self.graphUrlField.getTextField())
                 break
             default:

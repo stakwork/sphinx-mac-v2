@@ -9,7 +9,7 @@
 import Cocoa
 
 protocol FeedListHeaderViewDelegate: AnyObject {
-    func didClickRefreshButton()
+    func didClickRefreshButton(completion: @escaping () -> ())
 }
 
 class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
@@ -20,6 +20,19 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     @IBOutlet weak var backgroundColorBox: NSBox!
     @IBOutlet weak var headerLabel: NSTextField!
     @IBOutlet weak var refreshButton: CustomButton!
+    @IBOutlet weak var loadingWheel: NSProgressIndicator!
+    
+    var loading = false {
+        didSet {
+            LoadingWheelHelper.toggleLoadingWheel(
+                loading: loading,
+                loadingWheel: loadingWheel,
+                color: NSColor.white,
+                controls: [refreshButton]
+            )
+            refreshButton.isHidden = loading
+        }
+    }
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -55,6 +68,8 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
         showRefreshButton: Bool,
         delegate: FeedListHeaderViewDelegate?
     ) {
+        self.delegate = delegate
+        
         backgroundColorBox.fillColor = backgroundColor
         
         headerLabel.stringValue = title
@@ -63,6 +78,12 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     }
     
     @IBAction func refreshButtonClicked(_ sender: Any) {
-        delegate?.didClickRefreshButton()
+        loading = true
+        
+        delegate?.didClickRefreshButton() {
+            DispatchQueue.main.async {
+                self.loading = false
+            }
+        }
     }
 }

@@ -41,12 +41,6 @@
                                     <constraint firstAttribute="height" constant="68" id="Ux4-R8-Rj4"/>
                                 </constraints>
                             </customView>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="ffE-ru-doK" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="160" width="272" height="68"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="68" id="qQM-cR-T4t"/>
-                                </constraints>
-                            </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="MDO-nb-f8U" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
                                 <rect key="frame" x="64" y="65" width="272" height="48"/>
                                 <constraints>
@@ -64,10 +58,7 @@
                             <constraint firstAttribute="trailing" secondItem="apn-6R-Yrq" secondAttribute="trailing" constant="64" id="cfy-DT-cZz"/>
                             <constraint firstItem="pfh-FZ-hQN" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" id="d01-Fx-sj3"/>
                             <constraint firstItem="Fku-UN-Aes" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="dUd-8B-6sJ"/>
-                            <constraint firstAttribute="trailing" secondItem="ffE-ru-doK" secondAttribute="trailing" constant="64" id="eYt-eg-3lb"/>
-                            <constraint firstItem="ffE-ru-doK" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="fdq-SX-MGo"/>
                             <constraint firstItem="MDO-nb-f8U" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="jfF-rj-vjf"/>
-                            <constraint firstItem="ffE-ru-doK" firstAttribute="top" secondItem="iC8-KY-bxJ" secondAttribute="bottom" constant="12" id="lMv-hy-Y1W"/>
                             <constraint firstItem="apn-6R-Yrq" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" constant="32" id="mBb-lv-PtD"/>
                             <constraint firstItem="apn-6R-Yrq" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="msN-eh-W7U"/>
                             <constraint firstAttribute="trailing" secondItem="iC8-KY-bxJ" secondAttribute="trailing" constant="64" id="nIt-Dd-aUC"/>
@@ -79,9 +70,8 @@
                     <connections>
                         <outlet property="confirmButtonView" destination="MDO-nb-f8U" id="EIv-9c-2x5"/>
                         <outlet property="graphUrlField" destination="apn-6R-Yrq" id="cXc-Ly-4Hm"/>
-                        <outlet property="mediaWorkflowFieldView" destination="iC8-KY-bxJ" id="AS2-o9-COh"/>
                         <outlet property="tokenFieldView" destination="Fku-UN-Aes" id="Pvw-E5-U2Q"/>
-                        <outlet property="webpageWorkflowFieldView" destination="ffE-ru-doK" id="OW9-zT-8Dh"/>
+                        <outlet property="workflowFieldView" destination="iC8-KY-bxJ" id="rdn-Tk-Dgi"/>
                     </connections>
                 </viewController>
                 <customObject id="MGm-8p-FL6" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

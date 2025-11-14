@@ -13,6 +13,7 @@
                 <outlet property="backgroundColorBox" destination="6ql-Tj-TXJ" id="iBa-RD-A21"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="wXY-yH-cHZ"/>
                 <outlet property="headerLabel" destination="6vR-lm-Zop" id="M2Y-Ds-MHm"/>
+                <outlet property="loadingWheel" destination="poA-9h-9fr" id="DM2-mF-PgC"/>
                 <outlet property="refreshButton" destination="dmK-d4-SGn" id="ZcO-yl-jqz"/>
             </connections>
         </customObject>
@@ -37,6 +38,9 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <progressIndicator hidden="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="poA-9h-9fr">
+                    <rect key="frame" x="452" y="12" width="16" height="16"/>
+                </progressIndicator>
                 <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dmK-d4-SGn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="440" y="0.5" width="40.5" height="42"/>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="NGB-TG-o1G">
@@ -73,6 +77,8 @@
                 <constraint firstAttribute="bottom" secondItem="6ql-Tj-TXJ" secondAttribute="bottom" id="aRf-PV-MFb"/>
                 <constraint firstItem="6ql-Tj-TXJ" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="cdZ-uw-fWP"/>
                 <constraint firstItem="6ql-Tj-TXJ" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="gFO-fa-Bxb"/>
+                <constraint firstItem="poA-9h-9fr" firstAttribute="centerY" secondItem="dmK-d4-SGn" secondAttribute="centerY" id="jl0-Eh-qq0"/>
+                <constraint firstItem="poA-9h-9fr" firstAttribute="centerX" secondItem="dmK-d4-SGn" secondAttribute="centerX" id="l4f-dn-1so"/>
             </constraints>
             <point key="canvasLocation" x="121" y="154"/>
         </customView>

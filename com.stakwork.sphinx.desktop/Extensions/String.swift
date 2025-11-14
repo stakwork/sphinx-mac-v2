@@ -1182,6 +1182,12 @@ extension StringProtocol {
 
 extension String {
     
+    var fixedYoutubeUrl : String {
+        get {
+            return self.replacingOccurrences(of: "/v/", with: "/watch?v=")
+        }
+    }
+    
     var attributedStringFromHTML: NSAttributedString? {
         guard let data = data(using: .utf8) else {
             return nil

@@ -200,12 +200,15 @@ class DashboardViewController: NSViewController {
                 
                 if chat.isPublicGroup() {
                     self?.contactsService.selectedTribeId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .tribes
                     self?.listViewController?.setActiveTab(.tribes)
                 } else {
                     self?.contactsService.selectedFriendId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .friends
                     self?.listViewController?.setActiveTab(.friends)
                 }
                 
+                self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
                 self?.shouldGoToChat(chatId: chat.id)
             }
         }
