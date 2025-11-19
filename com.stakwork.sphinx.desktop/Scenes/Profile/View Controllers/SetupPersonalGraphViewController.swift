@@ -81,12 +81,12 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
         let graphUrl = graphUrlField.getFieldValue()
         let token = tokenFieldView.getFieldValue()
-        let workflowIDString = workflowFieldView.getFieldValue()
+//        let workflowIDString = workflowFieldView.getFieldValue()
         
-        guard let _ = Int(workflowIDString) else {
-            valueNotValid(field: "Media Workflow ID")
-            return
-        }
+//        guard let _ = Int(workflowIDString) else {
+//            valueNotValid(field: "Media Workflow ID")
+//            return
+//        }
         
         guard token.isNotEmpty else {
             valueNotValid(field: "Token")
@@ -100,7 +100,7 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
 
         userData.save(personalGraphValue: graphUrl, for: KeychainManager.KeychainKeys.personalGraphUrl)
         userData.save(personalGraphValue: token, for: KeychainManager.KeychainKeys.personalGraphToken)
-        userData.save(personalGraphValue: workflowIDString, for: KeychainManager.KeychainKeys.personalGraphWorkflowId)
+//        userData.save(personalGraphValue: workflowIDString, for: KeychainManager.KeychainKeys.personalGraphWorkflowId)
         
         WindowsManager.sharedInstance.backToProfile()
     }

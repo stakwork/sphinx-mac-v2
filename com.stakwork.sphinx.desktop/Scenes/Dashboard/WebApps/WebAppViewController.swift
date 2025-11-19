@@ -90,7 +90,7 @@ class WebAppViewController: NSViewController {
         }
         self.appURL = isPersonalGraph ? personalGraphUrl : self.appURL
         
-        let appUrlNotSet = (appURL.isEmpty || appURL == nil)
+        let appUrlNotSet = (appURL == nil || appURL.isEmpty)
         let shouldShowPersonalGraphLabel = isPersonalGraph && appUrlNotSet
         personalGraphLabelContainer.isHidden = !shouldShowPersonalGraphLabel
         loadingIndicator.isHidden = true
