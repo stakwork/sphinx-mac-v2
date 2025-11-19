@@ -354,8 +354,9 @@ struct MessageTableCellState {
         }
         
         let hasMarkdownLinks = (message.messageContent?.linkMarkdownMatches.count ?? 0) > 0
+        let hasStandardLinks = (message.messageContent?.stringMsgLinks.count ?? 0) > 0
         
-        guard message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() || (message.isBotResponse() && hasMarkdownLinks) else {
+        guard message.isImageVideoOrPdf() || message.isDirectPayment() || message.isGiphy() || hasMarkdownLinks || hasStandardLinks else {
             return nil
         }
         
@@ -373,7 +374,7 @@ struct MessageTableCellState {
             isGif: message.isGif(),
             isPdf: message.isPDF(),
             isGiphy: message.isGiphy(),
-            isImageLink: hasMarkdownLinks,
+            isImageLink: hasMarkdownLinks || hasStandardLinks,
             isPaid: message.isPaidAttachment(),
             isPaymentTemplate: message.isDirectPayment()
         )
@@ -433,7 +434,9 @@ struct MessageTableCellState {
             urlAndKey = (message.getTemplateURL(), nil)
         } else if message.isGiphy() {
             urlAndKey = (message.getGiphyUrl(), nil)
-        } else if let imageLink = message.messageContent?.linkMarkdownMatches.first?.2, let url = URL(string: imageLink){
+        } else if let imageLink = message.messageContent?.linkMarkdownMatches.first?.2, let url = URL(string: imageLink) {
+            urlAndKey = (url, nil)
+        } else if let imageLink = message.messageContent?.stringMsgLinks.first?.1, let url = URL(string: imageLink) {
             urlAndKey = (url, nil)
         }
         
