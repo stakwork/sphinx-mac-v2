@@ -155,6 +155,20 @@ class ContentItemsManager {
             do {
                 let response = try await API.sharedInstance.checkItemNodeStatus(refId: referenceId)
                 
+//                let itemProcessingFailed = (!response.processing && !response.completed) || (response.processing && response.projectId == nil)
+//                
+//                if itemProcessingFailed {
+//                    
+//                    await context.perform {
+//                        item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+//                        item.lastProcessedAt = Date()
+//                        item.errorMessage = "Processing failed on server"
+//                    }
+//                    
+//                    let response = try await API.sharedInstance.createGraphMindsetRunForItem(url: item.value, refId: referenceId)
+//                    return false
+//                }
+                
                 await context.perform {
                     item.status = Int16(response.completed ? ContentItem.ContentItemStatus.success.rawValue : (response.processing ? ContentItem.ContentItemStatus.processing.rawValue : ContentItem.ContentItemStatus.error.rawValue))
                     item.lastProcessedAt = Date()
