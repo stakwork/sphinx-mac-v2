@@ -24,6 +24,7 @@ class SignupCommonFieldView: NSView, LoadableNib {
     @IBOutlet weak var textField: CCTextField!
     
     var field: Int = 0
+    var maxCharsAllowed: Int? = nil
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)

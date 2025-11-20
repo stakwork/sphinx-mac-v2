@@ -44,6 +44,30 @@ class GraphListViewController: NSViewController {
         super.viewDidLoad()
         
         loadFeedsList()
+        listenToGraphLabelChange()
+    }
+    
+    func listenToGraphLabelChange() {
+        NotificationCenter.default.addObserver(
+            forName: .onGraphLabelChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            DispatchQueue.main.async {
+                self?.updateHeaderTitle()
+            }
+        }
+    }
+    
+    func updateHeaderTitle() {
+        guard let collectionView = graphCollectionView else { return }
+        
+        // Invalidate the supplementary views
+        collectionView.collectionViewLayout?.invalidateLayout()
+        
+        // Reload the section headers
+        let indexSet = IndexSet(integer: 0) // Assuming section 0
+        collectionView.reloadSections(indexSet)
     }
     
     func loadFeedsList() {
@@ -323,8 +347,11 @@ extension GraphListViewController {
                     return nil
                 }
                 
+                let customTitle = UserData.sharedInstance.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel)
+                let title = (customTitle != nil) ? "\(customTitle!) Items" : "Graph Items"
+                
                 (headerView as? FeedListHeaderView)?.renderWith(
-                    title: "Graph Items",
+                    title: title,
                     backgroundColor: NSColor.Sphinx.Body,
                     showRefreshButton: true,
                     delegate: self
@@ -426,18 +453,18 @@ extension GraphListViewController {
 
 extension GraphListViewController : NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-        collectionView.deselectAll(nil)
-        
-        if let indexPath = indexPaths.first {
-            DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
-                let item = self.dataSource.itemIdentifier(for: indexPath)
-                
-                guard let item = item else {
-                    return
-                }
+//        collectionView.deselectAll(nil)
+//        
+//        if let indexPath = indexPaths.first {
+//            DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
+//                let item = self.dataSource.itemIdentifier(for: indexPath)
+//                
+//                guard let item = item else {
+//                    return
+//                }
 //                self.delegate?.didClickRowWith(contentFeedId: item.feedId)
-            })
-        }
+//            })
+//        }
     }
 }
 
@@ -488,17 +515,17 @@ extension GraphListViewController : ContentItemCollectionViewDelegate {
         
         newItems.append(deleteItem)
         
-        let moveToTopItem = NSMenuItem(
-            title: "Move to Top",
-            action: #selector(self.handleMenuItemClick(_:)),
-            keyEquivalent: ""
-        )
-        moveToTopItem.representedObject = item
-        moveToTopItem.target = self
-        moveToTopItem.tag = RightClickedItemActions.moveToTop.rawValue
-        moveToTopItem.isEnabled = true
-        
-        newItems.append(moveToTopItem)
+//        let moveToTopItem = NSMenuItem(
+//            title: "Move to Top",
+//            action: #selector(self.handleMenuItemClick(_:)),
+//            keyEquivalent: ""
+//        )
+//        moveToTopItem.representedObject = item
+//        moveToTopItem.target = self
+//        moveToTopItem.tag = RightClickedItemActions.moveToTop.rawValue
+//        moveToTopItem.isEnabled = true
+//        
+//        newItems.append(moveToTopItem)
         
         if newItems.isEmpty {
             return

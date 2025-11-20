@@ -419,7 +419,7 @@ class ProfileViewController: NSViewController {
             vc: setupPersonalGraphVC,
             identifier: "setup-personal-graph-window",
             title: "Personal Graph Setup",
-            height: 450
+            height: 550
         )
     }
     

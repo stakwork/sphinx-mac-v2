@@ -70,10 +70,6 @@ class WebAppViewController: NSViewController {
         view.window?.delegate = self
         
         addAndLoadWebView()
-        
-        Task{
-            await S3UploaderManager.sharedInstance.testLocalS3Connection()
-        }
     }
     
     func resizeSubviews(frame: NSRect) {

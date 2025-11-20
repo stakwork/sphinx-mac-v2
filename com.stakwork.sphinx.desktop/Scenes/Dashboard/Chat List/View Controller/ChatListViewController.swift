@@ -119,6 +119,16 @@ class ChatListViewController : DashboardSplittedViewController {
     
     func listenForNotifications() {
         NotificationCenter.default.addObserver(
+            forName: .onGraphLabelChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            DispatchQueue.main.async {
+                self?.dashboardNavigationTabs.updateGraphTabLabel()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
             forName: .onContactsAndChatsChanged,
             object: nil,
             queue: OperationQueue.main

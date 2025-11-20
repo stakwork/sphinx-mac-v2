@@ -176,7 +176,7 @@ public class ContentItem: NSManagedObject {
         return contentItems
     }
     
-    static func getContentItesmWith(
+    static func getContentItemsWith(
         statuses: [Int],
         managedContext: NSManagedObjectContext? = nil
     ) -> [ContentItem] {

@@ -23,22 +23,22 @@
                                 </view>
                                 <color key="fillColor" name="Body"/>
                             </box>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="apn-6R-Yrq" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="iC8-KY-bxJ" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
                                 <rect key="frame" x="64" y="400" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="Ux4-R8-Rj4"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="apn-6R-Yrq" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="320" width="272" height="68"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="68" id="z3p-td-h4g"/>
                                 </constraints>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="Fku-UN-Aes" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="320" width="272" height="68"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="68" id="Xyb-Lg-af5"/>
-                                </constraints>
-                            </customView>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="iC8-KY-bxJ" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
                                 <rect key="frame" x="64" y="240" width="272" height="68"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="68" id="Ux4-R8-Rj4"/>
+                                    <constraint firstAttribute="height" constant="68" id="Xyb-Lg-af5"/>
                                 </constraints>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="MDO-nb-f8U" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
@@ -49,17 +49,17 @@
                             </customView>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="apn-6R-Yrq" firstAttribute="top" secondItem="iC8-KY-bxJ" secondAttribute="bottom" constant="12" id="5dB-ss-Bao"/>
                             <constraint firstAttribute="bottom" secondItem="pfh-FZ-hQN" secondAttribute="bottom" id="BiS-23-Fna"/>
                             <constraint firstAttribute="trailing" secondItem="MDO-nb-f8U" secondAttribute="trailing" constant="64" id="Cqh-YW-QhK"/>
                             <constraint firstItem="Fku-UN-Aes" firstAttribute="top" secondItem="apn-6R-Yrq" secondAttribute="bottom" constant="12" id="L39-0Q-Urb"/>
                             <constraint firstItem="pfh-FZ-hQN" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" id="YX2-2I-zrt"/>
-                            <constraint firstItem="iC8-KY-bxJ" firstAttribute="top" secondItem="Fku-UN-Aes" secondAttribute="bottom" constant="12" id="bFG-EC-Hmc"/>
+                            <constraint firstItem="iC8-KY-bxJ" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" constant="32" id="aoe-87-6mb"/>
                             <constraint firstAttribute="trailing" secondItem="Fku-UN-Aes" secondAttribute="trailing" constant="64" id="bvE-Tt-Mxd"/>
                             <constraint firstAttribute="trailing" secondItem="apn-6R-Yrq" secondAttribute="trailing" constant="64" id="cfy-DT-cZz"/>
                             <constraint firstItem="pfh-FZ-hQN" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" id="d01-Fx-sj3"/>
                             <constraint firstItem="Fku-UN-Aes" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="dUd-8B-6sJ"/>
                             <constraint firstItem="MDO-nb-f8U" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="jfF-rj-vjf"/>
-                            <constraint firstItem="apn-6R-Yrq" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" constant="32" id="mBb-lv-PtD"/>
                             <constraint firstItem="apn-6R-Yrq" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="msN-eh-W7U"/>
                             <constraint firstAttribute="trailing" secondItem="iC8-KY-bxJ" secondAttribute="trailing" constant="64" id="nIt-Dd-aUC"/>
                             <constraint firstAttribute="bottom" secondItem="MDO-nb-f8U" secondAttribute="bottom" constant="65" id="oQu-Rm-5cD"/>
@@ -69,9 +69,9 @@
                     </view>
                     <connections>
                         <outlet property="confirmButtonView" destination="MDO-nb-f8U" id="EIv-9c-2x5"/>
+                        <outlet property="graphLabelField" destination="iC8-KY-bxJ" id="gG9-64-iEq"/>
                         <outlet property="graphUrlField" destination="apn-6R-Yrq" id="cXc-Ly-4Hm"/>
                         <outlet property="tokenFieldView" destination="Fku-UN-Aes" id="Pvw-E5-U2Q"/>
-                        <outlet property="workflowFieldView" destination="iC8-KY-bxJ" id="rdn-Tk-Dgi"/>
                     </connections>
                 </viewController>
                 <customObject id="MGm-8p-FL6" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

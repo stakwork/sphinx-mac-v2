@@ -14,7 +14,7 @@ class ContentItemsManager {
     
     private var processingTimer: Timer?
     private var isProcessing = false
-    private let processingInterval: TimeInterval = 3600
+    private let processingInterval: TimeInterval = 1800
     private let maxRetries = 3
     
     private init() {}
@@ -77,8 +77,8 @@ class ContentItemsManager {
         
         var processedCount = 0
         
-        let items = ContentItem.getContentItesmWith(
-            statuses: [ContentItem.ContentItemStatus.uploaded.rawValue, ContentItem.ContentItemStatus.error.rawValue],
+        let items = ContentItem.getContentItemsWith(
+            status: ContentItem.ContentItemStatus.uploaded.rawValue,
             managedContext: context
         )
         
@@ -100,7 +100,10 @@ class ContentItemsManager {
         
         var checkedCount = 0
         
-        let items = ContentItem.getContentItemsWith(status: ContentItem.ContentItemStatus.processing.rawValue, managedContext: context)
+        let items = ContentItem.getContentItemsWith(
+            statuses: [ContentItem.ContentItemStatus.processing.rawValue, ContentItem.ContentItemStatus.error.rawValue],
+            managedContext: context
+        )
         
         for item in items {
             let success = await checkItemWithRetry(item, context: context)
@@ -124,6 +127,10 @@ class ContentItemsManager {
                     item.lastProcessedAt = Date()
                     item.errorMessage = nil
                     item.referenceId = response.refId
+                    
+                    if let projectId = response.projectId {
+                        item.projectId = String(projectId)
+                    }
                 }
                 
                 print("✓ Item \(item.uuid?.uuidString ?? "Empty UUID") processed (attempt \(attempt))")
@@ -153,22 +160,20 @@ class ContentItemsManager {
             }
             
             do {
+                if let projectId = item.projectId {
+                    let projectResponse = try await API.sharedInstance.checkProjectStatus(projectId: projectId)
+                    
+                    await context.perform {
+                        item.status = Int16(projectResponse.completed ? ContentItem.ContentItemStatus.success.rawValue : (projectResponse.processing ? ContentItem.ContentItemStatus.processing.rawValue : ContentItem.ContentItemStatus.error.rawValue))
+                        item.errorMessage = projectResponse.errorMessage
+                        item.lastProcessedAt = Date()
+                    }
+                    
+                    return true
+                }
+                
                 let response = try await API.sharedInstance.checkItemNodeStatus(refId: referenceId)
-                
-//                let itemProcessingFailed = (!response.processing && !response.completed) || (response.processing && response.projectId == nil)
-//                
-//                if itemProcessingFailed {
-//                    
-//                    await context.perform {
-//                        item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
-//                        item.lastProcessedAt = Date()
-//                        item.errorMessage = "Processing failed on server"
-//                    }
-//                    
-//                    let response = try await API.sharedInstance.createGraphMindsetRunForItem(url: item.value, refId: referenceId)
-//                    return false
-//                }
-                
+ 
                 await context.perform {
                     item.status = Int16(response.completed ? ContentItem.ContentItemStatus.success.rawValue : (response.processing ? ContentItem.ContentItemStatus.processing.rawValue : ContentItem.ContentItemStatus.error.rawValue))
                     item.lastProcessedAt = Date()
@@ -176,18 +181,12 @@ class ContentItemsManager {
                     if response.completed {
                         item.errorMessage = nil
                     } else if !response.completed {
-                        item.errorMessage = "Processing failed on server"
+                        item.errorMessage = "Run failed"
                     }
                 }
                 
-                let itemStatusString = ContentItem.ContentItemStatus(fromRawValue: Int(item.status)).statusString
-                
-                print("✓ Item \(item.uuid?.uuidString ?? "Empty UUID") status updated to \(itemStatusString) (attempt \(attempt))")
                 return true
-                
             } catch {
-                print("✗ Attempt \(attempt) failed checking item \(item.uuid?.uuidString ?? "Empty UUID"): \(error)")
-                
                 if attempt < maxRetries {
                     try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
                 }

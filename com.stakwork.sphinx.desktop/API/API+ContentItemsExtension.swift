@@ -149,6 +149,78 @@ extension API {
         }
     }
     
+    func checkProjectStatus(projectId: String) async throws -> ProjectStatusResponse {
+        guard let baseUrl = UserData.sharedInstance.getPersonalGraphStakworklUrl() else {
+            throw NodeError.missingUrl
+        }
+        
+        guard let token = UserData.sharedInstance.getPersonalGraphValue(
+            with: KeychainManager.KeychainKeys.personalGraphToken
+        ) else {
+            throw NodeError.missingToken
+        }
+        
+        let apiUrl = "\(baseUrl)/api/v1/projects/\(projectId)/status"
+
+        guard let request = createRequest(
+            apiUrl,
+            params: nil,
+            method: "GET",
+            token: token
+        ) else {
+            throw NodeError.invalidRequest
+        }
+        
+        let data = try await performSphinxRequest(request)
+        
+        guard let dictionary = data as? NSDictionary,
+              let responseData = dictionary["data"] as? NSDictionary,
+              let success = dictionary["success"] as? Bool, success else
+        {
+            throw NodeError.invalidResponse
+        }
+        
+        let status = responseData["status"] as? String
+        var errorMessage: String? = nil
+        
+        switch status {
+        case "new":
+            break
+        case "in_progress":
+            break
+        case "halted":
+            errorMessage = "Run halted"
+            break
+        case "completed":
+            break
+        case "error":
+            errorMessage = "Run failed"
+            break
+        case "stopped":
+            errorMessage = "Run stopped"
+            break
+        case "stopping":
+            errorMessage = "Run stopped"
+            break
+        case "enqueued":
+            break
+        case "stuck":
+            errorMessage = "Run stuck"
+            break
+        case "refunded":
+            errorMessage = "Run refunded"
+            break
+        default:
+            break
+        }
+        
+        return ProjectStatusResponse(
+            completed: status == "completed",
+            processing: status == "in_progress" || status == "enqueued",
+            failed: status == "error" || status == "halted" || status == "stopped" || status == "stopping" || status == "stuck" || status == "refunded",
+            errorMessage: errorMessage
+        )
+    }
     func createGraphMindsetRunForItem(
         url: String,
         refId: String

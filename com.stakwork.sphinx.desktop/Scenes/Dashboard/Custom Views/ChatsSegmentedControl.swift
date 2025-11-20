@@ -39,6 +39,8 @@ class ChatsSegmentedControl: NSView {
     let kButtonWidth: CGFloat = 65.0
     let kButtonHeight: CGFloat = 48.0
     
+    let kGraphButtonTag = 100
+    
     
     /// Indices for tabs that should have a circular badge displayed next to their title.
     public var indicesOfTitlesWithBadge: [Int] = [] {
@@ -122,6 +124,29 @@ extension ChatsSegmentedControl {
         setupInitialViews()
         updateButtonsOnIndexChange()
     }
+    
+    public func updateGraphTabLabel() {
+        let newLabel = UserData.sharedInstance.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel) ?? "Graph"
+        buttonTitles[ChatListViewController.DashboardTab.graph.rawValue] = newLabel
+        let graphButton = buttons[ChatListViewController.DashboardTab.graph.rawValue]
+        
+        let attributedTitle = graphButton.attributedTitle
+        
+        let color = attributedTitle.attribute(
+            .foregroundColor,
+            at: 0,
+            effectiveRange: nil
+        ) as? NSColor
+        
+        graphButton.attributedTitle = NSAttributedString(
+            string: newLabel,
+            attributes:
+                [
+                    NSAttributedString.Key.foregroundColor : color ?? buttonTextColor,
+                    NSAttributedString.Key.font: buttonTitleFont
+                ]
+        )
+    }
 }
 
 // MARK: -  View Configuration
@@ -184,7 +209,7 @@ extension ChatsSegmentedControl {
         buttons = [NSButton]()
         buttons.removeAll()
         
-        for buttonTitle in buttonTitles {
+        for (index, buttonTitle) in buttonTitles.enumerated() {
             
             let view = NSView(
                 frame: NSRect(
@@ -204,8 +229,11 @@ extension ChatsSegmentedControl {
                 )
             )
             
+            let buttonCustomTitle = UserData.sharedInstance.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel) ?? buttonTitle
+            let isGraphButton = (index == ChatListViewController.DashboardTab.graph.rawValue)
+            
             button.attributedTitle = NSAttributedString(
-                string: buttonTitle,
+                string: isGraphButton ? buttonCustomTitle : buttonTitle,
                 attributes:
                     [
                         NSAttributedString.Key.foregroundColor : buttonTextColor,

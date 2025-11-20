@@ -44,6 +44,25 @@ extension API {
         }
     }
     
+    struct ProjectStatusResponse {
+        var completed: Bool
+        var processing: Bool
+        var failed: Bool
+        var errorMessage: String?
+        
+        init(
+            completed: Bool,
+            processing: Bool,
+            failed: Bool,
+            errorMessage: String? = nil
+        ) {
+            self.completed = completed
+            self.processing = processing
+            self.failed = failed
+            self.errorMessage = errorMessage
+        }
+    }
+    
     struct CreateRunResponse {
         var success: Bool
         var projectId: Int?

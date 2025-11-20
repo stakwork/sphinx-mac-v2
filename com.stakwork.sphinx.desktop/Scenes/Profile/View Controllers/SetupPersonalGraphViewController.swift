@@ -10,9 +10,9 @@ import Cocoa
 
 class SetupPersonalGraphViewController: NSViewController {
     
+    @IBOutlet weak var graphLabelField: SignupFieldView!
     @IBOutlet weak var graphUrlField: SignupFieldView!
     @IBOutlet weak var tokenFieldView: SignupFieldView!
-    @IBOutlet weak var workflowFieldView: SignupFieldView!
     @IBOutlet weak var confirmButtonView: SignupButtonView!
     
     let userData = UserData.sharedInstance
@@ -20,9 +20,9 @@ class SetupPersonalGraphViewController: NSViewController {
     var newMessageBubbleHelper = NewMessageBubbleHelper()
         
     public enum Fields: Int {
+        case GraphLabel
         case GraphUrl
         case Token
-        case Workflow
     }
     
     static func instantiate() -> SetupPersonalGraphViewController {
@@ -62,16 +62,15 @@ class SetupPersonalGraphViewController: NSViewController {
             delegate: self
         )
         
-        workflowFieldView.isHidden = true
-        workflowFieldView.configureWith(
-            placeHolder: "Workflow ID",
+        graphLabelField.configureWith(
+            placeHolder: "Graph Label",
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            label: "Workflow ID",
+            label: "Graph Label",
             textColor: NSColor.white,
             backgroundColor: NSColor(hex: "#101317"),
-            field: Fields.Workflow.rawValue,
-            value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphWorkflowId),
-            onlyNumbers: true,
+            field: Fields.GraphLabel.rawValue,
+            value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel),
+            maxChars: 12,
             delegate: self
         )
     }
@@ -81,12 +80,12 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
     func didClickButton(tag: Int) {
         let graphUrl = graphUrlField.getFieldValue()
         let token = tokenFieldView.getFieldValue()
-//        let workflowIDString = workflowFieldView.getFieldValue()
+        let graphLabel = graphLabelField.getFieldValue()
         
-//        guard let _ = Int(workflowIDString) else {
-//            valueNotValid(field: "Media Workflow ID")
-//            return
-//        }
+        guard graphLabel.isNotEmpty && graphLabel.count <= 12 else {
+            valueNotValid(field: "Graph Label")
+            return
+        }
         
         guard token.isNotEmpty else {
             valueNotValid(field: "Token")
@@ -97,10 +96,16 @@ extension SetupPersonalGraphViewController : SignupButtonViewDelegate {
             valueNotValid(field: "Graph Url")
             return
         }
+        
+        let didChangeGraphLabel = graphLabel != userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel)
 
         userData.save(personalGraphValue: graphUrl, for: KeychainManager.KeychainKeys.personalGraphUrl)
         userData.save(personalGraphValue: token, for: KeychainManager.KeychainKeys.personalGraphToken)
-//        userData.save(personalGraphValue: workflowIDString, for: KeychainManager.KeychainKeys.personalGraphWorkflowId)
+        userData.save(personalGraphValue: graphLabel, for: KeychainManager.KeychainKeys.personalGraphLabel)
+        
+        if didChangeGraphLabel {
+            NotificationCenter.default.post(name: .onGraphLabelChanged, object: nil)
+        }
         
         WindowsManager.sharedInstance.backToProfile()
     }
@@ -122,9 +127,9 @@ extension SetupPersonalGraphViewController : SignupFieldViewDelegate {
     }
     
     func isValid() -> Bool {
-        return tokenFieldView.getFieldValue().length > 0 &&
-        graphUrlField.getFieldValue().isValidURL
-//        && workflowFieldView.getFieldValue().length > 0 && Int(workflowFieldView.getFieldValue()) != nil
+        return tokenFieldView.getFieldValue().isNotEmpty &&
+        graphUrlField.getFieldValue().isValidURL &&
+        graphLabelField.getFieldValue().isNotEmpty && graphLabelField.getFieldValue().count <= 12
     }
     
     func didUseTab(field: Int) {
@@ -133,17 +138,14 @@ extension SetupPersonalGraphViewController : SignupFieldViewDelegate {
             
             let field = Fields(rawValue: field)
             switch (field) {
+            case .GraphLabel:
+                self.view.window?.makeFirstResponder(self.graphUrlField.getTextField())
+                break
             case .GraphUrl:
                 self.view.window?.makeFirstResponder(self.tokenFieldView.getTextField())
                 break
-//            case .Token:
-//                self.view.window?.makeFirstResponder(self.workflowFieldView.getTextField())
-//                break
-            case .Workflow:
-                self.view.window?.makeFirstResponder(self.graphUrlField.getTextField())
-                break
             default:
-                self.view.window?.makeFirstResponder(self.graphUrlField.getTextField())
+                self.view.window?.makeFirstResponder(self.graphLabelField.getTextField())
                 break
             }
         }

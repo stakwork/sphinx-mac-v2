@@ -19,11 +19,13 @@ class SignupFieldView: SignupCommonFieldView {
         field: Int,
         value: String? = nil,
         onlyNumbers: Bool = false,
+        maxChars: Int? = nil,
         delegate: SignupFieldViewDelegate
     ) {
         
         self.field = field
         self.delegate = delegate
+        self.maxCharsAllowed = maxChars
         
         fieldBox.fillColor = backgroundColor
         
@@ -56,6 +58,22 @@ class SignupFieldView: SignupCommonFieldView {
 
 extension SignupFieldView {
     override func controlTextDidChange(_ obj: Notification) {
+        guard let textField = obj.object as? NSTextField else { return }
+                
+        var text = textField.stringValue
+        
+        if let maxCharsAllowed = maxCharsAllowed {
+            text = text.filter { $0.isLetter || $0.isNumber || $0 == " " }
+            
+            if text.count > maxCharsAllowed {
+                text = String(text.prefix(maxCharsAllowed))
+            }
+            
+            if textField.stringValue != text {
+                textField.stringValue = text
+            }
+        }
+        
         topLabel.alphaValue = textField.stringValue.isEmpty ? 0.0 : 1.0
         self.delegate?.didChangeText?(text: textField.stringValue)
     }
