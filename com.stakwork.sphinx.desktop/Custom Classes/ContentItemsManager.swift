@@ -230,6 +230,10 @@ class ContentItemsManager {
                         }
                         
                         let _ = await self.processItemWithRetry(contentitem, context: context)
+                    } else {
+                        await context.perform {
+                            contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+                        }
                     }
                 } else {
                     let _ = await self.processItemWithRetry(contentitem, context: context)

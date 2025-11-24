@@ -146,7 +146,7 @@ extension GraphListViewController {
                 case 2:
                     return "Processing"
                 case 3:
-                    return "Succeded"
+                    return "Completed"
                 case 4:
                     return "Failed"
                 default:

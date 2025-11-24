@@ -61,7 +61,7 @@ public class ContentItem: NSManagedObject {
                 case .processing:
                     return "Processing"
                 case .success:
-                    return "Succeded"
+                    return "Completed"
                 case .error:
                     return "Failed"
                 default:
