@@ -48,6 +48,7 @@ class SetupPersonalGraphViewController: NSViewController {
             backgroundColor: NSColor(hex: "#101317"),
             field: Fields.GraphUrl.rawValue,
             value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl),
+            validationType: .url,
             delegate: self
         )
         
@@ -59,6 +60,7 @@ class SetupPersonalGraphViewController: NSViewController {
             backgroundColor: NSColor(hex: "#101317"),
             field: Fields.Token.rawValue,
             value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphToken),
+            validationType: .alphanumericOnly,
             delegate: self
         )
         
@@ -70,7 +72,7 @@ class SetupPersonalGraphViewController: NSViewController {
             backgroundColor: NSColor(hex: "#101317"),
             field: Fields.GraphLabel.rawValue,
             value: userData.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel),
-            maxChars: 12,
+            validationType: .alphanumericWithSpaces(maxLength: 12),
             delegate: self
         )
     }

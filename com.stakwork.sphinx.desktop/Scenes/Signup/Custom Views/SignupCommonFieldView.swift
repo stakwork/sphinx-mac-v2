@@ -16,6 +16,12 @@ import Cocoa
 
 class SignupCommonFieldView: NSView, LoadableNib {
     
+    enum ValidationType {
+        case alphanumericWithSpaces(maxLength: Int)
+        case alphanumericOnly
+        case url
+    }
+    
     weak var delegate: SignupFieldViewDelegate?
     
     @IBOutlet var contentView: NSView!
@@ -24,7 +30,8 @@ class SignupCommonFieldView: NSView, LoadableNib {
     @IBOutlet weak var textField: CCTextField!
     
     var field: Int = 0
-    var maxCharsAllowed: Int? = nil
+    
+    var validationType: ValidationType? = nil
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)

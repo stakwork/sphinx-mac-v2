@@ -975,6 +975,7 @@
 		471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "API+VersionsExtension.swift"; sourceTree = "<group>"; };
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
 		471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ReadMuteExtension.swift"; sourceTree = "<group>"; };
+		472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 10.xcdatamodel"; sourceTree = "<group>"; };
 		4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorRSAUtilities.swift; sourceTree = "<group>"; };
 		4720990F24834E0000426028 /* Data+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
 		4720991024834E0000426028 /* SSLPointerTricks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSLPointerTricks.swift; sourceTree = "<group>"; };
@@ -5844,6 +5845,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */,
 				479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */,
 				479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */,
 				473829A12EB3F34D007E045A /* com_stakwork_sphinx_desktop 7.xcdatamodel */,
@@ -5854,7 +5856,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */;
+			currentVersion = 472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -178,9 +178,14 @@ public class ContentItem: NSManagedObject {
     
     static func getContentItemsWith(
         statuses: [Int],
+        filterRetriedItems: Bool,
         managedContext: NSManagedObjectContext? = nil
     ) -> [ContentItem] {
-        let predicate = NSPredicate(format: "status IN %@", statuses)
+        var predicate = NSPredicate(format: "status IN %@", statuses)
+        
+        if filterRetriedItems {
+            predicate = NSPredicate(format: "status IN %@ AND didRetry == false", statuses)
+        }
         
         let contentItems: [ContentItem] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,

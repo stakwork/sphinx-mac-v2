@@ -78,7 +78,8 @@ class ContentItemsManager {
         var processedCount = 0
         
         let items = ContentItem.getContentItemsWith(
-            status: ContentItem.ContentItemStatus.uploaded.rawValue,
+            statuses: [ContentItem.ContentItemStatus.uploaded.rawValue, ContentItem.ContentItemStatus.error.rawValue],
+            filterRetriedItems: true,
             managedContext: context
         )
         
@@ -101,7 +102,7 @@ class ContentItemsManager {
         var checkedCount = 0
         
         let items = ContentItem.getContentItemsWith(
-            statuses: [ContentItem.ContentItemStatus.processing.rawValue, ContentItem.ContentItemStatus.error.rawValue],
+            status: ContentItem.ContentItemStatus.processing.rawValue,
             managedContext: context
         )
         
@@ -120,15 +121,28 @@ class ContentItemsManager {
     private func processItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
         for attempt in 1...maxRetries {
             do {
-                let response = try await API.sharedInstance.checkItemNodeExists(url: item.value)
+                var response: API.CheckNodeResponse? = nil
+                var didRetry = false
+                
+                if item.status == Int16(ContentItem.ContentItemStatus.error.rawValue) {
+                    if let refId = item.referenceId, item.value.isValidURL, !didRetry {
+                        response = try await API.sharedInstance.createGraphMindsetRunForItem(url: item.value, refId: refId)
+                        didRetry = true
+                    } else {
+                        return true
+                    }
+                } else {
+                    response = try await API.sharedInstance.checkItemNodeExists(url: item.value)
+                }
                 
                 await context.perform {
                     item.status = Int16(ContentItem.ContentItemStatus.processing.rawValue)
                     item.lastProcessedAt = Date()
                     item.errorMessage = nil
-                    item.referenceId = response.refId
+                    item.referenceId = response?.refId
+                    item.didRetry = didRetry
                     
-                    if let projectId = response.projectId {
+                    if let projectId = response?.projectId {
                         item.projectId = String(projectId)
                     }
                 }

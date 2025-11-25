@@ -24,5 +24,6 @@ extension ContentItem {
     @NSManaged public var referenceId: String?
     @NSManaged public var errorMessage: String?
     @NSManaged public var lastProcessedAt: Date?
+    @NSManaged public var didRetry: Bool
 
 }

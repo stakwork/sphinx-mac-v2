@@ -224,7 +224,7 @@ extension API {
     func createGraphMindsetRunForItem(
         url: String,
         refId: String
-    ) async throws -> CreateRunResponse {
+    ) async throws -> CheckNodeResponse {
         guard let baseUrl = UserData.sharedInstance.getPersonalGraphStakworklUrl() else {
             throw NodeError.missingUrl
         }
@@ -254,7 +254,7 @@ extension API {
         
         var params = [String: AnyObject]()
         params["name"] = url as AnyObject
-        params["workflow_id"] = 53 as AnyObject
+        params["workflow_id"] = 1 as AnyObject
         params["workflow_params"] = workflowParams as AnyObject
         
         // Create request
@@ -280,10 +280,10 @@ extension API {
         
         let projectId = responseData["project_id"] as? Int
         
-        return CreateRunResponse(
+        return CheckNodeResponse(
             success: true,
-            projectId: projectId,
-            refId: refId
+            refId: refId,
+            projectId: projectId
         )
     }
 }
