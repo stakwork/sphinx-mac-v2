@@ -352,7 +352,6 @@ extension GraphListViewController {
                 
                 (headerView as? FeedListHeaderView)?.renderWith(
                     title: title,
-                    backgroundColor: NSColor.Sphinx.Body,
                     showRefreshButton: true,
                     delegate: self
                 )

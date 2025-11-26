@@ -31,7 +31,7 @@
                     </view>
                 </box>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6vR-lm-Zop">
-                    <rect key="frame" x="14" y="11" width="74" height="19"/>
+                    <rect key="frame" x="14" y="16" width="74" height="19"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Following" id="GzC-9y-tuX">
                         <font key="font" size="16" name="Roboto-Bold"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -39,10 +39,10 @@
                     </textFieldCell>
                 </textField>
                 <progressIndicator hidden="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="poA-9h-9fr">
-                    <rect key="frame" x="452" y="12" width="16" height="16"/>
+                    <rect key="frame" x="452" y="17" width="16" height="16"/>
                 </progressIndicator>
                 <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dmK-d4-SGn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                    <rect key="frame" x="440" y="0.5" width="40.5" height="42"/>
+                    <rect key="frame" x="440" y="5.5" width="40.5" height="42"/>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="NGB-TG-o1G">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
@@ -69,7 +69,7 @@
                 </button>
             </subviews>
             <constraints>
-                <constraint firstItem="6vR-lm-Zop" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" constant="5" id="1aB-AC-8Sz"/>
+                <constraint firstItem="6vR-lm-Zop" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="1aB-AC-8Sz"/>
                 <constraint firstAttribute="trailing" secondItem="dmK-d4-SGn" secondAttribute="trailing" id="2uv-0W-FHo"/>
                 <constraint firstItem="dmK-d4-SGn" firstAttribute="centerY" secondItem="6vR-lm-Zop" secondAttribute="centerY" id="A6V-13-yzg"/>
                 <constraint firstItem="6vR-lm-Zop" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="16" id="DL2-BN-yFo"/>

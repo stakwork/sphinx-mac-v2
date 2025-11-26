@@ -41,15 +41,19 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     override init(frame: CGRect) {
         super.init(frame: frame)
         loadViewFromNib()
+        configureView()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         loadViewFromNib()
+        configureView()
     }
     
     func configureView() {
         refreshButton.cursor = .pointingHand
+        
+        backgroundColorBox.fillColor = NSColor.Sphinx.Body
     }
     
     override func prepareForReuse() {
@@ -58,19 +62,18 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
         headerLabel.stringValue = ""
     }
     
-    func renderWith(title: String) {
+    func renderWith(
+        title: String
+    ) {
         headerLabel.stringValue = title
     }
     
     func renderWith(
         title: String,
-        backgroundColor: NSColor,
         showRefreshButton: Bool,
         delegate: FeedListHeaderViewDelegate?
     ) {
         self.delegate = delegate
-        
-        backgroundColorBox.fillColor = backgroundColor
         
         headerLabel.stringValue = title
         

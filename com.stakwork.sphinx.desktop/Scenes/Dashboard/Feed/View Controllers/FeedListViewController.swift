@@ -400,7 +400,9 @@ extension FeedListViewController {
                     break
                 }
                 
-                (headerView as? FeedListHeaderView)?.renderWith(title: title)
+                (headerView as? FeedListHeaderView)?.renderWith(
+                    title: title
+                )
                 
                 return headerView
             }
