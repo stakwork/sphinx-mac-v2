@@ -156,9 +156,10 @@ class AuthExternalView: CommonModalView, LoadableNib {
             
             if let callback = authInfo?.callback, let url = URL(string: "https://\(callback)") {
                 NSWorkspace.shared.open(url)
-            } else if let host = authInfo?.host, let challenge = authInfo?.challenge, let url = URL(string: "https://\(host)?challenge=\(challenge)") {
-                NSWorkspace.shared.open(url)
             }
+//            else if let host = authInfo?.host, let challenge = authInfo?.challenge, let url = URL(string: "https://\(host)?challenge=\(challenge)") {
+//                NSWorkspace.shared.open(url)
+//            }
             
             delegate?.shouldDismissModals()
         } else {
