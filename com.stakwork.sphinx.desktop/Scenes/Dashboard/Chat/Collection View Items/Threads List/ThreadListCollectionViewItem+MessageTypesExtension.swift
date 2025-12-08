@@ -213,40 +213,59 @@ extension ThreadListCollectionViewItem {
         mediaData: MessageTableCellState.MediaData?
     ) {
         if let messageMedia = messageMedia {
-            
-            mediaMessageView.configureWith(
-                messageMedia: messageMedia,
-                mediaData: mediaData,
-                bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
-                and: self
-            )
-            
-            mediaMessageView.isHidden = false
-            mediaMessageView.mediaButton.isEnabled = false
-            
-            if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    if messageMedia.isImage {
+            if messageMedia.isImageLink {
+                if let mediaData = mediaData {
+                    mediaMessageView.configureWith(
+                        messageMedia: messageMedia,
+                        mediaData: mediaData,
+                        bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                        and: self
+                    )
+                    mediaMessageView.isHidden = false
+                } else if let messageId = messageId, mediaData == nil {
+                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
                         self.delegate?.shouldLoadImageDataFor(
                             messageId: messageId,
-                            and: self.rowIndex
+                            and: NewChatTableDataSource.kThreadHeaderRowIndex
                         )
-                    } else if messageMedia.isPdf {
-                        self.delegate?.shouldLoadPdfDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isVideo {
-                        self.delegate?.shouldLoadVideoDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isGiphy {
-                        self.delegate?.shouldLoadGiphyDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
+                    }
+                }
+            } else {
+                mediaMessageView.configureWith(
+                    messageMedia: messageMedia,
+                    mediaData: mediaData,
+                    bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                    and: self
+                )
+                
+                mediaMessageView.isHidden = false
+                mediaMessageView.mediaButton.isEnabled = false
+                
+                if let messageId = messageId, mediaData == nil {
+                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                        if messageMedia.isImage {
+                            self.delegate?.shouldLoadImageDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isPdf {
+                            self.delegate?.shouldLoadPdfDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isVideo {
+                            self.delegate?.shouldLoadVideoDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isGiphy {
+                            self.delegate?.shouldLoadGiphyDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        }
                     }
                 }
             }
