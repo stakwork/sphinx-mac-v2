@@ -374,7 +374,7 @@ struct MessageTableCellState {
             isGif: message.isGif(),
             isPdf: message.isPDF(),
             isGiphy: message.isGiphy(),
-            isImageLink: hasMarkdownLinks || hasStandardLinks,
+            isImageLink: (hasMarkdownLinks || hasStandardLinks) && (!message.isImage() && !message.isDirectPayment()),
             isPaid: message.isPaidAttachment(),
             isPaymentTemplate: message.isDirectPayment()
         )

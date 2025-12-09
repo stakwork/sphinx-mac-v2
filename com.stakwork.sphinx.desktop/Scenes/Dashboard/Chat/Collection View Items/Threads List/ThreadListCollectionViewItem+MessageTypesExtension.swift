@@ -215,6 +215,9 @@ extension ThreadListCollectionViewItem {
         if let messageMedia = messageMedia {
             if messageMedia.isImageLink {
                 if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
                     mediaMessageView.configureWith(
                         messageMedia: messageMedia,
                         mediaData: mediaData,
@@ -222,15 +225,18 @@ extension ThreadListCollectionViewItem {
                         and: self
                     )
                     mediaMessageView.isHidden = false
-                } else if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        self.delegate?.shouldLoadImageDataFor(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
-                    }
+                    mediaMessageView.mediaButton.isEnabled = false
+                    
                 }
+//                else if let messageId = messageId, mediaData == nil {
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+//                        self.delegate?.shouldLoadImageDataFor(
+//                            messageId: messageId,
+//                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+//                        )
+//                    }
+//                }
             } else {
                 mediaMessageView.configureWith(
                     messageMedia: messageMedia,

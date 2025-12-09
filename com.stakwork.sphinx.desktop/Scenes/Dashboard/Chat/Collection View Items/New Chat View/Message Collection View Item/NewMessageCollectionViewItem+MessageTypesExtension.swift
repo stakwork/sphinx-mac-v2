@@ -119,6 +119,9 @@ extension NewMessageCollectionViewItem {
         if let messageMedia = messageMedia {
             if messageMedia.isImageLink {
                 if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
                     mediaMessageView.configureWith(
                         messageMedia: messageMedia,
                         mediaData: mediaData,

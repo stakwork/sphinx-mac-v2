@@ -277,6 +277,9 @@ class ThreadHeaderView: NSView, LoadableNib {
         if let messageMedia = messageMedia {
             if messageMedia.isImageLink {
                 if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
                     messageMediaView.configureWith(
                         messageMedia: messageMedia,
                         mediaData: mediaData,
@@ -287,15 +290,17 @@ class ThreadHeaderView: NSView, LoadableNib {
                     messageMediaView.isHidden = false
                     mediaTextContainer.isHidden = false
                     messageMediaContainer.isHidden = false
-                } else if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        self.delegate?.shouldLoadImageDataFor?(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
-                    }
+                    
                 }
+//                else if let messageId = messageId, mediaData == nil {
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+//                        self.delegate?.shouldLoadImageDataFor?(
+//                            messageId: messageId,
+//                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+//                        )
+//                    }
+//                }
             } else {
                 messageMediaView.configureWith(
                     messageMedia: messageMedia,
