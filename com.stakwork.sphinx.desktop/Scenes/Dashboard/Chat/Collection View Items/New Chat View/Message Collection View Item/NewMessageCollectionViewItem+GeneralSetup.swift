@@ -61,14 +61,14 @@ extension NewMessageCollectionViewItem {
             
             widthConstraint.constant = width
             
+        } else if let _ = mutableCellState.callLink {
+            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumCallLinkBubbleWidth
         } else if let _ = mutableCellState.messageMedia {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumMediaBubbleWidth
         } else if let _ = mutableCellState.audio {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumAudioBubbleWidth
         } else if let _ = mutableCellState.podcastComment {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPodcastAudioBubbleWidth
-        } else if let _ = mutableCellState.callLink {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumCallLinkBubbleWidth
         } else if let _ = mutableCellState.podcastBoost {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPodcastBoostBubbleWidth
         } else if let _ = mutableCellState.genericFile {
