@@ -135,7 +135,7 @@ class ContentItemsManager {
                     response = try await API.sharedInstance.checkItemNodeExists(url: item.value)
                 }
                 
-                await context.perform {
+                await context.performSafely {
                     item.status = Int16(ContentItem.ContentItemStatus.processing.rawValue)
                     item.lastProcessedAt = Date()
                     item.errorMessage = nil
@@ -154,7 +154,7 @@ class ContentItemsManager {
                 print("✗ Attempt \(attempt) failed for item \(item.uuid?.uuidString ?? "Empty UUID"): \(error)")
                 
                 if attempt == maxRetries {
-                    await context.perform {
+                    await context.performSafely {
                         item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
                         item.errorMessage = "Failed after \(self.maxRetries) attempts: \(error.localizedDescription)"
                     }
@@ -177,7 +177,7 @@ class ContentItemsManager {
                 if let projectId = item.projectId {
                     let projectResponse = try await API.sharedInstance.checkProjectStatus(projectId: projectId)
                     
-                    await context.perform {
+                    await context.performSafely {
                         item.status = Int16(projectResponse.completed ? ContentItem.ContentItemStatus.success.rawValue : (projectResponse.processing ? ContentItem.ContentItemStatus.processing.rawValue : ContentItem.ContentItemStatus.error.rawValue))
                         item.errorMessage = projectResponse.errorMessage
                         item.lastProcessedAt = Date()
@@ -188,7 +188,7 @@ class ContentItemsManager {
                 
                 let response = try await API.sharedInstance.checkItemNodeStatus(refId: referenceId)
  
-                await context.perform {
+                await context.performSafely {
                     item.status = Int16(response.completed ? ContentItem.ContentItemStatus.success.rawValue : (response.processing ? ContentItem.ContentItemStatus.processing.rawValue : ContentItem.ContentItemStatus.error.rawValue))
                     item.lastProcessedAt = Date()
                     
@@ -222,11 +222,11 @@ class ContentItemsManager {
         
         if contentitem.type == ContentItem.ContentType.text.rawValue {
             if let url = createTextFile(content: contentitem.value, fileName: "text.\(Date.timeIntervalSinceReferenceDate).txt") {
-                context.perform {
+                context.performSafely {
                     contentitem.value = url.absoluteString
                 }
             } else {
-                context.perform {
+                context.performSafely {
                     contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
                     context.saveContext()
                 }
@@ -238,14 +238,14 @@ class ContentItemsManager {
             Task {
                 if contentitem.shouldBeUploaded() {
                     if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
-                        await context.perform {
+                        await context.performSafely {
                             contentitem.value = resultUrl
                             contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
                         }
                         
                         let _ = await self.processItemWithRetry(contentitem, context: context)
                     } else {
-                        await context.perform {
+                        await context.performSafely {
                             contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
                         }
                     }
@@ -253,7 +253,7 @@ class ContentItemsManager {
                     let _ = await self.processItemWithRetry(contentitem, context: context)
                 }
                 
-                await context.perform {
+                await context.performSafely {
                     context.saveContext()
                 }
             }

@@ -51,7 +51,7 @@ extension SphinxOnionManager {
                 }
             
                 let context = self.backgroundContext
-                context.perform { [weak self] in
+                context.performSafely { [weak self] in
                     guard let self = self else {
                         return
                     }
@@ -192,7 +192,7 @@ extension SphinxOnionManager {
     
     func handleOwnerContact(myContactInfo: String?) {
         if let myContactInfo = myContactInfo {
-            backgroundContext.perform { [weak self] in
+            backgroundContext.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -517,7 +517,7 @@ extension SphinxOnionManager {
            let tag = sentStatus.tag
         {
             let context = backgroundContext
-            context.perform { [weak self] in
+            context.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -654,7 +654,7 @@ extension SphinxOnionManager {
     func handleMessagesStatus(tags: String?) {
         if let tags = tags {
             let context = backgroundContext
-            context.perform { [weak self] in
+            context.performSafely { [weak self] in
                 guard let _ = self else {
                     return
                 }

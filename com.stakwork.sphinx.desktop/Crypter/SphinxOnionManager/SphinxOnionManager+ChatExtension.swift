@@ -2049,7 +2049,7 @@ extension SphinxOnionManager {
         dispatchQueue.async {
             let backgroundContext = self.backgroundContext
             
-            backgroundContext.perform {
+            backgroundContext.performSafely {
                 let messages = TransactionMessage.getAllNotConfirmed(context: backgroundContext)
                 
                 if messages.isEmpty {
@@ -2129,7 +2129,7 @@ extension SphinxOnionManager {
         DispatchQueue.global(qos: .utility).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
             
-            backgroundContext.perform {
+            backgroundContext.performSafely {
                 do {
                     let fetchRequest = self.getFetchRequestFor(
                         chat: chat,

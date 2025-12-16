@@ -117,7 +117,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                 var minIndex: Int? = nil
                 let itemsPerPage = 100
                 
-                backgroundContext.perform {
+                backgroundContext.performSafely {
                     minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
                     
                     if let minIndex = minIndex {

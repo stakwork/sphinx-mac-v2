@@ -56,7 +56,7 @@ extension SphinxOnionManager {
     }
     
     func setAppBadgeCount() {
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let self = self else {
                 return
             }

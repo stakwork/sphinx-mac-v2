@@ -280,4 +280,32 @@ extension NSManagedObjectContext {
             }
         }
     }
+    
+    func performSafely(_ block: @escaping () throws -> Void) {
+        self.perform {
+            do {
+                try block()
+            } catch let error as NSError {
+                print("❌ CoreData Error:")
+                print("   Domain: \(error.domain)")
+                print("   Code: \(error.code)")
+                print("   Description: \(error.localizedDescription)")
+                print("   UserInfo: \(error.userInfo)")
+                
+                // Handle specific errors
+                if error.domain == NSCocoaErrorDomain {
+                    switch error.code {
+                    case NSValidationMissingMandatoryPropertyError:
+                        print("⚠️ Missing required property")
+                    case NSValidationRelationshipLacksMinimumCountError:
+                        print("⚠️ Relationship count error")
+                    case NSManagedObjectContextLockingError:
+                        print("⚠️ Threading violation!")
+                    default:
+                        print("⚠️ Other CoreData error")
+                    }
+                }
+            }
+        }
+    }
 }

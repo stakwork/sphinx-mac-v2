@@ -479,7 +479,7 @@ import WebKit
      func setBadge() {
          let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
          
-         backgroundContext.perform { [weak self] in
+         backgroundContext.performSafely { [weak self] in
              guard let self = self else {
                  return
              }

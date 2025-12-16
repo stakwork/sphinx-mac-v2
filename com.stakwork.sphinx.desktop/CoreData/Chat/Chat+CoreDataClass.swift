@@ -357,7 +357,7 @@ public class Chat: NSManagedObject {
         
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.perform { [weak self] in
+        context.performSafely { [weak self] in
             guard let self = self else {
                 return
             }
@@ -518,7 +518,7 @@ public class Chat: NSManagedObject {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
         if NSApplication.shared.isActive || forceSeen {
-            backgroundContext.perform { [weak self] in
+            backgroundContext.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -566,7 +566,7 @@ public class Chat: NSManagedObject {
             }
         }
         
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }
@@ -1018,7 +1018,7 @@ public class Chat: NSManagedObject {
         DispatchQueue.global(qos: .background).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
             
-            backgroundContext.perform {
+            backgroundContext.performSafely {
                 let didMigrateToTZ: Bool = UserDefaults.Keys.didMigrateToTZ.get(defaultValue: false)
                 
                 if !didMigrateToTZ {

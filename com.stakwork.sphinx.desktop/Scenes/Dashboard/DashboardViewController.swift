@@ -402,7 +402,7 @@ class DashboardViewController: NSViewController {
         DispatchQueue.global(qos: .background).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
             
-            backgroundContext.perform { [weak self] in
+            backgroundContext.performSafely { [weak self] in
                 guard let _ = self else {
                     return
                 }
@@ -669,7 +669,7 @@ class DashboardViewController: NSViewController {
         
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }

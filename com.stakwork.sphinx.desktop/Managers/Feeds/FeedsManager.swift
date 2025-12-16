@@ -208,7 +208,7 @@ class FeedsManager : NSObject {
         
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.perform {
+        context.performSafely {
 //            let feeds = self.fetchFeeds(context: context)
 //
 //            let localIDs = feeds.compactMap({ $0.feedID })
@@ -358,7 +358,7 @@ class FeedsManager : NSObject {
     func fetchNewItems(completion: (() -> ())? = nil) {
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.perform {
+        context.performSafely {
             
             let dispatchSemaphore = DispatchSemaphore(value: 0)
 

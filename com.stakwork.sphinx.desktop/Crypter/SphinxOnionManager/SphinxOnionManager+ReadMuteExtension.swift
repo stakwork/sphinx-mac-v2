@@ -14,7 +14,7 @@ extension SphinxOnionManager {
         
         if let lastRead = rr.lastRead {
             let context = backgroundContext
-            context.perform { [weak self] in
+            context.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -85,7 +85,7 @@ extension SphinxOnionManager {
             return
         }
         let context = backgroundContext
-        context.perform { [weak self] in
+        context.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }

@@ -258,7 +258,7 @@ extension ThreadsListDataSource : NSFetchedResultsControllerDelegate {
         
         threadsResultsController.delegate = self
         
-        CoreDataManager.sharedManager.persistentContainer.viewContext.perform {
+        CoreDataManager.sharedManager.persistentContainer.viewContext.performSafely {
             do {
                 try self.threadsResultsController.performFetch()
             } catch {}
