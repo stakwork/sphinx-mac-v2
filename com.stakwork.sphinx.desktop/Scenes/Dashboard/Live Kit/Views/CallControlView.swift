@@ -9,6 +9,7 @@
 import SwiftUI
 import LiveKit
 import SDWebImageSwiftUI
+import AVFoundation
 
 struct CallControlView: View {
     @EnvironmentObject var roomCtx: RoomContext
@@ -154,9 +155,11 @@ struct CallControlView: View {
         
         Button {
             Task {
-                isMicrophonePublishingBusy = true
-                defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                if AVCaptureDevice.default(for: .audio) != nil {
+                    isMicrophonePublishingBusy = true
+                    defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                    try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                }
             }
         } label: {
             Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)

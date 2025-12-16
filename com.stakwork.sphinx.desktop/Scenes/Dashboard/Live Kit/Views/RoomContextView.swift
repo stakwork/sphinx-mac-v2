@@ -148,7 +148,9 @@ struct RoomContextView: View {
     
     func enableMic() {
         Task {
-            try await roomCtx.room.localParticipant.setMicrophone(enabled: true)
+            if AVCaptureDevice.default(for: .audio) != nil {
+                try await roomCtx.room.localParticipant.setMicrophone(enabled: true)
+            }
         }
     }
     

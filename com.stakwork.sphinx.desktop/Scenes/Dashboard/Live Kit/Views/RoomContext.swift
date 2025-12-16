@@ -16,6 +16,7 @@
 
 import LiveKit
 import SwiftUI
+import AVFoundation
 
 protocol RoomContextDelegate: AnyObject {
     func createControlsPanel()
@@ -199,12 +200,15 @@ final class RoomContext: NSObject, ObservableObject {
             isE2eeEnabled = entry.e2ee
             e2eeKey = entry.e2eeKey
         }
+        
+        let hasMicrophone = AVCaptureDevice.default(for: .audio) != nil
 
         let connectOptions = ConnectOptions(
-            autoSubscribe: autoSubscribe
+            autoSubscribe: autoSubscribe && hasMicrophone
         )
 
         var e2eeOptions: E2EEOptions? = nil
+        
         if isE2eeEnabled {
             let keyProvider = BaseKeyProvider(isSharedKey: true)
             keyProvider.setKey(key: e2eeKey)
@@ -241,7 +245,7 @@ final class RoomContext: NSObject, ObservableObject {
         }
 
         _connectTask = connectTask
-        try await connectTask.value
+        try await connectTask.value        
 
         return room
     }

@@ -18,6 +18,7 @@ import LiveKit
 import SFSafeSymbols
 import SwiftUI
 import SDWebImageSwiftUI
+import AVFoundation
 
 let adaptiveMin = 300.0
 let toolbarPlacement: ToolbarItemPlacement = .primaryAction
@@ -609,9 +610,11 @@ struct RoomView: View {
                     // Toggle microphone enabled
                     Button {
                         Task {
-                            isMicrophonePublishingBusy = true
-                            defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                            if AVCaptureDevice.default(for: .audio) != nil {
+                                isMicrophonePublishingBusy = true
+                                defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                            }
                         }
                     } label: {
                         Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
