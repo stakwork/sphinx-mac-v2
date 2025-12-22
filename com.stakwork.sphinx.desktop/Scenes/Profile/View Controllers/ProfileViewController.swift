@@ -337,16 +337,7 @@ class ProfileViewController: NSViewController {
         
         UserDefaults.Keys.shouldTrackActions.set(isTrackActionsSwitchOn())
         
-        var parameters = [String : AnyObject]()
-        parameters["alias"] = userNameField.stringValue as AnyObject?
-        parameters["private_photo"] = !isPhotoSwitchOn() as AnyObject?
-        parameters["route_hint"] = routeHintField.stringValue as AnyObject?
-        
         let tempTip = self.meetingAmountField.integerValue
-        
-        if let photoUrl = profileImageUrl, !photoUrl.isEmpty {
-            parameters["photo_url"] = photoUrl as AnyObject?
-        }
         
         profile.nickname = userNameField.stringValue
         
@@ -356,7 +347,15 @@ class ProfileViewController: NSViewController {
         
         profile.managedObjectContext?.saveContext()
         
-        UserContact.kTipAmount = tempTip
+        if UserContact.kTipAmount != tempTip {
+            UserContact.kTipAmount = tempTip
+            DataSyncManager.sharedInstance.saveTipAmount(value: "\(tempTip)")
+        }
+        
+        if !isPhotoSwitchOn() != profile.privatePhoto {
+            profile.privatePhoto = !isPhotoSwitchOn()
+            DataSyncManager.sharedInstance.savePrivatePhoto(value: "\(!isPhotoSwitchOn())")
+        }
         
         API.sharedInstance.kVideoCallServer = meetingServerField.stringValue
         

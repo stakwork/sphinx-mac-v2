@@ -276,6 +276,28 @@ public class Chat: NSManagedObject {
         return chats
     }
     
+    static func getChatWithOwnerPubkey(
+        ownerPubkey: String,
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
+        let predicate = NSPredicate(
+            format: "ownerPubkey == %@",
+            ownerPubkey
+        )
+        
+        let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            fetchLimit: 1,
+            managedContext: context
+        ).first
+        
+        return chat
+    }
+    
     static func getTribeChatWithOwnerPubkey(
         ownerPubkey: String,
         context: NSManagedObjectContext? = nil

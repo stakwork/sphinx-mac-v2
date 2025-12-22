@@ -179,7 +179,8 @@ extension PodcastEpisodesDataSource : PodcastPlayerViewDelegate {
     }
     
     func shouldSyncPodcast() {
-        feedsManager.saveContentFeedStatus(for: podcast.feedID)
+//        DataSyncManager.sharedInstance.shouldSyncData()
+//        feedsManager.saveContentFeedStatus(for: podcast.feedID)
     }
 }
 

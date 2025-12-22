@@ -61,6 +61,9 @@
 		471946BC2BF25ABA00D05216 /* API+VersionsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */; };
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
 		471946C02BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */; };
+		471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */; };
+		471ABEB32EF447B800CFD81F /* DataSync+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */; };
+		471ABEB52EF447C000CFD81F /* DataSync+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */; };
 		4720991624834E0000426028 /* CryptorRSAUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */; };
 		4720991724834E0000426028 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720990F24834E0000426028 /* Data+Extensions.swift */; };
 		4720991824834E0000426028 /* SSLPointerTricks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720991024834E0000426028 /* SSLPointerTricks.swift */; };
@@ -975,6 +978,10 @@
 		471946BB2BF25ABA00D05216 /* API+VersionsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "API+VersionsExtension.swift"; sourceTree = "<group>"; };
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
 		471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ReadMuteExtension.swift"; sourceTree = "<group>"; };
+		471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncManager.swift; sourceTree = "<group>"; };
+		471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 11.xcdatamodel"; sourceTree = "<group>"; };
+		471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataClass.swift"; sourceTree = "<group>"; };
 		472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 10.xcdatamodel"; sourceTree = "<group>"; };
 		4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorRSAUtilities.swift; sourceTree = "<group>"; };
 		4720990F24834E0000426028 /* Data+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
@@ -1962,6 +1969,23 @@
 			path = Chapter;
 			sourceTree = "<group>";
 		};
+		471ABEAD2EF4319900CFD81F /* Data Sync Manager */ = {
+			isa = PBXGroup;
+			children = (
+				471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */,
+			);
+			path = "Data Sync Manager";
+			sourceTree = "<group>";
+		};
+		471ABEB12EF447A500CFD81F /* DataSync */ = {
+			isa = PBXGroup;
+			children = (
+				471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */,
+				471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */,
+			);
+			path = DataSync;
+			sourceTree = "<group>";
+		};
 		4720990C24834DEA00426028 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -2178,6 +2202,7 @@
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				471ABEAD2EF4319900CFD81F /* Data Sync Manager */,
 				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
 				4717B6662D9ECA3700E3681E /* Chapters Manager */,
 				4733ED282CB43A9700078EF2 /* ColorsManager */,
@@ -2382,6 +2407,7 @@
 		4744FA782469C55A00C5FD94 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				471ABEB12EF447A500CFD81F /* DataSync */,
 				473829A22EB3F3E8007E045A /* ContentItem */,
 				47DF91512C4AA32900E8128A /* LSat */,
 				475B72172BB1CC19003AD969 /* Server */,
@@ -4494,6 +4520,7 @@
 				475B682629915D25000EF29C /* ContentFeedItem+Computeds.swift in Sources */,
 				478ED5FA25DC624300940132 /* ChangePinView.swift in Sources */,
 				47B6F52C258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift in Sources */,
+				471ABEB32EF447B800CFD81F /* DataSync+CoreDataProperties.swift in Sources */,
 				473633DF2554464C007405F2 /* Asn1Parser.swift in Sources */,
 				4797E74C24B8B40F00D13270 /* VideoCallHelper.swift in Sources */,
 				4730EF6D2CDBD0EE0014581F /* ParticipantView.swift in Sources */,
@@ -4548,6 +4575,7 @@
 				470396F325373CF9007F9C23 /* MouseDraggableView.swift in Sources */,
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
+				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,
 				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
@@ -4686,6 +4714,7 @@
 				474A66842497CAFE002C2D10 /* MessageReplyView.swift in Sources */,
 				47DE1C3F2A6AFA070029597B /* ChatShimmeringView.swift in Sources */,
 				938209E42BD88ED0000A9ED8 /* NewMenuListItem.swift in Sources */,
+				471ABEB52EF447C000CFD81F /* DataSync+CoreDataClass.swift in Sources */,
 				475DB9912D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift in Sources */,
 				CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */,
 				474FBD1D2BE94FD200D687BE /* SphinxOnionManager+AccountRestoreExtension.swift in Sources */,
@@ -5845,6 +5874,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */,
 				472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */,
 				479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */,
 				479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */,
@@ -5856,7 +5886,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */;
+			currentVersion = 471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

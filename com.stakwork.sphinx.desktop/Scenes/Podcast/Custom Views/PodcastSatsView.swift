@@ -88,6 +88,22 @@ class PodcastSatsView: NSView, LoadableNib {
         
         if let podcast = podcast {
             podcast.satsPerMinute = realValue
+            
+            if let feedUrl = podcast.feedURLPath {
+                
+                DataSyncManager.sharedInstance.saveFeedStatusFor(
+                    feedId: podcast.feedID,
+                    feedStatus: FeedStatus(
+                        chatPubkey: podcast.chat?.ownerPubkey ?? "",
+                        feedUrl: feedUrl,
+                        feedId: podcast.feedID,
+                        subscribed: podcast.subscribed,
+                        satsPerMinute: realValue,
+                        playerSpeed: Double(podcast.playerSpeed),
+                        itemId: podcast.currentEpisodeId
+                    )
+                )
+            }
         }
 
         setOutOfRangeLabel(value: realValue)
@@ -96,9 +112,10 @@ class PodcastSatsView: NSView, LoadableNib {
     }
     
     @objc func didFinishDragging() {
-        if let podcast = podcast {
-            FeedsManager.sharedInstance.saveContentFeedStatus(for: podcast.feedID)
-        }
+//        DataSyncManager.sharedInstance.shouldSyncData()
+//        if let podcast = podcast {
+//            FeedsManager.sharedInstance.saveContentFeedStatus(for: podcast.feedID)
+//        }
     }
     
     func configureSlider() {

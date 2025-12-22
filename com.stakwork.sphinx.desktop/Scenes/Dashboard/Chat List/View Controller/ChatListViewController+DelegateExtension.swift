@@ -221,6 +221,21 @@ extension ChatListViewController: FeedListViewControllerDelegate {
                     if case .success(let contentFeed) = result {
                         managedObjectContext.saveContext()
                         
+                        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+                        
+                        DataSyncManager.sharedInstance.saveFeedStatusFor(
+                            feedId: contentFeed.feedID,
+                            feedStatus: FeedStatus(
+                                chatPubkey: "",
+                                feedUrl: item.feedUrl,
+                                feedId: contentFeed.feedID,
+                                subscribed: true,
+                                satsPerMinute: podcast.satsPerMinute ?? 0,
+                                playerSpeed: Double(podcast.playerSpeed),
+                                itemId: podcast.currentEpisodeId
+                            )
+                        )
+                        
                         self.newMessageBubbleHelper.hideLoadingWheel()
                         
                         self.didClickRowWith(contentFeedId: contentFeed.feedID)
