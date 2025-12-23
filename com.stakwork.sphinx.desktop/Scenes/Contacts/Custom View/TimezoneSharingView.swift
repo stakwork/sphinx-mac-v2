@@ -124,7 +124,7 @@ class TimezoneSharingView: NSView, LoadableNib, NSComboBoxDelegate {
             chat.timezoneEnabled = enabled
             chat.timezoneIdentifier = identifier
                 
-            if timezoneIdentifierChanged, let pubkey = chat.ownerPubkey {
+            if let pubkey = chat.ownerPubkey {
                 chat.timezoneUpdated = true
                 
                 DataSyncManager.sharedInstance.saveTimezoneFor(

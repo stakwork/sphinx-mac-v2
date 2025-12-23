@@ -64,4 +64,16 @@ public class DataSync: NSManagedObject {
         
         return dataSync
     }
+    
+    static func deleteAll(
+        context: NSManagedObjectContext? = nil
+    ) {
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
+        
+        for item in DataSync.getAllDataSync(context: managedContext) {
+            managedContext.delete(item)
+        }
+        
+        managedContext.saveContext()
+    }
 }

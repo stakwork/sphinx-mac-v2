@@ -206,12 +206,14 @@ class DataSyncManager : NSObject {
         let managedContext = context ?? backgroundContext
         let dataSyncItem = DataSync.getContentItemWith(key: key, identifier: identifier) ?? DataSync(context: managedContext) as DataSync
         
-        dataSyncItem.key = SettingKey.feedItemStatus.rawValue
+        dataSyncItem.key = key
         dataSyncItem.identifier = identifier
         dataSyncItem.value = value
         dataSyncItem.date = Date()
         
         managedContext.saveContext()
+        
+        syncWithServer()
     }
     
     func syncWithServer() {
@@ -263,15 +265,13 @@ class DataSyncManager : NSObject {
                                     podFeed.playerSpeed = Float(feedStatus.playerSpeed)
                                     podFeed.currentEpisodeId = feedStatus.itemId
                                 } else {
-                                    if let chat = Chat.getChatWithOwnerPubkey(ownerPubkey: serverItem.identifier) {
-                                        FeedsManager.sharedInstance.getContentFeedFor(
-                                            feedId: feedStatus.feedId,
-                                            feedUrl: feedStatus.feedUrl,
-                                            chat: Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey),
-                                            context: backgroundContext,
-                                            completion: { _ in }
-                                        )
-                                    }
+                                    FeedsManager.sharedInstance.getContentFeedFor(
+                                        feedId: feedStatus.feedId,
+                                        feedUrl: feedStatus.feedUrl,
+                                        chat: Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey),
+                                        context: backgroundContext,
+                                        completion: { _ in }
+                                    )
                                 }
                             }
                             break
@@ -300,10 +300,51 @@ class DataSyncManager : NSObject {
             }
             
             backgroundContext.saveContext()
+            
+            saveFileFrom(itemReponse: itemsResponse)
+        }
+    }
+    
+    func deleteFile() {
+        let fileName = "datasync.txt"
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(fileName)
+
+        do {
+            try fileManager.removeItem(at: fileURL)
+            print("✅ File deleted successfully")
+        } catch {
+            print("❌ Error deleting file: \(error)")
         }
     }
     
     func getFileFromServer() -> String? {
+        let fileName = "datasync.txt"
+            
+        // Get Documents directory
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(fileName)
+        
+        // CHECK IF FILE ALREADY EXISTS
+        if fileManager.fileExists(atPath: fileURL.path) {
+            print("✅ File already exists at: \(fileURL.path)")
+            
+            // Read and return existing content
+            do {
+                let content = try String(contentsOf: fileURL, encoding: .utf8)
+                print("📄 Loaded existing file content")
+                return content
+            } catch {
+                print("❌ Error reading existing file: \(error)")
+                return nil
+            }
+        }
+        
+        // FILE DOESN'T EXIST - CREATE DEFAULT FILE
+        print("📝 File doesn't exist, creating default file...")
+        
         let date = Int(Date().addingTimeInterval(TimeInterval(-3600)).timeIntervalSince1970)
         
         let text = """
@@ -314,13 +355,6 @@ class DataSyncManager : NSObject {
             {"key": "timezone", "identifier": "-1959296830", "date": "\(date)", "value": {"timezoneEnabled":"false", "timezoneIdentifier":""}}
         ]}
         """
-        
-        let fileName = "datasync.txt"
-
-        // Get Documents directory
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(fileName)
 
         do {
             try text.write(to: fileURL, atomically: true, encoding: .utf8)
@@ -336,6 +370,26 @@ class DataSyncManager : NSObject {
         }
         
         return content
+    }
+    
+    func saveFileFrom(itemReponse: ItemsResponse) {
+        let fileName = "datasync.txt"
+        
+        guard let text = itemReponse.toOriginalFormatJSON() else {
+            return
+        }
+            
+        // Get Documents directory
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(fileName)
+        
+        do {
+            try text.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("✅ File saved at: \(fileURL.path)")
+        } catch {
+            print("❌ Error: \(error)")
+        }
     }
     
     func encrypt(value: String) -> String? {
@@ -397,12 +451,13 @@ struct ItemsResponse: Codable {
                 
             case .feedStatus(let feedStatus):
                 itemDict["value"] = [
-                    "chat_pubkey": String(feedStatus.chatPubkey),
+                    "chat_pubkey": feedStatus.chatPubkey,
                     "feed_url": feedStatus.feedUrl,
                     "subscribed": feedStatus.subscribed ? "true" : "false",
                     "sats_per_minute": String(feedStatus.satsPerMinute),
                     "player_speed": String(feedStatus.playerSpeed),
-                    "item_id": String(feedStatus.itemId)
+                    "item_id": feedStatus.itemId,
+                    "feed_id": feedStatus.feedId
                 ]
                 
             case .feedItemStatus(let itemStatus):

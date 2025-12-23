@@ -65,6 +65,9 @@ import WebKit
         ContentItemsManager.shared.startBackgroundProcessing()
         
         setInitialVC()
+        
+//        DataSync.deleteAll()
+//        DataSyncManager.sharedInstance.deleteFile()
     }
     
     func clearWebkitCache() {
