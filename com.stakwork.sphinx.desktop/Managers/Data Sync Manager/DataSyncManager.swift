@@ -27,31 +27,6 @@ class DataSyncManager : NSObject {
         case feedItemStatus = "feed_item_status"
     }
     
-    func testEncryption() {
-        let date = Int(Date().addingTimeInterval(TimeInterval(-3600)).timeIntervalSince1970)
-        
-        let text = """
-        {"items": [
-            {"key": "tip_amount", "identifier": "0", "date": "\(date)", "value": "10"},
-            {"key": "private_photo", "identifier": "0", "date": "\(date)", "value": "true"},
-            {"key": "timezone", "identifier": "43", "date": "\(date)", "value": {"timezoneEnabled":"true", "timezoneIdentifier":"GMT-3"}},
-            {"key": "timezone", "identifier": "50", "date": "\(date)", "value": {"timezoneEnabled":"false", "timezoneIdentifier":""}},
-            {"key": "feed_status", "identifier": "3", "date": "\(date)", "value": {"chat_id":"4", "feed_url":"http://google.com", "subscribed": "false", "sats_per_minute": "0", "player_speed": "1.5", "item_id": "5"}},
-            {"key": "feed_item_status", "identifier": "3", "date": "\(date)", "value": {"duration":"200", "current_time":"35"}},
-        ]}
-        """
-        
-        if let encrypted = encrypt(value: text) {
-            print(encrypted)
-            
-            if let decrypted = decrypt(value: encrypted) {
-                print(decrypted)
-                
-                let response = parseFileText(text: decrypted)
-            }
-        }
-    }
-    
     func parseFileText(text: String) -> ItemsResponse? {
         var response: ItemsResponse! = nil
         
@@ -216,11 +191,30 @@ class DataSyncManager : NSObject {
         syncWithServer()
     }
     
+    func findMissingItems(firstArray: [DataSync], secondArray: [SettingItem]) -> [SettingItem] {
+        // Create a Set of combined key-identifier strings from the first array
+        let firstArraySet = Set(firstArray.map { "\($0.key)-\($0.identifier)" })
+        
+        // Filter items from second array that are not in first array
+        let missingItems = secondArray.filter { item in
+            let combinedKey = "\(item.key)-\(item.identifier)"
+            return !firstArraySet.contains(combinedKey)
+        }
+        
+        return missingItems
+    }
+    
     func syncWithServer() {
         let serverDataString = getFileFromServer()
         var itemsResponse = parseFileText(text: serverDataString ?? "") ?? ItemsResponse(items: [])
+        let dbItems = DataSync.getAllDataSync(context: backgroundContext)
+        let missingItems = findMissingItems(firstArray: dbItems, secondArray: itemsResponse.items)
         
-        for item in DataSync.getAllDataSync(context: backgroundContext) {
+        for item in missingItems {
+            restoreDataFrom(serverItem: item)
+        }
+        
+        for item in dbItems {
             if let index = itemsResponse.getItemIndex(key: item.key, identifier: item.identifier) {
                 let serverItem = itemsResponse.items[index]
                 
@@ -232,76 +226,76 @@ class DataSyncManager : NSObject {
                         backgroundContext.delete(item)
                     }
                 } else {
-                    if let key = DataSyncManager.SettingKey(rawValue: serverItem.key) {
-                        switch(key) {
-                        case .tipAmount:
-                            if let intValue = serverItem.value.asInt {
-                                UserContact.kTipAmount = intValue
-                            }
-                            break
-                        case .privatePhoto:
-                            if let boolValue = serverItem.value.asBool {
-                                if let owner = UserContact.getOwner() {
-                                    owner.privatePhoto = boolValue
-                                }
-                            }
-                            break
-                        case .timezone:
-                            if let chat = Chat.getChatWithOwnerPubkey(ownerPubkey: serverItem.identifier) {
-                                chat.timezoneEnabled = serverItem.value.asTimezone?.timezoneEnabled ?? chat.timezoneEnabled
-                                chat.timezoneIdentifier = serverItem.value.asTimezone?.timezoneIdentifier
-                                chat.timezoneUpdated = true
-                            }
-                            break
-                        case .feedStatus:
-                            if let feedStatus = serverItem.value.asFeedStatus {
-                                if let feed = ContentFeed.getFeedById(feedId: serverItem.identifier) {
-                                    let podFeed = PodcastFeed.convertFrom(contentFeed: feed)
-                                    feed.chat = Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey)
-                                    feed.feedURL = URL(string: feedStatus.feedUrl)
-                                    feed.subscribed = feedStatus.subscribed
-                                    
-                                    podFeed.satsPerMinute = feedStatus.satsPerMinute
-                                    podFeed.playerSpeed = Float(feedStatus.playerSpeed)
-                                    podFeed.currentEpisodeId = feedStatus.itemId
-                                } else {
-                                    FeedsManager.sharedInstance.getContentFeedFor(
-                                        feedId: feedStatus.feedId,
-                                        feedUrl: feedStatus.feedUrl,
-                                        chat: Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey),
-                                        context: backgroundContext,
-                                        completion: { _ in }
-                                    )
-                                }
-                            }
-                            break
-                        case .feedItemStatus:
-                            if let feedItem = ContentFeedItem.getItemWith(itemID: serverItem.identifier) {
-                                if let feedItemStatus = serverItem.value.asFeedItemStatus {
-                                    let podEpisode = PodcastEpisode.convertFrom(contentFeedItem: feedItem)
-                                    podEpisode.duration = feedItemStatus.duration
-                                    podEpisode.currentTime = feedItemStatus.currentTime
-                                }
-                            }
-                            break
-                        }
-                        
-                        backgroundContext.delete(item)
-                    }
-                    
+                    restoreDataFrom(serverItem: serverItem)
                 }
             } else {
                 if let key = DataSyncManager.SettingKey(rawValue: item.key), let settingValue = SettingValue.from(string: item.value, forKey: key) {
                     let newItem = SettingItem(key: item.key, identifier: item.identifier, dateString: "\(item.date.timeIntervalSince1970)", value: settingValue)
                     itemsResponse.items.append(newItem)
-                    
-                    backgroundContext.delete(item)
                 }
             }
             
-            backgroundContext.saveContext()
-            
-            saveFileFrom(itemReponse: itemsResponse)
+            backgroundContext.delete(item)
+        }
+        
+        backgroundContext.saveContext()
+        
+        saveFileFrom(itemReponse: itemsResponse)
+    }
+    
+    func restoreDataFrom(serverItem: SettingItem) {
+        if let key = DataSyncManager.SettingKey(rawValue: serverItem.key) {
+            switch(key) {
+            case .tipAmount:
+                if let intValue = serverItem.value.asInt {
+                    UserContact.kTipAmount = intValue
+                }
+                break
+            case .privatePhoto:
+                if let boolValue = serverItem.value.asBool {
+                    if let owner = UserContact.getOwner() {
+                        owner.privatePhoto = boolValue
+                    }
+                }
+                break
+            case .timezone:
+                if let chat = Chat.getChatWithOwnerPubkey(ownerPubkey: serverItem.identifier) {
+                    chat.timezoneEnabled = serverItem.value.asTimezone?.timezoneEnabled ?? chat.timezoneEnabled
+                    chat.timezoneIdentifier = serverItem.value.asTimezone?.timezoneIdentifier
+                    chat.timezoneUpdated = true
+                }
+                break
+            case .feedStatus:
+                if let feedStatus = serverItem.value.asFeedStatus {
+                    if let feed = ContentFeed.getFeedById(feedId: serverItem.identifier) {
+                        let podFeed = PodcastFeed.convertFrom(contentFeed: feed)
+                        feed.chat = Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey)
+                        feed.feedURL = URL(string: feedStatus.feedUrl)
+                        feed.subscribed = feedStatus.subscribed
+                        
+                        podFeed.satsPerMinute = feedStatus.satsPerMinute
+                        podFeed.playerSpeed = Float(feedStatus.playerSpeed)
+                        podFeed.currentEpisodeId = feedStatus.itemId
+                    } else {
+                        FeedsManager.sharedInstance.getContentFeedFor(
+                            feedId: feedStatus.feedId,
+                            feedUrl: feedStatus.feedUrl,
+                            chat: Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey),
+                            context: backgroundContext,
+                            completion: { _ in }
+                        )
+                    }
+                }
+                break
+            case .feedItemStatus:
+                if let feedItem = ContentFeedItem.getItemWith(itemID: serverItem.identifier) {
+                    if let feedItemStatus = serverItem.value.asFeedItemStatus {
+                        let podEpisode = PodcastEpisode.convertFrom(contentFeedItem: feedItem)
+                        podEpisode.duration = feedItemStatus.duration
+                        podEpisode.currentTime = feedItemStatus.currentTime
+                    }
+                }
+            }
         }
     }
     
@@ -333,9 +327,12 @@ class DataSyncManager : NSObject {
             
             // Read and return existing content
             do {
-                let content = try String(contentsOf: fileURL, encoding: .utf8)
-                print("📄 Loaded existing file content")
-                return content
+                let fileContent = try String(contentsOf: fileURL, encoding: .utf8)
+                if let decrypted = decrypt(value: fileContent) {
+                    return decrypted
+                }
+                print("❌ Error decrypting existing file")
+                return nil
             } catch {
                 print("❌ Error reading existing file: \(error)")
                 return nil
@@ -349,33 +346,37 @@ class DataSyncManager : NSObject {
         
         let text = """
         {"items": [
-            {"key": "tip_amount", "identifier": "0", "date": "\(date)", "value": "10"},
-            {"key": "private_photo", "identifier": "0", "date": "\(date)", "value": "true"},
-            {"key": "timezone", "identifier": "-1789547819", "date": "\(date)", "value": {"timezoneEnabled":"false", "timezoneIdentifier":""}},
-            {"key": "timezone", "identifier": "-1959296830", "date": "\(date)", "value": {"timezoneEnabled":"false", "timezoneIdentifier":""}}
+            {"key": "tip_amount", "identifier": "0", "date": "\(date)", "value": "12"},
         ]}
         """
-
-        do {
-            try text.write(to: fileURL, atomically: true, encoding: .utf8)
-            print("✅ File created at: \(fileURL.path)")
-        } catch {
-            print("❌ Error: \(error)")
+        
+        if let encrypted = encrypt(value: text) {
+            do {
+                try encrypted.write(to: fileURL, atomically: true, encoding: .utf8)
+                print("✅ File created at: \(fileURL.path)")
+            } catch {
+                print("❌ Error: \(error)")
+            }
         }
         
-        var content: String? = nil
         do {
-            content = try String(contentsOf: fileURL, encoding: .utf8)
+            let fileContent = try String(contentsOf: fileURL, encoding: .utf8)
+            if let decrypted = decrypt(value: fileContent) {
+                return decrypted
+            }
+            print("❌ Error decrypting existing file")
         } catch {
+            print("❌ Error reading existing file: \(error)")
+            return nil
         }
         
-        return content
+        return nil
     }
     
     func saveFileFrom(itemReponse: ItemsResponse) {
         let fileName = "datasync.txt"
         
-        guard let text = itemReponse.toOriginalFormatJSON() else {
+        guard let text = itemReponse.toOriginalFormatJSON(), let encrypted = encrypt(value: text) else {
             return
         }
             
@@ -385,11 +386,13 @@ class DataSyncManager : NSObject {
         let fileURL = documentsURL.appendingPathComponent(fileName)
         
         do {
-            try text.write(to: fileURL, atomically: true, encoding: .utf8)
+            try encrypted.write(to: fileURL, atomically: true, encoding: .utf8)
             print("✅ File saved at: \(fileURL.path)")
         } catch {
             print("❌ Error: \(error)")
         }
+        
+        ///Send file to memes server
     }
     
     func encrypt(value: String) -> String? {

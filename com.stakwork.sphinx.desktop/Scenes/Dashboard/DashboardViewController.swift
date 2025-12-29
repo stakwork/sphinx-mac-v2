@@ -103,8 +103,6 @@ class DashboardViewController: NSViewController {
         setupObservers()
         addEscapeMonitor()
         addFloatingPlayer()
-        
-//        DataSyncManager.sharedInstance.testEncryption()
     }
     
     override func viewWillAppear() {
