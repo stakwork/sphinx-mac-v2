@@ -192,6 +192,9 @@ class NewChatViewController: DashboardSplittedViewController {
         guard let chat = chat else {
             return
         }
+        if isThread {
+            return
+        }
         SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
     }
     
