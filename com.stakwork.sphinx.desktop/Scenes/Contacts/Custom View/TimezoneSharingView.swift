@@ -123,10 +123,12 @@ class TimezoneSharingView: NSView, LoadableNib, NSComboBoxDelegate {
         if timezoneEnabledChanged || timezoneIdentifierChanged {
             chat.timezoneEnabled = enabled
             chat.timezoneIdentifier = identifier
+            
+            if timezoneIdentifierChanged {
+                chat.timezoneUpdated = true
+            }
                 
             if let pubkey = chat.ownerPubkey {
-                chat.timezoneUpdated = true
-                
                 DataSyncManager.sharedInstance.saveTimezoneFor(
                     chatPubkey: "\(pubkey)",
                     timezone: TimezoneSetting(timezoneEnabledString: "\(enabled)", timezoneIdentifier: identifier ?? "")

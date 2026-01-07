@@ -125,7 +125,6 @@ extension PodcastPlayerController {
 //        if let feedId = podcast?.feedID {
 //            FeedsManager.sharedInstance.saveContentFeedStatus(for: feedId)
 //        }
-//        DataSyncManager.sharedInstance.shouldSyncData()
     }
     
     @objc func updateCurrentTime() {

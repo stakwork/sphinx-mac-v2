@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tomas Timinskas. All rights reserved.
 //
 
-//1. Identify chats by public key
-
 class DataSyncManager : NSObject {
     
     class var sharedInstance : DataSyncManager {

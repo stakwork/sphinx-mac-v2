@@ -351,7 +351,7 @@ extension PodcastPlayerController {
             clipInfo: podcastData.clipInfo
         )
         
-        if let podcast = getPodcastWith(podcastId: podcastData.podcastId), let feedUrl = podcast.feedURLPath{
+        if let podcast = getPodcastWith(podcastId: podcastData.podcastId), let feedUrl = podcast.feedURLPath {
             DataSyncManager.sharedInstance.saveFeedStatusFor(
                 feedId: podcast.feedID,
                 feedStatus: FeedStatus(

@@ -230,13 +230,15 @@ class GroupDetailsViewController: NSViewController {
         
         let didChangeAlias = self.chat.myAlias != alias
         
-        if didChangeAlias && self.chat.timezoneEnabled, let pubkey = chat.ownerPubkey {
+        if didChangeAlias && self.chat.timezoneEnabled {
             self.chat.timezoneUpdated = true
             
-            DataSyncManager.sharedInstance.saveTimezoneFor(
-                chatPubkey: "\(pubkey)",
-                timezone: TimezoneSetting(timezoneEnabledString: "\(self.chat.timezoneEnabled)", timezoneIdentifier: self.chat.timezoneIdentifier ?? "")
-            )
+            if let pubkey = chat.ownerPubkey {
+                DataSyncManager.sharedInstance.saveTimezoneFor(
+                    chatPubkey: "\(pubkey)",
+                    timezone: TimezoneSetting(timezoneEnabledString: "\(self.chat.timezoneEnabled)", timezoneIdentifier: self.chat.timezoneIdentifier ?? "")
+                )
+            }
         }
         
         self.chat.myAlias = alias
