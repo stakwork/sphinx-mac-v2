@@ -430,7 +430,7 @@ struct ItemsResponse: Codable {
             var itemDict: [String: Any] = [
                 "key": item.key,
                 "identifier": item.identifier,
-                "date": String(format: "%.4f", item.date.timeIntervalSince1970)
+                "date": String(format: "%.0f", item.date.timeIntervalSince1970)
             ]
             
             // Convert value based on type
