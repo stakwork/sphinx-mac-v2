@@ -423,6 +423,8 @@ import WebKit
             getDashboardVC()?.reconnectToServer()
             
             feedsManager.fetchFeedItemsInBackground()
+            
+            DataSyncManager.sharedInstance.syncWithServerInBackground()
         }
     }
     

@@ -189,6 +189,12 @@ class DataSyncManager : NSObject {
         syncWithServer()
     }
     
+    func syncWithServerInBackground() {
+        DispatchQueue.global(qos: .background).async {
+            self.syncWithServer()
+        }
+    }
+    
     func findMissingItems(firstArray: [DataSync], secondArray: [SettingItem]) -> [SettingItem] {
         // Create a Set of combined key-identifier strings from the first array
         let firstArraySet = Set(firstArray.map { "\($0.key)-\($0.identifier)" })
