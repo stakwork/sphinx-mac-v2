@@ -38,7 +38,7 @@ class GiphyHelper {
     public static let kItemsPerPage: Int = 30
     public static let kGifItemHeight: CGFloat = 150
     public static let kStickerItemHeight: CGFloat = 100
-    public static let kGiphyApiKey = Bundle.main.object(forInfoDictionaryKey: "GIPHY_API_KEY") as? String ?? ""
+    public static let kGiphyApiKey = Config.giphyApiKey
     public static let kPrefix = "giphy::"
     
     public enum SearchType: Int {

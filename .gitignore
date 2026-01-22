@@ -7,3 +7,9 @@ xcuserdata/
 
 Pods/
 sphinx.xcodeproj/project.pbxproj
+
+# Sensitive configuration
+com.stakwork.sphinx.desktop/Config.swift
+com.stakwork.sphinx.desktop/Secrets.debug.xcconfig
+com.stakwork.sphinx.desktop/Secrets.release.xcconfig
+

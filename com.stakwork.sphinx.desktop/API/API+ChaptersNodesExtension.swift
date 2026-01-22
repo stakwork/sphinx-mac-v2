@@ -280,14 +280,14 @@ extension API {
         
         var params = [String: AnyObject]()
         params["name"] = mediaUrl as AnyObject
-        params["workflow_id"] = 0 as AnyObject
+        params["workflow_id"] = Config.workflowId as AnyObject
         params["workflow_params"] = workflowParams as AnyObject
 
         let request : URLRequest? = createRequest(
             url,
             params: params as NSDictionary,
             method: "POST",
-            token: "REPLACE_WITH_TOKEN​​"
+            token: Config.workflowToken
         )
         
         guard let request = request else {
@@ -328,7 +328,7 @@ extension API {
             url,
             params: nil,
             method: "GET",
-            token: "REPLACE_WITH_TOKEN​​"
+            token: Config.workflowToken
         )
         
         guard let request = request else {
