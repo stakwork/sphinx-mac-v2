@@ -445,6 +445,7 @@
 		47975201246F017800D2106B /* ChatAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47975200246F017800D2106B /* ChatAvatarView.swift */; };
 		47975203246F018300D2106B /* ChatAvatarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47975202246F018300D2106B /* ChatAvatarView.xib */; };
 		47975205246F186B00D2106B /* PlaceHolderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47975204246F186B00D2106B /* PlaceHolderTextView.swift */; };
+		47978F1A2F22910E0092B516 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47978F192F22910C0092B516 /* Config.swift */; };
 		4797E74B2785D2420080B966 /* AuthExternalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4797E74A2785D2420080B966 /* AuthExternalView.swift */; };
 		4797E74C24B8B40F00D13270 /* VideoCallHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4797E74B24B8B40F00D13270 /* VideoCallHelper.swift */; };
 		4797E74D2785D24D0080B966 /* PersonModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4797E74C2785D24D0080B966 /* PersonModalView.swift */; };
@@ -1406,6 +1407,8 @@
 		47975200246F017800D2106B /* ChatAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAvatarView.swift; sourceTree = "<group>"; };
 		47975202246F018300D2106B /* ChatAvatarView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatAvatarView.xib; sourceTree = "<group>"; };
 		47975204246F186B00D2106B /* PlaceHolderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceHolderTextView.swift; sourceTree = "<group>"; };
+		47978F192F22910C0092B516 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		47978F1B2F2291140092B516 /* Config.template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.template.swift; sourceTree = "<group>"; };
 		4797E74A2785D2420080B966 /* AuthExternalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthExternalView.swift; sourceTree = "<group>"; };
 		4797E74B24B8B40F00D13270 /* VideoCallHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallHelper.swift; sourceTree = "<group>"; };
 		4797E74C2785D24D0080B966 /* PersonModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonModalView.swift; sourceTree = "<group>"; };
@@ -2120,6 +2123,8 @@
 		4734D3942417E3D400D6957E /* com.stakwork.sphinx.desktop */ = {
 			isa = PBXGroup;
 			children = (
+				47978F1B2F2291140092B516 /* Config.template.swift */,
+				47978F192F22910C0092B516 /* Config.swift */,
 				47DE1BF72A681D7F0029597B /* Objective-C */,
 				47543C562A9517C5003F8DEE /* Crypter */,
 				4720990C24834DEA00426028 /* Libraries */,
@@ -4819,6 +4824,7 @@
 				47E7712D2472C5F100C9CFEB /* ChatHelper.swift in Sources */,
 				475B684529915E12000EF29C /* PodcastFeed+Computeds.swift in Sources */,
 				4794965F2AB8A77800C42D1E /* GroupActionMessageView.swift in Sources */,
+				47978F1A2F22910E0092B516 /* Config.swift in Sources */,
 				479496242AB22FD400C42D1E /* ContactLinkView.swift in Sources */,
 				475B684929916073000EF29C /* ActionsManager.swift in Sources */,
 				4720991724834E0000426028 /* Data+Extensions.swift in Sources */,
