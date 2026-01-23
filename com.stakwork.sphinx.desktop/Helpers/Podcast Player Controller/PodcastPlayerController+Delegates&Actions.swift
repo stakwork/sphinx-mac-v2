@@ -118,6 +118,21 @@ extension PodcastPlayerController {
             clipInfo: podcastData.clipInfo
         )
         
+        if let podcast = podcast, let feedUrl = podcast.feedURLPath {
+            DataSyncManager.sharedInstance.saveFeedStatusFor(
+                feedId: podcastData.podcastId,
+                feedStatus: FeedStatus(
+                    chatPubkey: podcast.chat?.ownerPubkey ?? "",
+                    feedUrl: feedUrl,
+                    feedId: podcastData.podcastId,
+                    subscribed: podcast.subscribed,
+                    satsPerMinute: podcast.satsPerMinute ?? 0,
+                    playerSpeed: Double(podcastData.speed),
+                    itemId: podcastData.episodeId
+                )
+            )
+        }
+        
         if let episode = podcast?.getCurrentEpisode(), !episode.isMusicClip {
             ///If playing video on recommendations player
             return

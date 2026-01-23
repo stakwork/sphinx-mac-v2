@@ -190,7 +190,7 @@ class DataSyncManager : NSObject {
     }
     
     func syncWithServerInBackground() {
-        DispatchQueue.global(qos: .background).async {
+        Task.detached(priority: .background) {
             self.syncWithServer()
         }
     }
@@ -209,42 +209,44 @@ class DataSyncManager : NSObject {
     }
     
     func syncWithServer() {
-        let serverDataString = getFileFromServer()
-        var itemsResponse = parseFileText(text: serverDataString ?? "") ?? ItemsResponse(items: [])
-        let dbItems = DataSync.getAllDataSync(context: backgroundContext)
-        let missingItems = findMissingItems(firstArray: dbItems, secondArray: itemsResponse.items)
-        
-        for item in missingItems {
-            restoreDataFrom(serverItem: item)
-        }
-        
-        for item in dbItems {
-            if let index = itemsResponse.getItemIndex(key: item.key, identifier: item.identifier) {
-                let serverItem = itemsResponse.items[index]
-                
-                if serverItem.date.timeIntervalSince1970 < item.date.timeIntervalSince1970 {
-                    if let key = DataSyncManager.SettingKey(rawValue: item.key), let settingValue = SettingValue.from(string: item.value, forKey: key) {
-                        let newItem = SettingItem(key: item.key, identifier: item.identifier, dateString: "\(item.date.timeIntervalSince1970)", value: settingValue)
-                        itemsResponse.items[index] = newItem
-                        
-                        backgroundContext.delete(item)
-                    }
-                } else {
-                    restoreDataFrom(serverItem: serverItem)
-                }
-            } else {
-                if let key = DataSyncManager.SettingKey(rawValue: item.key), let settingValue = SettingValue.from(string: item.value, forKey: key) {
-                    let newItem = SettingItem(key: item.key, identifier: item.identifier, dateString: "\(item.date.timeIntervalSince1970)", value: settingValue)
-                    itemsResponse.items.append(newItem)
-                }
+        Task {
+            let serverDataString = await getFileFromServer()
+            var itemsResponse = parseFileText(text: serverDataString ?? "") ?? ItemsResponse(items: [])
+            let dbItems = DataSync.getAllDataSync(context: backgroundContext)
+            let missingItems = findMissingItems(firstArray: dbItems, secondArray: itemsResponse.items)
+            
+            for item in missingItems {
+                restoreDataFrom(serverItem: item)
             }
             
-            backgroundContext.delete(item)
+            for item in dbItems {
+                if let index = itemsResponse.getItemIndex(key: item.key, identifier: item.identifier) {
+                    let serverItem = itemsResponse.items[index]
+                    
+                    if serverItem.date.timeIntervalSince1970 < item.date.timeIntervalSince1970 {
+                        if let key = DataSyncManager.SettingKey(rawValue: item.key), let settingValue = SettingValue.from(string: item.value, forKey: key) {
+                            let newItem = SettingItem(key: item.key, identifier: item.identifier, dateString: "\(item.date.timeIntervalSince1970)", value: settingValue)
+                            itemsResponse.items[index] = newItem
+                            
+                            backgroundContext.delete(item)
+                        }
+                    } else {
+                        restoreDataFrom(serverItem: serverItem)
+                    }
+                } else {
+                    if let key = DataSyncManager.SettingKey(rawValue: item.key), let settingValue = SettingValue.from(string: item.value, forKey: key) {
+                        let newItem = SettingItem(key: item.key, identifier: item.identifier, dateString: "\(item.date.timeIntervalSince1970)", value: settingValue)
+                        itemsResponse.items.append(newItem)
+                    }
+                }
+                
+                backgroundContext.delete(item)
+            }
+            
+            backgroundContext.saveContext()
+            
+            saveFileFrom(itemResponse: itemsResponse)
         }
-        
-        backgroundContext.saveContext()
-        
-        saveFileFrom(itemReponse: itemsResponse)
     }
     
     func restoreDataFrom(serverItem: SettingItem) {
@@ -279,7 +281,11 @@ class DataSyncManager : NSObject {
                         
                         podFeed.satsPerMinute = feedStatus.satsPerMinute
                         podFeed.playerSpeed = Float(feedStatus.playerSpeed)
-                        podFeed.currentEpisodeId = feedStatus.itemId
+                        
+                        if feedStatus.itemId.isNotEmpty {
+                            podFeed.currentEpisodeId = feedStatus.itemId
+                            feed.dateLastConsumed = Date()
+                        }
                     } else {
                         FeedsManager.sharedInstance.getContentFeedFor(
                             feedId: feedStatus.feedId,
@@ -292,9 +298,15 @@ class DataSyncManager : NSObject {
                 }
                 break
             case .feedItemStatus:
-                if let feedItem = ContentFeedItem.getItemWith(itemID: serverItem.identifier) {
+                let identifierComponents = serverItem.identifier.components(separatedBy: "-")
+                if
+                    let itemId = identifierComponents.last,
+                    let feedId = identifierComponents.first,
+                    let feedItem = ContentFeedItem.getItemWith(itemID: itemId)
+                {
                     if let feedItemStatus = serverItem.value.asFeedItemStatus {
                         let podEpisode = PodcastEpisode.convertFrom(contentFeedItem: feedItem)
+                        podEpisode.feedID = feedId
                         podEpisode.duration = feedItemStatus.duration
                         podEpisode.currentTime = feedItemStatus.currentTime
                     }
@@ -317,108 +329,135 @@ class DataSyncManager : NSObject {
         }
     }
     
-    func getFileFromServer() -> String? {
-        let fileName = "datasync.txt"
-            
-        // Get Documents directory
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(fileName)
+    func getFileFromServer() async -> String? {
+        let attachmentsManager = AttachmentsManager.sharedInstance
+        let isAuthenticated = attachmentsManager.isAuthenticated()
         
-        // CHECK IF FILE ALREADY EXISTS
-        if fileManager.fileExists(atPath: fileURL.path) {
-            print("✅ File already exists at: \(fileURL.path)")
+        // Handle authentication if needed
+        if !isAuthenticated.0 {
+            let authSuccess = await withCheckedContinuation { continuation in
+                attachmentsManager.authenticate(
+                    completion: {
+                        continuation.resume(returning: true)
+                    },
+                    errorCompletion: {
+                        print("Error authenticating with memes server")
+                        continuation.resume(returning: false)
+                    }
+                )
+            }
             
-            // Read and return existing content
-            do {
-                let fileContent = try String(contentsOf: fileURL, encoding: .utf8)
-                if let decrypted = decrypt(value: fileContent) {
-                    return decrypted
-                }
-                print("❌ Error decrypting existing file")
-                return nil
-            } catch {
-                print("❌ Error reading existing file: \(error)")
+            if !authSuccess {
                 return nil
             }
+            
+            // Recursively call after authentication
+            return await getFileFromServer()
         }
         
-        // FILE DOESN'T EXIST - CREATE DEFAULT FILE
-        print("📝 File doesn't exist, creating default file...")
-        
-        let date = Int(Date().addingTimeInterval(TimeInterval(-3600)).timeIntervalSince1970)
-        
-        let text = """
-        {"items": [
-            {"key": "tip_amount", "identifier": "0", "date": "\(date)", "value": "12"},
-        ]}
-        """
-        
-        if let encrypted = encrypt(value: text) {
-            do {
-                try encrypted.write(to: fileURL, atomically: true, encoding: .utf8)
-                print("✅ File created at: \(fileURL.path)")
-            } catch {
-                print("❌ Error: \(error)")
-            }
-        }
-        
-        do {
-            let fileContent = try String(contentsOf: fileURL, encoding: .utf8)
-            if let decrypted = decrypt(value: fileContent) {
-                return decrypted
-            }
-            print("❌ Error decrypting existing file")
-        } catch {
-            print("❌ Error reading existing file: \(error)")
+        guard let token = isAuthenticated.1 else {
             return nil
         }
         
-        return nil
+        // Call the API with continuation
+        return await withCheckedContinuation { continuation in
+            API.sharedInstance.getPersonalPreferencesFile(
+                token: token,
+                callback: { data in
+                    if let string = String(data: data, encoding: .utf8),
+                       let decrypted = self.decrypt(value: string) {
+                        continuation.resume(returning: decrypted)
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
+                },
+                errorCallback: {
+                    continuation.resume(returning: nil)
+                }
+            )
+        }
     }
     
-    func saveFileFrom(itemReponse: ItemsResponse) {
-        let fileName = "datasync.txt"
+    func saveFileFrom(itemResponse: ItemsResponse) {
+        if itemResponse.items.isEmpty {
+            return
+        }
+        guard let text = itemResponse.toOriginalFormatJSON(), let encrypted = encrypt(value: text) else {
+            return
+        }
         
-        guard let text = itemReponse.toOriginalFormatJSON(), let encrypted = encrypt(value: text) else {
+        guard let pubkey = UserContact.getOwner()?.publicKey, let base64URLPubkey = hexToBase64URL(pubkey) else {
+            return
+        }
+        
+        let attachmentsManager = AttachmentsManager.sharedInstance
+        let isAuthenticated = attachmentsManager.isAuthenticated()
+        
+        if !isAuthenticated.0 {
+            attachmentsManager.authenticate(completion: {
+                self.saveFileFrom(itemResponse: itemResponse)
+            }, errorCompletion: {
+                print("Error authenticating with memes server")
+            })
+            return
+        }
+        
+        guard let token = isAuthenticated.1 else {
             return
         }
             
-        // Get Documents directory
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(fileName)
-        
-        do {
-            try encrypted.write(to: fileURL, atomically: true, encoding: .utf8)
-            print("✅ File saved at: \(fileURL.path)")
-        } catch {
-            print("❌ Error: \(error)")
+        if let data = encrypted.data(using: .utf8) {
+            API.sharedInstance.uploadPersonalPreferences(
+                data: data,
+                pubkey: base64URLPubkey,
+                token: token,
+                progressCallback: { progress in
+                    print("Progress uploading personal preferences: \(progress)")
+                },
+                callback: { (success, json) in
+                    print(success)
+                },
+                errorCallback: { error in
+                    print(error)
+                }
+            )
         }
-        
-        ///Send file to memes server
     }
     
     func encrypt(value: String) -> String? {
-        if let mnemonic = UserData.sharedInstance.getMnemonic() {
-            if let seed = try? Sphinx.mnemonicToSeed(mnemonic: mnemonic) {
-                if let keys = try? Sphinx.nodeKeys(net: "bitcoin", seed: seed) {
-                    return SymmetricEncryptionManager.sharedInstance.encryptString(text: value, key: keys.secret)
-                }
-            }
+        if let keys = SphinxOnionManager.sharedInstance.getPersonalKeys() {
+            return SymmetricEncryptionManager.sharedInstance.encryptString(text: value, key: keys.secret)
         }
         return nil
     }
     
     func decrypt(value: String) -> String? {
-        if let mnemonic = UserData.sharedInstance.getMnemonic() {
-            if let seed = try? Sphinx.mnemonicToSeed(mnemonic: mnemonic) {
-                if let keys = try? Sphinx.nodeKeys(net: "bitcoin", seed: seed) {
-                    return SymmetricEncryptionManager.sharedInstance.decryptString(text: value, key: keys.secret)
-                }
-            }
+        if let keys = SphinxOnionManager.sharedInstance.getPersonalKeys() {
+            return SymmetricEncryptionManager.sharedInstance.decryptString(text: value, key: keys.secret)
         }
         return nil
+    }
+    
+    func hexToBase64URL(_ hex: String) -> String? {
+        var data = Data()
+        var hex = hex
+        while hex.count > 0 {
+            let index = hex.index(hex.startIndex, offsetBy: 2)
+            let byteString = String(hex[..<index])
+            hex = String(hex[index...])
+            if let byte = UInt8(byteString, radix: 16) {
+                data.append(byte)
+            }
+        }
+
+        let base64 = data.base64EncodedString()
+
+        let base64URL = base64
+          .replacingOccurrences(of: "+", with: "-")
+          .replacingOccurrences(of: "/", with: "_")
+          .replacingOccurrences(of: "=", with: "")
+
+        return base64URL
     }
 }
 
