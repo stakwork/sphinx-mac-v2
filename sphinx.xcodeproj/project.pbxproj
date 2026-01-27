@@ -62,6 +62,7 @@
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
 		471946C02BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */; };
 		471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */; };
+		471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB62EF4600000CFD81F /* DataSyncModels.swift */; };
 		471ABEB32EF447B800CFD81F /* DataSync+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */; };
 		471ABEB52EF447C000CFD81F /* DataSync+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */; };
 		4720991624834E0000426028 /* CryptorRSAUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */; };
@@ -980,6 +981,7 @@
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
 		471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ReadMuteExtension.swift"; sourceTree = "<group>"; };
 		471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncManager.swift; sourceTree = "<group>"; };
+		471ABEB62EF4600000CFD81F /* DataSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncModels.swift; sourceTree = "<group>"; };
 		471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 11.xcdatamodel"; sourceTree = "<group>"; };
 		471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -1976,6 +1978,7 @@
 			isa = PBXGroup;
 			children = (
 				471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */,
+				471ABEB62EF4600000CFD81F /* DataSyncModels.swift */,
 			);
 			path = "Data Sync Manager";
 			sourceTree = "<group>";
@@ -4581,6 +4584,7 @@
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,
+				471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */,
 				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
