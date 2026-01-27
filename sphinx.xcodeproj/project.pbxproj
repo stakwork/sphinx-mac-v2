@@ -62,9 +62,9 @@
 		471946BE2BF26BA100D05216 /* TransactionMessageParamsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */; };
 		471946C02BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */; };
 		471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */; };
-		471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB62EF4600000CFD81F /* DataSyncModels.swift */; };
 		471ABEB32EF447B800CFD81F /* DataSync+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */; };
 		471ABEB52EF447C000CFD81F /* DataSync+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */; };
+		471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471ABEB62EF4600000CFD81F /* DataSyncModels.swift */; };
 		4720991624834E0000426028 /* CryptorRSAUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */; };
 		4720991724834E0000426028 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720990F24834E0000426028 /* Data+Extensions.swift */; };
 		4720991824834E0000426028 /* SSLPointerTricks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4720991024834E0000426028 /* SSLPointerTricks.swift */; };
@@ -981,10 +981,10 @@
 		471946BD2BF26BA100D05216 /* TransactionMessageParamsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionMessageParamsExtension.swift; sourceTree = "<group>"; };
 		471946BF2BF2855F00D05216 /* SphinxOnionManager+ReadMuteExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ReadMuteExtension.swift"; sourceTree = "<group>"; };
 		471ABEAE2EF431AB00CFD81F /* DataSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncManager.swift; sourceTree = "<group>"; };
-		471ABEB62EF4600000CFD81F /* DataSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncModels.swift; sourceTree = "<group>"; };
 		471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 11.xcdatamodel"; sourceTree = "<group>"; };
 		471ABEB22EF447B100CFD81F /* DataSync+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		471ABEB42EF447BB00CFD81F /* DataSync+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataSync+CoreDataClass.swift"; sourceTree = "<group>"; };
+		471ABEB62EF4600000CFD81F /* DataSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncModels.swift; sourceTree = "<group>"; };
 		472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 10.xcdatamodel"; sourceTree = "<group>"; };
 		4720990E24834DFF00426028 /* CryptorRSAUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorRSAUtilities.swift; sourceTree = "<group>"; };
 		4720990F24834E0000426028 /* Data+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
@@ -5626,7 +5626,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 204;
+				CURRENT_PROJECT_VERSION = 205;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5663,7 +5663,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 204;
+				CURRENT_PROJECT_VERSION = 205;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
