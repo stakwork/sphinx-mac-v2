@@ -413,7 +413,10 @@ public class Chat: NSManagedObject {
         let ownerId = UserData.sharedInstance.getUserId()
         
         let declinedRequestResponses = messages.filter { $0.isDeclinedRequest() }
-        let declinedRequestResponsesDictionary = Dictionary(uniqueKeysWithValues: declinedRequestResponses.map { ($0.replyUUID, $0) })
+        let declinedRequestResponsesDictionary = Dictionary(
+            declinedRequestResponses.map { ($0.replyUUID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         
         for message in messages {
             if !message.isIncoming(ownerId: ownerId) {

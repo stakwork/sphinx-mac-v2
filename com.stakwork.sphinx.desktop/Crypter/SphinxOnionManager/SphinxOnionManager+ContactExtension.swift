@@ -171,46 +171,58 @@ extension SphinxOnionManager {//contacts related
         })
         
         let existingIdMessages = TransactionMessage.getMessagesWith(ids: messageIndexes, context: backgroundContext)
-        let existingMessagesIdMap = Dictionary(uniqueKeysWithValues: existingIdMessages.map { ($0.id, $0) })
-        
+        let existingMessagesIdMap = Dictionary(
+            existingIdMessages.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Messages sender info Map
-        let senderInfoMessagesMap = Dictionary(uniqueKeysWithValues: filteredMsgs.compactMap {
-            if let _ = $0.type,
-               let sender = $0.sender,
-               let index = $0.index,
-               let indexInt = Int(index),
-               let _ = $0.uuid,
-               let _ = $0.date,
-               let csr = ContactServerResponse(JSONString: sender)
-            {
-                return (indexInt, csr)
-            }
-            return nil
-        })
-        
+        let senderInfoMessagesMap = Dictionary(
+            filteredMsgs.compactMap {
+                if let _ = $0.type,
+                   let sender = $0.sender,
+                   let index = $0.index,
+                   let indexInt = Int(index),
+                   let _ = $0.uuid,
+                   let _ = $0.date,
+                   let csr = ContactServerResponse(JSONString: sender)
+                {
+                    return (indexInt, csr)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Messages inner content Map
-        let messagesInnerContentMap = Dictionary(uniqueKeysWithValues: rr.msgs.compactMap {
-            if let message = $0.message,
-               let index = $0.index,
-               let indexInt = Int(index),
-               let innerContent = MessageInnerContent(JSONString: message)
-            {
-                return (indexInt, innerContent)
-            }
-            return nil
-        })
-        
+        let messagesInnerContentMap = Dictionary(
+            rr.msgs.compactMap {
+                if let message = $0.message,
+                   let index = $0.index,
+                   let indexInt = Int(index),
+                   let innerContent = MessageInnerContent(JSONString: message)
+                {
+                    return (indexInt, innerContent)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Contacts Map per public key
         let pubkeys = senderInfoMessagesMap.compactMap({ $0.value.pubkey })
         let contactsByPubKeys = UserContact.getContactsWith(pubkeys: pubkeys, context: backgroundContext)
-        var contactsByPubKeyMap = Dictionary(uniqueKeysWithValues: contactsByPubKeys.compactMap {
-            $0.setContactConversation(context: backgroundContext)
-            
-            if let pubkey = $0.publicKey {
-                return (pubkey, $0)
-            }
-            return nil
-        })
+        var contactsByPubKeyMap = Dictionary(
+            contactsByPubKeys.compactMap {
+                $0.setContactConversation(context: backgroundContext)
+
+                if let pubkey = $0.publicKey {
+                    return (pubkey, $0)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
         
         for msg in filteredMsgs {
             

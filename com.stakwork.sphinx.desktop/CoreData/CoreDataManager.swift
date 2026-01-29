@@ -108,13 +108,24 @@ class CoreDataManager {
     func deleteChatObjectsFor(_ chat: Chat) {
         let managedContext = persistentContainer.viewContext
         managedContext.performAndWait {
-            if let messagesSet = chat.messages, let groupMessages = Array<Any>(messagesSet) as? [TransactionMessage] {
-                for m in groupMessages {
-                    MediaLoader.clearMessageMediaCache(message: m)
-                    managedContext.delete(m)
+            do {
+                // Check if chat is valid and belongs to this context
+                guard !chat.isDeleted, chat.managedObjectContext == managedContext else {
+                    return
                 }
+
+                if let messagesSet = chat.messages, let groupMessages = Array<Any>(messagesSet) as? [TransactionMessage] {
+                    for m in groupMessages {
+                        if !m.isDeleted {
+                            MediaLoader.clearMessageMediaCache(message: m)
+                            managedContext.delete(m)
+                        }
+                    }
+                }
+                managedContext.delete(chat)
+            } catch {
+                print("Error deleting chat objects: \(error)")
             }
-            managedContext.delete(chat)
         }
         saveContext()
     }
@@ -258,14 +269,40 @@ class CoreDataManager {
     func deleteObject(object: NSManagedObject) {
         let managedContext = persistentContainer.viewContext
         managedContext.performAndWait {
-            managedContext.delete(object)
+            // Check if object is valid and not already deleted
+            guard !object.isDeleted else {
+                return
+            }
+
+            // If object belongs to a different context, get it in this context
+            if object.managedObjectContext != managedContext {
+                if let objectInContext = try? managedContext.existingObject(with: object.objectID) {
+                    managedContext.delete(objectInContext)
+                }
+            } else {
+                managedContext.delete(object)
+            }
         }
         saveContext()
     }
-    
+
     func deleteObject(object: NSManagedObject, context: NSManagedObjectContext? = nil) {
         let managedContext = context ?? persistentContainer.viewContext
-        managedContext.delete(object)
+        managedContext.performAndWait {
+            // Check if object is valid and not already deleted
+            guard !object.isDeleted else {
+                return
+            }
+
+            // If object belongs to a different context, get it in this context
+            if object.managedObjectContext != managedContext {
+                if let objectInContext = try? managedContext.existingObject(with: object.objectID) {
+                    managedContext.delete(objectInContext)
+                }
+            } else {
+                managedContext.delete(object)
+            }
+        }
     }
 }
 

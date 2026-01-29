@@ -91,22 +91,28 @@ extension SphinxOnionManager {
             }
             let pubKeys = pubkeyToMuteLevelDict.compactMap({ $0.key })
             let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
-            let contactsMap = Dictionary(uniqueKeysWithValues: contacts.compactMap {
-                $0.setContactConversation(context: context)
-                
-                if let pubkey = $0.publicKey {
-                    return (pubkey, $0)
-                }
-                return nil
-            })
-            
+            let contactsMap = Dictionary(
+                contacts.compactMap {
+                    $0.setContactConversation(context: context)
+
+                    if let pubkey = $0.publicKey {
+                        return (pubkey, $0)
+                    }
+                    return nil
+                },
+                uniquingKeysWith: { first, _ in first }
+            )
+
             let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: context)
-            let tribesMap = Dictionary(uniqueKeysWithValues: tribes.compactMap {
-                if let ownerPubkey = $0.ownerPubkey {
-                    return (ownerPubkey, $0)
-                }
-                return nil
-            })
+            let tribesMap = Dictionary(
+                tribes.compactMap {
+                    if let ownerPubkey = $0.ownerPubkey {
+                        return (ownerPubkey, $0)
+                    }
+                    return nil
+                },
+                uniquingKeysWith: { first, _ in first }
+            )
             
             for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
                 if let chat = contactsMap[pubkey]?.getContactChat(context: context) ?? tribesMap[pubkey] {

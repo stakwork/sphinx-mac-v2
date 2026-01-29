@@ -158,6 +158,7 @@ class DataSyncManager: NSObject {
     private func syncWithServer() {
         // Prevent concurrent syncs
         syncLock.lock()
+        
         guard !isSyncing else {
             syncLock.unlock()
             #if DEBUG

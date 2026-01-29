@@ -9,7 +9,10 @@
 import Cocoa
 
 struct MessageTableCellState {
-    
+
+    ///Unique identifier for diffable data source
+    let uniqueID = UUID()
+
     ///Constants
     static let kBubbleCornerRadius: CGFloat = 8.0
     static let kRowLeftMargin: CGFloat = 15
@@ -1020,7 +1023,7 @@ extension MessageTableCellState : Hashable {
     static func == (lhs: MessageTableCellState, rhs: MessageTableCellState) -> Bool {
         var mutableLhs = lhs
         var mutableRhs = rhs
-        
+
         return
             mutableLhs.hashMessageId             == mutableRhs.hashMessageId &&
             mutableLhs.messageToShow?.id         == mutableRhs.messageToShow?.id &&
@@ -1039,20 +1042,23 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self.hashMessageId)
-        hasher.combine(self.messageToShow?.id)
-        hasher.combine(self.messageId)
-        hasher.combine(self.messageStatus)
-        hasher.combine(self.messageType)
-        hasher.combine(self.bubbleState)
-        hasher.combine(self.messageString)
-        hasher.combine(self.boostMessages.count)
-        hasher.combine(self.separatorDate)
-        hasher.combine(self.threadMessages.count)
-        hasher.combine(self.memberRequestResponse?.id)
-        hasher.combine(self.isLoadingMoreMessages)
+        // Hash only identity properties to ensure uniqueness without including changing state
+        if let messageId = self.messageId {
+            hasher.combine("message")
+            hasher.combine(messageId)
+        } else if let separatorDate = separatorDate {
+            hasher.combine("separator")
+            hasher.combine(separatorDate)
+        } else if isLoadingMoreMessages {
+            hasher.combine("loadingMore")
+            hasher.combine(uniqueID)
+        } else {
+            // Fallback for any other case
+            hasher.combine("other")
+            hasher.combine(uniqueID)
+        }
     }
-    
+
     func getUniqueIdentifier() -> Int {
         if let message = message {
             return message.id

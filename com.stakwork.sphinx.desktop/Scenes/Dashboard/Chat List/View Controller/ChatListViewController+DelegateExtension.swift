@@ -202,7 +202,11 @@ extension ChatListViewController: FeedListViewControllerDelegate {
         let managedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
         managedObjectContext.performAndWait {
-            fetchRequestResult = try! managedObjectContext.fetch(existingFeedsFetchRequest)
+            do {
+                fetchRequestResult = try managedObjectContext.fetch(existingFeedsFetchRequest)
+            } catch {
+                print("Error fetching content feed: \(error)")
+            }
         }
             
         if let existingFeed = fetchRequestResult.first {

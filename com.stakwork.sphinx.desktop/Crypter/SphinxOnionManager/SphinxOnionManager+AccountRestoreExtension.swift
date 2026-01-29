@@ -574,45 +574,57 @@ extension SphinxOnionManager {
         })
         
         let existingIdMessages = TransactionMessage.getMessagesWith(ids: messageIndexes, context: backgroundContext)
-        let existingMessagesIdMap = Dictionary(uniqueKeysWithValues: existingIdMessages.map { ($0.id, $0) })
-        
+        let existingMessagesIdMap = Dictionary(
+            existingIdMessages.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Messages sender info Map
-        let senderInfoMessagesMap = Dictionary(uniqueKeysWithValues: filteredMsgs.compactMap {
-            if let _ = $0.type,
-               let sender = $0.sender,
-               let index = $0.index,
-               let indexInt = Int(index),
-               let _ = $0.uuid,
-               let _ = $0.date,
-               let csr = ContactServerResponse(JSONString: sender)
-            {
-                return (indexInt, csr)
-            }
-            return nil
-        })
-        
+        let senderInfoMessagesMap = Dictionary(
+            filteredMsgs.compactMap {
+                if let _ = $0.type,
+                   let sender = $0.sender,
+                   let index = $0.index,
+                   let indexInt = Int(index),
+                   let _ = $0.uuid,
+                   let _ = $0.date,
+                   let csr = ContactServerResponse(JSONString: sender)
+                {
+                    return (indexInt, csr)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Contacts Map per public key
         let pubkeys = senderInfoMessagesMap.compactMap({ $0.value.pubkey })
         let contactsByPubKeys = UserContact.getContactsWith(pubkeys: pubkeys, context: backgroundContext)
-        var contactsByPubKeyMap = Dictionary(uniqueKeysWithValues: contactsByPubKeys.compactMap {
-            $0.setContactConversation(context: backgroundContext)
-            
-            if let pubkey = $0.publicKey {
-                return (pubkey, $0)
-            }
-            return nil
-        })
-        
+        var contactsByPubKeyMap = Dictionary(
+            contactsByPubKeys.compactMap {
+                $0.setContactConversation(context: backgroundContext)
+
+                if let pubkey = $0.publicKey {
+                    return (pubkey, $0)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         let codes = senderInfoMessagesMap.compactMap({ $0.value.code })
         let contactsByInviteCode = UserContact.getContactsWithInviteCode(inviteCode: codes, managedContext: backgroundContext)
-        var contactsByInviteCodeMap = Dictionary(uniqueKeysWithValues: contactsByInviteCode.compactMap {
-            $0.setContactConversation(context: backgroundContext)
-            
-            if let code = $0.sentInviteCode {
-                return (code, $0)
-            }
-            return nil
-        })
+        var contactsByInviteCodeMap = Dictionary(
+            contactsByInviteCode.compactMap {
+                $0.setContactConversation(context: backgroundContext)
+
+                if let code = $0.sentInviteCode {
+                    return (code, $0)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
         
         for message in filteredMsgs {
             
@@ -702,27 +714,33 @@ extension SphinxOnionManager {
         }
 
         ///Messages sender info Map
-        let senderInfoMessagesMap = Dictionary(uniqueKeysWithValues: filteredMsgs.compactMap {
-            if let sender = $0.sender,
-               let index = $0.index,
-               let indexInt = Int(index),
-               let csr = ContactServerResponse(JSONString: sender)
-            {
-                return (indexInt, csr)
-            }
-            return nil
-        })
-        
+        let senderInfoMessagesMap = Dictionary(
+            filteredMsgs.compactMap {
+                if let sender = $0.sender,
+                   let index = $0.index,
+                   let indexInt = Int(index),
+                   let csr = ContactServerResponse(JSONString: sender)
+                {
+                    return (indexInt, csr)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Tribes Map per public key
         let pubkeys = senderInfoMessagesMap.compactMap({ $0.value.pubkey })
         let tribes = Chat.getChatTribesFor(ownerPubkeys: pubkeys, context: backgroundContext)
-        let tribesMap = Dictionary(uniqueKeysWithValues: tribes.compactMap {
-            if let ownerPubkey = $0.ownerPubkey {
-                return (ownerPubkey, $0)
-            }
-            return nil
-        })
-        
+        let tribesMap = Dictionary(
+            tribes.compactMap {
+                if let ownerPubkey = $0.ownerPubkey {
+                    return (ownerPubkey, $0)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         Task {
             // Process all tribes concurrently
             let resultsDict = await withTaskGroup(
@@ -796,27 +814,33 @@ extension SphinxOnionManager {
         }
         
         ///Messages sender info Map
-        let senderInfoMessagesMap = Dictionary(uniqueKeysWithValues: filteredMsgs.compactMap {
-            if let sender = $0.sender,
-               let index = $0.index,
-               let indexInt = Int(index),
-               let csr = ContactServerResponse(JSONString: sender)
-            {
-                return (indexInt, csr)
-            }
-            return nil
-        })
-        
+        let senderInfoMessagesMap = Dictionary(
+            filteredMsgs.compactMap {
+                if let sender = $0.sender,
+                   let index = $0.index,
+                   let indexInt = Int(index),
+                   let csr = ContactServerResponse(JSONString: sender)
+                {
+                    return (indexInt, csr)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         ///Tribes Map per public key
         let pubkeys = senderInfoMessagesMap.compactMap({ $0.value.pubkey })
         let tribes = Chat.getChatTribesFor(ownerPubkeys: pubkeys, context: backgroundContext)
-        var tribesMap = Dictionary(uniqueKeysWithValues: tribes.compactMap {
-            if let ownerPubkey = $0.ownerPubkey {
-                return (ownerPubkey, $0)
-            }
-            return nil
-        })
-        
+        var tribesMap = Dictionary(
+            tribes.compactMap {
+                if let ownerPubkey = $0.ownerPubkey {
+                    return (ownerPubkey, $0)
+                }
+                return nil
+            },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         for message in filteredMsgs {
             
             guard let indx = message.index, let indexInt = Int(indx) else {
