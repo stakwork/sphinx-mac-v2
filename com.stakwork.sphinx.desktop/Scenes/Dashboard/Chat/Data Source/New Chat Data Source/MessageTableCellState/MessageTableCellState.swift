@@ -1042,9 +1042,13 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        if let messageId = self.messageId {
+        if let messageId = self.messageToShow?.id {
             hasher.combine("message")
             hasher.combine(messageId)
+            
+            if let hashMessageId = self.hashMessageId {
+                hasher.combine(hashMessageId)
+            }
         } else if let separatorDate = separatorDate {
             hasher.combine("separator")
             hasher.combine(separatorDate)
