@@ -102,14 +102,12 @@ class ThreadsListDataSource : NSObject {
         snapshot.appendSections([CollectionViewSection.threads])
 
         // Filter out duplicates to prevent NSDiffableDataSourceSnapshot crashes
-        // Use stable string identifiers that exactly match hash function logic
-        var seenIdentifiers = Set<String>()
+        // Use Set which relies on Hashable conformance - same logic diffable data source uses
+        var seen = Set<ThreadTableCellState>()
         var uniqueItems: [ThreadTableCellState] = []
 
         for item in threadTableCellStateArray {
-            let identifier = item.stableIdentifierForDeduplication()
-            if !seenIdentifiers.contains(identifier) {
-                seenIdentifiers.insert(identifier)
+            if seen.insert(item).inserted {
                 uniqueItems.append(item)
             }
         }

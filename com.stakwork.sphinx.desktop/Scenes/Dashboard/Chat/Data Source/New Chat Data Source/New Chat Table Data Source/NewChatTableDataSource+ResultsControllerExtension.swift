@@ -39,14 +39,12 @@ extension NewChatTableDataSource {
         snapshot.appendSections([CollectionViewSection.messages])
 
         // Filter out duplicates to prevent NSDiffableDataSourceSnapshot crashes
-        // Use stable string identifiers that exactly match hash function logic
-        var seenIdentifiers = Set<String>()
+        // Use Set which relies on Hashable conformance - same logic diffable data source uses
+        var seenItems = Set<MessageTableCellState>()
         var uniqueItems: [MessageTableCellState] = []
 
         for item in messageTableCellStateArray {
-            let identifier = item.stableIdentifierForDeduplication()
-            if !seenIdentifiers.contains(identifier) {
-                seenIdentifiers.insert(identifier)
+            if seenItems.insert(item).inserted {
                 uniqueItems.append(item)
             }
         }

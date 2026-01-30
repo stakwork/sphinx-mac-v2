@@ -1042,18 +1042,12 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        let mutableSelf = self
-        
-        if let hashMsgId = mutableSelf.hashMessageId {
+        if let messageId = self.messageId {
             hasher.combine("message")
-            hasher.combine(hashMsgId)
-            
-            if threadMessages.count > 1, let lastMsgId = threadMessages.last?.id {
-                hasher.combine(lastMsgId)
-            }
+            hasher.combine(messageId)
         } else if let separatorDate = separatorDate {
             hasher.combine("separator")
-            hasher.combine(separatorDate.timeIntervalSince1970)
+            hasher.combine(separatorDate)
         } else if isLoadingMoreMessages {
             hasher.combine("loadingMore")
             hasher.combine(uniqueID)
@@ -1072,22 +1066,6 @@ extension MessageTableCellState : Hashable {
         return 0
     }
 
-    /// Returns a stable string identifier for deduplication that exactly matches the hash function logic
-    func stableIdentifierForDeduplication() -> String {
-        var mutableSelf = self
-        if let hashMsgId = mutableSelf.hashMessageId {
-            if threadMessages.count > 1, let lastMsgId = threadMessages.last?.id {
-                return "message_\(hashMsgId)_\(lastMsgId)"
-            }
-            return "message_\(hashMsgId)"
-        } else if let separatorDate = separatorDate {
-            return "separator_\(Int64(separatorDate.timeIntervalSince1970 * 1000))"
-        } else if isLoadingMoreMessages {
-            return "loadingMore_\(uniqueID.uuidString)"
-        } else {
-            return "other_\(uniqueID.uuidString)"
-        }
-    }
 }
 
 extension MessageTableCellState {
