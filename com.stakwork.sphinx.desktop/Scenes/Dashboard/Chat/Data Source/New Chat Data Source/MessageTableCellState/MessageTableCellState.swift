@@ -1042,18 +1042,22 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        // Hash only identity properties to ensure uniqueness without including changing state
-        if let messageId = self.messageId {
+        let mutableSelf = self
+        
+        if let hashMsgId = mutableSelf.hashMessageId {
             hasher.combine("message")
-            hasher.combine(messageId)
+            hasher.combine(hashMsgId)
+            
+            if threadMessages.count > 1, let lastMsgId = threadMessages.last?.id {
+                hasher.combine(lastMsgId)
+            }
         } else if let separatorDate = separatorDate {
             hasher.combine("separator")
-            hasher.combine(separatorDate)
+            hasher.combine(separatorDate.timeIntervalSince1970)
         } else if isLoadingMoreMessages {
             hasher.combine("loadingMore")
             hasher.combine(uniqueID)
         } else {
-            // Fallback for any other case
             hasher.combine("other")
             hasher.combine(uniqueID)
         }

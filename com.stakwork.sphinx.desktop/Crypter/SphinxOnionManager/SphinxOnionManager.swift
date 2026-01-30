@@ -556,7 +556,7 @@ class SphinxOnionManager : NSObject {
                 network: network
             )
 
-            listAndUpdateContacts()
+//            listAndUpdateContacts()
         } catch {}
     }
     

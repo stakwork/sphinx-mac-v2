@@ -38,8 +38,19 @@ extension NewChatTableDataSource {
 
         snapshot.appendSections([CollectionViewSection.messages])
 
+        var seenIdentifiers = Set<Int>()
+        var uniqueItems: [MessageTableCellState] = []
+
+        for item in messageTableCellStateArray {
+            let identifier = item.hashValue
+            if !seenIdentifiers.contains(identifier) {
+                seenIdentifiers.insert(identifier)
+                uniqueItems.append(item)
+            }
+        }
+
         snapshot.appendItems(
-            messageTableCellStateArray,
+            uniqueItems,
             toSection: .messages
         )
 
