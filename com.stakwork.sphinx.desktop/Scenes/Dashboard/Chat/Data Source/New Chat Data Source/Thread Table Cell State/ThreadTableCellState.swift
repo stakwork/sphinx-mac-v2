@@ -172,7 +172,7 @@ extension ThreadTableCellState : Hashable {
     static func == (lhs: ThreadTableCellState, rhs: ThreadTableCellState) -> Bool {
         let mutableLhs = lhs
         let mutableRhs = rhs
-        
+
         return
             mutableLhs.originalMessage?.id      == mutableRhs.originalMessage?.id &&
             mutableLhs.threadMessages.count     == mutableRhs.threadMessages.count
@@ -180,5 +180,13 @@ extension ThreadTableCellState : Hashable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(self.originalMessage?.id)
+    }
+
+    /// Returns a stable string identifier for deduplication that exactly matches the hash function logic
+    func stableIdentifierForDeduplication() -> String {
+        if let messageId = originalMessage?.id {
+            return "thread_\(messageId)"
+        }
+        return "thread_unknown_\(UUID().uuidString)"
     }
 }

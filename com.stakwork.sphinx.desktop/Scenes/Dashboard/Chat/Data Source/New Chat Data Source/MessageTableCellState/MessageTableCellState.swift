@@ -1071,6 +1071,23 @@ extension MessageTableCellState : Hashable {
         }
         return 0
     }
+
+    /// Returns a stable string identifier for deduplication that exactly matches the hash function logic
+    func stableIdentifierForDeduplication() -> String {
+        var mutableSelf = self
+        if let hashMsgId = mutableSelf.hashMessageId {
+            if threadMessages.count > 1, let lastMsgId = threadMessages.last?.id {
+                return "message_\(hashMsgId)_\(lastMsgId)"
+            }
+            return "message_\(hashMsgId)"
+        } else if let separatorDate = separatorDate {
+            return "separator_\(Int64(separatorDate.timeIntervalSince1970 * 1000))"
+        } else if isLoadingMoreMessages {
+            return "loadingMore_\(uniqueID.uuidString)"
+        } else {
+            return "other_\(uniqueID.uuidString)"
+        }
+    }
 }
 
 extension MessageTableCellState {

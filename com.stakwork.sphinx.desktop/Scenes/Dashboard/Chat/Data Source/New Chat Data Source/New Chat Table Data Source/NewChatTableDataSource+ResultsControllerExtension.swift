@@ -38,11 +38,13 @@ extension NewChatTableDataSource {
 
         snapshot.appendSections([CollectionViewSection.messages])
 
-        var seenIdentifiers = Set<Int>()
+        // Filter out duplicates to prevent NSDiffableDataSourceSnapshot crashes
+        // Use stable string identifiers that exactly match hash function logic
+        var seenIdentifiers = Set<String>()
         var uniqueItems: [MessageTableCellState] = []
 
         for item in messageTableCellStateArray {
-            let identifier = item.hashValue
+            let identifier = item.stableIdentifierForDeduplication()
             if !seenIdentifiers.contains(identifier) {
                 seenIdentifiers.insert(identifier)
                 uniqueItems.append(item)
