@@ -1042,23 +1042,18 @@ extension MessageTableCellState : Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        if let messageId = self.messageToShow?.id {
-            hasher.combine("message")
-            hasher.combine(messageId)
-            
-            if let hashMessageId = self.hashMessageId {
-                hasher.combine(hashMessageId)
-            }
-        } else if let separatorDate = separatorDate {
-            hasher.combine("separator")
-            hasher.combine(separatorDate)
-        } else if isLoadingMoreMessages {
-            hasher.combine("loadingMore")
-            hasher.combine(uniqueID)
-        } else {
-            hasher.combine("other")
-            hasher.combine(uniqueID)
-        }
+        hasher.combine(self.hashMessageId)
+        hasher.combine(self.messageToShow?.id)
+        hasher.combine(self.messageId)
+        hasher.combine(self.messageStatus)
+        hasher.combine(self.messageType)
+        hasher.combine(self.bubbleState)
+        hasher.combine(self.messageString)
+        hasher.combine(self.boostMessages.count)
+        hasher.combine(self.separatorDate)
+        hasher.combine(self.threadMessages.count)
+        hasher.combine(self.memberRequestResponse?.id)
+        hasher.combine(self.isLoadingMoreMessages)
     }
 
     func getUniqueIdentifier() -> Int {
