@@ -50,8 +50,8 @@ struct ItemsResponse: Codable {
 
             case .timezone(let timezone):
                 itemDict["value"] = [
-                    "timezoneEnabled": timezone.timezoneEnabled ? "true" : "false",
-                    "timezoneIdentifier": timezone.timezoneIdentifier
+                    "timezone_enabled": timezone.timezoneEnabled ? "true" : "false",
+                    "timezone_identifier": timezone.timezoneIdentifier
                 ]
 
             case .feedStatus(let feedStatus):
@@ -330,15 +330,34 @@ enum SettingValue: Codable {
 
     private static func parseTimezone(from string: String) -> TimezoneSetting? {
         guard let data = string.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let enabled = json["timezoneEnabled"] as? String,
-              let identifier = json["timezoneIdentifier"] as? String else {
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return nil
         }
+        
+        var timezoneEnabled: String? = nil
+        var timezoneIdentifier: String? = nil
+        
+        if let enabled = json["timezoneEnabled"] as? String, enabled.isNotEmpty {
+            timezoneEnabled = enabled
+        } else if let enabled = json["timezone_enabled"] as? String, enabled.isNotEmpty {
+            timezoneEnabled = enabled
+        }
+        
+        if let identifier = json["timezoneIdentifier"] as? String, identifier.isNotEmpty {
+            timezoneIdentifier = identifier
+        } else if let identifier = json["timezone_identifier"] as? String, identifier.isNotEmpty {
+            timezoneIdentifier = identifier
+        }
+        
+        guard let timezoneEnabled = timezoneEnabled,
+              let timezoneIdentifier = timezoneIdentifier else {
+            return nil
+        }
+        
 
         return TimezoneSetting(
-            timezoneEnabledString: enabled,
-            timezoneIdentifier: identifier
+            timezoneEnabledString: timezoneEnabled,
+            timezoneIdentifier: timezoneIdentifier
         )
     }
 
@@ -392,9 +411,16 @@ struct TimezoneSetting: Codable {
         return timezoneEnabledString.lowercased() == "true"
     }
 
+    // New underscore format (used for encoding)
     enum CodingKeys: String, CodingKey {
+        case timezoneEnabledString = "timezone_enabled"
+        case timezoneIdentifier = "timezone_identifier"
+    }
+
+    // Legacy camelCase format (for reading old records)
+    enum LegacyCodingKeys: String, CodingKey {
         case timezoneEnabledString = "timezoneEnabled"
-        case timezoneIdentifier
+        case timezoneIdentifier = "timezoneIdentifier"
     }
 
     init(timezoneEnabledString: String, timezoneIdentifier: String) {
@@ -403,7 +429,15 @@ struct TimezoneSetting: Codable {
     }
 
     init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let container = try? decoder.container(keyedBy: CodingKeys.self),
+           let enabled = try? container.decode(String.self, forKey: .timezoneEnabledString),
+           let identifier = try? container.decode(String.self, forKey: .timezoneIdentifier) {
+            timezoneEnabledString = enabled
+            timezoneIdentifier = identifier
+            return
+        }
+
+        let container = try decoder.container(keyedBy: LegacyCodingKeys.self)
         timezoneEnabledString = try container.decode(String.self, forKey: .timezoneEnabledString)
         timezoneIdentifier = try container.decode(String.self, forKey: .timezoneIdentifier)
     }
@@ -411,7 +445,7 @@ struct TimezoneSetting: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        // Encode values as strings
+        // Encode with underscore format (new format)
         try container.encode(timezoneEnabledString, forKey: .timezoneEnabledString)
         try container.encode(timezoneIdentifier, forKey: .timezoneIdentifier)
     }
