@@ -318,30 +318,47 @@ extension NSManagedObjectContext {
         }
     }
     
+    /// Fire-and-forget version - schedules the block but returns immediately
     func performSafely(_ block: @escaping () throws -> Void) {
         self.perform {
             do {
                 try block()
             } catch let error as NSError {
-                print("❌ CoreData Error:")
-                print("   Domain: \(error.domain)")
-                print("   Code: \(error.code)")
-                print("   Description: \(error.localizedDescription)")
-                print("   UserInfo: \(error.userInfo)")
-                
-                // Handle specific errors
-                if error.domain == NSCocoaErrorDomain {
-                    switch error.code {
-                    case NSValidationMissingMandatoryPropertyError:
-                        print("⚠️ Missing required property")
-                    case NSValidationRelationshipLacksMinimumCountError:
-                        print("⚠️ Relationship count error")
-                    case NSManagedObjectContextLockingError:
-                        print("⚠️ Threading violation!")
-                    default:
-                        print("⚠️ Other CoreData error")
-                    }
-                }
+                Self.logCoreDataError(error)
+            }
+        }
+    }
+
+    /// Async version - waits for the block to complete before returning
+    /// Use this when you need to ensure the operation completes before continuing
+    func performSafely(_ block: @escaping () throws -> Void) async {
+        await self.perform {
+            do {
+                try block()
+            } catch let error as NSError {
+                Self.logCoreDataError(error)
+            }
+        }
+    }
+
+    private static func logCoreDataError(_ error: NSError) {
+        print("❌ CoreData Error:")
+        print("   Domain: \(error.domain)")
+        print("   Code: \(error.code)")
+        print("   Description: \(error.localizedDescription)")
+        print("   UserInfo: \(error.userInfo)")
+
+        // Handle specific errors
+        if error.domain == NSCocoaErrorDomain {
+            switch error.code {
+            case NSValidationMissingMandatoryPropertyError:
+                print("⚠️ Missing required property")
+            case NSValidationRelationshipLacksMinimumCountError:
+                print("⚠️ Relationship count error")
+            case NSManagedObjectContextLockingError:
+                print("⚠️ Threading violation!")
+            default:
+                print("⚠️ Other CoreData error")
             }
         }
     }
