@@ -12,39 +12,77 @@
             <objects>
                 <viewController storyboardIdentifier="SetupPersonalGraphViewController" id="h4e-TA-zkX" customClass="SetupPersonalGraphViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="2az-re-hGE">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="500"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="822"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="pfh-FZ-hQN">
-                                <rect key="frame" x="0.0" y="0.0" width="400" height="500"/>
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="822"/>
                                 <view key="contentView" id="x3w-Hw-zGf">
-                                    <rect key="frame" x="0.0" y="0.0" width="400" height="500"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="822"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 </view>
                                 <color key="fillColor" name="Body"/>
                             </box>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="iC8-KY-bxJ" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="400" width="272" height="68"/>
+                                <rect key="frame" x="64" y="507" width="272" height="68"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="68" id="Ux4-R8-Rj4"/>
                                 </constraints>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="apn-6R-Yrq" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="320" width="272" height="68"/>
+                                <rect key="frame" x="64" y="427" width="272" height="68"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="68" id="z3p-td-h4g"/>
                                 </constraints>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="Fku-UN-Aes" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="240" width="272" height="68"/>
+                                <rect key="frame" x="64" y="347" width="272" height="68"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="68" id="Xyb-Lg-af5"/>
                                 </constraints>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="MDO-nb-f8U" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="64" y="65" width="272" height="48"/>
+                                <rect key="frame" x="64" y="275" width="272" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="aKw-et-YJW"/>
+                                </constraints>
+                            </customView>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="pLb-Path-01">
+                                <rect key="frame" x="62" y="248" width="276" height="15"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="center" title="No path selected" id="pLb-Path-02">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="SecondaryText"/>
+                                    <color key="backgroundColor" name="Body"/>
+                                </textFieldCell>
+                            </textField>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="btn-Clone-01" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="200" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="btn-Clone-h1"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="btn-Install-01" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="152" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="btn-Install-h1"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="btn-Setup-01" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="104" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="btn-Setup-h1"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="btn-Start-01" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="104" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="btn-Start-h1"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="btn-Stop-01" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="32" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="btn-Stop-h1"/>
                                 </constraints>
                             </customView>
                         </subviews>
@@ -54,7 +92,7 @@
                             <constraint firstAttribute="trailing" secondItem="MDO-nb-f8U" secondAttribute="trailing" constant="64" id="Cqh-YW-QhK"/>
                             <constraint firstItem="Fku-UN-Aes" firstAttribute="top" secondItem="apn-6R-Yrq" secondAttribute="bottom" constant="12" id="L39-0Q-Urb"/>
                             <constraint firstItem="pfh-FZ-hQN" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" id="YX2-2I-zrt"/>
-                            <constraint firstItem="iC8-KY-bxJ" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" constant="32" id="aoe-87-6mb"/>
+                            <constraint firstItem="iC8-KY-bxJ" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" constant="20" id="aoe-87-6mb"/>
                             <constraint firstAttribute="trailing" secondItem="Fku-UN-Aes" secondAttribute="trailing" constant="64" id="bvE-Tt-Mxd"/>
                             <constraint firstAttribute="trailing" secondItem="apn-6R-Yrq" secondAttribute="trailing" constant="64" id="cfy-DT-cZz"/>
                             <constraint firstItem="pfh-FZ-hQN" firstAttribute="top" secondItem="2az-re-hGE" secondAttribute="top" id="d01-Fx-sj3"/>
@@ -62,16 +100,41 @@
                             <constraint firstItem="MDO-nb-f8U" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="jfF-rj-vjf"/>
                             <constraint firstItem="apn-6R-Yrq" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="msN-eh-W7U"/>
                             <constraint firstAttribute="trailing" secondItem="iC8-KY-bxJ" secondAttribute="trailing" constant="64" id="nIt-Dd-aUC"/>
-                            <constraint firstAttribute="bottom" secondItem="MDO-nb-f8U" secondAttribute="bottom" constant="65" id="oQu-Rm-5cD"/>
+                            <constraint firstItem="MDO-nb-f8U" firstAttribute="top" secondItem="Fku-UN-Aes" secondAttribute="bottom" constant="24" id="path-btn-top"/>
+                            <constraint firstItem="pLb-Path-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="path-lbl-lead"/>
+                            <constraint firstItem="pLb-Path-01" firstAttribute="top" secondItem="MDO-nb-f8U" secondAttribute="bottom" constant="12" id="path-lbl-top"/>
+                            <constraint firstAttribute="trailing" secondItem="pLb-Path-01" secondAttribute="trailing" constant="64" id="path-lbl-trail"/>
+                            <constraint firstItem="btn-Clone-01" firstAttribute="top" secondItem="pLb-Path-01" secondAttribute="bottom" constant="24" id="clone-btn-top"/>
+                            <constraint firstItem="btn-Clone-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="clone-btn-lead"/>
+                            <constraint firstAttribute="trailing" secondItem="btn-Clone-01" secondAttribute="trailing" constant="64" id="clone-btn-trail"/>
+                            <constraint firstItem="btn-Install-01" firstAttribute="top" secondItem="btn-Clone-01" secondAttribute="bottom" constant="24" id="install-btn-top"/>
+                            <constraint firstItem="btn-Install-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="install-btn-lead"/>
+                            <constraint firstAttribute="trailing" secondItem="btn-Install-01" secondAttribute="trailing" constant="64" id="install-btn-trail"/>
+                            <constraint firstItem="btn-Setup-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="setup-btn-lead"/>
+                            <constraint firstItem="btn-Setup-01" firstAttribute="top" secondItem="btn-Install-01" secondAttribute="bottom" constant="24" id="setup-btn-top"/>
+                            <constraint firstAttribute="trailing" secondItem="btn-Setup-01" secondAttribute="trailing" constant="64" id="setup-btn-trail"/>
+                            <constraint firstItem="btn-Start-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="start-btn-lead"/>
+                            <constraint firstItem="btn-Start-01" firstAttribute="top" secondItem="btn-Setup-01" secondAttribute="bottom" constant="24" id="start-btn-top"/>
+                            <constraint firstAttribute="trailing" secondItem="btn-Start-01" secondAttribute="trailing" constant="64" id="start-btn-trail"/>
+                            <constraint firstAttribute="bottom" secondItem="btn-Stop-01" secondAttribute="bottom" constant="32" id="stop-btn-bottom"/>
+                            <constraint firstItem="btn-Stop-01" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="stop-btn-lead"/>
+                            <constraint firstItem="btn-Stop-01" firstAttribute="top" secondItem="btn-Start-01" secondAttribute="bottom" constant="24" id="stop-btn-top"/>
+                            <constraint firstAttribute="trailing" secondItem="btn-Stop-01" secondAttribute="trailing" constant="64" id="stop-btn-trail"/>
                             <constraint firstItem="iC8-KY-bxJ" firstAttribute="leading" secondItem="2az-re-hGE" secondAttribute="leading" constant="64" id="vWF-XF-Hio"/>
                             <constraint firstAttribute="trailing" secondItem="pfh-FZ-hQN" secondAttribute="trailing" id="zYG-ST-jh6"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="confirmButtonView" destination="MDO-nb-f8U" id="EIv-9c-2x5"/>
+                        <outlet property="cloneRepoButton" destination="btn-Clone-01" id="conn-cloneBtn"/>
+                        <outlet property="githubTokenField" destination="Fku-UN-Aes" id="conn-ghToken"/>
                         <outlet property="graphLabelField" destination="iC8-KY-bxJ" id="gG9-64-iEq"/>
-                        <outlet property="graphUrlField" destination="apn-6R-Yrq" id="cXc-Ly-4Hm"/>
-                        <outlet property="tokenFieldView" destination="Fku-UN-Aes" id="Pvw-E5-U2Q"/>
+                        <outlet property="installTaskButton" destination="btn-Install-01" id="conn-installBtn"/>
+                        <outlet property="pathLabel" destination="pLb-Path-01" id="conn-pathLabel"/>
+                        <outlet property="repoUrlField" destination="apn-6R-Yrq" id="conn-repoUrl"/>
+                        <outlet property="selectPathButton" destination="MDO-nb-f8U" id="conn-selectPath"/>
+                        <outlet property="setupGraphButton" destination="btn-Setup-01" id="conn-setupBtn"/>
+                        <outlet property="startGraphButton" destination="btn-Start-01" id="conn-startBtn"/>
+                        <outlet property="stopGraphButton" destination="btn-Stop-01" id="conn-stopBtn"/>
                     </connections>
                 </viewController>
                 <customObject id="MGm-8p-FL6" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

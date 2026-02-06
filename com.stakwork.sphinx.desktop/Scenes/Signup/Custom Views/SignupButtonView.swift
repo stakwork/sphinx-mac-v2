@@ -144,11 +144,17 @@ class SignupButtonView: NSView, LoadableNib {
     }
     
     @IBAction func buttonClicked(_ sender: NSButton) {
+        if buttonDisabled { return }
+
         backgroundColorBox.fillColor = backgroundPressedColor
         delegate?.didClickButton(tag: self.buttonTag)
-        
+
         DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
-            self.backgroundColorBox.fillColor = self.backgroundHoverColor
+            if self.buttonDisabled {
+                self.backgroundColorBox.fillColor = self.backgroundDisabledColor
+            } else {
+                self.backgroundColorBox.fillColor = self.backgroundHoverColor
+            }
         })
     }
 }

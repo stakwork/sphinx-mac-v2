@@ -511,6 +511,7 @@
 		47B5508E24898A0D000514BF /* VerticallyCenteredTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B5508D24898A0D000514BF /* VerticallyCenteredTextFieldCell.swift */; };
 		47B550902489A33B000514BF /* ChildVCContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B5508F2489A33B000514BF /* ChildVCContainer.swift */; };
 		47B55095248A9A9D000514BF /* GroupsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B55094248A9A9D000514BF /* GroupsManager.swift */; };
+		47PERS012F0500000000001A /* PersonalGraphManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47PERS012F0500000000001B /* PersonalGraphManager.swift */; };
 		47B55097248AC8CB000514BF /* NSProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B55096248AC8CB000514BF /* NSProgressIndicator.swift */; };
 		47B55099248BCDD7000514BF /* CreateInvoiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B55098248BCDD7000514BF /* CreateInvoiceViewController.swift */; };
 		47B5509C248BD02C000514BF /* PaymentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B5509B248BD02C000514BF /* PaymentViewModel.swift */; };
@@ -1506,6 +1507,7 @@
 		47B5508D24898A0D000514BF /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
 		47B5508F2489A33B000514BF /* ChildVCContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildVCContainer.swift; sourceTree = "<group>"; };
 		47B55094248A9A9D000514BF /* GroupsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsManager.swift; sourceTree = "<group>"; };
+		47PERS012F0500000000001B /* PersonalGraphManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalGraphManager.swift; sourceTree = "<group>"; };
 		47B55096248AC8CB000514BF /* NSProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSProgressIndicator.swift; sourceTree = "<group>"; };
 		47B55098248BCDD7000514BF /* CreateInvoiceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateInvoiceViewController.swift; sourceTree = "<group>"; };
 		47B5509B248BD02C000514BF /* PaymentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentViewModel.swift; sourceTree = "<group>"; };
@@ -2219,6 +2221,7 @@
 				47C52C4627F61ACF007B43E2 /* Requests Signing */,
 				479C792C24EAD1FB009BA1CD /* Tor */,
 				47B55093248A9A91000514BF /* Groups */,
+				47PERS012F0500000000001C /* PersonalGraph */,
 				4744FAD8246B397700C5FD94 /* Windows */,
 				4744FA752469A7BA00C5FD94 /* Attachments */,
 				47D7D8E224620B450089C6EE /* Keychain */,
@@ -3336,6 +3339,14 @@
 				4734D3972417E3D400D6957E /* SplashViewController.swift */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		47PERS012F0500000000001C /* PersonalGraph */ = {
+			isa = PBXGroup;
+			children = (
+				47PERS012F0500000000001B /* PersonalGraphManager.swift */,
+			);
+			path = PersonalGraph;
 			sourceTree = "<group>";
 		};
 		47B55093248A9A91000514BF /* Groups */ = {
@@ -4800,6 +4811,7 @@
 				47F8825025656CB0002A7E71 /* SocketEngineClient.swift in Sources */,
 				477ADCD42A1E5A7E004E74CE /* PinMessageBarView.swift in Sources */,
 				47B55095248A9A9D000514BF /* GroupsManager.swift in Sources */,
+				47PERS012F0500000000001A /* PersonalGraphManager.swift in Sources */,
 				47E19DD42BB1FD1700A0E596 /* WordsList.swift in Sources */,
 				47E19DE32BB1FE3500A0E596 /* SphinxOnionManager+HandleStateExtension.swift in Sources */,
 				47DE1C1E2A6977730029597B /* NewMessageCollectionViewItem+MessageTypesExtension.swift in Sources */,

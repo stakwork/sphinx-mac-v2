@@ -27,6 +27,9 @@ class KeychainManager {
         case personalGraphToken = "mac.personal_graph_token"
         case personalGraphWorkflowId = "mac.personal_graph_workflow_id"
         case personalGraphLabel = "mac.personal_graph_label"
+        case githubRepoUrl = "mac.github_repo_url"
+        case githubToken = "mac.github_token"
+        case repoLocalPath = "mac.repo_local_path"
     }
     
     let keychain = Keychain(service: "sphinx-app", accessGroup: KeychainManager.kKeychainGroup).synchronizable(true)
