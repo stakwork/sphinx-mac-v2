@@ -116,10 +116,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                 let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
                 var minIndex: Int? = nil
                 let itemsPerPage = 100
-                
+
                 backgroundContext.performSafely {
                     minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
-                    
+
                     if let minIndex = minIndex {
                         if (minIndex - 1) <= 0 {
                             return
@@ -133,13 +133,13 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                             ) { messagesCount in
                                 if messagesCount < itemsPerPage {
                                     self.allItemsLoaded = true
-                                    
+
                                     self.processMessages(
                                         messages: self.messagesArray,
                                         UIUpdateIndex: self.UIUpdateIndex,
                                         showLoadingMore: false
                                     )
-                                    
+
                                     if self.isSearching {
                                         self.delegate?.shouldToggleSearchLoadingWheel(active: false)
                                     }

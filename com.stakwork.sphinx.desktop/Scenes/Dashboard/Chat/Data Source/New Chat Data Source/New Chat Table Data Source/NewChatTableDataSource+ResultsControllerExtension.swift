@@ -303,14 +303,16 @@ extension NewChatTableDataSource {
         }
         
         messageTableCellStateArray = array
-        
+        updateMessageIdIndexMap()
+        invalidateRowHeightCache()
+
         updateSnapshot(
             UIUpdateIndex: UIUpdateIndex
         ) {
             self.delegate?.configureNewMessagesIndicatorWith(
                 newMsgCount: 0
             )
-            
+
             DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
                 self.finishSearchProcess(matches: searchM)
             })

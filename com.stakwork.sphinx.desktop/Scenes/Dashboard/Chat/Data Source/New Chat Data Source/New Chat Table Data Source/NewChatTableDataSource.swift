@@ -101,9 +101,11 @@ class NewChatTableDataSource : NSObject {
     ///Messages Data
     var messagesArray: [TransactionMessage] = []
     var messageTableCellStateArray: [MessageTableCellState] = []
+    var messageIdToIndexMap: [Int: Int] = [:]  // O(1) lookup for message IDs
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
+    var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
     
     var searchingTerm: String? = nil
     var searchMatches: [(Int, MessageTableCellState)] = []
@@ -182,10 +184,41 @@ class NewChatTableDataSource : NSObject {
         NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
     }
     
+    private var lastKnownWidth: CGFloat = 0
+
     func updateFrame() {
-        self.collectionView.collectionViewLayout?.invalidateLayout()
+        let currentWidth = collectionView.frame.width
+        guard currentWidth != lastKnownWidth, currentWidth > 0 else { return }
+        lastKnownWidth = currentWidth
+
+        // Debounce layout invalidation to prevent excessive recalculations
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(invalidateLayoutDebounced), object: nil)
+        perform(#selector(invalidateLayoutDebounced), with: nil, afterDelay: 0.1)
     }
-    
+
+    @objc private func invalidateLayoutDebounced() {
+        invalidateRowHeightCache()
+        collectionView.collectionViewLayout?.invalidateLayout()
+    }
+
+    /// Updates the messageId to index mapping for O(1) lookups
+    func updateMessageIdIndexMap() {
+        messageIdToIndexMap.removeAll(keepingCapacity: true)
+        for (index, state) in messageTableCellStateArray.enumerated() {
+            if let id = state.message?.id {
+                messageIdToIndexMap[id] = index
+            }
+            if let threadOriginalId = state.threadOriginalMessage?.id {
+                messageIdToIndexMap[threadOriginalId] = index
+            }
+        }
+    }
+
+    /// Invalidates the row height cache when data changes
+    func invalidateRowHeightCache() {
+        rowHeightCache.removeAll(keepingCapacity: true)
+    }
+
     func isFinalDS() -> Bool {
         return self.chat != nil
     }

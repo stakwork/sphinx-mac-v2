@@ -46,13 +46,15 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         {
             self.saveSnapshotCurrentState()
             var snapshot = self.dataSource.snapshot()
-            
+
             if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                // Use async instead of sync to avoid blocking main thread
+                dataSourceQueue.async { [weak self] in
                     snapshot.reloadItems([tableCellState.1])
-                    
+
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        // Disable animation for smoother scrolling
+                        self?.dataSource.apply(snapshot, animatingDifferences: false)
                     }
                 }
             }
@@ -652,19 +654,20 @@ extension NewChatTableDataSource {
 
             self.saveSnapshotCurrentState()
             var snapshot = self.dataSource.snapshot()
-            
+
             if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                // Use async instead of sync to avoid blocking main thread
+                dataSourceQueue.async { [weak self] in
                     snapshot.reloadItems([tableCellState.1])
-                    
+
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        self?.dataSource.apply(snapshot, animatingDifferences: false)
                     }
                 }
             }
         }
     }
-    
+
     func updateMessageTableCellStateFor(
         rowIndex: Int?,
         messageId: Int,
@@ -676,14 +679,15 @@ extension NewChatTableDataSource {
         ) {
             if updatedUploadProgressData.progress < 100 {
                 self.uploadingProgress[messageId] = updatedUploadProgressData
-                
+
                 var snapshot = self.dataSource.snapshot()
 
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                    // Use async instead of sync to avoid blocking main thread
+                    self.dataSourceQueue.async { [weak self] in
                         snapshot.reloadItems([tableCellState.1])
                         DispatchQueue.main.async {
-                            self.dataSource.apply(snapshot, animatingDifferences: false)
+                            self?.dataSource.apply(snapshot, animatingDifferences: false)
                         }
                     }
                 }
@@ -715,12 +719,13 @@ extension NewChatTableDataSource {
                     return
                 }
                 var snapshot = self.dataSource.snapshot()
-                
+
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                    // Use async instead of sync to avoid blocking main thread
+                    self.dataSourceQueue.async { [weak self] in
                         snapshot.reloadItems([tableCellState.1])
                         DispatchQueue.main.async {
-                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                            self?.dataSource.apply(snapshot, animatingDifferences: false)
                         }
                     }
                 }
@@ -1167,33 +1172,32 @@ extension NewChatTableDataSource {
         messageId: Int? = nil,
         and rowIndex: Int? = nil
     ) -> (Int, MessageTableCellState)? {
-        
+
         if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
             return getThreadOriginalMessageTableCellStateFor()
         }
-        
-        var tableCellState: (Int, MessageTableCellState)? = nil
-        
-        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex, messageTableCellStateArray[rowIndex].message?.id == messageId {
-            return (rowIndex, messageTableCellStateArray[rowIndex])
-        }
-        
-        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex, messageTableCellStateArray[rowIndex].threadOriginalMessage?.id == messageId {
-            return (rowIndex, messageTableCellStateArray[rowIndex])
-        }
-        
-        for i in 0..<messageTableCellStateArray.count {
-            if messageTableCellStateArray[i].message?.id == messageId {
-                tableCellState = (i, messageTableCellStateArray[i])
-                break
+
+        // Fast path: check if rowIndex matches the expected messageId
+        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex {
+            let state = messageTableCellStateArray[rowIndex]
+            if state.message?.id == messageId || state.threadOriginalMessage?.id == messageId {
+                return (rowIndex, state)
             }
         }
-        
-        if let rowIndex = rowIndex, tableCellState == nil && messageTableCellStateArray.count > rowIndex {
+
+        // O(1) lookup using the index map instead of O(n) linear search
+        if let messageId = messageId, let index = messageIdToIndexMap[messageId] {
+            if index < messageTableCellStateArray.count {
+                return (index, messageTableCellStateArray[index])
+            }
+        }
+
+        // Fallback: return state at rowIndex if no match found
+        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex {
             return (rowIndex, messageTableCellStateArray[rowIndex])
         }
-        
-        return tableCellState
+
+        return nil
     }
     
     func getThreadOriginalMessageTableCellStateFor() -> (Int, MessageTableCellState)? {
@@ -1221,15 +1225,18 @@ extension NewChatTableDataSource {
     
     func getTableCellStatesForVisibleRows() -> [MessageTableCellState] {
         let rowIndexes = collectionView.indexPathsForVisibleItems().map({ $0.item })
-        
+        let arrayCount = messageTableCellStateArray.count
+
         var tableCellStates: [MessageTableCellState] = []
-        
+
         for rowIndex in rowIndexes {
-            tableCellStates.append(
-                messageTableCellStateArray[rowIndex]
-            )
+            // Bounds checking to prevent crash
+            guard rowIndex >= 0, rowIndex < arrayCount else {
+                continue
+            }
+            tableCellStates.append(messageTableCellStateArray[rowIndex])
         }
-        
+
         return tableCellStates
     }
 }
