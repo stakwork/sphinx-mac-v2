@@ -51,7 +51,7 @@ struct ItemsResponse: Codable {
             case .timezone(let timezone):
                 itemDict["value"] = [
                     "timezone_enabled": timezone.timezoneEnabled ? "true" : "false",
-                    "timezone_identifier": timezone.timezoneIdentifier
+                    "timezone_identifier": timezone.timezoneIdentifier ?? ""  // nil becomes empty string
                 ]
 
             case .feedStatus(let feedStatus):
@@ -333,27 +333,28 @@ enum SettingValue: Codable {
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return nil
         }
-        
+
         var timezoneEnabled: String? = nil
         var timezoneIdentifier: String? = nil
-        
+
         if let enabled = json["timezoneEnabled"] as? String, enabled.isNotEmpty {
             timezoneEnabled = enabled
         } else if let enabled = json["timezone_enabled"] as? String, enabled.isNotEmpty {
             timezoneEnabled = enabled
         }
-        
+
+        // Check for timezone identifier - empty string is valid and becomes nil (device timezone)
         if let identifier = json["timezoneIdentifier"] as? String, identifier.isNotEmpty {
             timezoneIdentifier = identifier
         } else if let identifier = json["timezone_identifier"] as? String, identifier.isNotEmpty {
             timezoneIdentifier = identifier
         }
-        
-        guard let timezoneEnabled = timezoneEnabled,
-              let timezoneIdentifier = timezoneIdentifier else {
+        // Note: timezoneIdentifier can be nil (empty string or missing), meaning use device timezone
+
+        // Only timezoneEnabled is required
+        guard let timezoneEnabled = timezoneEnabled else {
             return nil
         }
-        
 
         return TimezoneSetting(
             timezoneEnabledString: timezoneEnabled,
@@ -404,7 +405,7 @@ enum SettingValue: Codable {
 
 struct TimezoneSetting: Codable {
     private let timezoneEnabledString: String
-    let timezoneIdentifier: String
+    let timezoneIdentifier: String?  // nil means use device timezone
 
     // Boolean property
     var timezoneEnabled: Bool {
@@ -423,23 +424,36 @@ struct TimezoneSetting: Codable {
         case timezoneIdentifier = "timezoneIdentifier"
     }
 
-    init(timezoneEnabledString: String, timezoneIdentifier: String) {
+    init(timezoneEnabledString: String, timezoneIdentifier: String?) {
         self.timezoneEnabledString = timezoneEnabledString
         self.timezoneIdentifier = timezoneIdentifier
     }
 
     init(from decoder: Decoder) throws {
+        // Try new underscore format first
         if let container = try? decoder.container(keyedBy: CodingKeys.self),
-           let enabled = try? container.decode(String.self, forKey: .timezoneEnabledString),
-           let identifier = try? container.decode(String.self, forKey: .timezoneIdentifier) {
+           let enabled = try? container.decode(String.self, forKey: .timezoneEnabledString) {
             timezoneEnabledString = enabled
-            timezoneIdentifier = identifier
+            // Decode identifier - empty string becomes nil
+            if let identifier = try? container.decode(String.self, forKey: .timezoneIdentifier),
+               !identifier.isEmpty {
+                timezoneIdentifier = identifier
+            } else {
+                timezoneIdentifier = nil
+            }
             return
         }
 
+        // Try legacy camelCase format
         let container = try decoder.container(keyedBy: LegacyCodingKeys.self)
         timezoneEnabledString = try container.decode(String.self, forKey: .timezoneEnabledString)
-        timezoneIdentifier = try container.decode(String.self, forKey: .timezoneIdentifier)
+        // Decode identifier - empty string becomes nil
+        if let identifier = try? container.decode(String.self, forKey: .timezoneIdentifier),
+           !identifier.isEmpty {
+            timezoneIdentifier = identifier
+        } else {
+            timezoneIdentifier = nil
+        }
     }
 
     func encode(to encoder: Encoder) throws {
@@ -447,7 +461,8 @@ struct TimezoneSetting: Codable {
 
         // Encode with underscore format (new format)
         try container.encode(timezoneEnabledString, forKey: .timezoneEnabledString)
-        try container.encode(timezoneIdentifier, forKey: .timezoneIdentifier)
+        // Encode nil as empty string for consistency
+        try container.encode(timezoneIdentifier ?? "", forKey: .timezoneIdentifier)
     }
 
     func toJSONString() -> String? {

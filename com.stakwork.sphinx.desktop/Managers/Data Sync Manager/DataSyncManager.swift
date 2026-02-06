@@ -417,7 +417,7 @@ class DataSyncManager: NSObject {
             case .timezone(let timezone):
                 print("DataSync: Value (Timezone):")
                 print("DataSync:    - Enabled: \(timezone.timezoneEnabled)")
-                print("DataSync:    - Identifier: \(timezone.timezoneIdentifier)")
+                print("DataSync:    - Identifier: \(timezone.timezoneIdentifier ?? "nil (device timezone)")")
             case .feedStatus(let feedStatus):
                 print("DataSync: Value (Feed Status):")
                 print("DataSync:    - Chat Pubkey: \(feedStatus.chatPubkey)")
