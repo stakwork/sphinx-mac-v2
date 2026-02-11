@@ -15,10 +15,69 @@ public class Chat: NSManagedObject {
     
     public var conversationContact : UserContact? = nil
     public var tribeAdmin: UserContact? = nil
-    
+
     var tribeInfo: GroupsManager.TribeInfo? = nil
     var aliasesAndPics: [(String, String)] = []
     var timezoneData: [String: String] = [:]
+
+    // MARK: - Members Aliases Persistence
+
+    /// Loads persisted aliasesAndPics from CoreData
+    func loadPersistedAliasesAndPics() {
+        guard let jsonString = membersAliasesData,
+              !jsonString.isEmpty,
+              let data = jsonString.data(using: .utf8) else {
+            return
+        }
+
+        do {
+            if let array = try JSONSerialization.jsonObject(with: data) as? [[String: String]] {
+                aliasesAndPics = array.compactMap { dict in
+                    guard let alias = dict["alias"], let pic = dict["pic"] else { return nil }
+                    return (alias, pic)
+                }
+            }
+        } catch {
+            print("Failed to decode membersAliasesData: \(error)")
+        }
+    }
+
+    /// Saves current aliasesAndPics to CoreData
+    func persistAliasesAndPics() {
+        let array = aliasesAndPics.map { ["alias": $0.0, "pic": $0.1] }
+
+        do {
+            let data = try JSONSerialization.data(withJSONObject: array)
+            if let jsonString = String(data: data, encoding: .utf8) {
+                membersAliasesData = jsonString
+                managedObjectContext?.saveContext()
+            }
+        } catch {
+            print("Failed to encode membersAliasesData: \(error)")
+        }
+    }
+
+    /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new
+    private func mergeAliasAndPic(alias: String, pic: String) {
+        if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+            // Update existing entry with new pic if provided
+            if pic.isNotEmpty {
+                aliasesAndPics[index] = (alias, pic)
+            }
+        } else if !aliasesAndPics.contains(where: { $0.1 == pic && pic.isNotEmpty }) {
+            // Add new entry if alias doesn't exist and pic is unique (or empty)
+            aliasesAndPics.append((alias, pic))
+        }
+    }
+
+    /// Removes alias/pic entry by alias or pic
+    private func removeAliasAndPic(alias: String?, pic: String?) {
+        if let index = aliasesAndPics.firstIndex(where: {
+            (alias != nil && $0.0 == alias) || (pic != nil && pic!.isNotEmpty && $0.1 == pic)
+        }) {
+            aliasesAndPics.remove(at: index)
+        }
+    }
     
     public enum ChatType: Int {
         case conversation = 0
@@ -407,17 +466,21 @@ public class Chat: NSManagedObject {
     func processAliasesFrom(
         messages: [TransactionMessage]
     ) {
-        self.aliasesAndPics = []
+        // Load persisted data first (merge instead of reset)
+        if aliasesAndPics.isEmpty {
+            loadPersistedAliasesAndPics()
+        }
+
         self.timezoneData = [:]
-        
+
         let ownerId = UserData.sharedInstance.getUserId()
-        
+
         let declinedRequestResponses = messages.filter { $0.isDeclinedRequest() }
         let declinedRequestResponsesDictionary = Dictionary(
             declinedRequestResponses.map { ($0.replyUUID, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        
+
         for message in messages {
             if !message.isIncoming(ownerId: ownerId) {
                 continue
@@ -436,64 +499,46 @@ public class Chat: NSManagedObject {
                             let alias = originalRequestMsg.senderAlias, alias.isNotEmpty,
                             let picture = originalRequestMsg.senderPic, picture.isNotEmpty
                         {
-                            if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
-                                aliasesAndPics.remove(at: index)
-                            }
+                            removeAliasAndPic(alias: alias, pic: picture)
                             continue
                         }
                     }
                     if message.isGroupLeaveMessage() {
-                        if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
-                            aliasesAndPics.remove(at: index)
-                        }
+                        removeAliasAndPic(alias: alias, pic: picture)
                         continue
                     }
-                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
-                    } else if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
-                        self.aliasesAndPics.append(
-                            (alias, message.senderPic ?? "")
-                        )
-                    }
+                    mergeAliasAndPic(alias: alias, pic: message.senderPic ?? "")
                 } else {
                     if message.isMemberRequest() {
                         if
                             let originalRequestMsg = declinedRequestResponsesDictionary[message.uuid],
                             let alias = originalRequestMsg.senderAlias, alias.isNotEmpty
                         {
-                            if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                                aliasesAndPics.remove(at: index)
-                            }
+                            removeAliasAndPic(alias: alias, pic: nil)
                             continue
                         }
                     }
                     if message.isGroupLeaveMessage() {
-                        if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                            aliasesAndPics.remove(at: index)
-                        }
+                        removeAliasAndPic(alias: alias, pic: nil)
                         continue
                     }
-                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
-                    } else {
-                        self.aliasesAndPics.append(
-                            (alias, message.senderPic ?? "")
-                        )
-                    }
+                    mergeAliasAndPic(alias: alias, pic: message.senderPic ?? "")
                 }
             }
         }
-        
+
         let aliasesWithoutTimezone: [String] = aliasesAndPics.compactMap { tuple in
             timezoneData[tuple.0] == nil ? tuple.0 : nil
         }
-        
+
         let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self)
-        
+
         timezoneData = timezoneData.merging(newTimezoneMap) { (existing, new) in
             return existing  // Keep original value
         }
-        
+
+        // Persist the updated data
+        persistAliasesAndPics()
     }
     
     func isDateBeforeThreeMonthsAgo(_ date: Date) -> Bool {

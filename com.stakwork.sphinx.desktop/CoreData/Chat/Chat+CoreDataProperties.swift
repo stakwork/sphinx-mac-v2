@@ -41,6 +41,7 @@ extension Chat {
     @NSManaged public var pendingContactIds: [NSNumber]
     @NSManaged public var pinnedMessageUUID: String?
     @NSManaged public var isTribeICreated: Bool
+    @NSManaged public var membersAliasesData: String?
     @NSManaged public var secondBrainUrl: String?
     @NSManaged public var timezoneEnabled: Bool
     @NSManaged public var timezoneIdentifier: String?
