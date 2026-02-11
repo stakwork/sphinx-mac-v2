@@ -1520,6 +1520,7 @@
 		47B6F528258BC40600D64A41 /* PodcastLiveDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastLiveDataSource.swift; sourceTree = "<group>"; };
 		47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastLiveHeaderCollectionViewItem.swift; sourceTree = "<group>"; };
 		47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastLiveHeaderCollectionViewItem.xib; sourceTree = "<group>"; };
+		47B9CBF72F3D2242007527B4 /* com_stakwork_sphinx_desktop 12.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 12.xcdatamodel"; sourceTree = "<group>"; };
 		47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetailsViewController.swift; sourceTree = "<group>"; };
 		47BDEDEA24F46585001688F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Profile.storyboard; sourceTree = "<group>"; };
 		47BDEDED24F4658A001688F3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Profile.strings; sourceTree = "<group>"; };
@@ -5884,6 +5885,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				47B9CBF72F3D2242007527B4 /* com_stakwork_sphinx_desktop 12.xcdatamodel */,
 				471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */,
 				472013B42ED5D55F00C40A5F /* com_stakwork_sphinx_desktop 10.xcdatamodel */,
 				479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */,
@@ -5896,7 +5898,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */;
+			currentVersion = 47B9CBF72F3D2242007527B4 /* com_stakwork_sphinx_desktop 12.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
