@@ -139,13 +139,10 @@ extension NewChatTableDataSource {
         let offset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
         scrollViewDesiredOffset = offset
         collectionViewScroll.documentYOffset = offset
-        
-        if scrolledAtBottom {
-            return
-        }
-        
+
         scrolledAtBottom = true
-        
+
+        /// Always call delegate when scrolling to bottom on initial load to mark messages as seen
         delegate?.didScrollToBottom()
         scrollViewDidScroll()
     }
