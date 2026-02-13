@@ -222,7 +222,7 @@ extension TransactionMessage {
     func isPendingMessage(
         ownerId: Int? = nil
     ) -> Bool {
-        return isOutgoing(ownerId: ownerId) && !isConfirmedAsReceived() && !failed() && (isTextMessage() || isAttachment())
+        return isOutgoing(ownerId: ownerId) && !isConfirmedAsReceived() && !failed() && isDeleted() && (isTextMessage() || isAttachment())
     }
     
     func isSeen(
