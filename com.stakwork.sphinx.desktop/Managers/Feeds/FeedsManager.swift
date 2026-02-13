@@ -296,6 +296,7 @@ class FeedsManager : NSObject {
         feedUrl: String,
         chat: Chat?,
         context: NSManagedObjectContext,
+        shouldSaveFeedStatus: Bool = true,
         completion: @escaping (ContentFeed?) -> ()
     ) {
         if let existingContentFeed = ContentFeed.getFeedById(feedId: feedId, managedContext: context) {
@@ -303,10 +304,10 @@ class FeedsManager : NSObject {
         } else {
             ContentFeed.fetchContentFeed(at: feedUrl, chat: chat, persistingIn: context, then: { result in
                 if case .success(let contentFeed) = result {
-                    
-                    if let contentFeedUrl = contentFeed.feedURL {
+
+                    if shouldSaveFeedStatus, let contentFeedUrl = contentFeed.feedURL {
                         let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
-                        
+
                         DataSyncManager.sharedInstance.saveFeedStatusFor(
                             feedId: contentFeed.feedID,
                             feedStatus: FeedStatus(
@@ -320,7 +321,7 @@ class FeedsManager : NSObject {
                             )
                         )
                     }
-                    
+
                     completion(contentFeed)
                     return
                 }

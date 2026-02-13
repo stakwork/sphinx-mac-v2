@@ -308,19 +308,37 @@ class DataSyncManager: NSObject {
 
                         podFeed.satsPerMinute = feedStatus.satsPerMinute
                         podFeed.playerSpeed = Float(feedStatus.playerSpeed)
-
-                        if feedStatus.itemId.isNotEmpty {
+                        
+                        if feedStatus.itemId.isNotEmpty, podFeed.currentEpisodeId != feedStatus.itemId {
                             podFeed.currentEpisodeId = feedStatus.itemId
-                            feed.dateLastConsumed = Date()
+                            
+                            if feed.dateLastConsumed == nil {
+                                feed.dateLastConsumed = Date()
+                            }
                         }
                         feed.managedObjectContext?.saveContext()
+
+                        // Refresh the feed UI to show in Recently Played
+                        FeedsManager.sharedInstance.refreshFeedUI()
                     } else {
                         FeedsManager.sharedInstance.getContentFeedFor(
                             feedId: feedStatus.feedId,
                             feedUrl: feedStatus.feedUrl,
                             chat: Chat.getChatWithOwnerPubkey(ownerPubkey: feedStatus.chatPubkey),
                             context: self.syncContext,
-                            completion: { _ in }
+                            shouldSaveFeedStatus: false,  // Don't save - we're restoring from server
+                            completion: { contentFeed in
+                                // After feed is fetched, set the current episode and date
+                                if let feed = contentFeed, feedStatus.itemId.isNotEmpty {
+                                    let podFeed = PodcastFeed.convertFrom(contentFeed: feed)
+                                    podFeed.currentEpisodeId = feedStatus.itemId
+                                    feed.dateLastConsumed = Date()
+                                    feed.managedObjectContext?.saveContext()
+
+                                    // Refresh the feed UI to show in Recently Played
+                                    FeedsManager.sharedInstance.refreshFeedUI()
+                                }
+                            }
                         )
                     }
                 }
