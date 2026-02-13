@@ -328,16 +328,28 @@ class DataSyncManager: NSObject {
                             context: self.syncContext,
                             shouldSaveFeedStatus: false,  // Don't save - we're restoring from server
                             completion: { contentFeed in
-                                // After feed is fetched, set the current episode and date
-                                if let feed = contentFeed, feedStatus.itemId.isNotEmpty {
-                                    let podFeed = PodcastFeed.convertFrom(contentFeed: feed)
-                                    podFeed.currentEpisodeId = feedStatus.itemId
-                                    feed.dateLastConsumed = Date()
-                                    feed.managedObjectContext?.saveContext()
+                                guard let feed = contentFeed else { return }
 
-                                    // Refresh the feed UI to show in Recently Played
-                                    FeedsManager.sharedInstance.refreshFeedUI()
+                                let podFeed = PodcastFeed.convertFrom(contentFeed: feed)
+
+                                // Set feed properties from restored status
+                                feed.subscribed = feedStatus.subscribed
+                                podFeed.satsPerMinute = feedStatus.satsPerMinute
+                                podFeed.playerSpeed = Float(feedStatus.playerSpeed)
+
+                                // Set current episode and date if itemId is present
+                                if feedStatus.itemId.isNotEmpty {
+                                    podFeed.currentEpisodeId = feedStatus.itemId
+
+                                    if feed.dateLastConsumed == nil {
+                                        feed.dateLastConsumed = Date()
+                                    }
                                 }
+
+                                feed.managedObjectContext?.saveContext()
+
+                                // Refresh the feed UI
+                                FeedsManager.sharedInstance.refreshFeedUI()
                             }
                         )
                     }
