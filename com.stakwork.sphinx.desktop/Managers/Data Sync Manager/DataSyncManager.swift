@@ -182,17 +182,17 @@ class DataSyncManager: NSObject {
             // Track items to delete after successful upload
             var itemsToDelete: [DataSync] = []
 
+            // Collect all items that need to be restored from server
+            var itemsToRestore: [SettingItem] = []
+
             await syncContext.perform { [weak self] in
                 guard let self = self else { return }
 
                 let dbItems = DataSync.getAllDataSync(context: self.syncContext)
                 let missingItems = self.findMissingItems(firstArray: dbItems, secondArray: itemsResponse.items)
 
-                for item in missingItems {
-                    Task {
-                        await self.restoreDataFrom(serverItem: item)
-                    }
-                }
+                // Add missing items (items in server but not in local DB)
+                itemsToRestore.append(contentsOf: missingItems)
 
                 for item in dbItems {
                     if let index = itemsResponse.getItemIndex(key: item.key, identifier: item.identifier) {
@@ -211,9 +211,8 @@ class DataSyncManager: NSObject {
                                 itemsToDelete.append(item)
                             }
                         } else {
-                            Task {
-                                await self.restoreDataFrom(serverItem: serverItem)
-                            }
+                            // Server has newer data, add to restore list
+                            itemsToRestore.append(serverItem)
                             itemsToDelete.append(item)
                         }
                     } else {
@@ -230,6 +229,21 @@ class DataSyncManager: NSObject {
                         }
                     }
                 }
+            }
+
+            // Sort items so feed_status are restored before feed_item_status
+            // This ensures feeds are available when their item statuses are applied
+            let sortedItemsToRestore = sortItemsForRestore(itemsToRestore)
+
+            for item in sortedItemsToRestore {
+                await restoreDataFrom(serverItem: item)
+            }
+
+            // MARK: - Chat Colors Sync (First One Wins Logic)
+            // Colors in server but not local are already handled above via restoreDataFrom
+            // Now add local colors that don't exist in server
+            await MainActor.run {
+                itemsResponse = self.syncChatColors(itemsResponse: itemsResponse)
             }
 
             // Only delete items after successful upload (Data Loss Prevention)
@@ -323,6 +337,15 @@ class DataSyncManager: NSObject {
                 podEpisode.duration = feedItemStatus.duration
                 podEpisode.currentTime = feedItemStatus.currentTime
                 feedItem.managedObjectContext?.saveContext()
+
+            case .chatColor:
+                // Chat colors are restored directly to ColorsManager and UserDefaults
+                if let colorHex = serverItem.value.asString {
+                    ColorsManager.sharedInstance.setColorFor(
+                        colorHex: colorHex,
+                        key: serverItem.identifier
+                    )
+                }
             }
         }
     }
@@ -346,6 +369,44 @@ class DataSyncManager: NSObject {
         return (feedId, itemId)
     }
 
+    // MARK: - Chat Colors Sync
+
+    /// Syncs chat colors with "first one wins" logic.
+    /// Colors from server are already applied to local via restoreDataFrom.
+    /// This method adds local colors that don't exist on server to the items response.
+    private func syncChatColors(itemsResponse: ItemsResponse) -> ItemsResponse {
+        var updatedResponse = itemsResponse
+
+        // Get all server color identifiers
+        let serverColorIdentifiers = Set(
+            itemsResponse.items
+                .filter { $0.key == SettingKey.chatColor.rawValue }
+                .map { $0.identifier }
+        )
+
+        // Get all local colors from ColorsManager
+        let localColors = ColorsManager.sharedInstance.getAllColors()
+
+        // Add local colors that don't exist on server
+        for (colorKey, colorHex) in localColors {
+            if !serverColorIdentifiers.contains(colorKey) {
+                let newItem = SettingItem(
+                    key: SettingKey.chatColor.rawValue,
+                    identifier: colorKey,
+                    dateString: "\(Int(Date().timeIntervalSince1970))",
+                    value: .string(colorHex)
+                )
+                updatedResponse.items.append(newItem)
+
+                #if DEBUG
+                print("DataSync: Adding local chat color to server: \(colorKey) = \(colorHex)")
+                #endif
+            }
+        }
+
+        return updatedResponse
+    }
+
     // MARK: - Helper Methods
 
     private func findMissingItems(firstArray: [DataSync], secondArray: [SettingItem]) -> [SettingItem] {
@@ -359,6 +420,25 @@ class DataSyncManager: NSObject {
         }
 
         return missingItems
+    }
+
+    /// Sorts items so feed_status items are processed before feed_item_status items.
+    /// This ensures feeds are created/fetched before their item statuses are applied.
+    private func sortItemsForRestore(_ items: [SettingItem]) -> [SettingItem] {
+        return items.sorted { item1, item2 in
+            let isFeedStatus1 = item1.key == SettingKey.feedStatus.rawValue
+            let isFeedStatus2 = item2.key == SettingKey.feedStatus.rawValue
+
+            // feed_status items come first
+            if isFeedStatus1 && !isFeedStatus2 {
+                return true
+            }
+            if !isFeedStatus1 && isFeedStatus2 {
+                return false
+            }
+            // Maintain original order for items of the same type
+            return false
+        }
     }
 
     // MARK: - JSON Parsing

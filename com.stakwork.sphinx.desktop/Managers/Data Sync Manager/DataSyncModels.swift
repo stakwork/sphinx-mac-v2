@@ -16,6 +16,7 @@ enum DataSyncSettingKey: String, CaseIterable {
     case timezone = "timezone"
     case feedStatus = "feed_status"
     case feedItemStatus = "feed_item_status"
+    case chatColor = "chat_color"
 }
 
 // MARK: - Items Response
@@ -312,6 +313,10 @@ enum SettingValue: Codable {
                 return nil
             }
             return .feedItemStatus(feedItemStatus)
+
+        case .chatColor:
+            // chat_color is a hex color string
+            return .string(string)
         }
     }
 

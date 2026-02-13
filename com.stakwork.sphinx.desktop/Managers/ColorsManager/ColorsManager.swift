@@ -44,4 +44,14 @@ class ColorsManager : NSObject {
     func removeColorFor(key: String) {
         colors.removeValue(forKey: key)
     }
+
+    func getAllColors() -> [String: String] {
+        return colors
+    }
+
+    func setColorFor(colorHex: String, key: String) {
+        colors[key] = colorHex
+        UserDefaults.standard.set(colorHex, forKey: key)
+        UserDefaults.standard.synchronize()
+    }
 }
