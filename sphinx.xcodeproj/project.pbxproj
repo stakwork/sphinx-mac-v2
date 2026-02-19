@@ -480,12 +480,6 @@
 		479B19342EC36AC800A5B9E2 /* S3Uploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19332EC36AC500A5B9E2 /* S3Uploader.swift */; };
 		479B19362EC36E6700A5B9E2 /* S3UploaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */; };
 		479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */; };
-		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
-		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
-		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
-		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
-		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
-		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */; };
 		479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793524EC3B2B009BA1CD /* WebAppViewController.swift */; };
 		479C793824EC3CCD009BA1CD /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 479C793724EC3CCD009BA1CD /* test.html */; };
@@ -674,6 +668,12 @@
 		47FEE2292A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2282A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift */; };
 		47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */; };
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
+		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
+		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
+		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
+		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
+		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
+		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
 		77CFCEC12D809241008B2BB7 /* TimezoneSharingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */; };
 		77CFCEC32D80D370008B2BB7 /* TimezoneSharingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77CFCEC22D80D370008B2BB7 /* TimezoneSharingView.swift */; };
 		931083BF2BE0271B00D03EC9 /* TribeMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931083BE2BE0271B00D03EC9 /* TribeMembersViewController.swift */; };
@@ -1477,12 +1477,6 @@
 		479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3UploaderManager.swift; sourceTree = "<group>"; };
 		479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 9.xcdatamodel"; sourceTree = "<group>"; };
 		479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+ContentItemsExtension.swift"; sourceTree = "<group>"; };
-		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
-		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
-		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
-		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
-		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
-		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SphinxOnionConnector.swift; sourceTree = "<group>"; };
 		479C793524EC3B2B009BA1CD /* WebAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppViewController.swift; sourceTree = "<group>"; };
 		479C793724EC3CCD009BA1CD /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
@@ -1691,6 +1685,12 @@
 		47FEE2282A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift"; sourceTree = "<group>"; };
 		47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
+		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
+		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
+		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
+		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
+		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
+		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TimezoneSharingView.xib; sourceTree = "<group>"; };
@@ -2208,41 +2208,6 @@
 				4738299F2EB3E313007E045A /* GraphListViewController.swift */,
 			);
 			path = "View Controllers";
-			sourceTree = "<group>";
-		};
-		47WORKG12F19000000000011 /* Workspaces */ = {
-			isa = PBXGroup;
-			children = (
-				47WORKG22F19000000000012 /* Model */,
-				47WORKG32F19000000000013 /* View Controllers */,
-				47WORKG42F19000000000014 /* Collection View Items */,
-			);
-			path = Workspaces;
-			sourceTree = "<group>";
-		};
-		47WORKG22F19000000000012 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				47WORK022F19000000000002 /* Workspace.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		47WORKG32F19000000000013 /* View Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				47WORK042F19000000000004 /* WorkspacesListViewController.swift */,
-			);
-			path = "View Controllers";
-			sourceTree = "<group>";
-		};
-		47WORKG42F19000000000014 /* Collection View Items */ = {
-			isa = PBXGroup;
-			children = (
-				47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */,
-				47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */,
-			);
-			path = "Collection View Items";
 			sourceTree = "<group>";
 		};
 		473829A22EB3F3E8007E045A /* ContentItem */ = {
@@ -3968,6 +3933,41 @@
 			path = NewOnlyTextMessageCollectionViewItem;
 			sourceTree = "<group>";
 		};
+		47WORKG12F19000000000011 /* Workspaces */ = {
+			isa = PBXGroup;
+			children = (
+				47WORKG22F19000000000012 /* Model */,
+				47WORKG32F19000000000013 /* View Controllers */,
+				47WORKG42F19000000000014 /* Collection View Items */,
+			);
+			path = Workspaces;
+			sourceTree = "<group>";
+		};
+		47WORKG22F19000000000012 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK022F19000000000002 /* Workspace.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		47WORKG32F19000000000013 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK042F19000000000004 /* WorkspacesListViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		47WORKG42F19000000000014 /* Collection View Items */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */,
+				47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */,
+			);
+			path = "Collection View Items";
+			sourceTree = "<group>";
+		};
 		90CB5EBD497A4B4F39AB48EE /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -5683,7 +5683,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 219;
+				CURRENT_PROJECT_VERSION = 220;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5720,7 +5720,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 219;
+				CURRENT_PROJECT_VERSION = 220;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
