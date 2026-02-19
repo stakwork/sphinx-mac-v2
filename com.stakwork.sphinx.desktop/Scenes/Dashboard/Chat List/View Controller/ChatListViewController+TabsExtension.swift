@@ -14,6 +14,7 @@ extension ChatListViewController {
         case tribes
         case feed
         case graph
+        case workspaces
     }
 }
 
@@ -70,6 +71,8 @@ extension ChatListViewController {
             return feedContainerViewController
         case .graph:
             return graphContainerViewController
+        case .workspaces:
+            return workspacesContainerViewController
         }
     }
     

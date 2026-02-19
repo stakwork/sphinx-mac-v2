@@ -293,7 +293,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                     
                 }
 //                else if let messageId = messageId, mediaData == nil {
-//                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
 //                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
 //                        self.delegate?.shouldLoadImageDataFor?(
 //                            messageId: messageId,
@@ -315,7 +315,7 @@ class ThreadHeaderView: NSView, LoadableNib {
                 messageMediaContainer.isHidden = false
 
                 if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
                         if messageMedia.isImage {
                             self.delegate?.shouldLoadImageDataFor?(
@@ -358,7 +358,7 @@ class ThreadHeaderView: NSView, LoadableNib {
             fileInfoView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor?(
                         messageId: messageId,
@@ -385,7 +385,7 @@ class ThreadHeaderView: NSView, LoadableNib {
             audioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor?(
                         messageId: messageId,

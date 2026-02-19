@@ -35,7 +35,8 @@ class ChatListViewController : DashboardSplittedViewController {
                     "dashboard.tabs.friends".localized,
                     "dashboard.tabs.tribes".localized,
                     "dashboard.tabs.feed".localized,
-                    "dashboard.tabs.graph".localized
+                    "dashboard.tabs.graph".localized,
+                    "dashboard.tabs.workspaces".localized
                 ],
                 delegate: self
             )
@@ -83,6 +84,10 @@ class ChatListViewController : DashboardSplittedViewController {
     
     internal lazy var graphContainerViewController: GraphListViewController = {
         GraphListViewController.instantiate()
+    }()
+
+    internal lazy var workspacesContainerViewController: WorkspacesListViewController = {
+        WorkspacesListViewController.instantiate()
     }()
     
     static func instantiate(

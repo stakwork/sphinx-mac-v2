@@ -31,8 +31,7 @@
                                             </containerView>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="250" id="1lR-z6-v7i"/>
-                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="350" id="44G-0J-jQY"/>
+                                            <constraint firstAttribute="width" constant="365" id="1lR-z6-v7i"/>
                                             <constraint firstItem="6VL-Tj-Dft" firstAttribute="top" secondItem="TtT-Yv-CaJ" secondAttribute="top" id="6AT-I2-E0m"/>
                                             <constraint firstAttribute="trailing" secondItem="6VL-Tj-Dft" secondAttribute="trailing" id="ZwT-jc-Pk1"/>
                                             <constraint firstItem="6VL-Tj-Dft" firstAttribute="leading" secondItem="TtT-Yv-CaJ" secondAttribute="leading" id="eeF-9y-tNo"/>
@@ -2219,6 +2218,74 @@ URL in your Profile</string>
                 <customObject id="PXG-ho-64A" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-989" y="1808"/>
+        </scene>
+        <!--Workspaces List View Controller-->
+        <scene sceneID="WRK-SP-001">
+            <objects>
+                <viewController storyboardIdentifier="WorkspacesListViewController" id="wrk-vc-001" customClass="WorkspacesListViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="wrk-vw-001">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wrk-tf-001">
+                                <rect key="frame" x="148" y="138" width="154" height="24"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="No results found" id="wrk-tc-001">
+                                    <font key="font" size="20" name="Roboto-Bold"/>
+                                    <color key="textColor" name="SecondaryText"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <progressIndicator hidden="YES" wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="wrk-pi-001">
+                                <rect key="frame" x="209" y="134" width="32" height="32"/>
+                            </progressIndicator>
+                            <scrollView hidden="YES" wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wrk-sv-001">
+                                <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                <clipView key="contentView" drawsBackground="NO" id="wrk-cv-001">
+                                    <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <collectionView selectable="YES" id="wrk-cl-001">
+                                            <rect key="frame" x="0.0" y="0.0" width="450" height="417"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                            <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="10" minimumLineSpacing="10" id="wrk-fl-001">
+                                                <size key="itemSize" width="350" height="85"/>
+                                            </collectionViewFlowLayout>
+                                            <color key="primaryBackgroundColor" name="HeaderBG"/>
+                                        </collectionView>
+                                    </subviews>
+                                    <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="wrk-hs-001">
+                                    <rect key="frame" x="-100" y="-100" width="233" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="wrk-vs-001">
+                                    <rect key="frame" x="434" y="0.0" width="16" height="300"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="wrk-sv-001" secondAttribute="bottom" id="wrk-c1-001"/>
+                            <constraint firstItem="wrk-tf-001" firstAttribute="centerY" secondItem="wrk-vw-001" secondAttribute="centerY" id="wrk-c2-001"/>
+                            <constraint firstAttribute="trailing" secondItem="wrk-sv-001" secondAttribute="trailing" id="wrk-c3-001"/>
+                            <constraint firstItem="wrk-sv-001" firstAttribute="top" secondItem="wrk-vw-001" secondAttribute="top" id="wrk-c4-001"/>
+                            <constraint firstItem="wrk-tf-001" firstAttribute="centerX" secondItem="wrk-vw-001" secondAttribute="centerX" id="wrk-c5-001"/>
+                            <constraint firstItem="wrk-sv-001" firstAttribute="leading" secondItem="wrk-vw-001" secondAttribute="leading" id="wrk-c6-001"/>
+                            <constraint firstItem="wrk-pi-001" firstAttribute="centerX" secondItem="wrk-vw-001" secondAttribute="centerX" id="wrk-c7-001"/>
+                            <constraint firstItem="wrk-pi-001" firstAttribute="centerY" secondItem="wrk-vw-001" secondAttribute="centerY" id="wrk-c8-001"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="workspacesCollectionView" destination="wrk-cl-001" id="wrk-cn-001"/>
+                        <outlet property="workspacesScrollView" destination="wrk-sv-001" id="wrk-cn-002"/>
+                        <outlet property="noResultsFoundLabel" destination="wrk-tf-001" id="wrk-cn-003"/>
+                        <outlet property="loadingWheel" destination="wrk-pi-001" id="wrk-cn-004"/>
+                    </connections>
+                </viewController>
+                <customObject id="wrk-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-989" y="2500"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="M0M-U8-tl2">

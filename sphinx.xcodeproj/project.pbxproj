@@ -480,6 +480,12 @@
 		479B19342EC36AC800A5B9E2 /* S3Uploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19332EC36AC500A5B9E2 /* S3Uploader.swift */; };
 		479B19362EC36E6700A5B9E2 /* S3UploaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */; };
 		479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */; };
+		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
+		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
+		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
+		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
+		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
+		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */; };
 		479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793524EC3B2B009BA1CD /* WebAppViewController.swift */; };
 		479C793824EC3CCD009BA1CD /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 479C793724EC3CCD009BA1CD /* test.html */; };
@@ -1471,6 +1477,12 @@
 		479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3UploaderManager.swift; sourceTree = "<group>"; };
 		479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 9.xcdatamodel"; sourceTree = "<group>"; };
 		479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+ContentItemsExtension.swift"; sourceTree = "<group>"; };
+		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
+		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
+		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
+		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
+		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
+		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SphinxOnionConnector.swift; sourceTree = "<group>"; };
 		479C793524EC3B2B009BA1CD /* WebAppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppViewController.swift; sourceTree = "<group>"; };
 		479C793724EC3CCD009BA1CD /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
@@ -2198,6 +2210,41 @@
 			path = "View Controllers";
 			sourceTree = "<group>";
 		};
+		47WORKG12F19000000000011 /* Workspaces */ = {
+			isa = PBXGroup;
+			children = (
+				47WORKG22F19000000000012 /* Model */,
+				47WORKG32F19000000000013 /* View Controllers */,
+				47WORKG42F19000000000014 /* Collection View Items */,
+			);
+			path = Workspaces;
+			sourceTree = "<group>";
+		};
+		47WORKG22F19000000000012 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK022F19000000000002 /* Workspace.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		47WORKG32F19000000000013 /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK042F19000000000004 /* WorkspacesListViewController.swift */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		47WORKG42F19000000000014 /* Collection View Items */ = {
+			isa = PBXGroup;
+			children = (
+				47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */,
+				47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */,
+			);
+			path = "Collection View Items";
+			sourceTree = "<group>";
+		};
 		473829A22EB3F3E8007E045A /* ContentItem */ = {
 			isa = PBXGroup;
 			children = (
@@ -2353,6 +2400,7 @@
 		4744FA562469904500C5FD94 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				47MEDIA002F19000000000000 /* MediaPreloadManager.swift */,
 				479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */,
 				475B685029917380000EF29C /* Podcast Player Controller */,
 				478F07D724E45E2A00EE32A3 /* Giphy */,
@@ -2400,6 +2448,7 @@
 				4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */,
 				477CE03F2DC9256A004110E8 /* API+FeedSearchExtension.swift */,
 				479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */,
+				47WORK002F19000000000001 /* API+HiveExtension.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -3045,6 +3094,7 @@
 		479751C2246C72C100D2106B /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
+				47WORKG12F19000000000011 /* Workspaces */,
 				4738299B2EB3E2DE007E045A /* Graph */,
 				477CE02B2DC90874004110E8 /* Feed */,
 				47FCE2B82CD8FB31005DB8AF /* Live Kit */,
@@ -4099,6 +4149,7 @@
 				4708C21F2A58959900274AD4 /* ChatMessageFieldView.xib in Resources */,
 				47DE1C3D2A6AF6F10029597B /* ShimmeringSentMessageView.xib in Resources */,
 				47C6236225091C02005D265C /* GiphySearchCollectionViewItem.xib in Resources */,
+				47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */,
 				473BC8922600FB320070E519 /* NewEpisodeAlertView.xib in Resources */,
 				4726A44224C628DA005A66B4 /* horn.caf in Resources */,
 				4794964B2AB3A59C00C42D1E /* AudioMessageView.xib in Resources */,
@@ -4336,6 +4387,11 @@
 				47DE1BFB2A681D8C0029597B /* String+Geometrics.m in Sources */,
 				47DE1C042A68813B0029597B /* MessageNoBubbleCollectionViewItem.swift in Sources */,
 				47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */,
+				47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */,
+				47WORK032F19000000000003 /* Workspace.swift in Sources */,
+				47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */,
+				47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */,
+				47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */,
 				4744FACF246AF6A400C5FD94 /* AspectFillNSImageView.swift in Sources */,
 				4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */,
 				475B683829915DF5000EF29C /* PodcastModel+Properties.swift in Sources */,

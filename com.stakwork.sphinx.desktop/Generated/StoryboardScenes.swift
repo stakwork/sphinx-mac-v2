@@ -82,6 +82,8 @@ internal enum StoryboardScene {
         internal static let feedDashboardViewController = SceneType<FeedDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedDashboardViewController")
         
         internal static let feedListenDashboardViewController = SceneType<FeedListenDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedListenDashboardViewController")
+
+        internal static let workspacesListViewController = SceneType<WorkspacesListViewController>(storyboard: Dashboard.self, identifier: "WorkspacesListViewController")
     }
     
     internal enum Groups: StoryboardType {

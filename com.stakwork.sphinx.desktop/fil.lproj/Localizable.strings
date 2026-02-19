@@ -60,6 +60,9 @@
 //Dashboard
 "dashboard.tabs.friends" = "Friends";
 "dashboard.tabs.tribes" = "Tribes";
+"dashboard.tabs.feed" = "Feed";
+"dashboard.tabs.graph" = "Graph";
+"dashboard.tabs.workspaces" = "Workspaces";
 
 //GROUPS
 "group.details"  = "Mga Detalye ng Grupo";

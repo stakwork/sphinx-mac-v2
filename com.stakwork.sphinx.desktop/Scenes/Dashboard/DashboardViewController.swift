@@ -114,16 +114,16 @@ class DashboardViewController: NSViewController {
     
     override func viewDidAppear() {
         super.viewDidAppear()
-        
+
         handleDeepLink()
         addPresenterVC()
         addDetailVCPresenter()
-        
+
         Chat.processTimezoneChanges()
         connectToServer()
         askForNotificationsPermission()
     }
-    
+
     func setupObservers() {
         DistributedNotificationCenter.default().addObserver(
             forName: .onInterfaceThemeChanged,
@@ -811,6 +811,8 @@ extension DashboardViewController : DashboardVCDelegate {
             presentFeedDashboard()
         case .graph:
             presentGraphDashboard()
+        default:
+            break
         }
     }
     

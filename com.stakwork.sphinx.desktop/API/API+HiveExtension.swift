@@ -1,0 +1,118 @@
+//
+//  API+HiveExtension.swift
+//  Sphinx
+//
+//  Created on 2025-02-19.
+//  Copyright © 2025 Sphinx. All rights reserved.
+//
+
+import Foundation
+import Alamofire
+import SwiftyJSON
+
+typealias HiveAuthTokenCallback = ((String?) -> ())
+typealias HiveWorkspacesCallback = (([Workspace]) -> ())
+
+extension API {
+
+    static let kHiveBaseUrl = "https://hive.sphinx.chat/api"
+
+    func authenticateWithHive(
+        callback: @escaping HiveAuthTokenCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        guard let signedToken = SphinxOnionManager.sharedInstance.getSignedToken(),
+              let pubkey = UserData.sharedInstance.getUserPubKey() else {
+            errorCallback()
+            return
+        }
+
+        let timestamp = Int(Date().timeIntervalSince1970)
+
+        let params: [String: AnyObject] = [
+            "token": signedToken as AnyObject,
+            "pubkey": pubkey as AnyObject,
+            "timestamp": timestamp as AnyObject
+        ]
+
+        guard let request = createRequest(
+            "\(API.kHiveBaseUrl)/auth/sphinx/token",
+            params: params as NSDictionary,
+            method: "POST"
+        ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                if let token = json["token"].string {
+                    callback(token)
+                } else {
+                    errorCallback()
+                }
+            case .failure:
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchWorkspaces(
+        authToken: String,
+        callback: @escaping HiveWorkspacesCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        guard let request = createRequest(
+            "\(API.kHiveBaseUrl)/workspaces",
+            params: nil,
+            method: "GET",
+            token: authToken
+        ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                var workspaces: [Workspace] = []
+
+                if let workspacesArray = json["workspaces"].array {
+                    for workspaceJson in workspacesArray {
+                        if let workspace = Workspace(json: workspaceJson) {
+                            workspaces.append(workspace)
+                        }
+                    }
+                }
+
+                callback(workspaces)
+            case .failure:
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchWorkspacesWithAuth(
+        callback: @escaping HiveWorkspacesCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(
+            callback: { [weak self] token in
+                guard let token = token else {
+                    errorCallback()
+                    return
+                }
+
+                self?.fetchWorkspaces(
+                    authToken: token,
+                    callback: callback,
+                    errorCallback: errorCallback
+                )
+            },
+            errorCallback: errorCallback
+        )
+    }
+}

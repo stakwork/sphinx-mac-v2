@@ -45,6 +45,8 @@ class ContactsService: NSObject {
                 return 2
             case .graph:
                 return 3
+            case .workspaces:
+                return 4
             }
         }
     }
@@ -77,6 +79,9 @@ class ContactsService: NSObject {
             selectedChatId = nil
         case .graph:
             tab = "Graph"
+            selectedChatId = nil
+        case .workspaces:
+            tab = "Workspaces"
             selectedChatId = nil
         }
         
@@ -235,6 +240,8 @@ class ContactsService: NSObject {
             return (nil, nil)
         case .graph:
             return (nil, nil)
+        default:
+            break
         }
         return nil
     }

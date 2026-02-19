@@ -60,6 +60,9 @@
 //Dashboard
 "dashboard.tabs.friends" = "友達";
 "dashboard.tabs.tribes" = "トライブ";
+"dashboard.tabs.feed" = "フィード";
+"dashboard.tabs.graph" = "グラフ";
+"dashboard.tabs.workspaces" = "ワークスペース";
 
 //GROUPS
 "group.details" = "グループの詳細";
