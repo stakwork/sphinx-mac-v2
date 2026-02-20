@@ -128,6 +128,8 @@ extension ChatListViewController : NSTextFieldDelegate {
             
             if contactsService.selectedTab == .feed {
                 feedContainerViewController.searchWith(searchQuery: currentString)
+            } else if contactsService.selectedTab == .workspaces {
+                workspacesContainerViewController.filterWorkspaces(term: currentString)
             } else {
                 contactsService.updateChatListWith(term: currentString)
             }
