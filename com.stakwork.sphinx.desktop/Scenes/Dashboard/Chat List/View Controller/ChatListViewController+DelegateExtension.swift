@@ -153,6 +153,11 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
             resetFeedSearch(tab: tab)
             contactsService.selectedTab = tab
             setActiveTab(tab)
+            
+            // Apply existing search term to the newly active tab
+            if tab == .workspaces, let currentSearch = searchField.stringValue, !currentSearch.isEmpty {
+                workspacesContainerViewController.filterWorkspaces(term: currentSearch)
+            }
         }
     }
     

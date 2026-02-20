@@ -356,3 +356,15 @@ extension WorkspacesListViewController: FeedListHeaderViewDelegate {
         completion()
     }
 }
+
+// MARK: - Search/Filter
+extension WorkspacesListViewController {
+    func filterWorkspaces(term: String) {
+        let filtered = term.isEmpty
+            ? allWorkspaces
+            : allWorkspaces.filter { $0.name.localizedCaseInsensitiveContains(term) }
+        
+        let items = filtered.map { DataSourceItem(workspace: $0) }
+        updateSnapshot(with: items)
+    }
+}
