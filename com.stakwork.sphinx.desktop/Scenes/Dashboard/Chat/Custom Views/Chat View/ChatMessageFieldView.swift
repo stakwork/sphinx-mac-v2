@@ -185,7 +185,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
     func setupSendButton() {
         sendButton.wantsLayer = true
         sendButton.layer?.cornerRadius = sendButton.frame.height / 2
-        sendButton.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
+        sendButton.layer?.backgroundColor = NSColor.Sphinx.SphinxOrange.cgColor
         sendButton.isEnabled = false
     }
     
