@@ -16,7 +16,6 @@ class WorkspacesListViewController: NSViewController {
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
 
     var workspaces: [Workspace] = []
-    private var allWorkspaces: [Workspace] = []
 
     private var currentDataSnapshot: DataSourceSnapshot!
     private var dataSource: DataSource!
@@ -68,7 +67,6 @@ class WorkspacesListViewController: NSViewController {
             callback: { [weak self] workspaces in
                 DispatchQueue.main.async {
                     self?.isLoading = false
-                    self?.allWorkspaces = workspaces
                     self?.workspaces = workspaces
                     self?.updateSnapshot()
                 }
@@ -76,7 +74,6 @@ class WorkspacesListViewController: NSViewController {
             errorCallback: { [weak self] in
                 DispatchQueue.main.async {
                     self?.isLoading = false
-                    self?.allWorkspaces = []
                     self?.workspaces = []
                     self?.updateSnapshot()
                 }
@@ -347,17 +344,5 @@ extension WorkspacesListViewController: FeedListHeaderViewDelegate {
     func didClickRefreshButton(completion: @escaping () -> ()) {
         loadWorkspaces()
         completion()
-    }
-}
-
-// MARK: - Search/Filter
-extension WorkspacesListViewController {
-    func filterWorkspaces(term: String) {
-        let filtered = term.isEmpty
-            ? allWorkspaces
-            : allWorkspaces.filter { $0.name.localizedCaseInsensitiveContains(term) }
-        
-        let items = filtered.map { DataSourceItem(workspace: $0) }
-        updateSnapshot(with: items)
     }
 }
