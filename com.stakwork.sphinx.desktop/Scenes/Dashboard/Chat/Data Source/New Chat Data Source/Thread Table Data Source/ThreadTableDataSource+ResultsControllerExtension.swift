@@ -21,7 +21,8 @@ extension ThreadTableDataSource {
     
     override func processMessages(
         messages: [TransactionMessage],
-        UIUpdateIndex: Int
+        UIUpdateIndex: Int,
+        showLoadingMore: Bool
     ) {
         let chat = chat ?? contact?.getFakeChat()
         

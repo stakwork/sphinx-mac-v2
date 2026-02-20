@@ -118,6 +118,21 @@ extension PodcastPlayerController {
             clipInfo: podcastData.clipInfo
         )
         
+        if let podcast = podcast, let feedUrl = podcast.feedURLPath {
+            DataSyncManager.sharedInstance.saveFeedStatusFor(
+                feedId: podcastData.podcastId,
+                feedStatus: FeedStatus(
+                    chatPubkey: podcast.chat?.ownerPubkey ?? "",
+                    feedUrl: feedUrl,
+                    feedId: podcastData.podcastId,
+                    subscribed: podcast.subscribed,
+                    satsPerMinute: podcast.satsPerMinute ?? 0,
+                    playerSpeed: Double(podcastData.speed),
+                    itemId: podcastData.episodeId
+                )
+            )
+        }
+        
         if let episode = podcast?.getCurrentEpisode(), !episode.isMusicClip {
             ///If playing video on recommendations player
             return
@@ -276,6 +291,13 @@ extension PodcastPlayerController {
             duration: duration,
             clipInfo: podcastData.clipInfo
         )
+        
+        updateItemDataSync(
+            podcastId: podcastData.podcastId,
+            episodeId: podcastData.episodeId,
+            currentTime: currentTime,
+            duration: duration
+        )
 
         runPausedStateUpdate()
     }
@@ -343,6 +365,21 @@ extension PodcastPlayerController {
             playerSpeed: podcastData.speed,
             clipInfo: podcastData.clipInfo
         )
+        
+        if let podcast = getPodcastWith(podcastId: podcastData.podcastId), let feedUrl = podcast.feedURLPath {
+            DataSyncManager.sharedInstance.saveFeedStatusFor(
+                feedId: podcast.feedID,
+                feedStatus: FeedStatus(
+                    chatPubkey: podcast.chat?.ownerPubkey ?? "",
+                    feedUrl: feedUrl,
+                    feedId: podcast.feedID,
+                    subscribed: podcast.subscribed,
+                    satsPerMinute: podcast.satsPerMinute ?? 0,
+                    playerSpeed: Double(podcast.playerSpeed),
+                    itemId: podcast.currentEpisodeId
+                )
+            )
+        }
         
         if self.podcastData?.podcastId != podcastData.podcastId {
             ///Avoid player actions if performing actions for a podcast that is not the current on set on player controller

@@ -202,7 +202,11 @@ extension ChatListViewController: FeedListViewControllerDelegate {
         let managedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         
         managedObjectContext.performAndWait {
-            fetchRequestResult = try! managedObjectContext.fetch(existingFeedsFetchRequest)
+            do {
+                fetchRequestResult = try managedObjectContext.fetch(existingFeedsFetchRequest)
+            } catch {
+                print("Error fetching content feed: \(error)")
+            }
         }
             
         if let existingFeed = fetchRequestResult.first {
@@ -220,6 +224,21 @@ extension ChatListViewController: FeedListViewControllerDelegate {
                     
                     if case .success(let contentFeed) = result {
                         managedObjectContext.saveContext()
+                        
+                        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+                        
+                        DataSyncManager.sharedInstance.saveFeedStatusFor(
+                            feedId: contentFeed.feedID,
+                            feedStatus: FeedStatus(
+                                chatPubkey: "",
+                                feedUrl: item.feedUrl,
+                                feedId: contentFeed.feedID,
+                                subscribed: true,
+                                satsPerMinute: podcast.satsPerMinute ?? 0,
+                                playerSpeed: Double(podcast.playerSpeed),
+                                itemId: podcast.currentEpisodeId
+                            )
+                        )
                         
                         self.newMessageBubbleHelper.hideLoadingWheel()
                         

@@ -116,10 +116,18 @@ extension NewChatViewModel {
     
     private func deleteMessage(_ message: TransactionMessage) {
         if message.id < 0 {
+            let chat = message.chat
+            let isLastMessage = chat?.lastMessage?.id == message.id
+
             CoreDataManager.sharedManager.deleteObject(object: message)
+
+            if isLastMessage, let chat = chat {
+                chat.lastMessage = chat.getLastMessageToShow()
+                chat.managedObjectContext?.saveContext()
+            }
             return
         }
-        
+
         SphinxOnionManager.sharedInstance.sendDeleteRequest(message: message)
     }
 }

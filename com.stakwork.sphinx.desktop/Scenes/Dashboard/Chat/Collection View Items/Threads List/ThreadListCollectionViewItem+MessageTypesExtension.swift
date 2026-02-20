@@ -213,40 +213,65 @@ extension ThreadListCollectionViewItem {
         mediaData: MessageTableCellState.MediaData?
     ) {
         if let messageMedia = messageMedia {
-            
-            mediaMessageView.configureWith(
-                messageMedia: messageMedia,
-                mediaData: mediaData,
-                bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
-                and: self
-            )
-            
-            mediaMessageView.isHidden = false
-            mediaMessageView.mediaButton.isEnabled = false
-            
-            if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    if messageMedia.isImage {
-                        self.delegate?.shouldLoadImageDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isPdf {
-                        self.delegate?.shouldLoadPdfDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isVideo {
-                        self.delegate?.shouldLoadVideoDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isGiphy {
-                        self.delegate?.shouldLoadGiphyDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
+            if messageMedia.isImageLink {
+                if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
+                    mediaMessageView.configureWith(
+                        messageMedia: messageMedia,
+                        mediaData: mediaData,
+                        bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                        and: self
+                    )
+                    mediaMessageView.isHidden = false
+                    mediaMessageView.mediaButton.isEnabled = false
+                    
+                }
+//                else if let messageId = messageId, mediaData == nil {
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+//                        self.delegate?.shouldLoadImageDataFor(
+//                            messageId: messageId,
+//                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+//                        )
+//                    }
+//                }
+            } else {
+                mediaMessageView.configureWith(
+                    messageMedia: messageMedia,
+                    mediaData: mediaData,
+                    bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                    and: self
+                )
+                
+                mediaMessageView.isHidden = false
+                mediaMessageView.mediaButton.isEnabled = false
+                
+                if let messageId = messageId, mediaData == nil {
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                        if messageMedia.isImage {
+                            self.delegate?.shouldLoadImageDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isPdf {
+                            self.delegate?.shouldLoadPdfDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isVideo {
+                            self.delegate?.shouldLoadVideoDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isGiphy {
+                            self.delegate?.shouldLoadGiphyDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        }
                     }
                 }
             }
@@ -267,7 +292,7 @@ extension ThreadListCollectionViewItem {
             fileDetailsView.isHidden = false
 
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: messageId,
@@ -294,7 +319,7 @@ extension ThreadListCollectionViewItem {
             audioMessageView.isHidden = false
 
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: messageId,

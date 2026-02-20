@@ -232,6 +232,13 @@ class GroupDetailsViewController: NSViewController {
         
         if didChangeAlias && self.chat.timezoneEnabled {
             self.chat.timezoneUpdated = true
+            
+            if let pubkey = chat.ownerPubkey {
+                DataSyncManager.sharedInstance.saveTimezoneFor(
+                    chatPubkey: "\(pubkey)",
+                    timezone: TimezoneSetting(timezoneEnabledString: "\(self.chat.timezoneEnabled)", timezoneIdentifier: self.chat.timezoneIdentifier ?? "")
+                )
+            }
         }
         
         self.chat.myAlias = alias

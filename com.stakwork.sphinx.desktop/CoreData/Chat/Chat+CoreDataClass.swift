@@ -15,10 +15,69 @@ public class Chat: NSManagedObject {
     
     public var conversationContact : UserContact? = nil
     public var tribeAdmin: UserContact? = nil
-    
+
     var tribeInfo: GroupsManager.TribeInfo? = nil
     var aliasesAndPics: [(String, String)] = []
     var timezoneData: [String: String] = [:]
+
+    // MARK: - Members Aliases Persistence
+
+    /// Loads persisted aliasesAndPics from CoreData
+    func loadPersistedAliasesAndPics() {
+        guard let jsonString = membersAliasesData,
+              !jsonString.isEmpty,
+              let data = jsonString.data(using: .utf8) else {
+            return
+        }
+
+        do {
+            if let array = try JSONSerialization.jsonObject(with: data) as? [[String: String]] {
+                aliasesAndPics = array.compactMap { dict in
+                    guard let alias = dict["alias"], let pic = dict["pic"] else { return nil }
+                    return (alias, pic)
+                }
+            }
+        } catch {
+            print("Failed to decode membersAliasesData: \(error)")
+        }
+    }
+
+    /// Saves current aliasesAndPics to CoreData
+    func persistAliasesAndPics() {
+        let array = aliasesAndPics.map { ["alias": $0.0, "pic": $0.1] }
+
+        do {
+            let data = try JSONSerialization.data(withJSONObject: array)
+            if let jsonString = String(data: data, encoding: .utf8) {
+                membersAliasesData = jsonString
+                managedObjectContext?.saveContext()
+            }
+        } catch {
+            print("Failed to encode membersAliasesData: \(error)")
+        }
+    }
+
+    /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new
+    private func mergeAliasAndPic(alias: String, pic: String) {
+        if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
+            // Update existing entry with new pic if provided
+            if pic.isNotEmpty {
+                aliasesAndPics[index] = (alias, pic)
+            }
+        } else if !aliasesAndPics.contains(where: { $0.1 == pic && pic.isNotEmpty }) {
+            // Add new entry if alias doesn't exist and pic is unique (or empty)
+            aliasesAndPics.append((alias, pic))
+        }
+    }
+
+    /// Removes alias/pic entry by alias or pic
+    private func removeAliasAndPic(alias: String?, pic: String?) {
+        if let index = aliasesAndPics.firstIndex(where: {
+            (alias != nil && $0.0 == alias) || (pic != nil && pic!.isNotEmpty && $0.1 == pic)
+        }) {
+            aliasesAndPics.remove(at: index)
+        }
+    }
     
     public enum ChatType: Int {
         case conversation = 0
@@ -58,7 +117,10 @@ public class Chat: NSManagedObject {
         }
     }
     
-    static func insertChat(chat: JSON) -> Chat? {
+    static func insertChat(
+        chat: JSON,
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
         if let id = chat.getJSONId() {
             let name = chat["name"].string ?? ""
             let photoUrl = chat["photo_url"].string ?? chat["img"].string ?? ""
@@ -110,7 +172,8 @@ public class Chat: NSManagedObject {
                 pendingContactIds: pendingContactIds,
                 date: date,
                 isTribeICreated: isTribeICreated,
-                metaData: metaData
+                metaData: metaData,
+                context: context
             )
             
             return chat
@@ -140,12 +203,13 @@ public class Chat: NSManagedObject {
         pendingContactIds: [NSNumber],
         date: Date,
         isTribeICreated: Bool = false,
-        metaData: String?
+        metaData: String?,
+        context: NSManagedObjectContext? = nil
     ) -> Chat? {
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         
-        let chat = getChatInstance(id: id, managedContext: managedContext)
+        let chat = Chat(context: managedContext) as Chat
         chat.id = id
         chat.name = name
         chat.photoUrl = photoUrl
@@ -242,11 +306,18 @@ public class Chat: NSManagedObject {
         return chats
     }
     
-    static func getAllTribes() -> [Chat] {
+    static func getAllTribes(
+        context: NSManagedObjectContext? = nil
+    ) -> [Chat] {
         let predicate = NSPredicate(format: "type == %d", Chat.ChatType.publicGroup.rawValue)
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(predicate: predicate, sortDescriptors: sortDescriptors, entityName: "Chat")
+        let chats:[Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            managedContext: context
+        )
         return chats
     }
     
@@ -262,6 +333,28 @@ public class Chat: NSManagedObject {
         )
         
         return chats
+    }
+    
+    static func getChatWithOwnerPubkey(
+        ownerPubkey: String,
+        context: NSManagedObjectContext? = nil
+    ) -> Chat? {
+        let predicate = NSPredicate(
+            format: "ownerPubkey == %@",
+            ownerPubkey
+        )
+        
+        let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "Chat",
+            fetchLimit: 1,
+            managedContext: context
+        ).first
+        
+        return chat
     }
     
     static func getTribeChatWithOwnerPubkey(
@@ -343,19 +436,28 @@ public class Chat: NSManagedObject {
             return
         }
         
-        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform { [weak self] in
+        context.performSafely { [weak self] in
             guard let self = self else {
                 return
             }
-            self.aliasesAndPics = []
-            
-            let messages = self.getAllMessages(
-                limit: 2000,
-                context: backgroundContext,
-                forceAllMsgs: true
+
+            let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+                predicate: TransactionMessage.getPredicate(
+                    chat: self,
+                    threadUUID: nil,
+                    typesToExclude: [],
+                    pinnedMessageId: nil
+                ),
+                sortDescriptors: [],
+                entityName: "TransactionMessage",
+                managedContext: context
             )
+            
+            if messages.isEmpty {
+                return
+            }
             
             self.processAliasesFrom(messages: messages.reversed())
         }
@@ -364,11 +466,21 @@ public class Chat: NSManagedObject {
     func processAliasesFrom(
         messages: [TransactionMessage]
     ) {
+        // Load persisted data first (merge instead of reset)
+        if aliasesAndPics.isEmpty {
+            loadPersistedAliasesAndPics()
+        }
+
+        self.timezoneData = [:]
+
         let ownerId = UserData.sharedInstance.getUserId()
-        
+
         let declinedRequestResponses = messages.filter { $0.isDeclinedRequest() }
-        let declinedRequestResponsesDictionary = Dictionary(uniqueKeysWithValues: declinedRequestResponses.map { ($0.replyUUID, $0) })
-        
+        let declinedRequestResponsesDictionary = Dictionary(
+            declinedRequestResponses.map { ($0.replyUUID, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
         for message in messages {
             if !message.isIncoming(ownerId: ownerId) {
                 continue
@@ -387,53 +499,46 @@ public class Chat: NSManagedObject {
                             let alias = originalRequestMsg.senderAlias, alias.isNotEmpty,
                             let picture = originalRequestMsg.senderPic, picture.isNotEmpty
                         {
-                            if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
-                                aliasesAndPics.remove(at: index)
-                            }
+                            removeAliasAndPic(alias: alias, pic: picture)
                             continue
                         }
                     }
                     if message.isGroupLeaveMessage() {
-                        if let index = aliasesAndPics.firstIndex(where: { $0.1 == picture || $0.0 == alias }) {
-                            aliasesAndPics.remove(at: index)
-                        }
+                        removeAliasAndPic(alias: alias, pic: picture)
                         continue
                     }
-                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
-                    } else if !aliasesAndPics.contains(where: { $0.1 == picture || $0.0 == alias }) {
-                        self.aliasesAndPics.append(
-                            (alias, message.senderPic ?? "")
-                        )
-                    }
+                    mergeAliasAndPic(alias: alias, pic: message.senderPic ?? "")
                 } else {
                     if message.isMemberRequest() {
                         if
                             let originalRequestMsg = declinedRequestResponsesDictionary[message.uuid],
                             let alias = originalRequestMsg.senderAlias, alias.isNotEmpty
                         {
-                            if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                                aliasesAndPics.remove(at: index)
-                            }
+                            removeAliasAndPic(alias: alias, pic: nil)
                             continue
                         }
                     }
                     if message.isGroupLeaveMessage() {
-                        if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                            aliasesAndPics.remove(at: index)
-                        }
+                        removeAliasAndPic(alias: alias, pic: nil)
                         continue
                     }
-                    if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-                        self.aliasesAndPics[index] = (alias, message.senderPic ?? "")
-                    } else {
-                        self.aliasesAndPics.append(
-                            (alias, message.senderPic ?? "")
-                        )
-                    }
+                    mergeAliasAndPic(alias: alias, pic: message.senderPic ?? "")
                 }
             }
         }
+
+        let aliasesWithoutTimezone: [String] = aliasesAndPics.compactMap { tuple in
+            timezoneData[tuple.0] == nil ? tuple.0 : nil
+        }
+
+        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self)
+
+        timezoneData = timezoneData.merging(newTimezoneMap) { (existing, new) in
+            return existing  // Keep original value
+        }
+
+        // Persist the updated data
+        persistAliasesAndPics()
     }
     
     func isDateBeforeThreeMonthsAgo(_ date: Date) -> Bool {
@@ -483,7 +588,7 @@ public class Chat: NSManagedObject {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
         if NSApplication.shared.isActive || forceSeen {
-            backgroundContext.perform { [weak self] in
+            backgroundContext.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -531,7 +636,7 @@ public class Chat: NSManagedObject {
             }
         }
         
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }
@@ -983,7 +1088,7 @@ public class Chat: NSManagedObject {
         DispatchQueue.global(qos: .background).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
             
-            backgroundContext.perform {
+            backgroundContext.performSafely {
                 let didMigrateToTZ: Bool = UserDefaults.Keys.didMigrateToTZ.get(defaultValue: false)
                 
                 if !didMigrateToTZ {
@@ -1077,10 +1182,12 @@ public class Chat: NSManagedObject {
         return nil
     }
     
-    func getMetaDataJsonStringValue() -> String? {
+    func getMetaDataJsonStringValue(
+        forceIncludeTimezone: Bool = false
+    ) -> String? {
         var metaData: String? = nil
         
-        if self.timezoneEnabled, self.timezoneUpdated {
+        if (self.timezoneEnabled && self.timezoneUpdated) || forceIncludeTimezone {
             if let timezoneToSend = TimeZone(identifier: self.timezoneIdentifier ?? TimeZone.current.identifier)?.gmtOffsetAbbreviation() {
                 let timezoneMetadata = ["tz": timezoneToSend]
                 

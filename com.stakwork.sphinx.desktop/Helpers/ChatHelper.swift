@@ -242,6 +242,7 @@ class ChatHelper {
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
+        mediaData: MessageTableCellState.MediaData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         ///No Bubble message views
@@ -278,8 +279,14 @@ class ChatHelper {
             viewsHeight += AudioMessageView.kViewHeight
         }
         
-        if let _ = mutableTableCellState.messageMedia {
-            viewsHeight += MediaMessageView.kThreadViewHeight
+        if let messageMedia = mutableTableCellState.messageMedia {
+            if messageMedia.isImageLink {
+                if mediaData != nil {
+                    viewsHeight += MediaMessageView.kViewHeight
+                }
+            } else {
+                viewsHeight += MediaMessageView.kViewHeight
+            }
         }
         
         if let _ = mutableTableCellState.genericFile {
@@ -296,6 +303,10 @@ class ChatHelper {
         
         if let _ = mutableTableCellState.threadOriginalMessageGenericFile {
             viewsHeight += FileInfoView.kViewHeight
+        }
+        
+        if let _ = mutableTableCellState.boosts {
+            viewsHeight += NewMessageBoostView.kViewHeight
         }
         
         if let text = mutableTableCellState.messageContent?.text, text.isNotEmpty {
@@ -328,6 +339,9 @@ class ChatHelper {
         if mutableTableCellState.isThread {
             return ChatHelper.getThreadRowHeightFor(
                 tableCellState,
+                linkData: linkData,
+                tribeData: tribeData,
+                mediaData: mediaData,
                 collectionViewWidth: collectionViewWidth
             )
         }

@@ -60,6 +60,9 @@
 //Dashboard
 "dashboard.tabs.friends" = "朋友";
 "dashboard.tabs.tribes" = "部落";
+"dashboard.tabs.feed" = "動態";
+"dashboard.tabs.graph" = "圖譜";
+"dashboard.tabs.workspaces" = "工作空間";
 
 //GROUPS
 "group.details" = "群組詳情";

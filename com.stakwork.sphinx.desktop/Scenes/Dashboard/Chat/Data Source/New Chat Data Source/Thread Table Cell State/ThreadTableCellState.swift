@@ -172,7 +172,7 @@ extension ThreadTableCellState : Hashable {
     static func == (lhs: ThreadTableCellState, rhs: ThreadTableCellState) -> Bool {
         let mutableLhs = lhs
         let mutableRhs = rhs
-        
+
         return
             mutableLhs.originalMessage?.id      == mutableRhs.originalMessage?.id &&
             mutableLhs.threadMessages.count     == mutableRhs.threadMessages.count

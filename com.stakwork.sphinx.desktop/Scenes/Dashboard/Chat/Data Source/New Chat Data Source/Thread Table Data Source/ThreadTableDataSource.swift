@@ -14,6 +14,12 @@ class ThreadTableDataSource : NewChatTableDataSource {
     var threadUUID: String!
     var threadOriginalMessage: TransactionMessage? = nil
     
+    override var isThread: Bool {
+        get {
+            return true
+        }
+    }
+    
     init(
         chat: Chat?,
         contact: UserContact?,

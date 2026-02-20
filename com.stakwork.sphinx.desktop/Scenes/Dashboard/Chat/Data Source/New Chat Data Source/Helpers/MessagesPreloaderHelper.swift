@@ -89,6 +89,12 @@ class MessagesPreloaderHelper {
         )
     }
     
+    func reset(
+        for chatId: Int
+    ) {
+        self.chatScrollState.removeValue(forKey: chatId)
+    }
+    
     func getScrollState(
         for chatId: Int,
         pinnedMessageId: Int? = nil

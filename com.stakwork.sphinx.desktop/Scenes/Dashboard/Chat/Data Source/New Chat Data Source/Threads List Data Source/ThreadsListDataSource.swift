@@ -101,8 +101,19 @@ class ThreadsListDataSource : NSObject {
 
         snapshot.appendSections([CollectionViewSection.threads])
 
+        // Filter out duplicates to prevent NSDiffableDataSourceSnapshot crashes
+        // Use Set which relies on Hashable conformance - same logic diffable data source uses
+        var seen = Set<ThreadTableCellState>()
+        var uniqueItems: [ThreadTableCellState] = []
+
+        for item in threadTableCellStateArray {
+            if seen.insert(item).inserted {
+                uniqueItems.append(item)
+            }
+        }
+
         snapshot.appendItems(
-            threadTableCellStateArray,
+            uniqueItems,
             toSection: .threads
         )
 
@@ -258,7 +269,7 @@ extension ThreadsListDataSource : NSFetchedResultsControllerDelegate {
         
         threadsResultsController.delegate = self
         
-        CoreDataManager.sharedManager.persistentContainer.viewContext.perform {
+        CoreDataManager.sharedManager.persistentContainer.viewContext.performSafely {
             do {
                 try self.threadsResultsController.performFetch()
             } catch {}

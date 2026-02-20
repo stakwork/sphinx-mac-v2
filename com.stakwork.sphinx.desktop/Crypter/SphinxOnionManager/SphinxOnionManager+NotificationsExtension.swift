@@ -11,46 +11,52 @@ import AppKit
 
 extension SphinxOnionManager {
     func sendNotification(message: TransactionMessage?) {
-        guard let message = message else {
-            return
-        }
-        
-        setAppBadgeCount()
-        
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-            
-            if message.isOutgoing() || message.shouldAvoidShowingBubble() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
                 return
             }
             
-            guard let chat = message.chat else {
+            guard let message = message else {
                 return
             }
             
-            if chat.isMuted() {
-                return
-            }
+            self.setAppBadgeCount()
             
-            if chat.willNotifyOnlyMentions() && !message.push {
-                return
-            }
-            
-            if chat.willNotifyOnlyMentions() {
-                if !message.containsMention() {
+            if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
+                
+                if message.isOutgoing() || message.shouldAvoidShowingBubble() {
                     return
                 }
+                
+                guard let chat = message.chat else {
+                    return
+                }
+                
+                if chat.isMuted() {
+                    return
+                }
+                
+                if chat.willNotifyOnlyMentions() && !message.push {
+                    return
+                }
+                
+                if chat.willNotifyOnlyMentions() {
+                    if !message.containsMention() {
+                        return
+                    }
+                }
+                
+                if let tribePubKey = chat.ownerPubkey, self.recentlyJoinedTribePubKeys.contains(tribePubKey) {
+                    return
+                }
+                
+                appDelegate.sendNotification(message: message)
             }
-            
-            if let tribePubKey = chat.ownerPubkey, recentlyJoinedTribePubKeys.contains(tribePubKey) {
-                return
-            }
-            
-            appDelegate.sendNotification(message: message)
         }
     }
     
     func setAppBadgeCount() {
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let self = self else {
                 return
             }

@@ -121,7 +121,7 @@ class ChatHeaderView: NSView, LoadableNib {
     ) {
         scheduleIcon.isHidden = true
         
-        if lastMessage.isOutgoing(ownerId: ownerId), !lastMessage.isConfirmedAsReceived() && !lastMessage.failed() {
+        if lastMessage.isPendingMessage(ownerId: ownerId) {
             let thirtySecondsAgo = Date().addingTimeInterval(-30)
             if lastMessage.messageDate < thirtySecondsAgo {
                 scheduleIcon.isHidden = false

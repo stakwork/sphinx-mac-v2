@@ -43,6 +43,9 @@ class SphinxOnionManager : NSObject {
     
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
+    var messagePerContactFetchParams : MessagePerContactFetchParams? = nil
+    
+    var recentlyJoinedTribePubKeys: [String] = []
     
     var deletedTribesPubKeys: [String] {
         get {
@@ -53,8 +56,6 @@ class SphinxOnionManager : NSObject {
         }
     }
     
-    var recentlyJoinedTribePubKeys: [String] = []
-    
     var isV2InitialSetup: Bool = false
     var isV2Restore: Bool = false
     var shouldPostUpdates : Bool = false
@@ -64,30 +65,31 @@ class SphinxOnionManager : NSObject {
     
     var restoredContactInfoTracker = [String]()
     
-    var vc: NSViewController! = nil
     var mqtt: CocoaMQTT! = nil
+    var vc: NSViewController! = nil
+    
+    var isConnected : Bool = false{
+        didSet{
+            NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
+        }
+    }
     
     var delayedRRObjects: [Int: RunReturn] = [:]
     var delayedRRTimers: [Int: Timer] = [:]
     var pingsMap: [String: String] = [:]
     var readyForPing = false
     
-    var isConnected : Bool = false {
-        didSet{
-            NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
-        }
-    }
-    
     var msgTotalCounts : MsgTotalCounts? = nil
     
     typealias RestoreProgressCallback = (Int) -> Void
-    var messageRestoreCallback : RestoreProgressCallback? = nil
-    var contactRestoreCallback : RestoreProgressCallback? = nil
+    var messageRestoreCallback: RestoreProgressCallback? = nil
+    var contactRestoreCallback: RestoreProgressCallback? = nil
     var hideRestoreCallback: ((Bool) -> ())? = nil
+    var errorCallback: (() -> ())? = nil
     var tribeMembersCallback: (([String: AnyObject]) -> ())? = nil
+    var paymentsHistoryCallback: ((String?, String?) -> ())? = nil
     var inviteCreationCallback: ((String?) -> ())? = nil
     var mqttDisconnectCallback: (() -> ())? = nil
-    var paymentsHistoryCallback: ((String?, String?) -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
     var appSessionPin : String? = nil
@@ -95,7 +97,7 @@ class SphinxOnionManager : NSObject {
     
     public static let kContactsBatchSize = 100
     public static let kMessageBatchSize = 100
-    
+
     public static let kCompleteStatus = "COMPLETE"
     public static let kFailedStatus = "FAILED"
     
@@ -220,6 +222,9 @@ class SphinxOnionManager : NSObject {
     var totalMsgsCountCallback: (() -> ())? = nil
     var firstSCIDMsgsCallback: (([Msg]) -> ())? = nil
     var onMessageRestoredCallback: (([Msg]) -> ())? = nil
+    
+    var restoringMsgsForPublicKey: String? = nil
+    var onMessagePerPublicKeyRestoredCallback: ((Int) -> ())? = nil
     
     var maxMessageIndex: Int? {
         get {
@@ -370,8 +375,6 @@ class SphinxOnionManager : NSObject {
         if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
             if !isV2Restore {
                 getReads()
-                getMuteLevels()
-                getMessagesStatusForPendingMessages()
                 hideRestoreViewCallback?(false)
             }
             return
@@ -380,6 +383,12 @@ class SphinxOnionManager : NSObject {
             connectingCallback: connectingCallback,
             hideRestoreViewCallback: hideRestoreViewCallback
         )
+    }
+    
+    func startNewMsgsSync() {
+        self.getReads()
+        self.getMuteLevels()
+        self.syncNewMessages()
     }
     
     func syncNewMessages() {
@@ -436,7 +445,7 @@ class SphinxOnionManager : NSObject {
             
             self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
             
-            if (self.isV2InitialSetup) {
+            if self.isV2InitialSetup {
                 self.isV2InitialSetup = false
                 self.doInitialInviteSetup()
             }
@@ -452,9 +461,7 @@ class SphinxOnionManager : NSObject {
                 self.contactRestoreCallback = nil
                 self.messageRestoreCallback = nil
 
-                self.getReads()
-                self.getMuteLevels()
-                self.syncNewMessages()
+                self.startNewMsgsSync()
             }
         }
         
@@ -549,6 +556,12 @@ class SphinxOnionManager : NSObject {
                 network: network
             )
 
+//            listAndUpdateContacts()
+        } catch {}
+    }
+    
+    func listAndUpdateContacts() {
+        do {
             let listContactsResponse = try Sphinx.listContacts(state: loadOnionStateAsData())
             print("MY LIST CONTACTS RESPONSE \(listContactsResponse)")
         } catch {}
@@ -691,6 +704,17 @@ extension SphinxOnionManager {//Sign Up UI Related:
                 callback()
             }
         )
+    }
+    
+    func getPersonalKeys() -> Keys? {
+        if let mnemonic = UserData.sharedInstance.getMnemonic() {
+            if let seed = try? Sphinx.mnemonicToSeed(mnemonic: mnemonic) {
+                if let keys = try? Sphinx.nodeKeys(net: "bitcoin", seed: seed) {
+                    return keys
+                }
+            }
+        }
+        return nil
     }
 }
 

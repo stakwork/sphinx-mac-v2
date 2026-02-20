@@ -785,7 +785,7 @@ extension MediaLoader {
     class func deleteOldMedia() {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform {
+        backgroundContext.performSafely {
             if let halfMonthAgo = Calendar.current.date(byAdding: .day, value: -15, to: Date()) {
                 for attachment in TransactionMessage.getAttachmentsBefore(
                     date: halfMonthAgo,

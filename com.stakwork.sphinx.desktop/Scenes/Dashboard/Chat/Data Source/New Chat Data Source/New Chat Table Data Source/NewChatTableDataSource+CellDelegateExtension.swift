@@ -46,13 +46,15 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         {
             self.saveSnapshotCurrentState()
             var snapshot = self.dataSource.snapshot()
-            
+
             if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                // Use async instead of sync to avoid blocking main thread
+                dataSourceQueue.async { [weak self] in
                     snapshot.reloadItems([tableCellState.1])
-                    
+
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        // Disable animation for smoother scrolling
+                        self?.dataSource.apply(snapshot, animatingDifferences: false)
                     }
                 }
             }
@@ -202,18 +204,24 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                     mediaKey = tableCellState.1.threadOriginalMessageMedia?.mediaKey
                 }
                 
-                MediaLoader.loadImage(url: imageUrl, message: message, mediaKey: mediaKey, completion: { messageId, image, gifData in
-                    let updatedMediaData = MessageTableCellState.MediaData(
-                        image: image,
-                        data: gifData
-                    )
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
-                }, errorCompletion: { messageId in
-                    let updatedMediaData = MessageTableCellState.MediaData(
-                        failed: true
-                    )
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
-                })
+                MediaPreloadManager.sharedInstance.loadImage(
+                    url: imageUrl,
+                    message: message,
+                    mediaKey: mediaKey,
+                    completion: { [weak self] messageId, image, gifData in
+                        let updatedMediaData = MessageTableCellState.MediaData(
+                            image: image,
+                            data: gifData
+                        )
+                        self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                    },
+                    errorCompletion: { [weak self] messageId in
+                        let updatedMediaData = MessageTableCellState.MediaData(
+                            failed: true
+                        )
+                        self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                    }
+                )
             }
         }
     }
@@ -306,15 +314,15 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                 return
             }
             
-            MediaLoader.loadFileData(
+            MediaPreloadManager.sharedInstance.loadFile(
                 url: url,
                 isPdf: false,
                 message: message,
                 mediaKey: mediaKey,
-                completion: { (messageId, data, fileInfo) in
-                    
-                    if let duration = self.audioPlayerHelper.getAudioDuration(data: data) {
-                        
+                completion: { [weak self] (messageId, data, fileInfo) in
+
+                    if let duration = self?.audioPlayerHelper.getAudioDuration(data: data) {
+
                         let updatedMediaData = MessageTableCellState.MediaData(
                             image: nil,
                             data: data,
@@ -326,15 +334,15 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                                 currentTime: 0
                             )
                         )
-                        
-                        self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+
+                        self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
                     }
                 },
-                errorCompletion: { messageId in
+                errorCompletion: { [weak self] messageId in
                     let updatedMediaData = MessageTableCellState.MediaData(
                         failed: true
                     )
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                    self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
                 }
             )
         }
@@ -348,24 +356,24 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         mediaKey: String?,
         isPdf: Bool
     ) {
-        MediaLoader.loadFileData(
+        MediaPreloadManager.sharedInstance.loadFile(
             url: url,
             isPdf: isPdf,
             message: message,
             mediaKey: mediaKey,
-            completion: { (messageId, data, fileInfo) in
+            completion: { [weak self] (messageId, data, fileInfo) in
                 let updatedMediaData = MessageTableCellState.MediaData(
                     image: fileInfo.previewImage,
                     data: data,
                     fileInfo: fileInfo
                 )
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
             },
-            errorCompletion: { messageId in
+            errorCompletion: { [weak self] messageId in
                 let updatedMediaData = MessageTableCellState.MediaData(
                     failed: true
                 )
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
             }
         )
     }
@@ -393,18 +401,24 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                 return
             }
             
-            MediaLoader.loadVideo(url: url, message: message, mediaKey: mediaKey, completion: { (messageId, data, image) in
-                let updatedMediaData = MessageTableCellState.MediaData(
-                    image: image,
-                    data: data
-                )
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
-            }, errorCompletion: { messageId in
-                let updatedMediaData = MessageTableCellState.MediaData(
-                    failed: true
-                )
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
-            })
+            MediaPreloadManager.sharedInstance.loadVideo(
+                url: url,
+                message: message,
+                mediaKey: mediaKey,
+                completion: { [weak self] (messageId, data, image) in
+                    let updatedMediaData = MessageTableCellState.MediaData(
+                        image: image,
+                        data: data
+                    )
+                    self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                },
+                errorCompletion: { [weak self] messageId in
+                    let updatedMediaData = MessageTableCellState.MediaData(
+                        failed: true
+                    )
+                    self?.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId, with: updatedMediaData)
+                }
+            )
         }
     }
     
@@ -652,19 +666,20 @@ extension NewChatTableDataSource {
 
             self.saveSnapshotCurrentState()
             var snapshot = self.dataSource.snapshot()
-            
+
             if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                dataSourceQueue.sync {
+                // Use async instead of sync to avoid blocking main thread
+                dataSourceQueue.async { [weak self] in
                     snapshot.reloadItems([tableCellState.1])
-                    
+
                     DispatchQueue.main.async {
-                        self.dataSource.apply(snapshot, animatingDifferences: true)
+                        self?.dataSource.apply(snapshot, animatingDifferences: false)
                     }
                 }
             }
         }
     }
-    
+
     func updateMessageTableCellStateFor(
         rowIndex: Int?,
         messageId: Int,
@@ -676,14 +691,15 @@ extension NewChatTableDataSource {
         ) {
             if updatedUploadProgressData.progress < 100 {
                 self.uploadingProgress[messageId] = updatedUploadProgressData
-                
+
                 var snapshot = self.dataSource.snapshot()
 
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                    // Use async instead of sync to avoid blocking main thread
+                    self.dataSourceQueue.async { [weak self] in
                         snapshot.reloadItems([tableCellState.1])
                         DispatchQueue.main.async {
-                            self.dataSource.apply(snapshot, animatingDifferences: false)
+                            self?.dataSource.apply(snapshot, animatingDifferences: false)
                         }
                     }
                 }
@@ -715,12 +731,13 @@ extension NewChatTableDataSource {
                     return
                 }
                 var snapshot = self.dataSource.snapshot()
-                
+
                 if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    self.dataSourceQueue.sync {
+                    // Use async instead of sync to avoid blocking main thread
+                    self.dataSourceQueue.async { [weak self] in
                         snapshot.reloadItems([tableCellState.1])
                         DispatchQueue.main.async {
-                            self.dataSource.apply(snapshot, animatingDifferences: true)
+                            self?.dataSource.apply(snapshot, animatingDifferences: false)
                         }
                     }
                 }
@@ -1167,33 +1184,32 @@ extension NewChatTableDataSource {
         messageId: Int? = nil,
         and rowIndex: Int? = nil
     ) -> (Int, MessageTableCellState)? {
-        
+
         if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
             return getThreadOriginalMessageTableCellStateFor()
         }
-        
-        var tableCellState: (Int, MessageTableCellState)? = nil
-        
-        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex, messageTableCellStateArray[rowIndex].message?.id == messageId {
-            return (rowIndex, messageTableCellStateArray[rowIndex])
-        }
-        
-        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex, messageTableCellStateArray[rowIndex].threadOriginalMessage?.id == messageId {
-            return (rowIndex, messageTableCellStateArray[rowIndex])
-        }
-        
-        for i in 0..<messageTableCellStateArray.count {
-            if messageTableCellStateArray[i].message?.id == messageId {
-                tableCellState = (i, messageTableCellStateArray[i])
-                break
+
+        // Fast path: check if rowIndex matches the expected messageId
+        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex {
+            let state = messageTableCellStateArray[rowIndex]
+            if state.message?.id == messageId || state.threadOriginalMessage?.id == messageId {
+                return (rowIndex, state)
             }
         }
-        
-        if let rowIndex = rowIndex, tableCellState == nil && messageTableCellStateArray.count > rowIndex {
+
+        // O(1) lookup using the index map instead of O(n) linear search
+        if let messageId = messageId, let index = messageIdToIndexMap[messageId] {
+            if index < messageTableCellStateArray.count {
+                return (index, messageTableCellStateArray[index])
+            }
+        }
+
+        // Fallback: return state at rowIndex if no match found
+        if let rowIndex = rowIndex, messageTableCellStateArray.count > rowIndex {
             return (rowIndex, messageTableCellStateArray[rowIndex])
         }
-        
-        return tableCellState
+
+        return nil
     }
     
     func getThreadOriginalMessageTableCellStateFor() -> (Int, MessageTableCellState)? {
@@ -1221,15 +1237,18 @@ extension NewChatTableDataSource {
     
     func getTableCellStatesForVisibleRows() -> [MessageTableCellState] {
         let rowIndexes = collectionView.indexPathsForVisibleItems().map({ $0.item })
-        
+        let arrayCount = messageTableCellStateArray.count
+
         var tableCellStates: [MessageTableCellState] = []
-        
+
         for rowIndex in rowIndexes {
-            tableCellStates.append(
-                messageTableCellStateArray[rowIndex]
-            )
+            // Bounds checking to prevent crash
+            guard rowIndex >= 0, rowIndex < arrayCount else {
+                continue
+            }
+            tableCellStates.append(messageTableCellStateArray[rowIndex])
         }
-        
+
         return tableCellStates
     }
 }

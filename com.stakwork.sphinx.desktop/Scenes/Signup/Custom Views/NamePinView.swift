@@ -86,21 +86,21 @@ class NamePinView: NSView, LoadableNib {
             label: "Nickname",
             textColor: NSColor.white,
             backgroundColor: NSColor(hex: "#101317"),
-            field: .Name,
+            field: Fields.Name.rawValue,
             delegate: self
         )
         
         pinField.configureWith(
             placeHolder: "set.pin".localized,
             label: "set.pin".localized,
-            field: .PIN,
+            field: NamePinView.Fields.PIN.rawValue,
             delegate: self
         )
         
         confirmPinField.configureWith(
             placeHolder: "confirm.pin".localized,
             label: "confirm.pin".localized,
-            field: .ConfirmPIN,
+            field: NamePinView.Fields.ConfirmPIN.rawValue,
             delegate: self
         )
     }

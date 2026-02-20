@@ -49,7 +49,6 @@ class DashboardViewController: NSViewController {
     var messageBubbleHelper = NewMessageBubbleHelper()
     
     var newDetailViewController : NewChatViewController? = nil
-    var feedDashboardViewController : FeedDashboardViewController? = nil
     var listViewController : ChatListViewController? = nil
     
     let kDetailSegueIdentifier = "ChatViewControllerSegue"
@@ -66,6 +65,19 @@ class DashboardViewController: NSViewController {
     
     var resizeTimer : Timer? = nil
     var escapeMonitor: Any? = nil
+    
+    internal lazy var feedDashboardViewController: FeedDashboardViewController = {
+        FeedDashboardViewController.instantiate()
+    }()
+    
+    internal lazy var graphDashboardViewController: WebAppViewController? = {
+        WebAppViewController.instantiate(
+            chat: nil,
+            appURL: UserData.sharedInstance.getPersonalGraphUrl(),
+            isAppURL: true,
+            isPersonalGraph: true
+        )
+    }()
     
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
@@ -102,16 +114,16 @@ class DashboardViewController: NSViewController {
     
     override func viewDidAppear() {
         super.viewDidAppear()
-        
+
         handleDeepLink()
         addPresenterVC()
         addDetailVCPresenter()
-        
+
         Chat.processTimezoneChanges()
         connectToServer()
         askForNotificationsPermission()
     }
-    
+
     func setupObservers() {
         DistributedNotificationCenter.default().addObserver(
             forName: .onInterfaceThemeChanged,
@@ -188,12 +200,15 @@ class DashboardViewController: NSViewController {
                 
                 if chat.isPublicGroup() {
                     self?.contactsService.selectedTribeId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .tribes
                     self?.listViewController?.setActiveTab(.tribes)
                 } else {
                     self?.contactsService.selectedFriendId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .friends
                     self?.listViewController?.setActiveTab(.friends)
                 }
                 
+                self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
                 self?.shouldGoToChat(chatId: chat.id)
             }
         }
@@ -375,7 +390,7 @@ class DashboardViewController: NSViewController {
             self.listViewController?.headerLoading = false
             
             self.shouldHideRetoreModal()
-            self.refreshUnreadStatus()
+            self.refreshUnreadStatus()  
             
             if isRestore {
                 self.finishUserInfoSetup()
@@ -387,7 +402,7 @@ class DashboardViewController: NSViewController {
         DispatchQueue.global(qos: .background).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
             
-            backgroundContext.perform { [weak self] in
+            backgroundContext.performSafely { [weak self] in
                 guard let _ = self else {
                     return
                 }
@@ -654,7 +669,7 @@ class DashboardViewController: NSViewController {
         
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
-        backgroundContext.perform { [weak self] in
+        backgroundContext.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }
@@ -745,7 +760,8 @@ extension DashboardViewController : NSSplitViewDelegate {
 
     @objc func resizeSubviews() {
         newDetailViewController?.resizeSubviews(frame: rightSplittedView.bounds)
-        feedDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
+        feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
+        graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
@@ -774,23 +790,29 @@ extension DashboardViewController : DashboardVCDelegate {
         )
     }
     
-    func didSwitchToTab() {
+    func didSwitchToTab(_ tab: ChatListViewController.DashboardTab) {
         guard let (chatId, contactId) = contactsService.getObjectIdForCurrentSelection() else {
             return
         }
-        
-        if let chatId = chatId {
-            didClickOnChatRow(
-                chatId: chatId,
-                contactId: nil
-            )
-        } else if let contactId = contactId {
-            didClickOnChatRow(
-                chatId: nil,
-                contactId: contactId
-            )
-        } else {
+        switch (tab) {
+        case .friends, .tribes:
+            if let chatId = chatId {
+                didClickOnChatRow(
+                    chatId: chatId,
+                    contactId: nil
+                )
+            } else if let contactId = contactId {
+                didClickOnChatRow(
+                    chatId: nil,
+                    contactId: contactId
+                )
+            }
+        case .feed:
             presentFeedDashboard()
+        case .graph:
+            presentGraphDashboard()
+        default:
+            break
         }
     }
     
@@ -869,26 +891,39 @@ extension DashboardViewController : DashboardVCDelegate {
             newDetailViewController = nil
         }
         
-        if let feedDashboardVC = feedDashboardViewController {
-            self.removeChildVC(child: feedDashboardVC)
-            
-            feedDashboardViewController = nil
+        self.removeChildVC(child: feedDashboardViewController)
+        
+        if let graphDashboardViewController = graphDashboardViewController {
+            self.removeChildVC(child: graphDashboardViewController)
         }
     }
     
     func presentFeedDashboard() {
         resetDetailViewController()
         
-        let feedDashboardVC = FeedDashboardViewController.instantiate()
-        
         self.addChildVC(
-            child: feedDashboardVC,
+            child: feedDashboardViewController,
             container: rightSplittedView
         )
         
         dashboardDetailViewController?.closeButtonTapped()
         
-        feedDashboardViewController = feedDashboardVC
+        deeplinkData = nil
+        
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
+    }
+    
+    func presentGraphDashboard() {
+        resetDetailViewController()
+        
+        if let graphDashboardViewController = graphDashboardViewController {
+            self.addChildVC(
+                child: graphDashboardViewController,
+                container: rightSplittedView
+            )
+        }
+        
+        dashboardDetailViewController?.closeButtonTapped()
         
         deeplinkData = nil
         

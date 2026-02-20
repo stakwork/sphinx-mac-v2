@@ -41,36 +41,31 @@ class MessageBoostImageView: NSView, LoadableNib {
         and direction: MessageTableCellState.MessageDirection,
         isThreadHeader: Bool = false
     ) {
-        
         let bubbleColor = isThreadHeader ? NSColor.Sphinx.NewHeaderBG : ( direction.isOutgoing() ? NSColor.Sphinx.SentMsgBG : NSColor.Sphinx.ReceivedMsgBG )
         circularBorderView.fillColor = bubbleColor
 
         circularView.fillColor = boost.senderColor ?? NSColor.Sphinx.SecondaryText
         initialsLabel.stringValue = (boost.senderAlias ?? "Unknown").getInitialsFromName()
 
+        imageView.image = nil
         imageView.isHidden = true
         imageView.sd_cancelCurrentImageLoad()
 
-        if let senderPic = boost.senderPic, let url = URL(string: senderPic) {
+        if let senderPic = boost.senderPic, let url = URL(string: senderPic), senderPic.isNotEmpty {
 
             let transformer = SDImageResizingTransformer(
                 size: CGSize(width: imageView.bounds.size.width * 2, height: imageView.bounds.size.height * 2),
                 scaleMode: .aspectFill
             )
 
+            imageView.isHidden = false
             imageView.rounded = true
             imageView.sd_setImage(
                 with: url,
                 placeholderImage: NSImage(named: "profileAvatar"),
                 options: [.scaleDownLargeImages, .decodeFirstFrameOnly, .progressiveLoad],
                 context: [.imageTransformer: transformer],
-                progress: nil,
-                completed: { (image, error, _, _) in
-                    if (error == nil) {
-                        self.imageView.isHidden = false
-                        self.imageView.image = image
-                    }
-                }
+                progress: nil
             )
         }
 

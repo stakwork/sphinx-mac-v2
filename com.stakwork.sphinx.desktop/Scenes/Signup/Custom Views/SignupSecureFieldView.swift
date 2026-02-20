@@ -18,7 +18,7 @@ class SignupSecureFieldView: SignupCommonSecureFieldView {
         backgroundColor: NSColor = NSColor(hex: "#101317"),
         color: NSColor = NSColor.white,
         placeHolderColor: NSColor = NSColor(hex: "#3B4755"),
-        field: NamePinView.Fields,
+        field: Int,
         delegate: SignupFieldViewDelegate
     ) {
         self.field = field
@@ -69,7 +69,7 @@ extension SignupSecureFieldView {
     
     func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         if (commandSelector == #selector(NSResponder.insertTab(_:))) {
-            self.delegate?.didUseTab?(field: field.rawValue)
+            self.delegate?.didUseTab?(field: field)
             return true
         }
         return false

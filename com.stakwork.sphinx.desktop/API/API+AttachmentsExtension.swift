@@ -246,4 +246,74 @@ extension API {
             }
         }
     }
+    
+    public func getPersonalPreferencesFile(
+        token: String,
+        callback: @escaping PreferencesCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        let url = "\(API.kAttachmentsServerUrl)/preferences"
+        
+        guard let request = createRequest(url, params: nil, method: "GET", token: token) else {
+            errorCallback()
+            return
+        }
+        
+        session()?.request(
+            request,
+            interceptor: interceptor
+        ).responseData { response in
+            switch response.result {
+            case .success(let data):
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let success = json["success"] as? Bool,
+                   success == false
+                {
+                    errorCallback()
+                    return
+                }
+                callback(data)
+            case .failure(_):
+                errorCallback()
+            }
+        }
+    }
+    
+    public func uploadPersonalPreferences(
+        data: Data,
+        pubkey: String,
+        token: String,
+        progressCallback: @escaping UploadProgressCallback,
+        callback: @escaping UploadAttachmentCallback,
+        errorCallback: @escaping ErrorCallback
+    ) {
+        let method = HTTPMethod(rawValue: "POST")
+        let url = "\(API.kAttachmentsServerUrl)/preferences"
+
+        var parameters: [String: String] = [String: String]()
+        parameters["pubkey"] = pubkey
+
+        let headers = HTTPHeaders(["Authorization": "Bearer \(token)"])
+
+        cancelUploadRequest()
+
+        uploadRequest = AF.upload(multipartFormData: { multipartFormData in
+            multipartFormData.append(pubkey.data(using: .utf8)!, withName: "pubkey")
+            multipartFormData.append(data, withName: "file", fileName: "preferences", mimeType: "application/octet-stream")
+        }, to: url, method: method, headers: headers).uploadProgress(queue: .main, closure: { progress in
+            let progressInt = Int(round(progress.fractionCompleted * 100))
+            progressCallback(progressInt)
+        }).responseJSON { (response) in
+            switch response.result {
+            case .success(let data):
+                if let json = data as? NSDictionary, (json["success"] as? Bool) == true {
+                    callback(true, json)
+                    return
+                }
+                errorCallback("Generic error")
+            case .failure(let error):
+                errorCallback(error.errorDescription ?? "Generic error")
+            }
+        }
+    }
 }

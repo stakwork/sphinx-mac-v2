@@ -48,7 +48,7 @@ class ChangePinView: NSView, LoadableNib {
             backgroundColor: NSColor.Sphinx.PinFieldBackground,
             color: NSColor.Sphinx.Text,
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            field: .OldPIN,
+            field: NamePinView.Fields.OldPIN.rawValue,
             delegate: self
         )
         
@@ -58,7 +58,7 @@ class ChangePinView: NSView, LoadableNib {
             backgroundColor: NSColor.Sphinx.PinFieldBackground,
             color: NSColor.Sphinx.Text,
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            field: .PIN,
+            field: NamePinView.Fields.PIN.rawValue,
             delegate: self
         )
         
@@ -68,7 +68,7 @@ class ChangePinView: NSView, LoadableNib {
             backgroundColor: NSColor.Sphinx.PinFieldBackground,
             color: NSColor.Sphinx.Text,
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            field: .ConfirmPIN,
+            field: NamePinView.Fields.ConfirmPIN.rawValue,
             delegate: self
         )
     }

@@ -13,16 +13,17 @@ extension SphinxOnionManager {
         var chatListUnreadDict = [Int: Int]()
         
         if let lastRead = rr.lastRead {
-            let lastReadMap = parse(jsonString: lastRead)
-            
-            let pubKeys = lastReadMap.compactMap({ $0.key })
-            
-            backgroundContext.perform { [weak self] in
+            let context = backgroundContext
+            context.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
-                let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: self.backgroundContext)
-                let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: self.backgroundContext)
+                let lastReadMap = parse(jsonString: lastRead)
+                
+                let pubKeys = lastReadMap.compactMap({ $0.key })
+                
+                let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: context)
+                let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
                 
                 for (pubKey, lastReadId) in lastReadMap {
                     guard let lastReadId = lastReadId as? Int else {
@@ -40,7 +41,9 @@ extension SphinxOnionManager {
                         )
                     }
                 }
-                self.updateChatReadStatus(chatListUnreadDict: chatListUnreadDict)
+                self.updateChatReadStatus(chatListUnreadDict: chatListUnreadDict, context: context)
+                
+                context.saveContext()
             }
         }
         
@@ -63,37 +66,62 @@ extension SphinxOnionManager {
         }
     }
 
-    func updateChatReadStatus(chatListUnreadDict: [Int: Int]) {
+    func updateChatReadStatus(
+        chatListUnreadDict: [Int: Int],
+        context: NSManagedObjectContext
+    ) {
         for (chatId, lastReadId) in chatListUnreadDict {
             Chat.updateMessageReadStatus(
                 chatId: chatId,
                 lastReadId: lastReadId,
-                context: backgroundContext
+                context: context
             )
         }
-        backgroundContext.saveContext()
         setAppBadgeCount()
     }
 
     func updateMuteLevels(pubkeyToMuteLevelDict: [String: Any]) {
-        backgroundContext.perform { [weak self] in
-            guard let self = self else {
+        if pubkeyToMuteLevelDict.isEmpty {
+            return
+        }
+        let context = backgroundContext
+        context.performSafely { [weak self] in
+            guard let _ = self else {
                 return
             }
+            let pubKeys = pubkeyToMuteLevelDict.compactMap({ $0.key })
+            let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
+            let contactsMap = Dictionary(
+                contacts.compactMap {
+                    $0.setContactConversation(context: context)
+
+                    if let pubkey = $0.publicKey {
+                        return (pubkey, $0)
+                    }
+                    return nil
+                },
+                uniquingKeysWith: { first, _ in first }
+            )
+
+            let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: context)
+            let tribesMap = Dictionary(
+                tribes.compactMap {
+                    if let ownerPubkey = $0.ownerPubkey {
+                        return (ownerPubkey, $0)
+                    }
+                    return nil
+                },
+                uniquingKeysWith: { first, _ in first }
+            )
+            
             for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
-                let chat = UserContact.getContactWith(
-                    pubkey: pubkey,
-                    managedContext: self.backgroundContext
-                )?.getContactChat(context: self.backgroundContext) ?? Chat.getTribeChatWithOwnerPubkey(
-                    ownerPubkey: pubkey,
-                    context: self.backgroundContext
-                )
-                
-                if let level = muteLevel as? Int, (chat?.notify ?? -1) != level {
-                    chat?.notify = level
-                    self.backgroundContext.saveContext()
+                if let chat = contactsMap[pubkey]?.getContactChat(context: context) ?? tribesMap[pubkey] {
+                    if let level = muteLevel as? Int, chat.notify != level {
+                        chat.notify = level
+                    }
                 }
             }
+            context.saveContext()
         }
     }
 

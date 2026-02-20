@@ -18,6 +18,7 @@ typealias UpdateRoutingInfoCallback = ((String?, String?) -> ())
 typealias FetchRoutingInfoCallback = ((String?) -> ())
 typealias CreateGroupCallback = ((JSON) -> ())
 typealias TemplatesCallback = (([ImageTemplate]) -> ())
+typealias PreferencesCallback = ((Data) -> ())
 typealias PinMessageCallback = ((String) -> ())
 typealias ErrorCallback = ((String) -> ())
 typealias LiveKitTokenCallback = ((String, String) -> ())
@@ -116,6 +117,24 @@ class API {
         set {
             self.storedVideoCallServer = newValue
             UserDefaults.Keys.meetingServerURL.set(newValue)
+        }
+    }
+    
+    var storedPersonalGraphUrl: String? = nil
+    public var kPersonalGraphUrl : String {
+        get {
+            if let storedPersonalGraphUrl = storedPersonalGraphUrl {
+                return storedPersonalGraphUrl
+            }
+            if let personalGraphUrl = UserDefaults.Keys.personalGraphURL.get(defaultValue: ""), personalGraphUrl != "" {
+                self.storedPersonalGraphUrl = personalGraphUrl
+                return personalGraphUrl
+            }
+            return ""
+        }
+        set {
+            self.storedPersonalGraphUrl = newValue
+            UserDefaults.Keys.personalGraphURL.set(newValue)
         }
     }
     

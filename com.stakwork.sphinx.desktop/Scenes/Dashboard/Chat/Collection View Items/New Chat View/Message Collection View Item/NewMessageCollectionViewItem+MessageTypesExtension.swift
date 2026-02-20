@@ -74,7 +74,7 @@ extension NewMessageCollectionViewItem {
             audioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: messageId,
@@ -100,7 +100,7 @@ extension NewMessageCollectionViewItem {
             podcastAudioView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldPodcastCommentDataFor(
                         messageId: messageId,
@@ -119,6 +119,9 @@ extension NewMessageCollectionViewItem {
         if let messageMedia = messageMedia {
             if messageMedia.isImageLink {
                 if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
                     mediaMessageView.configureWith(
                         messageMedia: messageMedia,
                         mediaData: mediaData,
@@ -127,7 +130,7 @@ extension NewMessageCollectionViewItem {
                     )
                     mediaMessageView.isHidden = false
                 } else if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
                         self.delegate?.shouldLoadLinkImageDataFor(
                             messageId: messageId,
@@ -145,7 +148,7 @@ extension NewMessageCollectionViewItem {
                 mediaMessageView.isHidden = false
                 
                 if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
                         if messageMedia.isImage {
                             self.delegate?.shouldLoadImageDataFor(
@@ -188,7 +191,7 @@ extension NewMessageCollectionViewItem {
             fileDetailsView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: messageId,
@@ -352,7 +355,7 @@ extension NewMessageCollectionViewItem {
             textMessageView.isHidden = false
             
             if let messageId = messageId, messageContent.shouldLoadPaidText {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadTextDataFor(
                         messageId: messageId,
@@ -395,7 +398,7 @@ extension NewMessageCollectionViewItem {
             linkPreviewView.isHidden = false
             
             if let messageId = messageId, linkData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadLinkDataFor(
                         messageId: messageId,
@@ -426,7 +429,7 @@ extension NewMessageCollectionViewItem {
                 tribeLinkPreviewView.configureWith(tribeData: tribeData, and: bubble, delegate: self)
                 tribeLinkPreviewView.isHidden = false
             } else if let messageId = messageId {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadTribeInfoFor(
                         messageId: messageId,

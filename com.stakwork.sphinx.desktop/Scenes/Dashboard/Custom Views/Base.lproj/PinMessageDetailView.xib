@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -116,13 +116,13 @@
                                                 </textFieldCell>
                                             </textField>
                                             <box boxType="custom" borderType="none" cornerRadius="4" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="FwG-ds-BBA">
-                                                <rect key="frame" x="60" y="12" width="153" height="50"/>
+                                                <rect key="frame" x="60" y="12" width="121" height="50"/>
                                                 <view key="contentView" id="LmM-Rk-5Lu">
-                                                    <rect key="frame" x="0.0" y="0.0" width="153" height="50"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="121" height="50"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="jar-q7-f1c" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
-                                                            <rect key="frame" x="14" y="16" width="125" height="18"/>
+                                                            <rect key="frame" x="-2" y="16" width="125" height="18"/>
                                                             <textFieldCell key="cell" selectable="YES" title="This is a message" id="kr9-cA-LNR">
                                                                 <font key="font" size="15" name="Roboto-Regular"/>
                                                                 <color key="textColor" name="Text"/>
@@ -132,8 +132,8 @@
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstAttribute="bottom" secondItem="jar-q7-f1c" secondAttribute="bottom" priority="750" constant="16" id="7fJ-hT-x1L"/>
-                                                        <constraint firstItem="jar-q7-f1c" firstAttribute="leading" secondItem="LmM-Rk-5Lu" secondAttribute="leading" constant="16" id="JvH-PI-aJl"/>
-                                                        <constraint firstAttribute="trailing" secondItem="jar-q7-f1c" secondAttribute="trailing" constant="16" id="krm-pX-JtI"/>
+                                                        <constraint firstItem="jar-q7-f1c" firstAttribute="leading" secondItem="LmM-Rk-5Lu" secondAttribute="leading" id="JvH-PI-aJl"/>
+                                                        <constraint firstAttribute="trailing" secondItem="jar-q7-f1c" secondAttribute="trailing" id="krm-pX-JtI"/>
                                                         <constraint firstItem="jar-q7-f1c" firstAttribute="top" secondItem="LmM-Rk-5Lu" secondAttribute="top" constant="16" id="xuD-Q1-Jkp"/>
                                                     </constraints>
                                                 </view>

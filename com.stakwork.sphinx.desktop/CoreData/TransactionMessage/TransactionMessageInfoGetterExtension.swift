@@ -222,7 +222,7 @@ extension TransactionMessage {
     func isPendingMessage(
         ownerId: Int? = nil
     ) -> Bool {
-        return isOutgoing(ownerId: ownerId) && !isConfirmedAsReceived() && !failed() && (isTextMessage() || isAttachment())
+        return isOutgoing(ownerId: ownerId) && !isConfirmedAsReceived() && !failed() && isDeleted() && (isTextMessage() || isAttachment())
     }
     
     func isSeen(
@@ -1052,9 +1052,7 @@ extension TransactionMessage {
     }
     
     func setAsLastMessage() {
-        guard let lastMessageDate = self.chat?.lastMessage?.date,
-              SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: self.id) == false //ignore temporary id hashes
-        else {
+        guard let lastMessageDate = self.chat?.lastMessage?.date else {
             self.chat?.lastMessage = self
             return
         }

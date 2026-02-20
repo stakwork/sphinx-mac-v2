@@ -175,7 +175,7 @@
                                                     </constraints>
                                                 </customView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o0s-gd-MXD" customClass="MessageTextField" customModule="Sphinx" customModuleProvider="target">
-                                                    <rect key="frame" x="14" y="16" width="556" height="120"/>
+                                                    <rect key="frame" x="-2" y="16" width="588" height="120"/>
                                                     <textFieldCell key="cell" selectable="YES" title="Label" id="wQx-gQ-7cJ">
                                                         <font key="font" metaFont="system" size="16"/>
                                                         <color key="textColor" name="Text"/>
@@ -184,8 +184,8 @@
                                                 </textField>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="o0s-gd-MXD" firstAttribute="leading" secondItem="oDd-gg-HZ8" secondAttribute="leading" constant="16" id="2Mb-Zo-EjO"/>
-                                                <constraint firstAttribute="trailing" secondItem="o0s-gd-MXD" secondAttribute="trailing" constant="32" id="6oX-0I-Cv6"/>
+                                                <constraint firstItem="o0s-gd-MXD" firstAttribute="leading" secondItem="oDd-gg-HZ8" secondAttribute="leading" id="2Mb-Zo-EjO"/>
+                                                <constraint firstAttribute="trailing" secondItem="o0s-gd-MXD" secondAttribute="trailing" constant="16" id="6oX-0I-Cv6"/>
                                                 <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="GPz-YI-Zzj"/>
                                                 <constraint firstItem="o0s-gd-MXD" firstAttribute="top" secondItem="oDd-gg-HZ8" secondAttribute="top" id="KwG-lv-xgB"/>
                                                 <constraint firstAttribute="bottom" secondItem="o0s-gd-MXD" secondAttribute="bottom" constant="16" id="cX0-DG-YiD"/>

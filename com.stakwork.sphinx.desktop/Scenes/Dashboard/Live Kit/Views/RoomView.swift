@@ -18,6 +18,7 @@ import LiveKit
 import SFSafeSymbols
 import SwiftUI
 import SDWebImageSwiftUI
+import AVFoundation
 
 let adaptiveMin = 300.0
 let toolbarPlacement: ToolbarItemPlacement = .primaryAction
@@ -87,8 +88,17 @@ struct RoomView: View {
     @ObservedObject private var windowAccess = WindowAccess()
 
     @State private var showConnectionTime = true
-    @State private var canSwitchCameraPosition = false    
-    
+    @State private var canSwitchCameraPosition = false
+
+    // Call timer
+    @State private var callElapsedTime: TimeInterval = 0
+    @State private var callTimer: Timer? = nil
+
+    // Participant join alert
+    @State private var joinedParticipant: Participant? = nil
+    @State private var showJoinAlert: Bool = false
+    @State private var previousParticipantIds: Set<String> = []
+
     var shouldStartRecording: Bool = true
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
@@ -98,7 +108,142 @@ struct RoomView: View {
     ) {
         self.shouldStartRecording = shouldStartRecording
     }
-    
+
+    // MARK: - Call Timer
+
+    /// Returns the earliest joinedAt time from all participants as the room start time
+    private var roomStartTime: Date? {
+        let allJoinTimes = room.allParticipants.values.compactMap { $0.joinedAt }
+        return allJoinTimes.min()
+    }
+
+    /// Formats a TimeInterval as MM:SS or HH:MM:SS if over an hour
+    private func formatElapsedTime(_ interval: TimeInterval) -> String {
+        let totalSeconds = Int(interval)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
+
+    /// Starts the call timer using the room start time
+    private func startCallTimer() {
+        // Invalidate any existing timer
+        callTimer?.invalidate()
+
+        // Update immediately
+        updateElapsedTime()
+
+        // Start periodic updates
+        callTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            Task { @MainActor in
+                updateElapsedTime()
+            }
+        }
+    }
+
+    /// Updates the elapsed time based on room start time
+    private func updateElapsedTime() {
+        if let startTime = roomStartTime {
+            callElapsedTime = Date().timeIntervalSince(startTime)
+        }
+    }
+
+    /// Stops the call timer
+    private func stopCallTimer() {
+        callTimer?.invalidate()
+        callTimer = nil
+    }
+
+    // MARK: - Participant Join Alert
+
+    /// Checks for new participants and shows join alert
+    private func checkForNewParticipants() {
+        let currentIds = Set(room.allParticipants.values.compactMap { $0.sid?.stringValue })
+
+        // Find newly joined participants (excluding local participant)
+        let newIds = currentIds.subtracting(previousParticipantIds)
+
+        for newId in newIds {
+            if let participant = room.allParticipants.values.first(where: { $0.sid?.stringValue == newId }),
+               !(participant is LocalParticipant) {
+                showParticipantJoinAlert(participant)
+                break // Show one at a time
+            }
+        }
+
+        previousParticipantIds = currentIds
+    }
+
+    /// Shows the join alert for a participant
+    private func showParticipantJoinAlert(_ participant: Participant) {
+        joinedParticipant = participant
+
+        withAnimation(.easeOut(duration: 0.3)) {
+            showJoinAlert = true
+        }
+
+        // Auto-dismiss after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation(.easeIn(duration: 0.3)) {
+                showJoinAlert = false
+            }
+            // Clear participant after animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                joinedParticipant = nil
+            }
+        }
+    }
+
+    /// The participant join alert view
+    private func participantJoinAlertView() -> some View {
+        Group {
+            if let participant = joinedParticipant {
+                HStack(spacing: 10) {
+                    // Participant image or initials
+                    if let profilePictureUrl = participant.profilePictureUrl,
+                       let url = URL(string: profilePictureUrl) {
+                        WebImage(url: url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 32, height: 32)
+                            .clipShape(Circle())
+                    } else {
+                        ZStack {
+                            Circle()
+                                .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                                .frame(width: 32, height: 32)
+
+                            Text((participant.name ?? "Unknown").getInitialsFromName())
+                                .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
+                                .foregroundColor(.white)
+                        }
+                    }
+
+                    // Join message
+                    Text("\(participant.name ?? "Someone") joined the call")
+                        .font(Font(NSFont(name: "Roboto-Medium", size: 13.0)!))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(
+                    Color.black
+                        .opacity(0.85)
+                        .cornerRadius(10)
+                )
+                .offset(y: showJoinAlert ? 0 : -80)
+                .opacity(showJoinAlert ? 1 : 0)
+            }
+        }
+    }
+
     private func toggleRecording() {
         guard let roomName = room.name else {
             return
@@ -590,14 +735,22 @@ struct RoomView: View {
                         .opacity(0.1)
                         .cornerRadius(8.0)
                 )
-                
-//                Picker("", selection: $appCtx.videoViewMode) {
-//                    Text("Fit").tag(VideoView.LayoutMode.fit)
-//                    Text("Fill").tag(VideoView.LayoutMode.fill)
-//                }
-//                .pickerStyle(SegmentedPickerStyle())
-//                .frame(width: 150.0)
-                
+
+                // Call duration timer
+                if room.connectionState == .connected {
+                    Text(formatElapsedTime(callElapsedTime))
+                        .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                        .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
+                        .monospacedDigit()
+                        .padding(.horizontal, 13)
+                        .frame(height: 40.0)
+                        .background(
+                            Color(NSColor.Sphinx.MainBottomIcons)
+                                .opacity(0.1)
+                                .cornerRadius(8.0)
+                        )
+                }
+
                 Spacer()
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
             
@@ -609,9 +762,11 @@ struct RoomView: View {
                     // Toggle microphone enabled
                     Button {
                         Task {
-                            isMicrophonePublishingBusy = true
-                            defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                            if AVCaptureDevice.default(for: .audio) != nil {
+                                isMicrophonePublishingBusy = true
+                                defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                            }
                         }
                     } label: {
                         Image(systemSymbol: isMicrophoneEnabled ? .micFill : .micSlashFill)
@@ -640,42 +795,38 @@ struct RoomView: View {
 
                     let isCameraEnabled = room.localParticipant.isCameraEnabled()
                     // Toggle Video enabled
-                    Group {
-                        Button(action: {
-                           if isCameraEnabled {
-                               Task {
-                                   isCameraPublishingBusy = true
-                                   defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                   try await room.localParticipant.setCamera(enabled: false)
-                               }
-                           } else {
-                               publishOptionsPickerPresented = true
-                           }
-                        },
-                        label: {
-                            Image(systemSymbol: isCameraEnabled ? .videoFill : .videoSlashFill)
-                               .renderingMode(.template)
-                               .foregroundColor(isCameraEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
-                               .font(.system(size: 16))
-                               .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        })
-                        // disable while publishing/un-publishing
-                        .disabled(isCameraPublishingBusy)
-                    }
-                    .popover(isPresented: $publishOptionsPickerPresented) {
-                        PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
-                            publishOptionsPickerPresented = false
+                    Button(action: {
+                        Task {
                             isCameraPublishingBusy = true
-                            cameraPublishOptions = publishOptions
-                            Task {
-                                defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                                try await room.localParticipant.setCamera(enabled: true,
-                                                                          captureOptions: captureOptions,
-                                                                          publishOptions: publishOptions)
-                            }
+                            defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                            try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
                         }
-                        .padding()
-                    }
+                    },
+                    label: {
+                        Image(systemSymbol: isCameraEnabled ? .videoFill : .videoSlashFill)
+                           .renderingMode(.template)
+                           .foregroundColor(isCameraEnabled ? Color.white : Color(NSColor(hex: "#FF6F6F")))
+                           .font(.system(size: 16))
+                           .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    })
+                    // disable while publishing/un-publishing
+                    .disabled(isCameraPublishingBusy)
+                    // MARK: - Commented out camera options popover (kept for future use)
+                    // To restore: wrap Button in Group{} and add this popover
+                    // .popover(isPresented: $publishOptionsPickerPresented) {
+                    //     PublishOptionsView(publishOptions: cameraPublishOptions) { captureOptions, publishOptions in
+                    //         publishOptionsPickerPresented = false
+                    //         isCameraPublishingBusy = true
+                    //         cameraPublishOptions = publishOptions
+                    //         Task {
+                    //             defer { Task { @MainActor in isCameraPublishingBusy = false } }
+                    //             try await room.localParticipant.setCamera(enabled: true,
+                    //                                                       captureOptions: captureOptions,
+                    //                                                       publishOptions: publishOptions)
+                    //         }
+                    //     }
+                    //     .padding()
+                    // }
                     .frame(height: 40.0)
                     .frame(width: 40.0)
                     .background(
@@ -944,13 +1095,13 @@ struct RoomView: View {
         static func == (lhs: RoomView.ScreenSharePopoverView, rhs: RoomView.ScreenSharePopoverView) -> Bool {
             return lhs.screenPickerPresented == rhs.screenPickerPresented
         }
-        
+
         @Binding var screenPickerPresented: Bool
         var onSelect: (MacOSScreenCaptureSource) -> Void
 
         var body: some View {
             if #available(macOS 12.3, *) {
-                ScreenShareSourcePickerView { source in
+                ScreenShareSourcePickerView() { source in
                     onSelect(source)
                     screenPickerPresented = false
                 }
@@ -964,22 +1115,41 @@ struct RoomView: View {
             ZStack {
                 Color(NSColor.Sphinx.Body)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
+
                 VStack(spacing: 0) {
-                    
+
                     Spacer().frame(height: 45.0)
-                    
+
                     content(geometry: geometry)
-                    
+
                     bottomBar()
                 }
                 .background(Color.black.opacity(0.5))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                // Participant join alert (top-right corner)
+                VStack {
+                    HStack {
+                        Spacer()
+                        participantJoinAlertView()
+                            .padding(.top, 60)
+                            .padding(.trailing, 20)
+                    }
+                    Spacer()
+                }
             }
         }
         .onAppear {
             Task { @MainActor in
                 canSwitchCameraPosition = try await CameraCapturer.canSwitchPosition()
+
+                // Start call timer if already connected
+                if room.connectionState == .connected {
+                    startCallTimer()
+                }
+
+                // Initialize participant tracking
+                previousParticipantIds = Set(room.allParticipants.values.compactMap { $0.sid?.stringValue })
             }
             Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
                 Task { @MainActor in
@@ -1016,11 +1186,26 @@ struct RoomView: View {
         }.onChange(of: room.connectionState) { newValue in
             if newValue == .connected {
                 Task { @MainActor in
+                    // Start call timer when connected
+                    startCallTimer()
+
+                    // Initialize participant tracking when connected
+                    previousParticipantIds = Set(room.allParticipants.values.compactMap { $0.sid?.stringValue })
+
                     if roomCtx.shouldStartRecording {
                         toggleRecording()
                     }
                 }
+            } else if newValue == .disconnected {
+                stopCallTimer()
             }
+        }
+        .onChange(of: room.remoteParticipants.count) { _ in
+            // Check for new participants when count changes
+            checkForNewParticipants()
+        }
+        .onDisappear {
+            stopCallTimer()
         }
     }
 }

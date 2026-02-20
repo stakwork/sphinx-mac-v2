@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="GraphListCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="dateLabel" destination="6Kg-76-Amt" id="HYj-Y9-QfB"/>
+                <outlet property="iconImageView" destination="jVB-AT-YC6" id="Vsa-IR-6Yx"/>
+                <outlet property="separator" destination="Dfd-S3-yDU" id="TDY-V8-EOI"/>
+                <outlet property="statusLabel" destination="xiX-vE-Djp" id="Rko-w8-fKA"/>
+                <outlet property="textLabel" destination="aVx-hG-izn" id="QBt-k6-sQS"/>
+                <outlet property="typeLabel" destination="E4U-Ja-n03" id="Noe-hF-kDY"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="482" height="85"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="LuB-vn-RuG">
+                    <rect key="frame" x="0.0" y="0.0" width="482" height="85"/>
+                    <view key="contentView" id="jeT-4y-Rzw">
+                        <rect key="frame" x="0.0" y="0.0" width="482" height="85"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                    <color key="fillColor" name="HeaderBG"/>
+                </box>
+                <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BI2-bw-z47">
+                    <rect key="frame" x="16" y="18" width="450" height="50"/>
+                    <subviews>
+                        <stackView distribution="fill" orientation="vertical" alignment="leading" spacing="7" horizontalStackHuggingPriority="248.99998474121094" verticalStackHuggingPriority="249.99998474121094" horizontalHuggingPriority="251" horizontalCompressionResistancePriority="749" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3r3-WA-zb8">
+                            <rect key="frame" x="0.0" y="1" width="450" height="48"/>
+                            <subviews>
+                                <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="10" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yFr-kt-UNO">
+                                    <rect key="frame" x="0.0" y="29" width="450" height="19"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="E4U-Ja-n03">
+                                            <rect key="frame" x="-2" y="1" width="94" height="16"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Podcast name" id="eRL-XE-dxh">
+                                                <font key="font" size="14" name="Roboto-Regular"/>
+                                                <color key="textColor" name="PrimaryText"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField focusRingType="none" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Dfd-S3-yDU">
+                                            <rect key="frame" x="98" y="0.0" width="9" height="19"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="|" id="bjs-LC-vgB">
+                                                <font key="font" size="16" name="Roboto-Medium"/>
+                                                <color key="textColor" name="PrimaryText"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="aVx-hG-izn">
+                                            <rect key="frame" x="113" y="2" width="339" height="14"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Podcast name" id="jLR-uI-Ttx">
+                                                <font key="font" size="12" name="Roboto-Light"/>
+                                                <color key="textColor" name="SecondaryText"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="E4U-Ja-n03" firstAttribute="centerY" secondItem="yFr-kt-UNO" secondAttribute="centerY" id="UFH-2O-gjB"/>
+                                    </constraints>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                                <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="3" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iKc-tb-3Tl">
+                                    <rect key="frame" x="0.0" y="0.0" width="450" height="22"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="1000" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Kg-76-Amt">
+                                            <rect key="frame" x="-2" y="5" width="62" height="16"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="16" id="TPJ-Nq-4uo"/>
+                                            </constraints>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Host name" usesSingleLineMode="YES" id="TZP-9C-jDc">
+                                                <font key="font" size="12" name="Roboto-Light"/>
+                                                <color key="textColor" name="SecondaryText"/>
+                                                <color key="backgroundColor" name="sphinxWhite"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="una-Rq-nv3">
+                                            <rect key="frame" x="61" y="0.0" width="309" height="22"/>
+                                        </customView>
+                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jVB-AT-YC6">
+                                            <rect key="frame" x="373" y="-2" width="16" height="27"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" secondItem="jVB-AT-YC6" secondAttribute="height" multiplier="1:1" id="YuK-hb-EOP"/>
+                                                <constraint firstAttribute="width" constant="16" id="cR9-f4-RAG"/>
+                                            </constraints>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="clock" catalog="system" id="iyV-r4-9uL"/>
+                                            <color key="contentTintColor" name="SphinxOrange"/>
+                                            <symbolConfiguration key="symbolConfiguration" scale="large">
+                                                <nil key="locale"/>
+                                            </symbolConfiguration>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="rounded" value="YES"/>
+                                            </userDefinedRuntimeAttributes>
+                                        </imageView>
+                                        <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xiX-vE-Djp">
+                                            <rect key="frame" x="390" y="5" width="62" height="16"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="16" id="deJ-JT-oCc"/>
+                                            </constraints>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Host name" usesSingleLineMode="YES" id="Kr1-pH-cGs">
+                                                <font key="font" size="12" name="Roboto-Light"/>
+                                                <color key="textColor" name="SecondaryText"/>
+                                                <color key="backgroundColor" name="sphinxWhite"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="jVB-AT-YC6" firstAttribute="width" secondItem="jVB-AT-YC6" secondAttribute="height" multiplier="1:1" id="316-2w-pN0"/>
+                                        <constraint firstItem="6Kg-76-Amt" firstAttribute="top" secondItem="iKc-tb-3Tl" secondAttribute="top" constant="1" id="9yY-of-SgS"/>
+                                        <constraint firstItem="xiX-vE-Djp" firstAttribute="centerY" secondItem="iKc-tb-3Tl" secondAttribute="centerY" constant="-2" id="a7Y-FC-Lc7"/>
+                                        <constraint firstItem="6Kg-76-Amt" firstAttribute="centerY" secondItem="iKc-tb-3Tl" secondAttribute="centerY" constant="-2" id="aUZ-8a-eaZ"/>
+                                    </constraints>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                            </subviews>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="yFr-kt-UNO" secondAttribute="trailing" id="ZFG-fk-pvE"/>
+                                <constraint firstItem="yFr-kt-UNO" firstAttribute="leading" secondItem="3r3-WA-zb8" secondAttribute="leading" id="ZjL-PV-Ld5"/>
+                                <constraint firstAttribute="trailing" secondItem="iKc-tb-3Tl" secondAttribute="trailing" id="hlf-lH-TS9"/>
+                                <constraint firstItem="iKc-tb-3Tl" firstAttribute="leading" secondItem="3r3-WA-zb8" secondAttribute="leading" id="jcg-Od-eDF"/>
+                            </constraints>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                    </subviews>
+                    <constraints>
+                        <constraint firstItem="3r3-WA-zb8" firstAttribute="centerY" secondItem="BI2-bw-z47" secondAttribute="centerY" id="3bR-xz-8S6"/>
+                        <constraint firstItem="3r3-WA-zb8" firstAttribute="top" secondItem="BI2-bw-z47" secondAttribute="top" constant="1" id="oDH-LO-vwi"/>
+                    </constraints>
+                    <visibilityPriorities>
+                        <integer value="1000"/>
+                    </visibilityPriorities>
+                    <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
+                    </customSpacing>
+                </stackView>
+                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="A4L-Oe-yLK">
+                    <rect key="frame" x="16" y="0.0" width="466" height="1"/>
+                    <view key="contentView" id="tLD-Jo-MRZ">
+                        <rect key="frame" x="0.0" y="0.0" width="466" height="1"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="AVu-0x-B2G"/>
+                    </constraints>
+                    <color key="fillColor" name="LightDivider"/>
+                </box>
+            </subviews>
+            <constraints>
+                <constraint firstItem="LuB-vn-RuG" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="22Z-5b-jKz"/>
+                <constraint firstItem="A4L-Oe-yLK" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="4Tv-yc-Jwj"/>
+                <constraint firstAttribute="trailing" secondItem="BI2-bw-z47" secondAttribute="trailing" constant="16" id="7S8-ai-HAD"/>
+                <constraint firstAttribute="trailing" secondItem="A4L-Oe-yLK" secondAttribute="trailing" id="CzZ-FJ-v0D"/>
+                <constraint firstItem="BI2-bw-z47" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="16" id="Kks-Ug-7ew"/>
+                <constraint firstAttribute="bottom" secondItem="A4L-Oe-yLK" secondAttribute="bottom" id="WfT-0l-IUe"/>
+                <constraint firstItem="BI2-bw-z47" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="fHu-aO-nOB"/>
+                <constraint firstAttribute="bottom" secondItem="LuB-vn-RuG" secondAttribute="bottom" id="gIL-1E-Ff5"/>
+                <constraint firstItem="LuB-vn-RuG" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="q2Y-yd-JeM"/>
+                <constraint firstAttribute="trailing" secondItem="LuB-vn-RuG" secondAttribute="trailing" id="re8-YK-69P"/>
+            </constraints>
+            <point key="canvasLocation" x="92" y="-36"/>
+        </customView>
+        <customObject id="sRB-Ru-pW3" customClass="GraphListCollectionViewItem" customModule="Sphinx" customModuleProvider="target"/>
+    </objects>
+    <resources>
+        <image name="clock" catalog="system" width="15" height="15"/>
+        <namedColor name="HeaderBG">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="LightDivider">
+            <color red="0.86274509803921573" green="0.8784313725490196" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryText">
+            <color red="0.16078431372549021" green="0.17254901960784313" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SecondaryText">
+            <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SphinxOrange">
+            <color red="1" green="0.74099999666213989" blue="0.34900000691413879" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="sphinxWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

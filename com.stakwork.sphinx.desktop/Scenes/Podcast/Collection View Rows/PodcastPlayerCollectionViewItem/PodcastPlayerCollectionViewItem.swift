@@ -235,10 +235,31 @@ class PodcastPlayerCollectionViewItem: NSCollectionViewItem {
     @IBAction func subscribeButtonClicked(_ sender: Any) {
         podcast.subscribed.toggle()
         
-        let contentFeed: ContentFeed? = ContentFeed.getFeedById(feedId: podcast.feedID)
-        contentFeed?.subscribed.toggle()
-        contentFeed?.managedObjectContext?.saveContext()
+        guard let contentFeed: ContentFeed = ContentFeed.getFeedById(feedId: podcast.feedID) else {
+            return
+        }
+        contentFeed.subscribed.toggle()
+        contentFeed.managedObjectContext?.saveContext()
         
-        subscribeButton.title = contentFeed?.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
+        subscribeButton.title = contentFeed.subscribed == true ? "UNSUBSCRIBE" : "SUBSCRIBE"
+        
+        guard let contentFeedUrl = contentFeed.feedURL else {
+            return
+        }
+        
+        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+        
+        DataSyncManager.sharedInstance.saveFeedStatusFor(
+            feedId: contentFeed.feedID,
+            feedStatus: FeedStatus(
+                chatPubkey: contentFeed.chat?.ownerPubkey ?? "",
+                feedUrl: contentFeedUrl.absoluteString,
+                feedId: contentFeed.feedID,
+                subscribed: contentFeed.subscribed == true,
+                satsPerMinute: podcast.satsPerMinute ?? 0,
+                playerSpeed: Double(podcast.playerSpeed),
+                itemId: podcast.currentEpisodeId
+            )
+        )
     }
 }

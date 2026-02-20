@@ -77,9 +77,13 @@ internal enum StoryboardScene {
         
         internal static let feedListViewController = SceneType<FeedListViewController>(storyboard: Dashboard.self, identifier: "FeedListViewController")
         
+        internal static let graphListViewController = SceneType<GraphListViewController>(storyboard: Dashboard.self, identifier: "GraphListViewController")
+        
         internal static let feedDashboardViewController = SceneType<FeedDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedDashboardViewController")
         
         internal static let feedListenDashboardViewController = SceneType<FeedListenDashboardViewController>(storyboard: Dashboard.self, identifier: "FeedListenDashboardViewController")
+
+        internal static let workspacesListViewController = SceneType<WorkspacesListViewController>(storyboard: Dashboard.self, identifier: "WorkspacesListViewController")
     }
     
     internal enum Groups: StoryboardType {
@@ -98,6 +102,8 @@ internal enum StoryboardScene {
         internal static let storyboardName = "Profile"
         
         internal static let profileViewController = SceneType<ProfileViewController>(storyboard: Profile.self, identifier: "ProfileViewController")
+        
+        internal static let setupPersonalGraphViewController = SceneType<SetupPersonalGraphViewController>(storyboard: Profile.self, identifier: "SetupPersonalGraphViewController")
     }
     
     internal enum Contacts: StoryboardType {

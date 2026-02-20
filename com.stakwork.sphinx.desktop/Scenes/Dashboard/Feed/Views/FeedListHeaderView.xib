@@ -3,13 +3,18 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="FeedListHeaderView" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="backgroundColorBox" destination="6ql-Tj-TXJ" id="iBa-RD-A21"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="wXY-yH-cHZ"/>
                 <outlet property="headerLabel" destination="6vR-lm-Zop" id="M2Y-Ds-MHm"/>
+                <outlet property="loadingWheel" destination="poA-9h-9fr" id="DM2-mF-PgC"/>
+                <outlet property="refreshButton" destination="dmK-d4-SGn" id="ZcO-yl-jqz"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -18,20 +23,70 @@
             <rect key="frame" x="0.0" y="0.0" width="480" height="50"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
+                <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="6ql-Tj-TXJ">
+                    <rect key="frame" x="0.0" y="0.0" width="480" height="50"/>
+                    <view key="contentView" id="H8J-IX-wi4">
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="50"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    </view>
+                </box>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6vR-lm-Zop">
-                    <rect key="frame" x="14" y="11" width="74" height="19"/>
+                    <rect key="frame" x="14" y="16" width="74" height="19"/>
                     <textFieldCell key="cell" lineBreakMode="clipping" title="Following" id="GzC-9y-tuX">
                         <font key="font" size="16" name="Roboto-Bold"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <progressIndicator hidden="YES" maxValue="100" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="poA-9h-9fr">
+                    <rect key="frame" x="452" y="17" width="16" height="16"/>
+                </progressIndicator>
+                <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dmK-d4-SGn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="440" y="5.5" width="40.5" height="42"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="NGB-TG-o1G">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                        <imageReference key="image" image="arrow.clockwise" catalog="system" symbolScale="large" renderingMode="hierarchical-single">
+                            <hierarchicalColors>
+                                <color name="Text"/>
+                                <color name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                <color name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
+                            </hierarchicalColors>
+                        </imageReference>
+                    </buttonCell>
+                    <color key="bezelColor" name="Text"/>
+                    <color key="contentTintColor" name="Text"/>
+                    <symbolConfiguration key="symbolConfiguration" scale="large">
+                        <nil key="locale"/>
+                    </symbolConfiguration>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="7pV-Gp-uWg"/>
+                        <constraint firstAttribute="height" constant="30" id="TlK-wM-eOa"/>
+                    </constraints>
+                    <connections>
+                        <action selector="refreshButtonClicked:" target="-2" id="Nm1-Wq-iQG"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
-                <constraint firstItem="6vR-lm-Zop" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" constant="5" id="1aB-AC-8Sz"/>
+                <constraint firstItem="6vR-lm-Zop" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="1aB-AC-8Sz"/>
+                <constraint firstAttribute="trailing" secondItem="dmK-d4-SGn" secondAttribute="trailing" id="2uv-0W-FHo"/>
+                <constraint firstItem="dmK-d4-SGn" firstAttribute="centerY" secondItem="6vR-lm-Zop" secondAttribute="centerY" id="A6V-13-yzg"/>
                 <constraint firstItem="6vR-lm-Zop" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="16" id="DL2-BN-yFo"/>
+                <constraint firstAttribute="trailing" secondItem="6ql-Tj-TXJ" secondAttribute="trailing" id="ECE-fm-kEk"/>
+                <constraint firstAttribute="bottom" secondItem="6ql-Tj-TXJ" secondAttribute="bottom" id="aRf-PV-MFb"/>
+                <constraint firstItem="6ql-Tj-TXJ" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" id="cdZ-uw-fWP"/>
+                <constraint firstItem="6ql-Tj-TXJ" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="gFO-fa-Bxb"/>
+                <constraint firstItem="poA-9h-9fr" firstAttribute="centerY" secondItem="dmK-d4-SGn" secondAttribute="centerY" id="jl0-Eh-qq0"/>
+                <constraint firstItem="poA-9h-9fr" firstAttribute="centerX" secondItem="dmK-d4-SGn" secondAttribute="centerX" id="l4f-dn-1so"/>
             </constraints>
             <point key="canvasLocation" x="121" y="154"/>
         </customView>
     </objects>
+    <resources>
+        <image name="arrow.clockwise" catalog="system" width="18" height="21"/>
+        <namedColor name="Text">
+            <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
 </document>

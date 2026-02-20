@@ -49,7 +49,7 @@ extension ThreadCollectionViewItem {
             audioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: messageId,
@@ -80,7 +80,7 @@ extension ThreadCollectionViewItem {
             mediaMessageView.mediaButton.isEnabled = false
             
             if let originalMessageId = originalMessageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     if originalMessageMedia.isImage {
                         self.delegate?.shouldLoadImageDataFor(
@@ -123,7 +123,7 @@ extension ThreadCollectionViewItem {
             audioMessageView.isHidden = false
             
             if let originalMessageId = originalMessageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: originalMessageId,
@@ -148,7 +148,7 @@ extension ThreadCollectionViewItem {
             fileDetailsView.isHidden = false
             
             if let originalMessageId = originalMessageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: originalMessageId,
@@ -173,7 +173,7 @@ extension ThreadCollectionViewItem {
             fileDetailsView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: messageId,
@@ -206,7 +206,7 @@ extension ThreadCollectionViewItem {
             textMessageView.isHidden = false
             
 //            if let messageId = messageId, messageContent.shouldLoadPaidText {
-//                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
 //                DispatchQueue.global().asyncAfter(deadline: delayTime) {
 //                    self.delegate?.shouldLoadTextDataFor(
 //                        messageId: messageId,
@@ -338,7 +338,7 @@ extension ThreadCollectionViewItem {
                     
                     let nsRange = textCheckingResult.range
                     
-                    if let text = messageContent.text {
+                    if let _ = messageContent.text {
                         if let url = URL(string: link)  {
                             attributedString.addAttributes(
                                 [
@@ -368,7 +368,7 @@ extension ThreadCollectionViewItem {
             }
             
 //            if let messageId = messageId, messageContent.shouldLoadPaidText {
-//                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
 //                DispatchQueue.global().asyncAfter(deadline: delayTime) {
 //                    self.delegate?.shouldLoadTextDataFor(
 //                        messageId: messageId,
@@ -394,7 +394,7 @@ extension ThreadCollectionViewItem {
             lastReplyAudioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: messageId,
@@ -411,39 +411,64 @@ extension ThreadCollectionViewItem {
         and bubble: BubbleMessageLayoutState.Bubble
     ) {
         if let messageMedia = messageMedia {
-            
-            lastReplyMediaMessageView.configureWith(
-                messageMedia: messageMedia,
-                mediaData: mediaData,
-                bubble: bubble,
-                and: self
-            )
-            lastReplyMediaMessageView.isHidden = false
-            lastReplyMediaMessageView.mediaButton.isEnabled = false
-            
-            if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    if messageMedia.isImage {
-                        self.delegate?.shouldLoadImageDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isPdf {
-                        self.delegate?.shouldLoadPdfDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isVideo {
-                        self.delegate?.shouldLoadVideoDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
-                    } else if messageMedia.isGiphy {
-                        self.delegate?.shouldLoadGiphyDataFor(
-                            messageId: messageId,
-                            and: self.rowIndex
-                        )
+            if messageMedia.isImageLink {
+                if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
+                    mediaMessageView.configureWith(
+                        messageMedia: messageMedia,
+                        mediaData: mediaData,
+                        bubble: bubble,
+                        and: self
+                    )
+                    mediaMessageView.isHidden = false
+                    lastReplyMediaMessageView.mediaButton.isEnabled = false
+                    
+                }
+//                else if let messageId = messageId, mediaData == nil {
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+//                        self.delegate?.shouldLoadLinkImageDataFor(
+//                            messageId: messageId,
+//                            and: self.rowIndex
+//                        )
+//                    }
+//                }
+            } else {
+                lastReplyMediaMessageView.configureWith(
+                    messageMedia: messageMedia,
+                    mediaData: mediaData,
+                    bubble: bubble,
+                    and: self
+                )
+                lastReplyMediaMessageView.isHidden = false
+                lastReplyMediaMessageView.mediaButton.isEnabled = false
+                
+                if let messageId = messageId, mediaData == nil {
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                        if messageMedia.isImage {
+                            self.delegate?.shouldLoadImageDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isPdf {
+                            self.delegate?.shouldLoadPdfDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isVideo {
+                            self.delegate?.shouldLoadVideoDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        } else if messageMedia.isGiphy {
+                            self.delegate?.shouldLoadGiphyDataFor(
+                                messageId: messageId,
+                                and: self.rowIndex
+                            )
+                        }
                     }
                 }
             }
@@ -464,7 +489,7 @@ extension ThreadCollectionViewItem {
             lastReplyFileDetailsView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: messageId,
@@ -472,6 +497,16 @@ extension ThreadCollectionViewItem {
                     )
                 }
             }
+        }
+    }
+    
+    func configureLastReplyWith(
+        boosts: BubbleMessageLayoutState.Boosts?,
+        and bubble: BubbleMessageLayoutState.Bubble
+    ) {
+        if let boosts = boosts {
+            lastReplyMessageBoostView.configureWith(boosts: boosts, and: bubble)
+            lastReplyMessageBoostView.isHidden = false
         }
     }
 }

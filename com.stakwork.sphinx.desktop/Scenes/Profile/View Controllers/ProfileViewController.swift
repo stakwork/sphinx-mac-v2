@@ -196,7 +196,6 @@ class ProfileViewController: NSViewController {
             
             meetingServerField.stringValue = API.sharedInstance.kVideoCallServer
             meetingAmountField.stringValue = "\(UserContact.kTipAmount)"
-//            privacyPinButton.stringValue = (GroupsPinManager.sharedInstance.isPrivacyPinSet() ? "change.privacy.pin" : "set.privacy.pin").localized
         }
     }
     
@@ -212,7 +211,12 @@ class ProfileViewController: NSViewController {
     @IBAction func qrCodeButtonClicked(_ sender: Any) {
         if let profile = UserContact.getOwner(), let address = profile.getAddress(), !address.isEmpty {
             let shareInviteCodeVC = ShareInviteCodeViewController.instantiate(qrCodeString: address, viewMode: .PubKey)
-            advanceTo(vc: shareInviteCodeVC, title: "pubkey.upper".localized.localizedCapitalized, height: 600)
+            advanceTo(
+                vc: shareInviteCodeVC,
+                identifier: "public-key-qr-window",
+                title: "pubkey.upper".localized.localizedCapitalized,
+                height: 600
+            )
         }
     }
     
@@ -250,26 +254,34 @@ class ProfileViewController: NSViewController {
         let pinCodeVC = EnterPinViewController.instantiate(mode: .Export, subtitle: subtitle)
         pinCodeVC.doneCompletion = { pin in
             if let mnemonic = UserData.sharedInstance.getMnemonic(enteredPin: pin) {
-                SphinxOnionManager.sharedInstance.vc = self
-                SphinxOnionManager.sharedInstance.showMnemonicToUser(mnemonic: mnemonic, callback: {})
-                SphinxOnionManager.sharedInstance.vc = nil
-                
-                WindowsManager.sharedInstance.backToProfile()
+                let shareInviteCodeVC = ShareInviteCodeViewController.instantiate(qrCodeString: mnemonic, viewMode: .Mnemonic)
+                self.advanceTo(
+                    vc: shareInviteCodeVC,
+                    identifier: "mnemonic-window",
+                    title: "profile.mnemonic-enter-title".localized.localizedCapitalized,
+                    height: 600
+                )
             } else {
                 AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
             }
         }
-        advanceTo(vc: pinCodeVC, title: "enter.restore.pin".localized, height: 440)
+        advanceTo(
+            vc: pinCodeVC,
+            identifier: "enter-restore-pin-window",
+            title: "enter.restore.pin".localized,
+            height: 440
+        )
     }
     
     func advanceTo(
         vc: NSViewController,
+        identifier: String,
         title: String,
         height: CGFloat? = nil
     ) {
         WindowsManager.sharedInstance.showOnCurrentWindow(
             with: title,
-            identifier: "enter-restore-pin-window",
+            identifier: identifier,
             contentVC: vc,
             hideDivider: true,
             hideBackButton: false,
@@ -325,16 +337,7 @@ class ProfileViewController: NSViewController {
         
         UserDefaults.Keys.shouldTrackActions.set(isTrackActionsSwitchOn())
         
-        var parameters = [String : AnyObject]()
-        parameters["alias"] = userNameField.stringValue as AnyObject?
-        parameters["private_photo"] = !isPhotoSwitchOn() as AnyObject?
-        parameters["route_hint"] = routeHintField.stringValue as AnyObject?
-        
         let tempTip = self.meetingAmountField.integerValue
-        
-        if let photoUrl = profileImageUrl, !photoUrl.isEmpty {
-            parameters["photo_url"] = photoUrl as AnyObject?
-        }
         
         profile.nickname = userNameField.stringValue
         
@@ -344,7 +347,17 @@ class ProfileViewController: NSViewController {
         
         profile.managedObjectContext?.saveContext()
         
-        UserContact.kTipAmount = tempTip
+        if UserContact.kTipAmount != tempTip {
+            UserContact.kTipAmount = tempTip
+            DataSyncManager.sharedInstance.saveTipAmount(value: "\(tempTip)")
+        }
+        
+        if !isPhotoSwitchOn() != profile.privatePhoto {
+            profile.privatePhoto = !isPhotoSwitchOn()
+            DataSyncManager.sharedInstance.savePrivatePhoto(value: "\(!isPhotoSwitchOn())")
+        }
+        
+        API.sharedInstance.kVideoCallServer = meetingServerField.stringValue
         
         WindowsManager.sharedInstance.dismissViewFromCurrentWindow()
     }
@@ -360,9 +373,10 @@ class ProfileViewController: NSViewController {
         let didUpdatePhoto = profileImageUrl != nil || profileImage != nil
         let didChangePinTimeout = UserData.sharedInstance.getPINHours() != pinTimeoutView.getPinHours()
         let actionsTrackingUpdated = isTrackActionsSwitchOn() != UserDefaults.Keys.shouldTrackActions.get(defaultValue: false)
+        let didChangeMettingServer = meetingServerField.stringValue != API.sharedInstance.kVideoCallServer
         let didChangeTipAmount = meetingAmountField.integerValue != UserContact.kTipAmount
         
-        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeTipAmount
+        return didChangeName || didChangeRouteHint || didUpdatePrivatePhoto || didUpdatePhoto || didChangePinTimeout || actionsTrackingUpdated || didChangeMettingServer || didChangeTipAmount
     }
     
     func closeOnCompletion(completion: @escaping () -> ()) {
@@ -395,6 +409,17 @@ class ProfileViewController: NSViewController {
     
     @IBAction func disconnectMQTTButtonClicked(_ sender: Any) {
         CrypterManager.sharedInstance.resetMQTTConnection()
+    }
+    
+    @IBAction func setupPersonalGraphButtonClicked(_ sender: Any) {
+        let setupPersonalGraphVC = SetupPersonalGraphViewController.instantiate()
+
+        advanceTo(
+            vc: setupPersonalGraphVC,
+            identifier: "setup-personal-graph-window",
+            title: "Personal Graph Setup",
+            height: 550
+        )
     }
     
     private func updateTimeAndDate() {

@@ -60,6 +60,9 @@
 //Dashboard
 "dashboard.tabs.friends" = "Amigos";
 "dashboard.tabs.tribes" = "Tribus";
+"dashboard.tabs.feed" = "Feed";
+"dashboard.tabs.graph" = "Graph";
+"dashboard.tabs.workspaces" = "Workspaces";
 
 //GROUPS
 "unselect.all.upper" = "DESELECCIONAR TODOS";

@@ -121,7 +121,7 @@ class FeedsManager : NSObject {
     ) {
         let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
         dispatchQueue.async {
-            self.restoreContentFeedStatusFor(feedId: feedId,completionCallback: completion)
+            self.restoreContentFeedStatusFor(feedId: feedId, completionCallback: completion)
         }
     }
     
@@ -208,7 +208,7 @@ class FeedsManager : NSObject {
         
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.perform {
+        context.performSafely {
 //            let feeds = self.fetchFeeds(context: context)
 //
 //            let localIDs = feeds.compactMap({ $0.feedID })
@@ -296,6 +296,7 @@ class FeedsManager : NSObject {
         feedUrl: String,
         chat: Chat?,
         context: NSManagedObjectContext,
+        shouldSaveFeedStatus: Bool = true,
         completion: @escaping (ContentFeed?) -> ()
     ) {
         if let existingContentFeed = ContentFeed.getFeedById(feedId: feedId, managedContext: context) {
@@ -303,6 +304,24 @@ class FeedsManager : NSObject {
         } else {
             ContentFeed.fetchContentFeed(at: feedUrl, chat: chat, persistingIn: context, then: { result in
                 if case .success(let contentFeed) = result {
+
+                    if shouldSaveFeedStatus, let contentFeedUrl = contentFeed.feedURL {
+                        let podcast = PodcastFeed.convertFrom(contentFeed: contentFeed)
+
+                        DataSyncManager.sharedInstance.saveFeedStatusFor(
+                            feedId: contentFeed.feedID,
+                            feedStatus: FeedStatus(
+                                chatPubkey: podcast.chat?.ownerPubkey ?? "",
+                                feedUrl: contentFeedUrl.absoluteString,
+                                feedId: contentFeed.feedID,
+                                subscribed: true,
+                                satsPerMinute: podcast.satsPerMinute ?? 0,
+                                playerSpeed: Double(podcast.playerSpeed),
+                                itemId: podcast.currentEpisodeId
+                            )
+                        )
+                    }
+
                     completion(contentFeed)
                     return
                 }
@@ -358,7 +377,7 @@ class FeedsManager : NSObject {
     func fetchNewItems(completion: (() -> ())? = nil) {
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.perform {
+        context.performSafely {
             
             let dispatchSemaphore = DispatchSemaphore(value: 0)
 

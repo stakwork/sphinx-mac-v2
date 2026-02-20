@@ -43,6 +43,10 @@ class ContactsService: NSObject {
                 return 1
             case .feed:
                 return 2
+            case .graph:
+                return 3
+            case .workspaces:
+                return 4
             }
         }
     }
@@ -72,6 +76,12 @@ class ContactsService: NSObject {
             selectedChatId = selectedTribeId
         case .feed:
             tab = "Feed"
+            selectedChatId = nil
+        case .graph:
+            tab = "Graph"
+            selectedChatId = nil
+        case .workspaces:
+            tab = "Workspaces"
             selectedChatId = nil
         }
         
@@ -228,6 +238,10 @@ class ContactsService: NSObject {
             break
         case .feed:
             return (nil, nil)
+        case .graph:
+            return (nil, nil)
+        default:
+            break
         }
         return nil
     }

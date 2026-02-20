@@ -130,7 +130,7 @@ extension PodcastFeed {
             let request: NSFetchRequest<ContentFeed> = baseFetchRequest()
             
             request.predicate = Predicates.podcastFeeds
-            request.sortDescriptors = []
+            request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
 
             return request
         }

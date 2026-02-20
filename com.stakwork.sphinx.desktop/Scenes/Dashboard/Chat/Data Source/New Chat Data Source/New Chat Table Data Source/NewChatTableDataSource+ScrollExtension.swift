@@ -50,7 +50,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if collectionView.getDistanceToBottom() < 10 {
             didScrollToBottom()
-        } else if collectionViewScroll.documentYOffset <= 0 {
+        } else if collectionViewScroll.documentYOffset <= 40 {
             didScrollToTop()
         } else {
             didScrollOutOfBottomArea()
@@ -78,20 +78,80 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     }
     
     func didScrollToTop() {
+        if isSearching {
+            return
+        }
+        
         if loadingMoreItems {
             return
         }
         
+        if allItemsLoaded {
+            return
+        }
+        
+        collectionViewScroll.verticalScrollElasticity = .none
         loadingMoreItems = true
         
-        loadMoreItems()
+        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+            self.fetchMoreItems()
+        })
+    }
+    
+    func loadMoreItems(itemsCount: Int) {
+        collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
+        configureResultsController(items: messagesCount + itemsCount)
     }
     
     @objc func loadMoreItems() {
-        DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: { [weak self] in
-            guard let self = self else { return }
-            self.configureResultsController(items: self.messagesCount + 50)
-        })
+        loadMoreItems(itemsCount: 50)
+    }
+    
+    func fetchMoreItems() {
+        if isThread {
+            return
+        }
+        if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
+            if let chat = chat {
+                let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+                var minIndex: Int? = nil
+                let itemsPerPage = 100
+
+                backgroundContext.performSafely {
+                    minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+
+                    if let minIndex = minIndex {
+                        if (minIndex - 1) <= 0 {
+                            return
+                        }
+                        DispatchQueue.global(qos: .background).async {
+                            SphinxOnionManager.sharedInstance.startChatMsgBlockFetch(
+                                startIndex: minIndex - 1,
+                                itemsPerPage: itemsPerPage,
+                                stopIndex: 0,
+                                publicKey: publicKey
+                            ) { messagesCount in
+                                if messagesCount < itemsPerPage {
+                                    self.allItemsLoaded = true
+
+                                    self.processMessages(
+                                        messages: self.messagesArray,
+                                        UIUpdateIndex: self.UIUpdateIndex,
+                                        showLoadingMore: false
+                                    )
+
+                                    if self.isSearching {
+                                        self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                    }
+                                } else {
+                                    self.loadMoreItems(itemsCount: messagesCount)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     @objc func shouldHideNewMsgsIndicator() -> Bool {

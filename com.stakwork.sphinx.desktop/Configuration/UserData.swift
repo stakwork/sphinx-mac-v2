@@ -181,6 +181,66 @@ class UserData {
         return nil
     }
     
+    func save(
+        personalGraphValue: String,
+        for key: KeychainManager.KeychainKeys
+    ) {
+        if let pin = getAppPin(),
+            let encryptedValue = SymmetricEncryptionManager.sharedInstance.encryptString(text: personalGraphValue, key: pin),
+            !encryptedValue.isEmpty
+        {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            
+            let _ = keychainManager.save(
+                value: encryptedValue,
+                forComposedKey: composedKey
+            )
+        }
+    }
+    
+    func getPersonalGraphValue(
+        with key: KeychainManager.KeychainKeys
+    ) -> String? {
+        if let pin = getAppPin() {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            
+            if let encryptedValue = keychainManager.getValueFor(composedKey: composedKey), !encryptedValue.isEmpty {
+                if let value = SymmetricEncryptionManager.sharedInstance.decryptString(text: encryptedValue, key: pin){
+                    return value
+                }
+            }
+        }
+        return nil
+    }
+    
+    func getPersonalGraphUrl() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):8000/mindset"
+        }
+        return nil
+    }
+    
+    func getPersonalGraphS3Url() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):4566"
+        }
+        return nil
+    }
+    
+    func getPersonalGraphBoltwallUrl() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):8444/api"
+        }
+        return nil
+    }
+    
+    func getPersonalGraphStakworklUrl() -> String? {
+        if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
+            return "\(url):3333"
+        }
+        return nil
+    }
+    
     func save(balance: UInt64) {
         let _ = keychainManager.save(
             value: String(balance),

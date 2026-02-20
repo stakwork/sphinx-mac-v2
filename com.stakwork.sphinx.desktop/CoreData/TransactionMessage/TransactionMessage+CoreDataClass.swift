@@ -375,7 +375,8 @@ public class TransactionMessage: NSManagedObject {
         date: Date,
         chat: Chat?,
         replyUUID: String? = nil,
-        threadUUID: String? = nil
+        threadUUID: String? = nil,
+        context: NSManagedObjectContext? = nil
     ) -> TransactionMessage? {
         let messageType = TransactionMessageType(fromRawValue: type)
         
@@ -415,10 +416,11 @@ public class TransactionMessage: NSManagedObject {
         type: TransactionMessageType,
         attachmentObject: AttachmentObject? = nil,
         replyUUID: String? = nil,
-        threadUUID: String? = nil
+        threadUUID: String? = nil,
+        context: NSManagedObjectContext? = nil
     ) -> TransactionMessage? {
         
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        let managedContext = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
         
         let message = TransactionMessage(context: managedContext) as TransactionMessage
         message.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
@@ -435,6 +437,12 @@ public class TransactionMessage: NSManagedObject {
             message.mediaType = attachmentObject.getMimeType()
             message.mediaFileName = attachmentObject.getFileName()
             message.mediaFileSize = attachmentObject.getDecryptedData()?.count ?? 0
+            
+            if attachmentObject.price > 0 {
+                let mediaTokenPrice = "amt=\(attachmentObject.price)&ttl=undefined".base64Encoded ?? ""
+                message.mediaToken = "x.x.x.x.\(mediaTokenPrice)"
+            }
+            
             message.uploadingObject = attachmentObject
         }
         

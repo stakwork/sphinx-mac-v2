@@ -34,7 +34,9 @@ class ChatListViewController : DashboardSplittedViewController {
                 buttonTitles: [
                     "dashboard.tabs.friends".localized,
                     "dashboard.tabs.tribes".localized,
-                    "dashboard.tabs.feed".localized
+                    "dashboard.tabs.feed".localized,
+                    "dashboard.tabs.graph".localized,
+                    "dashboard.tabs.workspaces".localized
                 ],
                 delegate: self
             )
@@ -80,6 +82,14 @@ class ChatListViewController : DashboardSplittedViewController {
         FeedListViewController.instantiate(delegate: self)
     }()
     
+    internal lazy var graphContainerViewController: GraphListViewController = {
+        GraphListViewController.instantiate()
+    }()
+
+    internal lazy var workspacesContainerViewController: WorkspacesListViewController = {
+        WorkspacesListViewController.instantiate()
+    }()
+    
     static func instantiate(
         delegate: DashboardVCDelegate?
     ) -> ChatListViewController {
@@ -114,6 +124,16 @@ class ChatListViewController : DashboardSplittedViewController {
     
     func listenForNotifications() {
         NotificationCenter.default.addObserver(
+            forName: .onGraphLabelChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] (n: Notification) in
+            DispatchQueue.main.async {
+                self?.dashboardNavigationTabs.updateGraphTabLabel()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
             forName: .onContactsAndChatsChanged,
             object: nil,
             queue: OperationQueue.main
@@ -146,9 +166,7 @@ class ChatListViewController : DashboardSplittedViewController {
                         self.contactsService.selectedTab = .friends
                         self.contactsService.selectedFriendId = chat?.getObjectId() ?? user.getObjectId()
                         self.setActiveTab(.friends, shouldSwitchChat: false)
-                    }
-                    
-                    self.dashboardNavigationTabs.updateButtonsOnIndexChange()
+                    }                    
                     
                     self.didClickRowAt(
                         chatId: chat?.id,

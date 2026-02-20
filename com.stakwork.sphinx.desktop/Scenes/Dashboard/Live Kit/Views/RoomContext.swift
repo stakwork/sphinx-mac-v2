@@ -16,10 +16,12 @@
 
 import LiveKit
 import SwiftUI
+import AVFoundation
 
 protocol RoomContextDelegate: AnyObject {
+    func createControlsPanel()
     func presentCallControlWindowWith(roomCtx: RoomContext)
-    func hideCallControlWindow()
+    func hideCallControlWindow(forceClose: Bool)
 }
 
 // This class contains the logic to control behavior of the whole app.
@@ -43,7 +45,7 @@ final class RoomContext: NSObject, ObservableObject {
     @Published var shouldShowDisconnectReason: Bool = false
     public var latestError: LiveKitError?
 
-    public let room = Room()
+    public var room: Room!
 
     @Published var url: String = "" {
         didSet { store.value.url = url }
@@ -142,7 +144,26 @@ final class RoomContext: NSObject, ObservableObject {
         
         super.init()
         
+        self.delegate?.createControlsPanel()
+        
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
+        let screenShareOptions = ScreenShareCaptureOptions(
+            dimensions: .h1080_169,
+            fps: 30,
+            showCursor: true,
+            appAudio: false,
+            useBroadcastExtension: false,
+            includeCurrentApplication: false,
+            excludeWindowIDs: windowsToExcludeIds
+        )
+        let roomOptions = RoomOptions(defaultScreenShareCaptureOptions: screenShareOptions)
+        
+        room = Room(roomOptions: roomOptions)
         room.add(delegate: self)
+        
+        self.delegate?.presentCallControlWindowWith(roomCtx: self)
+        self.delegate?.hideCallControlWindow(forceClose: false)
 
         url = store.value.url
         token = store.value.token
@@ -179,25 +200,31 @@ final class RoomContext: NSObject, ObservableObject {
             isE2eeEnabled = entry.e2ee
             e2eeKey = entry.e2eeKey
         }
+        
+        let hasMicrophone = AVCaptureDevice.default(for: .audio) != nil
 
         let connectOptions = ConnectOptions(
-            autoSubscribe: autoSubscribe
+            autoSubscribe: autoSubscribe && hasMicrophone
         )
 
         var e2eeOptions: E2EEOptions? = nil
+        
         if isE2eeEnabled {
             let keyProvider = BaseKeyProvider(isSharedKey: true)
             keyProvider.setKey(key: e2eeKey)
             e2eeOptions = E2EEOptions(keyProvider: keyProvider)
         }
 
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
         let roomOptions = RoomOptions(
             defaultCameraCaptureOptions: CameraCaptureOptions(
                 dimensions: .h1080_169
             ),
             defaultScreenShareCaptureOptions: ScreenShareCaptureOptions(
                 dimensions: .h1080_169,
-                includeCurrentApplication: true
+                includeCurrentApplication: true,
+                excludeWindowIDs: windowsToExcludeIds
             ),
             defaultVideoPublishOptions: VideoPublishOptions(
                 simulcast: simulcast
@@ -218,7 +245,7 @@ final class RoomContext: NSObject, ObservableObject {
         }
 
         _connectTask = connectTask
-        try await connectTask.value
+        try await connectTask.value        
 
         return room
     }
@@ -233,7 +260,15 @@ final class RoomContext: NSObject, ObservableObject {
         @available(macOS 12.3, *)
         func setScreenShareMacOS(isEnabled: Bool, screenShareSource: MacOSScreenCaptureSource? = nil) async throws {
             if isEnabled, let screenShareSource {
-                let track = LocalVideoTrack.createMacOSScreenShareTrack(source: screenShareSource, options: ScreenShareCaptureOptions(includeCurrentApplication: true))
+                let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+                
+                let track = LocalVideoTrack.createMacOSScreenShareTrack(
+                    source: screenShareSource,
+                    options: ScreenShareCaptureOptions(
+                        includeCurrentApplication: true,
+                        excludeWindowIDs: windowsToExcludeIds
+                    )
+                )
                 let options = VideoPublishOptions(preferredCodec: VideoCodec.h264)
                 screenShareTrack = try await room.localParticipant.publish(videoTrack: track, options: options)
             }
@@ -306,7 +341,7 @@ extension RoomContext: RoomDelegate {
         }
     }
 
-    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String) {
+    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, _: EncryptionType) {
         print("didReceiveData")
     }
 
@@ -361,13 +396,17 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
 
 extension RoomContext: NSWindowDelegate {
     func windowDidBecomeKey(_ notification: Notification) {
-        delegate?.hideCallControlWindow()
+        DispatchQueue.main.async {
+            self.delegate?.hideCallControlWindow(forceClose: false)
+        }
     }
     
     func windowDidResignKey(_ notification: Notification) {
         if self.room.connectionState == .connected {
-            self.delegate?.hideCallControlWindow()
-            self.delegate?.presentCallControlWindowWith(roomCtx: self)
+            DispatchQueue.main.async {
+                self.delegate?.hideCallControlWindow(forceClose: false)
+                self.delegate?.presentCallControlWindowWith(roomCtx: self)
+            }
         }
     }
 }

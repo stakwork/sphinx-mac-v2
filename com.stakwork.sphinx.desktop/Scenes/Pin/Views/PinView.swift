@@ -35,7 +35,14 @@ class PinView: NSView, LoadableNib {
     }
     
     func configureView() {
-        pinFieldView.configureWith(placeHolder: "", label: "", backgroundColor: NSColor.white, color: NSColor(hex: "#909BAA"), field: .PIN, delegate: self)
+        pinFieldView.configureWith(
+            placeHolder: "",
+            label: "",
+            backgroundColor: NSColor.white,
+            color: NSColor(hex: "#909BAA"),
+            field: NamePinView.Fields.PIN.rawValue,
+            delegate: self
+        )
     }
     
     func configureForSignup() {
@@ -43,7 +50,14 @@ class PinView: NSView, LoadableNib {
         titleLabel.textColor = NSColor.white
         subtitleLabel.textColor = NSColor.white
         
-        pinFieldView.configureWith(placeHolder: "", label: "", backgroundColor: NSColor.white, color: NSColor(hex: "#909BAA"), field: .PIN, delegate: self)
+        pinFieldView.configureWith(
+            placeHolder: "",
+            label: "",
+            backgroundColor: NSColor.white,
+            color: NSColor(hex: "#909BAA"),
+            field: NamePinView.Fields.PIN.rawValue,
+            delegate: self
+        )
     }
     
     func setSubtitle(_ subtitle: String) {

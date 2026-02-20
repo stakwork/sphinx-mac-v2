@@ -176,16 +176,9 @@ extension NewChatListViewController {
          }
 
         func hash(into hasher: inout Hasher) {
+            // Only hash objectId for identity - other properties are for change detection in ==
+            // This prevents duplicates when the same chat has different states between updates
             hasher.combine(objectId)
-            hasher.combine(messageId)
-            hasher.combine(messageStatus)
-            hasher.combine(message30SecOld)
-            hasher.combine(messageSeen)
-            hasher.combine(unseenCount)
-            hasher.combine(contactStatus)
-            hasher.combine(inviteStatus)
-            hasher.combine(notify)
-            hasher.combine(selected)
         }
     }
 
@@ -381,7 +374,7 @@ extension NewChatListViewController {
                 self.contactsService.selectedTribeId
 
             let items = self.chatListObjects.enumerated().map { (index, element) in
-                
+
                 DataSourceItem(
                     objectId: element.getObjectId(),
                     messageId: element.lastMessage?.id,
@@ -394,10 +387,20 @@ extension NewChatListViewController {
                     notify: element.getChat()?.notify ?? Chat.NotificationLevel.SeeAll.rawValue,
                     selected: selectedObjectId == element.getObjectId()
                 )
-                
+
             }
-            
-            snapshot.appendItems(items, toSection: .all)
+
+            // Filter out duplicates by objectId to prevent diffable data source issues
+            var seenObjectIds = Set<String>()
+            let uniqueItems = items.filter { item in
+                if seenObjectIds.contains(item.objectId) {
+                    return false
+                }
+                seenObjectIds.insert(item.objectId)
+                return true
+            }
+
+            snapshot.appendItems(uniqueItems, toSection: .all)
             
             self.dataSource.apply(snapshot, animatingDifferences: true) {
                 completion?()
@@ -511,7 +514,6 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
             case .deleteContact:
                 guard let contactId = (sender.representedObject as? UserContact)?.id else {
                     return
-                    
                 }
                 initiateDeletion(contactId: contactId)
             case .toggleReadUnread:
@@ -590,5 +592,7 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
         }
                 
         CoreDataManager.sharedManager.deleteContactObjectsFor(contact)
+        
+        delegate?.shouldResetContactView()
     }
 }

@@ -43,7 +43,14 @@ class ScreenShareSourcePickerCtrl: ObservableObject {
         }
 
         let sources = try await MacOSScreenCapturer.sources(for: mode == .display ? .display : .window, includeCurrentApplication: true)
-        let options = ScreenShareCaptureOptions(dimensions: .h360_43, fps: 5, includeCurrentApplication: true)
+        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        
+        let options = ScreenShareCaptureOptions(
+            dimensions: .h360_43,
+            fps: 5,
+            includeCurrentApplication: true,
+            excludeWindowIDs: windowsToExcludeIds
+        )
         let _newTracks = sources.map { LocalVideoTrack.createMacOSScreenShareTrack(source: $0, options: options) }
 
         Task { @MainActor in
@@ -94,16 +101,17 @@ struct ScreenShareSourcePickerView: View {
         case window
     }
 
-    @ObservedObject var ctrl = ScreenShareSourcePickerCtrl()
-
     let onPickScreenShareSource: OnPickScreenShareSource?
+    @ObservedObject var ctrl = ScreenShareSourcePickerCtrl()
 
     private var columns = [
         GridItem(.fixed(250)),
         GridItem(.fixed(250)),
     ]
 
-    init(onPickScreenShareSource: OnPickScreenShareSource? = nil) {
+    init(
+        onPickScreenShareSource: OnPickScreenShareSource? = nil
+    ) {
         self.onPickScreenShareSource = onPickScreenShareSource
     }
 

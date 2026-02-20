@@ -89,6 +89,8 @@ class NewChatViewController: DashboardSplittedViewController {
     static func instantiate(
         contactId: Int? = nil,
         chatId: Int? = nil,
+        timezoneData: [String: String]? = nil,
+        aliasesAndPics: [(String, String)]? = nil,
         delegate: DashboardVCDelegate? = nil,
         chatVCDelegate: NewChatViewControllerDelegate? = nil,
         deepLinkData : DeeplinkData? = nil,
@@ -101,6 +103,9 @@ class NewChatViewController: DashboardSplittedViewController {
         
         if let chatId = chatId {
             let chat = Chat.getChatWith(id: chatId)
+            chat?.timezoneData = timezoneData ?? [:]
+            chat?.aliasesAndPics = aliasesAndPics ?? []
+            
             viewController.chat = chat
             viewController.tribeAdmin = chat?.getAdmin() ?? owner
         }
@@ -169,7 +174,7 @@ class NewChatViewController: DashboardSplittedViewController {
     override func viewWillDisappear() {
         super.viewWillDisappear()
         
-        chatTableDataSource?.saveSnapshotCurrentState()
+        chatTableDataSource?.deleteSnapshotCurrentState()
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
@@ -178,7 +183,19 @@ class NewChatViewController: DashboardSplittedViewController {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.chat?.setChatMessagesAsSeen()
             })
+        }        
+    }
+    
+    override func viewDidDisappear() {
+        super.viewDidDisappear()
+        
+        guard let chat = chat else {
+            return
         }
+        if isThread {
+            return
+        }
+        SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
     }
     
     override func viewDidLayout() {
@@ -342,6 +359,8 @@ class NewChatViewController: DashboardSplittedViewController {
         threadVC = NewChatViewController.instantiate(
             contactId: self.contact?.id,
             chatId: self.chat?.id,
+            timezoneData: self.chat?.timezoneData,
+            aliasesAndPics: self.chat?.aliasesAndPics,
             delegate: delegate,
             chatVCDelegate: self,
             threadUUID: threadID

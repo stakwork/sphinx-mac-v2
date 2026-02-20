@@ -275,43 +275,69 @@ class ThreadHeaderView: NSView, LoadableNib {
         newMessageLabelScrollView.disabled = false
         
         if let messageMedia = messageMedia {
-            
-            messageMediaView.configureWith(
-                messageMedia: messageMedia,
-                mediaData: mediaData,
-                bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
-                and: self
-            )
-            
-            newMessageLabelScrollView.disabled = false
-            messageMediaView.isHidden = false
-            mediaTextContainer.isHidden = false
-            messageMediaContainer.isHidden = false
-            
+            if messageMedia.isImageLink {
+                if let mediaData = mediaData {
+                    if mediaData.failed {
+                        return
+                    }
+                    messageMediaView.configureWith(
+                        messageMedia: messageMedia,
+                        mediaData: mediaData,
+                        bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                        and: self
+                    )
+                    newMessageLabelScrollView.disabled = false
+                    messageMediaView.isHidden = false
+                    mediaTextContainer.isHidden = false
+                    messageMediaContainer.isHidden = false
+                    
+                }
+//                else if let messageId = messageId, mediaData == nil {
+//                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+//                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+//                        self.delegate?.shouldLoadImageDataFor?(
+//                            messageId: messageId,
+//                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+//                        )
+//                    }
+//                }
+            } else {
+                messageMediaView.configureWith(
+                    messageMedia: messageMedia,
+                    mediaData: mediaData,
+                    bubble: BubbleMessageLayoutState.Bubble(direction: .Incoming, grouping: .Isolated),
+                    and: self
+                )
+                
+                newMessageLabelScrollView.disabled = false
+                messageMediaView.isHidden = false
+                mediaTextContainer.isHidden = false
+                messageMediaContainer.isHidden = false
 
-            if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    if messageMedia.isImage {
-                        self.delegate?.shouldLoadImageDataFor?(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
-                    } else if messageMedia.isPdf {
-                        self.delegate?.shouldLoadPdfDataFor?(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
-                    } else if messageMedia.isVideo {
-                        self.delegate?.shouldLoadVideoDataFor?(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
-                    } else if messageMedia.isGiphy {
-                        self.delegate?.shouldLoadGiphyDataFor?(
-                            messageId: messageId,
-                            and: NewChatTableDataSource.kThreadHeaderRowIndex
-                        )
+                if let messageId = messageId, mediaData == nil {
+                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                        if messageMedia.isImage {
+                            self.delegate?.shouldLoadImageDataFor?(
+                                messageId: messageId,
+                                and: NewChatTableDataSource.kThreadHeaderRowIndex
+                            )
+                        } else if messageMedia.isPdf {
+                            self.delegate?.shouldLoadPdfDataFor?(
+                                messageId: messageId,
+                                and: NewChatTableDataSource.kThreadHeaderRowIndex
+                            )
+                        } else if messageMedia.isVideo {
+                            self.delegate?.shouldLoadVideoDataFor?(
+                                messageId: messageId,
+                                and: NewChatTableDataSource.kThreadHeaderRowIndex
+                            )
+                        } else if messageMedia.isGiphy {
+                            self.delegate?.shouldLoadGiphyDataFor?(
+                                messageId: messageId,
+                                and: NewChatTableDataSource.kThreadHeaderRowIndex
+                            )
+                        }
                     }
                 }
             }
@@ -323,7 +349,6 @@ class ThreadHeaderView: NSView, LoadableNib {
         mediaData: MessageTableCellState.MediaData?
     ) {
         if let _ = genericFile {
-            
             fileInfoView.configureWith(
                 mediaData: mediaData,
                 and: self
@@ -333,7 +358,7 @@ class ThreadHeaderView: NSView, LoadableNib {
             fileInfoView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadFileDataFor?(
                         messageId: messageId,
@@ -349,7 +374,6 @@ class ThreadHeaderView: NSView, LoadableNib {
         mediaData: MessageTableCellState.MediaData?
     ) {
         if let audio = audio {
-            
             audioMessageView.configureWith(
                 audio: audio,
                 mediaData: mediaData,
@@ -361,7 +385,7 @@ class ThreadHeaderView: NSView, LoadableNib {
             audioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
                     self.delegate?.shouldLoadAudioDataFor?(
                         messageId: messageId,

@@ -560,43 +560,54 @@ class GroupsManager {
         }
     }
     
-    func lookupAndRestoreTribe(
+    func fetchTribeInfoAsync(
         pubkey: String,
         host: String,
-        completion: @escaping (Chat?) -> ()
-    ){
+        context: NSManagedObjectContext? = nil
+    ) async -> JSON? {
         let tribeInfo = GroupsManager.TribeInfo(ownerPubkey: pubkey, host: host, uuid: pubkey)
         
-        GroupsManager.sharedInstance.fetchTribeInfo(
-            host: tribeInfo.host,
-            uuid: tribeInfo.uuid,
-            useSSL: false,
-            completion: { groupInfo in
-                if groupInfo["deleted"].boolValue == true {
-                    completion(nil)
-                    return
+        return await withCheckedContinuation { continuation in
+            var hasResumed = false  // ✅ Keep this safeguard
+            
+            GroupsManager.sharedInstance.fetchTribeInfo(
+                host: tribeInfo.host,
+                uuid: tribeInfo.uuid,
+                useSSL: false,
+                completion: { groupInfo in
+                    guard !hasResumed else {
+                        return
+                    }
+                    hasResumed = true
+                    
+                    if groupInfo["deleted"].boolValue == true {
+                        continuation.resume(returning: nil)
+                        return
+                    }
+                    
+                    let chatDict: [String: Any] = [
+                        "id": SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
+                        "owner_pubkey": groupInfo["pubkey"],
+                        "name": groupInfo["name"],
+                        "private": groupInfo["private"],
+                        "photo_url": groupInfo["img"],
+                        "unlisted": groupInfo["unlisted"],
+                        "price_per_message": groupInfo["price_per_message"],
+                        "escrow_amount": max(groupInfo["escrow_amount"].int ?? 3, 3)
+                    ]
+                    
+                    continuation.resume(returning: JSON(chatDict))
+                },
+                errorCallback: {
+                    guard !hasResumed else {
+                        return
+                    }
+                    hasResumed = true
+                    
+                    continuation.resume(returning: nil)
                 }
-                
-                let chatDict : [String: Any] = [
-                    "id": SphinxOnionManager.sharedInstance.generateCryptographicallySecureRandomInt(upperBound: Int(1e5)) as Any,
-                    "owner_pubkey": groupInfo["pubkey"],
-                    "name" : groupInfo["name"],
-                    "private": groupInfo["private"],
-                    "photo_url": groupInfo["img"],
-                    "unlisted": groupInfo["unlisted"],
-                    "price_per_message": groupInfo["price_per_message"],
-                    "escrow_amount": max(groupInfo["escrow_amount"].int ?? 3, 3)
-                ]
-                let chatJSON = JSON(chatDict)
-                let resultantChat = Chat.insertChat(chat: chatJSON)
-                resultantChat?.status = (chatDict["private"] as? Bool ?? false) ? Chat.ChatStatus.pending.rawValue : Chat.ChatStatus.approved.rawValue
-                resultantChat?.type = (chatDict["private"] as? Bool ?? false) ? Chat.ChatType.privateGroup.rawValue : Chat.ChatType.publicGroup.rawValue
-                resultantChat?.managedObjectContext?.saveContext()
-                completion(resultantChat)
-            },
-            errorCallback: {
-                completion(nil)
-        })
+            )
+        }
     }
 }
 

@@ -48,43 +48,56 @@ extension NewChatTableDataSource {
 //    }
     
     @objc func restorePreloadedOrLoadMessages() {
-        guard let chat = chat else {
-            return
-        }
-        
-        if let preloadedMessagesState = preloaderHelper.getPreloadedMessagesState(for: chat.id) {
-            messageTableCellStateArray = preloadedMessagesState.messageCellStates
-            updatePreloadedSnapshot()
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
-                guard let self = self else { return }
-                self.configureResultsController(items: max(self.dataSource.snapshot().numberOfItems, preloadedMessagesState.resultsControllerCount))
-            })
-        } else {
+//        guard let chat = chat else {
+//            return
+//        }
+//        
+//        if let preloadedMessagesState = preloaderHelper.getPreloadedMessagesState(for: chat.id) {
+//            messageTableCellStateArray = preloadedMessagesState.messageCellStates
+//            updatePreloadedSnapshot()
+//            
+//            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: { [weak self] in
+//                guard let self = self else { return }
+//                self.configureResultsController(
+//                    items: max(self.dataSource.snapshot().numberOfItems, preloadedMessagesState.resultsControllerCount)
+//                )
+//                fetchMoreItems()
+//            })
+//        } else {
             configureResultsController(items: max(dataSource.snapshot().numberOfItems, 100))
-        }
+//        }
     }
     
     @objc func saveMessagesToPreloader() {
-        let collectionViewOffsetY = collectionViewScroll.documentYOffset + collectionViewScroll.contentInsets.top
-        let firstVisibleItem = collectionView.indexPathForItem(at: NSPoint(x: 0, y: collectionViewOffsetY))?.item ?? 0
-        
-        guard let chat = chat, collectionView.numberOfSections > 0 && firstVisibleItem > 0 else {
-            return
-        }
-        
-        let numberOfItems = collectionView.numberOfItems(inSection: 0)
-        
-        preloaderHelper.add(
-            messageStateArray: messageTableCellStateArray.endSubarray(size: (numberOfItems - firstVisibleItem) + 10),
-            resultsControllerCount: messagesCount,
-            for: chat.id
-        )
+//        let collectionViewOffsetY = collectionViewScroll.documentYOffset + collectionViewScroll.contentInsets.top
+//        let firstVisibleItem = collectionView.indexPathForItem(at: NSPoint(x: 0, y: collectionViewOffsetY))?.item ?? 0
+//        
+//        guard let chat = chat, collectionView.numberOfSections > 0 && firstVisibleItem > 0 else {
+//            return
+//        }
+//        
+//        let numberOfItems = collectionView.numberOfItems(inSection: 0)
+//        
+//        preloaderHelper.add(
+//            messageStateArray: messageTableCellStateArray.endSubarray(size: (numberOfItems - firstVisibleItem) + 10),
+//            resultsControllerCount: messagesCount,
+//            for: chat.id
+//        )
     }
     
     @objc func saveSnapshotCurrentState() {
         saveScrollPosition()
-        saveMessagesToPreloader()
+//        saveMessagesToPreloader()
+    }
+    
+    func deleteSnapshotCurrentState() {
+        guard let chatId = chat?.id else {
+            return
+        }
+        
+        self.preloaderHelper.reset(
+            for: chatId
+        )
     }
     
     @objc func restoreScrollLastPosition() {
@@ -97,6 +110,11 @@ extension NewChatTableDataSource {
 
             ///Find index of stored first visible item
             if let index = messageTableCellStateArray.firstIndex(where: { $0.getUniqueIdentifier() == scrollState.firstRowId}) {
+                
+                let numberOfItems = collectionView.numberOfItems(inSection: 0)
+                guard index < numberOfItems else {
+                    return
+                }
                 ///Scroll to stored first visible item
                 collectionView.scrollToItems(at: [IndexPath(item: index, section: 0)], scrollPosition: .top)
 
@@ -121,13 +139,10 @@ extension NewChatTableDataSource {
         let offset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
         scrollViewDesiredOffset = offset
         collectionViewScroll.documentYOffset = offset
-        
-        if scrolledAtBottom {
-            return
-        }
-        
+
         scrolledAtBottom = true
-        
+
+        /// Always call delegate when scrolling to bottom on initial load to mark messages as seen
         delegate?.didScrollToBottom()
         scrollViewDidScroll()
     }

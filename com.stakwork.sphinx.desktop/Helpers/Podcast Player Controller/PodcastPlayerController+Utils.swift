@@ -10,6 +10,19 @@ import Foundation
 import AVKit
 
 extension PodcastPlayerController {
+    func updateItemDataSync(
+        podcastId: String,
+        episodeId: String,
+        currentTime: Int? = nil,
+        duration: Int? = nil
+    ) {
+        DataSyncManager.sharedInstance.saveFeedItemStatusFor(
+            feedId: podcastId,
+            itemId: episodeId,
+            feedItemStatus: FeedItemStatus(duration: duration ?? 0, currentTime: currentTime ?? 0)
+        )
+    }
+    
     func updatePodcastObject(
         podcastId: String,
         episodeId: String? = nil,
@@ -109,9 +122,9 @@ extension PodcastPlayerController {
     }
     
     @objc func shouldSyncPodcast() {
-        if let feedId = podcast?.feedID {
-            FeedsManager.sharedInstance.saveContentFeedStatus(for: feedId)
-        }
+//        if let feedId = podcast?.feedID {
+//            FeedsManager.sharedInstance.saveContentFeedStatus(for: feedId)
+//        }
     }
     
     @objc func updateCurrentTime() {
@@ -157,6 +170,13 @@ extension PodcastPlayerController {
             podcastId: podcastData.podcastId,
             currentTime: 0,
             clipInfo: podcastData.clipInfo
+        )
+        
+        updateItemDataSync(
+            podcastId: podcastData.podcastId,
+            episodeId: podcastData.episodeId,
+            currentTime: 0,
+            duration: podcastData.duration
         )
         
         markEpisodeAsPlayed()

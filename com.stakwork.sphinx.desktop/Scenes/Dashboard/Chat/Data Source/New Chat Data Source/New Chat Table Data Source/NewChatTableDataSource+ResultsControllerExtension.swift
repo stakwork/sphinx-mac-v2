@@ -38,8 +38,19 @@ extension NewChatTableDataSource {
 
         snapshot.appendSections([CollectionViewSection.messages])
 
+        // Filter out duplicates to prevent NSDiffableDataSourceSnapshot crashes
+        // Use Set which relies on Hashable conformance - same logic diffable data source uses
+        var seenItems = Set<MessageTableCellState>()
+        var uniqueItems: [MessageTableCellState] = []
+
+        for item in messageTableCellStateArray {
+            if seenItems.insert(item).inserted {
+                uniqueItems.append(item)
+            }
+        }
+
         snapshot.appendItems(
-            messageTableCellStateArray,
+            uniqueItems,
             toSection: .messages
         )
 
@@ -59,16 +70,19 @@ extension NewChatTableDataSource {
         }
        
         scrolledAtBottom = false
-    
-        self.saveSnapshotCurrentState()
+        
+        let loadingMoreItems = self.dataSource.snapshot().numberOfItems < snapshot.numberOfItems
         
         DispatchQueue.main.async {
-            CoreDataManager.sharedManager.saveContext()
+            if loadingMoreItems { self.saveSnapshotCurrentState() }
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                self.restoreScrollLastPosition()
-                self.loadingMoreItems = false
+                if loadingMoreItems { self.restoreScrollLastPosition() }
                 self.isFirstLoad = false
+                
+                DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
+                    self.loadingMoreItems = false
+                })
                 
                 completion?()
             }
@@ -146,7 +160,8 @@ extension NewChatTableDataSource {
     
     @objc func processMessages(
         messages: [TransactionMessage],
-        UIUpdateIndex: Int
+        UIUpdateIndex: Int,
+        showLoadingMore: Bool
     ) {
         let chat = chat ?? contact?.getFakeChat()
         
@@ -162,6 +177,7 @@ extension NewChatTableDataSource {
         
         var newMsgCount = 0
         var array: [MessageTableCellState] = []
+        var searchM: [(Int, MessageTableCellState)] = []
         
         let contact = chat.getConversationContact()
         
@@ -171,7 +187,7 @@ extension NewChatTableDataSource {
         let requestResponsesMap = getMemberRequestResponsesMapFor(messages: messages)
         let purchaseMessagesMap = getPurchaseMessagesMapFor(messages: messages)
         
-        let threadMessagesMap = getThreadMessagesFor(messages: messages)
+        let threadMessagesMap = isSearching ? [:] : getThreadMessagesFor(messages: messages)
         let linkContactsArray = getLinkContactsArrayFor(messages: messages)
         let linkTribesArray = getLinkTribesArrayFor(messages: messages)
         let webLinksArray = getWebLinksArrayFor(messages: messages)
@@ -179,7 +195,7 @@ extension NewChatTableDataSource {
         var groupingDate: Date? = nil
         var invoiceData: (Int, Int) = (0, 0)
 
-        let filteredThreadMessages: [TransactionMessage] = filterThreadMessagesFrom(
+        let filteredThreadMessages: [TransactionMessage] = isSearching ? messages : filterThreadMessagesFrom(
             messages: messages,
             threadMessagesMap: threadMessagesMap
         )
@@ -188,6 +204,18 @@ extension NewChatTableDataSource {
             threadMessages: filteredThreadMessages,
             threadMessagesMap: threadMessagesMap
         )
+        
+        if showLoadingMore {
+            array.append(
+                MessageTableCellState(
+                    chat: chat,
+                    owner: owner,
+                    contact: contact,
+                    tribeAdmin: tribeAdmin,
+                    isLoadingMoreMessages: true
+                )
+            )
+        }
 
         for (index, message) in filteredThreadMessages.enumerated() {
             
@@ -216,7 +244,8 @@ extension NewChatTableDataSource {
                 in: filteredThreadMessages,
                 and: originalMessagesMap,
                 groupingDate: &groupingDate,
-                isThreadRow: threadMessages.count > 1
+                isThreadRow: threadMessages.count > 1,
+                showLoadingMore: showLoadingMore
             )
             
             if let separatorDate = bubbleStateAndDate.1 {
@@ -264,24 +293,28 @@ extension NewChatTableDataSource {
             
             newMsgCount += getNewMessageCountFor(message: message, and: owner)
             
-            processForSearch(
+            if let match = processForSearch(
                 message: message,
                 messageTableCellState: messageTableCellState,
                 index: array.count - 1
-            )
+            ) {
+                searchM.append(match)
+            }
         }
         
         messageTableCellStateArray = array
-        
+        updateMessageIdIndexMap()
+        invalidateRowHeightCache()
+
         updateSnapshot(
             UIUpdateIndex: UIUpdateIndex
         ) {
             self.delegate?.configureNewMessagesIndicatorWith(
-                newMsgCount: newMsgCount
+                newMsgCount: 0
             )
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
-                self.finishSearchProcess()
+
+            DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
+                self.finishSearchProcess(matches: searchM)
             })
         }
     }
@@ -324,8 +357,11 @@ extension NewChatTableDataSource {
     }
     
     func forceReload() {
-        processMessages(messages: messagesArray, UIUpdateIndex: self.UIUpdateIndex)
-        reloadAllVisibleRows()
+        processMessages(
+            messages: messagesArray,
+            UIUpdateIndex: self.UIUpdateIndex,
+            showLoadingMore: false
+        )
     }
     
     func getMessagesCount() -> Int {
@@ -374,7 +410,8 @@ extension NewChatTableDataSource {
         and originalMessagesMap: [String: TransactionMessage],
         groupingDate: inout Date?,
         isThreadRow: Bool = false,
-        threadHeaderMessage: TransactionMessage? = nil
+        threadHeaderMessage: TransactionMessage? = nil,
+        showLoadingMore: Bool = false
     ) -> (MessageTableCellState.BubbleState?, Date?) {
         
         var previousMessage = (index > 0) ? messages[index - 1] : nil
@@ -396,7 +433,7 @@ extension NewChatTableDataSource {
             if Date.isDifferentDay(firstDate: previousMessageDate, secondDate: date) {
                 separatorDate = date
             }
-        } else if previousMessage == nil {
+        } else if previousMessage == nil && !showLoadingMore {
             separatorDate = message.date
         }
         
@@ -808,28 +845,39 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
             
             if controller == messagesResultsController {
                 if let messages = firstSection.objects as? [TransactionMessage] {
-                    self.chat?.processAliasesFrom(messages: messages.reversed())
-                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() && !$0.isDeclinedRequest() }).reversed()
-                    
-                    if !(self.delegate?.isOnStandardMode() ?? true) {
-                        return
+                    if !self.isThread {
+                        ///Do not processes aliases and timezone on thread since it came from chat
+                        self.chat?.processAliasesFrom(messages: messages.reversed())
                     }
+                    
+                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
+                    self.processTimezoneNotSentRecently()
                     
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
-                    self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
+                    
+                    self.processMessages(
+                        messages: self.messagesArray,
+                        UIUpdateIndex: self.UIUpdateIndex,
+                        showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                    )
                     self.configureSecondaryMessagesResultsController()
-                    self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
+                    
+                    DispatchQueue.main.async {
+                        self.delegate?.shouldUpdateHeaderScheduleIcon(message: messages.first)
+                    }
                 }
             } else {
-                if !(self.delegate?.isOnStandardMode() ?? true) {
-                    return
-                }
-                
                 self.UIUpdateIndex += 1
                 
-                self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex)
+                let messages = messagesResultsController.sections?.first?.objects as? [TransactionMessage] ?? []
+                
+                self.processMessages(
+                    messages: self.messagesArray,
+                    UIUpdateIndex: self.UIUpdateIndex,
+                    showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                )
             }
             
             refreshEmptyView()
@@ -875,5 +923,11 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     func resetFetchedResultsControllers() {
         additionMessagesResultsController = nil
         messagesResultsController = nil
+    }
+    
+    func processTimezoneNotSentRecently() {
+        let ownerId = UserData.sharedInstance.getUserId()
+        let sentMessagesWithTimezone = messagesArray.filter({ $0.remoteTimezoneIdentifier != nil && $0.isOutgoing(ownerId: ownerId) })
+        timezoneNotSentRecently = sentMessagesWithTimezone.isEmpty
     }
 }
