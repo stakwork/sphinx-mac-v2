@@ -128,11 +128,10 @@ extension ChatListViewController : NSTextFieldDelegate {
             
             if contactsService.selectedTab == .feed {
                 feedContainerViewController.searchWith(searchQuery: currentString)
-            } else if contactsService.selectedTab == .workspaces {
-                workspacesContainerViewController.filterWorkspaces(term: currentString)
-            } else {
-                contactsService.updateChatListWith(term: currentString)
             }
+            
+            contactsService.updateChatListWith(term: currentString)
+            workspacesContainerViewController.filterWorkspaces(term: currentString)
         }
     }
 }
@@ -154,10 +153,10 @@ extension ChatListViewController: ChatsSegmentedControlDelegate {
             contactsService.selectedTab = tab
             setActiveTab(tab)
             
-            // Apply existing search term to the newly active tab
-            if tab == .workspaces, let currentSearch = searchField.stringValue, !currentSearch.isEmpty {
-                workspacesContainerViewController.filterWorkspaces(term: currentSearch)
-            }
+            // Apply existing searcnxh term to the newly active tab
+            let currentSearch = searchField.stringValue
+            contactsService.updateChatListWith(term: currentSearch)
+            workspacesContainerViewController.filterWorkspaces(term: currentSearch)
         }
     }
     

@@ -20,6 +20,8 @@ class WorkspacesListViewController: NSViewController {
 
     private var currentDataSnapshot: DataSourceSnapshot!
     private var dataSource: DataSource!
+    
+    private var searchTerm: String? = nil
 
     private let itemContentInsets = NSDirectionalEdgeInsets(
         top: 0,
@@ -33,6 +35,7 @@ class WorkspacesListViewController: NSViewController {
             if isLoading {
                 loadingWheel.startAnimation(nil)
                 loadingWheel.isHidden = false
+                noResultsFoundLabel.isHidden = true
             } else {
                 loadingWheel.stopAnimation(nil)
                 loadingWheel.isHidden = true
@@ -82,13 +85,6 @@ class WorkspacesListViewController: NSViewController {
                 }
             }
         )
-    }
-    
-    func filterWorkspaces(term: String) {
-        let filtered = term.isEmpty
-            ? allWorkspaces
-            : allWorkspaces.filter { $0.name.localizedCaseInsensitiveContains(term) }
-        updateSnapshot(with: filtered.map { DataSourceItem(workspace: $0) })
     }
 }
 
@@ -328,7 +324,7 @@ extension WorkspacesListViewController {
                 guard let self = self else { return }
 
                 self.workspacesScrollView.isHidden = items.isEmpty
-                self.noResultsFoundLabel.isHidden = !items.isEmpty
+                self.noResultsFoundLabel.isHidden = !items.isEmpty || self.isLoading
 
                 completion?()
             }
@@ -360,6 +356,8 @@ extension WorkspacesListViewController: FeedListHeaderViewDelegate {
 // MARK: - Search/Filter
 extension WorkspacesListViewController {
     func filterWorkspaces(term: String) {
+        searchTerm = term
+        
         let filtered = term.isEmpty
             ? allWorkspaces
             : allWorkspaces.filter { $0.name.localizedCaseInsensitiveContains(term) }
