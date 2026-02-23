@@ -99,12 +99,42 @@ extension API {
         callback: @escaping HiveWorkspacesCallback,
         errorCallback: @escaping EmptyCallback
     ) {
+        // Check if we have a stored token
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            // Try using the stored token first
+            fetchWorkspaces(
+                authToken: storedToken,
+                callback: callback,
+                errorCallback: { [weak self] in
+                    // Token might be expired, get a new one and retry
+                    self?.authenticateAndFetchWorkspaces(
+                        callback: callback,
+                        errorCallback: errorCallback
+                    )
+                }
+            )
+        } else {
+            // No stored token, authenticate first
+            authenticateAndFetchWorkspaces(
+                callback: callback,
+                errorCallback: errorCallback
+            )
+        }
+    }
+
+    private func authenticateAndFetchWorkspaces(
+        callback: @escaping HiveWorkspacesCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
         authenticateWithHive(
             callback: { [weak self] token in
                 guard let token = token else {
                     errorCallback()
                     return
                 }
+
+                // Store the new token
+                UserDefaults.Keys.hiveToken.set(token)
 
                 self?.fetchWorkspaces(
                     authToken: token,

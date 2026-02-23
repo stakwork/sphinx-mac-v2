@@ -323,8 +323,20 @@ extension WorkspacesListViewController {
             dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in
                 guard let self = self else { return }
 
-                self.workspacesScrollView.isHidden = items.isEmpty
-                self.noResultsFoundLabel.isHidden = !items.isEmpty || self.isLoading
+                // Keep scroll view visible so header with refresh button is always accessible
+                self.workspacesScrollView.isHidden = false
+
+                let showNoResults = items.isEmpty && !self.isLoading
+                self.noResultsFoundLabel.isHidden = !showNoResults
+
+                // Bring label to front so it's visible above the scroll view
+                if showNoResults {
+                    self.noResultsFoundLabel.superview?.addSubview(
+                        self.noResultsFoundLabel,
+                        positioned: .above,
+                        relativeTo: self.workspacesScrollView
+                    )
+                }
 
                 completion?()
             }
