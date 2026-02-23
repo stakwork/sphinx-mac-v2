@@ -352,7 +352,6 @@ extension WorkspacesListViewController: FeedListHeaderViewDelegate {
         completion()
     }
 }
-
 // MARK: - Search/Filter
 extension WorkspacesListViewController {
     func filterWorkspaces(term: String) {
