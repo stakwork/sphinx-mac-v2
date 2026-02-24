@@ -9,6 +9,14 @@
 import Cocoa
 
 extension NewMessageCollectionViewItem {
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        // Cancel pending image loads to prevent wrong avatar appearing after item reuse
+        chatAvatarView.resetView()
+    }
+
     func setupViews() {
         messageLabel.setSelectionColor(color: NSColor.getTextSelectionColor())
         messageLabel.allowsEditingTextAttributes = true

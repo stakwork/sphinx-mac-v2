@@ -108,9 +108,12 @@ class ChatSmallAvatarView: NSView, LoadableNib {
     }
     
     func resetView() {
+        profileImageView.sd_cancelCurrentImageLoad()
+        imageUrl = nil
+
         profileImageView.isHidden = false
         profileImageView.image = NSImage(named: "profileAvatar")
-        
+
         profileInitialContainer.isHidden = true
     }
     
@@ -149,7 +152,7 @@ class ChatSmallAvatarView: NSView, LoadableNib {
             profileImageView.isHidden = false
             return
         }
-        
+
         let transformer = SDImageResizingTransformer(
             size: CGSize(
                 width: profileImageView.bounds.size.width * 2,
@@ -157,23 +160,31 @@ class ChatSmallAvatarView: NSView, LoadableNib {
             ),
             scaleMode: .aspectFill
         )
-        
+
+        // Store the URL we're requesting to verify in completion handler
+        let requestedUrl = url.absoluteString
+        self.imageUrl = requestedUrl
+
         profileInitialContainer.isHidden = true
-        
+
+        profileImageView.sd_cancelCurrentImageLoad()
         profileImageView.sd_setImage(
             with: url,
             placeholderImage: NSImage(named: "profileAvatar"),
             options: [.scaleDownLargeImages, .decodeFirstFrameOnly, .progressiveLoad],
             context: [.imageTransformer: transformer],
             progress: nil,
-            completed: { (image, error, _, url) in
+            completed: { [weak self] (image, error, _, _) in
+                guard let self = self else { return }
+
+                // Verify the view still wants this image (hasn't been reused)
+                guard self.imageUrl == requestedUrl else { return }
+
                 if let image = image, error == nil {
                     self.profileImageView.image = image
                     self.profileImageView.isHidden = false
-                    self.imageUrl = url?.absoluteString
                 }
             }
-
         )
     }
     

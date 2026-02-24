@@ -61,35 +61,48 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         reply1Container.wantsLayer = true
         reply1Container.layer?.masksToBounds = false
-        
+
         reply2Container.wantsLayer = true
         reply2Container.layer?.masksToBounds = false
-        
+
         reply3Container.wantsLayer = true
         reply3Container.layer?.masksToBounds = false
-        
+
         reply4Container.wantsLayer = true
         reply4Container.layer?.masksToBounds = false
-        
+
         reply5Container.wantsLayer = true
         reply5Container.layer?.masksToBounds = false
-        
+
         reply6Container.wantsLayer = true
         reply6Container.layer?.masksToBounds = false
-        
+
         reply1AvatarView.setInitialLabelSize(size: 12)
         reply2AvatarView.setInitialLabelSize(size: 12)
         reply3AvatarView.setInitialLabelSize(size: 12)
         reply4AvatarView.setInitialLabelSize(size: 12)
         reply5AvatarView.setInitialLabelSize(size: 12)
         reply6AvatarView.setInitialLabelSize(size: 12)
-        
+
         fileDetailsView.wantsLayer = true
         fileDetailsView.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
         fileDetailsView.layer?.cornerRadius = 9
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        // Cancel pending image loads to prevent wrong avatar appearing after item reuse
+        originalMessageAvatarView.resetView()
+        reply1AvatarView.resetView()
+        reply2AvatarView.resetView()
+        reply3AvatarView.resetView()
+        reply4AvatarView.resetView()
+        reply5AvatarView.resetView()
+        reply6AvatarView.resetView()
     }
     
     func hideAllSubviews() {
