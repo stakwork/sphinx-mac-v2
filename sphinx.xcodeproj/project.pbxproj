@@ -671,6 +671,7 @@
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
 		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
+		47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK102F19000000000010 /* WorkspaceTask.swift */; };
 		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
 		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
 		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
@@ -1688,6 +1689,7 @@
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
 		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
+		47WORK102F19000000000010 /* WorkspaceTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTask.swift; sourceTree = "<group>"; };
 		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
 		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
@@ -3947,6 +3949,7 @@
 			isa = PBXGroup;
 			children = (
 				47WORK022F19000000000002 /* Workspace.swift */,
+				47WORK102F19000000000010 /* WorkspaceTask.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4389,6 +4392,7 @@
 				47308E2325083FCF00FFAC6F /* API+GiphyExtension.swift in Sources */,
 				47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */,
 				47WORK032F19000000000003 /* Workspace.swift in Sources */,
+				47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */,
 				47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */,
 				47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */,
 				47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */,
