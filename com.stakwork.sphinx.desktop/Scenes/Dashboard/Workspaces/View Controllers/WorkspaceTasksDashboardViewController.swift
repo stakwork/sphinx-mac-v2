@@ -56,17 +56,17 @@ class WorkspaceTasksDashboardViewController: NSViewController {
             forItemWithIdentifier: NSUserInterfaceItemIdentifier(WorkspaceTasksCollectionViewItem.reuseID)
         )
         
-        // Configure layout matching WorkspacesListViewController pattern
+        // Configure layout with 110pt row height for task rows
         let layout = NSCollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(Constants.kChatListRowHeight)
+                heightDimension: .absolute(110)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(Constants.kChatListRowHeight)
+                heightDimension: .absolute(110)
             )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
             
@@ -102,6 +102,7 @@ class WorkspaceTasksDashboardViewController: NSViewController {
         isLoading = true
         noResultsFoundLabel.isHidden = true
         errorLabel.isHidden = true
+        collectionView.isHidden = true  // Hide collection view while loading
         loadingWheel.startAnimation(nil)
         loadingWheel.isHidden = false
 
@@ -115,6 +116,7 @@ class WorkspaceTasksDashboardViewController: NSViewController {
                     self?.loadingWheel.isHidden = true
                     self?.tasks = tasks
                     self?.updateSnapshot()
+                    self?.collectionView.isHidden = false  // Show collection view after loading
                     self?.noResultsFoundLabel.isHidden = !tasks.isEmpty
                 }
             },
@@ -123,6 +125,7 @@ class WorkspaceTasksDashboardViewController: NSViewController {
                     self?.isLoading = false
                     self?.loadingWheel.stopAnimation(nil)
                     self?.loadingWheel.isHidden = true
+                    self?.collectionView.isHidden = false  // Show collection view even on error
                     self?.errorLabel.isHidden = false
                     self?.errorLabel.stringValue = "Failed to load tasks. Please try again."
                 }
