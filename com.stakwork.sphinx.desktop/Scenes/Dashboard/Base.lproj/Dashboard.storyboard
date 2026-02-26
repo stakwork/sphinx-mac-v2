@@ -2331,7 +2331,7 @@ URL in your Profile</string>
                                         <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-tf-001">
                                             <rect key="frame" x="240" y="430" width="120" height="30"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="No tasks found" id="wts-tfc-001">
-                                                <font key="font" usesAppFont="YES" size="14"/>
+                                                <font key="font" size="14" name="Roboto-Regular"/>
                                                 <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
@@ -2339,7 +2339,7 @@ URL in your Profile</string>
                                         <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-err-001">
                                             <rect key="frame" x="200" y="430" width="200" height="30"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Failed to load tasks" id="wts-errc-001">
-                                                <font key="font" usesAppFont="YES" size="14"/>
+                                                <font key="font" size="14" name="Roboto-Regular"/>
                                                 <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
