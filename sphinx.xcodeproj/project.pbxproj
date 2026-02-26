@@ -1697,9 +1697,9 @@
 		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
 		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
-		47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View Controllers/WorkspaceTasksDashboardViewController.swift"; sourceTree = "<group>"; };
-		47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection View Items/WorkspaceTasksCollectionViewItem.swift"; sourceTree = "<group>"; };
-		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Collection View Items/WorkspaceTasksCollectionViewItem.xib"; sourceTree = "<group>"; };
+		47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksDashboardViewController.swift; sourceTree = "<group>"; };
+		47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksCollectionViewItem.swift; sourceTree = "<group>"; };
+		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksMockData.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
@@ -3958,6 +3958,7 @@
 			children = (
 				47WORK022F19000000000002 /* Workspace.swift */,
 				47WORK102F19000000000010 /* WorkspaceTask.swift */,
+				47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -3966,6 +3967,7 @@
 			isa = PBXGroup;
 			children = (
 				47WORK042F19000000000004 /* WorkspacesListViewController.swift */,
+				47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -3974,6 +3976,8 @@
 			isa = PBXGroup;
 			children = (
 				47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */,
+				47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */,
+				47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */,
 				47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */,
 			);
 			path = "Collection View Items";
