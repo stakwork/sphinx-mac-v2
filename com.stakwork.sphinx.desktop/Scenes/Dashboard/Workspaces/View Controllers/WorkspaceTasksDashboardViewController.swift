@@ -44,7 +44,8 @@ class WorkspaceTasksDashboardViewController: NSViewController {
     private func setupSegmentedControl() {
         segmentedControl.configureFromOutlet(
             buttonTitles: ["Active", "Archived"],
-            delegate: self
+            delegate: self,
+            initialSelectedIndex: 0
         )
     }
     
