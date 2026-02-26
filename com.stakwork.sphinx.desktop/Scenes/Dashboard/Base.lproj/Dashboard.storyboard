@@ -19,12 +19,12 @@
                             <splitView arrangesAllSubviews="NO" dividerStyle="paneSplitter" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PrF-LO-tpi">
                                 <rect key="frame" x="0.0" y="0.0" width="1000" height="499"/>
                                 <subviews>
-                                    <customView id="TtT-Yv-CaJ">
+                                    <customView misplaced="YES" id="TtT-Yv-CaJ">
                                         <rect key="frame" x="0.0" y="0.0" width="350" height="499"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <subviews>
                                             <containerView translatesAutoresizingMaskIntoConstraints="NO" id="6VL-Tj-Dft">
-                                                <rect key="frame" x="0.0" y="0.0" width="350" height="499"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="365" height="499"/>
                                                 <connections>
                                                     <segue destination="GLJ-mb-R6q" kind="embed" identifier="ChatListViewControllerSegue" id="q58-SK-bKr"/>
                                                 </connections>
@@ -38,25 +38,25 @@
                                             <constraint firstAttribute="bottom" secondItem="6VL-Tj-Dft" secondAttribute="bottom" id="kVw-q0-RGa"/>
                                         </constraints>
                                     </customView>
-                                    <customView id="pXC-Wm-9tR">
+                                    <customView misplaced="YES" id="pXC-Wm-9tR">
                                         <rect key="frame" x="360" y="0.0" width="640" height="499"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <subviews>
                                             <containerView translatesAutoresizingMaskIntoConstraints="NO" id="sNN-Zp-F4E">
-                                                <rect key="frame" x="0.0" y="0.0" width="640" height="499"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="625" height="499"/>
                                                 <connections>
                                                     <segue destination="Pz4-0N-V1w" kind="embed" identifier="ChatViewControllerSegue" id="QPQ-fP-nMH"/>
                                                 </connections>
                                             </containerView>
                                             <splitView arrangesAllSubviews="NO" dividerStyle="paneSplitter" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MBk-nh-nye">
-                                                <rect key="frame" x="0.0" y="0.0" width="640" height="499"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="625" height="499"/>
                                                 <subviews>
                                                     <customView id="kk1-mv-gZj">
-                                                        <rect key="frame" x="0.0" y="0.0" width="317" height="499"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="302" height="499"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <subviews>
                                                             <containerView translatesAutoresizingMaskIntoConstraints="NO" id="tYG-E5-Q7o">
-                                                                <rect key="frame" x="0.0" y="0.0" width="317" height="499"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="302" height="499"/>
                                                                 <connections>
                                                                     <segue destination="kXm-gj-szD" kind="embed" id="dYj-dA-VwQ"/>
                                                                 </connections>
@@ -70,7 +70,7 @@
                                                         </constraints>
                                                     </customView>
                                                     <customView id="5cv-NJ-L3p">
-                                                        <rect key="frame" x="327" y="0.0" width="313" height="499"/>
+                                                        <rect key="frame" x="312" y="0.0" width="313" height="499"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <subviews>
                                                             <containerView translatesAutoresizingMaskIntoConstraints="NO" id="19x-YZ-MGN">
@@ -1964,11 +1964,11 @@ URL in your Profile</string>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="doF-IN-pqe">
-                                                            <rect key="frame" x="8" y="0.0" width="348" height="24"/>
+                                                            <rect key="frame" x="8" y="0.0" width="349" height="24"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kLd-Ex-Z8Q">
-                                                                    <rect key="frame" x="-2" y="4" width="349" height="16"/>
+                                                                    <rect key="frame" x="-2" y="4" width="350" height="16"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Z6P-yR-1id">
                                                                         <font key="font" usesAppearanceFont="YES"/>
@@ -2277,10 +2277,10 @@ URL in your Profile</string>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="loadingWheel" destination="wrk-pi-001" id="wrk-cn-004"/>
+                        <outlet property="noResultsFoundLabel" destination="wrk-tf-001" id="wrk-cn-003"/>
                         <outlet property="workspacesCollectionView" destination="wrk-cl-001" id="wrk-cn-001"/>
                         <outlet property="workspacesScrollView" destination="wrk-sv-001" id="wrk-cn-002"/>
-                        <outlet property="noResultsFoundLabel" destination="wrk-tf-001" id="wrk-cn-003"/>
-                        <outlet property="loadingWheel" destination="wrk-pi-001" id="wrk-cn-004"/>
                     </connections>
                 </viewController>
                 <customObject id="wrk-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -2315,7 +2315,7 @@ URL in your Profile</string>
                                                 <subviews>
                                                     <collectionView id="wts-cl-001">
                                                         <rect key="frame" x="0.0" y="0.0" width="600" height="840"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                         <collectionViewFlowLayout key="collectionViewLayout" id="wts-ly-001">
                                                             <size key="itemSize" width="50" height="50"/>
                                                         </collectionViewFlowLayout>
@@ -2323,21 +2323,21 @@ URL in your Profile</string>
                                                     </collectionView>
                                                 </subviews>
                                             </clipView>
-                                            <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="wts-scr-001">
+                                            <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="wts-scr-001">
                                                 <rect key="frame" x="584" y="0.0" width="16" height="840"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
-                                        <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-tf-001">
-                                            <rect key="frame" x="240" y="430" width="120" height="30"/>
+                                        <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-tf-001">
+                                            <rect key="frame" x="251" y="437" width="99" height="16"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="No tasks found" id="wts-tfc-001">
                                                 <font key="font" size="14" name="Roboto-Regular"/>
                                                 <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
-                                        <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-err-001">
-                                            <rect key="frame" x="200" y="430" width="200" height="30"/>
+                                        <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-err-001">
+                                            <rect key="frame" x="238" y="437" width="125" height="16"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="Failed to load tasks" id="wts-errc-001">
                                                 <font key="font" size="14" name="Roboto-Regular"/>
                                                 <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
@@ -2345,10 +2345,15 @@ URL in your Profile</string>
                                             </textFieldCell>
                                         </textField>
                                         <progressIndicator hidden="YES" wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="wts-pi-001">
-                                            <rect key="frame" x="290" y="435" width="20" height="20"/>
+                                            <rect key="frame" x="292" y="437" width="16" height="16"/>
                                         </progressIndicator>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="wts-tf-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c10-001"/>
+                                        <constraint firstItem="wts-err-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c11-001"/>
+                                        <constraint firstItem="wts-err-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c12-001"/>
+                                        <constraint firstItem="wts-pi-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c13-001"/>
+                                        <constraint firstItem="wts-pi-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c14-001"/>
                                         <constraint firstItem="wts-sg-001" firstAttribute="leading" secondItem="wts-cv-001" secondAttribute="leading" id="wts-c2-001"/>
                                         <constraint firstItem="wts-sg-001" firstAttribute="top" secondItem="wts-cv-001" secondAttribute="top" id="wts-c3-001"/>
                                         <constraint firstAttribute="trailing" secondItem="wts-sg-001" secondAttribute="trailing" id="wts-c4-001"/>
@@ -2357,11 +2362,6 @@ URL in your Profile</string>
                                         <constraint firstAttribute="trailing" secondItem="wts-sv-001" secondAttribute="trailing" id="wts-c7-001"/>
                                         <constraint firstAttribute="bottom" secondItem="wts-sv-001" secondAttribute="bottom" id="wts-c8-001"/>
                                         <constraint firstItem="wts-tf-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c9-001"/>
-                                        <constraint firstItem="wts-tf-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c10-001"/>
-                                        <constraint firstItem="wts-err-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c11-001"/>
-                                        <constraint firstItem="wts-err-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c12-001"/>
-                                        <constraint firstItem="wts-pi-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c13-001"/>
-                                        <constraint firstItem="wts-pi-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c14-001"/>
                                     </constraints>
                                 </view>
                                 <color key="fillColor" name="Body"/>
@@ -2375,11 +2375,11 @@ URL in your Profile</string>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="segmentedControl" destination="wts-sg-001" id="wts-cn-001"/>
                         <outlet property="collectionView" destination="wts-cl-001" id="wts-cn-002"/>
+                        <outlet property="errorLabel" destination="wts-err-001" id="wts-cn-005"/>
                         <outlet property="loadingWheel" destination="wts-pi-001" id="wts-cn-003"/>
                         <outlet property="noResultsFoundLabel" destination="wts-tf-001" id="wts-cn-004"/>
-                        <outlet property="errorLabel" destination="wts-err-001" id="wts-cn-005"/>
+                        <outlet property="segmentedControl" destination="wts-sg-001" id="wts-cn-001"/>
                     </connections>
                 </viewController>
                 <customObject id="wts-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
