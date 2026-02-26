@@ -8,7 +8,13 @@
 
 import Cocoa
 
+protocol WorkspacesListViewControllerDelegate: AnyObject {
+    func didSelectWorkspace(_ workspace: Workspace)
+}
+
 class WorkspacesListViewController: NSViewController {
+    
+    weak var delegate: WorkspacesListViewControllerDelegate?
 
     @IBOutlet weak var workspacesScrollView: NSScrollView!
     @IBOutlet weak var workspacesCollectionView: NSCollectionView!
@@ -351,8 +357,7 @@ extension WorkspacesListViewController: NSCollectionViewDelegate {
 
         if let indexPath = indexPaths.first {
             let workspace = workspaces[indexPath.item]
-            print("Selected workspace: \(workspace.name)")
-            // TODO: Handle workspace selection
+            delegate?.didSelectWorkspace(workspace)
         }
     }
 }

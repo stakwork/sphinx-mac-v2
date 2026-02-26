@@ -19,6 +19,7 @@ protocol DashboardVCDelegate: AnyObject {
     func didSwitchToTab(_ tab: ChatListViewController.DashboardTab)
     func shouldResetContactView()
     func shouldResetTribeView()
+    func didSelectWorkspace(_ workspace: Workspace)
 }
 
 class DashboardSplittedViewController: NSViewController {

@@ -70,6 +70,8 @@ class DashboardViewController: NSViewController {
         FeedDashboardViewController.instantiate()
     }()
     
+    internal lazy var workspaceTasksDashboardViewController: WorkspaceTasksDashboardViewController? = nil
+    
     internal lazy var graphDashboardViewController: WebAppViewController? = {
         WebAppViewController.instantiate(
             chat: nil,
@@ -762,6 +764,7 @@ extension DashboardViewController : NSSplitViewDelegate {
         newDetailViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
         graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
+        workspaceTasksDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
@@ -788,6 +791,10 @@ extension DashboardViewController : DashboardVCDelegate {
             chatId: nil,
             contactId: nil
         )
+    }
+    
+    func didSelectWorkspace(_ workspace: Workspace) {
+        presentWorkspaceTasksDashboard(workspace: workspace)
     }
     
     func didSwitchToTab(_ tab: ChatListViewController.DashboardTab) {
@@ -896,6 +903,11 @@ extension DashboardViewController : DashboardVCDelegate {
         if let graphDashboardViewController = graphDashboardViewController {
             self.removeChildVC(child: graphDashboardViewController)
         }
+        
+        if let tasksVC = workspaceTasksDashboardViewController {
+            self.removeChildVC(child: tasksVC)
+            workspaceTasksDashboardViewController = nil
+        }
     }
     
     func presentFeedDashboard() {
@@ -926,6 +938,22 @@ extension DashboardViewController : DashboardVCDelegate {
         dashboardDetailViewController?.closeButtonTapped()
         
         deeplinkData = nil
+        
+        NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
+    }
+    
+    func presentWorkspaceTasksDashboard(workspace: Workspace) {
+        resetDetailViewController()
+        
+        let tasksVC = WorkspaceTasksDashboardViewController.instantiate(workspace: workspace)
+        workspaceTasksDashboardViewController = tasksVC
+        
+        self.addChildVC(
+            child: tasksVC,
+            container: rightSplittedView
+        )
+        
+        dashboardDetailViewController?.closeButtonTapped()
         
         NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }

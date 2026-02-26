@@ -87,7 +87,9 @@ class ChatListViewController : DashboardSplittedViewController {
     }()
 
     internal lazy var workspacesContainerViewController: WorkspacesListViewController = {
-        WorkspacesListViewController.instantiate()
+        let vc = WorkspacesListViewController.instantiate()
+        vc.delegate = self
+        return vc
     }()
     
     static func instantiate(
@@ -557,6 +559,12 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
     }
 }
 
+extension ChatListViewController: WorkspacesListViewControllerDelegate {
+    func didSelectWorkspace(_ workspace: Workspace) {
+        delegate?.didSelectWorkspace(workspace)
+    }
+}
+
 class SearchTextField : NSTextField {
     var onFocusCallback: (() -> ())? = nil
     
@@ -565,5 +573,4 @@ class SearchTextField : NSTextField {
         return super.becomeFirstResponder()
     }
 }
-
 
