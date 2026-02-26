@@ -56,17 +56,17 @@ class WorkspaceTasksDashboardViewController: NSViewController {
             forItemWithIdentifier: NSUserInterfaceItemIdentifier(WorkspaceTasksCollectionViewItem.reuseID)
         )
         
-        // Configure layout with 110pt row height for task rows
+        // Configure layout with 105pt row height for task rows
         let layout = NSCollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(110)
+                heightDimension: .absolute(105)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(110)
+                heightDimension: .absolute(105)
             )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
             
@@ -94,7 +94,14 @@ class WorkspaceTasksDashboardViewController: NSViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Int, WorkspaceTask>()
         snapshot.appendSections([0])
         snapshot.appendItems(tasks, toSection: 0)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        
+        // Apply snapshot without animation when switching tabs to prevent flash
+        dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in
+            // Only show collection view after snapshot has been applied
+            DispatchQueue.main.async {
+                self?.collectionView.isHidden = false
+            }
+        }
     }
 
     private func loadTasks() {
@@ -116,7 +123,6 @@ class WorkspaceTasksDashboardViewController: NSViewController {
                     self?.loadingWheel.isHidden = true
                     self?.tasks = tasks
                     self?.updateSnapshot()
-                    self?.collectionView.isHidden = false  // Show collection view after loading
                     self?.noResultsFoundLabel.isHidden = !tasks.isEmpty
                 }
             },
