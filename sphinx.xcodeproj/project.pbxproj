@@ -671,10 +671,10 @@
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
 		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
-		47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK102F19000000000010 /* WorkspaceTask.swift */; };
 		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
 		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
 		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
+		47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK102F19000000000010 /* WorkspaceTask.swift */; };
 		47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */; };
 		47WORK152F19000000000015 /* WorkspaceTasksCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */; };
 		47WORK172F19000000000017 /* WorkspaceTasksCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */; };
@@ -1693,10 +1693,10 @@
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
 		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
-		47WORK102F19000000000010 /* WorkspaceTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTask.swift; sourceTree = "<group>"; };
 		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
 		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
+		47WORK102F19000000000010 /* WorkspaceTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTask.swift; sourceTree = "<group>"; };
 		47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksDashboardViewController.swift; sourceTree = "<group>"; };
 		47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
@@ -5703,7 +5703,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 221;
+				CURRENT_PROJECT_VERSION = 222;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5740,7 +5740,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 221;
+				CURRENT_PROJECT_VERSION = 222;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
