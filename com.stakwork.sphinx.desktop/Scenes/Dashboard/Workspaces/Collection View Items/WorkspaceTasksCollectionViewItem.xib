@@ -54,7 +54,7 @@
                                 <color key="fillColor" name="PrimaryBlue"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="status-pill-height"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="status-pill-width"/>
+                                    <constraint firstAttribute="width" constant="90" id="status-pill-width"/>
                                 </constraints>
                             </box>
                             <box boxType="custom" borderType="none" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="priority-pill-box">
@@ -81,7 +81,7 @@
                                 <color key="fillColor" name="SphinxOrange"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="18" id="priority-pill-height"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="priority-pill-width"/>
+                                    <constraint firstAttribute="width" constant="90" id="priority-pill-width"/>
                                 </constraints>
                             </box>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="repository-label">
@@ -115,15 +115,15 @@
                         <constraints>
                             <constraint firstItem="title-label" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="title-leading"/>
                             <constraint firstItem="title-label" firstAttribute="top" secondItem="container-content" secondAttribute="top" constant="16" id="title-top"/>
-                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="title-label" secondAttribute="trailing" constant="100" id="title-trailing"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="title-label" secondAttribute="trailing" constant="120" id="title-trailing"/>
                             <constraint firstAttribute="trailing" secondItem="status-pill-box" secondAttribute="trailing" constant="16" id="status-trailing"/>
                             <constraint firstItem="status-pill-box" firstAttribute="top" secondItem="container-content" secondAttribute="top" constant="16" id="status-top"/>
                             <constraint firstAttribute="trailing" secondItem="priority-pill-box" secondAttribute="trailing" constant="16" id="priority-trailing"/>
                             <constraint firstItem="priority-pill-box" firstAttribute="top" secondItem="status-pill-box" secondAttribute="bottom" constant="6" id="priority-top"/>
                             <constraint firstItem="repository-label" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="repository-leading"/>
-                            <constraint firstItem="repository-label" firstAttribute="top" secondItem="title-label" secondAttribute="bottom" constant="8" id="repository-top"/>
+                            <constraint firstAttribute="bottom" secondItem="repository-label" secondAttribute="bottom" constant="16" id="repository-bottom"/>
                             <constraint firstAttribute="trailing" secondItem="updated-at-label" secondAttribute="trailing" constant="16" id="updated-trailing"/>
-                            <constraint firstItem="updated-at-label" firstAttribute="top" secondItem="priority-pill-box" secondAttribute="bottom" constant="8" id="updated-top"/>
+                            <constraint firstAttribute="bottom" secondItem="updated-at-label" secondAttribute="bottom" constant="16" id="updated-bottom"/>
                             <constraint firstItem="separator-view" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="separator-leading"/>
                             <constraint firstAttribute="trailing" secondItem="separator-view" secondAttribute="trailing" id="separator-trailing"/>
                             <constraint firstAttribute="bottom" secondItem="separator-view" secondAttribute="bottom" id="separator-bottom"/>
