@@ -165,14 +165,15 @@ extension API {
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
-                var tasks: [WorkspaceTask] = []
-                if let tasksArray = json["tasks"].array {
-                    for taskJson in tasksArray {
-                        if let task = WorkspaceTask(json: taskJson) {
-                            tasks.append(task)
-                        }
-                    }
+
+                // Check if the response contains an error
+                if let error = json["error"].string {
+                    print("[HiveAPI] Tasks fetch error: \(error)")
+                    errorCallback()
+                    return
                 }
+
+                let tasks: [WorkspaceTask] = (json["data"].array ?? []).compactMap { WorkspaceTask(json: $0) }
                 callback(tasks)
             case .failure:
                 errorCallback()

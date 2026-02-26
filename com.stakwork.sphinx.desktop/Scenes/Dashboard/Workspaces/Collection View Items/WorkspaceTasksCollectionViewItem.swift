@@ -77,10 +77,24 @@ class WorkspaceTasksCollectionViewItem: NSCollectionViewItem {
 
     private func formattedDate(_ dateString: String?) -> String {
         guard let dateString = dateString else { return "" }
-        let formatter = ISO8601DateFormatter()
-        guard let date = formatter.date(from: dateString) else { return dateString }
-        let display = DateFormatter()
-        display.dateFormat = "MMM dd, yyyy"
-        return display.string(from: date)
+        
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        if let date = isoFormatter.date(from: dateString) {
+            let displayFormatter = DateFormatter()
+            displayFormatter.dateFormat = "MMM dd, yyyy"
+            return displayFormatter.string(from: date)
+        }
+        
+        // Fallback: try without fractional seconds
+        isoFormatter.formatOptions = [.withInternetDateTime]
+        if let date = isoFormatter.date(from: dateString) {
+            let displayFormatter = DateFormatter()
+            displayFormatter.dateFormat = "MMM dd, yyyy"
+            return displayFormatter.string(from: date)
+        }
+        
+        return dateString
     }
 }
