@@ -80,8 +80,7 @@ class WorkspaceTasksCollectionViewItem: NSCollectionViewItem {
         let formatter = ISO8601DateFormatter()
         guard let date = formatter.date(from: dateString) else { return dateString }
         let display = DateFormatter()
-        display.dateStyle = .medium
-        display.timeStyle = .none
+        display.dateFormat = "MMM dd, yyyy"
         return display.string(from: date)
     }
 }

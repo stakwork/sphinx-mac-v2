@@ -77,6 +77,10 @@ class ChatsSegmentedControl: NSView {
     public weak var delegate: ChatsSegmentedControlDelegate?
 
     let contactsService = ContactsService.sharedInstance
+    
+    /// The currently selected index - defaults to contactsService.selectedTabIndex for dashboard tabs,
+    /// but can be overridden when used in other contexts (e.g., WorkspaceTasksDashboard)
+    private var currentSelectedIndex: Int = 0
 
     convenience init(
         frame: CGRect,
@@ -112,6 +116,7 @@ extension ChatsSegmentedControl {
             resetButton(button)
 
             if button == sender {
+                currentSelectedIndex = buttonIndex
                 delegate?.segmentedControlDidSwitch(self, to: buttonIndex)
                 updateButtonsOnIndexChange()
             }
@@ -136,10 +141,14 @@ extension ChatsSegmentedControl {
     public func configureFromOutlet(
         buttonTitles: [String],
         indicesOfTitlesWithBadge: [Int] = [],
-        delegate: ChatsSegmentedControlDelegate?
+        delegate: ChatsSegmentedControlDelegate?,
+        initialSelectedIndex: Int? = nil
     ) {
         self.buttonTitles = buttonTitles
         self.delegate = delegate
+        
+        // Use provided index or default to contactsService for dashboard tabs
+        self.currentSelectedIndex = initialSelectedIndex ?? contactsService.selectedTabIndex
 
         setupInitialViews()
         updateButtonsOnIndexChange()
@@ -147,8 +156,12 @@ extension ChatsSegmentedControl {
 
     public func updateGraphTabLabel() {
         let newLabel = UserData.sharedInstance.getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphLabel) ?? "Graph"
-        buttonTitles[ChatListViewController.DashboardTab.graph.rawValue] = newLabel
-        let graphButton = buttons[ChatListViewController.DashboardTab.graph.rawValue]
+        let graphIndex = ChatListViewController.DashboardTab.graph.rawValue
+        
+        guard graphIndex < buttonTitles.count && graphIndex < buttons.count else { return }
+        
+        buttonTitles[graphIndex] = newLabel
+        let graphButton = buttons[graphIndex]
 
         let attributedTitle = graphButton.attributedTitle
 
@@ -205,18 +218,17 @@ extension ChatsSegmentedControl {
     }
 
     private var selectorPosition: CGFloat {
-        let selectedIndex = contactsService.selectedTabIndex
+        guard currentSelectedIndex <= buttonWidths.count else { return 0 }
         var position: CGFloat = 0
-        for i in 0..<selectedIndex {
+        for i in 0..<currentSelectedIndex {
             position += buttonWidths[i]
         }
         return position
     }
 
     private var currentButtonWidth: CGFloat {
-        let selectedIndex = contactsService.selectedTabIndex
-        guard selectedIndex < buttonWidths.count else { return buttonWidths[0] }
-        return buttonWidths[selectedIndex]
+        guard currentSelectedIndex < buttonWidths.count else { return buttonWidths[0] }
+        return buttonWidths[currentSelectedIndex]
     }
 
     private func configureSelectorView() {
@@ -291,7 +303,9 @@ extension ChatsSegmentedControl {
             buttons.append(button)
         }
 
-        let selectedButton = buttons[contactsService.selectedTabIndex]
+        guard currentSelectedIndex < buttons.count else { return }
+        
+        let selectedButton = buttons[currentSelectedIndex]
 
         selectedButton.attributedTitle = NSAttributedString(
             string: selectedButton.attributedTitle.string,
@@ -310,12 +324,14 @@ extension ChatsSegmentedControl {
             resetButton(button)
         }
 
+        guard currentSelectedIndex < buttons.count else { return }
+
         AnimationHelper.animateViewWith(duration: 0.3, animationsBlock: {
 
             self.selectorView.frame.origin.x = self.kLeftPadding + self.selectorPosition
             self.selectorView.frame.size.width = self.currentButtonWidth
 
-            let selectedButton = self.buttons[self.contactsService.selectedTabIndex]
+            let selectedButton = self.buttons[self.currentSelectedIndex]
 
             selectedButton.attributedTitle = NSAttributedString(
                 string: selectedButton.attributedTitle.string,
