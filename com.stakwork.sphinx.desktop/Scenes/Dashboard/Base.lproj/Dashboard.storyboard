@@ -2301,10 +2301,19 @@ URL in your Profile</string>
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="890"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wts-name-001">
+                                            <rect key="frame" x="14" y="856" width="131" height="19"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Workspace Name" id="wts-namec-001">
+                                                <font key="font" size="16" name="Roboto-Medium"/>
+                                                <color key="textColor" name="Text"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="wts-sg-001" customClass="ChatsSegmentedControl" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="840" width="600" height="50"/>
+                                            <rect key="frame" x="290" y="840" width="310" height="50"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="50" id="wts-c1-001"/>
+                                                <constraint firstAttribute="width" constant="310" id="wts-c1a-001"/>
                                             </constraints>
                                         </customView>
                                         <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wts-sv-001">
@@ -2354,7 +2363,8 @@ URL in your Profile</string>
                                         <constraint firstItem="wts-err-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c12-001"/>
                                         <constraint firstItem="wts-pi-001" firstAttribute="centerX" secondItem="wts-cv-001" secondAttribute="centerX" id="wts-c13-001"/>
                                         <constraint firstItem="wts-pi-001" firstAttribute="centerY" secondItem="wts-cv-001" secondAttribute="centerY" id="wts-c14-001"/>
-                                        <constraint firstItem="wts-sg-001" firstAttribute="leading" secondItem="wts-cv-001" secondAttribute="leading" id="wts-c2-001"/>
+                                        <constraint firstItem="wts-name-001" firstAttribute="leading" secondItem="wts-cv-001" secondAttribute="leading" constant="16" id="wts-c2-001"/>
+                                        <constraint firstItem="wts-name-001" firstAttribute="centerY" secondItem="wts-sg-001" secondAttribute="centerY" id="wts-c2a-001"/>
                                         <constraint firstItem="wts-sg-001" firstAttribute="top" secondItem="wts-cv-001" secondAttribute="top" id="wts-c3-001"/>
                                         <constraint firstAttribute="trailing" secondItem="wts-sg-001" secondAttribute="trailing" id="wts-c4-001"/>
                                         <constraint firstItem="wts-sv-001" firstAttribute="leading" secondItem="wts-cv-001" secondAttribute="leading" id="wts-c5-001"/>
@@ -2380,6 +2390,7 @@ URL in your Profile</string>
                         <outlet property="loadingWheel" destination="wts-pi-001" id="wts-cn-003"/>
                         <outlet property="noResultsFoundLabel" destination="wts-tf-001" id="wts-cn-004"/>
                         <outlet property="segmentedControl" destination="wts-sg-001" id="wts-cn-001"/>
+                        <outlet property="workspaceNameLabel" destination="wts-name-001" id="wts-cn-006"/>
                     </connections>
                 </viewController>
                 <customObject id="wts-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

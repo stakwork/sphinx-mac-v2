@@ -146,7 +146,7 @@ extension ChatsSegmentedControl {
     ) {
         self.buttonTitles = buttonTitles
         self.delegate = delegate
-        
+
         // Use provided index or default to contactsService for dashboard tabs
         self.currentSelectedIndex = initialSelectedIndex ?? contactsService.selectedTabIndex
 

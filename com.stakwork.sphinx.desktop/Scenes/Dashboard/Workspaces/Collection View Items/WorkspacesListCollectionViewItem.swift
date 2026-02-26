@@ -27,8 +27,10 @@ class WorkspacesListCollectionViewItem: NSCollectionViewItem {
     private var currentSlug: String?
 
     private static var placeholderImage: NSImage? = {
-        return NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: nil)
-            .flatMap { $0.image(withTintColor: NSColor.Sphinx.SecondaryText) }
+        let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
+        return NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: nil)?
+            .withSymbolConfiguration(config)?
+            .image(withTintColor: NSColor.Sphinx.SecondaryText)
     }()
 
     override func viewDidLoad() {
@@ -41,8 +43,9 @@ class WorkspacesListCollectionViewItem: NSCollectionViewItem {
         workspaceImageView = AspectFillNSImageView()
         workspaceImageView.translatesAutoresizingMaskIntoConstraints = false
         workspaceImageView.wantsLayer = true
-        workspaceImageView.radius = 3
-        workspaceImageView.gravity = .resizeAspectFill
+        workspaceImageView.rounded = true
+        workspaceImageView.radius = 5
+        workspaceImageView.gravity = .resizeAspect
         workspaceImageView.image = Self.placeholderImage
         view.addSubview(workspaceImageView)
 
