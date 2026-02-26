@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import SDWebImage
 
 class WorkspacesListCollectionViewItem: NSCollectionViewItem {
 
@@ -22,9 +23,38 @@ class WorkspacesListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var membersLabel: NSTextField!
     @IBOutlet weak var separatorView: NSBox!
 
+    private var workspaceImageView: AspectFillNSImageView!
+    private var currentSlug: String?
+
+    private static var placeholderImage: NSImage? = {
+        let config = NSImage.SymbolConfiguration(pointSize: 24, weight: .regular)
+        return NSImage(systemSymbolName: "square.grid.2x2", accessibilityDescription: nil)?
+            .withSymbolConfiguration(config)?
+            .image(withTintColor: NSColor.Sphinx.SecondaryText)
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupImageView()
         setupViews()
+    }
+
+    private func setupImageView() {
+        workspaceImageView = AspectFillNSImageView()
+        workspaceImageView.translatesAutoresizingMaskIntoConstraints = false
+        workspaceImageView.wantsLayer = true
+        workspaceImageView.rounded = true
+        workspaceImageView.radius = 5
+        workspaceImageView.gravity = .resizeAspect
+        workspaceImageView.image = Self.placeholderImage
+        view.addSubview(workspaceImageView)
+
+        NSLayoutConstraint.activate([
+            workspaceImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            workspaceImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            workspaceImageView.widthAnchor.constraint(equalToConstant: 40),
+            workspaceImageView.heightAnchor.constraint(equalToConstant: 40)
+        ])
     }
 
     private func setupViews() {
@@ -43,9 +73,49 @@ class WorkspacesListCollectionViewItem: NSCollectionViewItem {
     }
 
     func render(with item: WorkspacesListViewController.DataSourceItem) {
+        workspaceImageView.sd_cancelCurrentImageLoad()
+        workspaceImageView.image = Self.placeholderImage
+        currentSlug = item.slug
+
         nameLabel.stringValue = item.name
         roleLabel.stringValue = item.role
         membersLabel.stringValue = "Members: \(item.memberCount)"
+
+        loadWorkspaceImage(forSlug: item.slug)
+    }
+
+    private func loadWorkspaceImage(forSlug slug: String?) {
+        guard let slug = slug else { return }
+
+        if let cachedUrl = WorkspaceImageCache.shared.getImageUrl(forSlug: slug),
+           let url = URL(string: cachedUrl) {
+            workspaceImageView.sd_setImage(with: url, placeholderImage: Self.placeholderImage, options: [.lowPriority])
+            return
+        }
+
+        API.sharedInstance.fetchWorkspaceImageWithAuth(
+            slug: slug,
+            callback: { [weak self] imageUrl in
+                DispatchQueue.main.async {
+                    guard let self = self, self.currentSlug == slug else { return }
+                    if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
+                        self.workspaceImageView.sd_setImage(
+                            with: url,
+                            placeholderImage: Self.placeholderImage,
+                            options: [.lowPriority]
+                        )
+                    } else {
+                        self.workspaceImageView.image = Self.placeholderImage
+                    }
+                }
+            },
+            errorCallback: { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self = self, self.currentSlug == slug else { return }
+                    self.workspaceImageView.image = Self.placeholderImage
+                }
+            }
+        )
     }
 
     override var isSelected: Bool {

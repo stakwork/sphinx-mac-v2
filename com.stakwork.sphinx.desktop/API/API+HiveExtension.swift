@@ -13,6 +13,7 @@ import SwiftyJSON
 typealias HiveAuthTokenCallback = ((String?) -> ())
 typealias HiveWorkspacesCallback = (([Workspace]) -> ())
 typealias HiveTasksCallback = (([WorkspaceTask]) -> ())
+typealias HiveWorkspaceImageCallback = ((String?) -> ())
 
 extension API {
 
@@ -231,5 +232,101 @@ extension API {
             },
             errorCallback: errorCallback
         )
+    }
+
+    // MARK: - Workspace Image
+
+    func fetchWorkspaceImage(
+        slug: String,
+        authToken: String,
+        callback: @escaping HiveWorkspaceImageCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        guard let encodedSlug = slug.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+            errorCallback()
+            return
+        }
+        let urlString = "\(API.kHiveBaseUrl)/workspaces/\(encodedSlug)/image"
+        guard let request = createRequest(urlString, params: nil, method: "GET", token: authToken) else {
+            errorCallback()
+            return
+        }
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                errorCallback()
+                return
+            }
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                if let presignedUrl = json["presignedUrl"].string,
+                   let expiresIn = json["expiresIn"].int {
+                    let expiresAt = Date().addingTimeInterval(TimeInterval(expiresIn))
+                    WorkspaceImageCache.shared.setImage(url: presignedUrl, forSlug: slug, expiresAt: expiresAt)
+                    callback(presignedUrl)
+                } else {
+                    callback(nil)
+                }
+            case .failure:
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchWorkspaceImageWithAuth(
+        slug: String,
+        callback: @escaping HiveWorkspaceImageCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let cachedUrl = WorkspaceImageCache.shared.getImageUrl(forSlug: slug) {
+            callback(cachedUrl)
+            return
+        }
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            fetchWorkspaceImage(slug: slug, authToken: storedToken, callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndFetchWorkspaceImage(slug: slug, callback: callback, errorCallback: errorCallback)
+                })
+        } else {
+            authenticateAndFetchWorkspaceImage(slug: slug, callback: callback, errorCallback: errorCallback)
+        }
+    }
+
+    private func authenticateAndFetchWorkspaceImage(
+        slug: String,
+        callback: @escaping HiveWorkspaceImageCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(callback: { [weak self] token in
+            guard let token = token else { errorCallback(); return }
+            UserDefaults.Keys.hiveToken.set(token)
+            self?.fetchWorkspaceImage(slug: slug, authToken: token, callback: callback, errorCallback: errorCallback)
+        }, errorCallback: errorCallback)
+    }
+}
+
+// MARK: - Workspace Image Cache
+
+class WorkspaceImageCache {
+    static let shared = WorkspaceImageCache()
+    private struct CachedImage { let url: String; let expiresAt: Date }
+    private var cache: [String: CachedImage] = [:]
+    private let queue = DispatchQueue(label: "com.sphinx.workspaceImageCache")
+    private init() {}
+
+    func setImage(url: String, forSlug slug: String, expiresAt: Date) {
+        queue.async { [weak self] in self?.cache[slug] = CachedImage(url: url, expiresAt: expiresAt) }
+    }
+
+    func getImageUrl(forSlug slug: String) -> String? {
+        queue.sync {
+            guard let cached = cache[slug] else { return nil }
+            if cached.expiresAt.timeIntervalSinceNow < 60 { cache.removeValue(forKey: slug); return nil }
+            return cached.url
+        }
+    }
+
+    func clearCache() {
+        queue.async { [weak self] in self?.cache.removeAll() }
     }
 }

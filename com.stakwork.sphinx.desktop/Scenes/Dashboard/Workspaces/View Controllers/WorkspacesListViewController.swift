@@ -105,19 +105,22 @@ extension WorkspacesListViewController {
         var name: String
         var role: String
         var memberCount: Int
+        var slug: String?
 
         init(workspace: Workspace) {
             self.id = workspace.id
             self.name = workspace.name
             self.role = workspace.formattedRole
             self.memberCount = workspace.memberCount
+            self.slug = workspace.slug
         }
 
         static func == (lhs: DataSourceItem, rhs: DataSourceItem) -> Bool {
             return lhs.id == rhs.id &&
                    lhs.name == rhs.name &&
                    lhs.role == rhs.role &&
-                   lhs.memberCount == rhs.memberCount
+                   lhs.memberCount == rhs.memberCount &&
+                   lhs.slug == rhs.slug
         }
 
         func hash(into hasher: inout Hasher) {
@@ -125,6 +128,7 @@ extension WorkspacesListViewController {
             hasher.combine(name)
             hasher.combine(role)
             hasher.combine(memberCount)
+            hasher.combine(slug)
         }
     }
 

@@ -10,6 +10,7 @@ import Cocoa
 
 class WorkspaceTasksDashboardViewController: NSViewController {
 
+    @IBOutlet weak var workspaceNameLabel: NSTextField!
     @IBOutlet weak var segmentedControl: ChatsSegmentedControl!
     @IBOutlet weak var collectionView: NSCollectionView!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
@@ -31,9 +32,16 @@ class WorkspaceTasksDashboardViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupWorkspaceNameLabel()
         setupCollectionView()
         setupSegmentedControl()
         loadTasks()
+    }
+
+    private func setupWorkspaceNameLabel() {
+        workspaceNameLabel.stringValue = workspace?.name ?? ""
+        workspaceNameLabel.textColor = NSColor.Sphinx.Text
+        workspaceNameLabel.font = NSFont(name: "Roboto-Medium", size: 16) ?? NSFont.systemFont(ofSize: 16, weight: .medium)
     }
 
     func resizeSubviews(frame: NSRect) {
