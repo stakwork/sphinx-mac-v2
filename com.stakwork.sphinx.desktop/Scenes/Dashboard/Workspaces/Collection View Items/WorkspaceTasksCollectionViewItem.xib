@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21701"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSObject">
+            <connections>
+                <outlet property="view" destination="main-view" id="view-outlet"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="main-view">
+            <rect key="frame" x="0.0" y="0.0" width="300" height="70"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="container-view">
+                    <rect key="frame" x="0.0" y="0.0" width="300" height="70"/>
+                    <view key="contentView" id="container-content">
+                        <rect key="frame" x="0.0" y="0.0" width="300" height="70"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="title-label">
+                                <rect key="frame" x="14" y="46" width="272" height="17"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Task Title" id="title-cell">
+                                    <font key="font" size="14" name="Roboto-Medium"/>
+                                    <color key="textColor" name="Text"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <box boxType="custom" borderType="none" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="status-pill-box">
+                                <rect key="frame" x="16" y="24" width="70" height="18"/>
+                                <view key="contentView" id="status-pill-content">
+                                    <rect key="frame" x="0.0" y="0.0" width="70" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="status-label">
+                                            <rect key="frame" x="6" y="2" width="58" height="14"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" alignment="center" title="Done" id="status-cell">
+                                                <font key="font" size="11" name="Roboto-Medium"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="status-label" firstAttribute="leading" secondItem="status-pill-content" secondAttribute="leading" constant="8" id="status-label-leading"/>
+                                        <constraint firstAttribute="trailing" secondItem="status-label" secondAttribute="trailing" constant="8" id="status-label-trailing"/>
+                                        <constraint firstItem="status-label" firstAttribute="centerY" secondItem="status-pill-content" secondAttribute="centerY" id="status-label-centery"/>
+                                    </constraints>
+                                </view>
+                                <color key="fillColor" name="PrimaryBlue"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="18" id="status-pill-height"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="status-pill-width"/>
+                                </constraints>
+                            </box>
+                            <box boxType="custom" borderType="none" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="priority-pill-box">
+                                <rect key="frame" x="92" y="24" width="70" height="18"/>
+                                <view key="contentView" id="priority-pill-content">
+                                    <rect key="frame" x="0.0" y="0.0" width="70" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="priority-label">
+                                            <rect key="frame" x="6" y="2" width="58" height="14"/>
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" alignment="center" title="High" id="priority-cell">
+                                                <font key="font" size="11" name="Roboto-Medium"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="priority-label" firstAttribute="leading" secondItem="priority-pill-content" secondAttribute="leading" constant="8" id="priority-label-leading"/>
+                                        <constraint firstAttribute="trailing" secondItem="priority-label" secondAttribute="trailing" constant="8" id="priority-label-trailing"/>
+                                        <constraint firstItem="priority-label" firstAttribute="centerY" secondItem="priority-pill-content" secondAttribute="centerY" id="priority-label-centery"/>
+                                    </constraints>
+                                </view>
+                                <color key="fillColor" name="SphinxOrange"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="18" id="priority-pill-height"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="70" id="priority-pill-width"/>
+                                </constraints>
+                            </box>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="repository-label">
+                                <rect key="frame" x="14" y="7" width="150" height="14"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Repository Name" id="repository-cell">
+                                    <font key="font" size="12" name="Roboto-Regular"/>
+                                    <color key="textColor" name="SecondaryText"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="updated-at-label">
+                                <rect key="frame" x="200" y="7" width="86" height="14"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" title="Feb 25, 2026" alignment="right" id="updated-at-cell">
+                                    <font key="font" size="12" name="Roboto-Regular"/>
+                                    <color key="textColor" name="SecondaryText"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="separator-view">
+                                <rect key="frame" x="16" y="0.0" width="284" height="1"/>
+                                <view key="contentView" id="separator-content">
+                                    <rect key="frame" x="0.0" y="0.0" width="284" height="1"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <color key="fillColor" name="Divider"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="separator-height"/>
+                                </constraints>
+                            </box>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="title-label" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="title-leading"/>
+                            <constraint firstItem="title-label" firstAttribute="top" secondItem="container-content" secondAttribute="top" constant="7" id="title-top"/>
+                            <constraint firstAttribute="trailing" secondItem="title-label" secondAttribute="trailing" constant="16" id="title-trailing"/>
+                            <constraint firstItem="status-pill-box" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="status-leading"/>
+                            <constraint firstItem="status-pill-box" firstAttribute="top" secondItem="title-label" secondAttribute="bottom" constant="4" id="status-top"/>
+                            <constraint firstItem="priority-pill-box" firstAttribute="leading" secondItem="status-pill-box" secondAttribute="trailing" constant="6" id="priority-leading"/>
+                            <constraint firstItem="priority-pill-box" firstAttribute="centerY" secondItem="status-pill-box" secondAttribute="centerY" id="priority-centery"/>
+                            <constraint firstItem="repository-label" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="repository-leading"/>
+                            <constraint firstItem="repository-label" firstAttribute="top" secondItem="status-pill-box" secondAttribute="bottom" constant="3" id="repository-top"/>
+                            <constraint firstAttribute="trailing" secondItem="updated-at-label" secondAttribute="trailing" constant="16" id="updated-trailing"/>
+                            <constraint firstItem="updated-at-label" firstAttribute="centerY" secondItem="repository-label" secondAttribute="centerY" id="updated-centery"/>
+                            <constraint firstItem="separator-view" firstAttribute="leading" secondItem="container-content" secondAttribute="leading" constant="16" id="separator-leading"/>
+                            <constraint firstAttribute="trailing" secondItem="separator-view" secondAttribute="trailing" id="separator-trailing"/>
+                            <constraint firstAttribute="bottom" secondItem="separator-view" secondAttribute="bottom" id="separator-bottom"/>
+                        </constraints>
+                    </view>
+                    <color key="fillColor" name="HeaderBG"/>
+                </box>
+            </subviews>
+            <constraints>
+                <constraint firstItem="container-view" firstAttribute="top" secondItem="main-view" secondAttribute="top" id="container-top"/>
+                <constraint firstItem="container-view" firstAttribute="leading" secondItem="main-view" secondAttribute="leading" id="container-leading"/>
+                <constraint firstAttribute="trailing" secondItem="container-view" secondAttribute="trailing" id="container-trailing"/>
+                <constraint firstAttribute="bottom" secondItem="container-view" secondAttribute="bottom" id="container-bottom"/>
+            </constraints>
+            <point key="canvasLocation" x="92" y="-36"/>
+        </customView>
+        <collectionViewItem id="item-001" customClass="WorkspaceTasksCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
+            <connections>
+                <outlet property="containerView" destination="container-view" id="item-container-outlet"/>
+                <outlet property="priorityLabel" destination="priority-label" id="item-priority-label-outlet"/>
+                <outlet property="priorityPillBox" destination="priority-pill-box" id="item-priority-pill-outlet"/>
+                <outlet property="repositoryLabel" destination="repository-label" id="item-repository-outlet"/>
+                <outlet property="separatorView" destination="separator-view" id="item-separator-outlet"/>
+                <outlet property="statusLabel" destination="status-label" id="item-status-label-outlet"/>
+                <outlet property="statusPillBox" destination="status-pill-box" id="item-status-pill-outlet"/>
+                <outlet property="titleLabel" destination="title-label" id="item-title-outlet"/>
+                <outlet property="updatedAtLabel" destination="updated-at-label" id="item-updated-outlet"/>
+                <outlet property="view" destination="main-view" id="item-view-outlet"/>
+            </connections>
+        </collectionViewItem>
+    </objects>
+    <resources>
+        <namedColor name="Divider">
+            <color red="0.22745098039215686" green="0.23137254901960785" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="HeaderBG">
+            <color red="0.10980392156862745" green="0.11372549019607843" blue="0.12156862745098039" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryBlue">
+            <color red="0.38823529411764707" green="0.56078431372549020" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SecondaryText">
+            <color red="0.56470588235294117" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="SphinxOrange">
+            <color red="1" green="0.58823529411764708" blue="0.30588235294117649" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Text">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>
