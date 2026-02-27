@@ -414,6 +414,12 @@ class DashboardViewController: NSViewController {
                     Chat.resetTimezones(context: backgroundContext)
                 }
                 
+                let didResetAliasesCache: Bool = UserDefaults.Keys.didResetAliasesCache.get(defaultValue: false)
+                if !didResetAliasesCache {
+                    Chat.resetAliasesCache(context: backgroundContext)
+                    UserDefaults.Keys.didResetAliasesCache.set(true)
+                }
+
                 if let systemTimezone: String? = UserDefaults.Keys.systemTimezone.get() {
                     if systemTimezone != TimeZone.current.abbreviation() {
                         Chat.setChatsToTimezoneUpdated(context: backgroundContext)

@@ -71,6 +71,7 @@ extension UserDefaults {
         public static let routerUrl = DefaultKey<String>("router")
         public static let routerPubkey = DefaultKey<String>("routerPubkey")
         public static let didMigrateToTZ = DefaultKey<Bool>("didMigrateToTZ")
+        public static let didResetAliasesCache = DefaultKey<Bool>("didResetAliasesCache")
         public static let systemTimezone = DefaultKey<String>("systemTimezone")
         public static let skipAds = DefaultKey<Bool>("skipAds")
     }
