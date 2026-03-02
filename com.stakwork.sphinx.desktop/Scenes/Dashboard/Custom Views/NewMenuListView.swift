@@ -67,6 +67,9 @@ public class NewMenuListView: NSView, LoadableNib {
             radius: 35,
             cornerRadius: 0
         )
+
+        let year = Calendar.current.component(.year, from: Date())
+        rightLabel.stringValue = "© \(year) Stakwork All rights reserved"
     }
     
     func configureDataSource(delegate: NewMenuItemDataSourceDelegate) {
