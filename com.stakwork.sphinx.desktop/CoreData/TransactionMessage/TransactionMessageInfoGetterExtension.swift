@@ -653,14 +653,14 @@ extension TransactionMessage {
     func getActionsMenuOptions() -> [(tag: Int, icon: String?, iconImage: String?, label: String)] {
         var options = [(tag: Int, icon: String?, iconImage: String?, label: String)]()
         
-        if isPodcastBoost() || isBotResponse() {
+        if isPodcastBoost() {
             return options
         }
         
         if messageContainText() {
-            if isCopyTextActionAllowed {
+            if isCopyTextActionAllowed && !isBotHTMLResponse() {
                 options.append(
-                    (MessageActionsItem.Copy.rawValue, "", nil, "copy.text".localized)
+                    (MessageActionsItem.Copy.rawValue, "", nil, "copy.text".localized)
                 )
             }
             
