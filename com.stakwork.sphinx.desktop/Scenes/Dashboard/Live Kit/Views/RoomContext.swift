@@ -96,6 +96,9 @@ final class RoomContext: NSObject, ObservableObject {
 
     @Published var showParticipantsView: Bool = false
 
+    @Published var showMessagesView: Bool = false
+    @Published var messages: [ExampleRoomMessage] = []
+
     @Published var textFieldString: String = ""
     
     //Recording
@@ -254,6 +257,25 @@ final class RoomContext: NSObject, ObservableObject {
         await room.disconnect()
     }
 
+    func sendMessage() {
+        guard !textFieldString.isEmpty else { return }
+        let roomMessage = ExampleRoomMessage(
+            messageId: UUID().uuidString,
+            senderSid: room.localParticipant.sid,
+            senderIdentity: room.localParticipant.identity,
+            text: textFieldString
+        )
+        textFieldString = ""
+        messages.append(roomMessage)
+        Task.detached { [weak self] in
+            guard let self else { return }
+            do {
+                let json = try self.jsonEncoder.encode(roomMessage)
+                try await self.room.localParticipant.publish(data: json)
+            } catch { print("Failed to encode data \(error)") }
+        }
+    }
+
     #if os(macOS)
         weak var screenShareTrack: LocalTrackPublication?
 
@@ -319,6 +341,8 @@ extension RoomContext: RoomDelegate {
                         // Reset state
                         self.focusParticipant = nil
                         self.textFieldString = ""
+                        self.showMessagesView = false
+                        self.messages.removeAll()
                         // self.objectWillChange.send()
                     }
                 }
@@ -341,8 +365,18 @@ extension RoomContext: RoomDelegate {
         }
     }
 
-    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, _: EncryptionType) {
-        print("didReceiveData")
+    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, encryptionType _: EncryptionType) {
+        do {
+            let roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
+            Task.detached { @MainActor [weak self] in
+                guard let self else { return }
+                withAnimation {
+                    self.messages.append(roomMessage)
+                    self.showMessagesView = true
+                    self.showParticipantsView = false
+                }
+            }
+        } catch { print("Failed to decode data \(error)") }
     }
 
     func room(_: Room, participant _: Participant, trackPublication _: TrackPublication, didReceiveTranscriptionSegments segments: [TranscriptionSegment]) {
