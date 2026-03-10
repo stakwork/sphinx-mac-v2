@@ -660,7 +660,7 @@ extension TransactionMessage {
         if messageContainText() {
             if isCopyTextActionAllowed && !isBotHTMLResponse() {
                 options.append(
-                    (MessageActionsItem.Copy.rawValue, "", nil, "copy.text".localized)
+                    (MessageActionsItem.Copy.rawValue, "", nil, "copy.text".localized)
                 )
             }
             
