@@ -303,20 +303,51 @@ struct RoomView: View {
     func messageView(_ message: ExampleRoomMessage) -> some View {
         let isMe = message.senderSid == room.localParticipant.sid
 
-        return HStack {
-            if isMe {
-                Spacer()
-            }
-
-            Text(message.text)
-                .padding(8)
-                .background(Color(isMe ? NSColor.Sphinx.PrimaryGreen : NSColor.Sphinx.SecondaryText))
-                .foregroundColor(Color.white)
-                .cornerRadius(18)
+        return HStack(alignment: .top, spacing: 0) {
+            if isMe { Spacer() }
             if !isMe {
+                // Avatar column — top-aligned with the name label
+                Group {
+                    if let urlStr = message.senderProfilePictureUrl, let url = URL(string: urlStr) {
+                        WebImage(url: url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 22, height: 22)
+                            .clipShape(Circle())
+                    } else {
+                        ZStack {
+                            Circle()
+                                .fill(roomCtx.getColorForParticipan(participantId: message.senderSid?.stringValue) ?? Color(NSColor.random()))
+                                .frame(width: 22, height: 22)
+                            Text((message.senderName ?? "?").getInitialsFromName())
+                                .font(Font(NSFont(name: "Roboto-Medium", size: 9.0)!))
+                                .foregroundColor(Color.white)
+                        }
+                    }
+                }
+                .padding(.trailing, 6)
+
+                // Bubble column — name above, bubble below
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(message.senderName ?? "Unknown")
+                        .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
+                        .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
+                    Text(message.text)
+                        .padding(8)
+                        .background(Color(NSColor.Sphinx.SecondaryText))
+                        .foregroundColor(Color.white)
+                        .cornerRadius(18)
+                }
                 Spacer()
+            } else {
+                Text(message.text)
+                    .padding(8)
+                    .background(Color(NSColor.Sphinx.PrimaryGreen))
+                    .foregroundColor(Color.white)
+                    .cornerRadius(18)
             }
-        }.padding(.vertical, 5)
+        }
+        .padding(.vertical, 5)
         .padding(.horizontal, 10)
     }
 
@@ -643,20 +674,20 @@ struct RoomView: View {
                     .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
                 }
                 .frame(maxWidth: .infinity).frame(height: 76)
-                .padding(.trailing, 23).padding(.leading, 30)
+                .padding(.trailing, 22).padding(.leading, 24)
 
                 ScrollViewReader { scrollView in
                     ScrollView(.vertical, showsIndicators: true) {
                         LazyVStack(alignment: .center, spacing: 0) {
                             ForEach(roomCtx.messages) { messageView($0) }
                         }
-                        .padding(.vertical, 12).padding(.horizontal, 7)
+                        .padding(.vertical, 8).padding(.horizontal, 2)
                     }
                     .onAppear { scrollToBottom(scrollView) }
                     .onChange(of: roomCtx.messages) { _ in scrollToBottom(scrollView) }
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
                 }
-                .padding(.trailing, 23).padding(.leading, 30)
+                .padding(.trailing, 12).padding(.leading, 14)
 
                 HStack(spacing: 0) {
                     TextField("Enter message", text: $roomCtx.textFieldString)

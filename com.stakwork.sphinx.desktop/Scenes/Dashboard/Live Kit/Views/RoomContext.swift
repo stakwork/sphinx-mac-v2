@@ -263,7 +263,9 @@ final class RoomContext: NSObject, ObservableObject {
             messageId: UUID().uuidString,
             senderSid: room.localParticipant.sid,
             senderIdentity: room.localParticipant.identity,
-            text: textFieldString
+            text: textFieldString,
+            senderName: room.localParticipant.name,
+            senderProfilePictureUrl: room.localParticipant.profilePictureUrl
         )
         textFieldString = ""
         messages.append(roomMessage)
@@ -367,7 +369,20 @@ extension RoomContext: RoomDelegate {
 
     func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, encryptionType _: EncryptionType) {
         do {
-            let roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
+            var roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
+            if roomMessage.senderName == nil {
+                let matched = room.allParticipants.values.first { $0.sid == roomMessage.senderSid }
+                let resolvedName = matched?.name ?? roomMessage.senderIdentity?.stringValue ?? "Unknown"
+                let resolvedPic = matched?.profilePictureUrl
+                roomMessage = ExampleRoomMessage(
+                    messageId: roomMessage.messageId,
+                    senderSid: roomMessage.senderSid,
+                    senderIdentity: roomMessage.senderIdentity,
+                    text: roomMessage.text,
+                    senderName: resolvedName,
+                    senderProfilePictureUrl: resolvedPic
+                )
+            }
             Task.detached { @MainActor [weak self] in
                 guard let self else { return }
                 withAnimation {
@@ -418,6 +433,8 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
     let senderSid: Participant.Sid?
     let senderIdentity: Participant.Identity?
     let text: String
+    let senderName: String?
+    let senderProfilePictureUrl: String?
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.messageId == rhs.messageId
