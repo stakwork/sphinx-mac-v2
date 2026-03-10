@@ -365,7 +365,7 @@ extension RoomContext: RoomDelegate {
         }
     }
 
-    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, _: EncryptionType) {
+    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, encryptionType _: EncryptionType) {
         do {
             let roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
             Task.detached { @MainActor [weak self] in
