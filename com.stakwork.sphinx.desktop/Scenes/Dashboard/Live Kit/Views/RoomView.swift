@@ -303,10 +303,10 @@ struct RoomView: View {
     func messageView(_ message: ExampleRoomMessage) -> some View {
         let isMe = message.senderSid == room.localParticipant.sid
 
-        return HStack(alignment: .bottom, spacing: 0) {
+        return HStack(alignment: .top, spacing: 0) {
             if isMe { Spacer() }
             if !isMe {
-                // Avatar column — bottom-aligned with the bubble
+                // Avatar column — top-aligned with the name label
                 Group {
                     if let urlStr = message.senderProfilePictureUrl, let url = URL(string: urlStr) {
                         WebImage(url: url)
@@ -674,20 +674,20 @@ struct RoomView: View {
                     .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
                 }
                 .frame(maxWidth: .infinity).frame(height: 76)
-                .padding(.trailing, 23).padding(.leading, 30)
+                .padding(.trailing, 12).padding(.leading, 14)
 
                 ScrollViewReader { scrollView in
                     ScrollView(.vertical, showsIndicators: true) {
                         LazyVStack(alignment: .center, spacing: 0) {
                             ForEach(roomCtx.messages) { messageView($0) }
                         }
-                        .padding(.vertical, 12).padding(.horizontal, 7)
+                        .padding(.vertical, 8).padding(.horizontal, 2)
                     }
                     .onAppear { scrollToBottom(scrollView) }
                     .onChange(of: roomCtx.messages) { _ in scrollToBottom(scrollView) }
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
                 }
-                .padding(.trailing, 23).padding(.leading, 30)
+                .padding(.trailing, 12).padding(.leading, 14)
 
                 HStack(spacing: 0) {
                     TextField("Enter message", text: $roomCtx.textFieldString)
