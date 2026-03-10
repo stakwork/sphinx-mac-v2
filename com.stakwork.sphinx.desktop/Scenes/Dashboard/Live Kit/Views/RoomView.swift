@@ -303,31 +303,35 @@ struct RoomView: View {
     func messageView(_ message: ExampleRoomMessage) -> some View {
         let isMe = message.senderSid == room.localParticipant.sid
 
-        return HStack(alignment: .bottom) {
+        return HStack(alignment: .bottom, spacing: 0) {
             if isMe { Spacer() }
             if !isMe {
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        if let urlStr = message.senderProfilePictureUrl, let url = URL(string: urlStr) {
-                            WebImage(url: url)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 28, height: 28)
-                                .clipShape(Circle())
-                        } else {
-                            ZStack {
-                                Circle()
-                                    .fill(roomCtx.getColorForParticipan(participantId: message.senderSid?.stringValue) ?? Color(NSColor.random()))
-                                    .frame(width: 28, height: 28)
-                                Text((message.senderName ?? "?").getInitialsFromName())
-                                    .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
-                                    .foregroundColor(Color.white)
-                            }
+                // Avatar column — bottom-aligned with the bubble
+                Group {
+                    if let urlStr = message.senderProfilePictureUrl, let url = URL(string: urlStr) {
+                        WebImage(url: url)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 22, height: 22)
+                            .clipShape(Circle())
+                    } else {
+                        ZStack {
+                            Circle()
+                                .fill(roomCtx.getColorForParticipan(participantId: message.senderSid?.stringValue) ?? Color(NSColor.random()))
+                                .frame(width: 22, height: 22)
+                            Text((message.senderName ?? "?").getInitialsFromName())
+                                .font(Font(NSFont(name: "Roboto-Medium", size: 9.0)!))
+                                .foregroundColor(Color.white)
                         }
-                        Text(message.senderName ?? "Unknown")
-                            .font(Font(NSFont(name: "Roboto-Medium", size: 12.0)!))
-                            .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
                     }
+                }
+                .padding(.trailing, 6)
+
+                // Bubble column — name above, bubble below
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(message.senderName ?? "Unknown")
+                        .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
+                        .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
                     Text(message.text)
                         .padding(8)
                         .background(Color(NSColor.Sphinx.SecondaryText))
