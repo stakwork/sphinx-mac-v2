@@ -514,12 +514,37 @@ extension NewChatViewController : ActionsDelegate {
     }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {
-        let link = VideoCallHelper.createCallMessage(
-            mode: mode,
-            secondBrainUrl: chat?.getSecondBrainUrl(),
-            appUrl: chat?.getAppUrl()
-        )
-        newChatViewModel.sendCallMessage(link: link)
+        let swarmName = VideoCallHelper.extractSwarmName(from: chat?.getAppUrl() ?? "")
+            ?? VideoCallHelper.extractSwarmName(from: chat?.getSecondBrainUrl() ?? "")
+
+        if let swarmName = swarmName {
+            API.sharedInstance.generateTribeCallLinkWithAuth(
+                swarmName: swarmName,
+                callback: { [weak self] link in
+                    DispatchQueue.main.async {
+                        self?.newChatViewModel.sendCallMessage(link: link)
+                    }
+                },
+                errorCallback: { [weak self] in
+                    guard let self = self else { return }
+                    let link = VideoCallHelper.createCallMessage(
+                        mode: mode,
+                        secondBrainUrl: self.chat?.getSecondBrainUrl(),
+                        appUrl: self.chat?.getAppUrl()
+                    )
+                    DispatchQueue.main.async {
+                        self.newChatViewModel.sendCallMessage(link: link)
+                    }
+                }
+            )
+        } else {
+            let link = VideoCallHelper.createCallMessage(
+                mode: mode,
+                secondBrainUrl: chat?.getSecondBrainUrl(),
+                appUrl: chat?.getAppUrl()
+            )
+            newChatViewModel.sendCallMessage(link: link)
+        }
     }
     
     func shouldSendPaymentFor(
