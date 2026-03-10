@@ -674,7 +674,7 @@ struct RoomView: View {
                     .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
                 }
                 .frame(maxWidth: .infinity).frame(height: 76)
-                .padding(.trailing, 12).padding(.leading, 14)
+                .padding(.trailing, 22).padding(.leading, 24)
 
                 ScrollViewReader { scrollView in
                     ScrollView(.vertical, showsIndicators: true) {
