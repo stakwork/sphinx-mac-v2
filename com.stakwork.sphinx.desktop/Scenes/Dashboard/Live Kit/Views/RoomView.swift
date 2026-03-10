@@ -321,7 +321,8 @@ struct RoomView: View {
     }
 
     func scrollToBottom(_ scrollView: ScrollViewProxy) {
-        
+        guard let last = roomCtx.messages.last else { return }
+        withAnimation { scrollView.scrollTo(last.id) }
     }
     
     func scrollToTop(_ scrollView: ScrollViewProxy) {
@@ -625,6 +626,62 @@ struct RoomView: View {
         )
     }
 
+    func messagesView(geometry: GeometryProxy) -> some View {
+        ZStack {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Text("Chat")
+                        .foregroundColor(Color(NSColor.Sphinx.Text))
+                        .font(Font(NSFont(name: "Roboto-Bold", size: 18.0)!))
+                    Spacer()
+                    Button { roomCtx.showMessagesView.toggle() } label: {
+                        Image(systemSymbol: .xmark)
+                            .font(.system(size: 18))
+                            .foregroundColor(Color(NSColor.Sphinx.PlaceholderText))
+                    }
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
+                }
+                .frame(maxWidth: .infinity).frame(height: 76)
+                .padding(.trailing, 23).padding(.leading, 30)
+
+                ScrollViewReader { scrollView in
+                    ScrollView(.vertical, showsIndicators: true) {
+                        LazyVStack(alignment: .center, spacing: 0) {
+                            ForEach(roomCtx.messages) { messageView($0) }
+                        }
+                        .padding(.vertical, 12).padding(.horizontal, 7)
+                    }
+                    .onAppear { scrollToBottom(scrollView) }
+                    .onChange(of: roomCtx.messages) { _ in scrollToBottom(scrollView) }
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+                }
+                .padding(.trailing, 23).padding(.leading, 30)
+
+                HStack(spacing: 0) {
+                    TextField("Enter message", text: $roomCtx.textFieldString)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .onSubmit { roomCtx.sendMessage() }
+                    Button { roomCtx.sendMessage() } label: {
+                        Image(systemSymbol: .paperplaneFill)
+                            .foregroundColor(roomCtx.textFieldString.isEmpty
+                                ? Color(NSColor.Sphinx.PlaceholderText)
+                                : Color(NSColor.Sphinx.PrimaryGreen))
+                    }
+                    .buttonStyle(.borderless)
+                    .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
+                }
+                .padding()
+                .background(Color(NSColor.Sphinx.Body))
+            }
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .leading)
+            .background(Color(NSColor.Sphinx.HeaderBG))
+            .cornerRadius(8)
+        }
+        .padding(.top, 9).padding(.trailing, 16)
+        .frame(width: 360)
+    }
+
     func sortedParticipants() -> [Participant] {
         room.allParticipants.values.sorted { p1, p2 in
             if p1 is LocalParticipant { return true }
@@ -675,6 +732,11 @@ struct RoomView: View {
                 // Show participants view if enabled
                 if roomCtx.showParticipantsView {
                     participantsView(geometry: geometry)
+                }
+
+                // Show chat view if enabled
+                if roomCtx.showMessagesView {
+                    messagesView(geometry: geometry)
                 }
             }
         }.padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 3))
@@ -973,7 +1035,10 @@ struct RoomView: View {
                 HStack(spacing: 4.0) {
                     Button(action: {
                         Task {
-                            roomCtx.showParticipantsView.toggle()
+                            withAnimation {
+                                roomCtx.showParticipantsView.toggle()
+                                if roomCtx.showParticipantsView { roomCtx.showMessagesView = false }
+                            }
                         }
                     },
                     label: {
@@ -1009,6 +1074,33 @@ struct RoomView: View {
                     : Color(NSColor.Sphinx.MainBottomIcons)
                         .opacity(0.1)
                         .cornerRadius(8.0)
+                )
+
+                HStack(spacing: 4.0) {
+                    Button(action: {
+                        Task {
+                            withAnimation {
+                                roomCtx.showMessagesView.toggle()
+                                if roomCtx.showMessagesView { roomCtx.showParticipantsView = false }
+                            }
+                        }
+                    }, label: {
+                        Image(systemSymbol: .messageFill)
+                            .renderingMode(.template)
+                            .foregroundColor(Color.white)
+                            .font(.system(size: 18))
+                            .padding(.horizontal, 8.0)
+                    })
+                    .background(Color.clear)
+                    .contentShape(Rectangle())
+                    .buttonStyle(PlainButtonStyle())
+                    .onHover { isHover in isHover ? NSCursor.pointingHand.set() : NSCursor.arrow.set() }
+                }
+                .frame(height: 40.0)
+                .background(
+                    roomCtx.showMessagesView
+                        ? Color(NSColor(hex: "#5078F2")).opacity(0.75).cornerRadius(8.0)
+                        : Color(NSColor.Sphinx.MainBottomIcons).opacity(0.1).cornerRadius(8.0)
                 )
                 
                 Button(action: {
