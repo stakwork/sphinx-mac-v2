@@ -265,7 +265,8 @@ final class RoomContext: NSObject, ObservableObject {
             id: msgId,
             timestamp: timestamp,
             message: textFieldString,
-            editTimestamp: nil
+            editTimestamp: nil,
+            sender: room.localParticipant.name
         )
         let displayMsg = ExampleRoomMessage(
             messageId: msgId,
@@ -386,7 +387,12 @@ extension RoomContext: RoomDelegate {
             let sender: Participant? = remoteParticipant ?? room.allParticipants.values.first {
                 $0.identity == remoteParticipant?.identity
             }
-            let resolvedName = sender?.name ?? sender?.identity?.stringValue ?? "Unknown"
+            let resolvedName: String
+            if let s = wireMsg.sender, !s.isEmpty {
+                resolvedName = s
+            } else {
+                resolvedName = sender?.name ?? sender?.identity?.stringValue ?? "Unknown"
+            }
             let resolvedPic = sender?.profilePictureUrl
             let displayMsg = ExampleRoomMessage(
                 messageId: wireMsg.id,
@@ -422,16 +428,30 @@ extension RoomContext: RoomDelegate {
 }
 
 extension RoomContext {
-    func getColorForParticipan(participantId: String?) -> Color? {
-        guard let participantId = participantId else {
-            return nil
-        }
-        if let color = colors[participantId] {
+    func getColorForParticipan(participantId: String?) -> Color {
+        let key = participantId ?? "unknown"
+        if let color = colors[key] {
             return color
         }
         let randomColor = Color(NSColor.random())
-        colors[participantId] = randomColor
+        colors[key] = randomColor
         return randomColor
+    }
+    
+    /// Returns the color for a chat message sender, matching the live participant
+    /// box color when the sender name corresponds to a connected participant.
+    func getColorForMessage(senderName: String?) -> Color {
+        // Try to find a live participant whose name or identity matches the sender
+        if let senderName = senderName,
+           let match = room.allParticipants.values.first(where: {
+               $0.name == senderName || $0.identity?.stringValue == senderName
+           }) {
+            // Use the same key as participant boxes so colors stay in sync
+            let participantKey = match.sid?.stringValue ?? match.identity?.stringValue
+            return getColorForParticipan(participantId: participantKey)
+        }
+        // No live participant match — key by sender name
+        return getColorForParticipan(participantId: senderName)
     }
 }
 
@@ -465,6 +485,7 @@ struct LiveKitChatMessage: Codable {
     let timestamp: Int64
     let message: String
     let editTimestamp: Int64?
+    let sender: String?   // Sphinx alias of the sender
 }
 
 extension RoomContext: NSWindowDelegate {
