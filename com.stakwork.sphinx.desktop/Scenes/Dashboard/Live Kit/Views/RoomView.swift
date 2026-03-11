@@ -216,7 +216,7 @@ struct RoomView: View {
                     } else {
                         ZStack {
                             Circle()
-                                .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                                .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue ?? participant.identity?.stringValue))
                                 .frame(width: 32, height: 32)
 
                             Text((participant.name ?? "Unknown").getInitialsFromName())
@@ -317,7 +317,7 @@ struct RoomView: View {
                     } else {
                         ZStack {
                             Circle()
-                                .fill(roomCtx.getColorForParticipan(participantId: message.senderSid?.stringValue) ?? Color(NSColor.random()))
+                                .fill(roomCtx.getColorForParticipan(participantId: message.senderName))
                                 .frame(width: 22, height: 22)
                             Text((message.senderName ?? "?").getInitialsFromName())
                                 .font(Font(NSFont(name: "Roboto-Medium", size: 9.0)!))
@@ -387,7 +387,7 @@ struct RoomView: View {
                 } else {
                     ZStack(alignment: .center) {
                         Circle()
-                            .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue) ?? Color(NSColor.random()))
+                            .fill(roomCtx.getColorForParticipan(participantId: participant.sid?.stringValue ?? participant.identity?.stringValue))
                             .frame(maxWidth: 32.0, maxHeight: 32.0)
 
                         Text((participant.name ?? "Unknow").getInitialsFromName())
