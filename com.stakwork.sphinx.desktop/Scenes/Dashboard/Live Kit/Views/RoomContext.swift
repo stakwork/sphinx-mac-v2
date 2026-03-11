@@ -428,15 +428,13 @@ extension RoomContext: RoomDelegate {
 }
 
 extension RoomContext {
-    func getColorForParticipan(participantId: String?) -> Color? {
-        guard let participantId = participantId else {
-            return nil
-        }
-        if let color = colors[participantId] {
+    func getColorForParticipan(participantId: String?) -> Color {
+        let key = participantId ?? "unknown"
+        if let color = colors[key] {
             return color
         }
         let randomColor = Color(NSColor.random())
-        colors[participantId] = randomColor
+        colors[key] = randomColor
         return randomColor
     }
 }
