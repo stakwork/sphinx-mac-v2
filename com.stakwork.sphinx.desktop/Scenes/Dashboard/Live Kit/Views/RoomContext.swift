@@ -437,6 +437,22 @@ extension RoomContext {
         colors[key] = randomColor
         return randomColor
     }
+    
+    /// Returns the color for a chat message sender, matching the live participant
+    /// box color when the sender name corresponds to a connected participant.
+    func getColorForMessage(senderName: String?) -> Color {
+        // Try to find a live participant whose name or identity matches the sender
+        if let senderName = senderName,
+           let match = room.allParticipants.values.first(where: {
+               $0.name == senderName || $0.identity?.stringValue == senderName
+           }) {
+            // Use the same key as participant boxes so colors stay in sync
+            let participantKey = match.sid?.stringValue ?? match.identity?.stringValue
+            return getColorForParticipan(participantId: participantKey)
+        }
+        // No live participant match — key by sender name
+        return getColorForParticipan(participantId: senderName)
+    }
 }
 
 struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {

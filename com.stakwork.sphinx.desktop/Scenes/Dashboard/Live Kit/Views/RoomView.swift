@@ -317,7 +317,7 @@ struct RoomView: View {
                     } else {
                         ZStack {
                             Circle()
-                                .fill(roomCtx.getColorForParticipan(participantId: message.senderName))
+                                .fill(roomCtx.getColorForMessage(senderName: message.senderName))
                                 .frame(width: 22, height: 22)
                             Text((message.senderName ?? "?").getInitialsFromName())
                                 .font(Font(NSFont(name: "Roboto-Medium", size: 9.0)!))
