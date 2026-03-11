@@ -259,22 +259,34 @@ final class RoomContext: NSObject, ObservableObject {
 
     func sendMessage() {
         guard !textFieldString.isEmpty else { return }
-        let roomMessage = ExampleRoomMessage(
-            messageId: UUID().uuidString,
+        let msgId = UUID().uuidString
+        let timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+        let wireMsg = LiveKitChatMessage(
+            id: msgId,
+            timestamp: timestamp,
+            message: textFieldString,
+            editTimestamp: nil
+        )
+        let displayMsg = ExampleRoomMessage(
+            messageId: msgId,
             senderSid: room.localParticipant.sid,
             senderIdentity: room.localParticipant.identity,
             text: textFieldString,
             senderName: room.localParticipant.name,
-            senderProfilePictureUrl: room.localParticipant.profilePictureUrl
+            senderProfilePictureUrl: room.localParticipant.profilePictureUrl,
+            timestamp: timestamp
         )
         textFieldString = ""
-        messages.append(roomMessage)
+        messages.append(displayMsg)
         Task.detached { [weak self] in
             guard let self else { return }
             do {
-                let json = try self.jsonEncoder.encode(roomMessage)
-                try await self.room.localParticipant.publish(data: json)
-            } catch { print("Failed to encode data \(error)") }
+                let json = try self.jsonEncoder.encode(wireMsg)
+                try await self.room.localParticipant.publish(
+                    data: json,
+                    options: DataPublishOptions(reliable: true, topic: "lk-chat-topic")
+                )
+            } catch { print("Failed to encode/publish chat data \(error)") }
         }
     }
 
@@ -367,31 +379,33 @@ extension RoomContext: RoomDelegate {
         }
     }
 
-    func room(_: Room, participant _: RemoteParticipant?, didReceiveData data: Data, forTopic _: String, encryptionType _: EncryptionType) {
+    func room(_: Room, participant remoteParticipant: RemoteParticipant?, didReceiveData data: Data, forTopic topic: String, encryptionType _: EncryptionType) {
+        guard topic == "lk-chat-topic" else { return }
         do {
-            var roomMessage = try jsonDecoder.decode(ExampleRoomMessage.self, from: data)
-            if roomMessage.senderName == nil {
-                let matched = room.allParticipants.values.first { $0.sid == roomMessage.senderSid }
-                let resolvedName = matched?.name ?? roomMessage.senderIdentity?.stringValue ?? "Unknown"
-                let resolvedPic = matched?.profilePictureUrl
-                roomMessage = ExampleRoomMessage(
-                    messageId: roomMessage.messageId,
-                    senderSid: roomMessage.senderSid,
-                    senderIdentity: roomMessage.senderIdentity,
-                    text: roomMessage.text,
-                    senderName: resolvedName,
-                    senderProfilePictureUrl: resolvedPic
-                )
+            let wireMsg = try jsonDecoder.decode(LiveKitChatMessage.self, from: data)
+            let sender: Participant? = remoteParticipant ?? room.allParticipants.values.first {
+                $0.identity == remoteParticipant?.identity
             }
+            let resolvedName = sender?.name ?? sender?.identity?.stringValue ?? "Unknown"
+            let resolvedPic = sender?.profilePictureUrl
+            let displayMsg = ExampleRoomMessage(
+                messageId: wireMsg.id,
+                senderSid: sender?.sid,
+                senderIdentity: sender?.identity,
+                text: wireMsg.message,
+                senderName: resolvedName,
+                senderProfilePictureUrl: resolvedPic,
+                timestamp: wireMsg.timestamp
+            )
             Task.detached { @MainActor [weak self] in
                 guard let self else { return }
                 withAnimation {
-                    self.messages.append(roomMessage)
+                    self.messages.append(displayMsg)
                     self.showMessagesView = true
                     self.showParticipantsView = false
                 }
             }
-        } catch { print("Failed to decode data \(error)") }
+        } catch { print("Failed to decode lk-chat-topic message \(error)") }
     }
 
     func room(_: Room, participant _: Participant, trackPublication _: TrackPublication, didReceiveTranscriptionSegments segments: [TranscriptionSegment]) {
@@ -435,6 +449,7 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
     let text: String
     let senderName: String?
     let senderProfilePictureUrl: String?
+    let timestamp: Int64
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.messageId == rhs.messageId
@@ -443,6 +458,13 @@ struct ExampleRoomMessage: Identifiable, Equatable, Hashable, Codable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(messageId)
     }
+}
+
+struct LiveKitChatMessage: Codable {
+    let id: String
+    let timestamp: Int64
+    let message: String
+    let editTimestamp: Int64?
 }
 
 extension RoomContext: NSWindowDelegate {
