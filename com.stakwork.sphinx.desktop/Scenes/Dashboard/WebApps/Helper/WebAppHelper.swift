@@ -344,7 +344,7 @@ extension WebAppHelper : WKScriptMessageHandler {
                     return
                 }
                 
-                SphinxOnionManager.sharedInstance.payInvoice(
+                SphinxOnionManager.sharedInstance.payInvoiceFromSB(
                     invoice: paymentRequest,
                     callback: { success, errorMsg in
                         if success {
@@ -489,7 +489,7 @@ extension WebAppHelper : WKScriptMessageHandler {
         
         startLsatTimer()
         
-        SphinxOnionManager.sharedInstance.payInvoice(
+        SphinxOnionManager.sharedInstance.payInvoiceFromSB(
             invoice: paymentRequest,
             callback: { success, errorMsg in
                 if let _ = errorMsg, !success {

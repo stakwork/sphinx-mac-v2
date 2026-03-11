@@ -182,6 +182,48 @@ extension SphinxOnionManager{
         }
     }
     
+    func payInvoiceFromSB(
+        invoice: String,
+        overPayAmountMsat: UInt64? = nil,
+        callback: ((Bool, String?) -> ())? = nil
+    ){
+        guard let invoiceDict = getInvoiceDetails(invoice: invoice),
+              let pubkey = invoiceDict.pubkey,
+              let amount = invoiceDict.value else
+        {
+            callback?(false, "Pubkey not found")
+            return
+        }
+        
+        let hasRouteHint = invoiceDict.hopHints?.last != nil
+        
+        if !hasRouteHint {
+            self.payInvoiceFromLSP(
+                invoice: invoice,
+                callback: callback
+            )
+            callback?(true, nil)
+            return
+        } else {
+            checkAndFetchRouteTo(
+                publicKey: pubkey,
+                routeHint: invoiceDict.hopHints?.last,
+                amtMsat: Int(overPayAmountMsat ?? UInt64(amount))
+            ) { success in
+                if success {
+                    self.finalizePayInvoice(
+                        invoice: invoice,
+                        hasRouteHint: hasRouteHint,
+                        amount: overPayAmountMsat ?? UInt64(amount),
+                        callback: callback
+                    )
+                } else {
+                    callback?(false, "Could not find a route to the target. Please try again.")
+                }
+            }
+        }
+    }
+    
     func payInvoiceFromLSP(
         invoice: String,
         callback: ((Bool, String?) -> ())? = nil
