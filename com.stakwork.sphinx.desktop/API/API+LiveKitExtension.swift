@@ -14,6 +14,7 @@ extension API {
         room: String,
         alias: String,
         profilePicture: String?,
+        hiveToken: String? = nil,
         callback: @escaping LiveKitTokenCallback,
         errorCallback: @escaping ErrorCallback
     ) {
@@ -22,6 +23,10 @@ extension API {
         if let profilePicture = profilePicture {
             let metaData = "{\"profilePictureUrl\":\"\(profilePicture)\"}"
             url = url + "&metadata=\(metaData.urlEncode() ?? metaData)"
+        }
+        
+        if let hiveToken = hiveToken {
+            url = url + "&hiveToken=\(hiveToken.urlEncode() ?? hiveToken)"
         }
         
         let request : URLRequest? = createRequest(

@@ -522,7 +522,7 @@ extension NewChatViewController : ActionsDelegate {
                 swarmName: swarmName,
                 callback: { [weak self] link in
                     DispatchQueue.main.async {
-                        let finalLink = mode == .Audio ? link + "?startAudioOnly=true" : link
+                        let finalLink = mode == .Audio ? link + "&startAudioOnly=true" : link
                         self?.newChatViewModel.sendCallMessage(link: finalLink)
                     }
                 },

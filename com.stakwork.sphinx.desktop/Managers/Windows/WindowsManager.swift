@@ -527,13 +527,16 @@ class WindowsManager {
             return
         }
         
-        if let room = link.liveKitRoomName {
-            openedWindowIdentifiers.append(link)
+        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
+        
+        if linkUrl.isLiveKitCallLink, let room = linkUrl.liveKitRoomName {
+            openedWindowIdentifiers.append(linkUrl)
             
             API.sharedInstance.getLiveKitToken(
                 room: room,
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
+                hiveToken: linkUrl.liveKitHiveToken,
                 callback: { url, token in
                     DispatchQueue.main.async {
                         let appCtx = AppContext(store: sync)
