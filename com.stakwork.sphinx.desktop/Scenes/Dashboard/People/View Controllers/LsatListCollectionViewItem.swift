@@ -30,11 +30,9 @@ class LsatListCollectionViewItem: NSCollectionViewItem {
     }
 
     private func setupStyles() {
-        // Card: transparent border, system controls the fill color via named color in XIB
         cardBox.cornerRadius = 12
         cardBox.borderWidth = 0
 
-        // Active pill styling
         activePillBox.cornerRadius = 9
         activePillBox.borderWidth = 0
         activePillBox.fillColor = NSColor.Sphinx.PrimaryGreen
@@ -47,15 +45,20 @@ class LsatListCollectionViewItem: NSCollectionViewItem {
         button.wantsLayer = true
         button.isBordered = false
         button.layer?.cornerRadius = 8
-        button.layer?.borderWidth = 1.5
+        button.layer?.borderWidth = 0.8
         button.layer?.borderColor = NSColor.Sphinx.PrimaryBlue.cgColor
         button.layer?.backgroundColor = NSColor.clear.cgColor
         button.cursor = .pointingHand
 
         let title = button.title
         let attrs: [NSAttributedString.Key: Any] = [
-            .font: NSFont(name: "Roboto-Bold", size: 11) ?? NSFont.boldSystemFont(ofSize: 11),
-            .foregroundColor: NSColor.Sphinx.PrimaryBlue
+            .font: NSFont(name: "Roboto-Bold", size: 10) ?? NSFont.boldSystemFont(ofSize: 10),
+            .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+            .paragraphStyle: {
+                let ps = NSMutableParagraphStyle()
+                ps.alignment = .center
+                return ps
+            }()
         ]
         button.attributedTitle = NSAttributedString(string: title, attributes: attrs)
     }
@@ -69,9 +72,10 @@ class LsatListCollectionViewItem: NSCollectionViewItem {
         issuerLabel.stringValue = lsat.issuer ?? ""
 
         let isActive = lsat.status == LSat.LSatStatus.active.rawValue
+        // NSStackView with detachesHiddenViews=YES will auto-collapse the pill
         activePillBox.isHidden = !isActive
 
-        createdAtLabel.stringValue = lsat.createdAt?.getStringDate(format: "MMM dd, yyyy") ?? ""
+        createdAtLabel.stringValue = lsat.createdAt?.getStringDate(format: "MMM dd, yyyy · h:mm a") ?? ""
     }
 
     @IBAction func handleCopyToken(_ sender: Any) {

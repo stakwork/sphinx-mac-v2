@@ -15,83 +15,90 @@
             <rect key="frame" x="0.0" y="0.0" width="500" height="110"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <!-- Card background box (rounded, dark bg in dark mode) -->
+                <!-- Card background box -->
                 <box boxType="custom" borderType="none" cornerRadius="12" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="card-box-id">
                     <rect key="frame" x="12" y="6" width="476" height="98"/>
                     <view key="contentView" id="card-cv-id">
                         <rect key="frame" x="0.0" y="0.0" width="476" height="98"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <!-- Token label: macaroon, bold, truncates tail -->
+                            <!-- Token label -->
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="100" translatesAutoresizingMaskIntoConstraints="NO" id="token-lbl-id">
-                                <rect key="frame" x="16" y="66" width="300" height="18"/>
+                                <rect key="frame" x="16" y="66" width="280" height="18"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="macaroon" id="token-cell-id">
                                     <font key="font" name="Roboto-Bold" size="13"/>
                                     <color key="textColor" name="PrimaryText"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <!-- Issuer label: secondary, smaller -->
+                            <!-- Issuer label -->
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="100" translatesAutoresizingMaskIntoConstraints="NO" id="issuer-lbl-id">
-                                <rect key="frame" x="16" y="48" width="300" height="14"/>
+                                <rect key="frame" x="16" y="48" width="280" height="14"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="issuer" id="issuer-cell-id">
                                     <font key="font" name="Roboto-Regular" size="11"/>
                                     <color key="textColor" name="SecondaryText"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <!-- Active pill box (green rounded) -->
-                            <box boxType="custom" borderType="none" cornerRadius="9" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="pill-box-id">
-                                <rect key="frame" x="16" y="16" width="60" height="18"/>
-                                <view key="contentView" id="pill-cv-id">
-                                    <rect key="frame" x="0.0" y="0.0" width="60" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="active-lbl-id">
-                                            <rect key="frame" x="0.0" y="2" width="60" height="14"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="ACTIVE" id="active-cell-id">
-                                                <font key="font" name="Roboto-Bold" size="9"/>
-                                                <color key="textColor" name="SphinxWhite"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="active-lbl-id" firstAttribute="leading" secondItem="pill-cv-id" secondAttribute="leading" id="act-lead"/>
-                                        <constraint firstItem="active-lbl-id" firstAttribute="trailing" secondItem="pill-cv-id" secondAttribute="trailing" id="act-trail"/>
-                                        <constraint firstItem="active-lbl-id" firstAttribute="centerY" secondItem="pill-cv-id" secondAttribute="centerY" id="act-cy"/>
-                                    </constraints>
-                                </view>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="60" id="pill-w"/>
-                                    <constraint firstAttribute="height" constant="18" id="pill-h"/>
-                                </constraints>
-                                <color key="fillColor" name="PrimaryGreen"/>
-                            </box>
-                            <!-- Created at date label -->
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="date-lbl-id">
-                                <rect key="frame" x="84" y="18" width="120" height="14"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="" id="date-cell-id">
-                                    <font key="font" name="Roboto-Regular" size="11"/>
-                                    <color key="textColor" name="SecondaryText"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <!-- COPY TOKEN button -->
+                            <!-- Horizontal stack: pill (optional) + date label -->
+                            <!-- detachesHiddenViews=YES so hiding pill collapses it and date moves left -->
+                            <stackView orientation="horizontal" alignment="centerY" distribution="fill" spacing="8" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pill-stack-id">
+                                <rect key="frame" x="16" y="14" width="200" height="20"/>
+                                <subviews>
+                                    <!-- Active pill box -->
+                                    <box boxType="custom" borderType="none" cornerRadius="9" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="pill-box-id">
+                                        <rect key="frame" x="0.0" y="1" width="60" height="18"/>
+                                        <view key="contentView" id="pill-cv-id">
+                                            <rect key="frame" x="0.0" y="0.0" width="60" height="18"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="active-lbl-id">
+                                                    <rect key="frame" x="0.0" y="2" width="60" height="14"/>
+                                                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="ACTIVE" id="active-cell-id">
+                                                        <font key="font" name="Roboto-Bold" size="9"/>
+                                                        <color key="textColor" name="SphinxWhite"/>
+                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="active-lbl-id" firstAttribute="leading" secondItem="pill-cv-id" secondAttribute="leading" id="act-lead"/>
+                                                <constraint firstItem="active-lbl-id" firstAttribute="trailing" secondItem="pill-cv-id" secondAttribute="trailing" id="act-trail"/>
+                                                <constraint firstItem="active-lbl-id" firstAttribute="centerY" secondItem="pill-cv-id" secondAttribute="centerY" id="act-cy"/>
+                                            </constraints>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="60" id="pill-w"/>
+                                            <constraint firstAttribute="height" constant="18" id="pill-h"/>
+                                        </constraints>
+                                        <color key="fillColor" name="PrimaryGreen"/>
+                                    </box>
+                                    <!-- Date label -->
+                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="date-lbl-id">
+                                        <rect key="frame" x="68" y="3" width="160" height="14"/>
+                                        <textFieldCell key="cell" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="" id="date-cell-id">
+                                            <font key="font" name="Roboto-Regular" size="11"/>
+                                            <color key="textColor" name="SecondaryText"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                </subviews>
+                            </stackView>
+                            <!-- COPY TOKEN button: 84px wide -->
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="copy-tok-btn-id" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="330" y="58" width="120" height="26"/>
-                                <buttonCell key="cell" type="roundRect" title="COPY TOKEN" bezelStyle="roundRect" id="copy-tok-cell-id">
-                                    <font key="font" name="Roboto-Bold" size="11"/>
+                                <rect key="frame" x="368" y="58" width="84" height="26"/>
+                                <buttonCell key="cell" type="roundRect" title="COPY TOKEN" bezelStyle="roundRect" alignment="center" id="copy-tok-cell-id">
+                                    <font key="font" name="Roboto-Bold" size="10"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="handleCopyToken:" target="lsat-item-id" id="copy-tok-action"/>
                                 </connections>
                             </button>
-                            <!-- COPY JSON button -->
+                            <!-- COPY JSON button: 84px wide -->
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="copy-json-btn-id" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="330" y="16" width="120" height="26"/>
-                                <buttonCell key="cell" type="roundRect" title="COPY JSON" bezelStyle="roundRect" id="copy-json-cell-id">
-                                    <font key="font" name="Roboto-Bold" size="11"/>
+                                <rect key="frame" x="368" y="16" width="84" height="26"/>
+                                <buttonCell key="cell" type="roundRect" title="COPY JSON" bezelStyle="roundRect" alignment="center" id="copy-json-cell-id">
+                                    <font key="font" name="Roboto-Bold" size="10"/>
                                 </buttonCell>
                                 <connections>
                                     <action selector="handleCopyJSON:" target="lsat-item-id" id="copy-json-action"/>
@@ -99,29 +106,26 @@
                             </button>
                         </subviews>
                         <constraints>
-                            <!-- token label constraints -->
+                            <!-- token label -->
                             <constraint firstItem="token-lbl-id" firstAttribute="top" secondItem="card-cv-id" secondAttribute="top" constant="14" id="tok-top"/>
                             <constraint firstItem="token-lbl-id" firstAttribute="leading" secondItem="card-cv-id" secondAttribute="leading" constant="16" id="tok-lead"/>
                             <constraint firstItem="token-lbl-id" firstAttribute="trailing" secondItem="copy-tok-btn-id" secondAttribute="leading" constant="-8" id="tok-trail"/>
                             <constraint firstItem="token-lbl-id" firstAttribute="height" constant="18" id="tok-h"/>
-                            <!-- issuer label constraints -->
+                            <!-- issuer label -->
                             <constraint firstItem="issuer-lbl-id" firstAttribute="top" secondItem="token-lbl-id" secondAttribute="bottom" constant="4" id="iss-top"/>
                             <constraint firstItem="issuer-lbl-id" firstAttribute="leading" secondItem="token-lbl-id" secondAttribute="leading" id="iss-lead"/>
                             <constraint firstItem="issuer-lbl-id" firstAttribute="trailing" secondItem="token-lbl-id" secondAttribute="trailing" id="iss-trail"/>
                             <constraint firstItem="issuer-lbl-id" firstAttribute="height" constant="14" id="iss-h"/>
-                            <!-- pill constraints -->
-                            <constraint firstItem="pill-box-id" firstAttribute="leading" secondItem="card-cv-id" secondAttribute="leading" constant="16" id="pill-lead"/>
-                            <constraint firstItem="pill-box-id" firstAttribute="bottom" secondItem="card-cv-id" secondAttribute="bottom" constant="-14" id="pill-bot"/>
-                            <!-- date label constraints -->
-                            <constraint firstItem="date-lbl-id" firstAttribute="centerY" secondItem="pill-box-id" secondAttribute="centerY" id="date-cy"/>
-                            <constraint firstItem="date-lbl-id" firstAttribute="leading" secondItem="pill-box-id" secondAttribute="trailing" constant="8" id="date-lead"/>
-                            <constraint firstItem="date-lbl-id" firstAttribute="height" constant="14" id="date-h"/>
-                            <!-- copy token button constraints -->
+                            <!-- pill+date stack -->
+                            <constraint firstItem="pill-stack-id" firstAttribute="leading" secondItem="card-cv-id" secondAttribute="leading" constant="16" id="stack-lead"/>
+                            <constraint firstItem="pill-stack-id" firstAttribute="bottom" secondItem="card-cv-id" secondAttribute="bottom" constant="-14" id="stack-bot"/>
+                            <constraint firstItem="pill-stack-id" firstAttribute="trailing" secondItem="copy-tok-btn-id" secondAttribute="leading" constant="-8" id="stack-trail"/>
+                            <!-- copy token button -->
                             <constraint firstItem="copy-tok-btn-id" firstAttribute="top" secondItem="card-cv-id" secondAttribute="top" constant="14" id="ctok-top"/>
                             <constraint firstItem="copy-tok-btn-id" firstAttribute="trailing" secondItem="card-cv-id" secondAttribute="trailing" constant="-16" id="ctok-trail"/>
-                            <constraint firstItem="copy-tok-btn-id" firstAttribute="width" constant="120" id="ctok-w"/>
+                            <constraint firstItem="copy-tok-btn-id" firstAttribute="width" constant="84" id="ctok-w"/>
                             <constraint firstItem="copy-tok-btn-id" firstAttribute="height" constant="26" id="ctok-h"/>
-                            <!-- copy json button constraints -->
+                            <!-- copy json button -->
                             <constraint firstItem="copy-json-btn-id" firstAttribute="bottom" secondItem="card-cv-id" secondAttribute="bottom" constant="-14" id="cjson-bot"/>
                             <constraint firstItem="copy-json-btn-id" firstAttribute="trailing" secondItem="copy-tok-btn-id" secondAttribute="trailing" id="cjson-trail"/>
                             <constraint firstItem="copy-json-btn-id" firstAttribute="width" secondItem="copy-tok-btn-id" secondAttribute="width" id="cjson-w"/>
@@ -138,7 +142,7 @@
                 <constraint firstItem="card-box-id" firstAttribute="bottom" secondItem="root-view-id" secondAttribute="bottom" constant="-6" id="card-bot"/>
             </constraints>
         </customView>
-        <!-- NSCollectionViewItem — holds all IBOutlet connections -->
+        <!-- NSCollectionViewItem -->
         <collectionViewItem id="lsat-item-id" customClass="LsatListCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
             <connections>
                 <outlet property="view" destination="root-view-id" id="outlet-view"/>
