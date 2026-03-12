@@ -14,13 +14,14 @@ protocol NewMenuListViewDelegate: AnyObject {
 }
 
 public enum MenuItems: Int {
-    case Profile
-    case Transactions
-    case RequestPayment
-    case PayInvoice
-    case AddFriend
-    case CreateTribe
-    case ShareQR
+    case Profile = 0
+    case L402s = 1
+    case Transactions = 2
+    case RequestPayment = 3
+    case PayInvoice = 4
+    case AddFriend = 5
+    case CreateTribe = 6
+    case ShareQR = 7
 }
 
 public class NewMenuListView: NSView, LoadableNib {
@@ -45,6 +46,7 @@ public class NewMenuListView: NSView, LoadableNib {
     
     let menuItems = [
         NewMenuItem(icon: "person", menuTitle: "profile".localized),
+        NewMenuItem(icon: "person", menuTitle: "L402s"),
 //        NewMenuItem(icon: "contact", menuTitle: "menu.contacts".localized),
         NewMenuItem(icon: "bottomBar2", menuTitle: "transactions".localized),
         NewMenuItem(icon: "bottomBar4", menuTitle: "request.payment".localized),

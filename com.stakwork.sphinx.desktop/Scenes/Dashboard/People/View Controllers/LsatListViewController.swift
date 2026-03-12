@@ -11,16 +11,14 @@ import Cocoa
 
 
 class LsatListViewController: NSViewController {
-    var lsatList : [LSATObject] = []
+    var lsatList: [LSat] = []
     @IBOutlet weak var tableView: NSTableView!
     
-    lazy var viewModel : LsatListViewModel = {
+    lazy var viewModel: LsatListViewModel = {
         return LsatListViewModel(vc: self, tableView: self.tableView)
     }()
     
     override func viewDidLoad() {
-        //self.view.setBackgroundColor(color: NSColor.magenta)
-        //self.viewModel?.setupTableView(lsatsList: lsatList)
     }
     
     override func viewWillAppear() {
@@ -28,7 +26,7 @@ class LsatListViewController: NSViewController {
     }
     
     static func instantiate(
-        lsatList: [LSATObject]
+        lsatList: [LSat]
     ) -> LsatListViewController {
         let viewController = StoryboardScene.Dashboard.lsatListViewController.instantiate()
         viewController.lsatList = lsatList

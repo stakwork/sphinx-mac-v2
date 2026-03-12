@@ -9,61 +9,50 @@
 import Cocoa
 
 protocol LsatListCellDelegate: NSObject {
-    func deleteLsat(index:Int)
-    func copyLsat(index:Int)
-    func debugLsat(index:Int)
+    func copyToken(index: Int)
+    func copyJSON(index: Int)
 }
-
 
 class LsatListTableCellView: NSTableCellView {
 
-    @IBOutlet weak var cellLabel: NSTextField!
-    @IBOutlet weak var copyLabel: NSTextField!
-    @IBOutlet weak var deleteLabel: NSTextField!
-    @IBOutlet weak var terminalLabel: NSTextField!
-    @IBOutlet weak var paymentRequestLabel: NSTextField!
-    
-    weak var delegate : LsatListCellDelegate? = nil
-    var index : Int? = nil
-    
+    @IBOutlet weak var tokenLabel: NSTextField!
+    @IBOutlet weak var issuerLabel: NSTextField!
+    @IBOutlet weak var activePillBox: NSBox!
+    @IBOutlet weak var activeLabel: NSTextField!
+    @IBOutlet weak var createdAtLabel: NSTextField!
+    @IBOutlet weak var copyTokenButton: CustomButton!
+    @IBOutlet weak var copyJSONButton: CustomButton!
+
+    weak var delegate: LsatListCellDelegate? = nil
+    var index: Int? = nil
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
+    }
 
-        // Drawing code here.
-    }
-    
-    func configureWith(lsat:LSATObject,index:Int){
-        self.cellLabel.stringValue = lsat.identifier ?? "Unknown ID"
-        self.paymentRequestLabel.stringValue = lsat.preImage ?? "Unknown Preimage string"
+    func configureWith(lsat: LSat, index: Int) {
         self.index = index
-        copyLabel.isSelectable = true
-        deleteLabel.isSelectable = true
-        terminalLabel.isSelectable = true
-        self.bringSubviewToFront(terminalLabel)
-        copyLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(handleCopy)))
-        deleteLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(handleDelete)))
-        terminalLabel.addGestureRecognizer(NSClickGestureRecognizer(target: self, action: #selector(handleTerminal)))
+
+        tokenLabel.stringValue = lsat.macaroon
+        tokenLabel.cell?.lineBreakMode = .byTruncatingTail
+
+        issuerLabel.stringValue = lsat.issuer ?? ""
+
+        let isActive = lsat.status == LSat.LSatStatus.active.rawValue
+        activePillBox.isHidden = !isActive
+        activePillBox.cornerRadius = 10
+        activePillBox.fillColor = NSColor.Sphinx.PrimaryGreen
+
+        createdAtLabel.stringValue = lsat.createdAt?.getStringDate(format: "MMM dd, yyyy") ?? ""
     }
-    
-    @objc func handleCopy(){
-        print("copying")
-        if let index = index{
-            delegate?.copyLsat(index: index)
-        }
+
+    @IBAction func handleCopyToken(_ sender: Any) {
+        guard let index = index else { return }
+        delegate?.copyToken(index: index)
     }
-    
-    @objc func handleDelete(){
-        print("delete")
-        if let index = index{
-            delegate?.deleteLsat(index: index)
-        }
+
+    @IBAction func handleCopyJSON(_ sender: Any) {
+        guard let index = index else { return }
+        delegate?.copyJSON(index: index)
     }
-    
-    @objc func handleTerminal(){
-        print("terminal")
-        if let index = index{
-            delegate?.debugLsat(index:index)
-        }
-    }
-    
 }
