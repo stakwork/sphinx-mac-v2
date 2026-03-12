@@ -451,6 +451,17 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
 //                nil,
 //                false
 //            )
+        case MenuItems.L402s.rawValue:
+            let records = LSat.getAllLSat(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
+            return (
+                LsatListViewController.instantiate(lsatList: records),
+                "L402s",
+                "l402s-window",
+                false,
+                nil,
+                nil,
+                false
+            )
         case MenuItems.Transactions.rawValue:
             return (
                 TransactionsListViewController.instantiate(),

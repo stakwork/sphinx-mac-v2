@@ -702,8 +702,8 @@
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
 		CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */; };
 		CE1FA8FC2A01B4030014360C /* LsatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8FB2A01B4030014360C /* LsatListViewModel.swift */; };
-		CE1FA8FE2A01B6680014360C /* LsatListTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8FD2A01B6680014360C /* LsatListTableCellView.swift */; };
-		CE1FA9022A01B7330014360C /* LsatListTableCellView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE1FA9012A01B7330014360C /* LsatListTableCellView.xib */; };
+		CE1FA9052A01B8000014360C /* LsatListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA9032A01B8000014360C /* LsatListCollectionViewItem.swift */; };
+		CE1FA9062A01B8000014360C /* LsatListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE1FA9042A01B8000014360C /* LsatListCollectionViewItem.xib */; };
 		CE326B4B294295C600821A53 /* ChatMentionAutocompleteDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE326B4A294295C600821A53 /* ChatMentionAutocompleteDataSource.swift */; };
 		CE326B51294A179200821A53 /* ChatMentionAutocompleteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE326B4F294A179200821A53 /* ChatMentionAutocompleteCell.swift */; };
 		CE326B52294A179200821A53 /* ChatMentionAutocompleteCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE326B50294A179200821A53 /* ChatMentionAutocompleteCell.xib */; };
@@ -1729,8 +1729,8 @@
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
 		CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LsatListViewController.swift; sourceTree = "<group>"; };
 		CE1FA8FB2A01B4030014360C /* LsatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LsatListViewModel.swift; sourceTree = "<group>"; };
-		CE1FA8FD2A01B6680014360C /* LsatListTableCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LsatListTableCellView.swift; sourceTree = "<group>"; };
-		CE1FA9012A01B7330014360C /* LsatListTableCellView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LsatListTableCellView.xib; sourceTree = "<group>"; };
+		CE1FA9032A01B8000014360C /* LsatListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LsatListCollectionViewItem.swift; sourceTree = "<group>"; };
+		CE1FA9042A01B8000014360C /* LsatListCollectionViewItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LsatListCollectionViewItem.xib; sourceTree = "<group>"; };
 		CE326B4A294295C600821A53 /* ChatMentionAutocompleteDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMentionAutocompleteDataSource.swift; sourceTree = "<group>"; };
 		CE326B4F294A179200821A53 /* ChatMentionAutocompleteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMentionAutocompleteCell.swift; sourceTree = "<group>"; };
 		CE326B50294A179200821A53 /* ChatMentionAutocompleteCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatMentionAutocompleteCell.xib; sourceTree = "<group>"; };
@@ -3227,11 +3227,11 @@
 		4797E7562785F3980080B966 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				CE1FA9012A01B7330014360C /* LsatListTableCellView.xib */,
+				CE1FA9042A01B8000014360C /* LsatListCollectionViewItem.xib */,
 				4797E7572785F3AD0080B966 /* DashboardModalsViewController.swift */,
 				CE1FA8FB2A01B4030014360C /* LsatListViewModel.swift */,
 				CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */,
-				CE1FA8FD2A01B6680014360C /* LsatListTableCellView.swift */,
+				CE1FA9032A01B8000014360C /* LsatListCollectionViewItem.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -4280,7 +4280,7 @@
 				476AAA962A1E71040092AC87 /* PinMessageDetailView.xib in Resources */,
 				473E1F552AC5EBAA00DC1CDC /* ThreadListCollectionViewItem.xib in Resources */,
 				4705D3A427A0707E009C0729 /* RestoreProgressView.xib in Resources */,
-				CE1FA9022A01B7330014360C /* LsatListTableCellView.xib in Resources */,
+				CE1FA9062A01B8000014360C /* LsatListCollectionViewItem.xib in Resources */,
 				4794962B2AB343C600C42D1E /* TribeLinkView.xib in Resources */,
 				77CFCEC12D809241008B2BB7 /* TimezoneSharingView.xib in Resources */,
 				477CE0492DCA619C004110E8 /* FeedListenCollectionViewItem.xib in Resources */,
@@ -4527,7 +4527,7 @@
 				4708C20E2A5884EC00274AD4 /* ChatHeaderView.swift in Sources */,
 				4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */,
 				474F6759248685AE00CE6016 /* ClipboardHelper.swift in Sources */,
-				CE1FA8FE2A01B6680014360C /* LsatListTableCellView.swift in Sources */,
+				CE1FA9052A01B8000014360C /* LsatListCollectionViewItem.swift in Sources */,
 				4708C2132A58851900274AD4 /* ChatBottomView.swift in Sources */,
 				478ED59C25D55EA600940132 /* ProfileImageView.swift in Sources */,
 				4717B6752D9FF76100E3681E /* EpisodeChapterItemView.swift in Sources */,
