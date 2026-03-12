@@ -86,7 +86,7 @@ extension LsatListViewModel: NSCollectionViewDelegateFlowLayout {
 extension LsatListViewModel: LsatListCellDelegate {
     func copyToken(index: Int) {
         let lsat = lsatList[index]
-        let token = "\(lsat.macaroon):\(lsat.preimage ?? "")"
+        let token = "LSAT \(lsat.macaroon):\(lsat.preimage ?? "")"
         ClipboardHelper.copyToClipboard(text: token)
     }
 
