@@ -69,7 +69,7 @@ class LsatListCollectionViewItem: NSCollectionViewItem {
         tokenLabel.stringValue = lsat.macaroon
         tokenLabel.cell?.lineBreakMode = .byTruncatingTail
 
-        issuerLabel.stringValue = lsat.issuer ?? ""
+        issuerLabel.stringValue = (lsat.issuer ?? "").components(separatedBy: ":").first ?? ""
 
         let isActive = lsat.status == LSat.LSatStatus.active.rawValue
         // NSStackView with detachesHiddenViews=YES will auto-collapse the pill
