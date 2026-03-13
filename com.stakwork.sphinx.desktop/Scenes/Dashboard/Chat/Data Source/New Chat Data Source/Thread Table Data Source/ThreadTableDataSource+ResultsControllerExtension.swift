@@ -120,6 +120,8 @@ extension ThreadTableDataSource {
         }
         
         messageTableCellStateArray = array
+        updateMessageIdIndexMap()
+        invalidateRowHeightCache()
         
         updateSnapshot(UIUpdateIndex: UIUpdateIndex)
         
