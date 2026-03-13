@@ -1306,6 +1306,40 @@ extension String {
     func toMessageInnerContent() -> MessageInnerContent? {
         return MessageInnerContent(JSONString: self)
     }
+
+    // MARK: - Hive Link Helpers
+
+    var isHivePlanLink: Bool {
+        guard let url = URL(string: self), let host = url.host else { return false }
+        let components = url.pathComponents
+        return host == "hive.sphinx.chat"
+            && components.count == 5
+            && components[1] == "w"
+            && components[3] == "plan"
+    }
+
+    var isHiveTaskLink: Bool {
+        guard let url = URL(string: self), let host = url.host else { return false }
+        let components = url.pathComponents
+        return host == "hive.sphinx.chat"
+            && components.count == 5
+            && components[1] == "w"
+            && components[3] == "task"
+    }
+
+    var hiveWorkspaceSlug: String? {
+        guard let url = URL(string: self) else { return nil }
+        let parts = url.pathComponents
+        guard parts.count >= 3, parts[1] == "w" else { return nil }
+        return parts[2]
+    }
+
+    var hiveEntityId: String? {
+        guard let url = URL(string: self) else { return nil }
+        let parts = url.pathComponents
+        guard parts.count == 5 else { return nil }
+        return parts[4]
+    }
 }
 
 
