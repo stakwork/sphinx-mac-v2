@@ -446,8 +446,9 @@ extension RoomContext {
            let match = room.allParticipants.values.first(where: {
                $0.name == senderName || $0.identity?.stringValue == senderName
            }) {
+            
             // Use the same key as participant boxes so colors stay in sync
-            let participantKey = match.sid?.stringValue ?? match.identity?.stringValue
+            let participantKey = match.sid?.stringValue ?? match.identity?.stringValue ?? senderName
             return getColorForParticipan(participantId: participantKey)
         }
         // No live participant match — key by sender name
