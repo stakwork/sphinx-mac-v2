@@ -11,10 +11,10 @@ final class AutosizingTextView: NSTextView {
         guard let lm = layoutManager, let tc = textContainer else {
             return super.intrinsicContentSize
         }
-        // Width must already be set (widthTracksTextView = true keeps it in sync).
         lm.ensureLayout(for: tc)
         let used = lm.usedRect(for: tc)
-        return NSSize(width: NSView.noIntrinsicMetric, height: ceil(used.height))
+        // Return natural text width + height so the bubble wraps the content.
+        return NSSize(width: ceil(used.width), height: ceil(used.height))
     }
 
     override func didChangeText() {
@@ -22,7 +22,6 @@ final class AutosizingTextView: NSTextView {
         invalidateIntrinsicContentSize()
     }
 
-    // When the view is resized (width changes) recalculate height.
     override func layout() {
         super.layout()
         invalidateIntrinsicContentSize()
@@ -44,11 +43,16 @@ struct MarkdownTextView: NSViewRepresentable {
         tv.isVerticallyResizable = true
         tv.isHorizontallyResizable = false
         tv.textContainerInset = .zero
-        // Width tracks the view so word-wrap works correctly.
-        tv.textContainer?.widthTracksTextView = true
+        // Allow the container to grow as wide as the text needs.
+        tv.textContainer?.widthTracksTextView = false
         tv.textContainer?.lineFragmentPadding = 0
+        // Large but finite max width so very long messages still wrap.
+        tv.textContainer?.containerSize = NSSize(
+            width: 400,
+            height: CGFloat.greatestFiniteMagnitude
+        )
         tv.isAutomaticLinkDetectionEnabled = false
-        tv.autoresizingMask = [.width]
+        tv.autoresizingMask = []
         tv.delegate = context.coordinator
         return tv
     }
