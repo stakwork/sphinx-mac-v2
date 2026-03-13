@@ -5,7 +5,7 @@ import SwiftUI
 
 /// NSTextView subclass that computes its intrinsic height from its
 /// laid-out content so SwiftUI can size it correctly without a scroll view.
-private final class AutosizingTextView: NSTextView {
+final class AutosizingTextView: NSTextView {
 
     override var intrinsicContentSize: NSSize {
         guard let lm = layoutManager, let tc = textContainer else {
