@@ -25,7 +25,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegateFlowLayout {
         let replyViewAdditionalHeight = (tableCellState.messageId != nil) ? self.replyViewAdditionalHeight[tableCellState.messageId!] : nil
 
         // Create cache key based on factors that affect row height
-        let cacheKey = createHeightCacheKey(
+        var cacheKey = createHeightCacheKey(
             messageId: tableCellState.messageId,
             bubbleState: tableCellState.bubbleState,
             linkData: linkData,
@@ -34,6 +34,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegateFlowLayout {
             replyViewAdditionalHeight: replyViewAdditionalHeight,
             width: collectionView.frame.width
         )
+        cacheKey += "_\(tableCellState.boostMessages.count)"
 
         // Return cached height if available
         if let cachedHeight = rowHeightCache[cacheKey] {
