@@ -340,6 +340,7 @@ struct RoomView: View {
                         .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
                         .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
                     MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                        .foregroundColor(.white)
                         .padding(8)
                         .background(Color(NSColor.Sphinx.SecondaryText))
                         .cornerRadius(18)
@@ -347,6 +348,7 @@ struct RoomView: View {
                 Spacer()
             } else {
                 MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                    .foregroundColor(.white)
                     .padding(8)
                     .background(Color(NSColor.Sphinx.PrimaryGreen))
                     .cornerRadius(18)

@@ -18,15 +18,21 @@ final class MarkdownRenderer {
         self.style = style
     }
 
-    // MARK: - Public API
+    // MARK: - Public API — returns SwiftUI AttributedString
 
-    func render(_ text: String) -> NSAttributedString {
+    func render(_ text: String) -> AttributedString {
+        let ns = renderNS(text)
+        return (try? AttributedString(ns, including: \.appKit)) ?? AttributedString(text)
+    }
+
+    // MARK: - Internal — NSAttributedString
+
+    func renderNS(_ text: String) -> NSAttributedString {
         let lines = text.components(separatedBy: "\n")
         let result = NSMutableAttributedString()
 
         for (index, line) in lines.enumerated() {
-            let lineAttr = renderLine(line)
-            result.append(lineAttr)
+            result.append(renderLine(line))
             if index < lines.count - 1 {
                 result.append(NSAttributedString(string: "\n", attributes: baseAttributes()))
             }
@@ -37,7 +43,6 @@ final class MarkdownRenderer {
     // MARK: - Line rendering
 
     private func renderLine(_ line: String) -> NSAttributedString {
-        // Headings
         if line.hasPrefix("### ") {
             return renderInline(String(line.dropFirst(4)), font: boldFont(size: style.baseFontSize + 2))
         } else if line.hasPrefix("## ") {
@@ -45,22 +50,16 @@ final class MarkdownRenderer {
         } else if line.hasPrefix("# ") {
             return renderInline(String(line.dropFirst(2)), font: boldFont(size: style.baseFontSize + 6))
         }
-
-        // Unordered list
         if line.hasPrefix("- ") || line.hasPrefix("* ") {
-            let inner = "• " + String(line.dropFirst(2))
-            return renderInline(inner, font: regularFont(size: style.baseFontSize))
+            return renderInline("• " + String(line.dropFirst(2)), font: regularFont(size: style.baseFontSize))
         }
-
-        // Code block line (indented or fenced — treat as monospace)
         if line.hasPrefix("    ") || line.hasPrefix("\t") {
             return renderInline(line, font: monoFont(size: style.baseFontSize))
         }
-
         return renderInline(line, font: regularFont(size: style.baseFontSize))
     }
 
-    // MARK: - Inline rendering (bold, italic, code, links)
+    // MARK: - Inline rendering
 
     func renderInline(_ text: String, font: NSFont) -> NSAttributedString {
         let result = NSMutableAttributedString()
@@ -68,189 +67,144 @@ final class MarkdownRenderer {
 
         while !remaining.isEmpty {
             // Bold-italic ***text***
-            if let range = remaining.range(of: "***"),
-               let endRange = remaining.range(of: "***", range: remaining.index(range.upperBound, offsetBy: 0)..<remaining.endIndex) {
-                let before = String(remaining[remaining.startIndex..<range.lowerBound])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
-                }
-                let inner = String(remaining[range.upperBound..<endRange.lowerBound])
-                let boldItalicF = boldItalicFont(size: font.pointSize)
-                result.append(NSAttributedString(string: inner, attributes: makeAttributes(font: boldItalicF)))
-                remaining = String(remaining[endRange.upperBound...])
+            if let (before, inner, after) = extractSpan(marker: "***", from: remaining) {
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                result.append(plain(inner, font: boldItalicFont(size: font.pointSize)))
+                remaining = after
                 continue
             }
-
             // Bold **text**
-            if let range = remaining.range(of: "**"),
-               let endRange = remaining.range(of: "**", range: remaining.index(range.upperBound, offsetBy: 0)..<remaining.endIndex) {
-                let before = String(remaining[remaining.startIndex..<range.lowerBound])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
-                }
-                let inner = String(remaining[range.upperBound..<endRange.lowerBound])
-                let boldF = boldFont(size: font.pointSize)
-                result.append(NSAttributedString(string: inner, attributes: makeAttributes(font: boldF)))
-                remaining = String(remaining[endRange.upperBound...])
+            if let (before, inner, after) = extractSpan(marker: "**", from: remaining) {
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                result.append(plain(inner, font: boldFont(size: font.pointSize)))
+                remaining = after
                 continue
             }
-
-            // Italic *text* or _text_
-            if let (markerLen, range, endRange) = findItalicRange(in: remaining) {
-                let before = String(remaining[remaining.startIndex..<range.lowerBound])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
-                }
-                let inner = String(remaining[range.upperBound..<endRange.lowerBound])
-                let italicF = italicFont(size: font.pointSize)
-                result.append(NSAttributedString(string: inner, attributes: makeAttributes(font: italicF)))
-                let afterIndex = remaining.index(endRange.lowerBound, offsetBy: markerLen)
-                remaining = String(remaining[afterIndex...])
+            // Italic *text*
+            if let (before, inner, after) = extractItalicSpan(marker: "*", from: remaining) {
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                result.append(plain(inner, font: italicFont(size: font.pointSize)))
+                remaining = after
                 continue
             }
-
+            // Italic _text_
+            if let (before, inner, after) = extractSpan(marker: "_", from: remaining) {
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                result.append(plain(inner, font: italicFont(size: font.pointSize)))
+                remaining = after
+                continue
+            }
             // Inline code `text`
-            if let range = remaining.range(of: "`"),
-               let endRange = remaining.range(of: "`", range: remaining.index(range.upperBound, offsetBy: 0)..<remaining.endIndex) {
-                let before = String(remaining[remaining.startIndex..<range.lowerBound])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
-                }
-                let inner = String(remaining[range.upperBound..<endRange.lowerBound])
-                var codeAttrs = makeAttributes(font: monoFont(size: font.pointSize))
-                codeAttrs[.foregroundColor] = style.secondaryColor
-                result.append(NSAttributedString(string: inner, attributes: codeAttrs))
-                remaining = String(remaining[endRange.upperBound...])
+            if let (before, inner, after) = extractSpan(marker: "`", from: remaining) {
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                let codeAttr = NSAttributedString(string: inner, attributes: [
+                    .font: monoFont(size: font.pointSize),
+                    .foregroundColor: style.secondaryColor
+                ])
+                result.append(codeAttr)
+                remaining = after
                 continue
             }
-
             // Link [label](url)
-            if let linkResult = parseLinkAtStart(in: remaining) {
-                let before = String(remaining[remaining.startIndex..<linkResult.fullRange.lowerBound])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
+            if let link = parseLink(from: remaining) {
+                let before = String(remaining[remaining.startIndex..<link.fullRange.lowerBound])
+                if !before.isEmpty { result.append(plain(before, font: font)) }
+                var attrs: [NSAttributedString.Key: Any] = [
+                    .font: font,
+                    .foregroundColor: style.linkColor,
+                    .underlineStyle: NSUnderlineStyle.single.rawValue
+                ]
+                if let url = URL(string: link.url) {
+                    attrs[.link] = url
                 }
-                var linkAttrs = makeAttributes(font: font)
-                if let url = URL(string: linkResult.url) {
-                    linkAttrs[.link] = url
-                    linkAttrs[.foregroundColor] = style.linkColor
-                    linkAttrs[.underlineStyle] = NSUnderlineStyle.single.rawValue
-                }
-                result.append(NSAttributedString(string: linkResult.label, attributes: linkAttrs))
-                remaining = String(remaining[linkResult.fullRange.upperBound...])
+                result.append(NSAttributedString(string: link.label, attributes: attrs))
+                remaining = String(remaining[link.fullRange.upperBound...])
                 continue
             }
-
-            // Plain text — consume until next potential marker
-            let specialChars: [Character] = ["*", "_", "`", "["]
-            if let idx = remaining.firstIndex(where: { specialChars.contains($0) }) {
-                let before = String(remaining[remaining.startIndex..<idx])
-                if !before.isEmpty {
-                    result.append(NSAttributedString(string: before, attributes: makeAttributes(font: font)))
-                }
-                remaining = String(remaining[idx...])
-
-                // Peek ahead — if no closing marker found, emit the char as plain text
-                let marker = String(remaining.prefix(1))
-                if !canFindClosingMarker(for: marker, in: String(remaining.dropFirst())) {
-                    result.append(NSAttributedString(string: marker, attributes: makeAttributes(font: font)))
-                    remaining = String(remaining.dropFirst())
-                }
-            } else {
-                result.append(NSAttributedString(string: remaining, attributes: makeAttributes(font: font)))
-                remaining = ""
-            }
+            // Plain text
+            result.append(plain(remaining, font: font))
+            remaining = ""
         }
-
         return result
     }
 
-    // MARK: - Helpers
+    // MARK: - Span extraction helpers
 
-    private func findItalicRange(in text: String) -> (markerLen: Int, range: Range<String.Index>, endRange: Range<String.Index>)? {
-        // Try *...*
-        if let range = text.range(of: "*"),
-           let endRange = text.range(of: "*", range: text.index(range.upperBound, offsetBy: 0)..<text.endIndex) {
-            // Make sure it's not ** (bold)
-            let nextChar = text[range.upperBound]
-            if nextChar != Character("*") {
-                return (1, range, endRange)
+    /// Extracts content between exact marker occurrences: marker...marker
+    private func extractSpan(marker: String, from text: String) -> (before: String, inner: String, after: String)? {
+        guard let open = text.range(of: marker) else { return nil }
+        let searchStart = open.upperBound
+        guard searchStart < text.endIndex,
+              let close = text.range(of: marker, range: searchStart..<text.endIndex),
+              open.lowerBound != close.lowerBound else { return nil }
+        let before = String(text[text.startIndex..<open.lowerBound])
+        let inner  = String(text[open.upperBound..<close.lowerBound])
+        let after  = String(text[close.upperBound...])
+        return (before, inner, after)
+    }
+
+    /// Like extractSpan for `*` but ensures it's not `**`
+    private func extractItalicSpan(marker: String, from text: String) -> (before: String, inner: String, after: String)? {
+        var searchFrom = text.startIndex
+        while let open = text.range(of: marker, range: searchFrom..<text.endIndex) {
+            // Skip ** (bold marker)
+            let nextIdx = open.upperBound
+            if nextIdx < text.endIndex && text[nextIdx] == Character(marker) {
+                searchFrom = nextIdx
+                continue
             }
-        }
-        // Try _..._
-        if let range = text.range(of: "_"),
-           let endRange = text.range(of: "_", range: text.index(range.upperBound, offsetBy: 0)..<text.endIndex) {
-            return (1, range, endRange)
+            guard let close = text.range(of: marker, range: nextIdx..<text.endIndex) else { return nil }
+            // Ensure closing * isn't part of **
+            let afterClose = close.upperBound
+            if afterClose < text.endIndex && text[afterClose] == Character(marker) {
+                searchFrom = afterClose
+                continue
+            }
+            let before = String(text[text.startIndex..<open.lowerBound])
+            let inner  = String(text[open.upperBound..<close.lowerBound])
+            let after  = String(text[close.upperBound...])
+            return (before, inner, after)
         }
         return nil
     }
 
-    private func canFindClosingMarker(for marker: String, in text: String) -> Bool {
-        return text.contains(marker)
-    }
-
-    private struct LinkParseResult {
+    private struct LinkMatch {
         let label: String
         let url: String
         let fullRange: Range<String.Index>
     }
 
-    private func parseLinkAtStart(in text: String) -> LinkParseResult? {
-        // Find [ ... ]( ... ) anywhere in remaining — must appear at a non-excluded position
-        guard let bracketOpen = text.range(of: "["),
-              let bracketClose = text.range(of: "]", range: bracketOpen.upperBound..<text.endIndex) else {
-            return nil
-        }
-        // After ] must be (
-        let afterBracketClose = bracketClose.upperBound
-        guard afterBracketClose < text.endIndex, text[afterBracketClose] == "(" else {
-            return nil
-        }
-        let parenOpenIdx = afterBracketClose
-        let parenStart = text.index(parenOpenIdx, offsetBy: 1)
-        guard let parenClose = text.range(of: ")", range: parenStart..<text.endIndex) else {
-            return nil
-        }
+    private func parseLink(from text: String) -> LinkMatch? {
+        guard let bracketOpen  = text.range(of: "["),
+              let bracketClose = text.range(of: "]", range: bracketOpen.upperBound..<text.endIndex) else { return nil }
+        let afterClose = bracketClose.upperBound
+        guard afterClose < text.endIndex, text[afterClose] == "(" else { return nil }
+        let parenStart = text.index(afterClose, offsetBy: 1)
+        guard let parenClose = text.range(of: ")", range: parenStart..<text.endIndex) else { return nil }
         let label = String(text[bracketOpen.upperBound..<bracketClose.lowerBound])
-        let url = String(text[parenStart..<parenClose.lowerBound])
-        let fullRange = bracketOpen.lowerBound..<parenClose.upperBound
-        return LinkParseResult(label: label, url: url, fullRange: fullRange)
+        let url   = String(text[parenStart..<parenClose.lowerBound])
+        return LinkMatch(label: label, url: url, fullRange: bracketOpen.lowerBound..<parenClose.upperBound)
     }
 
-    // MARK: - Attribute factories
+    // MARK: - Attribute / Font helpers
 
     private func baseAttributes() -> [NSAttributedString.Key: Any] {
-        return makeAttributes(font: regularFont(size: style.baseFontSize))
+        [.font: regularFont(size: style.baseFontSize), .foregroundColor: style.textColor]
     }
 
-    private func makeAttributes(font: NSFont) -> [NSAttributedString.Key: Any] {
-        return [
-            .font: font,
-            .foregroundColor: style.textColor
-        ]
+    private func plain(_ string: String, font: NSFont) -> NSAttributedString {
+        NSAttributedString(string: string, attributes: [.font: font, .foregroundColor: style.textColor])
     }
 
-    // MARK: - Font helpers
-
-    private func regularFont(size: CGFloat) -> NSFont {
-        return NSFont.systemFont(ofSize: size)
+    private func regularFont(size: CGFloat) -> NSFont { NSFont.systemFont(ofSize: size) }
+    private func boldFont(size: CGFloat) -> NSFont    { NSFont.boldSystemFont(ofSize: size) }
+    private func italicFont(size: CGFloat) -> NSFont  {
+        NSFontManager.shared.convert(NSFont.systemFont(ofSize: size), toHaveTrait: .italicFontMask)
     }
-
-    private func boldFont(size: CGFloat) -> NSFont {
-        return NSFont.boldSystemFont(ofSize: size)
-    }
-
-    private func italicFont(size: CGFloat) -> NSFont {
-        let base = NSFont.systemFont(ofSize: size)
-        return NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask)
-    }
-
     private func boldItalicFont(size: CGFloat) -> NSFont {
-        let base = NSFont.boldSystemFont(ofSize: size)
-        return NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask)
+        NSFontManager.shared.convert(NSFont.boldSystemFont(ofSize: size), toHaveTrait: .italicFontMask)
     }
-
     private func monoFont(size: CGFloat) -> NSFont {
-        return NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
     }
 }
