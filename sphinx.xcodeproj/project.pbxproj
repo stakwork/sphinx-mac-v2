@@ -676,11 +676,11 @@
 		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
 		47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK102F19000000000010 /* WorkspaceTask.swift */; };
 		47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */; };
-		47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1A2F1900000000001A /* MarkdownRenderer.swift */; };
-		47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1C2F1900000000001C /* MarkdownTextView.swift */; };
 		47WORK152F19000000000015 /* WorkspaceTasksCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */; };
 		47WORK172F19000000000017 /* WorkspaceTasksCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */; };
 		47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */; };
+		47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1A2F1900000000001A /* MarkdownRenderer.swift */; };
+		47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1C2F1900000000001C /* MarkdownTextView.swift */; };
 		77CFCEC12D809241008B2BB7 /* TimezoneSharingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */; };
 		77CFCEC32D80D370008B2BB7 /* TimezoneSharingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77CFCEC22D80D370008B2BB7 /* TimezoneSharingView.swift */; };
 		931083BF2BE0271B00D03EC9 /* TribeMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931083BE2BE0271B00D03EC9 /* TribeMembersViewController.swift */; };
@@ -1574,7 +1574,6 @@
 		47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddAttachmentCollectionViewItem.xib; sourceTree = "<group>"; };
 		47D7D8E324620B520089C6EE /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		47DCF7E52D495FAE007A57A9 /* CallControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallControlView.swift; sourceTree = "<group>"; };
-		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewOnlyTextMessageCollectionViewitem.xib; sourceTree = "<group>"; };
 		47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusHeaderView.swift; sourceTree = "<group>"; };
 		47DE1BF52A6813C50029597B /* StatusHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StatusHeaderView.xib; sourceTree = "<group>"; };
@@ -1701,10 +1700,11 @@
 		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK102F19000000000010 /* WorkspaceTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTask.swift; sourceTree = "<group>"; };
 		47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksDashboardViewController.swift; sourceTree = "<group>"; };
-		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
 		47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksMockData.swift; sourceTree = "<group>"; };
+		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
+		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TimezoneSharingView.xib; sourceTree = "<group>"; };
@@ -5711,7 +5711,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 230;
+				CURRENT_PROJECT_VERSION = 231;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5748,7 +5748,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 230;
+				CURRENT_PROJECT_VERSION = 231;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
