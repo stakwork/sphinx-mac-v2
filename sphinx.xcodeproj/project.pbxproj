@@ -676,6 +676,8 @@
 		47WORK092F19000000000009 /* WorkspacesListCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */; };
 		47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK102F19000000000010 /* WorkspaceTask.swift */; };
 		47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */; };
+		47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1A2F1900000000001A /* MarkdownRenderer.swift */; };
+		47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1C2F1900000000001C /* MarkdownTextView.swift */; };
 		47WORK152F19000000000015 /* WorkspaceTasksCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */; };
 		47WORK172F19000000000017 /* WorkspaceTasksCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */; };
 		47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */; };
@@ -1572,6 +1574,7 @@
 		47D7B3AF2D0C759200866983 /* AddAttachmentCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddAttachmentCollectionViewItem.xib; sourceTree = "<group>"; };
 		47D7D8E324620B520089C6EE /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		47DCF7E52D495FAE007A57A9 /* CallControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallControlView.swift; sourceTree = "<group>"; };
+		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		47DE1BEF2A67139D0029597B /* NewOnlyTextMessageCollectionViewitem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewOnlyTextMessageCollectionViewitem.xib; sourceTree = "<group>"; };
 		47DE1BF32A6813BA0029597B /* StatusHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusHeaderView.swift; sourceTree = "<group>"; };
 		47DE1BF52A6813C50029597B /* StatusHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StatusHeaderView.xib; sourceTree = "<group>"; };
@@ -1698,6 +1701,7 @@
 		47WORK082F19000000000008 /* WorkspacesListCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspacesListCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK102F19000000000010 /* WorkspaceTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTask.swift; sourceTree = "<group>"; };
 		47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksDashboardViewController.swift; sourceTree = "<group>"; };
+		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
 		47WORK142F19000000000014 /* WorkspaceTasksCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksCollectionViewItem.swift; sourceTree = "<group>"; };
 		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksMockData.swift; sourceTree = "<group>"; };
@@ -2102,6 +2106,7 @@
 				4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */,
 				4730EF7A2CDBE5C90014581F /* RoomContextView.swift */,
 				47DCF7E52D495FAE007A57A9 /* CallControlView.swift */,
+				47WORK1C2F1900000000001C /* MarkdownTextView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3949,6 +3954,7 @@
 				47WORKG22F19000000000012 /* Model */,
 				47WORKG32F19000000000013 /* View Controllers */,
 				47WORKG42F19000000000014 /* Collection View Items */,
+				47WORK1A2F1900000000001A /* MarkdownRenderer.swift */,
 			);
 			path = Workspaces;
 			sourceTree = "<group>";
@@ -4409,6 +4415,8 @@
 				47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */,
 				47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */,
 				47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */,
+				47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */,
+				47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */,
 				47WORK152F19000000000015 /* WorkspaceTasksCollectionViewItem.swift in Sources */,
 				47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */,
 				47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */,
