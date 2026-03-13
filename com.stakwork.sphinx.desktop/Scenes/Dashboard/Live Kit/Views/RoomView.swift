@@ -74,6 +74,7 @@ struct RoomView: View {
     private static let markdownRenderer: MarkdownRenderer = {
         var style = MarkdownStyle()
         style.textColor = .white
+        style.secondaryColor = NSColor.white.withAlphaComponent(0.7)
         style.baseFontSize = 15
         return MarkdownRenderer(style: style)
     }()
