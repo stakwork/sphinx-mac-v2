@@ -19,6 +19,9 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
     var link: String! = nil
     var finishLoadingTimer : Timer? = nil
     
+    private var isRequestingMicPermission = false
+    private var pendingMicDecisionHandlers: [((WKPermissionDecision) -> Void)] = []
+    
     static func instantiate(
         link: String
     ) -> JitsiCallWebViewController? {
@@ -153,11 +156,30 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
         type: WKMediaCaptureType,
         decisionHandler: @escaping (WKPermissionDecision) -> Void
     ) {
-        requestMicrophoneAccess { granted in
-            if granted {
-                decisionHandler(.grant)
-            } else {
-                decisionHandler(.deny)
+        // Screen capture type - grant directly without triggering system alert
+        if type == .display {
+            decisionHandler(.grant)
+            return
+        }
+        
+        // For microphone/camera, coalesce concurrent requests to avoid multiple system alerts
+        pendingMicDecisionHandlers.append(decisionHandler)
+        
+        guard !isRequestingMicPermission else {
+            // A permission request is already in flight; this handler will be resolved when it completes
+            return
+        }
+        
+        isRequestingMicPermission = true
+        
+        requestMicrophoneAccess { [weak self] granted in
+            guard let self = self else { return }
+            let decision: WKPermissionDecision = granted ? .grant : .deny
+            let handlers = self.pendingMicDecisionHandlers
+            self.pendingMicDecisionHandlers = []
+            self.isRequestingMicPermission = false
+            for handler in handlers {
+                handler(decision)
             }
         }
     }
