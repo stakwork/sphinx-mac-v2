@@ -156,13 +156,7 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
         type: WKMediaCaptureType,
         decisionHandler: @escaping (WKPermissionDecision) -> Void
     ) {
-        // Screen capture type - grant directly without triggering system alert
-        if type == .display {
-            decisionHandler(.grant)
-            return
-        }
-        
-        // For microphone/camera, coalesce concurrent requests to avoid multiple system alerts
+        // Coalesce concurrent permission requests to avoid multiple system alerts
         pendingMicDecisionHandlers.append(decisionHandler)
         
         guard !isRequestingMicPermission else {
