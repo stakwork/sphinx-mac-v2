@@ -252,8 +252,17 @@ extension WebAppViewController : AuthorizeAppViewDelegate {
 
 extension WebAppViewController : NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
+        finishLoadingTimer?.invalidate()
+        finishLoadingTimer = nil
+
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(
+            forName: webAppHelper.messageHandler
+        )
         webView?.configuration.userContentController.removeAllUserScripts()
-        webView?.loadHTMLString("", baseURL: Bundle.main.bundleURL)
+        webView?.removeFromSuperview()
+        webView = nil
     }
 }
 
