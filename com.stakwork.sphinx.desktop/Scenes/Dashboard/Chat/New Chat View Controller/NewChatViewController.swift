@@ -153,10 +153,22 @@ class NewChatViewController: DashboardSplittedViewController {
         ) { [weak self] (n: Notification) in
             self?.handleImagePaste()
         }
+        
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            guard let self = self, !self.isThread else { return }
+            if self.chatCollectionView.isAtBottom() {
+                self.chat?.setChatMessagesAsSeen()
+            }
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: nil)
     }
     
     override func viewDidAppear() {

@@ -69,6 +69,7 @@ extension NewChatTableDataSource {
             return
         }
        
+        let wasAtBottom = collectionView.getDistanceToBottom() < 10
         scrolledAtBottom = false
         
         let loadingMoreItems = self.dataSource.snapshot().numberOfItems < snapshot.numberOfItems
@@ -77,7 +78,12 @@ extension NewChatTableDataSource {
             if loadingMoreItems { self.saveSnapshotCurrentState() }
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                if loadingMoreItems { self.restoreScrollLastPosition() }
+                if loadingMoreItems {
+                    self.restoreScrollLastPosition()
+                } else if wasAtBottom {
+                    self.scrolledAtBottom = true
+                    self.delegate?.didScrollToBottom()
+                }
                 self.isFirstLoad = false
                 
                 DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
