@@ -368,6 +368,10 @@ class WindowsManager {
         
         dashboardVC.rightDetailSplittedView.isHidden = false
         
+        DispatchQueue.main.async {
+            dashboardVC.resizeSubviews()
+        }
+        
         if let detailVC = dashboardVC.dashboardDetailViewController {
             detailVC.displayVC(
                 contentVC,

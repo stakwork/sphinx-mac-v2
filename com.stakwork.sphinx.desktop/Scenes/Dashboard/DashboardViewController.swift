@@ -1106,6 +1106,10 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
         rightDetailViewMaxWidth.constant = 0
         rightDetailSplittedView.isHidden = true
         
+        DispatchQueue.main.async {
+            self.resizeSubviews()
+        }
+        
         newDetailViewController?.chatBottomView.messageFieldView.isThreadOpen = false
         newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
     }
