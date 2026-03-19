@@ -59,13 +59,11 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var repliesCountLabel: NSTextField!
     @IBOutlet weak var lastReplyDateLabel: NSTextField!
     
-    var mentionsBadgeContainer: NSBox!
-    var mentionsBadgeLabel: NSTextField!
+    @IBOutlet weak var mentionsBadgeContainer: NSBox!
+    @IBOutlet weak var mentionsBadgeLabel: NSTextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        setupMentionsBadge()
 
         reply1Container.wantsLayer = true
         reply1Container.layer?.masksToBounds = false
@@ -108,38 +106,6 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
         reply4AvatarView.resetView()
         reply5AvatarView.resetView()
         reply6AvatarView.resetView()
-    }
-    
-    func setupMentionsBadge() {
-        let badge = NSBox()
-        badge.boxType = .custom
-        badge.fillColor = NSColor.Sphinx.PrimaryBlue
-        badge.borderWidth = 0
-        badge.cornerRadius = 9
-        badge.translatesAutoresizingMaskIntoConstraints = false
-        badge.isHidden = true
-        view.addSubview(badge)
-        
-        let label = NSTextField(labelWithString: "")
-        label.textColor = NSColor.white
-        label.font = NSFont.systemFont(ofSize: 10, weight: .semibold)
-        label.alignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        badge.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            badge.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            badge.centerYAnchor.constraint(equalTo: repliesCountLabel.centerYAnchor),
-            badge.heightAnchor.constraint(equalToConstant: 18),
-            badge.widthAnchor.constraint(greaterThanOrEqualToConstant: 36),
-            
-            label.leadingAnchor.constraint(equalTo: badge.leadingAnchor, constant: 6),
-            label.trailingAnchor.constraint(equalTo: badge.trailingAnchor, constant: -6),
-            label.centerYAnchor.constraint(equalTo: badge.centerYAnchor),
-        ])
-        
-        mentionsBadgeContainer = badge
-        mentionsBadgeLabel = label
     }
     
     func hideAllSubviews() {
