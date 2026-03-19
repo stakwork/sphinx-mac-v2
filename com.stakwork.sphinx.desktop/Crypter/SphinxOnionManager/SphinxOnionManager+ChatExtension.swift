@@ -1495,7 +1495,7 @@ extension SphinxOnionManager {
         newMessage.paymentHash = message.paymentHash
         newMessage.tag = message.tag
         
-        if let myAlias = chat.myAlias ?? owner?.nickname, chat.isPublicGroup() {
+        if let myAlias = chat.myAlias ?? owner?.nickname?.fixedAlias, chat.isPublicGroup() {
             newMessage.push = content?.contains("@\(myAlias) ") == true
         } else {
             newMessage.push = false
