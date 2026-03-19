@@ -36,6 +36,14 @@ extension ThreadListCollectionViewItem {
         repliesCountLabel.stringValue = "\(threadLayoutState.repliesCount) replies"
         lastReplyDateLabel.stringValue = threadLayoutState.lastReplyTimestamp
         
+        let mentionsCount = threadLayoutState.mentionsCount
+        if mentionsCount > 0 {
+            mentionsBadgeLabel.stringValue = "@ \(mentionsCount)"
+            mentionsBadgeContainer.isHidden = false
+        } else {
+            mentionsBadgeContainer.isHidden = true
+        }
+        
         let threadPeople = threadLayoutState.threadPeople
 
         if (threadPeople.count > 0) {

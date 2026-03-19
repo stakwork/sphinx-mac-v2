@@ -66,7 +66,8 @@ struct ThreadTableCellState {
             threadPeople: threadPeopleArray.subarray(size: 6),
             threadPeopleCount: threadPeopleArray.count,
             repliesCount: threadMessages.count,
-            lastReplyTimestamp: (threadMessages.last?.date ?? Date()).timeIntervalSince1970.getDayDiffString()
+            lastReplyTimestamp: (threadMessages.last?.date ?? Date()).timeIntervalSince1970.getDayDiffString(),
+            mentionsCount: (originalMessage.push ? 1 : 0) + threadMessages.filter({ $0.push }).count
         )
     }()
     

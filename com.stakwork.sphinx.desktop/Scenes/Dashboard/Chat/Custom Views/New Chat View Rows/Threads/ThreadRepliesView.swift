@@ -31,6 +31,9 @@ class ThreadRepliesView: NSView, LoadableNib {
     @IBOutlet weak var messageFakeContainer: NSView!
     @IBOutlet weak var messageFakeBubbleView: NSBox!
     
+    var mentionsBadgeContainer: NSBox!
+    var mentionsBadgeLabel: NSTextField!
+    
     static let kViewHeight1Reply: CGFloat = 29
     static let kViewHeight2Replies: CGFloat = 49
     static let kViewHeightSeveralReplies: CGFloat = 84
@@ -67,6 +70,40 @@ class ThreadRepliesView: NSView, LoadableNib {
         
         secondReplyAvatarView.setInitialLabelSize(size: 10)
         secondReplyAvatarView.resetView()
+        
+        setupMentionsBadge()
+    }
+    
+    func setupMentionsBadge() {
+        let badge = NSBox()
+        badge.boxType = .custom
+        badge.fillColor = NSColor.Sphinx.PrimaryBlue
+        badge.borderWidth = 0
+        badge.cornerRadius = 9
+        badge.translatesAutoresizingMaskIntoConstraints = false
+        badge.isHidden = true
+        contentView.addSubview(badge)
+        
+        let label = NSTextField(labelWithString: "")
+        label.textColor = NSColor.white
+        label.font = NSFont.systemFont(ofSize: 10, weight: .semibold)
+        label.alignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        badge.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            badge.trailingAnchor.constraint(equalTo: moreRepliesContainer.trailingAnchor),
+            badge.centerYAnchor.constraint(equalTo: moreRepliesContainer.centerYAnchor),
+            badge.heightAnchor.constraint(equalToConstant: 18),
+            badge.widthAnchor.constraint(greaterThanOrEqualToConstant: 36),
+            
+            label.leadingAnchor.constraint(equalTo: badge.leadingAnchor, constant: 6),
+            label.trailingAnchor.constraint(equalTo: badge.trailingAnchor, constant: -6),
+            label.centerYAnchor.constraint(equalTo: badge.centerYAnchor),
+        ])
+        
+        mentionsBadgeContainer = badge
+        mentionsBadgeLabel = label
     }
     
     func configureWith(
@@ -97,6 +134,14 @@ class ThreadRepliesView: NSView, LoadableNib {
             moreRepliesContainer.isHidden = false
         } else {
             moreRepliesContainer.isHidden = true
+        }
+        
+        let mentionsCount = threadMessages.mentionsCount
+        if mentionsCount > 0 {
+            mentionsBadgeLabel.stringValue = "@ \(mentionsCount)"
+            mentionsBadgeContainer.isHidden = false
+        } else {
+            mentionsBadgeContainer.isHidden = true
         }
         
         let isOutgoing = direction.isOutgoing()
