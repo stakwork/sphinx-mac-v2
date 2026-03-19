@@ -211,7 +211,7 @@
                                             <constraint firstItem="00Q-yD-UI9" firstAttribute="leading" secondItem="FAg-kU-VVs" secondAttribute="trailing" constant="16" id="ecN-7d-obj"/>
                                             <constraint firstItem="FAg-kU-VVs" firstAttribute="top" secondItem="fo5-al-rjV" secondAttribute="top" constant="5" id="r65-Ip-XBT"/>
                                             <constraint firstAttribute="trailing" secondItem="tRV-m3-B8d" secondAttribute="trailing" constant="12" id="wQp-8n-Tz3"/>
-                                            <constraint firstItem="tRV-m3-B8d" firstAttribute="centerY" secondItem="fo5-al-rjV" secondAttribute="centerY" id="xKn-5v-Bps"/>
+                                            <constraint firstItem="tRV-m3-B8d" firstAttribute="centerY" secondItem="00Q-yD-UI9" secondAttribute="centerY" id="xKn-5v-Bps"/>
                                         </constraints>
                                     </view>
                                     <constraints>
