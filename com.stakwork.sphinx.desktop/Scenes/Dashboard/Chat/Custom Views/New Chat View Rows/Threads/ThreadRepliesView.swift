@@ -92,7 +92,7 @@ class ThreadRepliesView: NSView, LoadableNib {
         badge.addSubview(label)
         
         NSLayoutConstraint.activate([
-            badge.trailingAnchor.constraint(equalTo: moreRepliesContainer.trailingAnchor),
+            badge.trailingAnchor.constraint(equalTo: moreRepliesContainer.trailingAnchor, constant: -12),
             badge.centerYAnchor.constraint(equalTo: moreRepliesContainer.centerYAnchor),
             badge.heightAnchor.constraint(equalToConstant: 18),
             badge.widthAnchor.constraint(greaterThanOrEqualToConstant: 36),

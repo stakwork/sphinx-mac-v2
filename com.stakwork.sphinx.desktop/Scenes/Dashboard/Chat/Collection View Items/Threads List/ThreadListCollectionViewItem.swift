@@ -128,7 +128,7 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
         badge.addSubview(label)
         
         NSLayoutConstraint.activate([
-            badge.leadingAnchor.constraint(equalTo: repliesCountLabel.trailingAnchor, constant: 6),
+            badge.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             badge.centerYAnchor.constraint(equalTo: repliesCountLabel.centerYAnchor),
             badge.heightAnchor.constraint(equalToConstant: 18),
             badge.widthAnchor.constraint(greaterThanOrEqualToConstant: 36),
