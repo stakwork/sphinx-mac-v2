@@ -372,12 +372,17 @@ class SphinxOnionManager : NSObject {
         connectingCallback: (() -> ())? = nil,
         hideRestoreViewCallback: ((Bool)->())? = nil
     ) {
-        if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
-            if !isV2Restore {
-                getReads()
-                hideRestoreViewCallback?(false)
+        if let mqtt = self.mqtt {
+            if mqtt.connState == .connecting { return }
+            if mqtt.connState == .connected && isConnected {
+                if !isV2Restore {
+                    if !isFetchingContent() {
+                        startNewMsgsSync()
+                    }
+                    hideRestoreViewCallback?(false)
+                }
+                return
             }
-            return
         }
         connectToServer(
             connectingCallback: connectingCallback,
@@ -417,8 +422,6 @@ class SphinxOnionManager : NSObject {
             hideRestoreViewCallback?(false)
             return
         }
-        
-        mqtt?.disconnect()
         
         if isV2Restore {
             contactRestoreCallback?(2)
@@ -469,11 +472,15 @@ class SphinxOnionManager : NSObject {
             completionHandler(true)
         }
         
-        mqtt.didDisconnect = { _, _ in
+        let disconnectingMqtt = mqtt
+        mqtt.didDisconnect = { [weak self] _, _ in
+            guard let self = self else { return }
             self.isConnected = false
             self.mqttDisconnectCallback?()
-            self.mqtt = nil
-            self.startReconnectionTimer()
+            if self.mqtt === disconnectingMqtt {
+                self.mqtt = nil
+                self.startReconnectionTimer()
+            }
         }
     }
     
