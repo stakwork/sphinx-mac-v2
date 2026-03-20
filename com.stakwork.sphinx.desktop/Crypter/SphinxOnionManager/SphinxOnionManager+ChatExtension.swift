@@ -322,32 +322,7 @@ extension SphinxOnionManager {
         replyUUID: String?,
         metaDataString: String? = nil
     ) -> Bool {
-        let contentBytes: Int = 18
-        let attachmentBytes: Int = 389
-        let replyBytes: Int = 84
-        let threadBytes: Int = 84
-        
-        var bytes = text.byteSize() + contentBytes
-        
-        if sendingAttachment {
-            bytes += attachmentBytes
-        }
-        
-        if replyUUID != nil {
-            bytes += replyBytes
-        }
-        
-        if threadUUID != nil {
-            bytes += threadBytes
-        }
-        
-        if let metaDataBytes = metaDataString?.lengthOfBytes(using: .utf8) {
-            let metaDataJsonBytes: Int = 15
-            
-            bytes += metaDataBytes + metaDataJsonBytes
-        }
-        
-        return bytes <= 869
+        return true
     }
     
 //    func startSendTimeoutTimer(
