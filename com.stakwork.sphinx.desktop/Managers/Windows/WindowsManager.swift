@@ -367,7 +367,7 @@ class WindowsManager {
         dashboardVC.rightDetailViewMaxWidth.constant = DashboardViewController.kRightPanelMaxWidth
         
         dashboardVC.rightDetailSplittedView.isHidden = false
-        
+
         if let detailVC = dashboardVC.dashboardDetailViewController {
             detailVC.displayVC(
                 contentVC,

@@ -771,6 +771,7 @@ extension DashboardViewController : NSSplitViewDelegate {
         
         listViewController?.view.frame = leftSplittedView.bounds
         dashboardDetailViewController?.updateCurrentVCFrame()
+        newDetailViewController?.chatTableDataSource?.updateFrame()
     }
 }
 
