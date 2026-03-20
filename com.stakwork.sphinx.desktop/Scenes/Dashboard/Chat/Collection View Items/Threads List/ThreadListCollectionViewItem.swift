@@ -58,6 +58,9 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
     
     @IBOutlet weak var repliesCountLabel: NSTextField!
     @IBOutlet weak var lastReplyDateLabel: NSTextField!
+    
+    @IBOutlet weak var mentionsBadgeContainer: NSBox!
+    @IBOutlet weak var mentionsBadgeLabel: NSTextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()

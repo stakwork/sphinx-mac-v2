@@ -31,6 +31,9 @@ class ThreadRepliesView: NSView, LoadableNib {
     @IBOutlet weak var messageFakeContainer: NSView!
     @IBOutlet weak var messageFakeBubbleView: NSBox!
     
+    @IBOutlet weak var mentionsBadgeContainer: NSBox!
+    @IBOutlet weak var mentionsBadgeLabel: NSTextField!
+    
     static let kViewHeight1Reply: CGFloat = 29
     static let kViewHeight2Replies: CGFloat = 49
     static let kViewHeightSeveralReplies: CGFloat = 84
@@ -97,6 +100,14 @@ class ThreadRepliesView: NSView, LoadableNib {
             moreRepliesContainer.isHidden = false
         } else {
             moreRepliesContainer.isHidden = true
+        }
+        
+        let mentionsCount = threadMessages.mentionsCount
+        if mentionsCount > 0 {
+            mentionsBadgeLabel.stringValue = "@ \(mentionsCount)"
+            mentionsBadgeContainer.isHidden = false
+        } else {
+            mentionsBadgeContainer.isHidden = true
         }
         
         let isOutgoing = direction.isOutgoing()

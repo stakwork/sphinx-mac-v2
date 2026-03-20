@@ -367,6 +367,33 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="9" titlePosition="noTitle" hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mBn-4t-Rv2">
+                                            <rect key="frame" x="356" y="3" width="36" height="18"/>
+                                            <view key="contentView" id="cKp-Wn-7sQ">
+                                                <rect key="frame" x="0.0" y="0.0" width="36" height="18"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hJk-Bq-5wP">
+                                                        <rect key="frame" x="6" y="2" width="24" height="14"/>
+                                                        <textFieldCell key="cell" lineBreakMode="clipping" title="@ 1" id="pLz-Xq-8Nv">
+                                                            <font key="font" size="10" name="Roboto-SemiBold"/>
+                                                            <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="hJk-Bq-5wP" firstAttribute="leading" secondItem="cKp-Wn-7sQ" secondAttribute="leading" constant="6" id="rQt-5n-Bvw"/>
+                                                    <constraint firstAttribute="trailing" secondItem="hJk-Bq-5wP" secondAttribute="trailing" constant="6" id="nKp-7s-MuX"/>
+                                                    <constraint firstItem="hJk-Bq-5wP" firstAttribute="centerY" secondItem="cKp-Wn-7sQ" secondAttribute="centerY" id="tJp-Wy-9Uv"/>
+                                                </constraints>
+                                            </view>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="18" id="oTq-Xp-6cZ"/>
+                                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="36" id="lRw-2m-Rqf"/>
+                                            </constraints>
+                                            <color key="fillColor" name="PrimaryBlue"/>
+                                        </box>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="4E7-pv-j2S" firstAttribute="top" secondItem="Krk-pd-55h" secondAttribute="top" id="97e-xe-glq"/>
@@ -377,6 +404,8 @@
                                         <constraint firstAttribute="bottom" secondItem="4E7-pv-j2S" secondAttribute="bottom" id="eiL-Cf-D8s"/>
                                         <constraint firstItem="4E7-pv-j2S" firstAttribute="leading" secondItem="Krk-pd-55h" secondAttribute="leading" id="hyu-Wz-zsZ"/>
                                         <constraint firstItem="vgm-pT-PVr" firstAttribute="centerY" secondItem="Krk-pd-55h" secondAttribute="centerY" id="lBb-uz-zwf"/>
+                                        <constraint firstAttribute="trailing" secondItem="mBn-4t-Rv2" secondAttribute="trailing" constant="16" id="uWs-3n-Kpq"/>
+                                        <constraint firstItem="mBn-4t-Rv2" firstAttribute="centerY" secondItem="Krk-pd-55h" secondAttribute="centerY" id="vQr-8m-Zpn"/>
                                     </constraints>
                                 </customView>
                             </subviews>
@@ -461,6 +490,8 @@
                 <outlet property="reply5Container" destination="lSZ-9h-YqY" id="4ZS-hF-4Ho"/>
                 <outlet property="reply6AvatarView" destination="gNe-W3-G4w" id="n2Q-G0-i08"/>
                 <outlet property="reply6Container" destination="zsU-HO-HgP" id="LDQ-7G-xbB"/>
+                <outlet property="mentionsBadgeContainer" destination="mBn-4t-Rv2" id="wPs-3q-Kvn"/>
+                <outlet property="mentionsBadgeLabel" destination="hJk-Bq-5wP" id="xQt-6r-Lwm"/>
                 <outlet property="reply6CountContainer" destination="Wac-vp-NOB" id="05s-gM-Om9"/>
                 <outlet property="reply6CountLabel" destination="TKu-yf-Sgs" id="Jjm-lK-4M7"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="nn5-gK-LlV"/>
@@ -473,6 +504,9 @@
         </namedColor>
         <namedColor name="Divider2">
             <color red="0.8666666666666667" green="0.88235294117647056" blue="0.89803921568627454" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="PrimaryBlue">
+            <color red="0.26666666666666666" green="0.53333333333333333" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="SecondaryText">
             <color red="0.55686274509803924" green="0.58823529411764708" blue="0.61176470588235299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
