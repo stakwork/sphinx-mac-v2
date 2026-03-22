@@ -67,6 +67,7 @@ class SphinxOnionManager : NSObject {
     
     var mqtt: CocoaMQTT! = nil
     var vc: NSViewController! = nil
+    var connectingStartTime: Date? = nil
     
     var isConnected : Bool = false{
         didSet{
@@ -347,6 +348,7 @@ class SphinxOnionManager : NSObject {
             
             let success = mqtt.connect()
             print("mqtt.connect success:\(success)")
+            if success { connectingStartTime = Date() }
             return success
         } catch {
             return false
@@ -370,11 +372,16 @@ class SphinxOnionManager : NSObject {
     
     func reconnectToServer(
         connectingCallback: (() -> ())? = nil,
-        hideRestoreViewCallback: ((Bool)->())? = nil
+        hideRestoreViewCallback: ((Bool)->())? = nil,
+        forceReconnect: Bool = false
     ) {
-        if let mqtt = self.mqtt {
-            if mqtt.connState == .connecting { return }
-            if mqtt.connState == .connected && isConnected {
+        if let mqtt = self.mqtt, !forceReconnect {
+            if mqtt.connState == .connecting {
+                // Treat stale connecting attempts (>10s) as failed and retry
+                if let startTime = connectingStartTime, Date().timeIntervalSince(startTime) < 10.0 {
+                    return
+                }
+            } else if mqtt.connState == .connected && isConnected {
                 if !isV2Restore {
                     if !isFetchingContent() {
                         startNewMsgsSync()
