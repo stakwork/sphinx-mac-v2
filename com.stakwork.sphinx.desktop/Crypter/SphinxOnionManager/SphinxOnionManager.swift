@@ -445,8 +445,14 @@ class SphinxOnionManager : NSObject {
             return
         }
         
+        let connectingMqtt = mqtt
         mqtt.didConnectAck = { [weak self] _, _ in
             guard let self = self else {
+                return
+            }
+            // If self.mqtt has been replaced by a newer connection, discard this stale ack
+            guard self.mqtt === connectingMqtt else {
+                connectingMqtt?.disconnect()
                 return
             }
             
