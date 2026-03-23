@@ -995,6 +995,9 @@ extension SphinxOnionManager {
         
         endWatchdogTime()
         resetFromRestore()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.syncNewMessages()
+        }
     }
     
     func finishMessagesFetch(

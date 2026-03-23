@@ -367,9 +367,10 @@ class DashboardViewController: NSViewController {
         )
     }
     
-    func reconnectToServer() {
+    func reconnectToServer(force: Bool = false) {
         SphinxOnionManager.sharedInstance.reconnectToServer(
-            hideRestoreViewCallback: self.hideRestoreViewCallback
+            hideRestoreViewCallback: self.hideRestoreViewCallback,
+            forceReconnect: force
         )
     }
     
@@ -667,7 +668,7 @@ class DashboardViewController: NSViewController {
     }
     
     func reloadData() {
-        reconnectToMQTT()
+        reconnectToMQTT(force: true)
         
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
@@ -685,7 +686,7 @@ class DashboardViewController: NSViewController {
         }
     }
     
-    func reconnectToMQTT() {
+    func reconnectToMQTT(force: Bool = false) {
         SphinxOnionManager.sharedInstance.reconnectToServer(
             connectingCallback: {
                 DispatchQueue.main.async {
@@ -696,7 +697,8 @@ class DashboardViewController: NSViewController {
                 DispatchQueue.main.async {
                     self.listViewController?.headerLoading = false
                 }
-            }
+            },
+            forceReconnect: force
         )
     }
     

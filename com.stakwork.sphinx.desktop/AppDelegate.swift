@@ -394,7 +394,7 @@ import WebKit
             
             SphinxOnionManager.sharedInstance.isConnected = false
             
-            getDashboardVC()?.reconnectToServer()
+            getDashboardVC()?.reconnectToServer(force: true)
         }
     }
 

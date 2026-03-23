@@ -67,6 +67,7 @@ class SphinxOnionManager : NSObject {
     
     var mqtt: CocoaMQTT! = nil
     var vc: NSViewController! = nil
+    var connectingStartTime: Date? = nil
     
     var isConnected : Bool = false{
         didSet{
@@ -347,6 +348,7 @@ class SphinxOnionManager : NSObject {
             
             let success = mqtt.connect()
             print("mqtt.connect success:\(success)")
+            if success { connectingStartTime = Date() }
             return success
         } catch {
             return false
@@ -370,14 +372,24 @@ class SphinxOnionManager : NSObject {
     
     func reconnectToServer(
         connectingCallback: (() -> ())? = nil,
-        hideRestoreViewCallback: ((Bool)->())? = nil
+        hideRestoreViewCallback: ((Bool)->())? = nil,
+        forceReconnect: Bool = false
     ) {
-        if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
-            if !isV2Restore {
-                getReads()
-                hideRestoreViewCallback?(false)
+        if let mqtt = self.mqtt, !forceReconnect {
+            if mqtt.connState == .connecting {
+                // Treat stale connecting attempts (>10s) as failed and retry
+                if let startTime = connectingStartTime, Date().timeIntervalSince(startTime) < 10.0 {
+                    return
+                }
+            } else if mqtt.connState == .connected && isConnected {
+                if !isV2Restore {
+                    if !isFetchingContent() {
+                        startNewMsgsSync()
+                    }
+                    hideRestoreViewCallback?(false)
+                }
+                return
             }
-            return
         }
         connectToServer(
             connectingCallback: connectingCallback,
@@ -418,8 +430,6 @@ class SphinxOnionManager : NSObject {
             return
         }
         
-        mqtt?.disconnect()
-        
         if isV2Restore {
             contactRestoreCallback?(2)
         }
@@ -435,8 +445,14 @@ class SphinxOnionManager : NSObject {
             return
         }
         
+        let connectingMqtt = mqtt
         mqtt.didConnectAck = { [weak self] _, _ in
             guard let self = self else {
+                return
+            }
+            // If self.mqtt has been replaced by a newer connection, discard this stale ack
+            guard self.mqtt === connectingMqtt else {
+                connectingMqtt?.disconnect()
                 return
             }
             
@@ -469,11 +485,15 @@ class SphinxOnionManager : NSObject {
             completionHandler(true)
         }
         
-        mqtt.didDisconnect = { _, _ in
+        let disconnectingMqtt = mqtt
+        mqtt.didDisconnect = { [weak self] _, _ in
+            guard let self = self else { return }
             self.isConnected = false
             self.mqttDisconnectCallback?()
-            self.mqtt = nil
-            self.startReconnectionTimer()
+            if self.mqtt === disconnectingMqtt {
+                self.mqtt = nil
+                self.startReconnectionTimer()
+            }
         }
     }
     
