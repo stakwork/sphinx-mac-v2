@@ -473,11 +473,14 @@ class NewChatViewController: DashboardSplittedViewController {
     func updateEmptyView() {
         if shouldShowPendingChat {
             setupPendingChatPlaceholder()
-        } else if chat?.lastMessage == nil {
-            setupEmptyChatPlaceholder()
         } else {
-            chatEmptyAvatarPlaceholderView.isHidden = true
-            chatBottomView.isHidden = false
+            chat?.updateLastMessage()
+            if chat?.lastMessage == nil {
+                setupEmptyChatPlaceholder()
+            } else {
+                chatEmptyAvatarPlaceholderView.isHidden = true
+                chatBottomView.isHidden = false
+            }
         }
     }
 }
