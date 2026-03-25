@@ -75,8 +75,16 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         provisionalMessage: TransactionMessage?
     ) {
         if let provisionalMessage = provisionalMessage {
+            let chat = provisionalMessage.chat
+            let isLastMessage = chat?.lastMessage?.id == provisionalMessage.id
+
             CoreDataManager.sharedManager.deleteObject(object: provisionalMessage)
-            
+
+            if isLastMessage, let chat = chat {
+                chat.lastMessage = chat.getLastMessageToShow()
+                chat.managedObjectContext?.saveContext()
+            }
+
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
         }
     }
@@ -111,8 +119,16 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         errorMessage: String
     ) {
         if let provisionalMessage = provisionalMessage {
+            let chat = provisionalMessage.chat
+            let isLastMessage = chat?.lastMessage?.id == provisionalMessage.id
+
             CoreDataManager.sharedManager.deleteObject(object: provisionalMessage)
-            
+
+            if isLastMessage, let chat = chat {
+                chat.lastMessage = chat.getLastMessageToShow()
+                chat.managedObjectContext?.saveContext()
+            }
+
             AlertHelper.showAlert(title: "generic.error.title".localized, message: errorMessage)
         }
     }
