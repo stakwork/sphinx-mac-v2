@@ -154,13 +154,11 @@ class FeedsManager : NSObject, @unchecked Sendable {
         }
         fetchingItemsInBackground = true
         
-        let dispatchQueue = DispatchQueue.global(qos: .userInitiated)
-        dispatchQueue.async {
-            self.fetchNewItems() {
-                DelayPerformedHelper.performAfterDelay(seconds: 3000, completion: {
-                    self.fetchingItemsInBackground = false
-                })
-            }
+        Task {
+            await self.fetchNewItems()
+            DelayPerformedHelper.performAfterDelay(seconds: 3000, completion: {
+                self.fetchingItemsInBackground = false
+            })
         }
     }
     
@@ -381,38 +379,34 @@ class FeedsManager : NSObject, @unchecked Sendable {
     }
     
     // MARK: - Pre load and cache content feeds
-    func fetchNewItems(completion: (() -> ())? = nil) {
+    func fetchNewItems() async {
         let context = CoreDataManager.sharedManager.getBackgroundContext()
         
-        context.performSafely {
+        let feeds = (try? await context.performSafely { self.fetchFeeds(context: context) }) ?? []
+        
+        for feed in feeds {
+            guard let url = feed.feedURL else { continue }
+            let feedUrl = url.absoluteString
+            let feedId = feed.feedID
             
-            let dispatchSemaphore = DispatchSemaphore(value: 0)
-
-            for feed in self.fetchFeeds(context: context) {
-                
-                if let url = feed.feedURL {
-                    let feedUrl = url.absoluteString
-                    let feedId = feed.feedID
-
-                    Task { @MainActor in
-                        ContentFeed.fetchFeedItems(
-                            feedUrl: feedUrl,
-                            feedId: feedId,
-                            context: context,
-                            completion: { _ in
-                                dispatchSemaphore.signal()
-                            }
-                        )
-                    }
-
-                    dispatchSemaphore.wait()
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                // Dispatch to MainActor without blocking — withCheckedContinuation
+                // suspends cooperatively (no thread blocked) until completion fires.
+                Task { @MainActor in
+                    ContentFeed.fetchFeedItems(
+                        feedUrl: feedUrl,
+                        feedId: feedId,
+                        context: context,
+                        completion: { _ in
+                            continuation.resume()
+                        }
+                    )
                 }
             }
-            
-            context.saveContext()
-            self.refreshFeedUI()
-            completion?()
         }
+        
+        await context.performSafely { context.saveContext() }
+        self.refreshFeedUI()
     }
     
     func loadEpisodesDurationFor(feed: ContentFeed) {
