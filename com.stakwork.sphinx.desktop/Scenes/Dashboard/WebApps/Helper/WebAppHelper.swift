@@ -485,7 +485,9 @@ extension WebAppHelper : WKScriptMessageHandler {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handlePaidInvoiceNotification(n: n)
+            Task { @MainActor [weak self] in
+                self?.handlePaidInvoiceNotification(n: n)
+            }
         }
         
         startLsatTimer()

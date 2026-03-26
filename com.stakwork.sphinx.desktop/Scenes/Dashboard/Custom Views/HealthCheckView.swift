@@ -52,7 +52,9 @@ class HealthCheckView: NSView, LoadableNib {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.updateConnectionSign()
+            Task { @MainActor [weak self] in
+                self?.updateConnectionSign()
+            }
         }
     }
     

@@ -52,7 +52,9 @@ class GiphySearchDataSource : NSObject {
             object: collectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.scrollViewDidScroll()
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
         }
     }
     

@@ -176,8 +176,10 @@ class NewChatHeaderView: NSView, LoadableNib {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            DispatchQueue.main.async {
-                self?.updateBalance()
+            Task { @MainActor [weak self] in
+                DispatchQueue.main.async {
+                    self?.updateBalance()
+                }
             }
         }
     }

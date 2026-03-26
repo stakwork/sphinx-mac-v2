@@ -32,7 +32,9 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             object: collectionViewScroll.contentView,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.scrollViewDidScroll()
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
         }
     }
     
