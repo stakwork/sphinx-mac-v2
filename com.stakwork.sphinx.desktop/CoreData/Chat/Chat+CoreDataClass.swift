@@ -589,12 +589,12 @@ public class Chat: NSManagedObject, @unchecked Sendable {
     ) {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
+        // Capture primitive id before crossing context boundary (Swift 6 threading safety)
+        let chatId = self.id
+        
         if NSApplication.shared.isActive || forceSeen {
-            backgroundContext.performSafely { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                guard let chat = Chat.getChatWith(id: self.id, managedContext: backgroundContext) else {
+            backgroundContext.performSafely {
+                guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
                     return
                 }
                 let receivedUnseenMessages = chat.getReceivedUnseenMessages(context: backgroundContext)
@@ -645,10 +645,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
             }
         }
         
-        backgroundContext.performSafely { [weak self] in
-            guard let _ = self else {
-                return
-            }
+        backgroundContext.performSafely {
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
             
             DispatchQueue.main.async {
