@@ -29,11 +29,9 @@ class DashboardPresenterViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                for vc in self?.contentVC ?? [] {
-                    if let bounds = self?.view.bounds {
-                        vc?.view.frame = bounds
-                    }
+            for vc in self?.contentVC ?? [] {
+                if let bounds = self?.view.bounds {
+                    vc?.view.frame = bounds
                 }
             }
         }

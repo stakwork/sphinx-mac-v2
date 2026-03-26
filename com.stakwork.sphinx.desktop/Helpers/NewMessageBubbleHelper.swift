@@ -53,9 +53,7 @@ class NewMessageBubbleHelper {
         toggleGenericBubbleView(view: bubbleView, show: true)
 
         DelayPerformedHelper.performAfterDelay(seconds: delay) {
-            MainActor.assumeIsolated {
-                self.toggleGenericBubbleView(view: bubbleView, show: false)
-            }
+            self.toggleGenericBubbleView(view: bubbleView, show: false)
         }
     }
 

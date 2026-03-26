@@ -87,9 +87,7 @@ extension CustomAudioPlayer  : AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
             DispatchQueue.main.async { [weak self] in
-                MainActor.assumeIsolated {
-                    self?.delegate?.audioDidFinishPlaying()
-                }
+                self?.delegate?.audioDidFinishPlaying()
             }
         }
     }

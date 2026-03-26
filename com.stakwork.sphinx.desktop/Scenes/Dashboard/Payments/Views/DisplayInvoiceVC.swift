@@ -82,9 +82,7 @@ class DisplayInvoiceVC : NSViewController{
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
             let paymentHash = n.userInfo?["paymentHash"] as? String
-            MainActor.assumeIsolated {
-                self?.handlePaidInvoiceNotification(paymentHash: paymentHash)
-            }
+            self?.handlePaidInvoiceNotification(paymentHash: paymentHash)
         }
     }
     

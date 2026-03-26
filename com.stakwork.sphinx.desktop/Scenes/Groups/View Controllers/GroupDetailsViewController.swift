@@ -121,9 +121,7 @@ class GroupDetailsViewController: NSViewController {
             object: nil,
             queue: .main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.setGroupInfo()
-            }
+            self?.setGroupInfo()
         }
     }
     

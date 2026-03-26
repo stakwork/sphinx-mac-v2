@@ -704,7 +704,9 @@ extension SphinxOnionManager {
                             
                             if !chatIds.isEmpty {
                                 let userInfo: [String: [Int]] = ["chat-ids" : chatIds]
-                                NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: userInfo)
+                                DispatchQueue.main.async {
+                                    NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: userInfo)
+                                }
                             }
                         }
                     } catch {

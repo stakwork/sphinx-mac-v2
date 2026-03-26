@@ -17,9 +17,7 @@ class CCTextField: NSTextField {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        MainActor.assumeIsolated {
-            customizeCaretColor()
-        }
+        customizeCaretColor()
     }
     
     func setColor(color: NSColor) {

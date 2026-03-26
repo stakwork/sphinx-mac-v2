@@ -241,9 +241,7 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.playbackStalledHandler()
-            }
+            self?.playbackStalledHandler()
         }
         
     }
@@ -279,9 +277,7 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.playbackStalledHandler()
-            }
+            self?.playbackStalledHandler()
         }
         
     }
@@ -325,9 +321,7 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.playbackStalledHandler()
-            }
+            self?.playbackStalledHandler()
         }
     }
     

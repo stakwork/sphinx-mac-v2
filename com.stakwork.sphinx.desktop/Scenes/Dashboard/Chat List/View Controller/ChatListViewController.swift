@@ -130,9 +130,7 @@ class ChatListViewController : DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.dashboardNavigationTabs.updateGraphTabLabel()
-            }
+            self?.dashboardNavigationTabs.updateGraphTabLabel()
         }
 
         NotificationCenter.default.addObserver(
@@ -140,9 +138,7 @@ class ChatListViewController : DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.dataDidChange()
-            }
+            self?.dataDidChange()
         }
 
         NotificationCenter.default.addObserver(
@@ -150,46 +146,44 @@ class ChatListViewController : DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                guard let self = self else { return }
+            guard let self = self else { return }
 
-                if let pubkey = n.userInfo?["pub-key"] as? String {
-                    if pubkey == UserData.sharedInstance.getUserPubKey() { return }
-                    let (pk, _) = pubkey.pubkeyComponents
-                    let (existing, user) = pk.isExistingContactPubkey()
+            if let pubkey = n.userInfo?["pub-key"] as? String {
+                if pubkey == UserData.sharedInstance.getUserPubKey() { return }
+                let (pk, _) = pubkey.pubkeyComponents
+                let (existing, user) = pk.isExistingContactPubkey()
 
-                    if let user = user, existing {
+                if let user = user, existing {
 
-                        let chat = user.getChat()
+                    let chat = user.getChat()
 
-                        if chat?.isPublicGroup() == true {
-                            self.contactsService.selectedTab = .tribes
-                            self.contactsService.selectedTribeId = chat?.getObjectId()
-                            self.setActiveTab(.tribes, shouldSwitchChat: false)
-                        } else {
-                            self.contactsService.selectedTab = .friends
-                            self.contactsService.selectedFriendId = chat?.getObjectId() ?? user.getObjectId()
-                            self.setActiveTab(.friends, shouldSwitchChat: false)
-                        }
-
-                        self.didClickRowAt(
-                            chatId: chat?.id,
-                            contactId: user.id
-                        )
+                    if chat?.isPublicGroup() == true {
+                        self.contactsService.selectedTab = .tribes
+                        self.contactsService.selectedTribeId = chat?.getObjectId()
+                        self.setActiveTab(.tribes, shouldSwitchChat: false)
                     } else {
-
-                        let contactVC = NewContactViewController.instantiate(
-                            delegate: self,
-                            pubkey: pubkey
-                        )
-
-                        WindowsManager.sharedInstance.showOnCurrentWindow(
-                            with: "new.contact".localized,
-                            identifier: "add-contact-window",
-                            contentVC: contactVC,
-                            height: 500
-                        )
+                        self.contactsService.selectedTab = .friends
+                        self.contactsService.selectedFriendId = chat?.getObjectId() ?? user.getObjectId()
+                        self.setActiveTab(.friends, shouldSwitchChat: false)
                     }
+
+                    self.didClickRowAt(
+                        chatId: chat?.id,
+                        contactId: user.id
+                    )
+                } else {
+
+                    let contactVC = NewContactViewController.instantiate(
+                        delegate: self,
+                        pubkey: pubkey
+                    )
+
+                    WindowsManager.sharedInstance.showOnCurrentWindow(
+                        with: "new.contact".localized,
+                        identifier: "add-contact-window",
+                        contentVC: contactVC,
+                        height: 500
+                    )
                 }
             }
         }
@@ -199,34 +193,32 @@ class ChatListViewController : DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                guard let self = self else { return }
+            guard let self = self else { return }
 
-                if let tribeLink = n.userInfo?["tribe_link"] as? String {
-                    if let tribeInfo = GroupsManager.sharedInstance.getGroupInfo(query: tribeLink), let ownerPubkey = tribeInfo.ownerPubkey {
-                        if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
+            if let tribeLink = n.userInfo?["tribe_link"] as? String {
+                if let tribeInfo = GroupsManager.sharedInstance.getGroupInfo(query: tribeLink), let ownerPubkey = tribeInfo.ownerPubkey {
+                    if let chat = Chat.getTribeChatWithOwnerPubkey(ownerPubkey: ownerPubkey) {
 
-                            self.contactsService.selectedTab = .tribes
-                            self.contactsService.selectedTribeId = chat.getObjectId()
-                            self.dashboardNavigationTabs.updateButtonsOnIndexChange()
-                            self.setActiveTab(.tribes, shouldSwitchChat: false)
+                        self.contactsService.selectedTab = .tribes
+                        self.contactsService.selectedTribeId = chat.getObjectId()
+                        self.dashboardNavigationTabs.updateButtonsOnIndexChange()
+                        self.setActiveTab(.tribes, shouldSwitchChat: false)
 
-                            self.didClickRowAt(
-                                chatId: chat.id,
-                                contactId: chat.getConversationContact()?.id
-                            )
-                        } else {
-                            let joinTribeVC = JoinTribeViewController.instantiate(
-                                tribeInfo: tribeInfo,
-                                delegate: self
-                            )
+                        self.didClickRowAt(
+                            chatId: chat.id,
+                            contactId: chat.getConversationContact()?.id
+                        )
+                    } else {
+                        let joinTribeVC = JoinTribeViewController.instantiate(
+                            tribeInfo: tribeInfo,
+                            delegate: self
+                        )
 
-                            WindowsManager.sharedInstance.showOnCurrentWindow(
-                                with: "join.tribe".localized,
-                                identifier: "join-tribe-window",
-                                contentVC: joinTribeVC
-                            )
-                        }
+                        WindowsManager.sharedInstance.showOnCurrentWindow(
+                            with: "join.tribe".localized,
+                            identifier: "join-tribe-window",
+                            contentVC: joinTribeVC
+                        )
                     }
                 }
             }

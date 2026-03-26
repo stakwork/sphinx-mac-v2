@@ -48,17 +48,17 @@ class PaddedTextField: CCTextField {
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        MainActor.assumeIsolated { setupPaddedCell() }
+        setupPaddedCell()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        MainActor.assumeIsolated { setupPaddedCell() }
+        setupPaddedCell()
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        MainActor.assumeIsolated { setupPaddedCell() }
+        setupPaddedCell()
     }
     
     private func setupPaddedCell() {

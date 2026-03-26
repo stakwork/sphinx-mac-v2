@@ -73,14 +73,14 @@ class AttachmentsManager: @unchecked Sendable {
         API.sharedInstance.askAuthentication(callback: { id, challenge in
             if let id = id, let challenge = challenge {
                 
-                MainActor.assumeIsolated { self.delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+                DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
 
                 guard let sig = SphinxOnionManager.sharedInstance.signChallenge(challenge: challenge) else{
                     errorCompletion()
                     return
                 }
 
-                MainActor.assumeIsolated { self.delegate?.didUpdateUploadProgress?(progress: 15, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+                DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 15, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
                 
                 API.sharedInstance.verifyAuthentication(id: id, sig: sig, pubkey: pubkey, callback: { token in
                     if let token = token {
@@ -143,7 +143,7 @@ class AttachmentsManager: @unchecked Sendable {
     }
     
     func uploadPublicImage(attachmentObject: AttachmentObject) {
-        MainActor.assumeIsolated { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
 
         let isAuthenticated = isAuthenticated()
 
@@ -157,7 +157,7 @@ class AttachmentsManager: @unchecked Sendable {
             return
         }
 
-        MainActor.assumeIsolated { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
         
         guard let token = isAuthenticated.1 else {
             return
@@ -166,7 +166,7 @@ class AttachmentsManager: @unchecked Sendable {
         if let _ = attachmentObject.data {
             uploadData(attachmentObject: attachmentObject, route: "public", token: token) { fileJSON, _ in
                 if let muid = fileJSON["muid"] as? String {
-                    MainActor.assumeIsolated { self.delegate?.didSuccessUploadingImage?(url: "\(API.kAttachmentsServerUrl)/public/\(muid)") }
+                    DispatchQueue.main.async { self.delegate?.didSuccessUploadingImage?(url: "\(API.kAttachmentsServerUrl)/public/\(muid)") }
                 }
             }
         }
@@ -190,7 +190,7 @@ class AttachmentsManager: @unchecked Sendable {
         if let _ = attachmentObject.data, let provisionalMsg = attachmentObject.provisionalMsg {
             self.provisionalMessage = provisionalMsg
             
-            MainActor.assumeIsolated { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
 
             let isAuthenticated = isAuthenticated()
 
@@ -210,7 +210,7 @@ class AttachmentsManager: @unchecked Sendable {
                 return
             }
 
-            MainActor.assumeIsolated { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
             
             guard let token = isAuthenticated.1 else {
                 return
@@ -244,7 +244,7 @@ class AttachmentsManager: @unchecked Sendable {
     func uploadData(attachmentObject: AttachmentObject, route: String = "file", token: String, completion: @escaping (NSDictionary, AttachmentObject) -> ()) {
         API.sharedInstance.uploadData(attachmentObject: attachmentObject, route: route, token: token, progressCallback: { progress in
             let totalProgress = (progress * 85) / 100 + 10
-            MainActor.assumeIsolated { self.delegate?.didUpdateUploadProgress?(progress: totalProgress, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: totalProgress, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
         }, callback: { success, fileJSON in
             AttachmentsManager.sharedInstance.uploading = false
             
@@ -292,7 +292,7 @@ class AttachmentsManager: @unchecked Sendable {
             m: message,
             existingMessage: provisionalMessage
         ).0 {
-            MainActor.assumeIsolated { delegate?.didUpdateUploadProgress?(progress: 100, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 100, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
             cacheImageAndMediaData(message: message, attachmentObject: attachmentObject)
             uploadSucceed(message: message)
             deleteMessageWith(id: provisionalMessageId)
@@ -323,12 +323,12 @@ class AttachmentsManager: @unchecked Sendable {
     
     func uploadFailed(errorMessage: String) {
         uploading = false
-        MainActor.assumeIsolated { delegate?.didFailSendingAttachment?(provisionalMessage: provisionalMessage, errorMessage: errorMessage) }
+        DispatchQueue.main.async { delegate?.didFailSendingAttachment?(provisionalMessage: provisionalMessage, errorMessage: errorMessage) }
     }
 
     func uploadSucceed(message: TransactionMessage) {
         uploading = false
-        MainActor.assumeIsolated { delegate?.didSuccessSendingAttachment?(message: message, image: self.uploadedImage, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { delegate?.didSuccessSendingAttachment?(message: message, image: self.uploadedImage, provisionalMessageId: provisionalMessage?.id ?? -1) }
     }
     
     func getThumbnailFromVideo(videoURL: URL) -> NSImage? {

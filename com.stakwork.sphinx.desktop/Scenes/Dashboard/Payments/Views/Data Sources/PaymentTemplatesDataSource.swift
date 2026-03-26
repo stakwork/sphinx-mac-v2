@@ -40,9 +40,7 @@ class PaymentTemplatesDataSource : NSObject {
             object: self.collectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.scrollViewDidScroll()
-            }
+            self?.scrollViewDidScroll()
         }
     }
     

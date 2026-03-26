@@ -151,9 +151,7 @@ class NewChatViewController: DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.handleImagePaste()
-            }
+            self?.handleImagePaste()
         }
 
         NotificationCenter.default.addObserver(
@@ -161,11 +159,9 @@ class NewChatViewController: DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                guard let self = self, !self.isThread else { return }
-                if self.chatCollectionView.isAtBottom() {
-                    self.chat?.setChatMessagesAsSeen()
-                }
+            guard let self = self, !self.isThread else { return }
+            if self.chatCollectionView.isAtBottom() {
+                self.chat?.setChatMessagesAsSeen()
             }
         }
     }

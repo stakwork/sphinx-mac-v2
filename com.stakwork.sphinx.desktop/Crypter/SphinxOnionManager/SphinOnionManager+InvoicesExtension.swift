@@ -344,7 +344,7 @@ extension SphinxOnionManager{
                 self.finalizePayInvoiceMessage(message: message)
             } else {
                 ///error getting route info
-                MainActor.assumeIsolated {
+                DispatchQueue.main.async {
                     AlertHelper.showAlert(
                         title: "Routing Error",
                         message: "Could not find a route to the target. Please try again."

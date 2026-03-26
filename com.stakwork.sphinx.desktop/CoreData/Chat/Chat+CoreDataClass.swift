@@ -592,8 +592,8 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         // Capture primitive id before crossing context boundary (Swift 6 threading safety)
         let chatId = self.id
         
-        // Read MainActor-isolated property safely; all callers are on main thread
-        let isAppActive = MainActor.assumeIsolated { NSApplication.shared.isActive }
+        // Read MainActor-isolated property on the main thread
+        let isAppActive = Thread.isMainThread ? NSApplication.shared.isActive : false
         
         if isAppActive || forceSeen {
             backgroundContext.performSafely {

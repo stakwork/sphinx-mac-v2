@@ -134,9 +134,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.themeChangedNotification(notification: n)
-            }
+            self?.themeChangedNotification(notification: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -144,9 +142,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.didConnectToInternet()
-            }
+            self?.didConnectToInternet()
         }
 
         NotificationCenter.default.addObserver(
@@ -154,9 +150,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.didDisconnectFromInternet()
-            }
+            self?.didDisconnectFromInternet()
         }
 
         NotificationCenter.default.addObserver(
@@ -164,9 +158,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.handleImageNotification(n)
-            }
+            self?.handleImageNotification(n)
         }
 
         NotificationCenter.default.addObserver(
@@ -174,9 +166,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.reloadData()
-            }
+            self?.reloadData()
         }
 
         NotificationCenter.default.addObserver(
@@ -184,9 +174,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.reloadView()
-            }
+            self?.reloadView()
         }
 
         NotificationCenter.default.addObserver(
@@ -194,10 +182,8 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                if let chatIds = n.userInfo?["chat-ids"] as? [Int] {
-                    self?.reloadChatListsFor(chatIds: chatIds)
-                }
+            if let chatIds = n.userInfo?["chat-ids"] as? [Int] {
+                self?.reloadChatListsFor(chatIds: chatIds)
             }
         }
         
@@ -214,22 +200,20 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
+            if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
 
-                    if chat.isPublicGroup() {
-                        self?.contactsService.selectedTribeId = chat.getObjectId()
-                        self?.contactsService.selectedTab = .tribes
-                        self?.listViewController?.setActiveTab(.tribes)
-                    } else {
-                        self?.contactsService.selectedFriendId = chat.getObjectId()
-                        self?.contactsService.selectedTab = .friends
-                        self?.listViewController?.setActiveTab(.friends)
-                    }
-
-                    self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
-                    self?.shouldGoToChat(chatId: chat.id)
+                if chat.isPublicGroup() {
+                    self?.contactsService.selectedTribeId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .tribes
+                    self?.listViewController?.setActiveTab(.tribes)
+                } else {
+                    self?.contactsService.selectedFriendId = chat.getObjectId()
+                    self?.contactsService.selectedTab = .friends
+                    self?.listViewController?.setActiveTab(.friends)
                 }
+
+                self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
+                self?.shouldGoToChat(chatId: chat.id)
             }
         }
         
@@ -238,9 +222,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.showDashboardModalsVC(n: n)
-            }
+            self?.showDashboardModalsVC(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -248,9 +230,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.showDashboardModalsVC(n: n)
-            }
+            self?.showDashboardModalsVC(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -258,9 +238,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.showDashboardModalsVC(n: n)
-            }
+            self?.showDashboardModalsVC(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -268,9 +246,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.showDashboardModalsVC(n: n)
-            }
+            self?.showDashboardModalsVC(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -278,9 +254,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.showDashboardModalsVC(n: n)
-            }
+            self?.showDashboardModalsVC(n: n)
         }
         
 //        NotificationCenter.default.addObserver(
@@ -297,9 +271,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.processContentDeeplink(n: n)
-            }
+            self?.processContentDeeplink(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -307,9 +279,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.processContactDeepLink(n: n)
-            }
+            self?.processContactDeepLink(n: n)
         }
 
         NotificationCenter.default.addObserver(
@@ -317,9 +287,7 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                self?.closeButtonTapped()
-            }
+            self?.closeButtonTapped()
         }
         
         NotificationCenter.default.addObserver(
@@ -327,17 +295,15 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            MainActor.assumeIsolated {
-                if let presenter = self?.presenter {
-                    if let bounds = self?.presenterContainerView?.bounds {
-                        presenter.view.frame = bounds
-                    }
+            if let presenter = self?.presenter {
+                if let bounds = self?.presenterContainerView?.bounds {
+                    presenter.view.frame = bounds
                 }
+            }
 
-                if let detailVC = self?.dashboardDetailViewController {
-                    if let bounds = self?.rightDetailSplittedView.bounds {
-                        detailVC.view.frame = bounds
-                    }
+            if let detailVC = self?.dashboardDetailViewController {
+                if let bounds = self?.rightDetailSplittedView.bounds {
+                    detailVC.view.frame = bounds
                 }
             }
         }

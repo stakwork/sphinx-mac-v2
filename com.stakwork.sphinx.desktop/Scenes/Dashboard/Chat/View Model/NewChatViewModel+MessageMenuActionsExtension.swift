@@ -105,14 +105,12 @@ extension NewChatViewModel {
 extension NewChatViewModel {
     @MainActor func shouldDeleteMessage(message: TransactionMessage) {
         DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
-            MainActor.assumeIsolated {
-                AlertHelper.showTwoOptionsAlert(
-                    title: "alert-confirm.delete-message-title".localized,
-                    message: "alert-confirm.delete-message-message".localized,
-                    confirm: {
-                        self.deleteMessage(message)
-                    })
-            }
+            AlertHelper.showTwoOptionsAlert(
+                title: "alert-confirm.delete-message-title".localized,
+                message: "alert-confirm.delete-message-message".localized,
+                confirm: {
+                    self.deleteMessage(message)
+                })
         })
     }
     

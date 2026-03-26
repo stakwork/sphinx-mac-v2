@@ -18,9 +18,7 @@ class CCSecureTextField: NSSecureTextField {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        MainActor.assumeIsolated {
-            customizeCaretColor()
-        }
+        customizeCaretColor()
     }
     
     func setColor(color: NSColor) {

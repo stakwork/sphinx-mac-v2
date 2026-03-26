@@ -93,9 +93,7 @@ extension ChatSearchTextFieldView : NSTextFieldDelegate {
         timer?.invalidate()
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: false, block: { (timer) in
-            MainActor.assumeIsolated {
-                self.delegate?.shouldSearchFor(term: term)
-            }
+            self.delegate?.shouldSearchFor(term: term)
         })
     }
 }
