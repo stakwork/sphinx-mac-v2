@@ -60,6 +60,10 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func clearMessage() {
+        ChatTrackingHandler.shared.deleteOngoingMessage(
+            with: chat?.id,
+            threadUUID: threadUUID
+        )
         messageTextView.string = ""
         priceTextField.stringValue = ""
         textDidChange(Notification(name: NSControl.textDidChangeNotification))
