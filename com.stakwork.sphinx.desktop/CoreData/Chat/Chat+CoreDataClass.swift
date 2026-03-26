@@ -582,7 +582,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         return TransactionMessage.getAllMessagesCountFor(chat: self)
     }
     
-    @MainActor func setChatMessagesAsSeen(
+    func setChatMessagesAsSeen(
         shouldSync: Bool = true,
         shouldSave: Bool = true,
         forceSeen: Bool = false
@@ -592,7 +592,10 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         // Capture primitive id before crossing context boundary (Swift 6 threading safety)
         let chatId = self.id
         
-        if NSApplication.shared.isActive || forceSeen {
+        // Read MainActor-isolated property safely; all callers are on main thread
+        let isAppActive = MainActor.assumeIsolated { NSApplication.shared.isActive }
+        
+        if isAppActive || forceSeen {
             backgroundContext.performSafely {
                 guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
                     return

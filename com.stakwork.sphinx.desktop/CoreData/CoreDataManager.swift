@@ -323,7 +323,9 @@ extension NSManagedObjectContext {
     }
     
     /// Fire-and-forget version - schedules the block but returns immediately
-    func performSafely(_ block: @escaping () throws -> Void) {
+    /// Block is @Sendable to prevent @MainActor-isolated closures from being passed in,
+    /// which would crash at runtime in Swift 6 when invoked on a background thread.
+    func performSafely(_ block: @escaping @Sendable () throws -> Void) {
         self.perform {
             do {
                 try block()
