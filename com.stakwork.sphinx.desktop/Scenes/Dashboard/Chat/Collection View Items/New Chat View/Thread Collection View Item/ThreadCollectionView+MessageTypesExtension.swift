@@ -51,15 +51,17 @@ extension ThreadCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadAudioDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureWith(
         originalMessageMedia: BubbleMessageLayoutState.MessageMedia?,
         mediaData: MessageTableCellState.MediaData?,
@@ -82,32 +84,34 @@ extension ThreadCollectionViewItem {
             if let originalMessageId = originalMessageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    if originalMessageMedia.isImage {
-                        self.delegate?.shouldLoadImageDataFor(
-                            messageId: originalMessageId,
-                            and: self.rowIndex
-                        )
-                    } else if originalMessageMedia.isPdf {
-                        self.delegate?.shouldLoadPdfDataFor(
-                            messageId: originalMessageId,
-                            and: self.rowIndex
-                        )
-                    } else if originalMessageMedia.isVideo {
-                        self.delegate?.shouldLoadVideoDataFor(
-                            messageId: originalMessageId,
-                            and: self.rowIndex
-                        )
-                    } else if originalMessageMedia.isGiphy {
-                        self.delegate?.shouldLoadGiphyDataFor(
-                            messageId: originalMessageId,
-                            and: self.rowIndex
-                        )
+                    MainActor.assumeIsolated {
+                        if originalMessageMedia.isImage {
+                            self.delegate?.shouldLoadImageDataFor(
+                                messageId: originalMessageId,
+                                and: self.rowIndex
+                            )
+                        } else if originalMessageMedia.isPdf {
+                            self.delegate?.shouldLoadPdfDataFor(
+                                messageId: originalMessageId,
+                                and: self.rowIndex
+                            )
+                        } else if originalMessageMedia.isVideo {
+                            self.delegate?.shouldLoadVideoDataFor(
+                                messageId: originalMessageId,
+                                and: self.rowIndex
+                            )
+                        } else if originalMessageMedia.isGiphy {
+                            self.delegate?.shouldLoadGiphyDataFor(
+                                messageId: originalMessageId,
+                                and: self.rowIndex
+                            )
+                        }
                     }
                 }
             }
         }
     }
-    
+
     func configureWith(
         originalMessageAudio: BubbleMessageLayoutState.Audio?,
         mediaData: MessageTableCellState.MediaData?,
@@ -125,15 +129,17 @@ extension ThreadCollectionViewItem {
             if let originalMessageId = originalMessageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor(
-                        messageId: originalMessageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadAudioDataFor(
+                            messageId: originalMessageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureWith(
         originalMessaggeGenericFile: BubbleMessageLayoutState.GenericFile?,
         mediaData: MessageTableCellState.MediaData?
@@ -150,15 +156,17 @@ extension ThreadCollectionViewItem {
             if let originalMessageId = originalMessageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor(
-                        messageId: originalMessageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadFileDataFor(
+                            messageId: originalMessageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureWith(
         genericFile: BubbleMessageLayoutState.GenericFile?,
         mediaData: MessageTableCellState.MediaData?
@@ -175,15 +183,17 @@ extension ThreadCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadFileDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureOriginalMessageTextWith(
         threadMessage: BubbleMessageLayoutState.ThreadMessages?,
         searchingTerm: String?,
@@ -396,15 +406,17 @@ extension ThreadCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadAudioDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureLastReplyWith(
         messageMedia: BubbleMessageLayoutState.MessageMedia?,
         mediaData: MessageTableCellState.MediaData?,
@@ -448,26 +460,28 @@ extension ThreadCollectionViewItem {
                 if let messageId = messageId, mediaData == nil {
                     let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        if messageMedia.isImage {
-                            self.delegate?.shouldLoadImageDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isPdf {
-                            self.delegate?.shouldLoadPdfDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isVideo {
-                            self.delegate?.shouldLoadVideoDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isGiphy {
-                            self.delegate?.shouldLoadGiphyDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
+                        MainActor.assumeIsolated {
+                            if messageMedia.isImage {
+                                self.delegate?.shouldLoadImageDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isPdf {
+                                self.delegate?.shouldLoadPdfDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isVideo {
+                                self.delegate?.shouldLoadVideoDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isGiphy {
+                                self.delegate?.shouldLoadGiphyDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            }
                         }
                     }
                 }
@@ -491,15 +505,17 @@ extension ThreadCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    MainActor.assumeIsolated {
+                        self.delegate?.shouldLoadFileDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
     }
-    
+
     func configureLastReplyWith(
         boosts: BubbleMessageLayoutState.Boosts?,
         and bubble: BubbleMessageLayoutState.Bubble

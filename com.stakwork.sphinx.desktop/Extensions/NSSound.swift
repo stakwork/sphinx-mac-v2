@@ -16,11 +16,11 @@ public extension NSSound {
     }
     #endif
 
-    static let morse     = NSSound(named: .morse)
-    static let ping      = NSSound(named: .ping)
-    static let pop       = NSSound(named: .pop)
-    static let tink      = NSSound(named: .tink)
-    static let tock      = NSSound(named: .tock)
+    @MainActor static let morse     = NSSound(named: .morse)
+    @MainActor static let ping      = NSSound(named: .ping)
+    @MainActor static let pop       = NSSound(named: .pop)
+    @MainActor static let tink      = NSSound(named: .tink)
+    @MainActor static let tock      = NSSound(named: .tock)
 }
 
 

@@ -60,7 +60,7 @@ extension PodcastPlayerController {
         
     }
     
-    func getPodcastWith(podcastId: String) -> PodcastFeed? {
+    @MainActor func getPodcastWith(podcastId: String) -> PodcastFeed? {
         var podcast: PodcastFeed? = nil
         
         if let pd = self.podcast, pd.feedID == podcastId {
@@ -90,7 +90,7 @@ extension PodcastPlayerController {
         syncPodcastTimer = nil
     }
     
-    func configureTimer() {
+    @MainActor func configureTimer() {
         updateCurrentTime()
         
         playingTimer?.invalidate()
@@ -127,7 +127,7 @@ extension PodcastPlayerController {
 //        }
     }
     
-    @objc func updateCurrentTime() {
+    @MainActor @objc func updateCurrentTime() {
         guard let player = player, let item = player.currentItem else {
             return
         }
@@ -249,6 +249,7 @@ extension PodcastPlayerController {
         return isPlaying && podcastData?.episodeId == episodeId
     }
     
+    @MainActor
     func isPlayerItemSetWith(
         episodeUrl: URL
     ) -> Bool {

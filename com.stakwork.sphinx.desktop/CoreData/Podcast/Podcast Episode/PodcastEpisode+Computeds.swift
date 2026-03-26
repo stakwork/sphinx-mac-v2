@@ -13,7 +13,7 @@ import CoreData
 extension PodcastEpisode {
     
     var isAvailable: Bool {
-        get { ConnectivityHelper.isConnectedToInternet || isDownloaded }
+        get { MainActor.assumeIsolated { ConnectivityHelper.isConnectedToInternet } || isDownloaded }
     }
     
     var isDownloaded: Bool {

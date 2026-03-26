@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ContentItemCollectionViewDelegate : NSObject {
     func didRightClickOn(item: NSCollectionViewItem)
 }

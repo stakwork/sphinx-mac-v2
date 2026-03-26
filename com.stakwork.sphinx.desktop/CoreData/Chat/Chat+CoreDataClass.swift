@@ -11,7 +11,7 @@ import CoreData
 import SwiftyJSON
 
 @objc(Chat)
-public class Chat: NSManagedObject {
+public class Chat: NSManagedObject, @unchecked Sendable {
     
     public var conversationContact : UserContact? = nil
     public var tribeAdmin: UserContact? = nil
@@ -346,17 +346,18 @@ public class Chat: NSManagedObject {
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
-        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+        let results: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
             entityName: "Chat",
             fetchLimit: 1,
             managedContext: context
-        ).first
-        
+        )
+        let chat: Chat? = results.first
+
         return chat
     }
-    
+
     static func getTribeChatWithOwnerPubkey(
         ownerPubkey: String,
         context: NSManagedObjectContext? = nil
@@ -369,17 +370,18 @@ public class Chat: NSManagedObject {
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
-        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+        let results2: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
             entityName: "Chat",
             fetchLimit: 1,
             managedContext: context
-        ).first
-        
+        )
+        let chat: Chat? = results2.first
+
         return chat
     }
-    
+
     static func getChatTribesFor(
         ownerPubkeys: [String],
         context: NSManagedObjectContext? = nil
@@ -580,7 +582,7 @@ public class Chat: NSManagedObject {
         return TransactionMessage.getAllMessagesCountFor(chat: self)
     }
     
-    func setChatMessagesAsSeen(
+    @MainActor func setChatMessagesAsSeen(
         shouldSync: Bool = true,
         shouldSave: Bool = true,
         forceSeen: Bool = false
@@ -610,6 +612,9 @@ public class Chat: NSManagedObject {
                 chat.unseenMessagesCount = 0
                 chat.unseenMentionsCount = 0
                 
+                var readLevelIndex: UInt64? = nil
+                let chatId = chat.id
+
                 if let lastMessage = chat.getLastMessageToShow(
                     includeContactKeyTypes: true,
                     sortById: true,
@@ -617,22 +622,26 @@ public class Chat: NSManagedObject {
                 ) {
                     if lastMessage.isKeyExchangeType() || (lastMessage.isTribeInitialMessageType() && chat.messages?.count == 1) {
                         if let maxMessageIndex = TransactionMessage.getMaxIndex(context: backgroundContext) {
-                            let _  = SphinxOnionManager.sharedInstance.setReadLevel(
-                                index: UInt64(maxMessageIndex),
-                                chat: chat,
-                                recipContact: chat.getConversationContact(context: backgroundContext)
-                            )
+                            readLevelIndex = UInt64(maxMessageIndex)
                         }
                     } else if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
-                        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
-                            index: UInt64(lastMessage.id),
-                            chat: chat,
-                            recipContact: chat.getConversationContact(context: backgroundContext)
-                        )
+                        readLevelIndex = UInt64(lastMessage.id)
                     }
                 }
-                
+
                 backgroundContext.saveContext()
+
+                if let index = readLevelIndex {
+                    DispatchQueue.main.async {
+                        if let currentChat = Chat.getChatWith(id: chatId) {
+                            let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                                index: index,
+                                chat: currentChat,
+                                recipContact: currentChat.getConversationContact()
+                            )
+                        }
+                    }
+                }
             }
         }
         
@@ -966,7 +975,7 @@ public class Chat: NSManagedObject {
         return getContactIdsArray().contains(id)
     }
     
-    func updateTribeInfo(completion: @escaping () -> ()) {
+    @MainActor func updateTribeInfo(completion: @escaping () -> ()) {
         let host = SphinxOnionManager.sharedInstance.tribesServerIP
         
         if let uuid = ownerPubkey,

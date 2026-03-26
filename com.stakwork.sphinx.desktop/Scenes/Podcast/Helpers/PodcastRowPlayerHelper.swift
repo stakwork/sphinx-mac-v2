@@ -9,6 +9,7 @@
 import Foundation
 import AVKit
 
+@MainActor
 @objc protocol PodcastPlayerDelegate : AnyObject {
     func shouldUpdateLabels(duration: Int, currentTime: Int)
     func shouldToggleLoadingWheel(loading: Bool)
@@ -18,6 +19,7 @@ import AVKit
 }
 
 
+@MainActor
 class PodcastRowPlayerHelper {
     
     weak var delegate: PodcastPlayerDelegate?
@@ -44,7 +46,7 @@ class PodcastRowPlayerHelper {
     
     public static let kSecondsBeforePMT = 60
     
-    func createPlayerItemWith(podcastComment: PodcastComment,
+    @MainActor func createPlayerItemWith(podcastComment: PodcastComment,
                               podcast: PodcastFeed?,
                               delegate: PodcastPlayerDelegate,
                               for messageId: Int,
@@ -74,7 +76,7 @@ class PodcastRowPlayerHelper {
         }
     }
     
-    func loadAudioDurationFor(
+    @MainActor func loadAudioDurationFor(
         asset: AVAsset,
         completion: @escaping () -> ()
     ) {
@@ -100,7 +102,7 @@ class PodcastRowPlayerHelper {
         }
     }
     
-    func getAudioDuration() -> Double {
+    @MainActor func getAudioDuration() -> Double {
         if let duration = duration {
             return duration
         }
@@ -166,7 +168,7 @@ class PodcastRowPlayerHelper {
         }
     }
     
-    func seekTo(progress: Double, play: Bool) {
+    @MainActor func seekTo(progress: Double, play: Bool) {
         if let item = item {
             let duration = Double(item.asset.duration.value) / Double(item.asset.duration.timescale)
             currentTime = Int(duration * progress)
@@ -176,7 +178,7 @@ class PodcastRowPlayerHelper {
         if play { shouldPlay() }
     }
     
-    func shouldUpdateTimeLabels(progress: Double) {
+    @MainActor func shouldUpdateTimeLabels(progress: Double) {
         guard let item = item else {
             return
         }
@@ -209,13 +211,13 @@ class PodcastRowPlayerHelper {
         playedSeconds = playedSeconds + 1
         
         if playedSeconds > 0 && playedSeconds % PodcastRowPlayerHelper.kSecondsBeforePMT == 0 {
-            DispatchQueue.global().async {
-                self.processPayment()
+            Task { @MainActor [weak self] in
+                self?.processPayment()
             }
         }
     }
     
-    func processPayment() {
+    @MainActor func processPayment() {
         let itemId = self.podcastComment?.itemId ?? ""
         let clipSenderPK = self.podcastComment?.pubkey
         let uuid = self.podcastComment?.uuid

@@ -9,12 +9,14 @@
 import Foundation
 import AppKit
 
+@MainActor
 protocol ChatMentionAutocompleteDelegate: AnyObject {
     func processAutocomplete(text:String)
     func processGeneralPurposeMacro(action: @escaping ()->())
     func shouldUpdateTableHeightTo(value: CGFloat)
 }
 
+@MainActor
 class ChatMentionAutocompleteDataSource : NSObject {
     var suggestions : [MentionOrMacroItem] = [MentionOrMacroItem]()
     var tableView : NSCollectionView!

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@objc protocol SignupFieldViewDelegate: AnyObject {
+@MainActor @objc protocol SignupFieldViewDelegate: AnyObject {
     @objc optional func didChangeText(text: String)
     @objc optional func didUseTab(field: Int)
     @objc optional func didConfirmPin(text: String)

@@ -9,14 +9,9 @@
 import Foundation
 import RNCryptor
 
-class SymmetricEncryptionManager {
+class SymmetricEncryptionManager: @unchecked Sendable {
 
-    class var sharedInstance : SymmetricEncryptionManager {
-        struct Static {
-            static let instance = SymmetricEncryptionManager()
-        }
-        return Static.instance
-    }
+    nonisolated(unsafe) static let sharedInstance = SymmetricEncryptionManager()
     
     func encryptString(text: String, key: String) -> String? {
         if let data = text.data(using: .utf8) {

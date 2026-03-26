@@ -9,6 +9,7 @@
 import Cocoa
 import SDWebImage
 
+@MainActor
 protocol GroupContactListItemDelegate: AnyObject {
     func deleteButtonClicked(item: NSCollectionViewItem)
     func approveButtonClicked(item: NSCollectionViewItem)

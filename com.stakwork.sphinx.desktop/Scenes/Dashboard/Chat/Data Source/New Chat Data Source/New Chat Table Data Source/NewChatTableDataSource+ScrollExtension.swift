@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 extension NewChatTableDataSource: NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
         collectionView.deselectAll(nil)
@@ -31,8 +32,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             object: collectionViewScroll.contentView,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.scrollViewDidScroll()
-        }        
+            MainActor.assumeIsolated {
+                self?.scrollViewDidScroll()
+            }
+        }
     }
     
     func scrollViewDidScroll() {
@@ -130,20 +133,22 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                 stopIndex: 0,
                                 publicKey: publicKey
                             ) { messagesCount in
-                                if messagesCount < itemsPerPage {
-                                    self.allItemsLoaded = true
+                                Task { @MainActor in
+                                    if messagesCount < itemsPerPage {
+                                        self.allItemsLoaded = true
 
-                                    self.processMessages(
-                                        messages: self.messagesArray,
-                                        UIUpdateIndex: self.UIUpdateIndex,
-                                        showLoadingMore: false
-                                    )
+                                        self.processMessages(
+                                            messages: self.messagesArray,
+                                            UIUpdateIndex: self.UIUpdateIndex,
+                                            showLoadingMore: false
+                                        )
 
-                                    if self.isSearching {
-                                        self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                        if self.isSearching {
+                                            self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                        }
+                                    } else {
+                                        self.loadMoreItems(itemsCount: messagesCount)
                                     }
-                                } else {
-                                    self.loadMoreItems(itemsCount: messagesCount)
                                 }
                             }
                         }

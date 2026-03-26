@@ -10,14 +10,10 @@ import Foundation
 import SwiftyJSON
 import CoreData
 
+@MainActor
 class ContactsService: NSObject {
     
-    class var sharedInstance : ContactsService {
-        struct Static {
-            static let instance = ContactsService()
-        }
-        return Static.instance
-    }
+    @MainActor static let sharedInstance = ContactsService()
     
     var owner: UserContact!
 
@@ -247,7 +243,7 @@ class ContactsService: NSObject {
     }
 }
 
-extension ContactsService : NSFetchedResultsControllerDelegate {
+extension ContactsService : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

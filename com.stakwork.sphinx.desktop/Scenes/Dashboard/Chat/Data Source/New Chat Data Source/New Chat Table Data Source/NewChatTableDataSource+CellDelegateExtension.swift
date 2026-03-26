@@ -10,7 +10,7 @@ import Cocoa
 import AVKit
 
 ///Loading content in background
-extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderViewDelegate {
+extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurrency ThreadHeaderViewDelegate {
     func shouldReplyToMessageWith(messageId: Int, and rowIndex: Int) {
         if let tableCellState = getTableCellStateFor(
             messageId: messageId,
@@ -570,11 +570,11 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                         asset.loadValuesAsynchronously(forKeys: ["duration"], completionHandler: {
                             let duration = Int(Double(asset.duration.value) / Double(asset.duration.timescale))
                             episode.duration = duration
-                            
-                            updateWith(
-                                duration: Double(duration),
-                                currentTime: Double(podcastComment.timestamp ?? 0)
-                            )
+                            let d = Double(duration)
+                            let t = Double(podcastComment.timestamp ?? 0)
+                            Task { @MainActor in
+                                updateWith(duration: d, currentTime: t)
+                            }
                         })
                     }
                 }

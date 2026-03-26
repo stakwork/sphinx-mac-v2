@@ -9,7 +9,7 @@
 import Cocoa
 import AVFoundation
 
-protocol AudioHelperDelegate: AnyObject {
+@MainActor protocol AudioHelperDelegate: AnyObject {
     func didStartRecording(_ success: Bool)
     func didFinishRecording(_ success: Bool)
     func permissionDenied()
@@ -17,7 +17,7 @@ protocol AudioHelperDelegate: AnyObject {
     func recordingProgress(minutes: String, seconds: String)
 }
 
-class AudioRecorderHelper : NSObject {
+class AudioRecorderHelper : NSObject, @unchecked Sendable {
     
     weak var delegate: AudioHelperDelegate?
     
@@ -39,7 +39,7 @@ class AudioRecorderHelper : NSObject {
         self.delegate = delegate
     }
     
-    func requestAudioRecordingPermission(completion: @escaping () -> ()) {
+    func requestAudioRecordingPermission(completion: @escaping @Sendable () -> ()) {
         if #available(OSX 10.14, *) {
             let audioPermission = AVCaptureDevice.authorizationStatus(for: .audio)
             if audioPermission == .notDetermined {
@@ -157,15 +157,17 @@ class AudioRecorderHelper : NSObject {
         
         audioRecorder?.record()
         state = .Record
-        delegate?.didStartRecording(true)
+        let d = delegate
+        Task { @MainActor in d?.didStartRecording(true) }
     }
-    
+
     func recordingDidFail() {
         state = .None
         audioRecorder?.stop()
-        delegate?.didStartRecording(false)
+        let d = delegate
+        Task { @MainActor in d?.didStartRecording(false) }
     }
-    
+
     func finishRecording(success: Bool) {
         if let _ = audioRecorder {
             audioRecorder?.stop()
@@ -174,23 +176,29 @@ class AudioRecorderHelper : NSObject {
             recordingTimer = nil
 
             if Date().timeIntervalSince(startRecordingTime) <= 1 {
-                delegate?.audioTooShort()
+                let d = delegate
+                Task { @MainActor in d?.audioTooShort() }
             }
         }
     }
-    
+
     @objc func updateRecordingTime() {
         let timeInterval = Date().timeIntervalSince(startRecordingTime)
         let minutes: Int = Int(timeInterval) / 60
         let seconds: Int = Int(timeInterval) % 60
-        delegate?.recordingProgress(minutes: "\(minutes)", seconds: seconds.timeString)
+        let minStr = "\(minutes)"
+        let secStr = seconds.timeString
+        let d = delegate
+        Task { @MainActor in d?.recordingProgress(minutes: minStr, seconds: secStr) }
     }
 }
 
 extension AudioRecorderHelper : AVAudioRecorderDelegate {
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         let didCancel = state == .None
-        delegate?.didFinishRecording(flag && !didCancel)
+        let result = flag && !didCancel
+        let d = delegate
+        Task { @MainActor in d?.didFinishRecording(result) }
         state = .None
     }
 }

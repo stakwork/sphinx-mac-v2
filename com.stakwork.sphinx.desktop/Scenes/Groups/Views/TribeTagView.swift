@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol TribeTagViewDelegate: AnyObject {
     func didTapOnTag(tag: Int, selected: Bool)
 }

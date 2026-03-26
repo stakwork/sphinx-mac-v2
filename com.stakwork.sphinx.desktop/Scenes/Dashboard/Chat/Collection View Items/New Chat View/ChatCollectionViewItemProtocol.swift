@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChatCollectionViewItemProtocol: AnyObject {
     func configureWith(
         messageCellState: MessageTableCellState,
@@ -24,6 +25,7 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
     )
 }
 
+@MainActor
 protocol ChatCollectionViewItemDelegate: AnyObject {
     //Loading content in background
     func shouldLoadTribeInfoFor(messageId: Int, and rowIndex: Int)

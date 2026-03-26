@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol ContactDetailsViewDelegate: AnyObject {
+@MainActor protocol ContactDetailsViewDelegate: AnyObject {
     func didDeleteContact()
     func didTapOnAvatarImage(url: String)
 }

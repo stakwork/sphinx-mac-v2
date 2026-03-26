@@ -8,10 +8,12 @@
 
 import Cocoa
 
+@MainActor
 protocol PeopleModalsViewControllerDelegate: AnyObject {
     func shouldHideContainer()
 }
 
+@MainActor
 protocol RestoreModalViewControllerDelegate: AnyObject {
     func didFinishRestoreManually()
     func didFinishRestoring()

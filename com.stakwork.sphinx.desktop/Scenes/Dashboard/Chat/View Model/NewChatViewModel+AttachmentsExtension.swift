@@ -10,6 +10,7 @@ import Cocoa
 
 extension NewChatViewModel: AttachmentsManagerDelegate {
     
+    @MainActor
     func insertProvisionalAttachmentMessagesAndUpload(
         attachmentObjects: [AttachmentObject],
         chat: Chat?,
@@ -62,6 +63,7 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         resetReply()
     }
     
+    @MainActor
     func shouldReplaceMediaDataFor(provisionalMessageId: Int, and messageId: Int) {
         chatDataSource?.replaceMediaDataForMessageWith(
             provisionalMessageId: provisionalMessageId,
@@ -79,6 +81,7 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         }
     }
     
+    @MainActor
     func didUpdateUploadProgress(
         progress: Int,
         provisionalMessageId: Int
@@ -139,7 +142,7 @@ extension NewChatViewModel {
         audioRecorderHelper.shouldCancelRecording()
     }
     
-    func didFinishRecording() {
+    @MainActor func didFinishRecording() {
         let audioData = audioRecorderHelper.getAudioDataAndDuration()
 
         if let data = audioData.0 {

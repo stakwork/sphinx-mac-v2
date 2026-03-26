@@ -10,10 +10,12 @@ import Foundation
 
 class DelayPerformedHelper {
     
-    public static func performAfterDelay(seconds: Double, completion: @escaping () -> ()) {
+    public static func performAfterDelay(seconds: Double, completion: @escaping @MainActor () -> ()) {
         let delayTime = DispatchTime.now() + Double(Int64(seconds * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
         DispatchQueue.main.asyncAfter(deadline: delayTime) {
-            completion()
+            MainActor.assumeIsolated {
+                completion()
+            }
         }
     }
     

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@objc protocol NewMessageReplyViewDelegate: AnyObject {
+@MainActor @objc protocol NewMessageReplyViewDelegate: AnyObject {
     @objc optional func didTapMessageReplyView()
     @objc optional func didCloseReplyView()
     @objc optional func onReplyViewMouseOver(additionalViewHeight: CGFloat)

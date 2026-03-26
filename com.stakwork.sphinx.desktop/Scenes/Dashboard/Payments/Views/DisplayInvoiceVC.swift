@@ -81,7 +81,10 @@ class DisplayInvoiceVC : NSViewController{
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handlePaidInvoiceNotification(n: n)
+            let paymentHash = n.userInfo?["paymentHash"] as? String
+            MainActor.assumeIsolated {
+                self?.handlePaidInvoiceNotification(paymentHash: paymentHash)
+            }
         }
     }
     
@@ -102,8 +105,8 @@ class DisplayInvoiceVC : NSViewController{
         codeImageLabel.title = "copy.invoice.image".localized
     }
     
-    @objc func handlePaidInvoiceNotification(n: Notification) {
-        if let receivedPaymentHash = n.userInfo?["paymentHash"] as? String,
+    func handlePaidInvoiceNotification(paymentHash: String?) {
+        if let receivedPaymentHash = paymentHash,
            let currentInvoicePaymentHash = currentInvoicePaymentHash,
            currentInvoicePaymentHash == receivedPaymentHash
         {

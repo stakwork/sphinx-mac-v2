@@ -10,16 +10,19 @@ import Foundation
 import CoreData
 import AVFoundation
 
-class FeedsManager : NSObject {
-    
+extension DispatchSemaphore: @unchecked Sendable {}
+extension NSManagedObjectContext: @unchecked Sendable {}
+
+class FeedsManager : NSObject, @unchecked Sendable {
+
     class var sharedInstance : FeedsManager {
         struct Static {
-            static let instance = FeedsManager()
+            nonisolated(unsafe) static let instance = FeedsManager()
         }
         return Static.instance
     }
-    
-    let podcastPlayerController = PodcastPlayerController.sharedInstance
+
+    nonisolated(unsafe) let podcastPlayerController = PodcastPlayerController.sharedInstance
     
     var fetchingItemsInBackground = false
     
@@ -342,30 +345,34 @@ class FeedsManager : NSObject {
             return
         }
         
-        let podcastFeed = PodcastFeed.convertFrom(contentFeed: localFeed)
-        podcastFeed.satsPerMinute = remoteContentStatus.satsPerMinute ?? 0
-        
-        if !podcastPlayerController.isPlaying(podcastId: remoteContentStatus.feedID) {
-            podcastFeed.playerSpeed = remoteContentStatus.playerSpeed ?? 1.0
-            podcastFeed.currentEpisodeId = remoteContentStatus.itemID ?? ""
+        let episodeStatuses = remoteContentStatus.episodeStatus
+        let satsPerMinute = remoteContentStatus.satsPerMinute ?? 0
+        let playerSpeed = remoteContentStatus.playerSpeed ?? 1.0
+        let currentEpisodeId = remoteContentStatus.itemID ?? ""
+        let feedID = remoteContentStatus.feedID
+
+        Task { @MainActor in
+            let podcastFeed = PodcastFeed.convertFrom(contentFeed: localFeed)
+            podcastFeed.satsPerMinute = satsPerMinute
+            if !self.podcastPlayerController.isPlaying(podcastId: feedID) {
+                podcastFeed.playerSpeed = playerSpeed
+                podcastFeed.currentEpisodeId = currentEpisodeId
+            }
+            for episodeStatus in episodeStatuses {
+                self.restoreEpisodeStatus(on: podcastFeed, with: episodeStatus)
+            }
         }
-        
-        for episodeStatus in remoteContentStatus.episodeStatus {
-            restoreEpisodeStatus(
-               on: podcastFeed,
-               with: episodeStatus
-            )
-        }
-        
+
 //        downloadLastEpisodeFor(feed: localFeed)
         loadEpisodesDurationFor(feed: localFeed)
     }
-    
+
+    @MainActor
     func restoreEpisodeStatus(
         on podcastFeed: PodcastFeed,
         with episodeStatus: EpisodeStatus
     ) {
-        if !podcastPlayerController.isPlaying(episodeId: episodeStatus.episodeID) {
+        if !self.podcastPlayerController.isPlaying(episodeId: episodeStatus.episodeID) {
             if let episode = podcastFeed.getEpisodeWith(id: episodeStatus.episodeID) {
                 episode.duration = episodeStatus.episodeData?.duration
                 episode.currentTime = episodeStatus.episodeData?.current_time
@@ -384,16 +391,20 @@ class FeedsManager : NSObject {
             for feed in self.fetchFeeds(context: context) {
                 
                 if let url = feed.feedURL {
-                    
-                    ContentFeed.fetchFeedItems(
-                        feedUrl: url.absoluteString,
-                        feedId: feed.feedID,
-                        context: context,
-                        completion: { _ in
-                            dispatchSemaphore.signal()
-                        }
-                    )
-                    
+                    let feedUrl = url.absoluteString
+                    let feedId = feed.feedID
+
+                    Task { @MainActor in
+                        ContentFeed.fetchFeedItems(
+                            feedUrl: feedUrl,
+                            feedId: feedId,
+                            context: context,
+                            completion: { _ in
+                                dispatchSemaphore.signal()
+                            }
+                        )
+                    }
+
                     dispatchSemaphore.wait()
                 }
             }
@@ -420,7 +431,7 @@ class FeedsManager : NSObject {
     
     func loadCurrentEpisodeDurationFor(
         feedId: String,
-        completion: @escaping () -> ()
+        completion: @escaping @Sendable () -> ()
     ) {
         if let feed = ContentFeed.getFeedById(feedId: feedId) {
             

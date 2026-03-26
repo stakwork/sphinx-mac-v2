@@ -9,7 +9,7 @@
 import Foundation
 import ObjectMapper
 
-class EpisodeStatus: Mappable {
+class EpisodeStatus: Mappable, @unchecked Sendable {
     var episodeID : String = ""
     var episodeData: EpisodeData?
     
@@ -22,7 +22,7 @@ class EpisodeStatus: Mappable {
     }
 }
 
-class EpisodeData: Mappable {
+class EpisodeData: Mappable, @unchecked Sendable {
     var duration:Int = 0
     var current_time:Int = 0
     
@@ -37,7 +37,7 @@ class EpisodeData: Mappable {
 }
 
 
-class ContentFeedStatus: Mappable {
+class ContentFeedStatus: Mappable, @unchecked Sendable {
     var feedID: String = ""
     var feedURL: String = ""
     var subscriptionStatus:Bool = false

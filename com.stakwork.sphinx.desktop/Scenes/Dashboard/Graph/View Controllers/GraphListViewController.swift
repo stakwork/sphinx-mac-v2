@@ -467,7 +467,7 @@ extension GraphListViewController : NSCollectionViewDelegate {
     }
 }
 
-extension GraphListViewController : NSFetchedResultsControllerDelegate {
+extension GraphListViewController : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

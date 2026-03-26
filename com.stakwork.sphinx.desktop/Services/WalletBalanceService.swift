@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 public final class WalletBalanceService {
     
     var balance: UInt64? {
@@ -24,7 +25,7 @@ public final class WalletBalanceService {
         }
     }
     
-    init() {}
+    nonisolated init() {}
     
     func updateBalance(labels: [NSTextField]) {
         DispatchQueue.main.async {

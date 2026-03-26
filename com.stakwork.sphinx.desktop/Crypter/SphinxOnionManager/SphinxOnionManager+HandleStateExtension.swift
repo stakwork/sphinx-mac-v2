@@ -218,8 +218,10 @@ extension SphinxOnionManager {
     
     func handleBalanceUpdate(newBalance: UInt64?) {
         if let newBalance = newBalance {
-            self.walletBalanceService.balance = newBalance
-            
+            Task { @MainActor in
+                self.walletBalanceService.balance = newBalance
+            }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                 NotificationCenter.default.post(
                     Notification(
@@ -488,7 +490,7 @@ extension SphinxOnionManager {
         messages: [Msg]
     ) {
         ///Restore callbacks
-        DispatchQueue.main.async {
+        Task { @MainActor in
             if topic?.isMessagesFetchResponseTopic == true {
                 if let firstSCIDMsgsCallback = self.firstSCIDMsgsCallback {
                     firstSCIDMsgsCallback(messages)
@@ -581,7 +583,7 @@ extension SphinxOnionManager {
     func handleRegisterTopic(
         rr: RunReturn,
         skipAsyncTopic: Bool,
-        callback: @escaping (RunReturn, Bool) -> ()
+        callback: @escaping @Sendable (RunReturn, Bool) -> ()
     ) {
         if let topic = rr.registerTopic, let payload = rr.registerPayload {
             let byteArray: [UInt8] = [UInt8](payload)

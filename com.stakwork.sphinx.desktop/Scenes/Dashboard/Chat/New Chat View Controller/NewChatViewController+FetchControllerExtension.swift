@@ -8,7 +8,7 @@
 
 import Cocoa
 
-extension NewChatViewController: NSFetchedResultsControllerDelegate {
+extension NewChatViewController: @preconcurrency NSFetchedResultsControllerDelegate {
     func configureFetchResultsController() {
         if isThread {
             return

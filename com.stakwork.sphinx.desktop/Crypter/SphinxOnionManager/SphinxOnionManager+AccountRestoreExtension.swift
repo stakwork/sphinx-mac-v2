@@ -11,6 +11,10 @@ import CoreData
 import ObjectMapper
 import SwiftyJSON
 
+extension JSON: @unchecked Sendable {}
+extension RunReturn: @unchecked Sendable {}
+extension Msg: @unchecked Sendable {}
+
 class ChatsFetchParams {
     var restoreInProgress: Bool
     var itemsPerPage: Int
@@ -692,7 +696,7 @@ extension SphinxOnionManager {
     func fetchMissingTribesFor(
         rr: RunReturn,
         topic: String?,
-        completion: @escaping (RunReturn, [String: JSON], String?) -> ()
+        completion: @escaping @Sendable (RunReturn, [String: JSON], String?) -> ()
     ) {
         let messages = rr.msgs
         
@@ -1088,7 +1092,8 @@ extension SphinxOnionManager {
                         shouldSetLastMessage: true
                     )
                 } else if lastMessage.isOutgoing() {
-                    chat.setChatMessagesAsSeen()
+                    let c = chat
+                    Task { @MainActor in c.setChatMessagesAsSeen() }
                 } else {
                     chat.lastMessage = lastMessage
                 }

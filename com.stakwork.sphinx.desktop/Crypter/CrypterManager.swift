@@ -14,11 +14,11 @@ import CocoaMQTT
 import MessagePack
 import Security
 
-class CrypterManager : NSObject {
-    
+class CrypterManager : NSObject, @unchecked Sendable {
+
     class var sharedInstance : CrypterManager {
         struct Static {
-            static let instance = CrypterManager()
+            nonisolated(unsafe) static let instance = CrypterManager()
         }
         return Static.instance
     }
@@ -144,28 +144,28 @@ class CrypterManager : NSObject {
         clear()
     }
     
-    func startSetup(
+    @MainActor func startSetup(
         hardwareLink: HardwareLink? = nil
     ) {
         self.hardwarePostDto = HardwarePostDto()
-        
+
         if let hardwareLink = hardwareLink {
             hardwarePostDto.lightningNodeUrl = hardwareLink.mqtt
             hardwarePostDto.bitcoinNetwork = hardwareLink.network
         }
-        
+
         chooseConnectionType()
     }
     
-    func chooseConnectionType() {
+    @MainActor func chooseConnectionType() {
         let setupHardwareCallback: (() -> ()) = {
             self.setupSigningDevice()
         }
-        
+
         let setupPhoneDeviceCallback: (() -> ()) = {
             self.startMQTTSetup()
         }
-        
+
         AlertHelper.showOptionsPopup(
             title: "profile.signer-setup-title".localized,
             message: "profile.signer-setup-message".localized,
@@ -180,7 +180,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func presentPromptForQR() {
+    @MainActor func presentPromptForQR() {
         AlertHelper.showPromptAlert(
             title: "profile.signer-qr-code.title".localized,
             message: "profile.signer-qr-code.message".localized,
@@ -191,7 +191,7 @@ class CrypterManager : NSObject {
                     ) {
                         self.hardwarePostDto.lightningNodeUrl = hardwareLink.mqtt
                         self.hardwarePostDto.bitcoinNetwork = hardwareLink.network
-                        
+
                         self.startMQTTSetup()
                     }
                 } else {
@@ -226,7 +226,7 @@ class CrypterManager : NSObject {
         })
     }
     
-    func startMQTTSetup() {
+    @MainActor func startMQTTSetup() {
         if mqtt?.connState == .connected || mqtt?.connState == .connecting {
             showSuccessWithMessage("MQTT already connected or connecting")
             return
@@ -620,7 +620,7 @@ class CrypterManager : NSObject {
     }
     
     ///Signer setup
-    func setupSigningDevice() {
+    @MainActor func setupSigningDevice() {
         self.checkNetwork {
             self.promptForNetworkName() { networkName in
                 self.promptForNetworkPassword(networkName) {
@@ -635,7 +635,7 @@ class CrypterManager : NSObject {
 
     }
     
-    func checkNetwork(callback: @escaping () -> ()) {
+    @MainActor func checkNetwork(callback: @escaping () -> ()) {
         AlertHelper.showTwoOptionsAlert(
             title: "profile.network-check-title".localized,
             message: "profile.network-check-message".localized,
@@ -648,7 +648,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForNetworkName(
+    @MainActor func promptForNetworkName(
         callback: @escaping (String) -> ()
     ) {
         promptFor(
@@ -662,7 +662,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForNetworkPassword(
+    @MainActor func promptForNetworkPassword(
         _ networkName: String,
         callback: @escaping () -> ()
     ) {
@@ -678,7 +678,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForHardwareUrl(callback: @escaping () -> ()) {
+    @MainActor func promptForHardwareUrl(callback: @escaping () -> ()) {
         if let url = self.hardwarePostDto.lightningNodeUrl, url.isNotEmpty {
             callback()
             return
@@ -695,7 +695,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForBitcoinNetwork(callback: @escaping () -> ()) {
+    @MainActor func promptForBitcoinNetwork(callback: @escaping () -> ()) {
         if let net = self.hardwarePostDto.bitcoinNetwork, net.isNotEmpty {
             callback()
             return
@@ -719,14 +719,14 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptFor(
+    @MainActor func promptFor(
         _ title: String,
         message: String,
         errorMessage: String,
         textFieldText: String? = nil,
         secureEntry: Bool = false,
         callback: @escaping (String) -> ()) {
-            
+
         AlertHelper.showPromptAlert(
             title: title,
             message: message,
@@ -742,7 +742,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForSeedGeneration(
+    @MainActor func promptForSeedGeneration(
         callback: @escaping ((String, Data)) -> ()
     ) {
         if let (mnemonic, seed) = getStoredMnemonicAndSeed() {
@@ -751,7 +751,7 @@ class CrypterManager : NSObject {
         }
         
         let generateMnemonicCallbak: (() -> ()) = {
-            self.newMessageBubbleHelper.showLoadingWheel()
+            Task { @MainActor in self.newMessageBubbleHelper.showLoadingWheel() }
             let (mnemonic, seed) = self.getOrCreateWalletMnemonic()
             callback((mnemonic, seed))
         }
@@ -771,7 +771,7 @@ class CrypterManager : NSObject {
         )
     }
     
-    func promptForSeedEnter(
+    @MainActor func promptForSeedEnter(
         callback: @escaping ((String, Data)) -> ()
     ) {
         promptFor(
@@ -782,7 +782,7 @@ class CrypterManager : NSObject {
                 let wordsCount = value.split(separator: " ").count
                 
                 if wordsCount == 12 || wordsCount == 24 {
-                    self.newMessageBubbleHelper.showLoadingWheel()
+                    Task { @MainActor in self.newMessageBubbleHelper.showLoadingWheel() }
                     
                     let words = value.split(separator: " ").map { String($0).trim() }
                     let fixedWords = words.joined(separator: " ")
@@ -844,7 +844,7 @@ class CrypterManager : NSObject {
             return
         }
         
-        self.newMessageBubbleHelper.showLoadingWheel()
+        Task { @MainActor in self.newMessageBubbleHelper.showLoadingWheel() }
 
         API.sharedInstance.getHardwarePublicKey(callback: { pubKey in
 
@@ -855,13 +855,14 @@ class CrypterManager : NSObject {
                 print(error.localizedDescription)
             }
 
-            self.newMessageBubbleHelper.hideLoadingWheel()
+            Task { @MainActor in self.newMessageBubbleHelper.hideLoadingWheel() }
 
-            self.promptForSeedGeneration() { (mnemonic, seed) in
-                
-                self.newMessageBubbleHelper.hideLoadingWheel()
+            Task { @MainActor in
+                self.promptForSeedGeneration() { (mnemonic, seed) in
 
-                self.showMnemonicToUser(mnemonic: mnemonic) {
+                    Task { @MainActor in self.newMessageBubbleHelper.hideLoadingWheel() }
+
+                    self.showMnemonicToUser(mnemonic: mnemonic) {
                     guard let sec1 = sec1 else {
                         self.showSuccessWithMessage("There was an error. Please try again later")
                         return
@@ -899,12 +900,13 @@ class CrypterManager : NSObject {
                     })
                 }
             }
+        }
         }, errorCallback: {
             self.showErrorWithMessage("profile.error-getting-hardware-public-key".localized)
         })
     }
     
-    func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
+    @MainActor func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
         AlertHelper.showAlert(
             title: "profile.store-mnemonic".localized,
             message: mnemonic,
@@ -925,27 +927,32 @@ class CrypterManager : NSObject {
     }
     
     func showErrorWithMessage(_ message: String) {
-        self.newMessageBubbleHelper.hideLoadingWheel()
-        
-        self.newMessageBubbleHelper.showGenericMessageView(
-            text: message,
-            delay: 6,
-            textColor: NSColor.white,
-            backColor: NSColor.Sphinx.PrimaryRed,
-            backAlpha: 1.0
-        )
+        Task { @MainActor in
+            self.newMessageBubbleHelper.hideLoadingWheel()
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: message,
+                delay: 6,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryRed,
+                backAlpha: 1.0
+            )
+        }
     }
-    
+
     func showSuccessWithMessage(_ message: String) {
-        self.newMessageBubbleHelper.showGenericMessageView(
-            text: message,
-            delay: 6,
-            textColor: NSColor.white,
-            backColor: NSColor.Sphinx.PrimaryGreen,
-            backAlpha: 1.0
-        )
+        Task { @MainActor in
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: message,
+                delay: 6,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryGreen,
+                backAlpha: 1.0
+            )
+        }
     }
 }
+
+extension Keys: @unchecked Sendable {}
 
 extension Data {
     static func randomBytes(length: Int) -> Data {

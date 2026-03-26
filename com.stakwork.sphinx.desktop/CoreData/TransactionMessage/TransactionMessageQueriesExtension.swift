@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-extension TransactionMessage {    
+extension TransactionMessage {
     static func getAll() -> [TransactionMessage] {
         let messages:[TransactionMessage] = CoreDataManager.sharedManager.getAllOfType(entityName: "TransactionMessage")
         return messages

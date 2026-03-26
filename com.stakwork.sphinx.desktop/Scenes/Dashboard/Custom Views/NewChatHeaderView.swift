@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol NewChatHeaderViewDelegate: AnyObject {
     func refreshTapped()
     func menuTapped(_ frame: CGRect)
@@ -197,7 +198,7 @@ extension NewChatHeaderView : HealthCheckDelegate {
     }
 }
 
-extension NewChatHeaderView : NSFetchedResultsControllerDelegate {
+extension NewChatHeaderView : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

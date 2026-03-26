@@ -12,7 +12,7 @@ import SwiftyJSON
 
 //MARK: Helper Structs & Functions:
 
-var wordsListPossibilities : [WordList] = [
+nonisolated(unsafe) var wordsListPossibilities : [WordList] = [
     .english,
     .japanese,
     .korean,

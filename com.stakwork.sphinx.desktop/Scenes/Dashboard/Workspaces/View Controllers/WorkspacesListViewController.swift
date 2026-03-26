@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol WorkspacesListViewControllerDelegate: AnyObject {
     func didSelectWorkspace(_ workspace: Workspace)
 }

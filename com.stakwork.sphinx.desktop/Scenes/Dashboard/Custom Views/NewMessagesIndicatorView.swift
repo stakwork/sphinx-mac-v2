@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol NewMessagesIndicatorViewDelegate : AnyObject {
+@MainActor protocol NewMessagesIndicatorViewDelegate : AnyObject {
     func didTouchButton()
 }
 

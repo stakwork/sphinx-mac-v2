@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol NewChatListViewControllerDelegate: NSObject {
     func didClickRowAt(chatId: Int?, contactId: Int?)
     func shouldResetContactView()

@@ -12,9 +12,9 @@ import SwiftyJSON
 import CoreData
 
 
-class SphinxOnionManager : NSObject {
+class SphinxOnionManager : NSObject, @unchecked Sendable {
     
-    private static var _sharedInstance: SphinxOnionManager? = nil
+    nonisolated(unsafe) private static var _sharedInstance: SphinxOnionManager? = nil
 
     static var sharedInstance: SphinxOnionManager {
         if _sharedInstance == nil {
@@ -119,8 +119,8 @@ class SphinxOnionManager : NSObject {
     }
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
-    let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-    let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+    nonisolated(unsafe) let managedContext: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    nonisolated(unsafe) let backgroundContext: NSManagedObjectContext = CoreDataManager.sharedManager.getBackgroundContext()
     
     //MARK: Hardcoded Values!
     var serverIP: String {
@@ -675,18 +675,20 @@ class SphinxOnionManager : NSObject {
     }
     
     func showSuccessWithMessage(_ message: String) {
-        self.newMessageBubbleHelper.showGenericMessageView(
-            text: message,
-            delay: 6,
-            textColor: NSColor.white,
-            backColor: NSColor.Sphinx.PrimaryGreen,
-            backAlpha: 1.0
-        )
+        Task { @MainActor in
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: message,
+                delay: 6,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryGreen,
+                backAlpha: 1.0
+            )
+        }
     }
 }
 
 extension SphinxOnionManager {//Sign Up UI Related:
-    func showMnemonicToUser(
+    @MainActor func showMnemonicToUser(
         completion:@escaping (Bool)->()
     ){
         let generateSeedCallback: (() -> ()) = {
@@ -705,16 +707,16 @@ extension SphinxOnionManager {//Sign Up UI Related:
     
     func importSeedPhrase(){
         if let vc = self.vc as? ImportSeedViewDelegate {
-            vc.showImportSeedView()
+            Task { @MainActor in vc.showImportSeedView() }
         }
     }
     
-    func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
+    @MainActor func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
         guard let _ = vc else {
             callback()
             return
         }
-        
+
         AlertHelper.showAlert(
             title: "profile.store-mnemonic".localized,
             message: mnemonic,

@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol NewMenuListViewDelegate: AnyObject {
     func closeButtonTapped()
     func buttonClicked(id: Int)

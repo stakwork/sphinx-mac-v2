@@ -1770,10 +1770,7 @@ extension SphinxOnionManager {
         if let sentMessage = sentMessage {
             if (type == TransactionMessage.TransactionMessageType.attachment.rawValue) {
                 AttachmentsManager.sharedInstance.cacheImageAndMediaData(message: sentMessage, attachmentObject: attachmentObject)
-            } else if (type == TransactionMessage.TransactionMessageType.purchase.rawValue) {
-                print(sentMessage)
             }
-            
             return (sentMessage, nil)
         }
         
@@ -1820,10 +1817,12 @@ extension SphinxOnionManager {
                 )
                 completion(message)
             } else {
-                AlertHelper.showAlert(
-                    title: "Routing Error",
-                    message: "There was a routing error. Please try again."
-                )
+                Task { @MainActor in
+                    AlertHelper.showAlert(
+                        title: "Routing Error",
+                        message: "There was a routing error. Please try again."
+                    )
+                }
                 completion(nil)
             }
         }

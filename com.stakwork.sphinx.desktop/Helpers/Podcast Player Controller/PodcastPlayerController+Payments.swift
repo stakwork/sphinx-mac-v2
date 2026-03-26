@@ -17,7 +17,7 @@ extension PodcastPlayerController {
         playedSeconds = playedSeconds + 1
         
         if playedSeconds > 0 && playedSeconds % kSecondsBeforePMT == 0 {
-            DispatchQueue.global().async {
+            Task { @MainActor in
                 self.processPayment()
             }
         }

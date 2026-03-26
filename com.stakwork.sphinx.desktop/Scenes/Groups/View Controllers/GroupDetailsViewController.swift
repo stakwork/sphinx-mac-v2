@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol GroupDetailsDelegate: AnyObject {
+@MainActor protocol GroupDetailsDelegate: AnyObject {
     func shouldExitTribeOrGroup(completion: @escaping () ->())
 }
 
@@ -121,7 +121,9 @@ class GroupDetailsViewController: NSViewController {
             object: nil,
             queue: .main
         ) { [weak self] (n: Notification) in
-            self?.setGroupInfo()
+            MainActor.assumeIsolated {
+                self?.setGroupInfo()
+            }
         }
     }
     

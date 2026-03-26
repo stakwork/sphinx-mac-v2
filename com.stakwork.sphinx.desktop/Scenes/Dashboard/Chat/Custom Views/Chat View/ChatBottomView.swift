@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol ChatBottomViewDelegate : AnyObject {
+@MainActor protocol ChatBottomViewDelegate : AnyObject {
     ///IBActions
     func didClickAttachmentsButton()
     func didClickGiphyButton()

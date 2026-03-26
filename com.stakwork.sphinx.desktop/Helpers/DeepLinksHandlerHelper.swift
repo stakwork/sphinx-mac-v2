@@ -10,7 +10,7 @@ import Foundation
 
 class DeepLinksHandlerHelper {
     
-    static func handleLinkQueryFrom(url: URL) {
+    @MainActor static func handleLinkQueryFrom(url: URL) {
         if !UserData.sharedInstance.isUserLogged() {
             return
         }

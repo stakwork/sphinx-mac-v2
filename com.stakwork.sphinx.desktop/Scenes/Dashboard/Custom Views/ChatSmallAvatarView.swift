@@ -9,6 +9,7 @@
 import Cocoa
 import SDWebImage
 
+@MainActor
 protocol ChatSmallAvatarViewDelegate: AnyObject {
     func didClickAvatarView()
 }

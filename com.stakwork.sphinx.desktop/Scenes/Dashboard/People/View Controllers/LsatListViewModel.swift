@@ -6,6 +6,7 @@
 import Foundation
 import Cocoa
 
+@MainActor
 class LsatListViewModel: NSObject {
 
     weak var vc: LsatListViewController?

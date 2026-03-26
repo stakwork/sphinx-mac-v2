@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol DetailHeaderViewDelegate: AnyObject {
     func backButtonTapped()
     func closeButtonTapped()
