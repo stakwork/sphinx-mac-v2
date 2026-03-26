@@ -484,14 +484,11 @@ import WebKit
      func setBadge() {
          let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
          
-         backgroundContext.performSafely { [weak self] in
-             guard let self = self else {
-                 return
-             }
+         backgroundContext.performSafely {
              let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
              
-             DispatchQueue.main.async {
-                 self.setBadge(count: receivedUnseenCount)
+             DispatchQueue.main.async { [weak self] in
+                 self?.setBadge(count: receivedUnseenCount)
              }
          }
      }
