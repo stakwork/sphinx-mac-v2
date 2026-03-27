@@ -265,7 +265,11 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         var result : String? = nil
         do {
             result = try Sphinx.mnemonicFromEntropy(
-                entropy: Data.randomBytes(length: 16).hexString
+                entropy: {
+                    var bytes = [UInt8](repeating: 0, count: 16)
+                    SecRandomCopyBytes(kSecRandomDefault, 16, &bytes)
+                    return Data(bytes).hexString
+                }()
             )
             guard let result = result else {
                 return nil

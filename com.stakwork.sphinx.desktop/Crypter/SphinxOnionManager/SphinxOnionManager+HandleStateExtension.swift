@@ -167,7 +167,7 @@ extension SphinxOnionManager {
     
     func updateStateMap(stateMap: Data?) {
         if let stateMap = stateMap {
-            let _ = storeOnionState(inc: stateMap.bytes)
+            let _ = storeOnionState(inc: [UInt8](stateMap))
         }
     }
     

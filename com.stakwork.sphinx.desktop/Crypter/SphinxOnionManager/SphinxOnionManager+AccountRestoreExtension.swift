@@ -1092,8 +1092,8 @@ extension SphinxOnionManager {
                         shouldSetLastMessage: true
                     )
                 } else if lastMessage.isOutgoing() {
-                    let c = chat
-                    Task { @MainActor in c.setChatMessagesAsSeen() }
+                    let chatId = chat.id
+                    Task { @MainActor in Chat.getChatWith(id: chatId)?.setChatMessagesAsSeen() }
                 } else {
                     chat.lastMessage = lastMessage
                 }

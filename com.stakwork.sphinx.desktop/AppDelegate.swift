@@ -130,9 +130,9 @@ import WebKit
     }
      
     func connectMQTT() {
-        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
-            CrypterManager.sharedInstance.startMQTTSetup()
-        }
+//        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
+//            CrypterManager.sharedInstance.startMQTTSetup()
+//        }
     }
 
     

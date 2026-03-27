@@ -328,7 +328,12 @@ class AttachmentsManager: @unchecked Sendable {
 
     func uploadSucceed(message: TransactionMessage) {
         uploading = false
-        DispatchQueue.main.async { self.delegate?.didSuccessSendingAttachment?(message: message, image: self.uploadedImage, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+        let messageId = message.id
+        let provisionalId = self.provisionalMessage?.id ?? -1
+        Task { @MainActor in
+            guard let msg = TransactionMessage.getMessageWith(id: messageId) else { return }
+            self.delegate?.didSuccessSendingAttachment?(message: msg, image: self.uploadedImage, provisionalMessageId: provisionalId)
+        }
     }
     
     func getThumbnailFromVideo(videoURL: URL) -> NSImage? {

@@ -2152,46 +2152,44 @@ extension SphinxOnionManager {
         forChat chat: Chat,
         keepingLatest count: Int = 100
     ) {
+        let chatId = chat.id
         DispatchQueue.global(qos: .utility).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-            
+
             backgroundContext.performSafely {
+                guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else { return }
                 do {
                     let fetchRequest = self.getFetchRequestFor(
                         chat: chat,
                         with: count
                     )
-                    
+
                     if let thresholdId = self.getFetchMinIndex(
                         fetchRequest: fetchRequest,
                         count: count,
                         context: backgroundContext
                     ) {
-                        print("🔍 Will delete messages with id < \(thresholdId) from chat \(chat.id)")
-                        
-                        // Step 2: Create fetch request for messages to delete
+                        print("🔍 Will delete messages with id < \(thresholdId) from chat \(chatId)")
+
                         let deleteRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND id < %d", chat.id, thresholdId)
-                        
-                        // Step 3: Create batch delete request with the fetch request
+                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND id < %d", chatId, thresholdId)
+
                         let batchDelete = NSBatchDeleteRequest(fetchRequest: deleteRequest as! NSFetchRequest<NSFetchRequestResult>)
-                        batchDelete.resultType = .resultTypeCount // Get count of deleted objects
-                        
+                        batchDelete.resultType = .resultTypeCount
+
                         let result = try backgroundContext.execute(batchDelete) as? NSBatchDeleteResult
                         let deletedCount = result?.result as? Int ?? 0
-                        
+
                         if deletedCount > 0 {
-                            print("✅ Successfully deleted \(deletedCount) old messages from chat \(chat.id) in background")
-                            
-                            // Step 4: Save the context - this will automatically merge to parent contexts
+                            print("✅ Successfully deleted \(deletedCount) old messages from chat \(chatId) in background")
                             try backgroundContext.save()
                             print("💾 Saved deletion changes to persistent store")
                         } else {
-                            print("ℹ️ No messages were deleted from chat \(chat.id)")
+                            print("ℹ️ No messages were deleted from chat \(chatId)")
                         }
                     }
                 } catch {
-                    print("❌ Background batch delete failed for chat \(chat.id): \(error)")
+                    print("❌ Background batch delete failed for chat \(chatId): \(error)")
                 }
             }
         }

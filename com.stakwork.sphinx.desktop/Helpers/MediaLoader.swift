@@ -10,11 +10,11 @@ import Cocoa
 import AVFoundation
 import SDWebImage
 
-class MediaLoader {
+@MainActor class MediaLoader {
     
     nonisolated(unsafe) static let cache = SphinxCache()
     
-    class func isAuthenticated() -> (Bool, String?) {
+    nonisolated class func isAuthenticated() -> (Bool, String?) {
         if let token: String = UserDefaults.Keys.attachmentsToken.get() {
             let expDate: Date? = UserDefaults.Keys.attachmentsTokenExpDate.get()
             
@@ -25,7 +25,7 @@ class MediaLoader {
         return (false, nil)
     }
     
-    class func loadDataFrom(URL: URL, includeToken: Bool = true, completion: @escaping @MainActor (Data, String?) -> (), errorCompletion: @escaping @MainActor () -> ()) {
+    nonisolated class func loadDataFrom(URL: URL, includeToken: Bool = true, completion: @escaping @MainActor (Data, String?) -> (), errorCompletion: @escaping @MainActor () -> ()) {
         if !ConnectivityHelper.isConnectedToInternet {
             Task { @MainActor in errorCompletion() }
             return
@@ -159,7 +159,7 @@ class MediaLoader {
         }
     }
 
-    class func getImageFromData(_ data: Data, isPdf: Bool) -> NSImage? {
+    nonisolated class func getImageFromData(_ data: Data, isPdf: Bool) -> NSImage? {
         if isPdf {
             if let image = data.getPDFThumbnail() {
                 return image
@@ -311,7 +311,7 @@ class MediaLoader {
         }
     }
     
-    class func getDataFromUrl(url: URL) -> Data? {
+    nonisolated class func getDataFromUrl(url: URL) -> Data? {
         var videoData: Data?
         do {
             videoData = try Data(contentsOf: url as URL, options: Data.ReadingOptions.alwaysMapped)
@@ -325,7 +325,7 @@ class MediaLoader {
         return data
     }
     
-    class func getThumbnailImageFromVideoData(data: Data, videoUrl: String?, completion: @escaping @MainActor (NSImage?) -> Void) {
+    nonisolated class func getThumbnailImageFromVideoData(data: Data, videoUrl: String?, completion: @escaping @MainActor (NSImage?) -> Void) {
         guard var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         url.appendPathComponent("video.mov")
         do {
@@ -356,39 +356,39 @@ class MediaLoader {
         }
     }
     
-    class func clearMessageMediaCache(message: TransactionMessage) {
+    nonisolated class func clearMessageMediaCache(message: TransactionMessage) {
         if let url = message.getMediaUrl() {
             clearImageCacheFor(url: url.absoluteString)
             clearMediaDataCacheFor(url: url.absoluteString)
         }
     }
     
-    class func clearImageCacheFor(url: String) {
+    nonisolated class func clearImageCacheFor(url: String) {
         SDImageCache.shared.removeImage(forKey: url, withCompletion: nil)
         cache.removeValue(forKey: url)
     }
     
-    class func storeImageInCache(img: NSImage, url: String) {
+    nonisolated class func storeImageInCache(img: NSImage, url: String) {
         SDImageCache.shared.store(img, forKey: url, completion: nil)
     }
     
-    class func getImageFromCachedUrl(url: String) -> NSImage? {
+    nonisolated class func getImageFromCachedUrl(url: String) -> NSImage? {
         return SDImageCache.shared.imageFromCache(forKey: url)
     }
     
-    class func storeMediaDataInCache(data: Data, url: String) {
+    nonisolated class func storeMediaDataInCache(data: Data, url: String) {
         cache[url] = data
     }
     
-    class func getMediaDataFromCachedUrl(url: String) -> Data? {
+    nonisolated class func getMediaDataFromCachedUrl(url: String) -> Data? {
         return cache[url]
     }
     
-    class func clearMediaDataCacheFor(url: String) {
+    nonisolated class func clearMediaDataCacheFor(url: String) {
         return cache.removeValue(forKey: url)
     }
         
-    class func deleteItemAt(url: URL) {
+    nonisolated class func deleteItemAt(url: URL) {
         do {
             try FileManager().removeItem(at: url)
         } catch {
@@ -398,7 +398,7 @@ class MediaLoader {
 }
 
 extension MediaLoader {
-    class func loadPublicImage(
+    nonisolated class func loadPublicImage(
         url: URL,
         messageId: Int,
         completion: @escaping @MainActor (Int, NSImage) -> (), errorCompletion: @escaping @MainActor (Int) -> ()

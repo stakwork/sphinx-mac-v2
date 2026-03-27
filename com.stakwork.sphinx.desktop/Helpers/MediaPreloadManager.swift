@@ -99,6 +99,7 @@ class MediaPreloadManager: @unchecked Sendable {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processImageData(
@@ -242,6 +243,7 @@ class MediaPreloadManager: @unchecked Sendable {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processVideoData(
@@ -382,6 +384,7 @@ class MediaPreloadManager: @unchecked Sendable {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processFileData(

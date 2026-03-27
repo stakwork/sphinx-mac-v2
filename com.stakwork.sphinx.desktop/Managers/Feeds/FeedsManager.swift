@@ -350,7 +350,8 @@ class FeedsManager : NSObject, @unchecked Sendable {
         let feedID = remoteContentStatus.feedID
 
         Task { @MainActor in
-            let podcastFeed = PodcastFeed.convertFrom(contentFeed: localFeed)
+            guard let feed = ContentFeed.getFeedById(feedId: feedID) else { return }
+            let podcastFeed = PodcastFeed.convertFrom(contentFeed: feed)
             podcastFeed.satsPerMinute = satsPerMinute
             if !self.podcastPlayerController.isPlaying(podcastId: feedID) {
                 podcastFeed.playerSpeed = playerSpeed

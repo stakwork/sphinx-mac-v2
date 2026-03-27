@@ -9,7 +9,7 @@
 import Foundation
 import AppKit
 
-class MediaDownloader {
+@MainActor class MediaDownloader {
     
     static func getFileName() -> String {
         return "sphinx.\(Date().getStringDate(format: "EEE.dd.MMM.hh.mm.ss"))".lowercased()

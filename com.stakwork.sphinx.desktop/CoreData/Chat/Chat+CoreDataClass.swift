@@ -439,15 +439,16 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         }
         
         let context = CoreDataManager.sharedManager.getBackgroundContext()
-        
-        context.performSafely { [weak self] in
-            guard let self = self else {
+        let chatId = self.id
+
+        context.performSafely {
+            guard let chat = Chat.getChatWith(id: chatId, managedContext: context) else {
                 return
             }
 
             let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
                 predicate: TransactionMessage.getPredicate(
-                    chat: self,
+                    chat: chat,
                     threadUUID: nil,
                     typesToExclude: [],
                     pinnedMessageId: nil
@@ -456,12 +457,12 @@ public class Chat: NSManagedObject, @unchecked Sendable {
                 entityName: "TransactionMessage",
                 managedContext: context
             )
-            
+
             if messages.isEmpty {
                 return
             }
-            
-            self.processAliasesFrom(messages: messages.reversed())
+
+            chat.processAliasesFrom(messages: messages.reversed())
         }
     }
     
