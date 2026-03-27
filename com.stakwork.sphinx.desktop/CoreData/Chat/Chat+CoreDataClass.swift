@@ -582,7 +582,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         return TransactionMessage.getAllMessagesCountFor(chat: self)
     }
     
-    func setChatMessagesAsSeen(
+    @MainActor func setChatMessagesAsSeen(
         shouldSync: Bool = true,
         shouldSave: Bool = true,
         forceSeen: Bool = false

@@ -295,15 +295,15 @@ extension TransactionMessage {
         
         var messages: [TransactionMessage] = []
         let context = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
-        
-        context.performSafely {
+
+        context.performAndWait {
             do {
-                try messages = context.fetch(fetchRequest)
+                messages = try context.fetch(fetchRequest)
             } catch let error as NSError {
                 print("Error: " + error.localizedDescription)
             }
         }
-        
+
         return messages
     }
     

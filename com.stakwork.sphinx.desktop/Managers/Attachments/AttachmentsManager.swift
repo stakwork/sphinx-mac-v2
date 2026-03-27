@@ -143,7 +143,7 @@ class AttachmentsManager: @unchecked Sendable {
     }
     
     func uploadPublicImage(attachmentObject: AttachmentObject) {
-        DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
 
         let isAuthenticated = isAuthenticated()
 
@@ -157,7 +157,7 @@ class AttachmentsManager: @unchecked Sendable {
             return
         }
 
-        DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
         
         guard let token = isAuthenticated.1 else {
             return
@@ -190,7 +190,7 @@ class AttachmentsManager: @unchecked Sendable {
         if let _ = attachmentObject.data, let provisionalMsg = attachmentObject.provisionalMsg {
             self.provisionalMessage = provisionalMsg
             
-            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 5, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
 
             let isAuthenticated = isAuthenticated()
 
@@ -210,7 +210,7 @@ class AttachmentsManager: @unchecked Sendable {
                 return
             }
 
-            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 10, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
             
             guard let token = isAuthenticated.1 else {
                 return
@@ -292,7 +292,7 @@ class AttachmentsManager: @unchecked Sendable {
             m: message,
             existingMessage: provisionalMessage
         ).0 {
-            DispatchQueue.main.async { delegate?.didUpdateUploadProgress?(progress: 100, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
+            DispatchQueue.main.async { self.delegate?.didUpdateUploadProgress?(progress: 100, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
             cacheImageAndMediaData(message: message, attachmentObject: attachmentObject)
             uploadSucceed(message: message)
             deleteMessageWith(id: provisionalMessageId)
@@ -323,12 +323,12 @@ class AttachmentsManager: @unchecked Sendable {
     
     func uploadFailed(errorMessage: String) {
         uploading = false
-        DispatchQueue.main.async { delegate?.didFailSendingAttachment?(provisionalMessage: provisionalMessage, errorMessage: errorMessage) }
+        DispatchQueue.main.async { self.delegate?.didFailSendingAttachment?(provisionalMessage: self.provisionalMessage, errorMessage: errorMessage) }
     }
 
     func uploadSucceed(message: TransactionMessage) {
         uploading = false
-        DispatchQueue.main.async { delegate?.didSuccessSendingAttachment?(message: message, image: self.uploadedImage, provisionalMessageId: provisionalMessage?.id ?? -1) }
+        DispatchQueue.main.async { self.delegate?.didSuccessSendingAttachment?(message: message, image: self.uploadedImage, provisionalMessageId: self.provisionalMessage?.id ?? -1) }
     }
     
     func getThumbnailFromVideo(videoURL: URL) -> NSImage? {

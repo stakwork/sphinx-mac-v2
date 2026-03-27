@@ -271,11 +271,9 @@ extension ThreadsListDataSource : @preconcurrency NSFetchedResultsControllerDele
         
         threadsResultsController.delegate = self
         
-        CoreDataManager.sharedManager.persistentContainer.viewContext.performSafely {
-            do {
-                try self.threadsResultsController.performFetch()
-            } catch {}
-        }
+        do {
+            try threadsResultsController.performFetch()
+        } catch {}
     }
     
     func controller(

@@ -198,8 +198,8 @@ class FeedsManager : NSObject, @unchecked Sendable {
     
     func restoreFeedStatuses(
         from contentFeedStatuses: [ContentFeedStatus],
-        progressCallback: ((Int) -> ())? = nil,
-        completionCallback: (() -> ())? = nil
+        progressCallback: (@Sendable (Int) -> ())? = nil,
+        completionCallback: (@Sendable () -> ())? = nil
     ){
         
         if contentFeedStatuses.isEmpty {

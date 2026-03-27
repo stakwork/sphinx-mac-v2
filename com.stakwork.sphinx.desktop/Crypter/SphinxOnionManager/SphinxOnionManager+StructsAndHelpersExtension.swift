@@ -329,7 +329,7 @@ struct TribeMembersRRObject: Mappable {
 }
 
 
-class SentStatus: Mappable {
+class SentStatus: Mappable, @unchecked Sendable {
     var tag: String?
     var status: String?
     var preimage: String?

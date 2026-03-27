@@ -116,11 +116,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
             if let chat = chat {
                 let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-                var minIndex: Int? = nil
                 let itemsPerPage = 100
 
                 backgroundContext.performSafely {
-                    minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+                    let minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
 
                     if let minIndex = minIndex {
                         if (minIndex - 1) <= 0 {

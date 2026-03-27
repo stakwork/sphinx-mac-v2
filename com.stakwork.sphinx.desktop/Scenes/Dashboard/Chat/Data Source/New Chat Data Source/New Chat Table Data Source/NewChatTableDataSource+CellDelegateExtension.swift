@@ -498,7 +498,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         }
     }
     
-    func isImageURL(_ url: URL, completion: @escaping (Bool) -> Void) {
+    func isImageURL(_ url: URL, completion: @escaping @Sendable (Bool) -> Void) {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
 

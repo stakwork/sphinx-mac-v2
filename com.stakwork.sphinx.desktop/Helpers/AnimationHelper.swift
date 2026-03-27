@@ -13,11 +13,9 @@ class AnimationHelper {
         NSAnimationContext.runAnimationGroup({context in
             context.duration = duration
             context.allowsImplicitAnimation = true
-            animationsBlock()
+            MainActor.assumeIsolated { animationsBlock() }
         }, completionHandler: {
-            DispatchQueue.main.async {
-                completion?()
-            }
+            MainActor.assumeIsolated { completion?() }
         })
     }
 }
