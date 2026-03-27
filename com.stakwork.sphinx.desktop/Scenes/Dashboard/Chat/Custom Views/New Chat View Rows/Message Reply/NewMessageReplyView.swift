@@ -244,18 +244,18 @@ class NewMessageReplyView: NSView, LoadableNib {
         let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
         delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
         
-        // Safety fallback: after 2 seconds, check if mouse is still inside and collapse if not
-        let token = UUID()
-        expandToken = token
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            guard let self = self, self.expandToken == token, self.isMouseOver else { return }
-            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
-            let localPoint = self.convert(mouseLocation, from: nil)
-            if !self.bounds.contains(localPoint) {
-                self.isMouseOver = false
-                self.delegate?.onReplyViewMouseExit?()
-            }
-        }
+//        // Safety fallback: after 2 seconds, check if mouse is still inside and collapse if not
+//        let token = UUID()
+//        expandToken = token
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+//            guard let self = self, self.expandToken == token, self.isMouseOver else { return }
+//            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
+//            let localPoint = self.convert(mouseLocation, from: nil)
+//            if !self.bounds.contains(localPoint) {
+//                self.isMouseOver = false
+//                self.delegate?.onReplyViewMouseExit?()
+//            }
+//        }
     }
 
     override func mouseExited(with event: NSEvent) {
