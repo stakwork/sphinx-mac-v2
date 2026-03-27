@@ -75,7 +75,12 @@ class PaddedTextField: CCTextField {
         
         // Copy all properties from existing cell
         if let existingCell = cell as? NSTextFieldCell {
-            paddedCell.stringValue = existingCell.stringValue
+            // Must set allowsEditingTextAttributes before attributedStringValue
+            // so rich text attributes (links, formatting) are preserved correctly
+            paddedCell.allowsEditingTextAttributes = existingCell.allowsEditingTextAttributes
+            // Copy attributed string instead of plain stringValue to preserve
+            // link attributes, colors, underlines, etc.
+            paddedCell.attributedStringValue = existingCell.attributedStringValue
             paddedCell.font = existingCell.font
             paddedCell.alignment = existingCell.alignment
             paddedCell.textColor = existingCell.textColor
@@ -100,6 +105,18 @@ class PaddedTextField: CCTextField {
             paddedCell.padding = contentPadding
             invalidateIntrinsicContentSize()
             needsDisplay = true
+        }
+    }
+    
+    /// Override to ensure the cell's allowsEditingTextAttributes stays in sync.
+    /// This is essential for link tapping to work: when the cell is replaced by
+    /// setupPaddedCell() asynchronously, we need the PaddedTextFieldCell to
+    /// also reflect any later changes to this property.
+    override var allowsEditingTextAttributes: Bool {
+        get { return super.allowsEditingTextAttributes }
+        set {
+            super.allowsEditingTextAttributes = newValue
+            (cell as? PaddedTextFieldCell)?.allowsEditingTextAttributes = newValue
         }
     }
     
