@@ -280,16 +280,18 @@ class NewMessageReplyView: NSView, LoadableNib {
     
     private func scheduleCollapseCheckTimer() {
         collapseCheckTimer?.invalidate()
-        collapseCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
-            // Check if mouse is still actually inside the view bounds
-            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
-            let mouseInView = self.convert(mouseLocation, from: nil)
-            if !self.bounds.contains(mouseInView) && self.isMouseOver {
-                self.isMouseOver = false
-                self.trackingMouseOver = false
-                self.collapseCheckTimer = nil
-                self.delegate?.onReplyViewMouseExit?()
+        collapseCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                // Check if mouse is still actually inside the view bounds
+                let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
+                let mouseInView = self.convert(mouseLocation, from: nil)
+                if !self.bounds.contains(mouseInView) && self.isMouseOver {
+                    self.isMouseOver = false
+                    self.trackingMouseOver = false
+                    self.collapseCheckTimer = nil
+                    self.delegate?.onReplyViewMouseExit?()
+                }
             }
         }
     }
