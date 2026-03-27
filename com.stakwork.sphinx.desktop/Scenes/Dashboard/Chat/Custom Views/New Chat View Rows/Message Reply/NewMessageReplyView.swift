@@ -45,8 +45,7 @@ class NewMessageReplyView: NSView, LoadableNib {
     static let kViewLabelVerticalMargins: CGFloat = 34.0
     
     var isMouseOver: Bool = false
-    var trackingMouseOver: Bool = false
-    private var collapseCheckTimer: Timer?
+    private var expandToken: UUID = UUID()
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -231,69 +230,42 @@ class NewMessageReplyView: NSView, LoadableNib {
     override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
         
-        // Cancel any pending collapse check since mouse is back
-        collapseCheckTimer?.invalidate()
-        collapseCheckTimer = nil
+        guard !isMouseOver else { return }
+        isMouseOver = true
+
+        let expandedViewHeight = ChatHelper.getTextHeightFor(
+            text: messageLabel.stringValue,
+            width: self.messageLabel.frame.width,
+            font: messageLabel.font,
+            labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
+            labelHorizontalMargins: 0
+        )
+
+        let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
+        delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
         
-        if !isMouseOver {
-            trackingMouseOver = true
-
-            let expandedViewHeight = ChatHelper.getTextHeightFor(
-                text: messageLabel.stringValue,
-                width: self.messageLabel.frame.width,
-                font: messageLabel.font,
-                labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
-                labelHorizontalMargins: 0
-            )
-
-            let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
-            delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
-            isMouseOver = true
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-                self.trackingMouseOver = false
-            })
-            
-            // Safety timer: if expanded but mouse is no longer inside after 2s, collapse
-            scheduleCollapseCheckTimer()
+        // Safety fallback: after 2 seconds, check if mouse is still inside and collapse if not
+        let token = UUID()
+        expandToken = token
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self = self, self.expandToken == token, self.isMouseOver else { return }
+            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
+            let localPoint = self.convert(mouseLocation, from: nil)
+            if !self.bounds.contains(localPoint) {
+                self.isMouseOver = false
+                self.delegate?.onReplyViewMouseExit?()
+            }
         }
     }
 
     override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
         
-        // Always handle exit regardless of trackingMouseOver to avoid getting stuck expanded
-        if isMouseOver {
-            trackingMouseOver = true
-            isMouseOver = false
+        guard isMouseOver else { return }
+        isMouseOver = false
+        expandToken = UUID() // invalidate any pending safety check
 
-            delegate?.onReplyViewMouseExit?()
-            
-            collapseCheckTimer?.invalidate()
-            collapseCheckTimer = nil
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-                self.trackingMouseOver = false
-            })
-        }
-    }
-    
-    private func scheduleCollapseCheckTimer() {
-        collapseCheckTimer?.invalidate()
-        collapseCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-            Task { @MainActor [weak self] in
-                guard let self = self else { return }
-                // Check if mouse is still actually inside the view bounds
-                let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
-                let mouseInView = self.convert(mouseLocation, from: nil)
-                if !self.bounds.contains(mouseInView) && self.isMouseOver {
-                    self.isMouseOver = false
-                    self.trackingMouseOver = false
-                    self.collapseCheckTimer = nil
-                    self.delegate?.onReplyViewMouseExit?()
-                }
-            }
-        }
+        delegate?.onReplyViewMouseExit?()
     }
     
     @IBAction func replyButtonClicked(_ sender: Any) {
