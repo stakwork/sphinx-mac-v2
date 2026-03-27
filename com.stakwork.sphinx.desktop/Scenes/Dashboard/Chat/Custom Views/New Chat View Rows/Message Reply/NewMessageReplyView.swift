@@ -46,6 +46,7 @@ class NewMessageReplyView: NSView, LoadableNib {
     
     var isMouseOver: Bool = false
     var trackingMouseOver: Bool = false
+    private var collapseCheckTimer: Timer?
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -229,8 +230,12 @@ class NewMessageReplyView: NSView, LoadableNib {
 
     override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
-        if !isMouseOver && !trackingMouseOver {
-            
+        
+        // Cancel any pending collapse check since mouse is back
+        collapseCheckTimer?.invalidate()
+        collapseCheckTimer = nil
+        
+        if !isMouseOver {
             trackingMouseOver = true
 
             let expandedViewHeight = ChatHelper.getTextHeightFor(
@@ -248,20 +253,44 @@ class NewMessageReplyView: NSView, LoadableNib {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.trackingMouseOver = false
             })
+            
+            // Safety timer: if expanded but mouse is no longer inside after 2s, collapse
+            scheduleCollapseCheckTimer()
         }
     }
 
     override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
-        if isMouseOver && !trackingMouseOver {
-            
+        
+        // Always handle exit regardless of trackingMouseOver to avoid getting stuck expanded
+        if isMouseOver {
             trackingMouseOver = true
+            isMouseOver = false
 
             delegate?.onReplyViewMouseExit?()
+            
+            collapseCheckTimer?.invalidate()
+            collapseCheckTimer = nil
             
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.trackingMouseOver = false
             })
+        }
+    }
+    
+    private func scheduleCollapseCheckTimer() {
+        collapseCheckTimer?.invalidate()
+        collapseCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            // Check if mouse is still actually inside the view bounds
+            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
+            let mouseInView = self.convert(mouseLocation, from: nil)
+            if !self.bounds.contains(mouseInView) && self.isMouseOver {
+                self.isMouseOver = false
+                self.trackingMouseOver = false
+                self.collapseCheckTimer = nil
+                self.delegate?.onReplyViewMouseExit?()
+            }
         }
     }
     
