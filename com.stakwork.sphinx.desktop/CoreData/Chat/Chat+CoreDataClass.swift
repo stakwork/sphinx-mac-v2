@@ -686,8 +686,9 @@ public class Chat: NSManagedObject, @unchecked Sendable {
                     }
                     message.seen = true
                 } else {
-                    message.seen = false
-                    message.chat?.seen = false
+                    if !message.seen {
+                        message.chat?.seen = false
+                    }
                 }
             }
             try managedContext.save()
