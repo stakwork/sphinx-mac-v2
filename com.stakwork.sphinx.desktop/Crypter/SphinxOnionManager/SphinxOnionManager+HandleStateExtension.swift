@@ -549,7 +549,13 @@ extension SphinxOnionManager {
     }
     
     func handleTopicsToPush(topics: [String], payloads: [Data]) {
+        // Capture the current mqtt instance at schedule time.
+        // If a reconnect replaces self.mqtt before the delay fires,
+        // initialSetup will re-publish any pending messages from state,
+        // so we must skip this stale publish to avoid sending duplicates.
+        let scheduledMqtt = self.mqtt
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+            guard self.mqtt === scheduledMqtt else { return }
             for i in 0..<topics.count {
                 let _ = self.handleTopicToPush(
                     topic: topics[i],
@@ -595,7 +601,12 @@ extension SphinxOnionManager {
                 )
             )
             
+            // Capture mqtt at schedule time so we can skip the callback if a
+            // reconnect replaces self.mqtt before the delay fires — initialSetup
+            // on the new connection will re-publish any pending messages from state.
+            let scheduledMqtt = self.mqtt
             DelayPerformedHelper.performAfterDelay(seconds: 0.25, completion: {
+                guard self.mqtt === scheduledMqtt else { return }
                 callback(rr, skipAsyncTopic)
             })
             
