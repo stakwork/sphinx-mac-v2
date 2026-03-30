@@ -563,7 +563,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             )
             
             self.mqtt.subscribe([
-                (tribeMgmtTopic, CocoaMQTTQoS.qos1)
+                (tribeMgmtTopic, CocoaMQTTQoS.qos0)
             ])
         } catch {}
     }

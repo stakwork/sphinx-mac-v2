@@ -594,11 +594,14 @@ extension SphinxOnionManager {
         if let topic = rr.registerTopic, let payload = rr.registerPayload {
             let byteArray: [UInt8] = [UInt8](payload)
             
+            let message = CocoaMQTTMessage(
+                topic: topic,
+                payload: byteArray
+            )
+            message.qos = .qos0
+            
             self.mqtt?.publish(
-                CocoaMQTTMessage(
-                    topic: topic,
-                    payload: byteArray
-                )
+                message
             )
             
             // Capture mqtt at schedule time so we can skip the callback if a
@@ -618,7 +621,7 @@ extension SphinxOnionManager {
     func handleTopicsToSubscribe(topics: [String]) {
         for topic in topics {
             self.mqtt.subscribe([
-                (topic, CocoaMQTTQoS.qos1)
+                (topic, CocoaMQTTQoS.qos0)
             ])
         }
     }
