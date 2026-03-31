@@ -2150,6 +2150,26 @@ extension SphinxOnionManager {
         return objects.last?.id
     }
     
+    func getFetchMinDate(
+        fetchRequest: NSFetchRequest<TransactionMessage>,
+        count: Int,
+        context: NSManagedObjectContext
+    ) -> Date? {
+        var objects: [TransactionMessage] = [TransactionMessage]()
+        
+        do {
+            try objects = context.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Error: " + error.localizedDescription)
+        }
+        
+        if objects.count < count {
+            return nil
+        }
+        
+        return objects.last?.date as Date?
+    }
+    
     func batchDeleteOldMessagesInBackground(
         forChat chat: Chat,
         keepingLatest count: Int = 100
@@ -2166,15 +2186,15 @@ extension SphinxOnionManager {
                         with: count
                     )
 
-                    if let thresholdId = self.getFetchMinIndex(
+                    if let thresholdDate = self.getFetchMinDate(
                         fetchRequest: fetchRequest,
                         count: count,
                         context: backgroundContext
                     ) {
-                        print("🔍 Will delete messages with id < \(thresholdId) from chat \(chatId)")
+                        print("🔍 Will delete messages with date < \(thresholdDate) from chat \(chatId)")
 
                         let deleteRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND id < %d", chatId, thresholdId)
+                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND date < %@", chatId, thresholdDate as NSDate)
 
                         let batchDelete = NSBatchDeleteRequest(fetchRequest: deleteRequest as! NSFetchRequest<NSFetchRequestResult>)
                         batchDelete.resultType = .resultTypeCount
