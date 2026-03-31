@@ -10,7 +10,7 @@ import CoreData
 import SwiftyJSON
 
 @objc(ContentItem)
-public class ContentItem: NSManagedObject {
+public class ContentItem: NSManagedObject, @unchecked Sendable {
     
     enum ContentItemStatus: Int {
         case onQueue = 0

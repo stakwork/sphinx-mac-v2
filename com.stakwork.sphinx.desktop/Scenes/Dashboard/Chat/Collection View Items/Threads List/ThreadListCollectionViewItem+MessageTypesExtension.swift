@@ -259,26 +259,29 @@ extension ThreadListCollectionViewItem {
                 if let messageId = messageId, mediaData == nil {
                     let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        if messageMedia.isImage {
-                            self.delegate?.shouldLoadImageDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isPdf {
-                            self.delegate?.shouldLoadPdfDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isVideo {
-                            self.delegate?.shouldLoadVideoDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
-                        } else if messageMedia.isGiphy {
-                            self.delegate?.shouldLoadGiphyDataFor(
-                                messageId: messageId,
-                                and: self.rowIndex
-                            )
+                        Task { @MainActor [weak self] in
+                            guard let self = self else { return }
+                            if messageMedia.isImage {
+                                self.delegate?.shouldLoadImageDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isPdf {
+                                self.delegate?.shouldLoadPdfDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isVideo {
+                                self.delegate?.shouldLoadVideoDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            } else if messageMedia.isGiphy {
+                                self.delegate?.shouldLoadGiphyDataFor(
+                                    messageId: messageId,
+                                    and: self.rowIndex
+                                )
+                            }
                         }
                     }
                 }
@@ -302,10 +305,13 @@ extension ThreadListCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    Task { @MainActor [weak self] in
+                        guard let self = self else { return }
+                        self.delegate?.shouldLoadFileDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }
@@ -329,10 +335,13 @@ extension ThreadListCollectionViewItem {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor(
-                        messageId: messageId,
-                        and: self.rowIndex
-                    )
+                    Task { @MainActor [weak self] in
+                        guard let self = self else { return }
+                        self.delegate?.shouldLoadAudioDataFor(
+                            messageId: messageId,
+                            and: self.rowIndex
+                        )
+                    }
                 }
             }
         }

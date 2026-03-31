@@ -9,6 +9,7 @@
 import Cocoa
 import SDWebImage
 
+@MainActor
 protocol LinkPreviewDelegate: AnyObject {
     func didTapOnTribeButton()
     func didTapOnContactButton()

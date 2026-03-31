@@ -9,7 +9,7 @@
 import Cocoa
 
 class AlertHelper {
-    public static func showAlert(
+    @MainActor public static func showAlert(
         title: String,
         message: String,
         confirmLabel: String? = nil,
@@ -28,7 +28,7 @@ class AlertHelper {
         }
     }
     
-    public static func showTwoOptionsAlert(
+    @MainActor public static func showTwoOptionsAlert(
         title: String,
         message: String,
         confirm: (() -> ())? = nil,
@@ -54,7 +54,7 @@ class AlertHelper {
         }
     }
     
-    class func showOptionsPopup(
+    @MainActor class func showOptionsPopup(
         title: String,
         message: String,
         options: [String],
@@ -81,7 +81,7 @@ class AlertHelper {
         }
     }
     
-    class func showPromptAlert(
+    @MainActor class func showPromptAlert(
         title: String,
         message: String,
         textFieldText: String? = nil,

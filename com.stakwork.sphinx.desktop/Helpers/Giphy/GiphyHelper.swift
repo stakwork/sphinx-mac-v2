@@ -118,26 +118,28 @@ class GiphyHelper {
         return nil
     }
     
-    public static func getGiphyDataFrom(url: String, messageId: Int, cache: Bool = true, completion: @escaping (Data?, Int) -> ()) {
+    public static func getGiphyDataFrom(url: String, messageId: Int, cache: Bool = true, completion: @escaping @MainActor (Data?, Int) -> ()) {
         if cache {
             if let data = MediaLoader.getMediaDataFromCachedUrl(url: url) {
-                completion(data, messageId)
+                Task { @MainActor in completion(data, messageId) }
                 return
             }
         }
-        
+
         guard let url = URL(string: url) else {
-            completion(nil, messageId)
+            Task { @MainActor in completion(nil, messageId) }
             return
         }
         
         MediaLoader.loadDataFrom(URL: url, completion: { (data,_) in
             if cache { MediaLoader.storeMediaDataInCache(data: data, url: url.absoluteString) }
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 completion(data, messageId)
             }
         }, errorCompletion: {
-            completion(nil, messageId)
+            Task { @MainActor in
+                completion(nil, messageId)
+            }
         })
     }
     
@@ -154,7 +156,7 @@ class GiphyHelper {
         return nil
     }
     
-    func loadGiphyDataFrom(message: TransactionMessage, completion: @escaping (Data, Int) -> (), errorCompletion: @escaping (Int) -> ()) {
+    func loadGiphyDataFrom(message: TransactionMessage, completion: @escaping @MainActor (Data, Int) -> (), errorCompletion: @escaping @MainActor (Int) -> ()) {
         let messageId = message.id
         let messageContent = message.messageContent ?? ""
         
@@ -163,20 +165,18 @@ class GiphyHelper {
                 let mobileUrl = GiphyHelper.get200WidthURL(url: url)
                 
                 GiphyHelper.getGiphyDataFrom(url: mobileUrl, messageId: messageId, completion: { (data, messageId) in
-                    DispatchQueue.main.async {
-                        if let data = data {
-                            completion(data, messageId)
-                        } else {
-                           errorCompletion(messageId)
-                        }
+                    if let data = data {
+                        completion(data, messageId)
+                    } else {
+                        errorCompletion(messageId)
                     }
                 })
                 return
             }
-            errorCompletion(messageId)
+            Task { @MainActor in errorCompletion(messageId) }
         }
     }
-    
+
     func searchGifs(q: String? = nil,
                     page: Int = 0,
                     offset: Int = 0,

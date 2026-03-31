@@ -16,7 +16,7 @@ protocol SphinxOnionConnectorDelegate : AnyObject {
     func onionConnectionFailed()
 }
 
-class SphinxOnionConnector : NSObject {
+class SphinxOnionConnector: NSObject, @unchecked Sendable {
 
     weak var delegate: SphinxOnionConnectorDelegate?
 

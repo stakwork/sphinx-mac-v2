@@ -9,11 +9,13 @@
 import Cocoa
 import SwiftUI
 
-class WindowsManager {
-    
+@MainActor class WindowsManager: @unchecked Sendable {
+
+    nonisolated init() {}
+
     class var sharedInstance : WindowsManager {
         struct Static {
-            static let instance = WindowsManager()
+            nonisolated(unsafe) static let instance = WindowsManager()
         }
         return Static.instance
     }

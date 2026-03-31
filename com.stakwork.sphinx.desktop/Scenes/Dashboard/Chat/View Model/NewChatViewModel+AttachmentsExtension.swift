@@ -10,6 +10,7 @@ import Cocoa
 
 extension NewChatViewModel: AttachmentsManagerDelegate {
     
+    @MainActor
     func insertProvisionalAttachmentMessagesAndUpload(
         attachmentObjects: [AttachmentObject],
         chat: Chat?,
@@ -62,6 +63,7 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         resetReply()
     }
     
+    @MainActor
     func shouldReplaceMediaDataFor(provisionalMessageId: Int, and messageId: Int) {
         chatDataSource?.replaceMediaDataForMessageWith(
             provisionalMessageId: provisionalMessageId,
@@ -73,12 +75,21 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         provisionalMessage: TransactionMessage?
     ) {
         if let provisionalMessage = provisionalMessage {
+            let chat = provisionalMessage.chat
+            let isLastMessage = chat?.lastMessage?.id == provisionalMessage.id
+
             CoreDataManager.sharedManager.deleteObject(object: provisionalMessage)
-            
+
+            if isLastMessage, let chat = chat {
+                chat.lastMessage = chat.getLastMessageToShow()
+                chat.managedObjectContext?.saveContext()
+            }
+
             AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
         }
     }
     
+    @MainActor
     func didUpdateUploadProgress(
         progress: Int,
         provisionalMessageId: Int
@@ -108,8 +119,16 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
         errorMessage: String
     ) {
         if let provisionalMessage = provisionalMessage {
+            let chat = provisionalMessage.chat
+            let isLastMessage = chat?.lastMessage?.id == provisionalMessage.id
+
             CoreDataManager.sharedManager.deleteObject(object: provisionalMessage)
-            
+
+            if isLastMessage, let chat = chat {
+                chat.lastMessage = chat.getLastMessageToShow()
+                chat.managedObjectContext?.saveContext()
+            }
+
             AlertHelper.showAlert(title: "generic.error.title".localized, message: errorMessage)
         }
     }
@@ -139,7 +158,7 @@ extension NewChatViewModel {
         audioRecorderHelper.shouldCancelRecording()
     }
     
-    func didFinishRecording() {
+    @MainActor func didFinishRecording() {
         let audioData = audioRecorderHelper.getAudioDataAndDuration()
 
         if let data = audioData.0 {

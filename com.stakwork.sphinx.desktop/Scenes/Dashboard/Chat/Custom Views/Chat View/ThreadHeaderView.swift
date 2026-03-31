@@ -25,7 +25,7 @@ import Cocoa
     func shouldShowOptionsFor(messageId: Int, from button: NSButton)
 }
 
-class ThreadHeaderView: NSView, LoadableNib {
+class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate : ThreadHeaderViewDelegate? = nil
     
@@ -317,26 +317,28 @@ class ThreadHeaderView: NSView, LoadableNib {
                 if let messageId = messageId, mediaData == nil {
                     let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        if messageMedia.isImage {
-                            self.delegate?.shouldLoadImageDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isPdf {
-                            self.delegate?.shouldLoadPdfDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isVideo {
-                            self.delegate?.shouldLoadVideoDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isGiphy {
-                            self.delegate?.shouldLoadGiphyDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
+                        Task { @MainActor in
+                            if messageMedia.isImage {
+                                self.delegate?.shouldLoadImageDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isPdf {
+                                self.delegate?.shouldLoadPdfDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isVideo {
+                                self.delegate?.shouldLoadVideoDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isGiphy {
+                                self.delegate?.shouldLoadGiphyDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            }
                         }
                     }
                 }
@@ -360,10 +362,12 @@ class ThreadHeaderView: NSView, LoadableNib {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor?(
-                        messageId: messageId,
-                        and: NewChatTableDataSource.kThreadHeaderRowIndex
-                    )
+                    Task { @MainActor in
+                        self.delegate?.shouldLoadFileDataFor?(
+                            messageId: messageId,
+                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+                        )
+                    }
                 }
             }
         }
@@ -387,10 +391,12 @@ class ThreadHeaderView: NSView, LoadableNib {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor?(
-                        messageId: messageId,
-                        and: NewChatTableDataSource.kThreadHeaderRowIndex
-                    )
+                    Task { @MainActor in
+                        self.delegate?.shouldLoadAudioDataFor?(
+                            messageId: messageId,
+                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+                        )
+                    }
                 }
             }
         }
@@ -417,7 +423,7 @@ class ThreadHeaderView: NSView, LoadableNib {
     }
 }
 
-extension ThreadHeaderView : MediaMessageViewDelegate {
+extension ThreadHeaderView : @preconcurrency MediaMessageViewDelegate {
     func didTapMediaButton() {
         if let messageId = messageId {
             delegate?.didTapMediaButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
@@ -425,7 +431,7 @@ extension ThreadHeaderView : MediaMessageViewDelegate {
     }
 }
 
-extension ThreadHeaderView : FileInfoViewDelegate {
+extension ThreadHeaderView : @preconcurrency FileInfoViewDelegate {
     func didTouchDownloadButton() {
         if let messageId = messageId {
             delegate?.didTapFileDownloadButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
@@ -433,7 +439,7 @@ extension ThreadHeaderView : FileInfoViewDelegate {
     }
 }
 
-extension ThreadHeaderView : AudioMessageViewDelegate {
+extension ThreadHeaderView : @preconcurrency AudioMessageViewDelegate {
     func didTapPlayPauseButton() {
         if let messageId = messageId {
             delegate?.didTapPlayPauseButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)

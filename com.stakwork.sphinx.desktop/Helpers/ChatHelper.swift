@@ -72,7 +72,7 @@ class ChatHelper {
         return ranges
     }
 
-    func getHeightToSubstract(message: TransactionMessage) -> CGFloat {
+    @MainActor func getHeightToSubstract(message: TransactionMessage) -> CGFloat {
         let shouldRemoveHeader = message.consecutiveMessages.previousMessage && !message.isFailedOrMediaExpired()
         return shouldRemoveHeader ? Constants.kRowHeaderHeight : 0
     }
@@ -195,7 +195,7 @@ class ChatHelper {
         }
     }
     
-    public static func getThreadListRowHeightFor(
+    @MainActor public static func getThreadListRowHeightFor(
         _ tableCellState: ThreadTableCellState
     ) -> CGFloat {
         ///No Bubble message views
@@ -238,7 +238,7 @@ class ChatHelper {
         return textHeight + viewsHeight + kTopMargin + kBottomMargin
     }
     
-    public static func getThreadRowHeightFor(
+    @MainActor public static func getThreadRowHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
@@ -326,7 +326,7 @@ class ChatHelper {
         
     }
     
-    public static func getRowHeightFor(
+    @MainActor public static func getRowHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
@@ -408,7 +408,7 @@ class ChatHelper {
         return statusHeaderheight
     }
     
-    public static func getTextMessageHeightFor(
+    @MainActor public static func getTextMessageHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
@@ -496,7 +496,7 @@ class ChatHelper {
         return textHeight
     }
     
-    public static func getThreadOriginalTextMessageHeightFor(
+    @MainActor public static func getThreadOriginalTextMessageHeightFor(
         _ text: String?,
         collectionViewWidth: CGFloat,
         maxHeight: CGFloat? = nil,
@@ -549,7 +549,7 @@ class ChatHelper {
         return min(textHeight, maxHeight)
     }
     
-    public static func getAdditionalViewsHeightFor(
+    @MainActor public static func getAdditionalViewsHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol GiphySearchViewDelegate: AnyObject {
+@MainActor protocol GiphySearchViewDelegate: AnyObject {
     func didSelectGiphy(object: GiphyObject, data: Data)
 }
 

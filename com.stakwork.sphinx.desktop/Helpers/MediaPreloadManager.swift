@@ -11,7 +11,7 @@ import Cocoa
 
 /// Manages media preloading and tracks in-progress downloads to prevent duplicates.
 /// Downloads continue even when views are deallocated, ensuring images are cached.
-class MediaPreloadManager {
+class MediaPreloadManager: @unchecked Sendable {
 
     static let sharedInstance = MediaPreloadManager()
 
@@ -99,6 +99,7 @@ class MediaPreloadManager {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processImageData(
@@ -242,6 +243,7 @@ class MediaPreloadManager {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processVideoData(
@@ -382,6 +384,7 @@ class MediaPreloadManager {
 
         // Load from network
         MediaLoader.loadDataFrom(URL: url, completion: { [weak self] (data, fileName) in
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
             message.saveFileName(fileName)
 
             self?.processFileData(

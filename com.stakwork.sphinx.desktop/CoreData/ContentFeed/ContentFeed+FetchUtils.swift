@@ -89,14 +89,14 @@ extension ContentFeed {
         }
         
 
-        public static let followedFeeds: NSPredicate = {
+        public nonisolated(unsafe) static let followedFeeds: NSPredicate = {
             NSPredicate(
                 format: "subscribed == true OR chat != nil"
             )
         }()
         
         
-        public static let podcastFeeds: NSPredicate = {
+        public nonisolated(unsafe) static let podcastFeeds: NSPredicate = {
             let keyword = "=="
             let formatSpecifier = "%i"
 
@@ -107,7 +107,7 @@ extension ContentFeed {
             )
         }()
         
-        public static let videoFeeds: NSPredicate = {
+        public nonisolated(unsafe) static let videoFeeds: NSPredicate = {
             let keyword = "=="
             let formatSpecifier = "%i"
 
@@ -129,7 +129,7 @@ extension ContentFeed {
 
     public enum SortDescriptors {
 
-        public static let nameAscending: NSSortDescriptor = NSSortDescriptor(
+        public nonisolated(unsafe) static let nameAscending: NSSortDescriptor = NSSortDescriptor(
             key: #keyPath(ContentFeed.title),
             ascending: true,
 
@@ -142,7 +142,7 @@ extension ContentFeed {
         )
 
 
-        public static let nameDescending: NSSortDescriptor = {
+        public nonisolated(unsafe) static let nameDescending: NSSortDescriptor = {
             guard let descriptor = nameAscending.reversedSortDescriptor as? NSSortDescriptor else {
                 preconditionFailure("Unable to make reversed sort descriptor")
             }

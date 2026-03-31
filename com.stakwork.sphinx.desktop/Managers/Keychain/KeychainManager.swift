@@ -9,11 +9,11 @@
 import Foundation
 import KeychainAccess
 
-class KeychainManager {
+class KeychainManager: @unchecked Sendable {
     
     class var sharedInstance : KeychainManager {
         struct Static {
-            static let instance = KeychainManager()
+            nonisolated(unsafe) static let instance = KeychainManager()
         }
         return Static.instance
     }

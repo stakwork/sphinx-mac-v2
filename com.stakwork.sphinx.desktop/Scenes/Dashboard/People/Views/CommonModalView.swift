@@ -9,13 +9,15 @@
 import Cocoa
 import SwiftyJSON
 
+@MainActor
 protocol ModalViewDelegate: AnyObject {
     func shouldDismissModals()
 }
 
+@MainActor
 protocol ModalViewInterface: AnyObject {
     var isHidden: Bool { get set }
-    
+
     func modalWillShowWith(query: String, delegate: ModalViewDelegate)
     func modalDidShow()
     func didTapConfirmButton()

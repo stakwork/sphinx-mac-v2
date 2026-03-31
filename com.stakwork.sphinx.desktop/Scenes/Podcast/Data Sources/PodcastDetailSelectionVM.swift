@@ -10,6 +10,7 @@ import Foundation
 import Cocoa
 
 
+@MainActor
 class PodcastDetailSelectionVM : NSObject{
     
     weak var collectionView : NSCollectionView?

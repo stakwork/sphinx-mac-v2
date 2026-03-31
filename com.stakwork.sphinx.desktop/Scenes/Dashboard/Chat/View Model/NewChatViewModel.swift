@@ -8,7 +8,7 @@
 
 import Foundation
 
-class NewChatViewModel {
+@MainActor class NewChatViewModel {
     
     var chat: Chat?
     var contact: UserContact?
@@ -111,7 +111,7 @@ class NewChatViewModel {
         return possibleMentions
     }
     
-    func wasTimezoneNotSentRecently() -> Bool {
+    @MainActor func wasTimezoneNotSentRecently() -> Bool {
         return chatDataSource?.timezoneNotSentRecently ?? true
     }
     

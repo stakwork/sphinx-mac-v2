@@ -8,11 +8,13 @@
 
 import Cocoa
 
+@MainActor
 protocol AttachmentPreviewDataSourceDelegate: AnyObject {
     func shouldRemoveItemAt(index: Int?)
     func didClickAddAttachment()
 }
 
+@MainActor
 class AttachmentsPreviewDataSource : NSObject {
     var attachments : [AttachmentPreview] = [AttachmentPreview]()
     

@@ -481,7 +481,7 @@ struct MessageTableCellState {
         return BubbleMessageLayoutState.Audio(
             url: message.getMediaUrlFromMediaToken(),
             mediaKey: message.mediaKey,
-            bubbleWidth: CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth
+            bubbleWidth: 400
         )
     }()
     
@@ -621,7 +621,7 @@ struct MessageTableCellState {
             return nil
         }
         
-        let bubbleWidth: CGFloat = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
+        let bubbleWidth: CGFloat = 400
         
         return BubbleMessageLayoutState.ContactLink(
             pubkey: linkContact.pubkey,

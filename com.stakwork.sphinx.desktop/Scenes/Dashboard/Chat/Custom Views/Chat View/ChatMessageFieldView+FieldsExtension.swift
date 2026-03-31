@@ -60,6 +60,10 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func clearMessage() {
+        ChatTrackingHandler.shared.deleteOngoingMessage(
+            with: chat?.id,
+            threadUUID: threadUUID
+        )
         messageTextView.string = ""
         priceTextField.stringValue = ""
         textDidChange(Notification(name: NSControl.textDidChangeNotification))
@@ -78,18 +82,18 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         let string = messageTextView.string
         let cursorPosition = messageTextView.cursorPosition ?? 0
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        Task { @MainActor in
             ChatTrackingHandler.shared.saveOngoingMessage(
                 with: string,
                 chatId: self.chat?.id,
                 threadUUID: self.threadUUID
             )
-            
+
             self.processMention(
                 text: string,
                 cursorPosition: cursorPosition
             )
-            
+
             self.processMacro(
                 text: string,
                 cursorPosition: cursorPosition

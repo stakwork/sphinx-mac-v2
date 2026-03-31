@@ -53,8 +53,10 @@ class GraphListViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            DispatchQueue.main.async {
-                self?.updateHeaderTitle()
+            Task { @MainActor [weak self] in
+                DispatchQueue.main.async {
+                    self?.updateHeaderTitle()
+                }
             }
         }
     }
@@ -467,7 +469,7 @@ extension GraphListViewController : NSCollectionViewDelegate {
     }
 }
 
-extension GraphListViewController : NSFetchedResultsControllerDelegate {
+extension GraphListViewController : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

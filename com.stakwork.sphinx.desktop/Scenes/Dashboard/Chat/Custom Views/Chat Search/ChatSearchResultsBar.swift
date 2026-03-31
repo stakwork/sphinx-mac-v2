@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChatSearchResultsBarDelegate : AnyObject {
     func didTapNavigateArrowButton(button: ChatSearchResultsBar.NavigateArrowButton)
 }

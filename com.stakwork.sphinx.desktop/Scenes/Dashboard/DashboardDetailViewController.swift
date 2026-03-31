@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+@MainActor
 protocol DashboardDetailDismissDelegate: AnyObject {
     func closeButtonTapped()
 }

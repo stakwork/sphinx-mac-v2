@@ -27,6 +27,8 @@
 		470708A024AE65D600A98DCA /* ChatChatListExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4707089F24AE65D600A98DCA /* ChatChatListExtension.swift */; };
 		470708A224AF939C00A98DCA /* MessageTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470708A124AF939C00A98DCA /* MessageTextField.swift */; };
 		470708A624B36C8A00A98DCA /* MetaDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470708A524B36C8900A98DCA /* MetaDataCache.swift */; };
+		47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF22F76E7B200DFA990 /* AnthropicProvider */; };
+		47088CF52F76E7B200DFA990 /* OpenAIProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF42F76E7B200DFA990 /* OpenAIProvider */; };
 		4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FA2A55A31700274AD4 /* ChatsSegmentedControl.swift */; };
 		4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FC2A55BA7200274AD4 /* NewChatListViewController.swift */; };
 		4708C1FF2A55BCE300274AD4 /* UserContactsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FE2A55BCE300274AD4 /* UserContactsHelper.swift */; };
@@ -642,8 +644,6 @@
 		47F8825F25656CB0002A7E71 /* SocketAckEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F8824625656CB0002A7E71 /* SocketAckEmitter.swift */; };
 		47FB5F3E2BDC1A2B001B762B /* NewMenuListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47FB5F402BDC1A2B001B762B /* NewMenuListView.xib */; };
 		47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */ = {isa = PBXBuildFile; productRef = 47FCE2B62CD8FABC005DB8AF /* LiveKit */; };
-		AA1A2B3C4D5E6F7A8B9C0D1E /* SwiftAISDK in Frameworks */ = {isa = PBXBuildFile; productRef = AA1A2B3C4D5E6F7A8B9C0D1F /* SwiftAISDK */; };
-		AA1A2B3C4D5E6F7A8B9C0D2E /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = AA1A2B3C4D5E6F7A8B9C0D2F /* AnthropicProvider */; };
 		47FEE1EF2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */; };
 		47FEE1F12A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */; };
 		47FEE1F42A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */; };
@@ -1791,15 +1791,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				473873B22CD9507500CBBC28 /* ReplayKit.framework in Frameworks */,
+				47088CF52F76E7B200DFA990 /* OpenAIProvider in Frameworks */,
 				47543C552A9517BC003F8DEE /* universal-sphinxrs-mac.a in Frameworks */,
 				4730EF5B2CDBCF800014581F /* KeychainAccess in Frameworks */,
 				4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */,
 				47D03DE7250FC8B90077A968 /* PDFKit.framework in Frameworks */,
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
 				479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */,
+				47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */,
 				47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */,
-				AA1A2B3C4D5E6F7A8B9C0D1E /* SwiftAISDK in Frameworks */,
-				AA1A2B3C4D5E6F7A8B9C0D2E /* AnthropicProvider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4064,8 +4064,8 @@
 				4730EF5A2CDBCF800014581F /* KeychainAccess */,
 				4730EF5D2CDBCF8C0014581F /* SFSafeSymbols */,
 				479B19302EC369B800A5B9E2 /* AWSS3 */,
-				AA1A2B3C4D5E6F7A8B9C0D1F /* SwiftAISDK */,
-				AA1A2B3C4D5E6F7A8B9C0D2F /* AnthropicProvider */,
+				47088CF22F76E7B200DFA990 /* AnthropicProvider */,
+				47088CF42F76E7B200DFA990 /* OpenAIProvider */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -4151,7 +4151,7 @@
 				4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
-				AA1A2B3C4D5E6F7A8B9C0D3F /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
+				47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
 			projectDirPath = "";
@@ -4362,6 +4362,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
 			shellScript = "
 ";
 		};
@@ -4395,9 +4396,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5646,7 +5651,7 @@
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -5703,7 +5708,7 @@
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -5718,7 +5723,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 237;
+				CURRENT_PROJECT_VERSION = 240;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5740,7 +5745,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/com.stakwork.sphinx.desktop/Crypter/Sphinxrs-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -5755,7 +5760,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 237;
+				CURRENT_PROJECT_VERSION = 240;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -5776,7 +5781,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/com.stakwork.sphinx.desktop/Crypter/Sphinxrs-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -5799,7 +5804,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sphinx.app/Contents/MacOS/sphinx";
 			};
 			name = Debug;
@@ -5823,7 +5828,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sphinx.app/Contents/MacOS/sphinx";
 			};
 			name = Release;
@@ -5846,7 +5851,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_TARGET_NAME = Sphinx;
 			};
 			name = Debug;
@@ -5868,7 +5873,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.gl.SphinxUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_TARGET_NAME = Sphinx;
 			};
 			name = Release;
@@ -5915,6 +5920,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/teunlao/swift-ai-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.17.5;
+			};
+		};
 		4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
@@ -5947,17 +5960,19 @@
 				version = 2.8.1;
 			};
 		};
-		AA1A2B3C4D5E6F7A8B9C0D3F /* XCRemoteSwiftPackageReference "swift-ai-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/teunlao/swift-ai-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.17.2;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		47088CF22F76E7B200DFA990 /* AnthropicProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = AnthropicProvider;
+		};
+		47088CF42F76E7B200DFA990 /* OpenAIProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = OpenAIProvider;
+		};
 		4730EF5A2CDBCF800014581F /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4730EF592CDBCF800014581F /* XCRemoteSwiftPackageReference "KeychainAccess" */;
@@ -5977,16 +5992,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */;
 			productName = LiveKit;
-		};
-		AA1A2B3C4D5E6F7A8B9C0D1F /* SwiftAISDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AA1A2B3C4D5E6F7A8B9C0D3F /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
-			productName = SwiftAISDK;
-		};
-		AA1A2B3C4D5E6F7A8B9C0D2F /* AnthropicProvider */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AA1A2B3C4D5E6F7A8B9C0D3F /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
-			productName = AnthropicProvider;
 		};
 /* End XCSwiftPackageProductDependency section */
 

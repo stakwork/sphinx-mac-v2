@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol PodcastEpisodeCollectionViewItemDelegate: NSObject {
     func episodeShareTapped(episode: PodcastEpisode)
     func episodePlayTapped(episode: PodcastEpisode)

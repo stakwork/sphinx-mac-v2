@@ -9,7 +9,7 @@
 import Cocoa
 import SwiftyJSON
 
-@objc protocol WelcomeEmptyViewDelegate: AnyObject {
+@MainActor @objc protocol WelcomeEmptyViewDelegate: AnyObject {
     @objc optional func shouldContinueTo(mode: Int)
     @objc optional func shouldGoToDashboard()
 }
@@ -138,7 +138,7 @@ extension WelcomeEmptyViewController : WelcomeEmptyViewDelegate {
     }
 }
 
-extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
+extension WelcomeEmptyViewController : @preconcurrency NSFetchedResultsControllerDelegate {
     private func listenForSelfContactRegistration() {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
 
@@ -184,16 +184,15 @@ extension WelcomeEmptyViewController : NSFetchedResultsControllerDelegate {
     private func setupTimeoutTimer() {
         timeoutTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { [weak self] _ in
             guard let self = self else { return }
-            
-            if self.selfContactFetchListener?.fetchedObjects?.first == nil {
-                DispatchQueue.main.async {
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                if self.selfContactFetchListener?.fetchedObjects?.first == nil {
                     self.timeoutTimer?.invalidate()
                     self.timeoutTimer = nil
-
                     self.shouldGoBack()
+                } else {
+                    self.finalizeSignup()
                 }
-            } else {
-                self.finalizeSignup()
             }
         }
     }

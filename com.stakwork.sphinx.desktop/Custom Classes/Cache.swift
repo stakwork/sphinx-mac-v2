@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class SphinxCache {
+final class SphinxCache: @unchecked Sendable {
     func insert(_ value: Data, forKey key: String) {
         let _ = saveToDisk(value, forKey: key)
     }

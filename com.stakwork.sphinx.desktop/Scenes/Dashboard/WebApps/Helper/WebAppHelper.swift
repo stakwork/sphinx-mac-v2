@@ -11,6 +11,7 @@ import WebKit
 import SwiftyJSON
 import ObjectMapper
 
+@MainActor
 protocol WebAppHelperDelegate : NSObject{
     func setBudget(budget:Int)
 }
@@ -48,7 +49,7 @@ struct LSatInProgress {
     }
 }
 
-class WebAppHelper : NSObject {
+@MainActor class WebAppHelper : NSObject {
     
     public let messageHandler = "sphinx"
     
@@ -484,7 +485,9 @@ extension WebAppHelper : WKScriptMessageHandler {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handlePaidInvoiceNotification(n: n)
+            Task { @MainActor [weak self] in
+                self?.handlePaidInvoiceNotification(n: n)
+            }
         }
         
         startLsatTimer()

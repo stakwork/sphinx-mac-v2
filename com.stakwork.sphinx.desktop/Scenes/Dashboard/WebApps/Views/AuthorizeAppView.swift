@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol AuthorizeAppViewDelegate: AnyObject {
     func shouldAuthorizeWith(
         dict: [String: AnyObject]

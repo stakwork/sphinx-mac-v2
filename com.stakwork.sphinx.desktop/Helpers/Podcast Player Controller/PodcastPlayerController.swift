@@ -9,6 +9,7 @@
 import Foundation
 import AVKit
 
+@MainActor
 protocol PlayerDelegate : NSObject  {
     func loadingState(_ podcastData: PodcastData)
     func playingState(_ podcastData: PodcastData)
@@ -43,6 +44,7 @@ let sounds = [
     "skip30v4.caf"
 ]
 
+@MainActor
 class PodcastPlayerController: NSObject {
     
     var delegates = [String : PlayerDelegate]()
@@ -76,22 +78,14 @@ class PodcastPlayerController: NSObject {
         }
     }
     
-    class var sharedInstance : PodcastPlayerController {
-        
-        struct Static {
-            static let instance = PodcastPlayerController()
-        }
-        
-        return Static.instance
-    }
+    nonisolated(unsafe) static let sharedInstance: PodcastPlayerController = MainActor.assumeIsolated { PodcastPlayerController() }
     
     let dispatchSemaphore = DispatchSemaphore(value: 1)
     
     override init() {
         super.init()
         
-        let dispatchQueue = DispatchQueue.global(qos: .background)
-        dispatchQueue.async {
+        Task { @MainActor in
             self.preloadAll()
         }
     }
@@ -105,7 +99,7 @@ class PodcastPlayerController: NSObject {
         }
     }
     
-    func getPodcastFrom(podcastData: PodcastData?) -> PodcastFeed? {
+    @MainActor func getPodcastFrom(podcastData: PodcastData?) -> PodcastFeed? {
         if let contentFeed = ContentFeed.getFeedById(feedId: podcastData?.podcastId ?? "") {
             return PodcastFeed.convertFrom(contentFeed: contentFeed)
         }

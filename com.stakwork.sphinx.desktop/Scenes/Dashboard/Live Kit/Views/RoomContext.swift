@@ -18,14 +18,14 @@ import LiveKit
 import SwiftUI
 import AVFoundation
 
-protocol RoomContextDelegate: AnyObject {
+@MainActor protocol RoomContextDelegate: AnyObject {
     func createControlsPanel()
     func presentCallControlWindowWith(roomCtx: RoomContext)
     func hideCallControlWindow(forceClose: Bool)
 }
 
 // This class contains the logic to control behavior of the whole app.
-final class RoomContext: NSObject, ObservableObject {
+final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     
     weak var delegate: RoomContextDelegate?
     
@@ -138,7 +138,7 @@ final class RoomContext: NSObject, ObservableObject {
     }
     
 
-    public init(
+    @MainActor public init(
         store: ValueStore<Preferences>,
         delegate: RoomContextDelegate
     ) {
@@ -297,8 +297,8 @@ final class RoomContext: NSObject, ObservableObject {
         @available(macOS 12.3, *)
         func setScreenShareMacOS(isEnabled: Bool, screenShareSource: MacOSScreenCaptureSource? = nil) async throws {
             if isEnabled, let screenShareSource {
-                let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
-                
+                let windowsToExcludeIds = await WindowsManager.sharedInstance.getWindowsToExclude()
+
                 let track = LocalVideoTrack.createMacOSScreenShareTrack(
                     source: screenShareSource,
                     options: ScreenShareCaptureOptions(

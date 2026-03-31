@@ -9,7 +9,7 @@
 import Cocoa
 import WebKit
 
-protocol NewChatViewControllerDelegate: AnyObject {
+@MainActor protocol NewChatViewControllerDelegate: AnyObject {
     func shouldResetOngoingMessage()
     func shouldCloseThread()
 }
@@ -151,17 +151,21 @@ class NewChatViewController: DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handleImagePaste()
+            Task { @MainActor [weak self] in
+                self?.handleImagePaste()
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            guard let self = self, !self.isThread else { return }
-            if self.chatCollectionView.isAtBottom() {
-                self.chat?.setChatMessagesAsSeen()
+            Task { @MainActor [weak self] in
+                guard let self = self, !self.isThread else { return }
+                if self.chatCollectionView.isAtBottom() {
+                    self.chat?.setChatMessagesAsSeen()
+                }
             }
         }
     }
@@ -473,11 +477,14 @@ class NewChatViewController: DashboardSplittedViewController {
     func updateEmptyView() {
         if shouldShowPendingChat {
             setupPendingChatPlaceholder()
-        } else if chat?.lastMessage == nil {
-            setupEmptyChatPlaceholder()
         } else {
-            chatEmptyAvatarPlaceholderView.isHidden = true
-            chatBottomView.isHidden = false
+            chat?.updateLastMessage()
+            if chat?.lastMessage == nil {
+                setupEmptyChatPlaceholder()
+            } else {
+                chatEmptyAvatarPlaceholderView.isHidden = true
+                chatBottomView.isHidden = false
+            }
         }
     }
 }

@@ -9,7 +9,7 @@
 import Cocoa
 import SDWebImage
 
-protocol ChatHeaderViewDelegate : AnyObject {
+@MainActor protocol ChatHeaderViewDelegate : AnyObject {
     func didClickThreadsButton()
     func didClickWebAppButton()
     func didClickMuteButton()

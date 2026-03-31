@@ -404,11 +404,11 @@ class ProfileViewController: NSViewController {
     }
     
     @IBAction func setupSignerButtonClicked(_ sender: Any) {
-        CrypterManager.sharedInstance.startSetup()
+//        CrypterManager.sharedInstance.startSetup()
     }
     
     @IBAction func disconnectMQTTButtonClicked(_ sender: Any) {
-        CrypterManager.sharedInstance.resetMQTTConnection()
+//        CrypterManager.sharedInstance.resetMQTTConnection()
     }
     
     @IBAction func setupPersonalGraphButtonClicked(_ sender: Any) {

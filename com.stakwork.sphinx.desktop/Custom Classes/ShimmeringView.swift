@@ -9,18 +9,19 @@
 import Cocoa
 
 class ShimmeringView: NSView {
-    private var shimmerLayer: CALayer!
+    nonisolated(unsafe) private var shimmerLayer: CALayer!
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        MainActor.assumeIsolated {
+            // Create a shimmering layer and add it as a sublayer
+            shimmerLayer = CALayer()
+            shimmerLayer.backgroundColor = NSColor.lightGray.cgColor // Set the shimmer color
+            layer?.addSublayer(shimmerLayer)
 
-        // Create a shimmering layer and add it as a sublayer
-        shimmerLayer = CALayer()
-        shimmerLayer.backgroundColor = NSColor.lightGray.cgColor // Set the shimmer color
-        layer?.addSublayer(shimmerLayer)
-
-        // Start the shimmering animation
-        startShimmerAnimation()
+            // Start the shimmering animation
+            startShimmerAnimation()
+        }
     }
 
     override func layout() {

@@ -9,15 +9,13 @@
 import Cocoa
 
 class AnimationHelper {
-    public static func animateViewWith(duration: TimeInterval, animationsBlock: @escaping () -> (), completion: (() -> ())? = nil) {
+    public static func animateViewWith(duration: TimeInterval, animationsBlock: @escaping @MainActor () -> (), completion: (@MainActor () -> ())? = nil) {
         NSAnimationContext.runAnimationGroup({context in
             context.duration = duration
             context.allowsImplicitAnimation = true
-            animationsBlock()
+            MainActor.assumeIsolated { animationsBlock() }
         }, completionHandler: {
-            DispatchQueue.main.async {
-                completion?()
-            }
+            MainActor.assumeIsolated { completion?() }
         })
     }
 }

@@ -39,7 +39,9 @@ class NewPodcastPlayerViewController: NSViewController {
             object: playerCollectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.newEpisodeView?.hideView()
+            Task { @MainActor [weak self] in
+                self?.newEpisodeView?.hideView()
+            }
         }
     }
     

@@ -8,13 +8,14 @@
 
 import Cocoa
 
+@MainActor
 protocol JoinCallViewDelegate: AnyObject {
     func didTapCopyLink()
     func didTapAudioButton()
     func didTapVideoButton()
 }
 
-class JoinVideoCallView: NSView, LoadableNib {
+class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate: JoinCallViewDelegate?
     

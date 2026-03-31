@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-class UserData {
+class UserData: @unchecked Sendable {
     
     class var sharedInstance : UserData {
         struct Static {
@@ -75,10 +75,12 @@ class UserData {
         return false
     }
     
+    @MainActor
     func getPINNeverOverride() -> Bool{
         return self.getPINHours() == Constants.kMaxPinTimeoutValue
     }
-    
+
+    @MainActor
     func getPINHours() -> Int {
         return UserDefaults.Keys.pinHours.get(defaultValue: Constants.kMaxPinTimeoutValue)
     }
@@ -258,6 +260,7 @@ class UserData {
         return nil
     }
     
+    @MainActor
     func clearData() {
         CoreDataManager.sharedManager.clearCoreDataStore()
         UserData.sharedInstance.resetSignup()

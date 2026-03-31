@@ -11,6 +11,7 @@ import AVFoundation
 import AVKit
 import Carbon.HIToolbox
 
+@MainActor
 protocol MediaFullScreenDelegate: AnyObject {
     func willDismissView()
 }

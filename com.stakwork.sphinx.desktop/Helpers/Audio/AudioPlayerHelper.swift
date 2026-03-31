@@ -9,6 +9,7 @@
 import Cocoa
 import AVFoundation
 
+@MainActor
 class AudioPlayerHelper : NSObject {
     
     var currentTime : TimeInterval = 0

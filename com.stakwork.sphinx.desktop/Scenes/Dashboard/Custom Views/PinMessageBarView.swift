@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol PinnedMessageViewDelegate: AnyObject {
     func didTapUnpinButtonFor(messageId: Int)
     func didTapPinBarViewFor(messageId: Int)

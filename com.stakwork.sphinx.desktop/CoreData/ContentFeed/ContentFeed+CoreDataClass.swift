@@ -9,7 +9,7 @@ import CoreData
 import SwiftyJSON
 
 @objc(ContentFeed)
-public class ContentFeed: NSManagedObject {
+public class ContentFeed: NSManagedObject, @unchecked Sendable {
     
     public static func createObjectFrom(
         json: JSON,
@@ -104,6 +104,7 @@ public class ContentFeed: NSManagedObject {
         managedObjectContext?.saveContext()
     }
     
+    @MainActor
     public static func fetchChatFeedContentInBackground(
         feedUrl: String,
         chatId: Int,
@@ -141,7 +142,6 @@ public class ContentFeed: NSManagedObject {
         API.sharedInstance.getContentFeed(
             url: tribesServerURL,
             callback: { feedJSON in
-                
                 if let contentFeed = ContentFeed.createObjectFrom(
                     json: feedJSON,
                     searchResultDescription: searchResultDescription,
@@ -169,6 +169,7 @@ public class ContentFeed: NSManagedObject {
         return imageURL?.absoluteString ?? chat?.photoUrl ?? itemsArray.first?.imageURL?.absoluteString
     }
     
+    @MainActor
     public static func fetchFeedItems(
         feedUrl: String,
         feedId: String,

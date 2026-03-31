@@ -9,7 +9,7 @@
 import Cocoa
 import SDWebImage
 
-protocol ChatListCollectionViewItemDelegate : NSObject {
+@MainActor protocol ChatListCollectionViewItemDelegate : NSObject {
     func didRightClickOn(item: NSCollectionViewItem)
 }
 

@@ -9,10 +9,12 @@
 import Foundation
 import AppKit
 
+@MainActor
 protocol NewMenuItemDataSourceDelegate: AnyObject {
     func itemSelected(at index: Int)
 }
 
+@MainActor
 class NewMenuItemDataSource : NSObject {
     
     weak var delegate: NewMenuItemDataSourceDelegate?
@@ -28,11 +30,11 @@ class NewMenuItemDataSource : NSObject {
         configureCollectionView()
     }
     
-    func updateFrame() {
+    @MainActor func updateFrame() {
         self.collectionView.collectionViewLayout?.invalidateLayout()
     }
     
-    func configureCollectionView() {
+    @MainActor func configureCollectionView() {
         let flowLayout = NSCollectionViewFlowLayout()
         flowLayout.sectionInset = NSEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
         flowLayout.minimumInteritemSpacing = 0.0
@@ -41,7 +43,7 @@ class NewMenuItemDataSource : NSObject {
         collectionView.collectionViewLayout = flowLayout
     }
     
-    func setDataAndReload(objects: [NewMenuItem]) {
+    @MainActor func setDataAndReload(objects: [NewMenuItem]) {
         self.objects.append(contentsOf: objects)
         self.collectionView.allowsMultipleSelection = false
         self.collectionView.dataSource = self

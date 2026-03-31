@@ -8,11 +8,11 @@
 
 import Cocoa
 
-protocol DraggingViewDelegate: AnyObject {
+@MainActor protocol DraggingViewDelegate: AnyObject {
     func imageDragged(image: NSImage)
 }
 
-@objc protocol ChatDraggingViewDelegate: AnyObject {
+@MainActor @objc protocol ChatDraggingViewDelegate: AnyObject {
     @objc func attachmentAdded(url: URL?, data: Data, image: NSImage?)
     @objc optional func imageDismissed()
 }

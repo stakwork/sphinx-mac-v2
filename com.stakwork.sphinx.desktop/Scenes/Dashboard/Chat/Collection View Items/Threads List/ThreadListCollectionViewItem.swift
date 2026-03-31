@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ThreadListTableViewCellDelegate: AnyObject {
     func shouldLoadImageDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadPdfDataFor(messageId: Int, and rowIndex: Int)
