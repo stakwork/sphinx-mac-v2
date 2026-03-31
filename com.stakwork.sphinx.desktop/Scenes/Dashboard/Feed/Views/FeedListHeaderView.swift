@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol FeedListHeaderViewDelegate: AnyObject {
     func didClickRefreshButton(completion: @escaping () -> ())
 }

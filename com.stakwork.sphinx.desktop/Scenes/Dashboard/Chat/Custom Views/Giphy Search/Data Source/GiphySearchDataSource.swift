@@ -8,11 +8,13 @@
 
 import Cocoa
 
+@MainActor
 protocol GiphySearchDataSourceDelegate: AnyObject {
     func didSelectGiphy(object: GiphyObject, data: Data)
     func shouldAddObjects(type: GiphyHelper.SearchType, page: Int)
 }
 
+@MainActor
 class GiphySearchDataSource : NSObject {
     
     weak var delegate: GiphySearchDataSourceDelegate?
@@ -50,7 +52,9 @@ class GiphySearchDataSource : NSObject {
             object: collectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.scrollViewDidScroll()
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
         }
     }
     

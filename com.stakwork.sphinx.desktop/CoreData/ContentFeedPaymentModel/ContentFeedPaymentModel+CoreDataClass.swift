@@ -33,5 +33,5 @@ public class ContentFeedPaymentModel: NSManagedObject {
         return paymentModel
     }
     
-    var suggestedSats: Int { Int(round(suggestedBTC * Double(Constants.satoshisInBTC))) }
+    @MainActor var suggestedSats: Int { Int(round(suggestedBTC * Double(Constants.satoshisInBTC))) }
 }

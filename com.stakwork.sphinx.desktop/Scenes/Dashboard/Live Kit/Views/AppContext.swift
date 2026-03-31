@@ -19,6 +19,7 @@ import LiveKit
 import SwiftUI
 
 // This class contains the logic to control behavior of the whole app.
+@MainActor
 final class AppContext: ObservableObject {
     private let store: ValueStore<Preferences>
 
@@ -97,14 +98,15 @@ final class AppContext: ObservableObject {
         videoViewMirrored = store.value.videoViewMirrored
         connectionHistory = store.value.connectionHistory
 
-        AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
-            guard let self else { return }
-            print("devices did update")
-            // force UI update for outputDevice / inputDevice
-            Task.detached { @MainActor [weak self] in
+        AudioManager.shared.onDeviceUpdate = { audioManager in
+            let outputId = audioManager.outputDevice.deviceId
+            let inputId = audioManager.inputDevice.deviceId
+            Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.outputDevice = audioManager.outputDevice
-                self.inputDevice = audioManager.inputDevice
+                self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
+                    ?? AudioManager.shared.defaultOutputDevice
+                self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
+                    ?? AudioManager.shared.defaultInputDevice
             }
         }
     }

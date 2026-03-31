@@ -21,7 +21,7 @@ import SDWebImageSwiftUI
 import AVFoundation
 
 let adaptiveMin = 300.0
-let toolbarPlacement: ToolbarItemPlacement = .primaryAction
+nonisolated(unsafe) let toolbarPlacement: ToolbarItemPlacement = .primaryAction
 
 extension CIImage {
     // helper to create a `CIImage` for both platforms
@@ -31,6 +31,7 @@ extension CIImage {
 }
 
 // keeps weak reference to NSWindow
+@MainActor
 class WindowAccess: ObservableObject {
     private weak var window: NSWindow?
 
@@ -1222,11 +1223,7 @@ struct RoomView: View {
         }
     }
     
-    struct ScreenSharePopoverView: View, Equatable {
-        static func == (lhs: RoomView.ScreenSharePopoverView, rhs: RoomView.ScreenSharePopoverView) -> Bool {
-            return lhs.screenPickerPresented == rhs.screenPickerPresented
-        }
-
+    struct ScreenSharePopoverView: View {
         @Binding var screenPickerPresented: Bool
         var onSelect: (MacOSScreenCaptureSource) -> Void
 

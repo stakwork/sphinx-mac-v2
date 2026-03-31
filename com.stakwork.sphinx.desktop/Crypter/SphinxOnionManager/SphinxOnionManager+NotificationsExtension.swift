@@ -11,45 +11,43 @@ import AppKit
 
 extension SphinxOnionManager {
     func sendNotification(message: TransactionMessage?) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            guard let message = message else {
-                return
-            }
-            
+        guard let messageId = message?.id else { return }
+
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+
+            guard let message = TransactionMessage.getMessageWith(id: messageId) else { return }
+
             self.setAppBadgeCount()
-            
+
             if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-                
+
                 if message.isOutgoing() || message.shouldAvoidShowingBubble() {
                     return
                 }
-                
+
                 guard let chat = message.chat else {
                     return
                 }
-                
+
                 if chat.isMuted() {
                     return
                 }
-                
+
                 if chat.willNotifyOnlyMentions() && !message.push {
                     return
                 }
-                
+
                 if chat.willNotifyOnlyMentions() {
                     if !message.containsMention() {
                         return
                     }
                 }
-                
+
                 if let tribePubKey = chat.ownerPubkey, self.recentlyJoinedTribePubKeys.contains(tribePubKey) {
                     return
                 }
-                
+
                 appDelegate.sendNotification(message: message)
             }
         }

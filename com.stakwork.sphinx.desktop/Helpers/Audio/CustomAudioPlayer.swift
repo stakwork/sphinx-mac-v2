@@ -9,17 +9,18 @@
 import Foundation
 import AVFoundation
 
+@MainActor
 protocol CustomAudioPlayerDelegate: AnyObject {
     func audioDidFinishPlaying()
 }
 
-class CustomAudioPlayer : NSObject {
+class CustomAudioPlayer : NSObject, @unchecked Sendable {
     
     weak var delegate: CustomAudioPlayerDelegate?
 
     class var sharedInstance : CustomAudioPlayer {
         struct Static {
-            static let instance = CustomAudioPlayer()
+            nonisolated(unsafe) static let instance = CustomAudioPlayer()
         }
         return Static.instance
     }
@@ -85,7 +86,9 @@ class CustomAudioPlayer : NSObject {
 extension CustomAudioPlayer  : AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
-            delegate?.audioDidFinishPlaying()
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.audioDidFinishPlaying()
+            }
         }
     }
 

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class ChatMessageFieldView: NSView, LoadableNib {
+class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate: ChatBottomViewDelegate?
 

@@ -8,10 +8,12 @@
 
 import Cocoa
 
+@MainActor
 protocol TransactionsDataSourceDelegate: AnyObject {
     func shouldLoadMoreTransactions()
 }
 
+@MainActor
 class TransactionsDataSource : NSObject {
     
     weak var delegate: TransactionsDataSourceDelegate?
@@ -47,7 +49,9 @@ class TransactionsDataSource : NSObject {
             object: collectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.scrollViewDidScroll()
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
         }
     }
     

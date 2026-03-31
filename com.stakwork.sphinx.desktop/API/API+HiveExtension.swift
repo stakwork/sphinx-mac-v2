@@ -371,7 +371,7 @@ extension API {
 
 // MARK: - Workspace Image Cache
 
-class WorkspaceImageCache {
+class WorkspaceImageCache: @unchecked Sendable {
     static let shared = WorkspaceImageCache()
     private struct CachedImage { let url: String; let expiresAt: Date }
     private var cache: [String: CachedImage] = [:]

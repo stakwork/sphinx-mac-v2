@@ -10,7 +10,7 @@ import Cocoa
 import SDWebImage
 import SwiftyJSON
 
-class CreateTribeViewModel {
+class CreateTribeViewModel: @unchecked Sendable {
     
     let groupsManager = GroupsManager.sharedInstance
     let messageBubbleHelper = NewMessageBubbleHelper()
@@ -159,10 +159,13 @@ class CreateTribeViewModel {
             params: params,
             callback: handleNewTribeNotification, 
             errorCallback: { error in
-                AlertHelper.showAlert(
-                    title: "generic.error.title".localized,
-                    message: error?.localizedDescription ?? ""
-                )
+                let msg = error?.localizedDescription ?? ""
+                Task { @MainActor in
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: msg
+                    )
+                }
             }
         )
     }
@@ -221,7 +224,9 @@ class CreateTribeViewModel {
     
     func didFailSavingTribe() {
         self.errorCallback?()
-        self.messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized, delay: 3, textColor: NSColor.white, backColor: NSColor.Sphinx.BadgeRed, backAlpha: 1.0)
+        Task { @MainActor in
+            NewMessageBubbleHelper().showGenericMessageView(text: "generic.error.message".localized, delay: 3, textColor: NSColor.white, backColor: NSColor.Sphinx.BadgeRed, backAlpha: 1.0)
+        }
     }
     
     func didSuccessSavingTribe() {

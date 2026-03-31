@@ -767,7 +767,7 @@ extension NewChatTableDataSource {
 
 
 
-extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
+extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDelegate {
     
     func startListeningToResultsController() {
         messagesResultsController?.delegate = self
@@ -896,32 +896,37 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     
     func updateMessagesStatusesFrom(messages: [TransactionMessage]) {
         let dispatchQueue = DispatchQueue.global(qos: .utility)
+        let cellStateEmpty = messageTableCellStateArray.isEmpty
+        let loadingMore = loadingMoreItems
+        let lastTagRestored = lastMessageTagRestored
         dispatchQueue.async {
             if messages.isEmpty {
                 return
             }
-            
+
             let confirmedMessages = messages.filter({
                 return $0.senderId == UserData.sharedInstance.getUserId() &&
                        ($0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue ||
                         $0.status == TransactionMessage.TransactionMessageStatus.pending.rawValue)
             })
             let tags = confirmedMessages.compactMap({ $0.tag })
-            
+
             if tags.isEmpty {
                 return
             }
-            
-            if !self.messageTableCellStateArray.isEmpty {
-                if !self.loadingMoreItems {
-                    if self.lastMessageTagRestored == tags.last ?? "" {
+
+            if !cellStateEmpty {
+                if !loadingMore {
+                    if lastTagRestored == tags.last ?? "" {
                         return
                     }
                 }
             }
-            
-            self.lastMessageTagRestored = tags.last ?? ""
-            
+
+            Task { @MainActor [weak self] in
+                self?.lastMessageTagRestored = tags.last ?? ""
+            }
+
             SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
         }
     }

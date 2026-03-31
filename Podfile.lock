@@ -4,10 +4,6 @@ PODS:
     - CocoaMQTT/Core (= 2.1.6)
   - CocoaMQTT/Core (2.1.6):
     - MqttCocoaAsyncSocket (~> 1.0.8)
-  - CryptoSwift (1.0.0)
-  - HDWalletKit (0.3.6):
-    - CryptoSwift (~> 1.0.0)
-    - secp256k1.swift (~> 0.1.4)
   - KeychainAccess (4.2.2)
   - MessagePack.swift (4.0.0)
   - MqttCocoaAsyncSocket (1.0.8)
@@ -19,7 +15,6 @@ PODS:
   - SDWebImage/Core (5.18.2)
   - SDWebImageSwiftUI (3.1.3):
     - SDWebImage (~> 5.10)
-  - secp256k1.swift (0.1.4)
   - Starscream (3.1.1)
   - SwiftyJSON (5.0.1)
   - Tor (405.8.1)
@@ -27,7 +22,6 @@ PODS:
 DEPENDENCIES:
   - Alamofire (~> 5.6.4)
   - CocoaMQTT
-  - HDWalletKit
   - KeychainAccess
   - MessagePack.swift (~> 4.0)
   - ObjectMapper
@@ -43,8 +37,6 @@ SPEC REPOS:
   trunk:
     - Alamofire
     - CocoaMQTT
-    - CryptoSwift
-    - HDWalletKit
     - KeychainAccess
     - MessagePack.swift
     - MqttCocoaAsyncSocket
@@ -53,7 +45,6 @@ SPEC REPOS:
     - RNCryptor
     - SDWebImage
     - SDWebImageSwiftUI
-    - secp256k1.swift
     - Starscream
     - SwiftyJSON
 
@@ -64,8 +55,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   CocoaMQTT: 1f206228b29318eabdacad0c2e4e88575922c27a
-  CryptoSwift: d81eeaa59dc5a8d03720fe919a6fd07b51f7439f
-  HDWalletKit: 6d97a15404b2edfe3418e3dc064faa967e51dac4
   KeychainAccess: c0c4f7f38f6fc7bbe58f5702e25f7bd2f65abf51
   MessagePack.swift: 417f6b6e27a86ad4f19a0ee47093b3985cd77323
   MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
@@ -74,11 +63,10 @@ SPEC CHECKSUMS:
   RNCryptor: a369134686cd2ad391323cc856b62e591193ba79
   SDWebImage: c0de394d7cf7f9838aed1fd6bb6037654a4572e4
   SDWebImageSwiftUI: a6d7129fb68fc18c8b930b869ddcfce314e49ded
-  secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   Tor: fad2cec0e7ef5f889fecdaf69e5edd6df0438326
 
-PODFILE CHECKSUM: 94947aef8384d3d1c4557b7c0107cf9e3d40a109
+PODFILE CHECKSUM: 5bbe1da097b854922ba4cf2c023943220d679570
 
 COCOAPODS: 1.16.2

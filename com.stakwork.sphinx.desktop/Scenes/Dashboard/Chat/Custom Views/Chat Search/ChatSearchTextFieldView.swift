@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChatSearchTextFieldViewDelegate : AnyObject {
     func shouldSearchFor(term: String)
     func didTapSearchCancelButton()
@@ -92,7 +93,9 @@ extension ChatSearchTextFieldView : NSTextFieldDelegate {
         timer?.invalidate()
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.75, repeats: false, block: { (timer) in
-            self.delegate?.shouldSearchFor(term: term)
+            Task { @MainActor in
+                self.delegate?.shouldSearchFor(term: term)
+            }
         })
     }
 }

@@ -8,15 +8,17 @@
 
 import Cocoa
 
+@MainActor
 protocol ThreadsListDataSourceDelegate : AnyObject {
     ///Threads
     func didSelectThreadWith(uuid: String)
-    
+
     ///Attachments
     func shouldGoToAttachmentViewFor(messageId: Int, isPdf: Bool)
     func shouldGoToVideoPlayerFor(messageId: Int, with data: Data)
 }
 
+@MainActor
 class ThreadsListDataSource : NSObject {
     
     ///View references
@@ -243,7 +245,7 @@ extension ThreadsListDataSource: NSCollectionViewDelegate {
     }
 }
 
-extension ThreadsListDataSource : NSFetchedResultsControllerDelegate {
+extension ThreadsListDataSource : @preconcurrency NSFetchedResultsControllerDelegate {
     
     func startListeningToResultsController() {
         threadsResultsController?.delegate = self
@@ -269,11 +271,9 @@ extension ThreadsListDataSource : NSFetchedResultsControllerDelegate {
         
         threadsResultsController.delegate = self
         
-        CoreDataManager.sharedManager.persistentContainer.viewContext.performSafely {
-            do {
-                try self.threadsResultsController.performFetch()
-            } catch {}
-        }
+        do {
+            try threadsResultsController.performFetch()
+        } catch {}
     }
     
     func controller(

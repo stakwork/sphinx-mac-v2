@@ -19,7 +19,7 @@ fileprivate extension URL {
     
 }
 
-@objc protocol CachingPlayerItemDelegate {
+@MainActor @objc protocol CachingPlayerItemDelegate {
     
     /// Is called when the media file is fully downloaded.
     @objc optional func playerItem(_ playerItem: CachingPlayerItem, didFinishDownloadingData data: Data)
@@ -40,9 +40,10 @@ fileprivate extension URL {
     
 }
 
+@MainActor
 open class CachingPlayerItem: AVPlayerItem {
-    
-    class ResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate, URLSessionDelegate, URLSessionDataDelegate, URLSessionTaskDelegate {
+
+    class ResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate, URLSessionDelegate, URLSessionDataDelegate, URLSessionTaskDelegate, @unchecked Sendable {
         
         var playingFromData = false
         var mimeType: String? // is required when playing from Data
@@ -91,7 +92,12 @@ open class CachingPlayerItem: AVPlayerItem {
         func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
             mediaData?.append(data)
             processPendingRequests()
-            owner?.delegate?.playerItem?(owner!, didDownloadBytesSoFar: mediaData!.count, outOf: Int(dataTask.countOfBytesExpectedToReceive))
+            let downloaded = mediaData!.count
+            let total = Int(dataTask.countOfBytesExpectedToReceive)
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                self.owner?.delegate?.playerItem?(self.owner!, didDownloadBytesSoFar: downloaded, outOf: total)
+            }
         }
         
         func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
@@ -103,11 +109,18 @@ open class CachingPlayerItem: AVPlayerItem {
         
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
             if let errorUnwrapped = error {
-                owner?.delegate?.playerItem?(owner!, downloadingFailedWith: errorUnwrapped)
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    self.owner?.delegate?.playerItem?(self.owner!, downloadingFailedWith: errorUnwrapped)
+                }
                 return
             }
             processPendingRequests()
-            owner?.delegate?.playerItem?(owner!, didFinishDownloadingData: mediaData!)
+            let data = mediaData!
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                self.owner?.delegate?.playerItem?(self.owner!, didFinishDownloadingData: data)
+            }
         }
         
         // MARK: -
@@ -191,14 +204,9 @@ open class CachingPlayerItem: AVPlayerItem {
     
     private let cachingPlayerItemScheme = "cachingPlayerItemScheme"
     
-    /// Is used for playing remote files.
-    convenience init(url: URL) {
-        self.init(url: url, customFileExtension: nil)
-    }
-    
     /// Override/append custom file extension to URL path.
     /// This is required for the player to work correctly with the intended file type.
-    init(url: URL, customFileExtension: String?) {
+    @MainActor init(url: URL, customFileExtension: String?) {
         
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
             let scheme = components.scheme,
@@ -233,7 +241,9 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.playbackStalledHandler()
+            Task { @MainActor [weak self] in
+                self?.playbackStalledHandler()
+            }
         }
         
     }
@@ -269,7 +279,9 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.playbackStalledHandler()
+            Task { @MainActor [weak self] in
+                self?.playbackStalledHandler()
+            }
         }
         
     }
@@ -282,7 +294,10 @@ open class CachingPlayerItem: AVPlayerItem {
         change: [NSKeyValueChangeKey : Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        delegate?.playerItemReadyToPlay?(self)
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.delegate?.playerItemReadyToPlay?(self)
+        }
     }
     
     // MARK: Notification hanlers
@@ -310,7 +325,9 @@ open class CachingPlayerItem: AVPlayerItem {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.playbackStalledHandler()
+            Task { @MainActor [weak self] in
+                self?.playbackStalledHandler()
+            }
         }
     }
     

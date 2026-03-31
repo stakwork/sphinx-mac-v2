@@ -9,12 +9,14 @@
 import Foundation
 import Cocoa
 
+@MainActor
 protocol PodcastEpisodesDSDelegate : AnyObject {
     func shouldShareClip(comment: PodcastComment)
     func shouldSendBoost(message: String, amount: Int, animation: Bool) -> TransactionMessage?
     func shouldCopyShareLink(link: String)
 }
 
+@MainActor
 class PodcastEpisodesDataSource : NSObject {
     
     weak var delegate: PodcastEpisodesDSDelegate?

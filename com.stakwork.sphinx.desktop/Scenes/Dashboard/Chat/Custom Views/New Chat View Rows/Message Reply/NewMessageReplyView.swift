@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@objc protocol NewMessageReplyViewDelegate: AnyObject {
+@MainActor @objc protocol NewMessageReplyViewDelegate: AnyObject {
     @objc optional func didTapMessageReplyView()
     @objc optional func didCloseReplyView()
     @objc optional func onReplyViewMouseOver(additionalViewHeight: CGFloat)
@@ -45,7 +45,7 @@ class NewMessageReplyView: NSView, LoadableNib {
     static let kViewLabelVerticalMargins: CGFloat = 34.0
     
     var isMouseOver: Bool = false
-    var trackingMouseOver: Bool = false
+    private var expandToken: UUID = UUID()
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -229,40 +229,43 @@ class NewMessageReplyView: NSView, LoadableNib {
 
     override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
-        if !isMouseOver && !trackingMouseOver {
-            
-            trackingMouseOver = true
+        
+        guard !isMouseOver else { return }
+        isMouseOver = true
 
-            let expandedViewHeight = ChatHelper.getTextHeightFor(
-                text: messageLabel.stringValue,
-                width: self.messageLabel.frame.width,
-                font: messageLabel.font,
-                labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
-                labelHorizontalMargins: 0
-            )
+        let expandedViewHeight = ChatHelper.getTextHeightFor(
+            text: messageLabel.stringValue,
+            width: self.messageLabel.frame.width,
+            font: messageLabel.font,
+            labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
+            labelHorizontalMargins: 0
+        )
 
-            let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
-            delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
-            isMouseOver = true
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-                self.trackingMouseOver = false
-            })
-        }
+        let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
+        delegate?.onReplyViewMouseOver?(additionalViewHeight: additionalHeight)
+        
+//        // Safety fallback: after 2 seconds, check if mouse is still inside and collapse if not
+//        let token = UUID()
+//        expandToken = token
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+//            guard let self = self, self.expandToken == token, self.isMouseOver else { return }
+//            let mouseLocation = self.window?.mouseLocationOutsideOfEventStream ?? .zero
+//            let localPoint = self.convert(mouseLocation, from: nil)
+//            if !self.bounds.contains(localPoint) {
+//                self.isMouseOver = false
+//                self.delegate?.onReplyViewMouseExit?()
+//            }
+//        }
     }
 
     override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
-        if isMouseOver && !trackingMouseOver {
-            
-            trackingMouseOver = true
+        
+        guard isMouseOver else { return }
+        isMouseOver = false
+        expandToken = UUID() // invalidate any pending safety check
 
-            delegate?.onReplyViewMouseExit?()
-            
-            DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
-                self.trackingMouseOver = false
-            })
-        }
+        delegate?.onReplyViewMouseExit?()
     }
     
     @IBAction func replyButtonClicked(_ sender: Any) {

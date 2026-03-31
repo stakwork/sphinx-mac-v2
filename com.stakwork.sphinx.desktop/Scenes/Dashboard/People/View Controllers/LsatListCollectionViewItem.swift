@@ -5,6 +5,7 @@
 
 import Cocoa
 
+@MainActor
 protocol LsatListCellDelegate: NSObject {
     func copyToken(index: Int)
     func copyJSON(index: Int)

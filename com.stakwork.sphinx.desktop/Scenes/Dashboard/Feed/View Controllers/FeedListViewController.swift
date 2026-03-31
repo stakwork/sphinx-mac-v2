@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol FeedListViewControllerDelegate: NSObject {
     func didClickRowWith(contentFeedId: String?)
     func didClick(item: FeedListViewController.DataSourceItem)
@@ -520,7 +521,7 @@ extension FeedListViewController : NSCollectionViewDelegate {
     }
 }
 
-extension FeedListViewController : NSFetchedResultsControllerDelegate {
+extension FeedListViewController : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

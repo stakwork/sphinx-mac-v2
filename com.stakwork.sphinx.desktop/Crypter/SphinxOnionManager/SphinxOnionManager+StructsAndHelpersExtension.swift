@@ -12,7 +12,7 @@ import SwiftyJSON
 
 //MARK: Helper Structs & Functions:
 
-var wordsListPossibilities : [WordList] = [
+nonisolated(unsafe) var wordsListPossibilities : [WordList] = [
     .english,
     .japanese,
     .korean,
@@ -329,7 +329,7 @@ struct TribeMembersRRObject: Mappable {
 }
 
 
-class SentStatus: Mappable {
+class SentStatus: Mappable, @unchecked Sendable {
     var tag: String?
     var status: String?
     var preimage: String?

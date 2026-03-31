@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol PinTimeoutViewDelegate: AnyObject {
+@MainActor protocol PinTimeoutViewDelegate: AnyObject {
     func shouldEnableSave()
 }
 

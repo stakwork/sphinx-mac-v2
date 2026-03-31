@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol BoostButtonViewDelegate : AnyObject {
+@MainActor protocol BoostButtonViewDelegate : AnyObject {
     func didTouchButton()
 }
 

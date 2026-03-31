@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChildVCDelegate: AnyObject {
     func shouldDimiss()
     func shouldGoForward(paymentViewModel: PaymentViewModel)
@@ -15,7 +16,7 @@ protocol ChildVCDelegate: AnyObject {
     func shouldSendPaymentFor(paymentObject: PaymentViewModel.PaymentObject)
 }
 
-protocol ActionsDelegate: AnyObject {
+@MainActor protocol ActionsDelegate: AnyObject {
     func didCreateMessage()
     func didFailInvoiceOrPayment()
     func shouldCreateCall(mode: VideoCallHelper.CallMode)

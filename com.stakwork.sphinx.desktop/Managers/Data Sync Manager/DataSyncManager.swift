@@ -11,7 +11,7 @@ import CoreData
 
 // MARK: - DataSyncManager
 
-class DataSyncManager: NSObject {
+class DataSyncManager: NSObject, @unchecked Sendable {
 
     // MARK: - Singleton
 
@@ -171,9 +171,9 @@ class DataSyncManager: NSObject {
 
         Task {
             defer {
-                syncLock.lock()
-                isSyncing = false
-                syncLock.unlock()
+                syncLock.withLock {
+                    isSyncing = false
+                }
             }
 
             let serverDataString = await getFileFromServer()

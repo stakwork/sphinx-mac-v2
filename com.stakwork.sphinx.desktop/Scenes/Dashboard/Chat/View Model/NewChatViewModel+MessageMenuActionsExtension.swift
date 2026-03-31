@@ -103,7 +103,7 @@ extension NewChatViewModel {
 }
 
 extension NewChatViewModel {
-    func shouldDeleteMessage(message: TransactionMessage) {
+    @MainActor func shouldDeleteMessage(message: TransactionMessage) {
         DelayPerformedHelper.performAfterDelay(seconds: 0.1, completion: {
             AlertHelper.showTwoOptionsAlert(
                 title: "alert-confirm.delete-message-title".localized,
@@ -114,7 +114,7 @@ extension NewChatViewModel {
         })
     }
     
-    private func deleteMessage(_ message: TransactionMessage) {
+    @MainActor private func deleteMessage(_ message: TransactionMessage) {
         if message.id < 0 {
             let chat = message.chat
             let isLastMessage = chat?.lastMessage?.id == message.id

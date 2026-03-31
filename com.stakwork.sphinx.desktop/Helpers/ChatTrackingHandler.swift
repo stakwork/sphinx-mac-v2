@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor 
 class ChatTrackingHandler {
     
     class var shared : ChatTrackingHandler {

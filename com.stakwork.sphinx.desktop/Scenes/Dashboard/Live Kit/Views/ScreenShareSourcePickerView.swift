@@ -16,11 +16,11 @@
 
 import CoreGraphics
 import Foundation
-import LiveKit
+@preconcurrency import LiveKit
 import SwiftUI
 
 @available(macOS 12.3, *)
-class ScreenShareSourcePickerCtrl: ObservableObject {
+class ScreenShareSourcePickerCtrl: ObservableObject, @unchecked Sendable {
     @Published var tracks = [LocalVideoTrack]()
     @Published var mode: ScreenShareSourcePickerView.Mode = .display {
         didSet {
@@ -43,7 +43,7 @@ class ScreenShareSourcePickerCtrl: ObservableObject {
         }
 
         let sources = try await MacOSScreenCapturer.sources(for: mode == .display ? .display : .window, includeCurrentApplication: true)
-        let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
+        let windowsToExcludeIds = await WindowsManager.sharedInstance.getWindowsToExclude()
         
         let options = ScreenShareCaptureOptions(
             dimensions: .h360_43,

@@ -9,6 +9,7 @@ import Foundation
 import Cocoa
 
 
+@MainActor
 class EpisodeChaptersDataSource : NSObject{
     
     weak var collectionView : NSCollectionView?

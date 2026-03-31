@@ -9,6 +9,7 @@
 import AppKit
 import SwiftyJSON
 
+@MainActor
 class TribeMembersDataSource : NSObject {
     
     var chat: Chat!

@@ -399,7 +399,7 @@ extension FeedListenDashboardViewController {
 }
 
 // MARK: - `NSFetchedResultsControllerDelegate` Methods
-extension FeedListenDashboardViewController: NSFetchedResultsControllerDelegate {
+extension FeedListenDashboardViewController: @preconcurrency NSFetchedResultsControllerDelegate {
 
     /// Called when the contents of the fetched results controller change.
     ///

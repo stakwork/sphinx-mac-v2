@@ -9,6 +9,7 @@
 import Cocoa
 import WebKit
 
+@MainActor
 protocol NewChatTableDataSourceDelegate : AnyObject {
     ///New msgs indicator
     func configureNewMessagesIndicatorWith(newMsgCount: Int)
@@ -65,6 +66,7 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?)
 }
 
+@MainActor
 class NewChatTableDataSource : NSObject {
     
     ///Delegate

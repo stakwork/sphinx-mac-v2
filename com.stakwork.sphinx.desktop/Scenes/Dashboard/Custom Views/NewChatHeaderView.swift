@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol NewChatHeaderViewDelegate: AnyObject {
     func refreshTapped()
     func menuTapped(_ frame: CGRect)
@@ -175,8 +176,10 @@ class NewChatHeaderView: NSView, LoadableNib {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            DispatchQueue.main.async {
-                self?.updateBalance()
+            Task { @MainActor [weak self] in
+                DispatchQueue.main.async {
+                    self?.updateBalance()
+                }
             }
         }
     }
@@ -197,7 +200,7 @@ extension NewChatHeaderView : HealthCheckDelegate {
     }
 }
 
-extension NewChatHeaderView : NSFetchedResultsControllerDelegate {
+extension NewChatHeaderView : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

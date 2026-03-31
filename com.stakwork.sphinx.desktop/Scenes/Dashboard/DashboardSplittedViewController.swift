@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol DashboardVCDelegate: AnyObject {
     func didClickOnChatRow(chatId: Int?, contactId: Int?)
     func shouldReloadChatRowWith(chatId: Int)

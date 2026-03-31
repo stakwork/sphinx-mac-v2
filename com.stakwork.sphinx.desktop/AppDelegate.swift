@@ -11,8 +11,8 @@ import CoreData
 import SDWebImage
 import WebKit
 
-@NSApplicationMain
- class AppDelegate: NSObject, NSApplicationDelegate {
+@main
+@MainActor class AppDelegate: NSObject, NSApplicationDelegate {
     
     let notificationsHelper = NotificationsHelper()
     var newMessageBubbleHelper = NewMessageBubbleHelper()
@@ -130,9 +130,9 @@ import WebKit
     }
      
     func connectMQTT() {
-        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
-            CrypterManager.sharedInstance.startMQTTSetup()
-        }
+//        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
+//            CrypterManager.sharedInstance.startMQTTSetup()
+//        }
     }
 
     
@@ -482,18 +482,9 @@ import WebKit
     }
      
      func setBadge() {
-         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-         
-         backgroundContext.performSafely { [weak self] in
-             guard let self = self else {
-                 return
-             }
-             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
-             
-             DispatchQueue.main.async {
-                 self.setBadge(count: receivedUnseenCount)
-             }
-         }
+         let viewContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+         let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: viewContext)
+         setBadge(count: receivedUnseenCount)
      }
     
     func setBadge(count: Int) {

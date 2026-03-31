@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol MediaMessageViewDelegate: AnyObject {
     func didTapMediaButton()
 }

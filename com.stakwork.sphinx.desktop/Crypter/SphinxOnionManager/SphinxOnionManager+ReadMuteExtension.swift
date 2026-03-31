@@ -10,51 +10,37 @@ import Foundation
 
 extension SphinxOnionManager {
     func handleReadStatus(rr: RunReturn) {
-        var chatListUnreadDict = [Int: Int]()
-        
         if let lastRead = rr.lastRead {
             let context = backgroundContext
             context.performSafely { [weak self] in
                 guard let self = self else {
                     return
                 }
+                var chatListUnreadDict = [Int: Int]()
+
+                func updateLastReadIndex(chatId: Int, lastReadId: Int) {
+                    if let existing = chatListUnreadDict[chatId], lastReadId > existing {
+                        chatListUnreadDict[chatId] = lastReadId
+                    } else if !chatListUnreadDict.keys.contains(chatId) {
+                        chatListUnreadDict[chatId] = lastReadId
+                    }
+                }
+
                 let lastReadMap = parse(jsonString: lastRead)
-                
                 let pubKeys = lastReadMap.compactMap({ $0.key })
-                
                 let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: context)
                 let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
-                
+
                 for (pubKey, lastReadId) in lastReadMap {
-                    guard let lastReadId = lastReadId as? Int else {
-                        continue
-                    }
+                    guard let lastReadId = lastReadId as? Int else { continue }
                     if let tribe = tribes.filter({ $0.ownerPubkey == pubKey }).first {
-                        updateLastReadIndex(
-                            chatId: tribe.id,
-                            lastReadId: lastReadId
-                        )
+                        updateLastReadIndex(chatId: tribe.id, lastReadId: lastReadId)
                     } else if let contact = contacts.filter({ $0.publicKey == pubKey }).first, let chat = contact.getChat() {
-                        updateLastReadIndex(
-                            chatId: chat.id,
-                            lastReadId: lastReadId
-                        )
+                        updateLastReadIndex(chatId: chat.id, lastReadId: lastReadId)
                     }
                 }
                 self.updateChatReadStatus(chatListUnreadDict: chatListUnreadDict, context: context)
-                
                 context.saveContext()
-            }
-        }
-        
-        func updateLastReadIndex(
-            chatId: Int,
-            lastReadId: Int
-        ) {
-            if let existingLastReadForChat = chatListUnreadDict[chatId], lastReadId > existingLastReadForChat {
-                chatListUnreadDict[chatId] = lastReadId
-            } else if !chatListUnreadDict.keys.contains(chatId) {
-                chatListUnreadDict[chatId] = lastReadId
             }
         }
     }
@@ -84,12 +70,14 @@ extension SphinxOnionManager {
         if pubkeyToMuteLevelDict.isEmpty {
             return
         }
+        // Extract Sendable [String: Int] before crossing into @Sendable closure
+        let muteLevelDict: [String: Int] = pubkeyToMuteLevelDict.compactMapValues { $0 as? Int }
         let context = backgroundContext
         context.performSafely { [weak self] in
             guard let _ = self else {
                 return
             }
-            let pubKeys = pubkeyToMuteLevelDict.compactMap({ $0.key })
+            let pubKeys = Array(muteLevelDict.keys)
             let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
             let contactsMap = Dictionary(
                 contacts.compactMap {
@@ -113,10 +101,10 @@ extension SphinxOnionManager {
                 },
                 uniquingKeysWith: { first, _ in first }
             )
-            
-            for (pubkey, muteLevel) in pubkeyToMuteLevelDict {
+
+            for (pubkey, level) in muteLevelDict {
                 if let chat = contactsMap[pubkey]?.getContactChat(context: context) ?? tribesMap[pubkey] {
-                    if let level = muteLevel as? Int, chat.notify != level {
+                    if chat.notify != level {
                         chat.notify = level
                     }
                 }
