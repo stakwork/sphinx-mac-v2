@@ -275,11 +275,8 @@ extension SphinxOnionManager {
                 isTribe: isTribe
             )
             
-            let tag = handleRunReturn(
-                rr: rr,
-                isSendingMessage: true
-            )
-            
+            let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true)
+
             let sentMessage = processNewOutgoingMessage(
                 rr: rr,
                 chat: chat,
@@ -297,17 +294,22 @@ extension SphinxOnionManager {
                 owner: owner ?? UserContact.getOwner(),
                 context: context
             )
-            
+
 //            if let sentMessage = sentMessage {
 //                assignReceiverId(localMsg: sentMessage)
 //            }
-            
+
             if let _ = metaData {
                 chat.timezoneUpdated = false
             }
-            
+
             (context ?? chat.managedObjectContext)?.saveContext()
-            
+
+            let _ = handleRunReturn(
+                rr: rr,
+                isSendingMessage: true
+            )
+
             return (sentMessage, nil)
         } catch let error {
             print("error sending msg \(error.localizedDescription)")
@@ -606,10 +608,10 @@ extension SphinxOnionManager {
         }
         
         localMsg.senderId = owner?.id ?? UserData.sharedInstance.getUserId(context: backgroundContext)
-        
+
         return localMsg
     }
-    
+
 //    func assignReceiverId(localMsg: TransactionMessage) {
 //        var receiverId :Int = -1
 //        
