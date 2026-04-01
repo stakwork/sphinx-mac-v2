@@ -140,6 +140,11 @@ class QRCodeScannerViewController: NSViewController {
         }
         session.addOutput(metadataOutput)
         metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+        
+        guard metadataOutput.availableMetadataObjectTypes.contains(.qr) else {
+            showNoCameraAlert()
+            return
+        }
         metadataOutput.metadataObjectTypes = [.qr]
 
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
