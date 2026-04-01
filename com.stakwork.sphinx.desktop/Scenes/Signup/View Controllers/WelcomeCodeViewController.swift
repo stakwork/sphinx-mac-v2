@@ -77,6 +77,9 @@ class WelcomeCodeViewController: NSViewController {
             delegate: self
         )
         
+        // Show QR scan button only for existing user (restore) flow
+        codeField.showQRScanButton(!isNewUser)
+        
         let label = (isNewUser ? "signup.label" : "restore.label").localized
         let boldLabels = isNewUser ? ["signup.label.bold.1".localized, "signup.label.bold.2".localized] : ["restore.label.bold".localized]
         
@@ -266,6 +269,19 @@ extension WelcomeCodeViewController : SignupFieldViewDelegate {
         submitButton.buttonDisabled = !valid
     }
     
+    func didTapScanQR() {
+        if #available(macOS 13.0, *) {
+            let scannerVC = QRCodeScannerViewController()
+            scannerVC.delegate = self
+            presentAsSheet(scannerVC)
+        } else {
+            AlertHelper.showAlert(
+                title: "Error",
+                message: "no.camera.available".localized
+            )
+        }
+    }
+    
     func validateCode(code: String) -> Bool {
         if code.isV2InviteCode {
             return true
@@ -313,19 +329,6 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
         importSeedView.isHidden = true
     }
     
-    func didTapScanQR() {
-        if #available(macOS 13.0, *) {
-            let scannerVC = QRCodeScannerViewController()
-            scannerVC.delegate = self
-            presentAsSheet(scannerVC)
-        } else {
-            AlertHelper.showAlert(
-                title: "Error",
-                message: "no.camera.available".localized
-            )
-        }
-    }
-    
     func didTapConfirm() {
         importSeedView.isHidden = true
                 
@@ -343,7 +346,11 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
 @available(macOS 13.0, *)
 extension WelcomeCodeViewController: @preconcurrency QRCodeScannerDelegate {
     func didScanQRCode(string: String) {
-        importSeedView.populateWith(scannedString: string)
-        importSeedView.confirmTapped(self)
+        codeField.set(fieldValue: string)
+        let valid = validateCode(code: string)
+        submitButton.buttonDisabled = !valid
+        if valid {
+            didClickButton(tag: -1)
+        }
     }
 }

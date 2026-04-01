@@ -11,6 +11,7 @@
             <connections>
                 <outlet property="contentView" destination="c22-O7-iKe" id="B3p-xP-wfB"/>
                 <outlet property="fieldBox" destination="IhA-0V-CKC" id="Fqd-in-vse"/>
+                <outlet property="qrScanButton" destination="QRS-bt-001" id="QRS-ol-001"/>
                 <outlet property="textField" destination="EhA-tl-CqJ" id="cUI-jY-vhK"/>
                 <outlet property="topLabel" destination="LrP-DI-h5W" id="N4v-fe-cOp"/>
             </connections>
@@ -35,22 +36,45 @@
                         <rect key="frame" x="0.0" y="0.0" width="480" height="48"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EhA-tl-CqJ" customClass="CCTextField" customModule="Sphinx" customModuleProvider="target">
-                                <rect key="frame" x="17" y="12" width="446" height="20"/>
+                            <stackView orientation="horizontal" spacing="8" horizontalStackHuggingPriority="249" verticalStackHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="QRS-sv-001">
+                                <rect key="frame" x="17" y="12" width="446" height="24"/>
+                                <subviews>
+                                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="EhA-tl-CqJ" customClass="CCTextField" customModule="Sphinx" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="2" width="406" height="20"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="20" id="XVK-Lm-YEn"/>
+                                        </constraints>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" alignment="left" placeholderString="Set Nickname" id="pUb-ai-jxh">
+                                            <font key="font" size="14" name="Roboto-Regular"/>
+                                            <color key="textColor" red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <button verticalHuggingPriority="750" horizontalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QRS-bt-001" hidden="YES">
+                                        <rect key="frame" x="414" y="0.0" width="32" height="24"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="32" id="QRS-w-001"/>
+                                            <constraint firstAttribute="height" constant="24" id="QRS-h-001"/>
+                                        </constraints>
+                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="qrcode.viewfinder" imageScaling="proportionallyUpOrDown" id="QRS-bc-001">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="scanQRTapped:" target="-2" id="QRS-ac-001"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="XVK-Lm-YEn"/>
+                                    <constraint firstItem="EhA-tl-CqJ" firstAttribute="centerY" secondItem="QRS-sv-001" secondAttribute="centerY" id="QRS-cy-tf"/>
+                                    <constraint firstItem="QRS-bt-001" firstAttribute="centerY" secondItem="QRS-sv-001" secondAttribute="centerY" id="QRS-cy-bt"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" alignment="left" placeholderString="Set Nickname" id="pUb-ai-jxh">
-                                    <font key="font" size="14" name="Roboto-Regular"/>
-                                    <color key="textColor" red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </textFieldCell>
-                            </textField>
+                            </stackView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="EhA-tl-CqJ" firstAttribute="centerY" secondItem="Ls9-kJ-QbZ" secondAttribute="centerY" constant="2" id="9qY-Qc-Pvp"/>
-                            <constraint firstAttribute="trailing" secondItem="EhA-tl-CqJ" secondAttribute="trailing" constant="19" id="Ujw-RT-fAJ"/>
-                            <constraint firstItem="EhA-tl-CqJ" firstAttribute="leading" secondItem="Ls9-kJ-QbZ" secondAttribute="leading" constant="19" id="uw8-FR-b9m"/>
+                            <constraint firstItem="QRS-sv-001" firstAttribute="centerY" secondItem="Ls9-kJ-QbZ" secondAttribute="centerY" constant="2" id="9qY-Qc-Pvp"/>
+                            <constraint firstAttribute="trailing" secondItem="QRS-sv-001" secondAttribute="trailing" constant="19" id="Ujw-RT-fAJ"/>
+                            <constraint firstItem="QRS-sv-001" firstAttribute="leading" secondItem="Ls9-kJ-QbZ" secondAttribute="leading" constant="19" id="uw8-FR-b9m"/>
                         </constraints>
                     </view>
                     <color key="fillColor" name="SignupFieldBackground"/>
