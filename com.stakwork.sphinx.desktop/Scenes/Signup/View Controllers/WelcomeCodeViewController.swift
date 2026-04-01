@@ -313,6 +313,12 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
         importSeedView.isHidden = true
     }
     
+    func didTapScanQR() {
+        let scannerVC = QRCodeScannerViewController()
+        scannerVC.delegate = self
+        presentAsSheet(scannerVC)
+    }
+    
     func didTapConfirm() {
         importSeedView.isHidden = true
                 
@@ -325,4 +331,11 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
         }
     }
     
+}
+
+extension WelcomeCodeViewController: QRCodeScannerDelegate {
+    func didScanQRCode(string: String) {
+        importSeedView.populateWith(scannedString: string)
+        importSeedView.confirmTapped(self)
+    }
 }

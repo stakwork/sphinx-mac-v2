@@ -13,6 +13,7 @@ import Cocoa
     func showImportSeedView()
     func didTapCancelImportSeed()
     func didTapConfirm()
+    func didTapScanQR()
 }
 
 class ImportSeedView: NSView, LoadableNib {
@@ -77,6 +78,14 @@ class ImportSeedView: NSView, LoadableNib {
     
     func getMnemonicWords() -> String {
         return textView.string
+    }
+    
+    @IBAction func scanQRTapped(_ sender: Any) {
+        delegate?.didTapScanQR()
+    }
+    
+    func populateWith(scannedString: String) {
+        textView.string = scannedString
     }
     
     @IBAction func cancelTapped(_ sender: Any) {
