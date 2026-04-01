@@ -20,7 +20,24 @@ class SetupAIAgentViewController: NSViewController {
     private let apiKeyLabel    = NSTextField(labelWithString: "API Key")
     private let apiKeyField    = NSTextField()
 
-    private let confirmButtonView = SignupButtonView(frame: .zero)
+    private let confirmButton: NSButton = {
+        let b = NSButton()
+        b.title = ""
+        b.isBordered = false
+        b.wantsLayer = true
+        b.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
+        b.layer?.cornerRadius = 8
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+    private let confirmButtonLabel: NSTextField = {
+        let l = NSTextField(labelWithString: "confirm".localized)
+        l.font = NSFont(name: "Roboto-Regular", size: 15) ?? NSFont.systemFont(ofSize: 15)
+        l.textColor = .white
+        l.alignment = .center
+        l.translatesAutoresizingMaskIntoConstraints = false
+        return l
+    }()
 
     private var newMessageBubbleHelper = NewMessageBubbleHelper()
 
@@ -92,10 +109,11 @@ class SetupAIAgentViewController: NSViewController {
         content.addSubview(apiKeyField)
 
         // ── Confirm button ──
-        confirmButtonView.translatesAutoresizingMaskIntoConstraints = false
-        confirmButtonView.configureWith(title: "confirm".localized, icon: "", tag: -1, delegate: self)
-        confirmButtonView.buttonDisabled = true
-        content.addSubview(confirmButtonView)
+        confirmButton.target = self
+        confirmButton.action = #selector(confirmTapped)
+        confirmButton.isEnabled = false
+        content.addSubview(confirmButton)
+        content.addSubview(confirmButtonLabel)
 
         // ── Layout ──
         NSLayoutConstraint.activate([
@@ -117,11 +135,14 @@ class SetupAIAgentViewController: NSViewController {
             apiKeyField.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
             apiKeyField.heightAnchor.constraint(equalToConstant: 32),
 
-            confirmButtonView.topAnchor.constraint(equalTo: apiKeyField.bottomAnchor, constant: 32),
-            confirmButtonView.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            confirmButtonView.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            confirmButtonView.heightAnchor.constraint(equalToConstant: 50),
-            confirmButtonView.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -24)
+            confirmButton.topAnchor.constraint(equalTo: apiKeyField.bottomAnchor, constant: 32),
+            confirmButton.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
+            confirmButton.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
+            confirmButton.heightAnchor.constraint(equalToConstant: 50),
+            confirmButton.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -24),
+
+            confirmButtonLabel.centerXAnchor.constraint(equalTo: confirmButton.centerXAnchor),
+            confirmButtonLabel.centerYAnchor.constraint(equalTo: confirmButton.centerYAnchor),
         ])
     }
 
@@ -156,16 +177,18 @@ class SetupAIAgentViewController: NSViewController {
     }
 
     private func updateConfirmButton() {
-        confirmButtonView.buttonDisabled = !isValid()
+        let enabled = isValid()
+        confirmButton.isEnabled = enabled
+        confirmButton.layer?.backgroundColor = (enabled ? NSColor.Sphinx.PrimaryBlue : NSColor.Sphinx.PlaceholderText).cgColor
     }
 }
 
-// MARK: - SignupButtonViewDelegate
+// MARK: - Actions
 
-extension SetupAIAgentViewController: SignupButtonViewDelegate {
-    func didClickButton(tag: Int) {
-        let key           = apiKeyField.stringValue.trimmingCharacters(in: .whitespaces)
-        let providerRaw   = (providerCombo.objectValueOfSelectedItem as? String) ?? AIAgentManager.AIProvider.anthropic.rawValue
+extension SetupAIAgentViewController {
+    @objc private func confirmTapped() {
+        let key         = apiKeyField.stringValue.trimmingCharacters(in: .whitespaces)
+        let providerRaw = (providerCombo.objectValueOfSelectedItem as? String) ?? AIAgentManager.AIProvider.anthropic.rawValue
 
         guard !key.isEmpty else {
             newMessageBubbleHelper.showGenericMessageView(
@@ -182,9 +205,7 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
         userData.save(aiAgentValue: providerRaw, for: .aiAgentProvider)
         userData.save(aiAgentValue: key,         for: .aiAgentApiKey)
 
-        // Reconfigure the manager with the new credentials
         AIAgentManager.sharedInstance.reconfigure()
-
         WindowsManager.sharedInstance.backToProfile()
     }
 }

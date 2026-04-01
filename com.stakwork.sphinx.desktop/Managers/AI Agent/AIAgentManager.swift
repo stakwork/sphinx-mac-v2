@@ -169,7 +169,14 @@ final class AIAgentManager: @unchecked Sendable {
             return "Chat not found for contact: \(contactName)"
         }
 
+        let contactId = contact.id
+        let chatId = chat.id
+
         return await MainActor.run {
+            guard let contact = UserContact.getContactWith(id: contactId),
+                  let chat = Chat.getChatWith(id: chatId) else {
+                return "Could not resolve contact or chat on main actor"
+            }
             let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                 to: contact,
                 content: messageText,
