@@ -314,9 +314,16 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     }
     
     func didTapScanQR() {
-        let scannerVC = QRCodeScannerViewController()
-        scannerVC.delegate = self
-        presentAsSheet(scannerVC)
+        if #available(macOS 13.0, *) {
+            let scannerVC = QRCodeScannerViewController()
+            scannerVC.delegate = self
+            presentAsSheet(scannerVC)
+        } else {
+            AlertHelper.showAlert(
+                title: "Error",
+                message: "no.camera.available".localized
+            )
+        }
     }
     
     func didTapConfirm() {
@@ -333,7 +340,8 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     
 }
 
-extension WelcomeCodeViewController: QRCodeScannerDelegate {
+@available(macOS 13.0, *)
+extension WelcomeCodeViewController: @preconcurrency QRCodeScannerDelegate {
     func didScanQRCode(string: String) {
         importSeedView.populateWith(scannedString: string)
         importSeedView.confirmTapped(self)

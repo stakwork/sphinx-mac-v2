@@ -9,10 +9,12 @@
 import Cocoa
 import AVFoundation
 
+@MainActor
 protocol QRCodeScannerDelegate: AnyObject {
     func didScanQRCode(string: String)
 }
 
+@available(macOS 13.0, *)
 class QRCodeScannerViewController: NSViewController {
 
     weak var delegate: QRCodeScannerDelegate?
@@ -42,7 +44,6 @@ class QRCodeScannerViewController: NSViewController {
     // MARK: - UI Setup
 
     private func setupCancelButton() {
-        // Background box (rounded, PrimaryBlue fill, white label) — matches Cancel button style in ImportSeedView.xib
         let primaryBlue = NSColor(red: 0.380, green: 0.541, blue: 1.0, alpha: 1.0)
 
         let containerView = NSView()
@@ -165,7 +166,6 @@ class QRCodeScannerViewController: NSViewController {
         }
     }
 
-    @MainActor
     private func showNoCameraAlert() {
         AlertHelper.showAlert(
             title: "Error",
@@ -180,11 +180,21 @@ class QRCodeScannerViewController: NSViewController {
         stopSession()
         dismiss(self)
     }
+
+    // MARK: - Internal handler (called on main actor after QR scan)
+
+    func handleScannedString(_ string: String) {
+        stopSession()
+        let delegateRef = self.delegate
+        self.dismiss(self)
+        delegateRef?.didScanQRCode(string: string)
+    }
 }
 
 // MARK: - AVCaptureMetadataOutputObjectsDelegate
 
-extension QRCodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
+@available(macOS 13.0, *)
+extension QRCodeScannerViewController: @preconcurrency AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(
         _ output: AVCaptureMetadataOutput,
         didOutput metadataObjects: [AVMetadataObject],
@@ -196,14 +206,7 @@ extension QRCodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
             let scannedString = metadataObject.stringValue
         else { return }
 
-        stopSession()
-
-        let scanned = scannedString
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            let delegateRef = self.delegate
-            self.dismiss(self)
-            delegateRef?.didScanQRCode(string: scanned)
-        }
+        // Delegate queue is DispatchQueue.main, so we are already on main actor here.
+        handleScannedString(scannedString)
     }
 }
