@@ -105,7 +105,7 @@ final class AIAgentManager: @unchecked Sendable {
         ]
 
         let result = try await generateText(
-            model: .v3(model),
+            model: model,
             tools: tools,
             system: systemPrompt,
             messages: conversationHistory,
