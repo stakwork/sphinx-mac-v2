@@ -32,9 +32,9 @@
                     <color key="fillColor" name="AddressBookHeader"/>
                 </box>
                 <box boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="10" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="el8-px-BNI">
-                    <rect key="frame" x="90" y="110" width="320" height="280"/>
+                    <rect key="frame" x="90" y="125" width="320" height="250"/>
                     <view key="contentView" id="v4g-gY-YnE">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="280"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="250"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LD0-A7-xda">
@@ -45,54 +45,6 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="SQR-01-ctn">
-                                <rect key="frame" x="16" y="216" width="288" height="34"/>
-                                <subviews>
-                                    <box boxType="custom" borderType="line" cornerRadius="17" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="SQR-02-box">
-                                        <rect key="frame" x="0.0" y="0.0" width="288" height="34"/>
-                                        <view key="contentView" id="SQR-03-cv">
-                                            <rect key="frame" x="1" y="1" width="286" height="32"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                            <subviews>
-                                                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SQR-04-lbl">
-                                                    <rect key="frame" x="88" y="9" width="110" height="15"/>
-                                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Scan QR Code" id="SQR-05-cell">
-                                                        <font key="font" size="13" name="Roboto-Regular"/>
-                                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                </textField>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="SQR-04-lbl" firstAttribute="centerX" secondItem="SQR-03-cv" secondAttribute="centerX" id="SQR-06-cx"/>
-                                                <constraint firstItem="SQR-04-lbl" firstAttribute="centerY" secondItem="SQR-03-cv" secondAttribute="centerY" id="SQR-07-cy"/>
-                                            </constraints>
-                                        </view>
-                                        <color key="borderColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <color key="fillColor" name="PrimaryBlue"/>
-                                    </box>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SQR-bt-001" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="288" height="34"/>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" transparent="YES" imageScaling="proportionallyDown" inset="2" id="SQR-bc-001">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="scanQRTapped:" target="-2" id="SQR-ac-001"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="SQR-02-box" firstAttribute="leading" secondItem="SQR-01-ctn" secondAttribute="leading" id="SQR-12-bl"/>
-                                    <constraint firstAttribute="trailing" secondItem="SQR-02-box" secondAttribute="trailing" id="SQR-13-bt"/>
-                                    <constraint firstItem="SQR-02-box" firstAttribute="top" secondItem="SQR-01-ctn" secondAttribute="top" id="SQR-14-bt"/>
-                                    <constraint firstAttribute="bottom" secondItem="SQR-02-box" secondAttribute="bottom" id="SQR-15-bb"/>
-                                    <constraint firstItem="SQR-bt-001" firstAttribute="leading" secondItem="SQR-01-ctn" secondAttribute="leading" id="SQR-16-bl"/>
-                                    <constraint firstAttribute="trailing" secondItem="SQR-bt-001" secondAttribute="trailing" id="SQR-17-bt"/>
-                                    <constraint firstItem="SQR-bt-001" firstAttribute="top" secondItem="SQR-01-ctn" secondAttribute="top" id="SQR-18-bt"/>
-                                    <constraint firstAttribute="bottom" secondItem="SQR-bt-001" secondAttribute="bottom" id="SQR-19-bb"/>
-                                </constraints>
-                            </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="4dO-sv-sHB">
                                 <rect key="frame" x="16" y="16" width="288" height="50"/>
                                 <subviews>
@@ -291,11 +243,7 @@
                             <constraint firstAttribute="bottom" secondItem="3ir-8X-JJV" secondAttribute="bottom" id="DXt-M3-d3h"/>
                             <constraint firstItem="LD0-A7-xda" firstAttribute="leading" secondItem="v4g-gY-YnE" secondAttribute="leading" constant="16" id="Efg-8Q-zHW"/>
                             <constraint firstItem="4dO-sv-sHB" firstAttribute="leading" secondItem="v4g-gY-YnE" secondAttribute="leading" constant="16" id="OHr-AI-W0e"/>
-                            <constraint firstItem="9Qb-gg-3TI" firstAttribute="top" secondItem="SQR-01-ctn" secondAttribute="bottom" constant="8" id="Xhn-Fj-hnj"/>
-                            <constraint firstItem="SQR-01-ctn" firstAttribute="top" secondItem="LD0-A7-xda" secondAttribute="bottom" constant="8" id="SQR-08-top"/>
-                            <constraint firstItem="SQR-01-ctn" firstAttribute="leading" secondItem="v4g-gY-YnE" secondAttribute="leading" constant="16" id="SQR-10-ld"/>
-                            <constraint firstAttribute="trailing" secondItem="SQR-01-ctn" secondAttribute="trailing" constant="16" id="SQR-11-tr"/>
-                            <constraint firstItem="SQR-01-ctn" firstAttribute="height" constant="34" id="SQR-09-hgt"/>
+                            <constraint firstItem="9Qb-gg-3TI" firstAttribute="top" secondItem="LD0-A7-xda" secondAttribute="bottom" constant="16" id="Xhn-Fj-hnj"/>
                             <constraint firstAttribute="trailing" secondItem="3ir-8X-JJV" secondAttribute="trailing" id="XmT-bn-FEy"/>
                             <constraint firstItem="3ir-8X-JJV" firstAttribute="leading" secondItem="v4g-gY-YnE" secondAttribute="leading" id="ber-jI-GSa"/>
                             <constraint firstItem="3ir-8X-JJV" firstAttribute="top" secondItem="v4g-gY-YnE" secondAttribute="top" id="j5T-1H-ipu"/>
@@ -305,7 +253,7 @@
                     </view>
                     <constraints>
                         <constraint firstAttribute="width" constant="320" id="ASO-83-dsb"/>
-                        <constraint firstAttribute="height" constant="300" id="gDq-TM-VZc"/>
+                        <constraint firstAttribute="height" constant="250" id="gDq-TM-VZc"/>
                     </constraints>
                     <color key="fillColor" name="HeaderBG"/>
                 </box>
