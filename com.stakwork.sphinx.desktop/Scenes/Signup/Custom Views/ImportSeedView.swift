@@ -79,6 +79,10 @@ class ImportSeedView: NSView, LoadableNib {
         return textView.string
     }
     
+    func populateWith(scannedString: String) {
+        textView.string = scannedString
+    }
+    
     @IBAction func cancelTapped(_ sender: Any) {
         textView.resignFirstResponder()
         textView.string = ""
