@@ -14,7 +14,5 @@ enum Config {
     static let giphyApiKey = "YOUR_GIPHY_API_KEY_HERE"
     static let workflowId = 0
     static let workflowToken = "YOUR_WORKFLOW_TOKEN_HERE"
-    static let anthropicApiKey = "YOUR_ANTHROPIC_API_KEY_HERE"
-    static let openAiApiKey = "YOUR_OPEN_AI_API_KEY_HERE"
 }
 

@@ -29,6 +29,7 @@
 		470708A624B36C8A00A98DCA /* MetaDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470708A524B36C8900A98DCA /* MetaDataCache.swift */; };
 		47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF22F76E7B200DFA990 /* AnthropicProvider */; };
 		47088CF52F76E7B200DFA990 /* OpenAIProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF42F76E7B200DFA990 /* OpenAIProvider */; };
+		47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF62F76E7B200DFA990 /* SwiftAISDK */; };
 		4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FA2A55A31700274AD4 /* ChatsSegmentedControl.swift */; };
 		4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FC2A55BA7200274AD4 /* NewChatListViewController.swift */; };
 		4708C1FF2A55BCE300274AD4 /* UserContactsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FE2A55BCE300274AD4 /* UserContactsHelper.swift */; };
@@ -360,7 +361,6 @@
 		478ED57D25D41B0700940132 /* SignupFieldView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 478ED57C25D41B0700940132 /* SignupFieldView.xib */; };
 		478ED57F25D42B5E00940132 /* WelcomeInitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED57E25D42B5D00940132 /* WelcomeInitialViewController.swift */; };
 		478ED58225D4468700940132 /* WelcomeCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58125D4468700940132 /* WelcomeCodeViewController.swift */; };
-		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		478ED58425D47C4900940132 /* ConnectingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58325D47C4800940132 /* ConnectingView.swift */; };
 		478ED58825D47C7900940132 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58725D47C7900940132 /* WelcomeView.swift */; };
 		478ED58C25D47C9700940132 /* FriendMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58B25D47C9700940132 /* FriendMessageView.swift */; };
@@ -500,6 +500,7 @@
 		47A4EFFE24B6321700117AE6 /* ConnectivityHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A4EFFD24B6321700117AE6 /* ConnectivityHelper.swift */; };
 		47A93EF725DD79F70030DF14 /* lightningNetwork.gif in Resources */ = {isa = PBXBuildFile; fileRef = 47A93EF625DD79F70030DF14 /* lightningNetwork.gif */; };
 		47A93EF925DD7C4B0030DF14 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A93EF825DD7C4B0030DF14 /* NSImageView.swift */; };
+		47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */; };
 		47AE2468287F1F4700EF42BD /* API+RedeemSatsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */; };
 		47AF0D4E2553099100C98398 /* NewPodcastPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */; };
 		47AF0D5025530DDC00C98398 /* PodcastEpisodesHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */; };
@@ -529,6 +530,7 @@
 		47B6F52C258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B6F52A258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift */; };
 		47B6F52D258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */; };
 		47BA31782D15B14D001AF7E5 /* ContactDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */; };
+		47BB2A022EF431AE00CFDB01 /* SetupAIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */; };
 		47BDEDE924F46585001688F3 /* Profile.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47BDEDEB24F46585001688F3 /* Profile.storyboard */; };
 		47BDEDF124F466C4001688F3 /* ProfileViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BDEDF024F466C4001688F3 /* ProfileViewControllerExtension.swift */; };
 		47BDEE0224F6A2CA001688F3 /* SettingsTabsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47BDEE0424F6A2CA001688F3 /* SettingsTabsView.xib */; };
@@ -702,6 +704,7 @@
 		93FED3612BE23708008B8DDD /* TribeMembersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3602BE23708008B8DDD /* TribeMembersDataSource.swift */; };
 		93FED3642BE238CD008B8DDD /* GroupContactListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3632BE238CD008B8DDD /* GroupContactListItem.swift */; };
 		93FED3662BE238EF008B8DDD /* GroupContactListItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */; };
+		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -1315,7 +1318,6 @@
 		478ED57C25D41B0700940132 /* SignupFieldView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SignupFieldView.xib; sourceTree = "<group>"; };
 		478ED57E25D42B5D00940132 /* WelcomeInitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeInitialViewController.swift; sourceTree = "<group>"; };
 		478ED58125D4468700940132 /* WelcomeCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCodeViewController.swift; sourceTree = "<group>"; };
-		AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		478ED58325D47C4800940132 /* ConnectingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectingView.swift; sourceTree = "<group>"; };
 		478ED58725D47C7900940132 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		478ED58B25D47C9700940132 /* FriendMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendMessageView.swift; sourceTree = "<group>"; };
@@ -1511,6 +1513,7 @@
 		47A4EFFD24B6321700117AE6 /* ConnectivityHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityHelper.swift; sourceTree = "<group>"; };
 		47A93EF625DD79F70030DF14 /* lightningNetwork.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = lightningNetwork.gif; sourceTree = "<group>"; };
 		47A93EF825DD7C4B0030DF14 /* NSImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
+		47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentManager.swift; sourceTree = "<group>"; };
 		47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+RedeemSatsExtension.swift"; sourceTree = "<group>"; };
 		47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPodcastPlayerViewController.swift; sourceTree = "<group>"; };
 		47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastEpisodesHeaderView.swift; sourceTree = "<group>"; };
@@ -1539,6 +1542,7 @@
 		47B6F52B258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastLiveHeaderCollectionViewItem.xib; sourceTree = "<group>"; };
 		47B9CBF72F3D2242007527B4 /* com_stakwork_sphinx_desktop 12.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 12.xcdatamodel"; sourceTree = "<group>"; };
 		47BA31772D15B14D001AF7E5 /* ContactDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDetailsViewController.swift; sourceTree = "<group>"; };
+		47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAIAgentViewController.swift; sourceTree = "<group>"; };
 		47BDEDEA24F46585001688F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Profile.storyboard; sourceTree = "<group>"; };
 		47BDEDED24F4658A001688F3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Profile.strings; sourceTree = "<group>"; };
 		47BDEDEF24F4658B001688F3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Profile.strings; sourceTree = "<group>"; };
@@ -1732,6 +1736,7 @@
 		93FED3632BE238CD008B8DDD /* GroupContactListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContactListItem.swift; sourceTree = "<group>"; };
 		93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupContactListItem.xib; sourceTree = "<group>"; };
 		97A6F8CB5E1D14A28D7C7A67 /* Pods-com.stakwork.sphinx.desktop.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.release.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.release.xcconfig"; sourceTree = "<group>"; };
+		AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
 		CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDetailSelectionVC.swift; sourceTree = "<group>"; };
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
@@ -1801,6 +1806,7 @@
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
 				479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */,
 				47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */,
+				47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */,
 				47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2244,6 +2250,7 @@
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				47AA1A032EF431AB00CFDA02 /* AI Agent */,
 				471ABEAD2EF4319900CFD81F /* Data Sync Manager */,
 				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
 				4717B6662D9ECA3700E3681E /* Chapters Manager */,
@@ -2959,6 +2966,7 @@
 				4789E27324F421A2003991BE /* ProfileViewController.swift */,
 				47BDEDF024F466C4001688F3 /* ProfileViewControllerExtension.swift */,
 				479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */,
+				47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -3350,6 +3358,14 @@
 				478ED5AF25D597E400940132 /* connecting.gif */,
 			);
 			path = Gifs;
+			sourceTree = "<group>";
+		};
+		47AA1A032EF431AB00CFDA02 /* AI Agent */ = {
+			isa = PBXGroup;
+			children = (
+				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
+			);
+			path = "AI Agent";
 			sourceTree = "<group>";
 		};
 		47B55083248958B3000514BF /* Payments */ = {
@@ -4069,6 +4085,7 @@
 				479B19302EC369B800A5B9E2 /* AWSS3 */,
 				47088CF22F76E7B200DFA990 /* AnthropicProvider */,
 				47088CF42F76E7B200DFA990 /* OpenAIProvider */,
+				47088CF62F76E7B200DFA990 /* SwiftAISDK */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -4683,6 +4700,7 @@
 				470396F325373CF9007F9C23 /* MouseDraggableView.swift in Sources */,
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
+				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
 				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,
 				471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */,
 				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
@@ -4849,6 +4867,7 @@
 				47DCF7E62D495FAE007A57A9 /* CallControlView.swift in Sources */,
 				4744FA902469C9F800C5FD94 /* Subscription+CoreDataProperties.swift in Sources */,
 				479B192E2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift in Sources */,
+				47BB2A022EF431AE00CFDB01 /* SetupAIAgentViewController.swift in Sources */,
 				47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */,
 				475B68682991A1A2000EF29C /* FeedBoostHelper.swift in Sources */,
 				470E0B33247C743900177D8A /* LoadingMoreCollectionViewItem.swift in Sources */,
@@ -5742,7 +5761,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gl.sphinx.v2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5778,7 +5797,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gl.sphinx.v2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5976,6 +5995,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
 			productName = OpenAIProvider;
+		};
+		47088CF62F76E7B200DFA990 /* SwiftAISDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = SwiftAISDK;
 		};
 		4730EF5A2CDBCF800014581F /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;

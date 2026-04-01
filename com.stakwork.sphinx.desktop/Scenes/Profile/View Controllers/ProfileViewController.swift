@@ -421,6 +421,17 @@ class ProfileViewController: NSViewController {
             height: 550
         )
     }
+
+    @IBAction func configureAIAgentButtonClicked(_ sender: Any) {
+        let setupAIAgentVC = SetupAIAgentViewController.instantiate()
+
+        advanceTo(
+            vc: setupAIAgentVC,
+            identifier: "setup-ai-agent-window",
+            title: "Configure AI Agent",
+            height: 320
+        )
+    }
     
     private func updateTimeAndDate() {
         let timezone = TimeZone.current

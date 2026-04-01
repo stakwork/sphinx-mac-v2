@@ -820,12 +820,12 @@ with contacts</string>
                                                         </constraints>
                                                     </customView>
                                                     <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="T8K-Kg-5gY">
-                                                        <rect key="frame" x="0.0" y="214" width="414" height="555"/>
+                                                        <rect key="frame" x="0.0" y="214" width="414" height="635"/>
                                                         <subviews>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="p1M-yS-Ktl">
-                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="635"/>
                                                                 <view key="contentView" id="76N-0s-umu">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="635"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="2tJ-IM-OLS">
@@ -914,6 +914,38 @@ with contacts</string>
                                                                             </constraints>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
+                                                                        <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="A1B-C2-D3E">
+                                                                            <rect key="frame" x="0.0" y="200" width="414" height="80"/>
+                                                                            <view key="contentView" id="A1B-C2-F4G">
+                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                                <subviews>
+                                                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="A1B-C2-H5I" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                                                                        <buttonCell key="cell" type="square" title="Configure AI Agent" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="A1B-C2-J6K">
+                                                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                                            <font key="font" size="12" name="Roboto-Medium"/>
+                                                                                        </buttonCell>
+                                                                                        <color key="contentTintColor" name="PrimaryBlue"/>
+                                                                                        <constraints>
+                                                                                            <constraint firstAttribute="height" constant="80" id="A1B-C2-L7M"/>
+                                                                                        </constraints>
+                                                                                        <connections>
+                                                                                            <action selector="configureAIAgentButtonClicked:" target="nVT-b1-Xti" id="A1B-C2-R0S"/>
+                                                                                        </connections>
+                                                                                    </button>
+                                                                                </subviews>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="bottom" secondItem="A1B-C2-H5I" secondAttribute="bottom" id="A1B-C2-N8O"/>
+                                                                                    <constraint firstItem="A1B-C2-H5I" firstAttribute="leading" secondItem="A1B-C2-F4G" secondAttribute="leading" id="A1B-C2-P9Q"/>
+                                                                                    <constraint firstAttribute="trailing" secondItem="A1B-C2-H5I" secondAttribute="trailing" id="A1B-C2-L7MT"/>
+                                                                                </constraints>
+                                                                            </view>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="80" id="A1B-C2-HHH"/>
+                                                                            </constraints>
+                                                                            <color key="fillColor" name="Body"/>
+                                                                        </box>
                                                                         <box hidden="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="TFx-jf-Byq">
                                                                             <rect key="frame" x="0.0" y="200" width="414" height="80"/>
                                                                             <view key="contentView" id="h2o-0A-9Pj">
@@ -994,7 +1026,10 @@ with contacts</string>
                                                                         <constraint firstAttribute="trailing" secondItem="2tJ-IM-OLS" secondAttribute="trailing" id="dJ0-Xl-5Zd"/>
                                                                         <constraint firstAttribute="trailing" secondItem="8uj-eM-lzW" secondAttribute="trailing" id="nRg-Cy-fM1"/>
                                                                         <constraint firstAttribute="trailing" secondItem="Ugr-dN-uij" secondAttribute="trailing" id="xmr-WB-Pp2"/>
-                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="Ugr-dN-uij" secondAttribute="bottom" constant="10" id="xxE-c9-HHq"/>
+                                                                        <constraint firstItem="A1B-C2-D3E" firstAttribute="top" secondItem="Ugr-dN-uij" secondAttribute="bottom" constant="10" id="xxE-c9-HHq"/>
+                                                                        <constraint firstItem="A1B-C2-D3E" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="A1B-CC-LD1"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="A1B-C2-D3E" secondAttribute="trailing" id="A1B-CC-TR1"/>
+                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="A1B-C2-D3E" secondAttribute="bottom" constant="10" id="A1B-CC-HQ1"/>
                                                                     </constraints>
                                                                 </view>
                                                                 <color key="fillColor" name="HeaderBG"/>
@@ -1002,7 +1037,7 @@ with contacts</string>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstItem="p1M-yS-Ktl" firstAttribute="top" secondItem="T8K-Kg-5gY" secondAttribute="top" id="6O7-mA-1CC"/>
-                                                            <constraint firstAttribute="height" constant="555" id="Lx0-Dw-ijg"/>
+                                                            <constraint firstAttribute="height" constant="635" id="Lx0-Dw-ijg"/>
                                                             <constraint firstAttribute="trailing" secondItem="p1M-yS-Ktl" secondAttribute="trailing" id="Xiq-6y-fhK"/>
                                                             <constraint firstItem="p1M-yS-Ktl" firstAttribute="leading" secondItem="T8K-Kg-5gY" secondAttribute="leading" id="bEz-0I-D1x"/>
                                                             <constraint firstAttribute="bottom" secondItem="p1M-yS-Ktl" secondAttribute="bottom" id="scp-X9-gIq"/>
