@@ -7,7 +7,7 @@
 //
 
 import Cocoa
-import AVFoundation
+@preconcurrency import AVFoundation
 import CoreImage
 
 @MainActor
@@ -15,21 +15,63 @@ protocol QRCodeScannerDelegate: AnyObject {
     func didScanQRCode(string: String)
 }
 
+// MARK: - Frame Processor
+
+/// Non-@MainActor helper that owns the AVCaptureVideoDataOutputSampleBufferDelegate
+/// conformance. Keeping this entirely nonisolated avoids Swift 6 @MainActor runtime
+/// assertions (_dispatch_assert_queue_fail) when AVFoundation calls captureOutput on
+/// the capture queue.
+private final class QRFrameProcessor: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @unchecked Sendable {
+
+    private var didDetect = false
+    private let qrDetector: CIDetector?
+    private let onDetect: @MainActor (String) -> Void
+
+    init(onDetect: @escaping @MainActor (String) -> Void) {
+        self.onDetect = onDetect
+        self.qrDetector = CIDetector(
+            ofType: CIDetectorTypeQRCode,
+            context: nil,
+            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        )
+    }
+
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
+        guard !didDetect else { return }
+
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let features = qrDetector?.features(in: ciImage) ?? []
+
+        for feature in features {
+            guard
+                let qrFeature = feature as? CIQRCodeFeature,
+                let message = qrFeature.messageString,
+                !message.isEmpty
+            else { continue }
+
+            didDetect = true
+            let cb = onDetect
+            Task { @MainActor in cb(message) }
+            break
+        }
+    }
+}
+
+// MARK: - View Controller
+
 class QRCodeScannerViewController: NSViewController {
 
     weak var delegate: QRCodeScannerDelegate?
 
     private var captureSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer?
-    private var didDetect = false
-
-    private lazy var qrDetector: CIDetector? = {
-        return CIDetector(
-            ofType: CIDetectorTypeQRCode,
-            context: nil,
-            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-        )
-    }()
+    private var frameProcessor: QRFrameProcessor?
 
     // MARK: - View Lifecycle
 
@@ -123,7 +165,6 @@ class QRCodeScannerViewController: NSViewController {
     }
 
     private func configureSession() {
-        // Try .front first (matches the LiveKit usage pattern), fall back to any available camera
         let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
                   ?? AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .unspecified)
                   ?? AVCaptureDevice.default(for: .video)
@@ -148,14 +189,23 @@ class QRCodeScannerViewController: NSViewController {
             return
         }
 
-        // Use AVCaptureVideoDataOutput + CIDetector for QR scanning — this is the
-        // correct macOS approach (AVCaptureMetadataOutput .qr is iOS-primary and
-        // unreliable on macOS).
+        // QRFrameProcessor handles all frame callbacks on qr.scanner.queue without
+        // any @MainActor isolation, avoiding Swift 6 runtime assertion failures.
+        let processor = QRFrameProcessor { [weak self] message in
+            // Already dispatched to main by QRFrameProcessor.
+            guard let self = self else { return }
+            let delegateRef = self.delegate
+            self.stopSession()
+            self.dismiss(self)
+            delegateRef?.didScanQRCode(string: message)
+        }
+        self.frameProcessor = processor
+
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.videoSettings = [
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
         ]
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "qr.scanner.queue"))
+        videoOutput.setSampleBufferDelegate(processor, queue: DispatchQueue(label: "qr.scanner.queue"))
         videoOutput.alwaysDiscardsLateVideoFrames = true
 
         guard session.canAddOutput(videoOutput) else {
@@ -183,8 +233,9 @@ class QRCodeScannerViewController: NSViewController {
     }
 
     func stopSession() {
-        DispatchQueue.global().async { [weak self] in
-            self?.captureSession?.stopRunning()
+        let session = captureSession
+        DispatchQueue.global().async {
+            session?.stopRunning()
         }
     }
 
@@ -201,44 +252,5 @@ class QRCodeScannerViewController: NSViewController {
     @objc private func cancelTapped() {
         stopSession()
         dismiss(self)
-    }
-}
-
-// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-
-extension QRCodeScannerViewController: @preconcurrency AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(
-        _ output: AVCaptureOutput,
-        didOutput sampleBuffer: CMSampleBuffer,
-        from connection: AVCaptureConnection
-    ) {
-        // Skip frames once a code has been detected
-        guard !didDetect else { return }
-
-        guard
-            let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        else { return }
-
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let features = qrDetector?.features(in: ciImage) ?? []
-
-        for feature in features {
-            guard
-                let qrFeature = feature as? CIQRCodeFeature,
-                let message = qrFeature.messageString,
-                !message.isEmpty
-            else { continue }
-
-            didDetect = true
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                let delegateRef = self.delegate
-                self.stopSession()
-                self.dismiss(self)
-                delegateRef?.didScanQRCode(string: message)
-            }
-            break
-        }
     }
 }

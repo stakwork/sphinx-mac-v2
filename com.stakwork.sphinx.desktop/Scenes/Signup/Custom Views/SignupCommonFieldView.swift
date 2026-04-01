@@ -29,7 +29,7 @@ class SignupCommonFieldView: NSView, LoadableNib {
     @IBOutlet weak var topLabel: NSTextField!
     @IBOutlet weak var fieldBox: NSBox!
     @IBOutlet weak var textField: CCTextField!
-    @IBOutlet weak var qrScanButton: NSButton!
+    @IBOutlet weak var qrScanButton: CustomButton!
     
     var field: Int = 0
     
@@ -50,8 +50,9 @@ class SignupCommonFieldView: NSView, LoadableNib {
     
     func showQRScanButton(_ show: Bool) {
         if show {
+            qrScanButton?.cursor = .pointingHand
             qrScanButton?.image = NSImage(systemSymbolName: "qrcode.viewfinder", accessibilityDescription: nil)
-            qrScanButton?.contentTintColor = NSColor.white
+            qrScanButton?.contentTintColor = NSColor.Sphinx.MainBottomIcons
         }
         qrScanButton?.isHidden = !show
     }
