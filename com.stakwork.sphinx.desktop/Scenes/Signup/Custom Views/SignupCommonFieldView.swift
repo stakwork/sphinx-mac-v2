@@ -49,6 +49,10 @@ class SignupCommonFieldView: NSView, LoadableNib {
     }
     
     func showQRScanButton(_ show: Bool) {
+        if show {
+            qrScanButton?.image = NSImage(systemSymbolName: "qrcode.viewfinder", accessibilityDescription: nil)
+            qrScanButton?.contentTintColor = NSColor.white
+        }
         qrScanButton?.isHidden = !show
     }
     

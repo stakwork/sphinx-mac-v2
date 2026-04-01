@@ -36,11 +36,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="480" height="48"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView orientation="horizontal" spacing="8" horizontalStackHuggingPriority="249" verticalStackHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="QRS-sv-001">
+                            <stackView distribution="fill" orientation="horizontal" alignment="centerY" spacing="8" horizontalStackHuggingPriority="249" verticalStackHuggingPriority="249" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QRS-sv-001">
                                 <rect key="frame" x="17" y="12" width="446" height="24"/>
                                 <subviews>
                                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="EhA-tl-CqJ" customClass="CCTextField" customModule="Sphinx" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="2" width="406" height="20"/>
+                                        <rect key="frame" x="0.0" y="2" width="414" height="20"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="20" id="XVK-Lm-YEn"/>
                                         </constraints>
@@ -51,12 +51,12 @@
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" horizontalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QRS-bt-001" hidden="YES">
-                                        <rect key="frame" x="414" y="0.0" width="32" height="24"/>
+                                        <rect key="frame" x="422" y="0.0" width="24" height="24"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="32" id="QRS-w-001"/>
+                                            <constraint firstAttribute="width" constant="24" id="QRS-w-001"/>
                                             <constraint firstAttribute="height" constant="24" id="QRS-h-001"/>
                                         </constraints>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="qrcode.viewfinder" imageScaling="proportionallyUpOrDown" id="QRS-bc-001">
+                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyUpOrDown" id="QRS-bc-001">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -65,10 +65,6 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="EhA-tl-CqJ" firstAttribute="centerY" secondItem="QRS-sv-001" secondAttribute="centerY" id="QRS-cy-tf"/>
-                                    <constraint firstItem="QRS-bt-001" firstAttribute="centerY" secondItem="QRS-sv-001" secondAttribute="centerY" id="QRS-cy-bt"/>
-                                </constraints>
                             </stackView>
                         </subviews>
                         <constraints>
