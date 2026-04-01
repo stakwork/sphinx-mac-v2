@@ -14,6 +14,7 @@ protocol NewChatHeaderViewDelegate: AnyObject {
     func menuTapped(_ frame: CGRect)
     func profileButtonClicked()
     func qrButtonTapped()
+    func aiAgentButtonTapped()
 }
 
 class NewChatHeaderView: NSView, LoadableNib {
@@ -33,6 +34,9 @@ class NewChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var menuButton: CustomButton!
     @IBOutlet weak var balanceButton: CustomButton!
     @IBOutlet weak var qrCodeButton: CustomButton!
+
+    // Programmatically added AI agent button
+    private let aiAgentButton = CustomButton()
     
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     @IBOutlet weak var loadingWheelContainer: NSView!
@@ -117,10 +121,48 @@ class NewChatHeaderView: NSView, LoadableNib {
         menuButton.cursor = .pointingHand
         balanceButton.cursor = .pointingHand
         qrCodeButton.cursor = .pointingHand
-        
+
         profileImageView.wantsLayer = true
         profileImageView.rounded = true
         profileImageView.layer?.cornerRadius = profileImageView.frame.height / 2
+
+        setupAIAgentButton()
+    }
+
+    private func setupAIAgentButton() {
+        guard aiAgentButton.superview == nil else { return }
+
+        aiAgentButton.translatesAutoresizingMaskIntoConstraints = false
+        aiAgentButton.cursor = .pointingHand
+        aiAgentButton.isBordered = false
+        aiAgentButton.imagePosition = .imageOnly
+        aiAgentButton.target = self
+        aiAgentButton.action = #selector(aiAgentButtonTappedAction)
+        aiAgentButton.toolTip = "Open Sphinx AI"
+
+        if let img = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "AI Agent") {
+            aiAgentButton.image = img
+        } else {
+            aiAgentButton.title = "AI"
+            aiAgentButton.imagePosition = .noImage
+        }
+
+        contentView.addSubview(aiAgentButton)
+
+        // Place the button to the left of the qrCodeButton using a simple fixed frame fallback
+        // We use Auto Layout relative to qrCodeButton if it's available
+        if let qrBtn = qrCodeButton {
+            NSLayoutConstraint.activate([
+                aiAgentButton.trailingAnchor.constraint(equalTo: qrBtn.leadingAnchor, constant: -4),
+                aiAgentButton.centerYAnchor.constraint(equalTo: qrBtn.centerYAnchor),
+                aiAgentButton.widthAnchor.constraint(equalToConstant: 24),
+                aiAgentButton.heightAnchor.constraint(equalToConstant: 24),
+            ])
+        }
+    }
+
+    @objc private func aiAgentButtonTappedAction() {
+        delegate?.aiAgentButtonTapped()
     }
     
     @IBAction func refreshButtonTapped(_ sender: NSButton) {

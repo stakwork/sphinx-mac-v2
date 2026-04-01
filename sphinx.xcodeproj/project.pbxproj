@@ -501,6 +501,7 @@
 		47A93EF725DD79F70030DF14 /* lightningNetwork.gif in Resources */ = {isa = PBXBuildFile; fileRef = 47A93EF625DD79F70030DF14 /* lightningNetwork.gif */; };
 		47A93EF925DD7C4B0030DF14 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A93EF825DD7C4B0030DF14 /* NSImageView.swift */; };
 		47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */; };
+		47AIVC032EF500000AIVC003 /* AIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */; };
 		47AE2468287F1F4700EF42BD /* API+RedeemSatsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */; };
 		47AF0D4E2553099100C98398 /* NewPodcastPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */; };
 		47AF0D5025530DDC00C98398 /* PodcastEpisodesHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */; };
@@ -3088,6 +3089,7 @@
 		479751C2246C72C100D2106B /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
+				47AIVC012EF500000AIVC001 /* AI Agent */,
 				47WORKG12F19000000000011 /* Workspaces */,
 				4738299B2EB3E2DE007E045A /* Graph */,
 				477CE02B2DC90874004110E8 /* Feed */,
@@ -3364,6 +3366,14 @@
 			isa = PBXGroup;
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
+			);
+			path = "AI Agent";
+			sourceTree = "<group>";
+		};
+		47AIVC012EF500000AIVC001 /* AI Agent */ = {
+			isa = PBXGroup;
+			children = (
+				47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";

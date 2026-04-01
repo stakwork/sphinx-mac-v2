@@ -469,6 +469,17 @@ import SwiftUI
         }
     }
     
+    func showAIAgentWindow() {
+        if bringToFrontIfExists(identifier: "ai-agent") { return }
+        showNewWindow(
+            with: "Sphinx AI",
+            size: CGSize(width: 600, height: 700),
+            minSize: CGSize(width: 400, height: 500),
+            identifier: "ai-agent",
+            contentVC: AIAgentViewController.instantiate()
+        )
+    }
+
     func showWebAppWindow(chat: Chat?, view: NSView, isAppURL: Bool = true) {
         if let chat = chat, let tribeInfo = chat.tribeInfo, let appURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appURL.isEmpty && appURL.isValidURL,
            let webAppVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {
