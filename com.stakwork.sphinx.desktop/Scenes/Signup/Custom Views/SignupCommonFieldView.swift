@@ -12,6 +12,7 @@ import Cocoa
     @objc optional func didChangeText(text: String)
     @objc optional func didUseTab(field: Int)
     @objc optional func didConfirmPin(text: String)
+    @objc optional func didTapScanQR()
 }
 
 class SignupCommonFieldView: NSView, LoadableNib {
@@ -28,6 +29,7 @@ class SignupCommonFieldView: NSView, LoadableNib {
     @IBOutlet weak var topLabel: NSTextField!
     @IBOutlet weak var fieldBox: NSBox!
     @IBOutlet weak var textField: CCTextField!
+    @IBOutlet weak var qrScanButton: CustomButton!
     
     var field: Int = 0
     
@@ -44,6 +46,19 @@ class SignupCommonFieldView: NSView, LoadableNib {
     
     func getFieldValue() -> String {
         return textField.stringValue
+    }
+    
+    func showQRScanButton(_ show: Bool) {
+        if show {
+            qrScanButton?.cursor = .pointingHand
+            qrScanButton?.image = NSImage(systemSymbolName: "qrcode.viewfinder", accessibilityDescription: nil)
+            qrScanButton?.contentTintColor = NSColor.Sphinx.MainBottomIcons
+        }
+        qrScanButton?.isHidden = !show
+    }
+    
+    @IBAction func scanQRTapped(_ sender: Any) {
+        delegate?.didTapScanQR?()
     }
     
     func getTextField() -> NSTextField {

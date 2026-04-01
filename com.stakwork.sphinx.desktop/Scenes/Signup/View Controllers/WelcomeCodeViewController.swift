@@ -77,6 +77,9 @@ class WelcomeCodeViewController: NSViewController {
             delegate: self
         )
         
+        // Show QR scan button only for existing user (restore) flow
+        codeField.showQRScanButton(!isNewUser)
+        
         let label = (isNewUser ? "signup.label" : "restore.label").localized
         let boldLabels = isNewUser ? ["signup.label.bold.1".localized, "signup.label.bold.2".localized] : ["restore.label.bold".localized]
         
@@ -266,6 +269,12 @@ extension WelcomeCodeViewController : SignupFieldViewDelegate {
         submitButton.buttonDisabled = !valid
     }
     
+    func didTapScanQR() {
+        let scannerVC = QRCodeScannerViewController()
+        scannerVC.delegate = self
+        presentAsSheet(scannerVC)
+    }
+    
     func validateCode(code: String) -> Bool {
         if code.isV2InviteCode {
             return true
@@ -325,4 +334,15 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
         }
     }
     
+}
+
+extension WelcomeCodeViewController: @preconcurrency QRCodeScannerDelegate {
+    func didScanQRCode(string: String) {
+        codeField.set(fieldValue: string)
+        let valid = validateCode(code: string)
+        submitButton.buttonDisabled = !valid
+        if valid {
+            didClickButton(tag: -1)
+        }
+    }
 }
