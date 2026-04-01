@@ -78,6 +78,68 @@
             </objects>
             <point key="canvasLocation" x="-425" y="249.5"/>
         </scene>
+
+        <!--Setup AI Agent View Controller-->
+        <scene sceneID="AIa-gn-sce">
+            <objects>
+                <viewController storyboardIdentifier="SetupAIAgentViewController" id="AIa-gn-vc1" customClass="SetupAIAgentViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="AIa-gn-vw1">
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="AIa-gn-bx1">
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                <view key="contentView" id="AIa-gn-cv1">
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <color key="fillColor" name="Body"/>
+                            </box>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="AIa-gn-pf1" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="300" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="AIa-gn-c01"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="AIa-gn-kf1" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="220" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="AIa-gn-c02"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="AIa-gn-bt1" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="65" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="AIa-gn-c03"/>
+                                </constraints>
+                            </customView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="AIa-gn-kf1" firstAttribute="top" secondItem="AIa-gn-pf1" secondAttribute="bottom" constant="12" id="AIa-gn-c04"/>
+                            <constraint firstAttribute="bottom" secondItem="AIa-gn-bx1" secondAttribute="bottom" id="AIa-gn-c05"/>
+                            <constraint firstAttribute="trailing" secondItem="AIa-gn-bt1" secondAttribute="trailing" constant="64" id="AIa-gn-c06"/>
+                            <constraint firstItem="AIa-gn-bx1" firstAttribute="leading" secondItem="AIa-gn-vw1" secondAttribute="leading" id="AIa-gn-c07"/>
+                            <constraint firstItem="AIa-gn-pf1" firstAttribute="top" secondItem="AIa-gn-vw1" secondAttribute="top" constant="32" id="AIa-gn-c08"/>
+                            <constraint firstAttribute="trailing" secondItem="AIa-gn-kf1" secondAttribute="trailing" constant="64" id="AIa-gn-c09"/>
+                            <constraint firstItem="AIa-gn-bx1" firstAttribute="top" secondItem="AIa-gn-vw1" secondAttribute="top" id="AIa-gn-c10"/>
+                            <constraint firstItem="AIa-gn-kf1" firstAttribute="leading" secondItem="AIa-gn-vw1" secondAttribute="leading" constant="64" id="AIa-gn-c11"/>
+                            <constraint firstItem="AIa-gn-bt1" firstAttribute="leading" secondItem="AIa-gn-vw1" secondAttribute="leading" constant="64" id="AIa-gn-c12"/>
+                            <constraint firstAttribute="trailing" secondItem="AIa-gn-pf1" secondAttribute="trailing" constant="64" id="AIa-gn-c13"/>
+                            <constraint firstAttribute="bottom" secondItem="AIa-gn-bt1" secondAttribute="bottom" constant="65" id="AIa-gn-c14"/>
+                            <constraint firstItem="AIa-gn-pf1" firstAttribute="leading" secondItem="AIa-gn-vw1" secondAttribute="leading" constant="64" id="AIa-gn-c15"/>
+                            <constraint firstAttribute="trailing" secondItem="AIa-gn-bx1" secondAttribute="trailing" id="AIa-gn-c16"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="confirmButtonView" destination="AIa-gn-bt1" id="AIa-gn-o01"/>
+                        <outlet property="providerFieldView" destination="AIa-gn-pf1" id="AIa-gn-o02"/>
+                        <outlet property="apiKeyFieldView" destination="AIa-gn-kf1" id="AIa-gn-o03"/>
+                    </connections>
+                </viewController>
+                <customObject id="AIa-gn-fr1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-425" y="-380"/>
+        </scene>
         <!--Profile View Controller-->
         <scene sceneID="6mP-la-eFK">
             <objects>
