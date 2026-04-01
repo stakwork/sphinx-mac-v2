@@ -360,6 +360,7 @@
 		478ED57D25D41B0700940132 /* SignupFieldView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 478ED57C25D41B0700940132 /* SignupFieldView.xib */; };
 		478ED57F25D42B5E00940132 /* WelcomeInitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED57E25D42B5D00940132 /* WelcomeInitialViewController.swift */; };
 		478ED58225D4468700940132 /* WelcomeCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58125D4468700940132 /* WelcomeCodeViewController.swift */; };
+		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		478ED58425D47C4900940132 /* ConnectingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58325D47C4800940132 /* ConnectingView.swift */; };
 		478ED58825D47C7900940132 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58725D47C7900940132 /* WelcomeView.swift */; };
 		478ED58C25D47C9700940132 /* FriendMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478ED58B25D47C9700940132 /* FriendMessageView.swift */; };
@@ -1314,6 +1315,7 @@
 		478ED57C25D41B0700940132 /* SignupFieldView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SignupFieldView.xib; sourceTree = "<group>"; };
 		478ED57E25D42B5D00940132 /* WelcomeInitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeInitialViewController.swift; sourceTree = "<group>"; };
 		478ED58125D4468700940132 /* WelcomeCodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCodeViewController.swift; sourceTree = "<group>"; };
+		AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		478ED58325D47C4800940132 /* ConnectingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectingView.swift; sourceTree = "<group>"; };
 		478ED58725D47C7900940132 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		478ED58B25D47C9700940132 /* FriendMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendMessageView.swift; sourceTree = "<group>"; };
@@ -3438,6 +3440,7 @@
 			children = (
 				478ED57E25D42B5D00940132 /* WelcomeInitialViewController.swift */,
 				478ED58125D4468700940132 /* WelcomeCodeViewController.swift */,
+				AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */,
 				478ED58F25D5522C00940132 /* WelcomeEmptyViewController.swift */,
 				478ED59525D55C0700940132 /* WelcomeLightningViewController.swift */,
 				478ED5B525D6BF6E00940132 /* WelcomeMobileViewController.swift */,
@@ -4904,6 +4907,7 @@
 				475B680429915C9E000EF29C /* ActionTrack+FetchUtils.swift in Sources */,
 				474E46762AB0BFAB0098AD24 /* FileInfoView.swift in Sources */,
 				478ED58225D4468700940132 /* WelcomeCodeViewController.swift in Sources */,
+				AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */,
 				4730EF652CDBD0580014581F /* RoomContext.swift in Sources */,
 				479C794824ED6DD8009BA1CD /* WebAppHelper.swift in Sources */,
 				4744FADA246B398800C5FD94 /* WindowsManager.swift in Sources */,
