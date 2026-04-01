@@ -11,7 +11,7 @@ import SwiftAISDK
 import AnthropicProvider
 import OpenAIProvider
 
-class AIAgentManager {
+final class AIAgentManager: @unchecked Sendable {
 
     static let sharedInstance = AIAgentManager()
 
@@ -147,11 +147,12 @@ class AIAgentManager {
     private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
         tool(
             description: "Send a Sphinx message to a contact by name. Always confirm with the user before calling this tool.",
-            execute: { (input: SendMessageInput, _) async throws -> String in
-                await AIAgentManager.executeSendMessage(
+            execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                let result = await AIAgentManager.executeSendMessage(
                     contactName: input.contactName,
                     messageText: input.messageText
                 )
+                return .value(result)
             }
         )
     }
@@ -194,16 +195,16 @@ class AIAgentManager {
     private func buildReadMessagesTool() -> TypedTool<ReadMessagesInput, String> {
         tool(
             description: "Read recent messages from a conversation with a specific Sphinx contact.",
-            execute: { (input: ReadMessagesInput, _) async throws -> String in
+            execute: { (input: ReadMessagesInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
                 let contacts = UserContact.getAll()
                 guard let contact = contacts.first(where: {
                     ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
                 }) else {
-                    return "Contact not found: \(input.contactName)"
+                    return .value("Contact not found: \(input.contactName)")
                 }
 
                 guard let chat = contact.getConversation() else {
-                    return "Chat not found for contact: \(input.contactName)"
+                    return .value("Chat not found for contact: \(input.contactName)")
                 }
 
                 let messages = TransactionMessage.getAllMessagesFor(
@@ -212,7 +213,7 @@ class AIAgentManager {
                 )
 
                 if messages.isEmpty {
-                    return "No messages found in this chat"
+                    return .value("No messages found in this chat")
                 }
 
                 let owner = UserContact.getOwner()
@@ -226,7 +227,7 @@ class AIAgentManager {
                     return "[\(sender)] \(dateStr): \(content)"
                 }
 
-                return lines.joined(separator: "\n")
+                return .value(lines.joined(separator: "\n"))
             }
         )
     }
