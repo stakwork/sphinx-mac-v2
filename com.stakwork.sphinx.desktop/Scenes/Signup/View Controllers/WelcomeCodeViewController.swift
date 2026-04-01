@@ -270,16 +270,9 @@ extension WelcomeCodeViewController : SignupFieldViewDelegate {
     }
     
     func didTapScanQR() {
-        if #available(macOS 13.0, *) {
-            let scannerVC = QRCodeScannerViewController()
-            scannerVC.delegate = self
-            presentAsSheet(scannerVC)
-        } else {
-            AlertHelper.showAlert(
-                title: "Error",
-                message: "no.camera.available".localized
-            )
-        }
+        let scannerVC = QRCodeScannerViewController()
+        scannerVC.delegate = self
+        presentAsSheet(scannerVC)
     }
     
     func validateCode(code: String) -> Bool {
@@ -343,7 +336,6 @@ extension WelcomeCodeViewController : ImportSeedViewDelegate {
     
 }
 
-@available(macOS 13.0, *)
 extension WelcomeCodeViewController: @preconcurrency QRCodeScannerDelegate {
     func didScanQRCode(string: String) {
         codeField.set(fieldValue: string)

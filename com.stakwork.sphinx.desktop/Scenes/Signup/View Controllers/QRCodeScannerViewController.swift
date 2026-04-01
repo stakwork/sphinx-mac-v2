@@ -8,19 +8,28 @@
 
 import Cocoa
 import AVFoundation
+import CoreImage
 
 @MainActor
 protocol QRCodeScannerDelegate: AnyObject {
     func didScanQRCode(string: String)
 }
 
-@available(macOS 13.0, *)
 class QRCodeScannerViewController: NSViewController {
 
     weak var delegate: QRCodeScannerDelegate?
 
     private var captureSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer?
+    private var didDetect = false
+
+    private lazy var qrDetector: CIDetector? = {
+        return CIDetector(
+            ofType: CIDetectorTypeQRCode,
+            context: nil,
+            options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+        )
+    }()
 
     // MARK: - View Lifecycle
 
@@ -114,12 +123,18 @@ class QRCodeScannerViewController: NSViewController {
     }
 
     private func configureSession() {
-        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .unspecified) else {
+        // Try .front first (matches the LiveKit usage pattern), fall back to any available camera
+        let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+                  ?? AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .unspecified)
+                  ?? AVCaptureDevice.default(for: .video)
+
+        guard let device = device else {
             showNoCameraAlert()
             return
         }
 
         let session = AVCaptureSession()
+        session.sessionPreset = .high
 
         do {
             let input = try AVCaptureDeviceInput(device: device)
@@ -133,19 +148,21 @@ class QRCodeScannerViewController: NSViewController {
             return
         }
 
-        let metadataOutput = AVCaptureMetadataOutput()
-        guard session.canAddOutput(metadataOutput) else {
+        // Use AVCaptureVideoDataOutput + CIDetector for QR scanning — this is the
+        // correct macOS approach (AVCaptureMetadataOutput .qr is iOS-primary and
+        // unreliable on macOS).
+        let videoOutput = AVCaptureVideoDataOutput()
+        videoOutput.videoSettings = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
+        ]
+        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "qr.scanner.queue"))
+        videoOutput.alwaysDiscardsLateVideoFrames = true
+
+        guard session.canAddOutput(videoOutput) else {
             showNoCameraAlert()
             return
         }
-        session.addOutput(metadataOutput)
-        metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        
-        guard metadataOutput.availableMetadataObjectTypes.contains(.qr) else {
-            showNoCameraAlert()
-            return
-        }
-        metadataOutput.metadataObjectTypes = [.qr]
+        session.addOutput(videoOutput)
 
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.frame = view.bounds
@@ -185,33 +202,43 @@ class QRCodeScannerViewController: NSViewController {
         stopSession()
         dismiss(self)
     }
-
-    // MARK: - Internal handler (called on main actor after QR scan)
-
-    func handleScannedString(_ string: String) {
-        stopSession()
-        let delegateRef = self.delegate
-        self.dismiss(self)
-        delegateRef?.didScanQRCode(string: string)
-    }
 }
 
-// MARK: - AVCaptureMetadataOutputObjectsDelegate
+// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
 
-@available(macOS 13.0, *)
-extension QRCodeScannerViewController: @preconcurrency AVCaptureMetadataOutputObjectsDelegate {
-    func metadataOutput(
-        _ output: AVCaptureMetadataOutput,
-        didOutput metadataObjects: [AVMetadataObject],
+extension QRCodeScannerViewController: @preconcurrency AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
+        // Skip frames once a code has been detected
+        guard !didDetect else { return }
+
         guard
-            let metadataObject = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
-            metadataObject.type == .qr,
-            let scannedString = metadataObject.stringValue
+            let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
         else { return }
 
-        // Delegate queue is DispatchQueue.main, so we are already on main actor here.
-        handleScannedString(scannedString)
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let features = qrDetector?.features(in: ciImage) ?? []
+
+        for feature in features {
+            guard
+                let qrFeature = feature as? CIQRCodeFeature,
+                let message = qrFeature.messageString,
+                !message.isEmpty
+            else { continue }
+
+            didDetect = true
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let delegateRef = self.delegate
+                self.stopSession()
+                self.dismiss(self)
+                delegateRef?.didScanQRCode(string: message)
+            }
+            break
+        }
     }
 }
