@@ -479,6 +479,9 @@
 		479A03FC258814240093DB30 /* DeepLinksHandlerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479A03FB258814240093DB30 /* DeepLinksHandlerHelper.swift */; };
 		479B192B2EB8E05500A5B9E2 /* FileAnalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */; };
 		479B192E2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */; };
+					47BB2A022EF431AE00CFDB01 /* SetupAIAgentViewController.swift in Sources */,
+					47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */,
+		47BB2A022EF431AE00CFDB01 /* SetupAIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */; };
 		479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 479B19302EC369B800A5B9E2 /* AWSS3 */; };
 		479B19342EC36AC800A5B9E2 /* S3Uploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19332EC36AC500A5B9E2 /* S3Uploader.swift */; };
 		479B19362EC36E6700A5B9E2 /* S3UploaderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */; };
@@ -1484,6 +1487,7 @@
 		479B192A2EB8E05200A5B9E2 /* FileAnalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAnalizer.swift; sourceTree = "<group>"; };
 		479B192C2EB90C2800A5B9E2 /* com_stakwork_sphinx_desktop 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 8.xcdatamodel"; sourceTree = "<group>"; };
 		479B192D2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupPersonalGraphViewController.swift; sourceTree = "<group>"; };
+		47BB2A012EF431AB00CFDB01 /* SetupAIAgentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAIAgentViewController.swift; sourceTree = "<group>"; };
 		479B19332EC36AC500A5B9E2 /* S3Uploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3Uploader.swift; sourceTree = "<group>"; };
 		479B19352EC36E6200A5B9E2 /* S3UploaderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = S3UploaderManager.swift; sourceTree = "<group>"; };
 		479B19372EC4E03800A5B9E2 /* com_stakwork_sphinx_desktop 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 9.xcdatamodel"; sourceTree = "<group>"; };

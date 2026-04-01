@@ -243,6 +243,31 @@ class UserData: @unchecked Sendable {
         return nil
     }
     
+    func save(
+        aiAgentValue: String,
+        for key: KeychainManager.KeychainKeys
+    ) {
+        if let pin = getAppPin(),
+            let encryptedValue = SymmetricEncryptionManager.sharedInstance.encryptString(text: aiAgentValue, key: pin),
+            !encryptedValue.isEmpty
+        {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            let _ = keychainManager.save(value: encryptedValue, forComposedKey: composedKey)
+        }
+    }
+
+    func getAIAgentValue(
+        with key: KeychainManager.KeychainKeys
+    ) -> String? {
+        if let pin = getAppPin() {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            if let encryptedValue = keychainManager.getValueFor(composedKey: composedKey), !encryptedValue.isEmpty {
+                return SymmetricEncryptionManager.sharedInstance.decryptString(text: encryptedValue, key: pin)
+            }
+        }
+        return nil
+    }
+
     func save(balance: UInt64) {
         let _ = keychainManager.save(
             value: String(balance),

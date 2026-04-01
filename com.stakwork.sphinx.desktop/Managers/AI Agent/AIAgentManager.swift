@@ -9,10 +9,18 @@
 import Foundation
 import SwiftAISDK
 import AnthropicProvider
+import OpenAIProvider
 
 class AIAgentManager {
 
     static let sharedInstance = AIAgentManager()
+
+    // MARK: - Provider enum
+
+    enum AIProvider: String, CaseIterable {
+        case anthropic = "Anthropic"
+        case openAI    = "OpenAI"
+    }
 
     // MARK: - State
 
@@ -20,9 +28,8 @@ class AIAgentManager {
     var lastIncomingMessageDate: Date? = nil
     private var lastCheckedIncomingDate: Date? = nil
 
-    // MARK: - Provider
-
-    private let provider: AnthropicProvider
+    /// The currently active language model (nil if not configured)
+    private var activeModel: (any LanguageModelV3)?
 
     // MARK: - System Prompt
 
@@ -44,18 +51,42 @@ class AIAgentManager {
     // MARK: - Init
 
     private init() {
-        self.provider = createAnthropicProvider(
-            settings: AnthropicProviderSettings(apiKey: Config.anthropicApiKey)
-        )
         observeIncomingMessages()
+        reconfigure()
+    }
+
+    // MARK: - Reconfigure
+
+    /// Call this after saving new provider / key settings in the profile.
+    func reconfigure() {
+        let userData = UserData.sharedInstance
+        let providerRaw = userData.getAIAgentValue(with: .aiAgentProvider) ?? ""
+        let apiKey      = userData.getAIAgentValue(with: .aiAgentApiKey)   ?? ""
+        let provider    = AIProvider(rawValue: providerRaw) ?? .anthropic
+
+        guard !apiKey.isEmpty else {
+            activeModel = nil
+            return
+        }
+
+        switch provider {
+        case .anthropic:
+            let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
+            activeModel = p.chat(modelId: "claude-3-5-sonnet-20241022")
+        case .openAI:
+            let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
+            activeModel = p.chat(modelId: "gpt-4o")
+        }
+
+        // Reset history when credentials change
+        reset()
     }
 
     // MARK: - Public API
 
-    /// Send a message to the agent and receive a response.
     func chat(_ userText: String) async throws -> String {
-        guard !Config.anthropicApiKey.isEmpty else {
-            return "AI agent is not configured. Please add your Anthropic API key to Config.swift."
+        guard let model = activeModel else {
+            return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
 
         var effectiveUserText = userText
@@ -74,7 +105,7 @@ class AIAgentManager {
         ]
 
         let result = try await generateText(
-            model: .v3(provider.chat(modelId: "claude-3-5-sonnet-20241022")),
+            model: .v3(model),
             tools: tools,
             system: systemPrompt,
             messages: conversationHistory,
@@ -86,7 +117,6 @@ class AIAgentManager {
         return responseText
     }
 
-    /// Clear conversation history to start a fresh session.
     func reset() {
         conversationHistory = []
         lastCheckedIncomingDate = nil
@@ -117,9 +147,8 @@ class AIAgentManager {
     private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
         tool(
             description: "Send a Sphinx message to a contact by name. Always confirm with the user before calling this tool.",
-            execute: { [weak self] (input: SendMessageInput, _) async throws -> String in
-                guard let _ = self else { return "Manager deallocated." }
-                return await AIAgentManager.executeSendMessage(
+            execute: { (input: SendMessageInput, _) async throws -> String in
+                await AIAgentManager.executeSendMessage(
                     contactName: input.contactName,
                     messageText: input.messageText
                 )
