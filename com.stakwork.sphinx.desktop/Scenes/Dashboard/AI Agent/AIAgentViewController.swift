@@ -11,28 +11,29 @@ import Cocoa
 final class AIAgentViewController: NSViewController {
 
     // MARK: - Views
-    private let scrollView     = NSScrollView()
-    private let transcriptView = NSTextView()
-    private let bottomBarView  = NSView()
-    private let divider        = NSBox()
-    private let pillView       = NSView()
-    private let inputField     = NSTextField()
-    private let sendButton     = NSButton()
-    private let spinner        = NSProgressIndicator()
+    private let scrollView    = NSScrollView()
+    private let stackView     = NSStackView()
+    private let bottomBarView = NSView()
+    private let divider       = NSBox()
+    private let pillView      = NSView()
+    private let inputField    = NSTextField()
+    // NSView-based send button — exact kUnitSize × kUnitSize circle, no NSButton chrome
+    private let sendButton    = NSView()
+    private let spinner       = NSProgressIndicator()
 
     // MARK: - Renderer
     private let renderer = MarkdownRenderer()
 
     // MARK: - Constants
-    // kUnitSize = height of both the pill AND the send button → always a perfect circle
-    private let kUnitSize: CGFloat          = 36
-    private let kBottomBarHeight: CGFloat   = 60
-    private let kHPad: CGFloat             = 12
+    private let kUnitSize: CGFloat        = 36
+    private let kBottomBarHeight: CGFloat = 60
+    private let kHPad: CGFloat            = 12
     private let kInputFont      = NSFont(name: "Roboto-Regular", size: 15.0) ?? NSFont.systemFont(ofSize: 15)
     private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 14.0) ?? NSFont.systemFont(ofSize: 14)
 
     // MARK: - State
-    private var introAppended = false
+    private var introAppended    = false
+    private var sendButtonEnabled = false
 
     // MARK: - Lifecycle
 
@@ -49,13 +50,7 @@ final class AIAgentViewController: NSViewController {
 
     override func viewDidLayout() {
         super.viewDidLayout()
-        // Keep transcript width in sync with scroll view (frame-based documentView)
         let w = scrollView.bounds.width
-        if w > 0 && abs(transcriptView.frame.width - w) > 1 {
-            let h = max(transcriptView.frame.height, scrollView.bounds.height)
-            transcriptView.frame = NSRect(x: 0, y: 0, width: w, height: h)
-        }
-        // Append intro only once real layout exists
         if !introAppended && w > 0 {
             introAppended = true
             appendIntroMessage()
@@ -75,7 +70,7 @@ final class AIAgentViewController: NSViewController {
     private func setupLayout() {
         // ── Bottom bar ─────────────────────────────────────────────────────────
         bottomBarView.wantsLayer = true
-        bottomBarView.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
+        bottomBarView.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
         bottomBarView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bottomBarView)
 
@@ -87,32 +82,32 @@ final class AIAgentViewController: NSViewController {
         // ── Transcript scroll ──────────────────────────────────────────────────
         scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers  = true
-        scrollView.drawsBackground     = false
+        scrollView.drawsBackground     = true
+        scrollView.backgroundColor     = NSColor.Sphinx.Body
+        scrollView.contentView.backgroundColor = NSColor.Sphinx.Body
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
-        // NSTextView as documentView — frame-based, grows with content
-        transcriptView.isEditable    = false
-        transcriptView.isSelectable  = true
-        transcriptView.drawsBackground = true
-        transcriptView.backgroundColor = NSColor.Sphinx.Body
-        transcriptView.textColor       = NSColor.Sphinx.Text
-        transcriptView.font            = kTranscriptFont
-        transcriptView.textContainerInset = NSSize(width: 16, height: 16)
-        transcriptView.isAutomaticQuoteSubstitutionEnabled  = false
-        transcriptView.isAutomaticSpellingCorrectionEnabled = false
-        transcriptView.isVerticallyResizable   = true
-        transcriptView.isHorizontallyResizable = false
-        transcriptView.minSize = NSSize(width: 0, height: 0)
-        transcriptView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-        transcriptView.autoresizingMask = .width
-        transcriptView.textContainer?.widthTracksTextView = true
-        transcriptView.textContainer?.containerSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-        transcriptView.frame = NSRect(x: 0, y: 0, width: 620, height: 3000)
-        scrollView.documentView = transcriptView
+        // NSStackView as documentView — bubbles stack vertically
+        stackView.orientation  = .vertical
+        stackView.alignment    = .leading
+        stackView.spacing      = 8
+        stackView.edgeInsets   = NSEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        let clipView = NSClipView()
+        clipView.drawsBackground = true
+        clipView.backgroundColor = NSColor.Sphinx.Body
+        scrollView.contentView = clipView
+        scrollView.documentView = stackView
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: clipView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: clipView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: clipView.trailingAnchor),
+        ])
 
         // ── Pill container ─────────────────────────────────────────────────────
-        // cornerRadius = kUnitSize/2 so pill is a perfect capsule
         pillView.wantsLayer = true
         pillView.layer?.cornerRadius    = kUnitSize / 2
         pillView.layer?.masksToBounds   = true
@@ -121,9 +116,6 @@ final class AIAgentViewController: NSViewController {
         bottomBarView.addSubview(pillView)
 
         // ── Input field ────────────────────────────────────────────────────────
-        // NO explicit heightAnchor — NSTextField sizes to its natural ~22pt
-        // intrinsic height so the placeholder is always vertically centred
-        // inside the cell without any manual offset tricks.
         inputField.stringValue       = ""
         inputField.placeholderString = "Ask Sphinx AI..."
         inputField.font              = kInputFont
@@ -149,26 +141,32 @@ final class AIAgentViewController: NSViewController {
             object: inputField
         )
 
-        // ── Send button — kUnitSize × kUnitSize perfect circle ─────────────────
-        sendButton.isBordered   = false
-        sendButton.wantsLayer   = true
-        sendButton.layer?.cornerRadius   = kUnitSize / 2
-        sendButton.layer?.masksToBounds  = true
+        // ── Send button — plain NSView, exact kUnitSize × kUnitSize circle ─────
+        sendButton.wantsLayer = true
+        sendButton.layer?.cornerRadius    = kUnitSize / 2
+        sendButton.layer?.masksToBounds   = true
         sendButton.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
-        sendButton.imagePosition = .imageOnly
-        sendButton.imageScaling  = .scaleProportionallyDown
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconView = NSImageView()
         if let img = NSImage(systemSymbolName: "paperplane.fill", accessibilityDescription: "Send") {
-            sendButton.image = img.withSymbolConfiguration(
+            iconView.image = img.withSymbolConfiguration(
                 NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
             )
-        } else {
-            sendButton.title = "▶"
         }
-        sendButton.contentTintColor = NSColor.white
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.target  = self
-        sendButton.action  = #selector(sendTapped)
-        sendButton.isEnabled = false
+        iconView.contentTintColor = .white
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.addSubview(iconView)
+
+        NSLayoutConstraint.activate([
+            iconView.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
+            iconView.centerYAnchor.constraint(equalTo: sendButton.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 18),
+            iconView.heightAnchor.constraint(equalToConstant: 18),
+        ])
+
+        let click = NSClickGestureRecognizer(target: self, action: #selector(sendTapped))
+        sendButton.addGestureRecognizer(click)
         bottomBarView.addSubview(sendButton)
 
         // ── Spinner ────────────────────────────────────────────────────────────
@@ -205,16 +203,16 @@ final class AIAgentViewController: NSViewController {
             pillView.heightAnchor.constraint(equalToConstant: kUnitSize),
             pillView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
 
-            // Input field: 12pt L/R inset, centred — natural intrinsic height
+            // Input field: 12pt L/R inset, centred
             inputField.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 12),
             inputField.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
             inputField.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
 
-            // Send button: kUnitSize × kUnitSize, right margin = kHPad (same as field's left margin)
+            // Send button: exact kUnitSize × kUnitSize, right margin = kHPad
             sendButton.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -kHPad),
             sendButton.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
             sendButton.widthAnchor.constraint(equalToConstant: kUnitSize),
-            sendButton.heightAnchor.constraint(equalTo: pillView.heightAnchor),
+            sendButton.heightAnchor.constraint(equalToConstant: kUnitSize),
 
             // Spinner centred over send button
             spinner.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
@@ -228,7 +226,7 @@ final class AIAgentViewController: NSViewController {
 
     @objc private func inputDidChange() {
         let hasText = !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        sendButton.isEnabled = hasText
+        sendButtonEnabled = hasText
         sendButton.layer?.backgroundColor = hasText
             ? NSColor.Sphinx.PrimaryBlue.cgColor
             : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
@@ -243,6 +241,7 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Send
 
     @objc private func sendTapped() {
+        guard sendButtonEnabled else { return }
         let text = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
@@ -267,70 +266,104 @@ final class AIAgentViewController: NSViewController {
         }
     }
 
-    // MARK: - Paragraph styles
+    // MARK: - Bubble helper
 
-    private var rightAligned: NSParagraphStyle {
-        let p = NSMutableParagraphStyle()
-        p.alignment = .right
-        return p
-    }
+    private func makeBubble(text: String, isUser: Bool, markdownRendered: NSAttributedString? = nil) -> NSView {
+        let row = NSView()
+        row.translatesAutoresizingMaskIntoConstraints = false
 
-    private var leftAligned: NSParagraphStyle {
-        let p = NSMutableParagraphStyle()
-        p.alignment = .left
-        return p
+        let bubble = NSView()
+        bubble.wantsLayer = true
+        bubble.layer?.cornerRadius    = 12
+        bubble.layer?.masksToBounds   = true
+        bubble.layer?.backgroundColor = isUser
+            ? NSColor.Sphinx.SentMsgBG.cgColor
+            : NSColor.Sphinx.ReceivedMsgBG.cgColor
+        bubble.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = NSTextField(wrappingLabelWithString: "")
+        if let rendered = markdownRendered {
+            label.attributedStringValue = rendered
+        } else {
+            label.stringValue = text
+            label.font        = kTranscriptFont
+            label.textColor   = NSColor.Sphinx.Text
+        }
+        label.isEditable      = false
+        label.isSelectable    = true
+        label.drawsBackground = false
+        label.isBordered      = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        bubble.addSubview(label)
+
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: bubble.topAnchor, constant: 8),
+            label.bottomAnchor.constraint(equalTo: bubble.bottomAnchor, constant: -8),
+            label.leadingAnchor.constraint(equalTo: bubble.leadingAnchor, constant: 10),
+            label.trailingAnchor.constraint(equalTo: bubble.trailingAnchor, constant: -10),
+            label.widthAnchor.constraint(lessThanOrEqualToConstant: 480),
+        ])
+
+        row.addSubview(bubble)
+
+        if isUser {
+            NSLayoutConstraint.activate([
+                bubble.topAnchor.constraint(equalTo: row.topAnchor),
+                bubble.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+                bubble.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                bubble.topAnchor.constraint(equalTo: row.topAnchor),
+                bubble.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+                bubble.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            ])
+        }
+
+        return row
     }
 
     // MARK: - Transcript helpers
 
     private func appendUser(_ text: String) {
-        guard let storage = transcriptView.textStorage else { return }
-
-        // "You:" label — right-aligned, secondary colour, matches "Sphinx AI:" style
-        storage.append(NSAttributedString(string: "You:\n", attributes: [
-            .font: NSFont(name: "Roboto-Medium", size: 13) ?? NSFont.systemFont(ofSize: 13, weight: .medium),
-            .foregroundColor: NSColor.Sphinx.SecondaryText,
-            .paragraphStyle: rightAligned
-        ]))
-
-        // Message body — right-aligned, normal text colour
-        storage.append(NSAttributedString(string: "\(text)\n\n", attributes: [
-            .font: kTranscriptFont,
-            .foregroundColor: NSColor.Sphinx.Text,
-            .paragraphStyle: rightAligned
-        ]))
+        let bubble = makeBubble(text: text, isUser: true)
+        stackView.addArrangedSubview(bubble)
+        // Stretch row full width so trailing constraint resolves correctly
+        NSLayoutConstraint.activate([
+            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
+                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+        ])
         scrollToBottom()
     }
 
     private func appendAssistant(_ text: String) {
-        guard let storage = transcriptView.textStorage else { return }
-
-        storage.append(NSAttributedString(string: "Sphinx AI:\n", attributes: [
-            .font: NSFont(name: "Roboto-Medium", size: 13) ?? NSFont.systemFont(ofSize: 13, weight: .medium),
-            .foregroundColor: NSColor.Sphinx.SecondaryText,
-            .paragraphStyle: leftAligned
-        ]))
-
         let rendered = renderer.renderNS(text)
-        let mutable  = NSMutableAttributedString(attributedString: rendered)
-        mutable.append(NSAttributedString(string: "\n\n"))
-        storage.append(mutable)
+        let bubble   = makeBubble(text: text, isUser: false, markdownRendered: rendered)
+        stackView.addArrangedSubview(bubble)
+        NSLayoutConstraint.activate([
+            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
+                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+        ])
         scrollToBottom()
     }
 
     private func appendError(_ message: String) {
-        guard let storage = transcriptView.textStorage else { return }
-        storage.append(NSAttributedString(string: "[Error: \(message)]\n\n", attributes: [
-            .font: kTranscriptFont,
-            .foregroundColor: NSColor.systemRed,
-            .paragraphStyle: leftAligned
-        ]))
+        let bubble = makeBubble(text: "[Error: \(message)]", isUser: false)
+        // Tint error bubble red
+        bubble.subviews.first?.layer?.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15).cgColor
+        stackView.addArrangedSubview(bubble)
+        NSLayoutConstraint.activate([
+            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
+                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+        ])
         scrollToBottom()
     }
 
     private func scrollToBottom() {
-        guard let len = transcriptView.textStorage?.length else { return }
-        transcriptView.scrollRangeToVisible(NSRange(location: len, length: 0))
+        guard let docView = scrollView.documentView else { return }
+        let bottom = NSPoint(x: 0, y: max(0, docView.frame.height - scrollView.contentView.bounds.height))
+        scrollView.contentView.scroll(to: bottom)
+        scrollView.reflectScrolledClipView(scrollView.contentView)
     }
 
     // MARK: - Loading state
