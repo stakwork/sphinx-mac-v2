@@ -146,14 +146,14 @@ final class AIAgentManager: @unchecked Sendable {
         return activeModel != nil
     }
 
-    func chat(_ userText: String) async throws -> String {
+    func chat(_ userText: String) async -> String {
         // Re-attempt configuration if activeModel is nil (e.g. first call after login)
         if activeModel == nil { reconfigure() }
         guard let model = activeModel else {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
 
-        // Track incoming messages timestamp silently (no longer injected into user text)
+        // Track incoming messages timestamp silently
         if let incoming = lastIncomingMessageDate, incoming != lastCheckedIncomingDate {
             lastCheckedIncomingDate = incoming
         }
@@ -167,13 +167,23 @@ final class AIAgentManager: @unchecked Sendable {
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
 
-        let result = try await generateText(
-            model: model,
-            tools: tools,
-            system: systemPrompt,
-            messages: conversationHistory,
-            stopWhen: [stepCountIs(10)]
-        )
+        let result: GenerateTextResult
+        do {
+            result = try await generateText(
+                model: model,
+                tools: tools,
+                system: systemPrompt,
+                messages: conversationHistory,
+                stopWhen: [stepCountIs(10)]
+            )
+        } catch {
+            // generateText can throw even after tools succeed (e.g. second-turn API error).
+            // Return the error description as a graceful message rather than propagating.
+            let errText = "Sorry, I encountered an error: \(error.localizedDescription)"
+            conversationHistory.append(.assistant(errText))
+            saveHistory()
+            return errText
+        }
 
         // If the model ran a tool but produced no final text, synthesise a short reply
         let responseText = result.text.isEmpty ? "Done." : result.text

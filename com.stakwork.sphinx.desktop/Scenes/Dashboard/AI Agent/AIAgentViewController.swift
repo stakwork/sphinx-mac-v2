@@ -8,6 +8,12 @@
 
 import Cocoa
 
+// A flipped clip view so that (0,0) is top-left and content flows top→bottom,
+// matching NSStackView's natural vertical layout direction.
+private final class FlippedClipView: NSClipView {
+    override var isFlipped: Bool { true }
+}
+
 final class AIAgentViewController: NSViewController {
 
     // MARK: - Views
@@ -100,7 +106,7 @@ final class AIAgentViewController: NSViewController {
         stackView.edgeInsets   = NSEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let clipView = NSClipView()
+        let clipView = FlippedClipView()
         clipView.drawsBackground = true
         clipView.backgroundColor = NSColor.Sphinx.Body
         scrollView.contentView = clipView
@@ -262,8 +268,7 @@ final class AIAgentViewController: NSViewController {
                     break
                 }
             }
-            // Scroll after layout has had a chance to run
-            DispatchQueue.main.async { [weak self] in self?.scrollToBottom() }
+            // scrollToBottom() is called by appendUser/appendAssistant already
         }
         updateInputState()
     }
@@ -307,17 +312,10 @@ final class AIAgentViewController: NSViewController {
         setLoading(true)
 
         Task {
-            do {
-                let response = try await AIAgentManager.sharedInstance.chat(text)
-                await MainActor.run {
-                    self.appendAssistant(response)
-                    self.setLoading(false)
-                }
-            } catch {
-                await MainActor.run {
-                    self.appendError(error.localizedDescription)
-                    self.setLoading(false)
-                }
+            let response = await AIAgentManager.sharedInstance.chat(text)
+            await MainActor.run {
+                self.appendAssistant(response)
+                self.setLoading(false)
             }
         }
     }
@@ -416,13 +414,19 @@ final class AIAgentViewController: NSViewController {
     }
 
     private func scrollToBottom() {
-        // Defer so the stackView has laid out the new bubble before we scroll
+        // Defer one run-loop so Auto Layout commits the newly added bubble's frame.
+        // With FlippedClipView, content grows downward; scroll to max visible Y.
         DispatchQueue.main.async { [weak self] in
             guard let self, let docView = self.scrollView.documentView else { return }
-            self.scrollView.layoutSubtreeIfNeeded()
-            let bottom = NSPoint(x: 0, y: max(0, docView.frame.height - self.scrollView.contentView.bounds.height))
-            self.scrollView.contentView.scroll(to: bottom)
-            self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
+            let docHeight  = docView.frame.height
+            let clipHeight = self.scrollView.contentView.bounds.height
+            let y = max(0, docHeight - clipHeight)
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.15
+                ctx.allowsImplicitAnimation = true
+                self.scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+                self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
+            }
         }
     }
 
