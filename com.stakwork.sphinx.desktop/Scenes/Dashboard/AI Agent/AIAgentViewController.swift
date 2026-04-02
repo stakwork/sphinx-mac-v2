@@ -40,7 +40,7 @@ final class AIAgentViewController: NSViewController {
     override func loadView() {
         view = NSView()
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
+        view.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
     }
 
     override func viewDidLoad() {
@@ -83,8 +83,8 @@ final class AIAgentViewController: NSViewController {
         scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers  = true
         scrollView.drawsBackground     = true
-        scrollView.backgroundColor     = NSColor.Sphinx.HeaderBG
-        scrollView.contentView.backgroundColor = NSColor.Sphinx.HeaderBG
+        scrollView.backgroundColor     = NSColor.Sphinx.Body
+        scrollView.contentView.backgroundColor = NSColor.Sphinx.Body
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
@@ -97,7 +97,7 @@ final class AIAgentViewController: NSViewController {
 
         let clipView = NSClipView()
         clipView.drawsBackground = true
-        clipView.backgroundColor = NSColor.Sphinx.HeaderBG
+        clipView.backgroundColor = NSColor.Sphinx.Body
         scrollView.contentView = clipView
         scrollView.documentView = stackView
 
