@@ -8,6 +8,12 @@
 
 import Cocoa
 
+// A flipped clip view so that (0,0) is top-left and content flows top→bottom,
+// matching NSStackView's natural vertical layout direction.
+private final class FlippedClipView: NSClipView {
+    override var isFlipped: Bool { true }
+}
+
 final class AIAgentViewController: NSViewController {
 
     // MARK: - Views
@@ -53,13 +59,18 @@ final class AIAgentViewController: NSViewController {
         let w = scrollView.bounds.width
         if !introAppended && w > 0 {
             introAppended = true
-            appendIntroMessage()
+            rebuildTranscriptOrShowIntro()
         }
     }
 
     override func viewDidAppear() {
         super.viewDidAppear()
         view.window?.makeFirstResponder(inputField)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .aiAgentReconfigured, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSTextField.textDidChangeNotification, object: nil)
     }
 
     // MARK: - Factory
@@ -95,7 +106,7 @@ final class AIAgentViewController: NSViewController {
         stackView.edgeInsets   = NSEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let clipView = NSClipView()
+        let clipView = FlippedClipView()
         clipView.drawsBackground = true
         clipView.backgroundColor = NSColor.Sphinx.Body
         scrollView.contentView = clipView
@@ -139,6 +150,13 @@ final class AIAgentViewController: NSViewController {
             self, selector: #selector(inputDidChange),
             name: NSTextField.textDidChangeNotification,
             object: inputField
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onAgentReconfigured),
+            name: .aiAgentReconfigured,
+            object: nil
         )
 
         // ── Send button — plain NSView, exact kUnitSize × kUnitSize circle ─────
@@ -232,10 +250,53 @@ final class AIAgentViewController: NSViewController {
             : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
     }
 
-    // MARK: - Intro
+    // MARK: - Intro / Transcript rebuild
+
+    private func rebuildTranscriptOrShowIntro() {
+        let history = AIAgentManager.sharedInstance.conversationHistory
+        // Intro is always shown first (it lives in history after first open)
+        if history.isEmpty {
+            appendIntroMessage()
+        } else {
+            for msg in history {
+                switch msg {
+                case .user(let userMsg):
+                    if case .text(let t) = userMsg.content { appendUser(t) }
+                case .assistant(let assistantMsg):
+                    if case .text(let t) = assistantMsg.content { appendAssistant(t) }
+                default:
+                    break
+                }
+            }
+            // scrollToBottom() is called by appendUser/appendAssistant already
+        }
+        updateInputState()
+    }
 
     private func appendIntroMessage() {
-        appendAssistant("👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts.\n\nConfigure your provider and API key in **Profile → Advanced → Configure AI Agent**.")
+        let text: String
+        if AIAgentManager.sharedInstance.isConfigured {
+            text = "👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts and tribes."
+        } else {
+            text = "Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started."
+        }
+        // Persist into history so it reappears when the window is reopened
+        AIAgentManager.sharedInstance.appendAssistantMessage(text)
+        appendAssistant(text)
+    }
+
+    private func updateInputState() {
+        let configured = AIAgentManager.sharedInstance.isConfigured
+        inputField.isEnabled = configured
+        sendButtonEnabled = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        pillView.layer?.opacity = configured ? 1.0 : 0.5
+        sendButton.layer?.backgroundColor = configured
+            ? NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
+            : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.2).cgColor
+    }
+
+    @objc private func onAgentReconfigured() {
+        updateInputState()
     }
 
     // MARK: - Send
@@ -251,17 +312,10 @@ final class AIAgentViewController: NSViewController {
         setLoading(true)
 
         Task {
-            do {
-                let response = try await AIAgentManager.sharedInstance.chat(text)
-                await MainActor.run {
-                    self.appendAssistant(response)
-                    self.setLoading(false)
-                }
-            } catch {
-                await MainActor.run {
-                    self.appendError(error.localizedDescription)
-                    self.setLoading(false)
-                }
+            let response = await AIAgentManager.sharedInstance.chat(text)
+            await MainActor.run {
+                self.appendAssistant(response)
+                self.setLoading(false)
             }
         }
     }
@@ -282,12 +336,15 @@ final class AIAgentViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
 
         let label = NSTextField(wrappingLabelWithString: "")
+        // Always set font and textColor BEFORE attributedStringValue.
+        // AppKit falls back to these during text selection — without them the field
+        // reverts to the default system font/size when the user starts selecting.
+        label.font      = kTranscriptFont
+        label.textColor = NSColor.Sphinx.Text
         if let rendered = markdownRendered {
             label.attributedStringValue = rendered
         } else {
             label.stringValue = text
-            label.font        = kTranscriptFont
-            label.textColor   = NSColor.Sphinx.Text
         }
         label.isEditable      = false
         label.isSelectable    = true
@@ -360,22 +417,33 @@ final class AIAgentViewController: NSViewController {
     }
 
     private func scrollToBottom() {
-        guard let docView = scrollView.documentView else { return }
-        let bottom = NSPoint(x: 0, y: max(0, docView.frame.height - scrollView.contentView.bounds.height))
-        scrollView.contentView.scroll(to: bottom)
-        scrollView.reflectScrolledClipView(scrollView.contentView)
+        // Defer one run-loop so Auto Layout commits the newly added bubble's frame.
+        // With FlippedClipView, content grows downward; scroll to max visible Y.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let docView = self.scrollView.documentView else { return }
+            let docHeight  = docView.frame.height
+            let clipHeight = self.scrollView.contentView.bounds.height
+            let y = max(0, docHeight - clipHeight)
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.15
+                ctx.allowsImplicitAnimation = true
+                self.scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+                self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
+            }
+        }
     }
 
     // MARK: - Loading state
 
     private func setLoading(_ loading: Bool) {
         sendButton.isHidden  = loading
-        inputField.isEnabled = !loading
         spinner.isHidden     = !loading
         if loading {
+            inputField.isEnabled = false
             spinner.startAnimation(nil)
         } else {
             spinner.stopAnimation(nil)
+            updateInputState()
             view.window?.makeFirstResponder(inputField)
         }
     }

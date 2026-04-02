@@ -11,6 +11,12 @@ import SwiftAISDK
 import AnthropicProvider
 import OpenAIProvider
 
+// MARK: - Codable wrapper for history persistence
+struct AIAgentMessage: Codable {
+    let role: String   // "user" or "assistant"
+    let text: String
+}
+
 final class AIAgentManager: @unchecked Sendable {
 
     static let sharedInstance = AIAgentManager()
@@ -45,14 +51,66 @@ final class AIAgentManager: @unchecked Sendable {
     - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
     Use this to look up what was said in a chat.
 
+    CRITICAL TOOL RESULT RULES:
+    - Tool results that start with "Message sent" mean the message was delivered successfully. \
+    Always report this as a success to the user. Do NOT say there was an error.
+    - Tool results that start with "Send failed" or "No contact" mean there was a genuine failure.
+    - The absence of an error message is itself confirmation of success.
+    - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
+
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
+
+    // MARK: - History persistence
+
+    private var historyDefaultsKey: String {
+        "\(UserData.sharedInstance.accountUUID).aiAgentHistory"
+    }
+
+    /// Append an assistant message directly (used for intro message persistence)
+    func appendAssistantMessage(_ text: String) {
+        conversationHistory.append(.assistant(text))
+        saveHistory()
+    }
+
+    // MARK: - History persistence (private)
+
+    private func saveHistory() {
+        let wrapped: [AIAgentMessage] = conversationHistory.compactMap { msg in
+            switch msg {
+            case .user(let userMsg):
+                if case .text(let t) = userMsg.content { return AIAgentMessage(role: "user", text: t) }
+                return nil
+            case .assistant(let assistantMsg):
+                if case .text(let t) = assistantMsg.content { return AIAgentMessage(role: "assistant", text: t) }
+                return nil
+            default:
+                return nil
+            }
+        }
+        if let data = try? JSONEncoder().encode(wrapped) {
+            UserDefaults.standard.set(data, forKey: historyDefaultsKey)
+        }
+    }
+
+    func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: historyDefaultsKey),
+              let wrapped = try? JSONDecoder().decode([AIAgentMessage].self, from: data) else { return }
+        conversationHistory = wrapped.compactMap { msg in
+            switch msg.role {
+            case "user":      return .user(msg.text)
+            case "assistant": return .assistant(msg.text)
+            default: return nil
+            }
+        }
+    }
 
     // MARK: - Init
 
     private init() {
         observeIncomingMessages()
         reconfigure()
+        loadHistory()
     }
 
     // MARK: - Reconfigure
@@ -95,44 +153,56 @@ final class AIAgentManager: @unchecked Sendable {
         return activeModel != nil
     }
 
-    func chat(_ userText: String) async throws -> String {
+    func chat(_ userText: String) async -> String {
         // Re-attempt configuration if activeModel is nil (e.g. first call after login)
         if activeModel == nil { reconfigure() }
         guard let model = activeModel else {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
 
-        var effectiveUserText = userText
+        // Track incoming messages timestamp silently
         if let incoming = lastIncomingMessageDate, incoming != lastCheckedIncomingDate {
-            let formatter = DateFormatter()
-            formatter.timeStyle = .medium
-            effectiveUserText = "(Note: new messages arrived at \(formatter.string(from: incoming))) \(userText)"
             lastCheckedIncomingDate = incoming
         }
 
-        conversationHistory.append(.user(effectiveUserText))
+        // Store raw userText in history (used for display + persistence)
+        conversationHistory.append(.user(userText))
+        saveHistory()
 
         let tools: ToolSet = [
             "send_sphinx_message": buildSendMessageTool().eraseToTool(),
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
 
-        let result = try await generateText(
-            model: model,
-            tools: tools,
-            system: systemPrompt,
-            messages: conversationHistory,
-            stopWhen: [stepCountIs(5)]
-        )
+        let result: GenerateTextResult
+        do {
+            result = try await generateText(
+                model: model,
+                tools: tools,
+                system: systemPrompt,
+                messages: conversationHistory,
+                stopWhen: [stepCountIs(10)]
+            )
+        } catch {
+            // generateText can throw even after tools succeed (e.g. second-turn API error).
+            // Return the error description as a graceful message rather than propagating.
+            let errText = "Sorry, I encountered an error: \(error.localizedDescription)"
+            conversationHistory.append(.assistant(errText))
+            saveHistory()
+            return errText
+        }
 
-        let responseText = result.text
+        // If the model ran a tool but produced no final text, synthesise a short reply
+        let responseText = result.text.isEmpty ? "Done." : result.text
         conversationHistory.append(.assistant(responseText))
+        saveHistory()
         return responseText
     }
 
     func reset() {
         conversationHistory = []
         lastCheckedIncomingDate = nil
+        UserDefaults.standard.removeObject(forKey: historyDefaultsKey)
     }
 
     // MARK: - NotificationCenter
