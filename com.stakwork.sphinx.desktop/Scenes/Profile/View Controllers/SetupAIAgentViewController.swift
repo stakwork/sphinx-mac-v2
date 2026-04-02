@@ -10,187 +10,124 @@ import Cocoa
 
 class SetupAIAgentViewController: NSViewController {
 
-    // MARK: - UI Elements
+    // MARK: - IBOutlets
 
-    private let containerBox = NSBox()
+    @IBOutlet weak var providerFieldView: SignupFieldView!
+    @IBOutlet weak var apiKeyFieldView: SignupFieldView!
+    @IBOutlet weak var confirmButtonView: SignupButtonView!
 
-    private let providerLabel  = NSTextField(labelWithString: "Provider")
-    private let providerCombo  = NSComboBox()
+    // MARK: - Private
 
-    private let apiKeyLabel    = NSTextField(labelWithString: "API Key")
-    private let apiKeyField    = NSTextField()
+    let userData = UserData.sharedInstance
+    var newMessageBubbleHelper = NewMessageBubbleHelper()
 
-    private let confirmButton: NSButton = {
-        let b = NSButton()
-        b.title = ""
-        b.isBordered = false
-        b.wantsLayer = true
-        b.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
-        b.layer?.cornerRadius = 8
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
-    }()
-    private let confirmButtonLabel: NSTextField = {
-        let l = NSTextField(labelWithString: "confirm".localized)
-        l.font = NSFont(name: "Roboto-Regular", size: 15) ?? NSFont.systemFont(ofSize: 15)
-        l.textColor = .white
-        l.alignment = .center
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
-    }()
+    public enum Fields: Int {
+        case Provider = 0
+        case APIKey   = 1
+    }
 
-    private var newMessageBubbleHelper = NewMessageBubbleHelper()
+    // MARK: - Instantiate
+
+    static func instantiate() -> SetupAIAgentViewController {
+        return StoryboardScene.Profile.setupAIAgentViewController.instantiate()
+    }
 
     // MARK: - Lifecycle
 
-    static func instantiate() -> SetupAIAgentViewController {
-        return SetupAIAgentViewController()
-    }
-
-    override func loadView() {
-        view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 300))
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        loadSavedValues()
+        configureView()
     }
 
-    // MARK: - Setup UI
+    // MARK: - Configure
 
-    private func setupUI() {
-        view.wantsLayer = true
+    private func configureView() {
+        // Confirm button
+        confirmButtonView.configureWith(title: "confirm".localized, icon: "", tag: -1, delegate: self)
+        confirmButtonView.buttonDisabled = true
 
-        // Container box (matches SetupPersonalGraphViewController style)
-        containerBox.boxType    = .custom
-        containerBox.borderType = .noBorder
-        containerBox.fillColor  = NSColor(named: "Body") ?? NSColor.windowBackgroundColor
-        containerBox.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(containerBox)
+        // Provider field – display-only; opens menu on click
+        let savedProvider = userData.getAIAgentValue(with: .aiAgentProvider)
+            ?? AIAgentManager.AIProvider.anthropic.rawValue
 
-        NSLayoutConstraint.activate([
-            containerBox.topAnchor.constraint(equalTo: view.topAnchor),
-            containerBox.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            containerBox.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            containerBox.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        providerFieldView.configureWith(
+            placeHolder: "Provider",
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            label: "Provider",
+            textColor: NSColor.white,
+            backgroundColor: NSColor(hex: "#101317"),
+            field: Fields.Provider.rawValue,
+            value: savedProvider,
+            validationType: nil,
+            delegate: self
+        )
+        // Make provider field read-only — user picks via popup menu
+        providerFieldView.getTextField().isEditable = false
+        providerFieldView.getTextField().isSelectable = false
 
-        let content = containerBox.contentView!
-        content.translatesAutoresizingMaskIntoConstraints = false
+        // Add click gesture to show provider menu
+        let click = NSClickGestureRecognizer(target: self, action: #selector(providerFieldTapped))
+        providerFieldView.addGestureRecognizer(click)
 
-        // ── Provider label ──
-        styleLabel(providerLabel, text: "Provider")
-        content.addSubview(providerLabel)
+        // API Key field
+        apiKeyFieldView.configureWith(
+            placeHolder: "API Key",
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            label: "API Key",
+            textColor: NSColor.white,
+            backgroundColor: NSColor(hex: "#101317"),
+            field: Fields.APIKey.rawValue,
+            value: userData.getAIAgentValue(with: .aiAgentApiKey) ?? "",
+            validationType: nil,
+            delegate: self
+        )
 
-        // ── Provider combo ──
-        providerCombo.translatesAutoresizingMaskIntoConstraints = false
-        providerCombo.isEditable = false
-        providerCombo.font = NSFont(name: "Roboto-Regular", size: 14) ?? NSFont.systemFont(ofSize: 14)
-        for p in AIAgentManager.AIProvider.allCases {
-            providerCombo.addItem(withObjectValue: p.rawValue)
-        }
-        providerCombo.selectItem(at: 0)
-        content.addSubview(providerCombo)
-
-        // ── API Key label ──
-        styleLabel(apiKeyLabel, text: "API Key")
-        content.addSubview(apiKeyLabel)
-
-        // ── API Key field ──
-        apiKeyField.translatesAutoresizingMaskIntoConstraints = false
-        apiKeyField.placeholderString = "Enter API key…"
-        apiKeyField.font = NSFont(name: "Roboto-Regular", size: 14) ?? NSFont.systemFont(ofSize: 14)
-        apiKeyField.backgroundColor = NSColor(hex: "#101317")
-        apiKeyField.textColor        = .white
-        apiKeyField.isBordered       = true
-        apiKeyField.bezelStyle       = .roundedBezel
-        apiKeyField.delegate         = self
-        content.addSubview(apiKeyField)
-
-        // ── Confirm button ──
-        confirmButton.target = self
-        confirmButton.action = #selector(confirmTapped)
-        confirmButton.isEnabled = false
-        content.addSubview(confirmButton)
-        content.addSubview(confirmButtonLabel)
-
-        // ── Layout ──
-        NSLayoutConstraint.activate([
-            providerLabel.topAnchor.constraint(equalTo: content.topAnchor, constant: 32),
-            providerLabel.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            providerLabel.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-
-            providerCombo.topAnchor.constraint(equalTo: providerLabel.bottomAnchor, constant: 6),
-            providerCombo.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            providerCombo.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            providerCombo.heightAnchor.constraint(equalToConstant: 32),
-
-            apiKeyLabel.topAnchor.constraint(equalTo: providerCombo.bottomAnchor, constant: 24),
-            apiKeyLabel.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            apiKeyLabel.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-
-            apiKeyField.topAnchor.constraint(equalTo: apiKeyLabel.bottomAnchor, constant: 6),
-            apiKeyField.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            apiKeyField.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            apiKeyField.heightAnchor.constraint(equalToConstant: 32),
-
-            confirmButton.topAnchor.constraint(equalTo: apiKeyField.bottomAnchor, constant: 32),
-            confirmButton.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24),
-            confirmButton.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
-            confirmButton.heightAnchor.constraint(equalToConstant: 50),
-            confirmButton.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -24),
-
-            confirmButtonLabel.centerXAnchor.constraint(equalTo: confirmButton.centerXAnchor),
-            confirmButtonLabel.centerYAnchor.constraint(equalTo: confirmButton.centerYAnchor),
-        ])
+        updateConfirmButton()
     }
 
-    private func styleLabel(_ label: NSTextField, text: String) {
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.stringValue = text
-        label.font        = NSFont(name: "Roboto-Medium", size: 12) ?? NSFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor   = NSColor.Sphinx.SecondaryText
-        label.isBordered  = false
-        label.isEditable  = false
-        label.backgroundColor = .clear
+    // MARK: - Provider Popup Menu
+
+    @objc private func providerFieldTapped() {
+        let menu = NSMenu()
+        for provider in AIAgentManager.AIProvider.allCases {
+            let item = NSMenuItem(
+                title: provider.rawValue,
+                action: #selector(providerSelected(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            menu.addItem(item)
+        }
+
+        let fieldFrame = providerFieldView.convert(providerFieldView.bounds, to: nil)
+        let origin = NSPoint(x: fieldFrame.minX, y: fieldFrame.minY)
+        menu.popUp(positioning: nil, at: origin, in: self.view.window?.contentView)
     }
 
-    // MARK: - Load saved values
-
-    private func loadSavedValues() {
-        let userData = UserData.sharedInstance
-        if let providerRaw = userData.getAIAgentValue(with: .aiAgentProvider),
-           let idx = AIAgentManager.AIProvider.allCases.firstIndex(where: { $0.rawValue == providerRaw }) {
-            providerCombo.selectItem(at: idx)
-        }
-        if let key = userData.getAIAgentValue(with: .aiAgentApiKey) {
-            apiKeyField.stringValue = key
-        }
+    @objc private func providerSelected(_ sender: NSMenuItem) {
+        providerFieldView.set(fieldValue: sender.title)
         updateConfirmButton()
     }
 
     // MARK: - Validation
 
     private func isValid() -> Bool {
-        return !apiKeyField.stringValue.trimmingCharacters(in: .whitespaces).isEmpty
+        return apiKeyFieldView.getFieldValue().trimmingCharacters(in: .whitespaces).isNotEmpty
     }
 
     private func updateConfirmButton() {
-        let enabled = isValid()
-        confirmButton.isEnabled = enabled
-        confirmButton.layer?.backgroundColor = (enabled ? NSColor.Sphinx.PrimaryBlue : NSColor.Sphinx.PlaceholderText).cgColor
+        confirmButtonView.buttonDisabled = !isValid()
     }
 }
 
-// MARK: - Actions
+// MARK: - SignupButtonViewDelegate
 
-extension SetupAIAgentViewController {
-    @objc private func confirmTapped() {
-        let key         = apiKeyField.stringValue.trimmingCharacters(in: .whitespaces)
-        let providerRaw = (providerCombo.objectValueOfSelectedItem as? String) ?? AIAgentManager.AIProvider.anthropic.rawValue
+extension SetupAIAgentViewController: SignupButtonViewDelegate {
+    func didClickButton(tag: Int) {
+        let apiKey = apiKeyFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
+        let providerRaw = providerFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
 
-        guard !key.isEmpty else {
+        guard apiKey.isNotEmpty else {
             newMessageBubbleHelper.showGenericMessageView(
                 text: "API key cannot be empty",
                 delay: 3,
@@ -201,19 +138,35 @@ extension SetupAIAgentViewController {
             return
         }
 
-        let userData = UserData.sharedInstance
-        userData.save(aiAgentValue: providerRaw, for: .aiAgentProvider)
-        userData.save(aiAgentValue: key,         for: .aiAgentApiKey)
+        let resolvedProvider = providerRaw.isEmpty
+            ? AIAgentManager.AIProvider.anthropic.rawValue
+            : providerRaw
+
+        userData.save(aiAgentValue: resolvedProvider, for: .aiAgentProvider)
+        userData.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
 
         AIAgentManager.sharedInstance.reconfigure()
         WindowsManager.sharedInstance.backToProfile()
     }
 }
 
-// MARK: - NSTextFieldDelegate
+// MARK: - SignupFieldViewDelegate
 
-extension SetupAIAgentViewController: NSTextFieldDelegate {
-    func controlTextDidChange(_ obj: Notification) {
+extension SetupAIAgentViewController: SignupFieldViewDelegate {
+    func didChangeText(text: String) {
         updateConfirmButton()
+    }
+
+    func didUseTab(field: Int) {
+        DispatchQueue.main.async {
+            self.updateConfirmButton()
+            let f = Fields(rawValue: field)
+            switch f {
+            case .Provider:
+                self.view.window?.makeFirstResponder(self.apiKeyFieldView.getTextField())
+            default:
+                self.view.window?.makeFirstResponder(self.providerFieldView.getTextField())
+            }
+        }
     }
 }
