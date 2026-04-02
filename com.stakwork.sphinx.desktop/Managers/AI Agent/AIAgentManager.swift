@@ -11,14 +11,6 @@ import SwiftAISDK
 import AnthropicProvider
 import OpenAIProvider
 
-// MARK: - Thread-safe box for capturing tool results across async boundaries
-private actor ActorBox<T> {
-    private var value: T
-    init(_ initial: T) { self.value = initial }
-    func set(_ v: T) { value = v }
-    func get() -> T  { value }
-}
-
 // MARK: - Codable wrapper for history persistence
 struct AIAgentMessage: Codable {
     let role: String   // "user" or "assistant"
@@ -177,48 +169,31 @@ final class AIAgentManager: @unchecked Sendable {
         conversationHistory.append(.user(userText))
         saveHistory()
 
-        // Capture the last tool execution result so we can surface it if the
-        // second LLM call (after the tool) fails.
-        let lastToolResult = ActorBox<String?>()
-
-        let sendTool: TypedTool<SendMessageInput, String> = tool(
-            description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
-            execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
-                let result = await AIAgentManager.executeSendMessage(
-                    contactName: input.contactName,
-                    messageText: input.messageText
-                )
-                await lastToolResult.set(result)
-                return .value(result)
-            }
-        )
-
-        let toolSet: ToolSet = [
-            "send_sphinx_message": sendTool.eraseToTool(),
+        let tools: ToolSet = [
+            "send_sphinx_message": buildSendMessageTool().eraseToTool(),
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
 
-        let responseText: String
+        let result: GenerateTextResult
         do {
-            let result = try await generateText(
+            result = try await generateText(
                 model: model,
-                tools: toolSet,
+                tools: tools,
                 system: systemPrompt,
                 messages: conversationHistory,
                 stopWhen: [stepCountIs(10)]
             )
-            // If the model ran a tool but produced no follow-up text, say "Done."
-            responseText = result.text.isEmpty ? "Done." : result.text
         } catch {
-            // generateText can throw on the second LLM call (after the tool already ran).
-            // Surface the tool result instead of an error message when available.
-            if let toolResult = await lastToolResult.get() {
-                responseText = toolResult
-            } else {
-                responseText = "I ran into an issue: \(error.localizedDescription)"
-            }
+            // generateText can throw even after tools succeed (e.g. second-turn API error).
+            // Return the error description as a graceful message rather than propagating.
+            let errText = "Sorry, I encountered an error: \(error.localizedDescription)"
+            conversationHistory.append(.assistant(errText))
+            saveHistory()
+            return errText
         }
 
+        // If the model ran a tool but produced no final text, synthesise a short reply
+        let responseText = result.text.isEmpty ? "Done." : result.text
         conversationHistory.append(.assistant(responseText))
         saveHistory()
         return responseText
@@ -250,6 +225,19 @@ final class AIAgentManager: @unchecked Sendable {
     private struct SendMessageInput: Codable, Sendable {
         let contactName: String
         let messageText: String
+    }
+
+    private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
+        tool(
+            description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
+            execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                let result = await AIAgentManager.executeSendMessage(
+                    contactName: input.contactName,
+                    messageText: input.messageText
+                )
+                return .value(result)
+            }
+        )
     }
 
     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
