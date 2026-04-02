@@ -14,6 +14,7 @@ protocol NewChatHeaderViewDelegate: AnyObject {
     func menuTapped(_ frame: CGRect)
     func profileButtonClicked()
     func qrButtonTapped()
+    func aiAgentButtonTapped()
 }
 
 class NewChatHeaderView: NSView, LoadableNib {
@@ -33,6 +34,8 @@ class NewChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var menuButton: CustomButton!
     @IBOutlet weak var balanceButton: CustomButton!
     @IBOutlet weak var qrCodeButton: CustomButton!
+    /// AI agent button — wired from XIB, hidden until a provider is configured
+    @IBOutlet weak var aiAgentButton: CustomButton!
     
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     @IBOutlet weak var loadingWheelContainer: NSView!
@@ -117,17 +120,41 @@ class NewChatHeaderView: NSView, LoadableNib {
         menuButton.cursor = .pointingHand
         balanceButton.cursor = .pointingHand
         qrCodeButton.cursor = .pointingHand
-        
+
         profileImageView.wantsLayer = true
         profileImageView.rounded = true
         profileImageView.layer?.cornerRadius = profileImageView.frame.height / 2
+
+        configureAIAgentButton()
     }
-    
+
+    // MARK: - AI Agent button
+
+    private func configureAIAgentButton() {
+        aiAgentButton?.cursor = .pointingHand
+        aiAgentButton?.toolTip = "Open Sphinx AI"
+
+        updateAIAgentButtonVisibility()
+    }
+
+    /// Show the AI agent button only when a provider + API key are configured
+    func updateAIAgentButtonVisibility() {
+        // The container customView in the stack has hidden="YES" by default;
+        // we toggle its superview (the container) — aiAgentButton.superview is the 32×32 wrapper
+        let isConfigured = AIAgentManager.sharedInstance.isConfigured
+        aiAgentButton?.superview?.isHidden = !isConfigured
+    }
+
+    @IBAction func aiAgentButtonTapped(_ sender: Any) {
+        delegate?.aiAgentButtonTapped()
+    }
+
+    // MARK: - IBActions
+
     @IBAction func refreshButtonTapped(_ sender: NSButton) {
         loading = true
         delegate?.refreshTapped()
         updateBalance()
-//        shouldCheckAppVersions()
     }
     
     @IBAction func menuButtonTapped(_ sender: NSButton) {
@@ -149,23 +176,8 @@ class NewChatHeaderView: NSView, LoadableNib {
     
     func hideAmount() {
         var hiddenAmount = ""
-        
-        "\(walletBalanceService.balance ?? 0)".forEach { char in
-            hiddenAmount += "*"
-        }
-        
+        "\(walletBalanceService.balance ?? 0)".forEach { _ in hiddenAmount += "*" }
         balanceLabel.stringValue = hiddenAmount
-    }
-    
-    func shouldCheckAppVersions() {
-//        API.sharedInstance.getAppVersions(callback: { v in
-//            self.loading = false
-//            let version = Int(v) ?? 0
-//            let appVersion = Int(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0") ?? 0
-
-//            self.upgradeButton.isHidden = version <= appVersion
-//            self.upgradeBox.isHidden = version <= appVersion
-//        })
     }
     
     func listenForNotifications() {
@@ -182,10 +194,22 @@ class NewChatHeaderView: NSView, LoadableNib {
                 }
             }
         }
+
+        // Re-check AI button visibility whenever the agent is reconfigured
+        NotificationCenter.default.addObserver(
+            forName: .aiAgentReconfigured,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateAIAgentButtonVisibility()
+            }
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: .onBalanceDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .aiAgentReconfigured, object: nil)
     }
     
     func updateBalance() {

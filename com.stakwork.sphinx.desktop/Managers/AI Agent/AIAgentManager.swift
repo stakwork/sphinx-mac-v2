@@ -72,19 +72,32 @@ final class AIAgentManager: @unchecked Sendable {
         switch provider {
         case .anthropic:
             let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "claude-3-5-sonnet-20241022")
+            activeModel = p.chat(modelId: "claude-haiku-4-5-20251001")
         case .openAI:
             let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "gpt-4o")
+            activeModel = p.chat(modelId: "gpt-5.4")
         }
 
         // Reset history when credentials change
         reset()
+
+        // Notify header views to update AI button visibility
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .aiAgentReconfigured, object: nil)
+        }
     }
 
     // MARK: - Public API
 
+    /// Returns true when a provider + API key have been configured successfully
+    var isConfigured: Bool {
+        if activeModel == nil { reconfigure() }
+        return activeModel != nil
+    }
+
     func chat(_ userText: String) async throws -> String {
+        // Re-attempt configuration if activeModel is nil (e.g. first call after login)
+        if activeModel == nil { reconfigure() }
         guard let model = activeModel else {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
