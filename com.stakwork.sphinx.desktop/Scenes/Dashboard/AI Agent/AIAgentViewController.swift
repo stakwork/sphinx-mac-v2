@@ -8,7 +8,7 @@
 
 import Cocoa
 
-// A flipped clip view so that (0,0) is top-left and content flows top→bottom,
+// A flipped clip view so that (0,0) is top-left and content grows downward,
 // matching NSStackView's natural vertical layout direction.
 private final class FlippedClipView: NSClipView {
     override var isFlipped: Bool { true }
@@ -23,7 +23,6 @@ final class AIAgentViewController: NSViewController {
     private let divider       = NSBox()
     private let pillView      = NSView()
     private let inputField    = NSTextField()
-    // NSView-based send button — exact kUnitSize × kUnitSize circle, no NSButton chrome
     private let sendButton    = NSView()
     private let spinner       = NSProgressIndicator()
 
@@ -38,8 +37,10 @@ final class AIAgentViewController: NSViewController {
     private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 14.0) ?? NSFont.systemFont(ofSize: 14)
 
     // MARK: - State
-    private var introAppended    = false
-    private var sendButtonEnabled = false
+    private var introAppended         = false
+    private var sendButtonEnabled     = false
+    /// Suppresses per-bubble scrollToBottom() calls during history replay
+    private var suppressScrollToBottom = false
 
     // MARK: - Lifecycle
 
@@ -95,11 +96,10 @@ final class AIAgentViewController: NSViewController {
         scrollView.autohidesScrollers  = true
         scrollView.drawsBackground     = true
         scrollView.backgroundColor     = NSColor.Sphinx.Body
-        scrollView.contentView.backgroundColor = NSColor.Sphinx.Body
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
-        // NSStackView as documentView — bubbles stack vertically
+        // NSStackView as documentView — bubbles stack top→bottom
         stackView.orientation  = .vertical
         stackView.alignment    = .leading
         stackView.spacing      = 8
@@ -109,7 +109,7 @@ final class AIAgentViewController: NSViewController {
         let clipView = FlippedClipView()
         clipView.drawsBackground = true
         clipView.backgroundColor = NSColor.Sphinx.Body
-        scrollView.contentView = clipView
+        scrollView.contentView  = clipView
         scrollView.documentView = stackView
 
         NSLayoutConstraint.activate([
@@ -254,10 +254,12 @@ final class AIAgentViewController: NSViewController {
 
     private func rebuildTranscriptOrShowIntro() {
         let history = AIAgentManager.sharedInstance.conversationHistory
-        // Intro is always shown first (it lives in history after first open)
         if history.isEmpty {
             appendIntroMessage()
         } else {
+            // Suppress individual scroll calls while replaying history —
+            // we do one authoritative scroll at the end.
+            suppressScrollToBottom = true
             for msg in history {
                 switch msg {
                 case .user(let userMsg):
@@ -268,7 +270,8 @@ final class AIAgentViewController: NSViewController {
                     break
                 }
             }
-            // scrollToBottom() is called by appendUser/appendAssistant already
+            suppressScrollToBottom = false
+            scrollToBottom()
         }
         updateInputState()
     }
@@ -280,7 +283,7 @@ final class AIAgentViewController: NSViewController {
         } else {
             text = "Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started."
         }
-        // Persist into history so it reappears when the window is reopened
+        // Persist into history so it reappears on next open
         AIAgentManager.sharedInstance.appendAssistantMessage(text)
         appendAssistant(text)
     }
@@ -288,7 +291,7 @@ final class AIAgentViewController: NSViewController {
     private func updateInputState() {
         let configured = AIAgentManager.sharedInstance.isConfigured
         inputField.isEnabled = configured
-        sendButtonEnabled = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        sendButtonEnabled    = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         pillView.layer?.opacity = configured ? 1.0 : 0.5
         sendButton.layer?.backgroundColor = configured
             ? NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
@@ -336,15 +339,12 @@ final class AIAgentViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
 
         let label = NSTextField(wrappingLabelWithString: "")
-        // Always set font and textColor BEFORE attributedStringValue.
-        // AppKit falls back to these during text selection — without them the field
-        // reverts to the default system font/size when the user starts selecting.
-        label.font      = kTranscriptFont
-        label.textColor = NSColor.Sphinx.Text
         if let rendered = markdownRendered {
             label.attributedStringValue = rendered
         } else {
             label.stringValue = text
+            label.font        = kTranscriptFont
+            label.textColor   = NSColor.Sphinx.Text
         }
         label.isEditable      = false
         label.isSelectable    = true
@@ -385,7 +385,6 @@ final class AIAgentViewController: NSViewController {
     private func appendUser(_ text: String) {
         let bubble = makeBubble(text: text, isUser: true)
         stackView.addArrangedSubview(bubble)
-        // Stretch row full width so trailing constraint resolves correctly
         NSLayoutConstraint.activate([
             bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
                                           constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
@@ -406,7 +405,6 @@ final class AIAgentViewController: NSViewController {
 
     private func appendError(_ message: String) {
         let bubble = makeBubble(text: "[Error: \(message)]", isUser: false)
-        // Tint error bubble red
         bubble.subviews.first?.layer?.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15).cgColor
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
@@ -416,28 +414,29 @@ final class AIAgentViewController: NSViewController {
         scrollToBottom()
     }
 
+    // MARK: - Scroll
+
     private func scrollToBottom() {
-        // Defer one run-loop so Auto Layout commits the newly added bubble's frame.
-        // With FlippedClipView, content grows downward; scroll to max visible Y.
+        guard !suppressScrollToBottom else { return }
+        // Defer to next run-loop so Auto Layout commits any newly added views,
+        // then force a synchronous layout pass before reading frame dimensions.
         DispatchQueue.main.async { [weak self] in
             guard let self, let docView = self.scrollView.documentView else { return }
+            // Force layout so docView.frame.height reflects all current subviews
+            docView.layoutSubtreeIfNeeded()
             let docHeight  = docView.frame.height
             let clipHeight = self.scrollView.contentView.bounds.height
             let y = max(0, docHeight - clipHeight)
-            NSAnimationContext.runAnimationGroup { ctx in
-                ctx.duration = 0.15
-                ctx.allowsImplicitAnimation = true
-                self.scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
-                self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
-            }
+            self.scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+            self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
         }
     }
 
     // MARK: - Loading state
 
     private func setLoading(_ loading: Bool) {
-        sendButton.isHidden  = loading
-        spinner.isHidden     = !loading
+        sendButton.isHidden = loading
+        spinner.isHidden    = !loading
         if loading {
             inputField.isEnabled = false
             spinner.startAnimation(nil)
