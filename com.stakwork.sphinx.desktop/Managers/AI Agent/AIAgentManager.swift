@@ -130,10 +130,10 @@ final class AIAgentManager: @unchecked Sendable {
         switch provider {
         case .anthropic:
             let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "claude-haiku-4-5-20251001")
+            activeModel = p.chat(modelId: "claude-sonnet-4-6")
         case .openAI:
             let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "gpt-5.4")
+            activeModel = p.chat(modelId: "gpt-4o")
         }
 
         // Reset history when credentials change
@@ -186,6 +186,7 @@ final class AIAgentManager: @unchecked Sendable {
         } catch {
             // generateText can throw even after tools succeed (e.g. second-turn API error).
             // Return the error description as a graceful message rather than propagating.
+            print("AIAgentManager: generateText error – \(error)")
             let errText = "Sorry, I encountered an error: \(error.localizedDescription)"
             conversationHistory.append(.assistant(errText))
             saveHistory()
@@ -193,7 +194,28 @@ final class AIAgentManager: @unchecked Sendable {
         }
 
         // If the model ran a tool but produced no final text, synthesise a short reply
-        let responseText = result.text.isEmpty ? "Done." : result.text
+        var responseText = result.text.isEmpty ? "Done." : result.text
+
+        // Safety net: if any tool step succeeded but the LLM's final text implies failure,
+        // replace the response with the actual tool result so the user sees correct status.
+        outer: for step in result.steps {
+            for toolResult in step.toolResults {
+                guard toolResult.toolName == "send_sphinx_message" else { continue }
+                guard case .string(let toolOutput) = toolResult.output else { continue }
+                guard toolOutput.hasPrefix("Message sent") else { continue }
+                let lower = responseText.lowercased()
+                let impliesFailure = lower.contains("fail") || lower.contains("unable") ||
+                    lower.contains("couldn't") || lower.contains("couldn") ||
+                    lower.contains("sorry") || lower.contains("did not") ||
+                    lower.contains("didn't") || lower.contains("not send") ||
+                    lower.contains("error")
+                if impliesFailure || responseText == "Done." {
+                    responseText = toolOutput
+                }
+                break outer
+            }
+        }
+
         conversationHistory.append(.assistant(responseText))
         saveHistory()
         return responseText
@@ -244,7 +266,7 @@ final class AIAgentManager: @unchecked Sendable {
         // 1. Try contact match
         let contacts = UserContact.getAll()
         if let contact = contacts.first(where: {
-            ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+            ($0.nickname ?? "").trim().caseInsensitiveCompare(contactName.trim()) == .orderedSame
         }) {
             guard let chat = contact.getConversation() else {
                 return "Chat not found for contact: \(contactName)"
@@ -277,7 +299,7 @@ final class AIAgentManager: @unchecked Sendable {
         // 2. Try tribe match
         let tribes = Chat.getAllTribes()
         if let tribe = tribes.first(where: {
-            ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+            ($0.name ?? "").trim().caseInsensitiveCompare(contactName.trim()) == .orderedSame
         }) {
             let chatId = tribe.id
             return await MainActor.run {
@@ -317,13 +339,13 @@ final class AIAgentManager: @unchecked Sendable {
                 // 1. Try contact
                 let contacts = UserContact.getAll()
                 var resolvedChat: Chat? = contacts.first(where: {
-                    ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                    ($0.nickname ?? "").trim().caseInsensitiveCompare(input.contactName.trim()) == .orderedSame
                 })?.getConversation()
 
                 // 2. Fall back to tribe
                 if resolvedChat == nil {
                     resolvedChat = Chat.getAllTribes().first(where: {
-                        ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                        ($0.name ?? "").trim().caseInsensitiveCompare(input.contactName.trim()) == .orderedSame
                     })
                 }
 
