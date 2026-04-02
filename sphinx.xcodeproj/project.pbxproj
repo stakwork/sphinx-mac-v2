@@ -501,13 +501,13 @@
 		47A93EF725DD79F70030DF14 /* lightningNetwork.gif in Resources */ = {isa = PBXBuildFile; fileRef = 47A93EF625DD79F70030DF14 /* lightningNetwork.gif */; };
 		47A93EF925DD7C4B0030DF14 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A93EF825DD7C4B0030DF14 /* NSImageView.swift */; };
 		47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */; };
-		47AIVC032EF500000AIVC003 /* AIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */; };
 		47AE2468287F1F4700EF42BD /* API+RedeemSatsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */; };
 		47AF0D4E2553099100C98398 /* NewPodcastPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */; };
 		47AF0D5025530DDC00C98398 /* PodcastEpisodesHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */; };
 		47AF0D5225530DF900C98398 /* PodcastEpisodesHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47AF0D5125530DF900C98398 /* PodcastEpisodesHeaderView.xib */; };
 		47AF0D552553175B00C98398 /* PodcastPlayerCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D532553175B00C98398 /* PodcastPlayerCollectionViewItem.swift */; };
 		47AF0D562553175B00C98398 /* PodcastPlayerCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47AF0D542553175B00C98398 /* PodcastPlayerCollectionViewItem.xib */; };
+		47AIVC032EF500000AIVC003 /* AIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */; };
 		47B5507E2487F2E2000514BF /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B5507D2487F2E2000514BF /* CustomButton.swift */; };
 		47B55085248958CB000514BF /* PaymentInvoiceFormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B55084248958CB000514BF /* PaymentInvoiceFormViewController.swift */; };
 		47B5508724895D51000514BF /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4734D3972417E3D400D6957E /* SplashViewController.swift */; };
@@ -1515,13 +1515,13 @@
 		47A93EF625DD79F70030DF14 /* lightningNetwork.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = lightningNetwork.gif; sourceTree = "<group>"; };
 		47A93EF825DD7C4B0030DF14 /* NSImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
 		47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentManager.swift; sourceTree = "<group>"; };
-		47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentViewController.swift; sourceTree = "<group>"; };
 		47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+RedeemSatsExtension.swift"; sourceTree = "<group>"; };
 		47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPodcastPlayerViewController.swift; sourceTree = "<group>"; };
 		47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastEpisodesHeaderView.swift; sourceTree = "<group>"; };
 		47AF0D5125530DF900C98398 /* PodcastEpisodesHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastEpisodesHeaderView.xib; sourceTree = "<group>"; };
 		47AF0D532553175B00C98398 /* PodcastPlayerCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPlayerCollectionViewItem.swift; sourceTree = "<group>"; };
 		47AF0D542553175B00C98398 /* PodcastPlayerCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastPlayerCollectionViewItem.xib; sourceTree = "<group>"; };
+		47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentViewController.swift; sourceTree = "<group>"; };
 		47B5507D2487F2E2000514BF /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		47B55084248958CB000514BF /* PaymentInvoiceFormViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentInvoiceFormViewController.swift; sourceTree = "<group>"; };
 		47B5508924898330000514BF /* IntegerValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegerValueFormatter.swift; sourceTree = "<group>"; };
@@ -5758,7 +5758,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 242;
+				CURRENT_PROJECT_VERSION = 243;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5795,7 +5795,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 242;
+				CURRENT_PROJECT_VERSION = 243;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
