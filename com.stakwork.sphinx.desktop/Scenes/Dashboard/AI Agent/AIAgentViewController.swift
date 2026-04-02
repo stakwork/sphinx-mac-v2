@@ -248,6 +248,7 @@ final class AIAgentViewController: NSViewController {
 
     private func rebuildTranscriptOrShowIntro() {
         let history = AIAgentManager.sharedInstance.conversationHistory
+        // Intro is always shown first (it lives in history after first open)
         if history.isEmpty {
             appendIntroMessage()
         } else {
@@ -261,16 +262,22 @@ final class AIAgentViewController: NSViewController {
                     break
                 }
             }
+            // Scroll after layout has had a chance to run
+            DispatchQueue.main.async { [weak self] in self?.scrollToBottom() }
         }
         updateInputState()
     }
 
     private func appendIntroMessage() {
+        let text: String
         if AIAgentManager.sharedInstance.isConfigured {
-            appendAssistant("👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts and tribes.")
+            text = "👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts and tribes."
         } else {
-            appendAssistant("Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started.")
+            text = "Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started."
         }
+        // Persist into history so it reappears when the window is reopened
+        AIAgentManager.sharedInstance.appendAssistantMessage(text)
+        appendAssistant(text)
     }
 
     private func updateInputState() {
@@ -409,10 +416,14 @@ final class AIAgentViewController: NSViewController {
     }
 
     private func scrollToBottom() {
-        guard let docView = scrollView.documentView else { return }
-        let bottom = NSPoint(x: 0, y: max(0, docView.frame.height - scrollView.contentView.bounds.height))
-        scrollView.contentView.scroll(to: bottom)
-        scrollView.reflectScrolledClipView(scrollView.contentView)
+        // Defer so the stackView has laid out the new bubble before we scroll
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let docView = self.scrollView.documentView else { return }
+            self.scrollView.layoutSubtreeIfNeeded()
+            let bottom = NSPoint(x: 0, y: max(0, docView.frame.height - self.scrollView.contentView.bounds.height))
+            self.scrollView.contentView.scroll(to: bottom)
+            self.scrollView.reflectScrolledClipView(self.scrollView.contentView)
+        }
     }
 
     // MARK: - Loading state

@@ -60,6 +60,14 @@ final class AIAgentManager: @unchecked Sendable {
         "\(UserData.sharedInstance.accountUUID).aiAgentHistory"
     }
 
+    /// Append an assistant message directly (used for intro message persistence)
+    func appendAssistantMessage(_ text: String) {
+        conversationHistory.append(.assistant(text))
+        saveHistory()
+    }
+
+    // MARK: - History persistence (private)
+
     private func saveHistory() {
         let wrapped: [AIAgentMessage] = conversationHistory.compactMap { msg in
             switch msg {
@@ -145,15 +153,13 @@ final class AIAgentManager: @unchecked Sendable {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
 
-        var effectiveUserText = userText
+        // Track incoming messages timestamp silently (no longer injected into user text)
         if let incoming = lastIncomingMessageDate, incoming != lastCheckedIncomingDate {
-            let formatter = DateFormatter()
-            formatter.timeStyle = .medium
-            effectiveUserText = "(Note: new messages arrived at \(formatter.string(from: incoming))) \(userText)"
             lastCheckedIncomingDate = incoming
         }
 
-        conversationHistory.append(.user(effectiveUserText))
+        // Store raw userText in history (used for display + persistence)
+        conversationHistory.append(.user(userText))
         saveHistory()
 
         let tools: ToolSet = [
@@ -166,10 +172,11 @@ final class AIAgentManager: @unchecked Sendable {
             tools: tools,
             system: systemPrompt,
             messages: conversationHistory,
-            stopWhen: [stepCountIs(5)]
+            stopWhen: [stepCountIs(10)]
         )
 
-        let responseText = result.text
+        // If the model ran a tool but produced no final text, synthesise a short reply
+        let responseText = result.text.isEmpty ? "Done." : result.text
         conversationHistory.append(.assistant(responseText))
         saveHistory()
         return responseText
