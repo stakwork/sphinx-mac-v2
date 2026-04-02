@@ -85,6 +85,8 @@ final class AIAgentManager: @unchecked Sendable {
     // MARK: - Public API
 
     func chat(_ userText: String) async throws -> String {
+        // Re-attempt configuration if activeModel is nil (e.g. first call after login)
+        if activeModel == nil { reconfigure() }
         guard let model = activeModel else {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
