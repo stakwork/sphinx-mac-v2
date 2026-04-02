@@ -11,6 +11,12 @@ import SwiftAISDK
 import AnthropicProvider
 import OpenAIProvider
 
+// MARK: - Codable wrapper for history persistence
+struct AIAgentMessage: Codable {
+    let role: String   // "user" or "assistant"
+    let text: String
+}
+
 final class AIAgentManager: @unchecked Sendable {
 
     static let sharedInstance = AIAgentManager()
@@ -48,11 +54,43 @@ final class AIAgentManager: @unchecked Sendable {
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
 
+    // MARK: - History persistence
+
+    private var historyDefaultsKey: String {
+        "\(UserData.sharedInstance.accountUUID).aiAgentHistory"
+    }
+
+    private func saveHistory() {
+        let wrapped: [AIAgentMessage] = conversationHistory.compactMap { msg in
+            switch msg {
+            case .user(let t):      return AIAgentMessage(role: "user", text: t)
+            case .assistant(let t): return AIAgentMessage(role: "assistant", text: t)
+            default: return nil
+            }
+        }
+        if let data = try? JSONEncoder().encode(wrapped) {
+            UserDefaults.standard.set(data, forKey: historyDefaultsKey)
+        }
+    }
+
+    func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: historyDefaultsKey),
+              let wrapped = try? JSONDecoder().decode([AIAgentMessage].self, from: data) else { return }
+        conversationHistory = wrapped.compactMap { msg in
+            switch msg.role {
+            case "user":      return .user(msg.text)
+            case "assistant": return .assistant(msg.text)
+            default: return nil
+            }
+        }
+    }
+
     // MARK: - Init
 
     private init() {
         observeIncomingMessages()
         reconfigure()
+        loadHistory()
     }
 
     // MARK: - Reconfigure
@@ -111,6 +149,7 @@ final class AIAgentManager: @unchecked Sendable {
         }
 
         conversationHistory.append(.user(effectiveUserText))
+        saveHistory()
 
         let tools: ToolSet = [
             "send_sphinx_message": buildSendMessageTool().eraseToTool(),
@@ -127,12 +166,14 @@ final class AIAgentManager: @unchecked Sendable {
 
         let responseText = result.text
         conversationHistory.append(.assistant(responseText))
+        saveHistory()
         return responseText
     }
 
     func reset() {
         conversationHistory = []
         lastCheckedIncomingDate = nil
+        UserDefaults.standard.removeObject(forKey: historyDefaultsKey)
     }
 
     // MARK: - NotificationCenter

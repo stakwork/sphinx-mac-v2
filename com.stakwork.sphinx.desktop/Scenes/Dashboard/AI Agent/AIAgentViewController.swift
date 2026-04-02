@@ -53,13 +53,18 @@ final class AIAgentViewController: NSViewController {
         let w = scrollView.bounds.width
         if !introAppended && w > 0 {
             introAppended = true
-            appendIntroMessage()
+            rebuildTranscriptOrShowIntro()
         }
     }
 
     override func viewDidAppear() {
         super.viewDidAppear()
         view.window?.makeFirstResponder(inputField)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .aiAgentReconfigured, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSTextField.textDidChangeNotification, object: nil)
     }
 
     // MARK: - Factory
@@ -139,6 +144,13 @@ final class AIAgentViewController: NSViewController {
             self, selector: #selector(inputDidChange),
             name: NSTextField.textDidChangeNotification,
             object: inputField
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onAgentReconfigured),
+            name: .aiAgentReconfigured,
+            object: nil
         )
 
         // ── Send button — plain NSView, exact kUnitSize × kUnitSize circle ─────
@@ -232,10 +244,44 @@ final class AIAgentViewController: NSViewController {
             : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
     }
 
-    // MARK: - Intro
+    // MARK: - Intro / Transcript rebuild
+
+    private func rebuildTranscriptOrShowIntro() {
+        let history = AIAgentManager.sharedInstance.conversationHistory
+        if history.isEmpty {
+            appendIntroMessage()
+        } else {
+            for msg in history {
+                switch msg {
+                case .user(let t):      appendUser(t)
+                case .assistant(let t): appendAssistant(t)
+                default: break
+                }
+            }
+        }
+        updateInputState()
+    }
 
     private func appendIntroMessage() {
-        appendAssistant("👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts.\n\nConfigure your provider and API key in **Profile → Advanced → Configure AI Agent**.")
+        if AIAgentManager.sharedInstance.isConfigured {
+            appendAssistant("👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts and tribes.")
+        } else {
+            appendAssistant("Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started.")
+        }
+    }
+
+    private func updateInputState() {
+        let configured = AIAgentManager.sharedInstance.isConfigured
+        inputField.isEnabled = configured
+        sendButtonEnabled = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        pillView.layer?.opacity = configured ? 1.0 : 0.5
+        sendButton.layer?.backgroundColor = configured
+            ? NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
+            : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.2).cgColor
+    }
+
+    @objc private func onAgentReconfigured() {
+        updateInputState()
     }
 
     // MARK: - Send
@@ -370,12 +416,13 @@ final class AIAgentViewController: NSViewController {
 
     private func setLoading(_ loading: Bool) {
         sendButton.isHidden  = loading
-        inputField.isEnabled = !loading
         spinner.isHidden     = !loading
         if loading {
+            inputField.isEnabled = false
             spinner.startAnimation(nil)
         } else {
             spinner.stopAnimation(nil)
+            updateInputState()
             view.window?.makeFirstResponder(inputField)
         }
     }
