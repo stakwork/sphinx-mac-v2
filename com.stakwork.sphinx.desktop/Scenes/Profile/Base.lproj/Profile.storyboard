@@ -7,6 +7,67 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Setup AI Agent View Controller-->
+        <scene sceneID="aai-ag-001">
+            <objects>
+                <viewController storyboardIdentifier="SetupAIAgentViewController" id="aai-vc-001" customClass="SetupAIAgentViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="aai-vw-001">
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="aai-bx-001">
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                <view key="contentView" id="aai-cv-001">
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <color key="fillColor" name="Body"/>
+                            </box>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-pf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="308" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-ph-001"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-kf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="228" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-kh-001"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-bt-001" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="65" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="aai-bh-001"/>
+                                </constraints>
+                            </customView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="aai-bx-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" id="aai-c-001"/>
+                            <constraint firstItem="aai-bx-001" firstAttribute="top" secondItem="aai-vw-001" secondAttribute="top" id="aai-c-002"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-bx-001" secondAttribute="trailing" id="aai-c-003"/>
+                            <constraint firstAttribute="bottom" secondItem="aai-bx-001" secondAttribute="bottom" id="aai-c-004"/>
+                            <constraint firstItem="aai-pf-001" firstAttribute="top" secondItem="aai-vw-001" secondAttribute="top" constant="32" id="aai-c-005"/>
+                            <constraint firstItem="aai-pf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-006"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-pf-001" secondAttribute="trailing" constant="64" id="aai-c-007"/>
+                            <constraint firstItem="aai-kf-001" firstAttribute="top" secondItem="aai-pf-001" secondAttribute="bottom" constant="12" id="aai-c-008"/>
+                            <constraint firstItem="aai-kf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-009"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-kf-001" secondAttribute="trailing" constant="64" id="aai-c-010"/>
+                            <constraint firstItem="aai-bt-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-011"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-bt-001" secondAttribute="trailing" constant="64" id="aai-c-012"/>
+                            <constraint firstAttribute="bottom" secondItem="aai-bt-001" secondAttribute="bottom" constant="65" id="aai-c-013"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="providerFieldView" destination="aai-pf-001" id="aai-o-001"/>
+                        <outlet property="apiKeyFieldView" destination="aai-kf-001" id="aai-o-002"/>
+                        <outlet property="confirmButtonView" destination="aai-bt-001" id="aai-o-003"/>
+                    </connections>
+                </viewController>
+                <customObject id="aai-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-900" y="249.5"/>
+        </scene>
         <!--Setup Personal Graph View Controller-->
         <scene sceneID="3Pt-5i-8Fb">
             <objects>
