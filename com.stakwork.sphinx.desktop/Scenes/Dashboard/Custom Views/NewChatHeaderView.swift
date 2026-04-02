@@ -131,12 +131,6 @@ class NewChatHeaderView: NSView, LoadableNib {
     // MARK: - AI Agent button
 
     private func configureAIAgentButton() {
-        // Set the SF symbol image (XIB has no image set; we assign it here)
-        if let img = NSImage(systemSymbolName: "brain.head.profile", accessibilityDescription: "AI Agent") {
-            aiAgentButton?.image = img
-        } else if let img = NSImage(systemSymbolName: "cpu", accessibilityDescription: "AI Agent") {
-            aiAgentButton?.image = img
-        }
         aiAgentButton?.cursor = .pointingHand
         aiAgentButton?.toolTip = "Open Sphinx AI"
 

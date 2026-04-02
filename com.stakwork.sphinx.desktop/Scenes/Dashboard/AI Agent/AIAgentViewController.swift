@@ -156,7 +156,7 @@ final class AIAgentViewController: NSViewController {
         sendButton.layer?.masksToBounds  = true
         sendButton.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
         sendButton.imagePosition = .imageOnly
-        sendButton.imageScaling  = .proportionallyDown
+        sendButton.imageScaling  = .scaleProportionallyDown
         if let img = NSImage(systemSymbolName: "paperplane.fill", accessibilityDescription: "Send") {
             sendButton.image = img.withSymbolConfiguration(
                 NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
@@ -214,7 +214,7 @@ final class AIAgentViewController: NSViewController {
             sendButton.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -kHPad),
             sendButton.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
             sendButton.widthAnchor.constraint(equalToConstant: kUnitSize),
-            sendButton.heightAnchor.constraint(equalToConstant: kUnitSize),
+            sendButton.heightAnchor.constraint(equalTo: pillView.heightAnchor),
 
             // Spinner centred over send button
             spinner.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),

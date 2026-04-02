@@ -72,10 +72,10 @@ final class AIAgentManager: @unchecked Sendable {
         switch provider {
         case .anthropic:
             let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "claude-3-5-sonnet-20241022")
+            activeModel = p.chat(modelId: "claude-haiku-4-5-20251001")
         case .openAI:
             let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "gpt-4o")
+            activeModel = p.chat(modelId: "gpt-5.4")
         }
 
         // Reset history when credentials change
