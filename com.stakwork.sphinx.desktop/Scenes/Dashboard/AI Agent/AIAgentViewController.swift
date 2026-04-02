@@ -82,7 +82,9 @@ final class AIAgentViewController: NSViewController {
         // ── Transcript scroll ──────────────────────────────────────────────────
         scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers  = true
-        scrollView.drawsBackground     = false
+        scrollView.drawsBackground     = true
+        scrollView.backgroundColor     = NSColor.Sphinx.HeaderBG
+        scrollView.contentView.backgroundColor = NSColor.Sphinx.HeaderBG
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
@@ -94,6 +96,8 @@ final class AIAgentViewController: NSViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         let clipView = NSClipView()
+        clipView.drawsBackground = true
+        clipView.backgroundColor = NSColor.Sphinx.HeaderBG
         scrollView.contentView = clipView
         scrollView.documentView = stackView
 
