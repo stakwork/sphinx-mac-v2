@@ -470,13 +470,12 @@ import SwiftUI
     }
     
     func showAIAgentWindow() {
-        if bringToFrontIfExists(identifier: "ai-agent") { return }
-        showNewWindow(
+        showOnCurrentWindow(
             with: "Sphinx AI",
-            size: CGSize(width: 600, height: 700),
-            minSize: CGSize(width: 400, height: 500),
             identifier: "ai-agent",
-            contentVC: AIAgentViewController.instantiate()
+            contentVC: AIAgentViewController.instantiate(),
+            hideDivider: false,
+            width: 620
         )
     }
 

@@ -140,7 +140,11 @@ class NewChatHeaderView: NSView, LoadableNib {
         aiAgentButton.action = #selector(aiAgentButtonTappedAction)
         aiAgentButton.toolTip = "Open Sphinx AI"
 
-        if let img = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "AI Agent") {
+        let symbolName = "brain.head.profile"
+        let fallbackSymbol = "cpu"
+        if let img = NSImage(systemSymbolName: symbolName, accessibilityDescription: "AI Agent") {
+            aiAgentButton.image = img
+        } else if let img = NSImage(systemSymbolName: fallbackSymbol, accessibilityDescription: "AI Agent") {
             aiAgentButton.image = img
         } else {
             aiAgentButton.title = "AI"
