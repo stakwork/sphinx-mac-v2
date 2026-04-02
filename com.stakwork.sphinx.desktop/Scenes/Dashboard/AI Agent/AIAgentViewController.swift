@@ -40,7 +40,7 @@ final class AIAgentViewController: NSViewController {
     override func loadView() {
         view = NSView()
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
+        view.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
     }
 
     override func viewDidLoad() {
@@ -70,7 +70,7 @@ final class AIAgentViewController: NSViewController {
     private func setupLayout() {
         // ── Bottom bar ─────────────────────────────────────────────────────────
         bottomBarView.wantsLayer = true
-        bottomBarView.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
+        bottomBarView.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
         bottomBarView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(bottomBarView)
 
