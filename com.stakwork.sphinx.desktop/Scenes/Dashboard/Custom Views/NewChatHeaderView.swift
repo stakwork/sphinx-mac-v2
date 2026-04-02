@@ -139,6 +139,8 @@ class NewChatHeaderView: NSView, LoadableNib {
         aiAgentButton.target = self
         aiAgentButton.action = #selector(aiAgentButtonTappedAction)
         aiAgentButton.toolTip = "Open Sphinx AI"
+        // Match other header icons: SecondaryText tint
+        aiAgentButton.contentTintColor = NSColor.Sphinx.SecondaryText
 
         let symbolName = "brain.head.profile"
         let fallbackSymbol = "cpu"
@@ -153,14 +155,13 @@ class NewChatHeaderView: NSView, LoadableNib {
 
         contentView.addSubview(aiAgentButton)
 
-        // Place the button to the left of the qrCodeButton using a simple fixed frame fallback
-        // We use Auto Layout relative to qrCodeButton if it's available
+        // Match other icons: 32×32, same spacing (16pt stack gap ÷ 2 each side = 8pt)
         if let qrBtn = qrCodeButton {
             NSLayoutConstraint.activate([
-                aiAgentButton.trailingAnchor.constraint(equalTo: qrBtn.leadingAnchor, constant: -4),
+                aiAgentButton.trailingAnchor.constraint(equalTo: qrBtn.leadingAnchor, constant: -8),
                 aiAgentButton.centerYAnchor.constraint(equalTo: qrBtn.centerYAnchor),
-                aiAgentButton.widthAnchor.constraint(equalToConstant: 24),
-                aiAgentButton.heightAnchor.constraint(equalToConstant: 24),
+                aiAgentButton.widthAnchor.constraint(equalToConstant: 32),
+                aiAgentButton.heightAnchor.constraint(equalToConstant: 32),
             ])
         }
     }

@@ -8,36 +8,47 @@
 
 import Cocoa
 
+// MARK: - Padded text-field cell (12 pt left/right inset, matches chat pill)
+
+private class PaddedTextFieldCell: NSTextFieldCell {
+    private let inset: CGFloat = 12
+    override func titleRect(forBounds rect: NSRect) -> NSRect {
+        return rect.insetBy(dx: inset, dy: 0)
+    }
+    override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
+        super.drawInterior(withFrame: titleRect(forBounds: cellFrame), in: controlView)
+    }
+    override func edit(withFrame rect: NSRect, in controlView: NSView, editor: NSText, delegate: Any?, event: NSEvent?) {
+        super.edit(withFrame: titleRect(forBounds: rect), in: controlView, editor: editor, delegate: delegate, event: event)
+    }
+    override func select(withFrame rect: NSRect, in controlView: NSView, editor: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
+        super.select(withFrame: titleRect(forBounds: rect), in: controlView, editor: editor, delegate: delegate, start: selStart, length: selLength)
+    }
+}
+
+// MARK: - AIAgentViewController
+
 final class AIAgentViewController: NSViewController {
 
     // MARK: - Views
 
-    private let scrollView       = NSScrollView()
-    private let transcriptView   = NSTextView()
-    private let bottomBarView    = NSView()
-    private let divider          = NSBox()
-
-    // Input container (matches chat UI — rounded, ReceivedMsgBG)
-    private let inputContainer   = NSView()
-    private let inputTextView    = NSTextView()
-    private let inputScrollView  = NSScrollView()
-
-    // Send button (matches chat UI — circle, PrimaryBlue)
-    private let sendButton       = NSButton()
-    private let spinner          = NSProgressIndicator()
+    private let scrollView      = NSScrollView()
+    private let transcriptView  = NSTextView()
+    private let bottomBarView   = NSView()
+    private let divider         = NSBox()
+    private let inputField      = NSTextField()
+    private let sendButton      = NSButton()
+    private let spinner         = NSProgressIndicator()
 
     // MARK: - Renderer
-
     private let renderer = MarkdownRenderer()
 
-    // MARK: - Constants (mirrors ChatMessageFieldView)
+    // MARK: - Constants
     private let kBottomBarHeight: CGFloat    = 72
-    private let kInputContainerRadius: CGFloat = 20
-    private let kSendButtonSize: CGFloat      = 40
-    private let kInputFont = NSFont(name: "Roboto-Regular", size: 16.0)
-                          ?? NSFont.systemFont(ofSize: 16)
-    private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 15.0)
-                               ?? NSFont.systemFont(ofSize: 15)
+    private let kSendButtonSize: CGFloat     = 40
+    private let kInputCornerRadius: CGFloat  = 20
+    private let kInputFont = NSFont(name: "Roboto-Regular", size: 16.0) ?? NSFont.systemFont(ofSize: 16)
+    private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 15.0) ?? NSFont.systemFont(ofSize: 15)
 
     // MARK: - Lifecycle
 
@@ -53,13 +64,6 @@ final class AIAgentViewController: NSViewController {
         appendIntroMessage()
     }
 
-    override func viewDidLayout() {
-        super.viewDidLayout()
-        // Keep input container corner radius live
-        inputContainer.layer?.cornerRadius = kInputContainerRadius
-        sendButton.layer?.cornerRadius = kSendButtonSize / 2
-    }
-
     // MARK: - Static Factory
 
     static func instantiate() -> AIAgentViewController {
@@ -69,18 +73,22 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Layout
 
     private func setupLayout() {
-        // ── Bottom bar ──────────────────────────────────────────────────────
+        let hPad: CGFloat = 12
+        let vPad: CGFloat = 16
+        let inputH: CGFloat = kBottomBarHeight - vPad * 2   // 40 pt — matches send button
+
+        // ── Bottom bar ───────────────────────────────────────────────────────
         bottomBarView.wantsLayer = true
         bottomBarView.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
-        view.addSubview(bottomBarView)
         bottomBarView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bottomBarView)
 
-        // ── Divider ─────────────────────────────────────────────────────────
+        // ── Divider ──────────────────────────────────────────────────────────
         divider.boxType = .separator
-        view.addSubview(divider)
         divider.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(divider)
 
-        // ── Transcript scroll view ───────────────────────────────────────────
+        // ── Transcript scroll view ────────────────────────────────────────────
         scrollView.hasVerticalScroller = true
         scrollView.autohidesScrollers  = true
         scrollView.drawsBackground     = false
@@ -99,50 +107,59 @@ final class AIAgentViewController: NSViewController {
         transcriptView.isVerticallyResizable   = true
         transcriptView.isHorizontallyResizable = false
         transcriptView.textContainer?.widthTracksTextView = true
-        transcriptView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.documentView = transcriptView
 
-        // ── Input container (rounded pill, ReceivedMsgBG) ───────────────────
-        inputContainer.wantsLayer = true
-        inputContainer.layer?.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
-        inputContainer.layer?.cornerRadius = kInputContainerRadius
-        inputContainer.translatesAutoresizingMaskIntoConstraints = false
-        bottomBarView.addSubview(inputContainer)
+        // ── Input field — swap cell for padded variant ────────────────────────
+        let paddedCell = PaddedTextFieldCell()
+        paddedCell.usesSingleLineMode    = true
+        paddedCell.isScrollable          = true
+        paddedCell.wraps                 = false
+        paddedCell.font                  = kInputFont
+        paddedCell.textColor             = NSColor.Sphinx.PrimaryText
+        paddedCell.backgroundColor       = NSColor.Sphinx.ReceivedMsgBG
+        paddedCell.placeholderAttributedString = NSAttributedString(
+            string: "Ask Sphinx AI...",
+            attributes: [
+                .font: kInputFont,
+                .foregroundColor: NSColor.Sphinx.PlaceholderText
+            ]
+        )
 
-        // Input text view (inside scroll, matches PlaceHolderTextView style)
-        inputScrollView.hasVerticalScroller = false
-        inputScrollView.hasHorizontalScroller = false
-        inputScrollView.drawsBackground = false
-        inputScrollView.translatesAutoresizingMaskIntoConstraints = false
-        inputContainer.addSubview(inputScrollView)
+        inputField.cell = paddedCell
+        inputField.font = kInputFont
+        inputField.isBordered   = false
+        inputField.isBezeled    = false
+        inputField.drawsBackground  = true
+        inputField.backgroundColor  = NSColor.Sphinx.ReceivedMsgBG
+        inputField.focusRingType    = .none
+        inputField.wantsLayer       = true
+        inputField.layer?.cornerRadius  = kInputCornerRadius
+        inputField.layer?.masksToBounds = true
+        inputField.translatesAutoresizingMaskIntoConstraints = false
+        inputField.target = self
+        inputField.action = #selector(sendTapped)
+        bottomBarView.addSubview(inputField)
 
-        inputTextView.isRichText   = false
-        inputTextView.font         = kInputFont
-        inputTextView.textColor    = NSColor.Sphinx.PrimaryText
-        inputTextView.backgroundColor = .clear
-        inputTextView.drawsBackground  = false
-        inputTextView.isEditable       = true
-        inputTextView.isSelectable     = true
-        inputTextView.isVerticallyResizable   = true
-        inputTextView.isHorizontallyResizable = false
-        inputTextView.textContainer?.widthTracksTextView = true
-        inputTextView.translatesAutoresizingMaskIntoConstraints = false
-        inputTextView.delegate = self
-        setPlaceholder()
-        inputScrollView.documentView = inputTextView
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(inputDidChange),
+            name: NSTextField.textDidChangeNotification,
+            object: inputField
+        )
 
-        // ── Send button (circle, PrimaryBlue, SF symbol paper.plane) ────────
+        // ── Send button (circle, PrimaryBlue) ────────────────────────────────
         sendButton.isBordered = false
         sendButton.wantsLayer = true
-        sendButton.layer?.cornerRadius = kSendButtonSize / 2
-        sendButton.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
+        sendButton.layer?.cornerRadius  = kSendButtonSize / 2
+        sendButton.layer?.masksToBounds = true
+        sendButton.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
         sendButton.imagePosition = .imageOnly
         sendButton.imageScaling  = .proportionallyDown
         if let img = NSImage(systemSymbolName: "paperplane.fill", accessibilityDescription: "Send") {
-            var cfg = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-            sendButton.image = img.withSymbolConfiguration(cfg)
+            sendButton.image = img.withSymbolConfiguration(
+                NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+            )
         } else {
-            sendButton.title = "Send"
+            sendButton.title = "▶"
         }
         sendButton.contentTintColor = NSColor.white
         sendButton.translatesAutoresizingMaskIntoConstraints = false
@@ -151,7 +168,7 @@ final class AIAgentViewController: NSViewController {
         sendButton.isEnabled = false
         bottomBarView.addSubview(sendButton)
 
-        // ── Spinner ─────────────────────────────────────────────────────────
+        // ── Spinner ───────────────────────────────────────────────────────────
         spinner.style = .spinning
         spinner.controlSize = .small
         spinner.isIndeterminate = true
@@ -159,16 +176,13 @@ final class AIAgentViewController: NSViewController {
         spinner.translatesAutoresizingMaskIntoConstraints = false
         bottomBarView.addSubview(spinner)
 
-        // ── Constraints ──────────────────────────────────────────────────────
-        let vPad: CGFloat = 16   // vertical padding inside bottom bar
-        let hPad: CGFloat = 12   // horizontal padding
-
+        // ── Constraints ───────────────────────────────────────────────────────
         NSLayoutConstraint.activate([
-            // Bottom bar
+            // Bottom bar — fixed height
             bottomBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            bottomBarView.heightAnchor.constraint(greaterThanOrEqualToConstant: kBottomBarHeight),
+            bottomBarView.heightAnchor.constraint(equalToConstant: kBottomBarHeight),
 
             // Divider
             divider.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -176,35 +190,19 @@ final class AIAgentViewController: NSViewController {
             divider.bottomAnchor.constraint(equalTo: bottomBarView.topAnchor),
             divider.heightAnchor.constraint(equalToConstant: 1),
 
-            // Transcript scroll
+            // Transcript — fills everything above divider
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: divider.topAnchor),
 
-            // Transcript text view matches scroll width
-            transcriptView.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor),
-            transcriptView.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
-            transcriptView.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
+            // Input field
+            inputField.leadingAnchor.constraint(equalTo: bottomBarView.leadingAnchor, constant: hPad),
+            inputField.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
+            inputField.heightAnchor.constraint(equalToConstant: inputH),
+            inputField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
 
-            // Input container (left of send button, right margin for spinner)
-            inputContainer.leadingAnchor.constraint(equalTo: bottomBarView.leadingAnchor, constant: hPad),
-            inputContainer.topAnchor.constraint(equalTo: bottomBarView.topAnchor, constant: vPad),
-            inputContainer.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -vPad),
-            inputContainer.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
-
-            // Input scroll inside container
-            inputScrollView.leadingAnchor.constraint(equalTo: inputContainer.leadingAnchor, constant: 12),
-            inputScrollView.trailingAnchor.constraint(equalTo: inputContainer.trailingAnchor, constant: -12),
-            inputScrollView.topAnchor.constraint(equalTo: inputContainer.topAnchor, constant: 4),
-            inputScrollView.bottomAnchor.constraint(equalTo: inputContainer.bottomAnchor, constant: -4),
-
-            // Input text view matches scroll width
-            inputTextView.topAnchor.constraint(equalTo: inputScrollView.contentView.topAnchor),
-            inputTextView.leadingAnchor.constraint(equalTo: inputScrollView.contentView.leadingAnchor),
-            inputTextView.trailingAnchor.constraint(equalTo: inputScrollView.contentView.trailingAnchor),
-
-            // Send button — fixed circle
+            // Send button
             sendButton.trailingAnchor.constraint(equalTo: spinner.leadingAnchor, constant: -8),
             sendButton.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
             sendButton.widthAnchor.constraint(equalToConstant: kSendButtonSize),
@@ -218,55 +216,30 @@ final class AIAgentViewController: NSViewController {
         ])
     }
 
-    // MARK: - Placeholder
+    // MARK: - Input change
 
-    private func setPlaceholder() {
-        let placeholder = NSAttributedString(
-            string: "Ask Sphinx AI...",
-            attributes: [
-                .font: kInputFont,
-                .foregroundColor: NSColor.Sphinx.PlaceholderText
-            ]
-        )
-        // NSTextView doesn't natively support placeholder; we fake it via content check
-        if inputTextView.string.isEmpty {
-            inputTextView.textStorage?.setAttributedString(placeholder)
-            inputTextView.textColor = NSColor.Sphinx.PlaceholderText
-        }
-    }
-
-    private func clearPlaceholder() {
-        if inputTextView.textColor == NSColor.Sphinx.PlaceholderText {
-            inputTextView.string = ""
-            inputTextView.textColor = NSColor.Sphinx.PrimaryText
-            inputTextView.font = kInputFont
-        }
-    }
-
-    private var inputText: String {
-        if inputTextView.textColor == NSColor.Sphinx.PlaceholderText {
-            return ""
-        }
-        return inputTextView.string.trimmingCharacters(in: .whitespacesAndNewlines)
+    @objc private func inputDidChange() {
+        let hasText = !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        sendButton.isEnabled = hasText
+        sendButton.layer?.backgroundColor = hasText
+            ? NSColor.Sphinx.PrimaryBlue.cgColor
+            : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
     }
 
     // MARK: - Intro
 
     private func appendIntroMessage() {
-        appendAssistant("👋 Hi! I'm your Sphinx AI assistant. You can ask me to read recent messages or send messages to your contacts.\n\nMake sure you've set your AI provider and API key in **Profile → Advanced → Configure AI Agent**.")
+        appendAssistant("👋 Hi! I'm your Sphinx AI assistant. You can ask me to read recent messages or send messages to your contacts.\n\nMake sure you've configured your AI provider and API key in **Profile → Advanced → Configure AI Agent**.")
     }
 
     // MARK: - Send Action
 
     @objc private func sendTapped() {
-        let text = inputText
+        let text = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
-        // Clear input
-        inputTextView.string = ""
-        setPlaceholder()
-        sendButton.isEnabled = false
-
+        inputField.stringValue = ""
+        inputDidChange()
         appendUser(text)
         setLoading(true)
 
@@ -286,21 +259,20 @@ final class AIAgentViewController: NSViewController {
         }
     }
 
-    // MARK: - Transcript Helpers
+    // MARK: - Transcript helpers
 
     private func appendUser(_ text: String) {
         let storage = transcriptView.textStorage!
-        let userAttrs: [NSAttributedString.Key: Any] = [
+        let attrs: [NSAttributedString.Key: Any] = [
             .font: NSFont(name: "Roboto-Bold", size: 14) ?? NSFont.boldSystemFont(ofSize: 14),
             .foregroundColor: NSColor.Sphinx.Text
         ]
-        storage.append(NSAttributedString(string: "You: \(text)\n\n", attributes: userAttrs))
+        storage.append(NSAttributedString(string: "You: \(text)\n\n", attributes: attrs))
         scrollToBottom()
     }
 
     private func appendAssistant(_ text: String) {
         let storage = transcriptView.textStorage!
-
         let labelAttrs: [NSAttributedString.Key: Any] = [
             .font: NSFont(name: "Roboto-Medium", size: 13) ?? NSFont.systemFont(ofSize: 13, weight: .medium),
             .foregroundColor: NSColor.Sphinx.SecondaryText
@@ -308,7 +280,7 @@ final class AIAgentViewController: NSViewController {
         storage.append(NSAttributedString(string: "Sphinx AI: ", attributes: labelAttrs))
 
         let rendered = renderer.renderNS(text)
-        let mutable = NSMutableAttributedString(attributedString: rendered)
+        let mutable  = NSMutableAttributedString(attributedString: rendered)
         mutable.append(NSAttributedString(string: "\n\n"))
         storage.append(mutable)
         scrollToBottom()
@@ -326,57 +298,20 @@ final class AIAgentViewController: NSViewController {
 
     private func scrollToBottom() {
         guard let storage = transcriptView.textStorage else { return }
-        let range = NSRange(location: storage.length, length: 0)
-        transcriptView.scrollRangeToVisible(range)
+        transcriptView.scrollRangeToVisible(NSRange(location: storage.length, length: 0))
     }
 
-    // MARK: - Loading State
+    // MARK: - Loading state
 
     private func setLoading(_ loading: Bool) {
-        sendButton.isEnabled = !loading
-        inputTextView.isEditable = !loading
-        spinner.isHidden = !loading
+        sendButton.isEnabled  = !loading
+        inputField.isEnabled  = !loading
+        spinner.isHidden      = !loading
         if loading {
             spinner.startAnimation(nil)
         } else {
             spinner.stopAnimation(nil)
+            view.window?.makeFirstResponder(inputField)
         }
-    }
-}
-
-// MARK: - NSTextViewDelegate
-
-extension AIAgentViewController: NSTextViewDelegate {
-
-    func textDidChange(_ notification: Notification) {
-        guard notification.object as? NSTextView === inputTextView else { return }
-
-        let hasText = !inputTextView.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        sendButton.isEnabled = hasText
-        sendButton.layer?.backgroundColor = hasText
-            ? NSColor.Sphinx.PrimaryBlue.cgColor
-            : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
-    }
-
-    func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        // Send on Return (without Shift)
-        if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-            if NSApp.currentEvent?.modifierFlags.contains(.shift) == true {
-                return false   // Shift+Return → newline
-            }
-            sendTapped()
-            return true
-        }
-        return false
-    }
-
-    // Clear placeholder on begin editing
-    func textViewDidChangeSelection(_ notification: Notification) {}
-
-    func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
-        if textView === inputTextView {
-            clearPlaceholder()
-        }
-        return true
     }
 }
