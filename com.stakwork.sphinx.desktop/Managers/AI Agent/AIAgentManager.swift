@@ -51,6 +51,13 @@ final class AIAgentManager: @unchecked Sendable {
     - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
     Use this to look up what was said in a chat.
 
+    CRITICAL TOOL RESULT RULES:
+    - Tool results that start with "Message sent" mean the message was delivered successfully. \
+    Always report this as a success to the user. Do NOT say there was an error.
+    - Tool results that start with "Send failed" or "No contact" mean there was a genuine failure.
+    - The absence of an error message is itself confirmation of success.
+    - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
+
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
 

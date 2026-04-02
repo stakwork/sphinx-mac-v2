@@ -336,12 +336,15 @@ final class AIAgentViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
 
         let label = NSTextField(wrappingLabelWithString: "")
+        // Always set font and textColor BEFORE attributedStringValue.
+        // AppKit falls back to these during text selection — without them the field
+        // reverts to the default system font/size when the user starts selecting.
+        label.font      = kTranscriptFont
+        label.textColor = NSColor.Sphinx.Text
         if let rendered = markdownRendered {
             label.attributedStringValue = rendered
         } else {
             label.stringValue = text
-            label.font        = kTranscriptFont
-            label.textColor   = NSColor.Sphinx.Text
         }
         label.isEditable      = false
         label.isSelectable    = true
