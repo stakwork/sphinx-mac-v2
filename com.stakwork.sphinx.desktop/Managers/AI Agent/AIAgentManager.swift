@@ -37,12 +37,12 @@ final class AIAgentManager: @unchecked Sendable {
     You are a helpful AI assistant embedded inside the Sphinx messaging app on macOS.
     You can interact with the user's Sphinx contacts and chats using the following tools:
 
-    - send_sphinx_message: Send a message to one of the user's Sphinx contacts by name. \
+    - send_sphinx_message: Send a message to one of the user's Sphinx contacts or tribes by name. \
     IMPORTANT: Before invoking this tool, you MUST describe exactly what you are about to do \
     (contact name and message text) and ask the user for explicit confirmation (e.g. "Shall I send this?"). \
     Only invoke the tool after the user confirms.
 
-    - read_recent_messages: Read recent messages from a conversation with a specific contact. \
+    - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
     Use this to look up what was said in a chat.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
@@ -159,7 +159,7 @@ final class AIAgentManager: @unchecked Sendable {
 
     private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
         tool(
-            description: "Send a Sphinx message to a contact by name. Always confirm with the user before calling this tool.",
+            description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
             execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
                 let result = await AIAgentManager.executeSendMessage(
                     contactName: input.contactName,
@@ -171,38 +171,66 @@ final class AIAgentManager: @unchecked Sendable {
     }
 
     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
+        // 1. Try contact match
         let contacts = UserContact.getAll()
-        guard let contact = contacts.first(where: {
+        if let contact = contacts.first(where: {
             ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
-        }) else {
-            return "Contact not found: \(contactName)"
-        }
-
-        guard let chat = contact.getConversation() else {
-            return "Chat not found for contact: \(contactName)"
-        }
-
-        let contactId = contact.id
-        let chatId = chat.id
-
-        return await MainActor.run {
-            guard let contact = UserContact.getContactWith(id: contactId),
-                  let chat = Chat.getChatWith(id: chatId) else {
-                return "Could not resolve contact or chat on main actor"
+        }) {
+            guard let chat = contact.getConversation() else {
+                return "Chat not found for contact: \(contactName)"
             }
-            let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
-                to: contact,
-                content: messageText,
-                chat: chat,
-                provisionalMessage: nil,
-                threadUUID: nil,
-                replyUUID: nil
-            )
-            if let error = error {
-                return "Send failed: \(error)"
+
+            let contactId = contact.id
+            let chatId = chat.id
+
+            return await MainActor.run {
+                guard let contact = UserContact.getContactWith(id: contactId),
+                      let chat = Chat.getChatWith(id: chatId) else {
+                    return "Could not resolve contact or chat on main actor"
+                }
+                let (txMsg, error) = SphinxOnionManager.sharedInstance.sendMessage(
+                    to: contact,
+                    content: messageText,
+                    chat: chat,
+                    provisionalMessage: nil,
+                    threadUUID: nil,
+                    replyUUID: nil
+                )
+                // Only treat as failure if no TransactionMessage was returned
+                if txMsg == nil, let error = error {
+                    return "Send failed: \(error)"
+                }
+                return "Message sent to \(contact.nickname ?? contactName)"
             }
-            return "Message sent to \(contact.nickname ?? contactName)"
         }
+
+        // 2. Try tribe match
+        let tribes = Chat.getAllTribes()
+        if let tribe = tribes.first(where: {
+            ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+        }) {
+            let chatId = tribe.id
+            return await MainActor.run {
+                guard let chat = Chat.getChatWith(id: chatId) else {
+                    return "Could not resolve tribe chat on main actor"
+                }
+                // Tribe messages: pass nil for recipContact
+                let (txMsg, error) = SphinxOnionManager.sharedInstance.sendMessage(
+                    to: nil,
+                    content: messageText,
+                    chat: chat,
+                    provisionalMessage: nil,
+                    threadUUID: nil,
+                    replyUUID: nil
+                )
+                if txMsg == nil, let error = error {
+                    return "Send failed: \(error)"
+                }
+                return "Message sent to tribe \(tribe.name ?? contactName)"
+            }
+        }
+
+        return "No contact or tribe found with name: \(contactName)"
     }
 
     // MARK: - Tool: read_recent_messages
@@ -214,17 +242,23 @@ final class AIAgentManager: @unchecked Sendable {
 
     private func buildReadMessagesTool() -> TypedTool<ReadMessagesInput, String> {
         tool(
-            description: "Read recent messages from a conversation with a specific Sphinx contact.",
+            description: "Read recent messages from a conversation with a specific Sphinx contact or tribe.",
             execute: { (input: ReadMessagesInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                // 1. Try contact
                 let contacts = UserContact.getAll()
-                guard let contact = contacts.first(where: {
+                var resolvedChat: Chat? = contacts.first(where: {
                     ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
-                }) else {
-                    return .value("Contact not found: \(input.contactName)")
+                })?.getConversation()
+
+                // 2. Fall back to tribe
+                if resolvedChat == nil {
+                    resolvedChat = Chat.getAllTribes().first(where: {
+                        ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                    })
                 }
 
-                guard let chat = contact.getConversation() else {
-                    return .value("Chat not found for contact: \(input.contactName)")
+                guard let chat = resolvedChat else {
+                    return .value("No contact or tribe found with name: \(input.contactName)")
                 }
 
                 let messages = TransactionMessage.getAllMessagesFor(
@@ -241,7 +275,7 @@ final class AIAgentManager: @unchecked Sendable {
 
                 let lines = messages.map { msg -> String in
                     let isMe = owner != nil && msg.senderId == owner!.id
-                    let sender = isMe ? "Me" : (msg.senderAlias ?? contact.nickname ?? "Unknown")
+                    let sender = isMe ? "Me" : (msg.senderAlias ?? input.contactName)
                     let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
                     let content = msg.messageContent ?? ""
                     return "[\(sender)] \(dateStr): \(content)"
