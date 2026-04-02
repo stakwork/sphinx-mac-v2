@@ -253,9 +253,12 @@ final class AIAgentViewController: NSViewController {
         } else {
             for msg in history {
                 switch msg {
-                case .user(let t):      appendUser(t)
-                case .assistant(let t): appendAssistant(t)
-                default: break
+                case .user(let userMsg):
+                    if case .text(let t) = userMsg.content { appendUser(t) }
+                case .assistant(let assistantMsg):
+                    if case .text(let t) = assistantMsg.content { appendAssistant(t) }
+                default:
+                    break
                 }
             }
         }

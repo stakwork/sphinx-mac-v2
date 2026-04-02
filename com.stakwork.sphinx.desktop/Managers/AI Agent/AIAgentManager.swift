@@ -63,9 +63,14 @@ final class AIAgentManager: @unchecked Sendable {
     private func saveHistory() {
         let wrapped: [AIAgentMessage] = conversationHistory.compactMap { msg in
             switch msg {
-            case .user(let t):      return AIAgentMessage(role: "user", text: t)
-            case .assistant(let t): return AIAgentMessage(role: "assistant", text: t)
-            default: return nil
+            case .user(let userMsg):
+                if case .text(let t) = userMsg.content { return AIAgentMessage(role: "user", text: t) }
+                return nil
+            case .assistant(let assistantMsg):
+                if case .text(let t) = assistantMsg.content { return AIAgentMessage(role: "assistant", text: t) }
+                return nil
+            default:
+                return nil
             }
         }
         if let data = try? JSONEncoder().encode(wrapped) {
