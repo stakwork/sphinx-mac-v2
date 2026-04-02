@@ -80,9 +80,20 @@ final class AIAgentManager: @unchecked Sendable {
 
         // Reset history when credentials change
         reset()
+
+        // Notify header views to update AI button visibility
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .aiAgentReconfigured, object: nil)
+        }
     }
 
     // MARK: - Public API
+
+    /// Returns true when a provider + API key have been configured successfully
+    var isConfigured: Bool {
+        if activeModel == nil { reconfigure() }
+        return activeModel != nil
+    }
 
     func chat(_ userText: String) async throws -> String {
         // Re-attempt configuration if activeModel is nil (e.g. first call after login)
