@@ -53,10 +53,11 @@ final class AIAgentManager: @unchecked Sendable {
     Use this to look up what was said in a chat.
 
     CRITICAL TOOL RESULT RULES:
-    - Tool results that start with "Message sent" mean the message was delivered successfully. \
-    Always report this as a success to the user. Do NOT say there was an error.
-    - Tool results that start with "Send failed" or "No contact" mean there was a genuine failure.
-    - The absence of an error message is itself confirmation of success.
+    - Tool results that start with "Message sent successfully" mean the message was delivered. \
+    Always report this as a success. Do NOT say there was an error or that you're unsure.
+    - Tool results that start with "Send failed" or "No contact" or "No tribe" mean genuine failure.
+    - When read_recent_messages returns a list of messages, present them clearly to the user. \
+    Do NOT say there was a format issue or that you couldn't read them.
     - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
@@ -225,7 +226,7 @@ final class AIAgentManager: @unchecked Sendable {
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
 
-        let result: GenerateTextResult
+        let result: any GenerateTextResult
         do {
             result = try await generateText(
                 model: model,
@@ -247,13 +248,13 @@ final class AIAgentManager: @unchecked Sendable {
         // If the model ran a tool but produced no final text, synthesise a short reply
         var responseText = result.text.isEmpty ? "Done." : result.text
 
-        // Safety net: if any tool step succeeded but the LLM's final text implies failure,
-        // replace the response with the actual tool result so the user sees correct status.
+        // Safety net for send_sphinx_message: override LLM response if it contradicts
+        // a successful tool result.
         outer: for step in result.steps {
             for toolResult in step.toolResults {
                 guard toolResult.toolName == "send_sphinx_message" else { continue }
                 guard case .string(let toolOutput) = toolResult.output else { continue }
-                guard toolOutput.hasPrefix("Message sent") else { continue }
+                guard toolOutput.hasPrefix("Message sent successfully") else { continue }
                 let lower = responseText.lowercased()
                 let impliesFailure = lower.contains("fail") || lower.contains("unable") ||
                     lower.contains("couldn't") || lower.contains("couldn") ||
@@ -264,6 +265,27 @@ final class AIAgentManager: @unchecked Sendable {
                     responseText = toolOutput
                 }
                 break outer
+            }
+        }
+
+        // Safety net for read_recent_messages: if the tool returned messages but the LLM
+        // says there was a format/reading issue, show the raw tool output instead.
+        outer2: for step in result.steps {
+            for toolResult in step.toolResults {
+                guard toolResult.toolName == "read_recent_messages" else { continue }
+                guard case .string(let toolOutput) = toolResult.output else { continue }
+                guard toolOutput.hasPrefix("Messages in") || toolOutput.hasPrefix("No messages") ||
+                      toolOutput.hasPrefix("Found") || toolOutput.hasPrefix("No contact") else { continue }
+                print("AIAgent: read_recent_messages tool output: \(toolOutput.prefix(200))")
+                print("AIAgent: LLM responseText: \(responseText.prefix(200))")
+                let lower = responseText.lowercased()
+                let impliesError = lower.contains("format") || lower.contains("couldn't") ||
+                    lower.contains("couldn") || lower.contains("unable") ||
+                    lower.contains("error") || lower.contains("sorry")
+                if impliesError || responseText == "Done." {
+                    responseText = toolOutput
+                }
+                break outer2
             }
         }
 
@@ -314,24 +336,17 @@ final class AIAgentManager: @unchecked Sendable {
     }
 
     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
-        // 1. Try contact match
-        let contacts = UserContact.getAll()
-        if let contact = contacts.first(where: {
-            ($0.nickname ?? "").trim().caseInsensitiveCompare(contactName.trim()) == .orderedSame
-        }) {
-            guard let chat = contact.getConversation() else {
-                return "Chat not found for contact: \(contactName)"
-            }
-
-            let contactId = contact.id
-            let chatId = chat.id
-
-            return await MainActor.run {
-                guard let contact = UserContact.getContactWith(id: contactId),
-                      let chat = Chat.getChatWith(id: chatId) else {
-                    return "Could not resolve contact or chat on main actor"
+        // All Core Data access and the actual send must happen on the main thread.
+        return await MainActor.run {
+            // 1. Try contact match
+            let contacts = UserContact.getAll()
+            if let contact = contacts.first(where: {
+                ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+            }) {
+                guard let chat = contact.getConversation() else {
+                    return "Send failed: chat not found for contact '\(contactName)'."
                 }
-                let (txMsg, error) = SphinxOnionManager.sharedInstance.sendMessage(
+                let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                     to: contact,
                     content: messageText,
                     chat: chat,
@@ -339,92 +354,124 @@ final class AIAgentManager: @unchecked Sendable {
                     threadUUID: nil,
                     replyUUID: nil
                 )
-                // Only treat as failure if no TransactionMessage was returned
-                if txMsg == nil, let error = error {
+                if let error = error {
                     return "Send failed: \(error)"
                 }
-                return "Message sent to \(contact.nickname ?? contactName)"
+                return "Message sent successfully to \(contact.nickname ?? contactName)."
             }
-        }
 
-        // 2. Try tribe match
-        let tribes = Chat.getAllTribes()
-        if let tribe = tribes.first(where: {
-            ($0.name ?? "").trim().caseInsensitiveCompare(contactName.trim()) == .orderedSame
-        }) {
-            let chatId = tribe.id
-            return await MainActor.run {
-                guard let chat = Chat.getChatWith(id: chatId) else {
-                    return "Could not resolve tribe chat on main actor"
-                }
-                // Tribe messages: pass nil for recipContact
-                let (txMsg, error) = SphinxOnionManager.sharedInstance.sendMessage(
+            // 2. Try tribe match
+            let tribes = Chat.getAllTribes()
+            if let tribe = tribes.first(where: {
+                ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+            }) {
+                let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                     to: nil,
                     content: messageText,
-                    chat: chat,
+                    chat: tribe,
                     provisionalMessage: nil,
                     threadUUID: nil,
                     replyUUID: nil
                 )
-                if txMsg == nil, let error = error {
+                if let error = error {
                     return "Send failed: \(error)"
                 }
-                return "Message sent to tribe \(tribe.name ?? contactName)"
+                return "Message sent successfully to tribe '\(tribe.name ?? contactName)'."
             }
-        }
 
-        return "No contact or tribe found with name: \(contactName)"
+            return "No contact or tribe found with name '\(contactName)'."
+        }
     }
 
     // MARK: - Tool: read_recent_messages
 
-    private struct ReadMessagesInput: Codable, Sendable {
-        let contactName: String
-        let limit: Int?
-    }
+    private func buildReadMessagesTool() -> TypedTool<JSONValue, String> {
+        // Use JSONValue as the input type so the SDK's decodeTypedInput short-circuits
+        // (it returns the raw JSONValue without any JSONDecoder involvement), avoiding
+        // camelCase/snake_case mismatches that can cause DecodingError.
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([
+                    "contact_name": .object(["type": .string("string")]),
+                    "limit": .object(["type": .string("integer")])
+                ]),
+                "required": .array([.string("contact_name")])
+            ]))
+        )
 
-    private func buildReadMessagesTool() -> TypedTool<ReadMessagesInput, String> {
-        tool(
+        return tool(
             description: "Read recent messages from a conversation with a specific Sphinx contact or tribe.",
-            execute: { (input: ReadMessagesInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
-                // 1. Try contact
-                let contacts = UserContact.getAll()
-                var resolvedChat: Chat? = contacts.first(where: {
-                    ($0.nickname ?? "").trim().caseInsensitiveCompare(input.contactName.trim()) == .orderedSame
-                })?.getConversation()
-
-                // 2. Fall back to tribe
-                if resolvedChat == nil {
-                    resolvedChat = Chat.getAllTribes().first(where: {
-                        ($0.name ?? "").trim().caseInsensitiveCompare(input.contactName.trim()) == .orderedSame
-                    })
+            inputSchema: inputSchema,
+            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                // Manually extract fields – accept both snake_case and camelCase keys.
+                guard case .object(let dict) = input else {
+                    print("AIAgent read_recent_messages: unexpected input format: \(input)")
+                    return .value("Error: unexpected input format.")
                 }
 
-                guard let chat = resolvedChat else {
-                    return .value("No contact or tribe found with name: \(input.contactName)")
+                let nameValue = dict["contact_name"] ?? dict["contactName"]
+                guard case .string(let contactName) = nameValue else {
+                    print("AIAgent read_recent_messages: missing contact_name in \(dict.keys)")
+                    return .value("Error: missing contact_name parameter.")
                 }
 
-                let messages = TransactionMessage.getAllMessagesFor(
-                    chat: chat,
-                    limit: input.limit ?? 20
-                )
+                let limit: Int
+                if case .number(let n) = dict["limit"] { limit = Int(n) } else { limit = 20 }
 
-                if messages.isEmpty {
-                    return .value("No messages found in this chat")
+                print("AIAgent read_recent_messages: contactName=\(contactName) limit=\(limit)")
+
+                let output: String = await MainActor.run {
+                    // 1. Try contact
+                    let contacts = UserContact.getAll()
+                    var resolvedChat: Chat? = contacts.first(where: {
+                        ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+                    })?.getConversation()
+
+                    // 2. Fall back to tribe
+                    if resolvedChat == nil {
+                        resolvedChat = Chat.getAllTribes().first(where: {
+                            ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
+                        })
+                    }
+
+                    guard let chat = resolvedChat else {
+                        return "No contact or tribe found with name '\(contactName)'."
+                    }
+
+                    let messages = TransactionMessage.getAllMessagesFor(
+                        chat: chat,
+                        limit: limit
+                    )
+
+                    guard !messages.isEmpty else {
+                        return "No messages found in '\(contactName)'."
+                    }
+
+                    let owner = UserContact.getOwner()
+                    let isoFormatter = ISO8601DateFormatter()
+
+                    // Only include text messages; skip payments, boosts, etc. that have no content.
+                    let lines: [String] = messages.compactMap { msg in
+                        let content = msg.messageContent ?? ""
+                        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            return nil
+                        }
+                        let isMe = owner.map { msg.senderId == $0.id } ?? false
+                        let sender = isMe ? "Me" : (msg.senderAlias ?? contactName)
+                        let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
+                        return "[\(sender)] \(dateStr): \(content)"
+                    }
+
+                    guard !lines.isEmpty else {
+                        return "Found \(messages.count) messages in '\(contactName)' but none contained readable text."
+                    }
+
+                    return "Messages in '\(contactName)' (most recent last):\n" + lines.joined(separator: "\n")
                 }
 
-                let owner = UserContact.getOwner()
-                let isoFormatter = ISO8601DateFormatter()
-
-                let lines = messages.map { msg -> String in
-                    let isMe = owner != nil && msg.senderId == owner!.id
-                    let sender = isMe ? "Me" : (msg.senderAlias ?? input.contactName)
-                    let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
-                    let content = msg.messageContent ?? ""
-                    return "[\(sender)] \(dateStr): \(content)"
-                }
-
-                return .value(lines.joined(separator: "\n"))
+                print("AIAgent read_recent_messages: returning \(output.count) chars")
+                return .value(output)
             }
         )
     }
