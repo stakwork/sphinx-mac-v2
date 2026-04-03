@@ -15,6 +15,9 @@ struct DeeplinkData{
 }
 
 class ChatHelper {
+    
+    static let markdownRenderer = MarkdownRenderer()
+    
     public static func getSenderColorFor(message: TransactionMessage) -> NSColor {
         var key:String? = nil
         
@@ -542,7 +545,8 @@ class ChatHelper {
                 text: text,
                 width: width,
                 font: font,
-                labelVerticalMargins: 0
+                labelVerticalMargins: 0,
+                useMarkdown: false
             )
         }
         
@@ -578,7 +582,8 @@ class ChatHelper {
             if let memo = invoice.memo, memo.isNotEmpty {
                 let textHeight = ChatHelper.getTextHeightFor(
                     text: memo,
-                    width: CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth
+                    width: CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth,
+                    useMarkdown: false
                 ) - 16
                 
                 viewsHeight += textHeight
@@ -667,64 +672,67 @@ class ChatHelper {
         linkMatches: [NSTextCheckingResult]? = [],
         linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = [],
         labelVerticalMargins: CGFloat? = nil,
-        labelHorizontalMargins: CGFloat? = nil
+        labelHorizontalMargins: CGFloat? = nil,
+        useMarkdown: Bool = true
     ) -> CGFloat {
-        let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
-        let attributedString = NSMutableAttributedString(string: text, attributes: attrs)
+        let attributedString: NSAttributedString
         
-        for match in (highlightedMatches ?? []) {
-            let adaptedRange = NSRange(
-                location: match.range.location,
-                length: match.range.length
-            )
+        if useMarkdown {
+            attributedString = ChatHelper.markdownRenderer.render(text)
+        } else {
+            let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
+            let mutable = NSMutableAttributedString(string: text, attributes: attrs)
             
-            attributedString.addAttributes(
-                [
-                    NSAttributedString.Key.font: Constants.kMessageHighlightedFont,
-                    NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground
-                ],
-                range: adaptedRange
-            )
+            for match in (highlightedMatches ?? []) {
+                let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+                mutable.addAttributes(
+                    [
+                        NSAttributedString.Key.font: Constants.kMessageHighlightedFont,
+                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground
+                    ],
+                    range: adaptedRange
+                )
+            }
             
-        }
-        
-        for match in (boldMatches ?? []) {
-            let adaptedRange = NSRange(
-                location: match.range.location,
-                length: match.range.length
-            )
+            for match in (boldMatches ?? []) {
+                let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+                mutable.addAttributes(
+                    [NSAttributedString.Key.font: Constants.kMessageBoldFont],
+                    range: adaptedRange
+                )
+            }
             
-            attributedString.addAttributes(
-                [
-                    NSAttributedString.Key.font: Constants.kMessageBoldFont
-                ],
-                range: adaptedRange
-            )
+            var nsRanges = linkMatches?.map { $0.range } ?? []
+            nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
             
-        }
-        
-        var nsRanges = linkMatches?.map {
-            return $0.range
-        } ?? []
-        
-        nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-        for nsRange in nsRanges {
-            
-            if let range = Range(nsRange, in: text) {
-                
-                var substring = String(text[range])
-                
-                if substring.isPubKey {
-                    substring = substring.shareContactDeepLink
-                } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                    substring = substring.callLinkDeepLink
-                } else if !substring.isTribeJoinLink {
-                    substring = substring.withProtocol(protocolString: "http")
+            for nsRange in nsRanges {
+                if let range = Range(nsRange, in: text) {
+                    var substring = String(text[range])
+                    if substring.isPubKey {
+                        substring = substring.shareContactDeepLink
+                    } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
+                        substring = substring.callLinkDeepLink
+                    } else if !substring.isTribeJoinLink {
+                        substring = substring.withProtocol(protocolString: "http")
+                    }
+                    if let url = URL(string: substring) {
+                        mutable.addAttributes(
+                            [
+                                NSAttributedString.Key.link: url,
+                                NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                                NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                                NSAttributedString.Key.font: Constants.kMessageFont
+                            ],
+                            range: nsRange
+                        )
+                    }
                 }
-                 
-                if let url = URL(string: substring)  {
-                    attributedString.addAttributes(
+            }
+            
+            for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
+                let nsRange = textCheckingResult.range
+                if let url = URL(string: link) {
+                    mutable.addAttributes(
                         [
                             NSAttributedString.Key.link: url,
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
@@ -733,26 +741,10 @@ class ChatHelper {
                         ],
                         range: nsRange
                     )
-
                 }
             }
-        }
-        
-        for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
             
-            let nsRange = textCheckingResult.range
-            
-            if let url = URL(string: link)  {
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.link: url,
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                        NSAttributedString.Key.font: Constants.kMessageFont
-                    ],
-                    range: nsRange
-                )
-            }
+            attributedString = mutable
         }
         
         let kLabelHorizontalMargins: CGFloat = labelHorizontalMargins ?? 32.0
