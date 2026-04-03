@@ -23,16 +23,16 @@ final class AIAgentViewController: NSViewController {
     private let divider       = NSBox()
     private let pillView      = NSView()
     private let inputField    = PlaceHolderTextView()
-    // NSView-based send button — exact kUnitSize × kUnitSize circle, no NSButton chrome
     private let sendButton    = NSView()
     private let spinner       = NSProgressIndicator()
 
-    // MARK: - Dynamic height constraints
-    private var bottomBarHeightConstraint: NSLayoutConstraint!
-    private var pillHeightConstraint: NSLayoutConstraint!
-
-    // MARK: - Renderer (baseFontSize matches kTranscriptFont to avoid selection redraw mismatch)
-    private let renderer = MarkdownRenderer(style: MarkdownStyle(baseFontSize: 14))
+    // MARK: - Renderer
+    // lazy so kTranscriptFont (Roboto 14pt) is used as the renderer's base font,
+    // making every attributed-string run use the same NSFont as label.font.
+    // This eliminates the AppKit selection-redraw font mismatch on received messages.
+    private lazy var renderer = MarkdownRenderer(
+        style: MarkdownStyle(baseFontSize: 14, baseFont: kTranscriptFont)
+    )
 
     // MARK: - Constants
     private let kUnitSize: CGFloat        = 36
@@ -45,7 +45,7 @@ final class AIAgentViewController: NSViewController {
     private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 14.0) ?? NSFont.systemFont(ofSize: 14)
 
     // MARK: - State
-    private var introAppended    = false
+    private var introAppended     = false
     private var sendButtonEnabled = false
 
     // MARK: - Lifecycle
@@ -105,7 +105,6 @@ final class AIAgentViewController: NSViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
-        // NSStackView as documentView — bubbles stack vertically
         stackView.orientation  = .vertical
         stackView.alignment    = .leading
         stackView.spacing      = 8
@@ -133,41 +132,51 @@ final class AIAgentViewController: NSViewController {
         bottomBarView.addSubview(pillView)
 
         // ── Input field (PlaceHolderTextView / NSTextView) ─────────────────────
-        inputField.isEditable   = true
-        inputField.isRichText   = false
-        inputField.drawsBackground = false
-        inputField.isBordered   = false
-        inputField.font         = kInputFont
-        inputField.textColor    = NSColor.Sphinx.PrimaryText
-        inputField.isAutomaticQuoteSubstitutionEnabled    = false
-        inputField.isAutomaticSpellingCorrectionEnabled   = false
-        inputField.lineBreakEnable = true   // Shift+Return inserts \n via PlaceHolderTextView
-        inputField.delegate     = self      // NSTextViewDelegate handles Return→send
+        inputField.isEditable              = true
+        inputField.isRichText              = false
+        inputField.drawsBackground         = false
+        inputField.isBordered              = false
+        inputField.font                    = kInputFont
+        inputField.textColor               = NSColor.Sphinx.PrimaryText
+        // typingAttributes must be set so every typed character picks up
+        // the correct font + colour (NSTextView won't inherit them automatically).
+        inputField.typingAttributes = [
+            .font:            kInputFont as Any,
+            .foregroundColor: NSColor.Sphinx.PrimaryText as Any,
+        ]
+        inputField.isAutomaticQuoteSubstitutionEnabled  = false
+        inputField.isAutomaticSpellingCorrectionEnabled = false
+        inputField.lineBreakEnable = true   // Shift+Return inserts \n
+        inputField.delegate        = self   // NSTextViewDelegate: Return → send
         inputField.setPlaceHolder(
-            color: NSColor.Sphinx.PlaceholderText,
-            font: kInputFont,
+            color:  NSColor.Sphinx.PlaceholderText,
+            font:   kInputFont,
             string: "Ask Sphinx AI..."
         )
+        // Allow vertical growth; fix width to the scroll view so text wraps.
         inputField.isVerticallyResizable   = true
         inputField.isHorizontallyResizable = false
         inputField.textContainer?.widthTracksTextView = true
+        // Height is unbounded; width is managed by widthTracksTextView (leave at default 0).
         inputField.textContainer?.containerSize = NSSize(
-            width: CGFloat.greatestFiniteMagnitude,
+            width:  0,
             height: CGFloat.greatestFiniteMagnitude
         )
+        inputField.translatesAutoresizingMaskIntoConstraints = false
 
-        // Wrap inputField in an NSScrollView inside pillView
+        // Wrap in a scroll view so long content scrolls inside the fixed pill.
         let inputScrollView = NSScrollView()
         inputScrollView.hasVerticalScroller = false
-        inputScrollView.drawsBackground = false
-        inputScrollView.documentView = inputField
+        inputScrollView.drawsBackground     = false
+        inputScrollView.contentView.backgroundColor = .clear   // don't paint over pill bg
+        inputScrollView.documentView        = inputField
         inputScrollView.translatesAutoresizingMaskIntoConstraints = false
         pillView.addSubview(inputScrollView)
 
         NSLayoutConstraint.activate([
-            inputScrollView.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 12),
+            inputScrollView.leadingAnchor.constraint(equalTo: pillView.leadingAnchor,  constant:  12),
             inputScrollView.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
-            inputScrollView.topAnchor.constraint(equalTo: pillView.topAnchor, constant: 8),
+            inputScrollView.topAnchor.constraint(equalTo: pillView.topAnchor,     constant:  8),
             inputScrollView.bottomAnchor.constraint(equalTo: pillView.bottomAnchor, constant: -8),
         ])
 
@@ -178,7 +187,7 @@ final class AIAgentViewController: NSViewController {
             object: nil
         )
 
-        // ── Send button — plain NSView, exact kUnitSize × kUnitSize circle ─────
+        // ── Send button ────────────────────────────────────────────────────────
         sendButton.wantsLayer = true
         sendButton.layer?.cornerRadius    = kUnitSize / 2
         sendButton.layer?.masksToBounds   = true
@@ -239,19 +248,19 @@ final class AIAgentViewController: NSViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: divider.topAnchor),
 
-            // Pill: dynamic height, anchored top-left, right butts send button
+            // Pill — fixed height, centred in bottom bar, right butts send button
             pillView.leadingAnchor.constraint(equalTo: bottomBarView.leadingAnchor, constant: kHPad),
             pillView.topAnchor.constraint(equalTo: bottomBarView.topAnchor, constant: 12),
             pillHeightConstraint,
             pillView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
 
-            // Send button: exact kUnitSize × kUnitSize, anchored bottom-right
+            // Send button — kUnitSize circle, centred, right margin
             sendButton.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -kHPad),
             sendButton.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             sendButton.widthAnchor.constraint(equalToConstant: kUnitSize),
             sendButton.heightAnchor.constraint(equalToConstant: kUnitSize),
 
-            // Spinner centred over send button
+            // Spinner over send button
             spinner.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
             spinner.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             spinner.widthAnchor.constraint(equalToConstant: 20),
@@ -374,9 +383,9 @@ final class AIAgentViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
 
         let label = NSTextField(wrappingLabelWithString: "")
-        // Always set font and textColor BEFORE attributedStringValue.
-        // AppKit falls back to these during text selection — without them the field
-        // reverts to the default system font/size when the user starts selecting.
+        // Set font and textColor BEFORE attributedStringValue.
+        // AppKit uses these as the fallback during selection redraw — they must
+        // match what the attributed string actually contains to avoid a size jump.
         label.font      = kTranscriptFont
         label.textColor = NSColor.Sphinx.Text
         if let rendered = markdownRendered {
@@ -424,8 +433,10 @@ final class AIAgentViewController: NSViewController {
         let bubble = makeBubble(text: text, isUser: true)
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
@@ -435,8 +446,10 @@ final class AIAgentViewController: NSViewController {
         let bubble   = makeBubble(text: text, isUser: false, markdownRendered: rendered)
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
@@ -446,8 +459,10 @@ final class AIAgentViewController: NSViewController {
         bubble.subviews.first?.layer?.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15).cgColor
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
@@ -470,8 +485,8 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Loading state
 
     private func setLoading(_ loading: Bool) {
-        sendButton.isHidden  = loading
-        spinner.isHidden     = !loading
+        sendButton.isHidden = loading
+        spinner.isHidden    = !loading
         if loading {
             inputField.isEditable = false
             spinner.startAnimation(nil)
@@ -492,7 +507,7 @@ extension AIAgentViewController: NSTextViewDelegate {
         shouldChangeTextIn affectedCharRange: NSRange,
         replacementString: String?
     ) -> Bool {
-        // Plain Return (no Shift) → send; Shift+Return is handled by PlaceHolderTextView.addingBreakLine
+        // Plain Return → send. Shift+Return is handled inside PlaceHolderTextView.addingBreakLine.
         if let str = replacementString, str == "\n" {
             sendTapped()
             return false
@@ -502,6 +517,5 @@ extension AIAgentViewController: NSTextViewDelegate {
 
     override func textDidChange(_ notification: Notification) {
         inputDidChange()
-        updateBottomBarHeight()
     }
 }
