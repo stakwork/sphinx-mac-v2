@@ -284,7 +284,7 @@ struct MessageTableCellState {
         
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             return BubbleMessageLayoutState.MessageContent(
-                text: messageContent.removingMarkdownDelimiters,
+                text: messageContent,
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
                 boldMatches: messageContent.boldMatches,
