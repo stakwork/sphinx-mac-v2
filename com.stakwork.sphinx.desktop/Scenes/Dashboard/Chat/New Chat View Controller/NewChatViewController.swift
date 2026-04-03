@@ -213,7 +213,9 @@ class NewChatViewController: DashboardSplittedViewController {
         if isThread {
             return
         }
-        SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
+        if !isAgentChat {
+            SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
+        }
     }
     
     override func viewDidLayout() {
@@ -369,6 +371,7 @@ class NewChatViewController: DashboardSplittedViewController {
     func setupChatData() {
         processChatAliases()
         showPendingApprovalMessage()
+        insertIntroMessageIfNeeded()
     }
     
     func showThread(
@@ -482,6 +485,7 @@ class NewChatViewController: DashboardSplittedViewController {
         } else {
             chat?.updateLastMessage()
             if chat?.lastMessage == nil {
+                guard !isAgentChat else { return }
                 setupEmptyChatPlaceholder()
             } else {
                 chatEmptyAvatarPlaceholderView.isHidden = true
