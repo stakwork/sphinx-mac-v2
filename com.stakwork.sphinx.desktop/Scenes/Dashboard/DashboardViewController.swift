@@ -429,7 +429,8 @@ class DashboardViewController: NSViewController {
             self.listViewController?.headerLoading = false
             
             self.shouldHideRetoreModal()
-            self.refreshUnreadStatus()  
+            self.refreshUnreadStatus()
+            AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
             
             if isRestore {
                 self.finishUserInfoSetup()

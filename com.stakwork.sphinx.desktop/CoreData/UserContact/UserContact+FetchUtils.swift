@@ -183,5 +183,12 @@ extension UserContact {
 
             return request
         }
+
+        public static func agentContact() -> NSFetchRequest<UserContact> {
+            let request: NSFetchRequest<UserContact> = baseFetchRequest()
+            request.predicate = NSPredicate(format: "isAgent == %@", NSNumber(value: true))
+            request.fetchLimit = 1
+            return request
+        }
     }
 }
