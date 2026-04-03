@@ -38,6 +38,9 @@ final class AIAgentManager: @unchecked Sendable {
     /// The currently active language model (nil if not configured)
     private var activeModel: (any LanguageModelV3)?
 
+    /// SerpAPI key for web search (nil or empty = tool not registered)
+    private var serpApiKey: String? = nil
+
     // MARK: - System Prompt
 
     private let systemPrompt = """
@@ -52,6 +55,10 @@ final class AIAgentManager: @unchecked Sendable {
     - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
     Use this to look up what was said in a chat.
 
+    - web_search: Search the internet for current events, facts, or any topic requiring \
+    up-to-date information. Use this whenever the user asks about recent news, prices, \
+    people, or anything you may not know. Present results clearly with titles and URLs.
+
     CRITICAL TOOL RESULT RULES:
     - Tool results that start with "Message sent successfully" mean the message was delivered. \
     Always report this as a success. Do NOT say there was an error or that you're unsure.
@@ -59,6 +66,7 @@ final class AIAgentManager: @unchecked Sendable {
     - When read_recent_messages returns a list of messages, present them clearly to the user. \
     Do NOT say there was a format issue or that you couldn't read them.
     - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
+    - When web_search returns results, present them clearly with titles, snippets, and URLs. Never say you cannot search the web.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -123,6 +131,9 @@ final class AIAgentManager: @unchecked Sendable {
         let providerRaw = userData.getAIAgentValue(with: .aiAgentProvider) ?? ""
         let apiKey      = userData.getAIAgentValue(with: .aiAgentApiKey)   ?? ""
         let provider    = AIProvider(rawValue: providerRaw) ?? .anthropic
+
+        // Load search key independently (optional, not gated on LLM key)
+        serpApiKey = userData.getAIAgentValue(with: .aiAgentSearchApiKey)
 
         guard !apiKey.isEmpty else {
             activeModel = nil
@@ -221,10 +232,13 @@ final class AIAgentManager: @unchecked Sendable {
         conversationHistory.append(.user(userText))
         saveHistory()
 
-        let tools: ToolSet = [
+        var tools: ToolSet = [
             "send_sphinx_message": buildSendMessageTool().eraseToTool(),
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
+        if let key = serpApiKey, !key.isEmpty {
+            tools["web_search"] = buildWebSearchTool(apiKey: key).eraseToTool()
+        }
 
         let result: any GenerateTextResult
         do {
@@ -381,6 +395,55 @@ final class AIAgentManager: @unchecked Sendable {
 
             return "No contact or tribe found with name '\(contactName)'."
         }
+    }
+
+    // MARK: - Tool: web_search
+
+    private func buildWebSearchTool(apiKey: String) -> TypedTool<JSONValue, String> {
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([
+                    "query": .object(["type": .string("string")])
+                ]),
+                "required": .array([.string("query")])
+            ]))
+        )
+        return tool(
+            description: "Search the internet for current events, facts, or any topic. Returns top results with title, snippet, and URL.",
+            inputSchema: inputSchema,
+            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                guard case .object(let dict) = input,
+                      case .string(let query) = dict["query"] else {
+                    return .value("Error: missing query parameter.")
+                }
+                var components = URLComponents(string: "https://serpapi.com/search.json")!
+                components.queryItems = [
+                    URLQueryItem(name: "q", value: query),
+                    URLQueryItem(name: "api_key", value: apiKey),
+                    URLQueryItem(name: "num", value: "5")
+                ]
+                guard let url = components.url else {
+                    return .value("Error: could not construct search URL.")
+                }
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                          let organic = json["organic_results"] as? [[String: Any]] else {
+                        return .value("No results found.")
+                    }
+                    let lines: [String] = organic.prefix(5).compactMap { result in
+                        let title   = result["title"]   as? String ?? "(no title)"
+                        let snippet = result["snippet"] as? String ?? ""
+                        let link    = result["link"]    as? String ?? ""
+                        return "Title: \(title) | Snippet: \(snippet) | URL: \(link)"
+                    }
+                    return .value(lines.isEmpty ? "No results found." : lines.joined(separator: "\n"))
+                } catch {
+                    return .value("Search failed: \(error.localizedDescription)")
+                }
+            }
+        )
     }
 
     // MARK: - Tool: read_recent_messages

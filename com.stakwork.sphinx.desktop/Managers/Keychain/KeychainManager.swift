@@ -29,6 +29,7 @@ class KeychainManager: @unchecked Sendable {
         case personalGraphLabel = "mac.personal_graph_label"
         case aiAgentProvider = "mac.ai_agent_provider"
         case aiAgentApiKey = "mac.ai_agent_api_key"
+        case aiAgentSearchApiKey = "mac.ai_agent_search_api_key"
     }
     
     let keychain = Keychain(service: "sphinx-app", accessGroup: KeychainManager.kKeychainGroup).synchronizable(true)
