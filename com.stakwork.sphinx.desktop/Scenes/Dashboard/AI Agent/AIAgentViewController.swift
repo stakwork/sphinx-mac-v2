@@ -22,18 +22,25 @@ final class AIAgentViewController: NSViewController {
     private let bottomBarView = NSView()
     private let divider       = NSBox()
     private let pillView      = NSView()
-    private let inputField    = NSTextField()
+    private let inputField    = PlaceHolderTextView()
     // NSView-based send button — exact kUnitSize × kUnitSize circle, no NSButton chrome
     private let sendButton    = NSView()
     private let spinner       = NSProgressIndicator()
 
-    // MARK: - Renderer
-    private let renderer = MarkdownRenderer()
+    // MARK: - Dynamic height constraints
+    private var bottomBarHeightConstraint: NSLayoutConstraint!
+    private var pillHeightConstraint: NSLayoutConstraint!
+
+    // MARK: - Renderer (baseFontSize matches kTranscriptFont to avoid selection redraw mismatch)
+    private let renderer = MarkdownRenderer(style: MarkdownStyle(baseFontSize: 14))
 
     // MARK: - Constants
     private let kUnitSize: CGFloat        = 36
     private let kBottomBarHeight: CGFloat = 60
     private let kHPad: CGFloat            = 12
+    private let kMaxInputLines: CGFloat   = 5
+    private let kInputLineHeight: CGFloat = 19
+    private let kVerticalPadding: CGFloat = 24   // top + bottom pill insets
     private let kInputFont      = NSFont(name: "Roboto-Regular", size: 15.0) ?? NSFont.systemFont(ofSize: 15)
     private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 14.0) ?? NSFont.systemFont(ofSize: 14)
 
@@ -70,7 +77,6 @@ final class AIAgentViewController: NSViewController {
 
     deinit {
         NotificationCenter.default.removeObserver(self, name: .aiAgentReconfigured, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSTextField.textDidChangeNotification, object: nil)
     }
 
     // MARK: - Factory
@@ -126,31 +132,44 @@ final class AIAgentViewController: NSViewController {
         pillView.translatesAutoresizingMaskIntoConstraints = false
         bottomBarView.addSubview(pillView)
 
-        // ── Input field ────────────────────────────────────────────────────────
-        inputField.stringValue       = ""
-        inputField.placeholderString = "Ask Sphinx AI..."
-        inputField.font              = kInputFont
-        inputField.textColor         = NSColor.Sphinx.PrimaryText
-        inputField.backgroundColor   = .clear
-        inputField.drawsBackground   = false
-        inputField.isBordered        = false
-        inputField.isBezeled         = false
-        inputField.focusRingType     = .none
-        inputField.isEditable        = true
-        inputField.isSelectable      = true
-        inputField.cell?.usesSingleLineMode = true
-        inputField.cell?.isScrollable       = true
-        inputField.cell?.wraps              = false
-        inputField.translatesAutoresizingMaskIntoConstraints = false
-        inputField.target = self
-        inputField.action = #selector(sendTapped)
-        pillView.addSubview(inputField)
-
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(inputDidChange),
-            name: NSTextField.textDidChangeNotification,
-            object: inputField
+        // ── Input field (PlaceHolderTextView / NSTextView) ─────────────────────
+        inputField.isEditable   = true
+        inputField.isRichText   = false
+        inputField.drawsBackground = false
+        inputField.isBordered   = false
+        inputField.font         = kInputFont
+        inputField.textColor    = NSColor.Sphinx.PrimaryText
+        inputField.isAutomaticQuoteSubstitutionEnabled    = false
+        inputField.isAutomaticSpellingCorrectionEnabled   = false
+        inputField.lineBreakEnable = true   // Shift+Return inserts \n via PlaceHolderTextView
+        inputField.delegate     = self      // NSTextViewDelegate handles Return→send
+        inputField.setPlaceHolder(
+            color: NSColor.Sphinx.PlaceholderText,
+            font: kInputFont,
+            string: "Ask Sphinx AI..."
         )
+        inputField.isVerticallyResizable   = true
+        inputField.isHorizontallyResizable = false
+        inputField.textContainer?.widthTracksTextView = true
+        inputField.textContainer?.containerSize = NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+
+        // Wrap inputField in an NSScrollView inside pillView
+        let inputScrollView = NSScrollView()
+        inputScrollView.hasVerticalScroller = false
+        inputScrollView.drawsBackground = false
+        inputScrollView.documentView = inputField
+        inputScrollView.translatesAutoresizingMaskIntoConstraints = false
+        pillView.addSubview(inputScrollView)
+
+        NSLayoutConstraint.activate([
+            inputScrollView.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 12),
+            inputScrollView.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
+            inputScrollView.topAnchor.constraint(equalTo: pillView.topAnchor, constant: 8),
+            inputScrollView.bottomAnchor.constraint(equalTo: pillView.bottomAnchor, constant: -8),
+        ])
 
         NotificationCenter.default.addObserver(
             self,
@@ -196,12 +215,17 @@ final class AIAgentViewController: NSViewController {
         bottomBarView.addSubview(spinner)
 
         // ── Constraints ────────────────────────────────────────────────────────
+
+        // Store mutable constraints for dynamic height updates
+        bottomBarHeightConstraint = bottomBarView.heightAnchor.constraint(equalToConstant: kBottomBarHeight)
+        pillHeightConstraint = pillView.heightAnchor.constraint(equalToConstant: kUnitSize)
+
         NSLayoutConstraint.activate([
-            // Bottom bar — fixed height
+            // Bottom bar — dynamic height (grows with input)
             bottomBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            bottomBarView.heightAnchor.constraint(equalToConstant: kBottomBarHeight),
+            bottomBarHeightConstraint,
 
             // Divider
             divider.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -215,26 +239,21 @@ final class AIAgentViewController: NSViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: divider.topAnchor),
 
-            // Pill: kUnitSize tall, left=kHPad, right butts send button
+            // Pill: dynamic height, anchored top-left, right butts send button
             pillView.leadingAnchor.constraint(equalTo: bottomBarView.leadingAnchor, constant: kHPad),
-            pillView.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
-            pillView.heightAnchor.constraint(equalToConstant: kUnitSize),
+            pillView.topAnchor.constraint(equalTo: bottomBarView.topAnchor, constant: 12),
+            pillHeightConstraint,
             pillView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
 
-            // Input field: 12pt L/R inset, centred
-            inputField.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 12),
-            inputField.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
-            inputField.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
-
-            // Send button: exact kUnitSize × kUnitSize, right margin = kHPad
+            // Send button: exact kUnitSize × kUnitSize, anchored bottom-right
             sendButton.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -kHPad),
-            sendButton.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             sendButton.widthAnchor.constraint(equalToConstant: kUnitSize),
             sendButton.heightAnchor.constraint(equalToConstant: kUnitSize),
 
             // Spinner centred over send button
             spinner.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
-            spinner.centerYAnchor.constraint(equalTo: sendButton.centerYAnchor),
+            spinner.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             spinner.widthAnchor.constraint(equalToConstant: 20),
             spinner.heightAnchor.constraint(equalToConstant: 20),
         ])
@@ -243,18 +262,38 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Input change
 
     @objc private func inputDidChange() {
-        let hasText = !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasText = !inputField.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         sendButtonEnabled = hasText
         sendButton.layer?.backgroundColor = hasText
             ? NSColor.Sphinx.PrimaryBlue.cgColor
             : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
     }
 
+    // MARK: - Dynamic height
+
+    private func updateBottomBarHeight() {
+        let contentH    = inputField.contentSize.height
+        let maxContentH = kInputLineHeight * kMaxInputLines
+        let clampedH    = min(contentH, maxContentH)
+        let newPillH    = max(kUnitSize, clampedH + kVerticalPadding)
+        let newBarH     = newPillH + 24   // 12pt top + 12pt bottom margin
+
+        pillHeightConstraint.constant      = newPillH
+        bottomBarHeightConstraint.constant = newBarH
+
+        // Full circle when single-line, rounded rect when multiline
+        pillView.layer?.cornerRadius = (newPillH == kUnitSize) ? kUnitSize / 2 : 12
+
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.15
+            view.layoutSubtreeIfNeeded()
+        }
+    }
+
     // MARK: - Intro / Transcript rebuild
 
     private func rebuildTranscriptOrShowIntro() {
         let history = AIAgentManager.sharedInstance.conversationHistory
-        // Intro is always shown first (it lives in history after first open)
         if history.isEmpty {
             appendIntroMessage()
         } else {
@@ -268,7 +307,6 @@ final class AIAgentViewController: NSViewController {
                     break
                 }
             }
-            // scrollToBottom() is called by appendUser/appendAssistant already
         }
         updateInputState()
     }
@@ -280,15 +318,14 @@ final class AIAgentViewController: NSViewController {
         } else {
             text = "Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started."
         }
-        // Persist into history so it reappears when the window is reopened
         AIAgentManager.sharedInstance.appendAssistantMessage(text)
         appendAssistant(text)
     }
 
     private func updateInputState() {
         let configured = AIAgentManager.sharedInstance.isConfigured
-        inputField.isEnabled = configured
-        sendButtonEnabled = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        inputField.isEditable = configured
+        sendButtonEnabled = configured && !inputField.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         pillView.layer?.opacity = configured ? 1.0 : 0.5
         sendButton.layer?.backgroundColor = configured
             ? NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
@@ -303,11 +340,12 @@ final class AIAgentViewController: NSViewController {
 
     @objc private func sendTapped() {
         guard sendButtonEnabled else { return }
-        let text = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = inputField.string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
-        inputField.stringValue = ""
+        inputField.string = ""
         inputDidChange()
+        updateBottomBarHeight()
         appendUser(text)
         setLoading(true)
 
@@ -385,7 +423,6 @@ final class AIAgentViewController: NSViewController {
     private func appendUser(_ text: String) {
         let bubble = makeBubble(text: text, isUser: true)
         stackView.addArrangedSubview(bubble)
-        // Stretch row full width so trailing constraint resolves correctly
         NSLayoutConstraint.activate([
             bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
                                           constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
@@ -406,7 +443,6 @@ final class AIAgentViewController: NSViewController {
 
     private func appendError(_ message: String) {
         let bubble = makeBubble(text: "[Error: \(message)]", isUser: false)
-        // Tint error bubble red
         bubble.subviews.first?.layer?.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15).cgColor
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
@@ -417,8 +453,6 @@ final class AIAgentViewController: NSViewController {
     }
 
     private func scrollToBottom() {
-        // Defer one run-loop so Auto Layout commits the newly added bubble's frame.
-        // With FlippedClipView, content grows downward; scroll to max visible Y.
         DispatchQueue.main.async { [weak self] in
             guard let self, let docView = self.scrollView.documentView else { return }
             let docHeight  = docView.frame.height
@@ -439,12 +473,35 @@ final class AIAgentViewController: NSViewController {
         sendButton.isHidden  = loading
         spinner.isHidden     = !loading
         if loading {
-            inputField.isEnabled = false
+            inputField.isEditable = false
             spinner.startAnimation(nil)
         } else {
             spinner.stopAnimation(nil)
             updateInputState()
             view.window?.makeFirstResponder(inputField)
         }
+    }
+}
+
+// MARK: - NSTextViewDelegate
+
+extension AIAgentViewController: NSTextViewDelegate {
+
+    func textView(
+        _ textView: NSTextView,
+        shouldChangeTextIn affectedCharRange: NSRange,
+        replacementString: String?
+    ) -> Bool {
+        // Plain Return (no Shift) → send; Shift+Return is handled by PlaceHolderTextView.addingBreakLine
+        if let str = replacementString, str == "\n" {
+            sendTapped()
+            return false
+        }
+        return true
+    }
+
+    override func textDidChange(_ notification: Notification) {
+        inputDidChange()
+        updateBottomBarHeight()
     }
 }
