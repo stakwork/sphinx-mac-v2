@@ -72,6 +72,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     var viewMode = ViewMode.Standard
+    var isAgentChat: Bool = false
     
     var contactResultsController: NSFetchedResultsController<UserContact>!
     var chatResultsController: NSFetchedResultsController<Chat>!
@@ -119,6 +120,7 @@ class NewChatViewController: DashboardSplittedViewController {
         viewController.deepLinkData = deepLinkData
         viewController.owner = owner
         viewController.threadUUID = threadUUID
+        viewController.isAgentChat = viewController.contact?.isAgent == true
         
         viewController.newChatViewModel = NewChatViewModel(
             chat: viewController.chat,

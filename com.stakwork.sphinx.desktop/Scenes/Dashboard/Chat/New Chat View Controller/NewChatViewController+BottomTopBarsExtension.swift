@@ -229,6 +229,10 @@ extension NewChatViewController : ChatBottomViewDelegate {
         price: Int,
         completion: @escaping (Bool) -> ()
     ) {
+        if isAgentChat {
+            handleAgentMessage(text: text, completion: completion)
+            return
+        }
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
         
