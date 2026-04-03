@@ -113,6 +113,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         if isThread {
             return
         }
+        if contact?.isAgent == true {
+            loadMoreItems()
+            return
+        }
         if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
             if let chat = chat {
                 let chatId = chat.id

@@ -33,6 +33,32 @@ extension NewChatViewController {
         }
     }
 
+    func insertIntroMessageIfNeeded() {
+        guard isAgentChat,
+              let chat = self.chat,
+              let owner = self.owner,
+              chat.lastMessage == nil else { return }
+
+        let introText = "👋 Hi! I'm your Sphinx AI assistant. I can read recent messages or send messages to your contacts and tribes."
+
+        let intro = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
+        intro.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
+        intro.type = TransactionMessage.TransactionMessageType.message.rawValue
+        intro.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+        intro.senderId = AIAgentManager.agentLocalId
+        intro.receiverId = owner.id
+        intro.messageContent = introText
+        intro.date = Date()
+        intro.seen = true
+        intro.encrypted = false
+        intro.push = false
+        intro.chat = chat
+        chat.setLastMessage(intro)
+        CoreDataManager.sharedManager.saveContext()
+
+        AIAgentManager.sharedInstance.appendAssistantMessage(introText)
+    }
+
     func insertAgentReply(_ text: String) {
         guard let chat = self.chat, let owner = self.owner else { return }
         let incoming = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
