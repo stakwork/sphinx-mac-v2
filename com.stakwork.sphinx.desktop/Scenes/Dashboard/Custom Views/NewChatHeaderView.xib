@@ -10,7 +10,6 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NewChatHeaderView" customModule="Sphinx" customModuleProvider="target">
             <connections>
-                <outlet property="aiAgentButton" destination="AI1-Bt-001" id="AI1-Bt-003"/>
                 <outlet property="balanceButton" destination="uuY-Dp-2R6" id="uuD-gf-VXm"/>
                 <outlet property="balanceLabel" destination="su7-7j-Xer" id="9hZ-2k-0Dc"/>
                 <outlet property="balanceUnitLabel" destination="YTQ-qB-47m" id="ItE-i0-SAY"/>
@@ -159,47 +158,6 @@
                         <stackView distribution="fill" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="750" verticalStackHuggingPriority="750" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="trM-0m-zLD">
                             <rect key="frame" x="931" y="9" width="112" height="32"/>
                             <subviews>
-                                <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AI1-Ct-001">
-                                    <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
-                                    <subviews>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AI1-Iv-001">
-                                            <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="32" id="AI1-Hc-001"/>
-                                                <constraint firstAttribute="width" constant="32" id="AI1-Wc-001"/>
-                                            </constraints>
-                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="AI1-Ic-001"/>
-                                            <color key="contentTintColor" name="SecondaryText"/>
-                                        </imageView>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="AI1-Bt-001" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="-5" width="32.5" height="43"/>
-                                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" inset="2" id="AI1-Bc-001">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                                <imageReference key="image" image="cpu" catalog="system" symbolScale="large"/>
-                                            </buttonCell>
-                                            <color key="contentTintColor" name="SecondaryText"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="32" id="AI1-Bh-001"/>
-                                                <constraint firstAttribute="width" constant="32" id="AI1-Bw-001"/>
-                                            </constraints>
-                                            <connections>
-                                                <action selector="aiAgentButtonTapped:" target="-2" id="AI1-Ac-001"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstAttribute="bottom" secondItem="AI1-Bt-001" secondAttribute="bottom" id="AI1-Bc-002"/>
-                                        <constraint firstItem="AI1-Iv-001" firstAttribute="centerX" secondItem="AI1-Bt-001" secondAttribute="centerX" id="AI1-Cx-001"/>
-                                        <constraint firstItem="AI1-Iv-001" firstAttribute="centerX" secondItem="AI1-Ct-001" secondAttribute="centerX" id="AI1-Cx-002"/>
-                                        <constraint firstItem="AI1-Iv-001" firstAttribute="centerY" secondItem="AI1-Ct-001" secondAttribute="centerY" id="AI1-Cy-001"/>
-                                        <constraint firstAttribute="height" constant="32" id="AI1-Hc-002"/>
-                                        <constraint firstItem="AI1-Bt-001" firstAttribute="leading" secondItem="AI1-Ct-001" secondAttribute="leading" id="AI1-Lc-001"/>
-                                        <constraint firstAttribute="trailing" secondItem="AI1-Bt-001" secondAttribute="trailing" id="AI1-Tc-001"/>
-                                        <constraint firstItem="AI1-Bt-001" firstAttribute="top" secondItem="AI1-Ct-001" secondAttribute="top" id="AI1-Tp-001"/>
-                                        <constraint firstAttribute="width" constant="32" id="AI1-Wc-002"/>
-                                    </constraints>
-                                </customView>
                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="htD-Lb-rGk">
                                     <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
                                     <subviews>

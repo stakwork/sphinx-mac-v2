@@ -14,6 +14,7 @@ class SetupAIAgentViewController: NSViewController {
 
     @IBOutlet weak var providerFieldView: SignupFieldView!
     @IBOutlet weak var apiKeyFieldView: SignupFieldView!
+    @IBOutlet weak var agentNameFieldView: SignupFieldView!
     @IBOutlet weak var confirmButtonView: SignupButtonView!
 
     // MARK: - Private
@@ -22,8 +23,9 @@ class SetupAIAgentViewController: NSViewController {
     var newMessageBubbleHelper = NewMessageBubbleHelper()
 
     public enum Fields: Int {
-        case Provider = 0
-        case APIKey   = 1
+        case Provider  = 0
+        case APIKey    = 1
+        case AgentName = 2
     }
 
     // MARK: - Instantiate
@@ -78,6 +80,20 @@ class SetupAIAgentViewController: NSViewController {
             backgroundColor: NSColor(hex: "#101317"),
             field: Fields.APIKey.rawValue,
             value: userData.getAIAgentValue(with: .aiAgentApiKey) ?? "",
+            validationType: nil,
+            delegate: self
+        )
+
+        // Agent Name field
+        let existingName = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.nickname ?? "Sphinx Agent"
+        agentNameFieldView.configureWith(
+            placeHolder: "Agent Name",
+            placeHolderColor: NSColor.Sphinx.SecondaryText,
+            label: "Agent Name",
+            textColor: NSColor.white,
+            backgroundColor: NSColor(hex: "#101317"),
+            field: Fields.AgentName.rawValue,
+            value: existingName,
             validationType: nil,
             delegate: self
         )
@@ -149,6 +165,14 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
 
         Task { @MainActor in
             AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
+
+            // Apply agent name after contact is created/confirmed
+            let agentName = self.agentNameFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
+            let resolvedName = agentName.isEmpty ? "Sphinx Agent" : agentName
+            if let agentContact = UserContact.getContactWith(id: AIAgentManager.agentLocalId) {
+                agentContact.nickname = resolvedName
+                CoreDataManager.sharedManager.saveContext()
+            }
         }
 
         WindowsManager.sharedInstance.backToProfile()
@@ -169,6 +193,8 @@ extension SetupAIAgentViewController: SignupFieldViewDelegate {
             switch f {
             case .Provider:
                 self.view.window?.makeFirstResponder(self.apiKeyFieldView.getTextField())
+            case .APIKey:
+                self.view.window?.makeFirstResponder(self.agentNameFieldView.getTextField())
             default:
                 self.view.window?.makeFirstResponder(self.providerFieldView.getTextField())
             }

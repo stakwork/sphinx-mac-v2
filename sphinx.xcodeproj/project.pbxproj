@@ -507,7 +507,6 @@
 		47AF0D5225530DF900C98398 /* PodcastEpisodesHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47AF0D5125530DF900C98398 /* PodcastEpisodesHeaderView.xib */; };
 		47AF0D552553175B00C98398 /* PodcastPlayerCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D532553175B00C98398 /* PodcastPlayerCollectionViewItem.swift */; };
 		47AF0D562553175B00C98398 /* PodcastPlayerCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47AF0D542553175B00C98398 /* PodcastPlayerCollectionViewItem.xib */; };
-		47AIVC032EF500000AIVC003 /* AIAgentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */; };
 		47B5507E2487F2E2000514BF /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B5507D2487F2E2000514BF /* CustomButton.swift */; };
 		47B55085248958CB000514BF /* PaymentInvoiceFormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B55084248958CB000514BF /* PaymentInvoiceFormViewController.swift */; };
 		47B5508724895D51000514BF /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4734D3972417E3D400D6957E /* SplashViewController.swift */; };
@@ -1521,7 +1520,6 @@
 		47AF0D5125530DF900C98398 /* PodcastEpisodesHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastEpisodesHeaderView.xib; sourceTree = "<group>"; };
 		47AF0D532553175B00C98398 /* PodcastPlayerCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPlayerCollectionViewItem.swift; sourceTree = "<group>"; };
 		47AF0D542553175B00C98398 /* PodcastPlayerCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastPlayerCollectionViewItem.xib; sourceTree = "<group>"; };
-		47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentViewController.swift; sourceTree = "<group>"; };
 		47B5507D2487F2E2000514BF /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		47B55084248958CB000514BF /* PaymentInvoiceFormViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentInvoiceFormViewController.swift; sourceTree = "<group>"; };
 		47B5508924898330000514BF /* IntegerValueFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegerValueFormatter.swift; sourceTree = "<group>"; };
@@ -3091,8 +3089,7 @@
 		479751C2246C72C100D2106B /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
-				47AIVC012EF500000AIVC001 /* AI Agent */,
-				47WORKG12F19000000000011 /* Workspaces */,
+					47WORKG12F19000000000011 /* Workspaces */,
 				4738299B2EB3E2DE007E045A /* Graph */,
 				477CE02B2DC90874004110E8 /* Feed */,
 				47FCE2B82CD8FB31005DB8AF /* Live Kit */,
@@ -3368,14 +3365,6 @@
 			isa = PBXGroup;
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
-			);
-			path = "AI Agent";
-			sourceTree = "<group>";
-		};
-		47AIVC012EF500000AIVC001 /* AI Agent */ = {
-			isa = PBXGroup;
-			children = (
-				47AIVC022EF500000AIVC002 /* AIAgentViewController.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";
@@ -4880,7 +4869,6 @@
 				4744FA902469C9F800C5FD94 /* Subscription+CoreDataProperties.swift in Sources */,
 				479B192E2EC2191900A5B9E2 /* SetupPersonalGraphViewController.swift in Sources */,
 				47BB2A022EF431AE00CFDB01 /* SetupAIAgentViewController.swift in Sources */,
-				47AIVC032EF500000AIVC003 /* AIAgentViewController.swift in Sources */,
 				47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */,
 				475B68682991A1A2000EF29C /* FeedBoostHelper.swift in Sources */,
 				470E0B33247C743900177D8A /* LoadingMoreCollectionViewItem.swift in Sources */,

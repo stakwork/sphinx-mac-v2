@@ -429,7 +429,7 @@ class ProfileViewController: NSViewController {
             vc: setupAIAgentVC,
             identifier: "setup-ai-agent-window",
             title: "Configure AI Agent",
-            height: 400
+            height: 490
         )
     }
     
