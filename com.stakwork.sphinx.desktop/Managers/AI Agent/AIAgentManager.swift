@@ -38,8 +38,8 @@ final class AIAgentManager: @unchecked Sendable {
     /// The currently active language model (nil if not configured)
     private var activeModel: (any LanguageModelV3)?
 
-    /// SerpAPI key for web search (nil or empty = tool not registered)
-    private var serpApiKey: String? = nil
+    /// Tavily API key for web search (nil or empty = tool not registered)
+    private var tavilyApiKey: String? = nil
 
     // MARK: - System Prompt
 
@@ -133,7 +133,7 @@ final class AIAgentManager: @unchecked Sendable {
         let provider    = AIProvider(rawValue: providerRaw) ?? .anthropic
 
         // Load search key independently (optional, not gated on LLM key)
-        serpApiKey = userData.getAIAgentValue(with: .aiAgentSearchApiKey)
+        tavilyApiKey = userData.getAIAgentValue(with: .aiAgentSearchApiKey)
 
         guard !apiKey.isEmpty else {
             activeModel = nil
@@ -236,7 +236,7 @@ final class AIAgentManager: @unchecked Sendable {
             "send_sphinx_message": buildSendMessageTool().eraseToTool(),
             "read_recent_messages": buildReadMessagesTool().eraseToTool()
         ]
-        if let key = serpApiKey, !key.isEmpty {
+        if let key = tavilyApiKey, !key.isEmpty {
             tools["web_search"] = buildWebSearchTool(apiKey: key).eraseToTool()
         }
 
@@ -417,25 +417,28 @@ final class AIAgentManager: @unchecked Sendable {
                       case .string(let query) = dict["query"] else {
                     return .value("Error: missing query parameter.")
                 }
-                var components = URLComponents(string: "https://serpapi.com/search.json")!
-                components.queryItems = [
-                    URLQueryItem(name: "q", value: query),
-                    URLQueryItem(name: "api_key", value: apiKey),
-                    URLQueryItem(name: "num", value: "5")
-                ]
-                guard let url = components.url else {
+                guard let url = URL(string: "https://api.tavily.com/search") else {
                     return .value("Error: could not construct search URL.")
                 }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                let body: [String: Any] = [
+                    "api_key": apiKey,
+                    "query": query,
+                    "max_results": 5
+                ]
+                request.httpBody = try? JSONSerialization.data(withJSONObject: body)
                 do {
-                    let (data, _) = try await URLSession.shared.data(from: url)
+                    let (data, _) = try await URLSession.shared.data(for: request)
                     guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                          let organic = json["organic_results"] as? [[String: Any]] else {
+                          let results = json["results"] as? [[String: Any]] else {
                         return .value("No results found.")
                     }
-                    let lines: [String] = organic.prefix(5).compactMap { result in
+                    let lines: [String] = results.prefix(5).compactMap { result in
                         let title   = result["title"]   as? String ?? "(no title)"
-                        let snippet = result["snippet"] as? String ?? ""
-                        let link    = result["link"]    as? String ?? ""
+                        let snippet = result["content"] as? String ?? ""
+                        let link    = result["url"]     as? String ?? ""
                         return "Title: \(title) | Snippet: \(snippet) | URL: \(link)"
                     }
                     return .value(lines.isEmpty ? "No results found." : lines.joined(separator: "\n"))

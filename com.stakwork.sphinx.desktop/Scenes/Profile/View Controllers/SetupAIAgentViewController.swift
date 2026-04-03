@@ -102,9 +102,9 @@ class SetupAIAgentViewController: NSViewController {
 
         // Search API Key field (optional)
         searchApiKeyFieldView.configureWith(
-            placeHolder: "Search API Key (optional)",
+            placeHolder: "Tavily API Key (optional)",
             placeHolderColor: NSColor.Sphinx.SecondaryText,
-            label: "Search API Key",
+            label: "Tavily Search Key",
             textColor: NSColor.white,
             backgroundColor: NSColor(hex: "#101317"),
             field: Fields.SearchApiKey.rawValue,
