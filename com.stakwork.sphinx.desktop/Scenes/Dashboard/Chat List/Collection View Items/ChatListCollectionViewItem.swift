@@ -126,7 +126,6 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             let isAgent = chatListObject.getContact()?.isAgent == true
             if isAgent {
                 lockSignLabel.isHidden = true
-                agentIconView.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
                 agentIconView.isHidden = false
             } else {
                 lockSignLabel.isHidden = chatListObject.isEncrypted() == false

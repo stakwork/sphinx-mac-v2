@@ -111,7 +111,7 @@
                                         </textField>
                                         <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ag4-Nt-cpu">
                                             <rect key="frame" x="0.0" y="4" width="16" height="15"/>
-                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="cpu" catalog="system" id="Ag4-c-cpu"/>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="cpu.fill" catalog="system" id="Ag4-c-cpu"/>
                                             <color key="contentTintColor" name="PlaceholderText"/>
                                             <symbolConfiguration key="symbolConfiguration" scale="medium">
                                                 <nil key="locale"/>
@@ -436,7 +436,7 @@
     </objects>
     <resources>
         <image name="clock_icon" width="22" height="22"/>
-        <image name="cpu" catalog="system" width="16" height="15"/>
+        <image name="cpu.fill" catalog="system" width="16" height="15"/>
         <image name="newMuteIcon" width="13" height="13"/>
         <namedColor name="Divider">
             <color red="0.92156862745098034" green="0.92941176470588238" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
