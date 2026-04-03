@@ -7,6 +7,10 @@ struct MarkdownStyle {
     var linkColor: NSColor = NSColor.Sphinx.PrimaryBlue
     var secondaryColor: NSColor = NSColor.Sphinx.SecondaryText
     var baseFontSize: CGFloat = 15
+    /// Optional base font. When set, attributed-string runs are derived from this font
+    /// instead of NSFont.systemFont, so label.font and the rendered runs share the
+    /// same family — eliminating AppKit's selection-redraw font mismatch.
+    var baseFont: NSFont? = nil
 }
 
 // MARK: - MarkdownRenderer
@@ -196,13 +200,21 @@ final class MarkdownRenderer {
         NSAttributedString(string: string, attributes: [.font: font, .foregroundColor: style.textColor])
     }
 
-    private func regularFont(size: CGFloat) -> NSFont { NSFont.systemFont(ofSize: size) }
-    private func boldFont(size: CGFloat) -> NSFont    { NSFont.boldSystemFont(ofSize: size) }
-    private func italicFont(size: CGFloat) -> NSFont  {
-        NSFontManager.shared.convert(NSFont.systemFont(ofSize: size), toHaveTrait: .italicFontMask)
+    private func regularFont(size: CGFloat) -> NSFont {
+        guard let base = style.baseFont else { return NSFont.systemFont(ofSize: size) }
+        return size == base.pointSize ? base : NSFontManager.shared.convert(base, toSize: size)
+    }
+    private func boldFont(size: CGFloat) -> NSFont {
+        let base = regularFont(size: size)
+        return NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask)
+    }
+    private func italicFont(size: CGFloat) -> NSFont {
+        let base = regularFont(size: size)
+        return NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask)
     }
     private func boldItalicFont(size: CGFloat) -> NSFont {
-        NSFontManager.shared.convert(NSFont.boldSystemFont(ofSize: size), toHaveTrait: .italicFontMask)
+        let base = boldFont(size: size)
+        return NSFontManager.shared.convert(base, toHaveTrait: .italicFontMask)
     }
     private func monoFont(size: CGFloat) -> NSFont {
         NSFont.monospacedSystemFont(ofSize: size, weight: .regular)

@@ -22,23 +22,30 @@ final class AIAgentViewController: NSViewController {
     private let bottomBarView = NSView()
     private let divider       = NSBox()
     private let pillView      = NSView()
-    private let inputField    = NSTextField()
-    // NSView-based send button — exact kUnitSize × kUnitSize circle, no NSButton chrome
+    private let inputField    = PlaceHolderTextView()
     private let sendButton    = NSView()
     private let spinner       = NSProgressIndicator()
 
     // MARK: - Renderer
-    private let renderer = MarkdownRenderer()
+    // lazy so kTranscriptFont (Roboto 14pt) is used as the renderer's base font,
+    // making every attributed-string run use the same NSFont as label.font.
+    // This eliminates the AppKit selection-redraw font mismatch on received messages.
+    private lazy var renderer = MarkdownRenderer(
+        style: MarkdownStyle(baseFontSize: 14, baseFont: kTranscriptFont)
+    )
 
     // MARK: - Constants
     private let kUnitSize: CGFloat        = 36
     private let kBottomBarHeight: CGFloat = 60
     private let kHPad: CGFloat            = 12
+    private let kMaxInputLines: CGFloat   = 5
+    private let kInputLineHeight: CGFloat = 19
+    private let kVerticalPadding: CGFloat = 24   // top + bottom pill insets
     private let kInputFont      = NSFont(name: "Roboto-Regular", size: 15.0) ?? NSFont.systemFont(ofSize: 15)
     private let kTranscriptFont = NSFont(name: "Roboto-Regular", size: 14.0) ?? NSFont.systemFont(ofSize: 14)
 
     // MARK: - State
-    private var introAppended    = false
+    private var introAppended     = false
     private var sendButtonEnabled = false
 
     // MARK: - Lifecycle
@@ -70,7 +77,6 @@ final class AIAgentViewController: NSViewController {
 
     deinit {
         NotificationCenter.default.removeObserver(self, name: .aiAgentReconfigured, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSTextField.textDidChangeNotification, object: nil)
     }
 
     // MARK: - Factory
@@ -99,7 +105,6 @@ final class AIAgentViewController: NSViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
 
-        // NSStackView as documentView — bubbles stack vertically
         stackView.orientation  = .vertical
         stackView.alignment    = .leading
         stackView.spacing      = 8
@@ -126,31 +131,54 @@ final class AIAgentViewController: NSViewController {
         pillView.translatesAutoresizingMaskIntoConstraints = false
         bottomBarView.addSubview(pillView)
 
-        // ── Input field ────────────────────────────────────────────────────────
-        inputField.stringValue       = ""
-        inputField.placeholderString = "Ask Sphinx AI..."
-        inputField.font              = kInputFont
-        inputField.textColor         = NSColor.Sphinx.PrimaryText
-        inputField.backgroundColor   = .clear
-        inputField.drawsBackground   = false
-        inputField.isBordered        = false
-        inputField.isBezeled         = false
-        inputField.focusRingType     = .none
-        inputField.isEditable        = true
-        inputField.isSelectable      = true
-        inputField.cell?.usesSingleLineMode = true
-        inputField.cell?.isScrollable       = true
-        inputField.cell?.wraps              = false
-        inputField.translatesAutoresizingMaskIntoConstraints = false
-        inputField.target = self
-        inputField.action = #selector(sendTapped)
-        pillView.addSubview(inputField)
-
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(inputDidChange),
-            name: NSTextField.textDidChangeNotification,
-            object: inputField
+        // ── Input field (PlaceHolderTextView / NSTextView) ─────────────────────
+        inputField.isEditable              = true
+        inputField.isRichText              = false
+        inputField.drawsBackground         = false
+        inputField.isBordered              = false
+        inputField.font                    = kInputFont
+        inputField.textColor               = NSColor.Sphinx.PrimaryText
+        // typingAttributes must be set so every typed character picks up
+        // the correct font + colour (NSTextView won't inherit them automatically).
+        inputField.typingAttributes = [
+            .font:            kInputFont as Any,
+            .foregroundColor: NSColor.Sphinx.PrimaryText as Any,
+        ]
+        inputField.isAutomaticQuoteSubstitutionEnabled  = false
+        inputField.isAutomaticSpellingCorrectionEnabled = false
+        inputField.lineBreakEnable = true   // Shift+Return inserts \n
+        inputField.delegate        = self   // NSTextViewDelegate: Return → send
+        inputField.setPlaceHolder(
+            color:  NSColor.Sphinx.PlaceholderText,
+            font:   kInputFont,
+            string: "Ask Sphinx AI..."
         )
+        // Allow vertical growth; fix width to the scroll view so text wraps.
+        inputField.isVerticallyResizable   = true
+        inputField.isHorizontallyResizable = false
+        inputField.textContainer?.widthTracksTextView = true
+        // Height is unbounded; width is managed by widthTracksTextView (leave at default 0).
+        inputField.textContainer?.containerSize = NSSize(
+            width:  0,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+        inputField.translatesAutoresizingMaskIntoConstraints = false
+
+        // Wrap in a scroll view so long content scrolls inside the fixed pill.
+        let inputScrollView = NSScrollView()
+        inputScrollView.hasVerticalScroller = false
+        inputScrollView.drawsBackground     = false
+        inputScrollView.contentView.backgroundColor = .clear   // don't paint over pill bg
+        inputScrollView.documentView        = inputField
+        inputScrollView.translatesAutoresizingMaskIntoConstraints = false
+        pillView.addSubview(inputScrollView)
+
+        NSLayoutConstraint.activate([
+            inputScrollView.leadingAnchor.constraint(equalTo: pillView.leadingAnchor,  constant:  12),
+            inputScrollView.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
+            inputScrollView.topAnchor.constraint(equalTo: pillView.topAnchor,     constant:  8),
+            inputScrollView.bottomAnchor.constraint(equalTo: pillView.bottomAnchor, constant: -8),
+        ])
 
         NotificationCenter.default.addObserver(
             self,
@@ -159,7 +187,7 @@ final class AIAgentViewController: NSViewController {
             object: nil
         )
 
-        // ── Send button — plain NSView, exact kUnitSize × kUnitSize circle ─────
+        // ── Send button ────────────────────────────────────────────────────────
         sendButton.wantsLayer = true
         sendButton.layer?.cornerRadius    = kUnitSize / 2
         sendButton.layer?.masksToBounds   = true
@@ -196,12 +224,17 @@ final class AIAgentViewController: NSViewController {
         bottomBarView.addSubview(spinner)
 
         // ── Constraints ────────────────────────────────────────────────────────
+
+        // Store mutable constraints for dynamic height updates
+        bottomBarHeightConstraint = bottomBarView.heightAnchor.constraint(equalToConstant: kBottomBarHeight)
+        pillHeightConstraint = pillView.heightAnchor.constraint(equalToConstant: kUnitSize)
+
         NSLayoutConstraint.activate([
-            // Bottom bar — fixed height
+            // Bottom bar — dynamic height (grows with input)
             bottomBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomBarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            bottomBarView.heightAnchor.constraint(equalToConstant: kBottomBarHeight),
+            bottomBarHeightConstraint,
 
             // Divider
             divider.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -215,26 +248,21 @@ final class AIAgentViewController: NSViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: divider.topAnchor),
 
-            // Pill: kUnitSize tall, left=kHPad, right butts send button
+            // Pill — fixed height, centred in bottom bar, right butts send button
             pillView.leadingAnchor.constraint(equalTo: bottomBarView.leadingAnchor, constant: kHPad),
-            pillView.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
-            pillView.heightAnchor.constraint(equalToConstant: kUnitSize),
+            pillView.topAnchor.constraint(equalTo: bottomBarView.topAnchor, constant: 12),
+            pillHeightConstraint,
             pillView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -8),
 
-            // Input field: 12pt L/R inset, centred
-            inputField.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 12),
-            inputField.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -12),
-            inputField.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
-
-            // Send button: exact kUnitSize × kUnitSize, right margin = kHPad
+            // Send button — kUnitSize circle, centred, right margin
             sendButton.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -kHPad),
-            sendButton.centerYAnchor.constraint(equalTo: bottomBarView.centerYAnchor),
+            sendButton.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             sendButton.widthAnchor.constraint(equalToConstant: kUnitSize),
             sendButton.heightAnchor.constraint(equalToConstant: kUnitSize),
 
-            // Spinner centred over send button
+            // Spinner over send button
             spinner.centerXAnchor.constraint(equalTo: sendButton.centerXAnchor),
-            spinner.centerYAnchor.constraint(equalTo: sendButton.centerYAnchor),
+            spinner.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -12),
             spinner.widthAnchor.constraint(equalToConstant: 20),
             spinner.heightAnchor.constraint(equalToConstant: 20),
         ])
@@ -243,18 +271,38 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Input change
 
     @objc private func inputDidChange() {
-        let hasText = !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasText = !inputField.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         sendButtonEnabled = hasText
         sendButton.layer?.backgroundColor = hasText
             ? NSColor.Sphinx.PrimaryBlue.cgColor
             : NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
     }
 
+    // MARK: - Dynamic height
+
+    private func updateBottomBarHeight() {
+        let contentH    = inputField.contentSize.height
+        let maxContentH = kInputLineHeight * kMaxInputLines
+        let clampedH    = min(contentH, maxContentH)
+        let newPillH    = max(kUnitSize, clampedH + kVerticalPadding)
+        let newBarH     = newPillH + 24   // 12pt top + 12pt bottom margin
+
+        pillHeightConstraint.constant      = newPillH
+        bottomBarHeightConstraint.constant = newBarH
+
+        // Full circle when single-line, rounded rect when multiline
+        pillView.layer?.cornerRadius = (newPillH == kUnitSize) ? kUnitSize / 2 : 12
+
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.15
+            view.layoutSubtreeIfNeeded()
+        }
+    }
+
     // MARK: - Intro / Transcript rebuild
 
     private func rebuildTranscriptOrShowIntro() {
         let history = AIAgentManager.sharedInstance.conversationHistory
-        // Intro is always shown first (it lives in history after first open)
         if history.isEmpty {
             appendIntroMessage()
         } else {
@@ -268,7 +316,6 @@ final class AIAgentViewController: NSViewController {
                     break
                 }
             }
-            // scrollToBottom() is called by appendUser/appendAssistant already
         }
         updateInputState()
     }
@@ -280,15 +327,14 @@ final class AIAgentViewController: NSViewController {
         } else {
             text = "Configure your provider and API key in **Profile → Advanced → Configure AI Agent** to get started."
         }
-        // Persist into history so it reappears when the window is reopened
         AIAgentManager.sharedInstance.appendAssistantMessage(text)
         appendAssistant(text)
     }
 
     private func updateInputState() {
         let configured = AIAgentManager.sharedInstance.isConfigured
-        inputField.isEnabled = configured
-        sendButtonEnabled = configured && !inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        inputField.isEditable = configured
+        sendButtonEnabled = configured && !inputField.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         pillView.layer?.opacity = configured ? 1.0 : 0.5
         sendButton.layer?.backgroundColor = configured
             ? NSColor.Sphinx.PrimaryBlue.withAlphaComponent(0.4).cgColor
@@ -303,11 +349,12 @@ final class AIAgentViewController: NSViewController {
 
     @objc private func sendTapped() {
         guard sendButtonEnabled else { return }
-        let text = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = inputField.string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
-        inputField.stringValue = ""
+        inputField.string = ""
         inputDidChange()
+        updateBottomBarHeight()
         appendUser(text)
         setLoading(true)
 
@@ -336,9 +383,9 @@ final class AIAgentViewController: NSViewController {
         bubble.translatesAutoresizingMaskIntoConstraints = false
 
         let label = NSTextField(wrappingLabelWithString: "")
-        // Always set font and textColor BEFORE attributedStringValue.
-        // AppKit falls back to these during text selection — without them the field
-        // reverts to the default system font/size when the user starts selecting.
+        // Set font and textColor BEFORE attributedStringValue.
+        // AppKit uses these as the fallback during selection redraw — they must
+        // match what the attributed string actually contains to avoid a size jump.
         label.font      = kTranscriptFont
         label.textColor = NSColor.Sphinx.Text
         if let rendered = markdownRendered {
@@ -385,10 +432,11 @@ final class AIAgentViewController: NSViewController {
     private func appendUser(_ text: String) {
         let bubble = makeBubble(text: text, isUser: true)
         stackView.addArrangedSubview(bubble)
-        // Stretch row full width so trailing constraint resolves correctly
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
@@ -398,27 +446,28 @@ final class AIAgentViewController: NSViewController {
         let bubble   = makeBubble(text: text, isUser: false, markdownRendered: rendered)
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
 
     private func appendError(_ message: String) {
         let bubble = makeBubble(text: "[Error: \(message)]", isUser: false)
-        // Tint error bubble red
         bubble.subviews.first?.layer?.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15).cgColor
         stackView.addArrangedSubview(bubble)
         NSLayoutConstraint.activate([
-            bubble.widthAnchor.constraint(equalTo: stackView.widthAnchor,
-                                          constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)),
+            bubble.widthAnchor.constraint(
+                equalTo: stackView.widthAnchor,
+                constant: -(stackView.edgeInsets.left + stackView.edgeInsets.right)
+            ),
         ])
         scrollToBottom()
     }
 
     private func scrollToBottom() {
-        // Defer one run-loop so Auto Layout commits the newly added bubble's frame.
-        // With FlippedClipView, content grows downward; scroll to max visible Y.
         DispatchQueue.main.async { [weak self] in
             guard let self, let docView = self.scrollView.documentView else { return }
             let docHeight  = docView.frame.height
@@ -436,15 +485,37 @@ final class AIAgentViewController: NSViewController {
     // MARK: - Loading state
 
     private func setLoading(_ loading: Bool) {
-        sendButton.isHidden  = loading
-        spinner.isHidden     = !loading
+        sendButton.isHidden = loading
+        spinner.isHidden    = !loading
         if loading {
-            inputField.isEnabled = false
+            inputField.isEditable = false
             spinner.startAnimation(nil)
         } else {
             spinner.stopAnimation(nil)
             updateInputState()
             view.window?.makeFirstResponder(inputField)
         }
+    }
+}
+
+// MARK: - NSTextViewDelegate
+
+extension AIAgentViewController: NSTextViewDelegate {
+
+    func textView(
+        _ textView: NSTextView,
+        shouldChangeTextIn affectedCharRange: NSRange,
+        replacementString: String?
+    ) -> Bool {
+        // Plain Return → send. Shift+Return is handled inside PlaceHolderTextView.addingBreakLine.
+        if let str = replacementString, str == "\n" {
+            sendTapped()
+            return false
+        }
+        return true
+    }
+
+    override func textDidChange(_ notification: Notification) {
+        inputDidChange()
     }
 }
