@@ -293,6 +293,12 @@ import WebKit
                 createKeyWindowWith(vc: splashVC, windowState: windowState, closeOther: false, hideBar: true)
             }
         }
+
+        if UserData.sharedInstance.isUserLogged() {
+            Task { @MainActor in
+                AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
+            }
+        }
     }
     
     func createKeyWindowWith(vc: NSViewController, windowState: WindowState, closeOther: Bool = false, hideBar: Bool = false) {

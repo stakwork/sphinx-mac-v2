@@ -20,6 +20,7 @@ struct AIAgentMessage: Codable {
 final class AIAgentManager: @unchecked Sendable {
 
     static let sharedInstance = AIAgentManager()
+    static let agentLocalId: Int = -2
 
     // MARK: - Provider enum
 
@@ -143,6 +144,61 @@ final class AIAgentManager: @unchecked Sendable {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: .aiAgentReconfigured, object: nil)
         }
+
+        // Create agent contact + chat if not already present
+        Task { @MainActor in
+            self.createAgentContactAndChatIfNeeded()
+        }
+    }
+
+    // MARK: - Agent Contact + Chat Creation
+
+    @MainActor
+    func createAgentContactAndChatIfNeeded() {
+        guard isConfigured, let owner = UserContact.getOwner() else { return }
+        guard UserContact.getContactWith(id: AIAgentManager.agentLocalId) == nil else { return }
+
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        // Create the agent UserContact
+        let agentContact = UserContact(context: context)
+        agentContact.id = AIAgentManager.agentLocalId
+        agentContact.nickname = "Sphinx Agent"
+        agentContact.isAgent = true
+        agentContact.isOwner = false
+        agentContact.fromGroup = false
+        agentContact.status = UserContact.Status.Confirmed.rawValue
+        agentContact.publicKey = ""
+        agentContact.createdAt = Date()
+
+        // Create the local Chat
+        _ = Chat.createObject(
+            id: AIAgentManager.agentLocalId,
+            name: "Sphinx Agent",
+            photoUrl: nil,
+            uuid: nil,
+            type: Chat.ChatType.conversation.rawValue,
+            status: Chat.ChatStatus.approved.rawValue,
+            muted: false,
+            seen: true,
+            host: nil,
+            groupKey: nil,
+            ownerPubkey: nil,
+            pricePerMessage: 0,
+            escrowAmount: 0,
+            myAlias: nil,
+            myPhotoUrl: nil,
+            notify: 0,
+            pinnedMessageUUID: nil,
+            contactIds: [NSNumber(value: owner.id), NSNumber(value: AIAgentManager.agentLocalId)],
+            pendingContactIds: [],
+            date: Date(),
+            metaData: nil
+        )
+
+        CoreDataManager.sharedManager.saveContext()
+
+        NotificationCenter.default.post(name: .onContactsAndChatsChanged, object: nil)
     }
 
     // MARK: - Public API
