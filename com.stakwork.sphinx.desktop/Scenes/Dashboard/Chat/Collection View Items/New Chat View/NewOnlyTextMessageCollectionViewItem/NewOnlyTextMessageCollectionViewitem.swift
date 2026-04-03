@@ -53,6 +53,8 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         
         messageLabel.setSelectionColor(color: NSColor.getTextSelectionColor())
         messageLabel.allowsEditingTextAttributes = true
+        messageLabel.maximumNumberOfLines = 0
+        messageLabel.cell?.wraps = true
         
         let lineFrame = CGRect(
             x: 0.0,

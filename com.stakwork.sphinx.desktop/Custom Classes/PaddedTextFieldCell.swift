@@ -94,6 +94,7 @@ class PaddedTextField: CCTextField {
             paddedCell.placeholderString = existingCell.placeholderString
             paddedCell.lineBreakMode = existingCell.lineBreakMode
             paddedCell.truncatesLastVisibleLine = existingCell.truncatesLastVisibleLine
+            paddedCell.wraps = existingCell.wraps
         }
         
         self.cell = paddedCell
