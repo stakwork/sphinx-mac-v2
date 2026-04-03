@@ -12,13 +12,13 @@
             <objects>
                 <viewController storyboardIdentifier="SetupAIAgentViewController" id="aai-vc-001" customClass="SetupAIAgentViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="aai-vw-001">
-                        <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="aai-bx-001">
-                                <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
                                 <view key="contentView" id="aai-cv-001">
-                                    <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 </view>
                                 <color key="fillColor" name="Body"/>
