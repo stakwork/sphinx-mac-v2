@@ -50,5 +50,4 @@ extension Notification.Name {
     static let onPodcastPlayerClosed = Notification.Name(rawValue: "onPodcastPlayerClosed")
     static let refreshFeedUI = Notification.Name(rawValue: "refreshFeedUI")
     static let onGraphLabelChanged = Notification.Name(rawValue: "onGraphLabelChanged")
-    static let aiAgentReconfigured = Notification.Name("aiAgentReconfigured")
 }

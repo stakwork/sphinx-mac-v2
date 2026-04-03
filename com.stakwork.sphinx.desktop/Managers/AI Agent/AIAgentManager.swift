@@ -140,11 +140,6 @@ final class AIAgentManager: @unchecked Sendable {
         // Reset history when credentials change
         reset()
 
-        // Notify header views to update AI button visibility
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .aiAgentReconfigured, object: nil)
-        }
-
         // Create agent contact + chat if not already present
         Task { @MainActor in
             self.createAgentContactAndChatIfNeeded()

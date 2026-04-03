@@ -390,10 +390,6 @@ extension ChatListViewController: NewChatHeaderViewDelegate {
         WindowsManager.sharedInstance.showProfileWindow()
     }
 
-    func aiAgentButtonTapped() {
-        WindowsManager.sharedInstance.showAIAgentWindow()
-    }
-    
     func menuTapped(_ frame: CGRect) {
         menuListView.isHidden = false
     }
