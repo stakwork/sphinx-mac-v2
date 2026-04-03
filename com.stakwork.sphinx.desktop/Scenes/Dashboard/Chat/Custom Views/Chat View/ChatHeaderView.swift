@@ -39,6 +39,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var remoteTimezoneIdentifier: NSTextField!
     @IBOutlet weak var lockSign: NSTextField!
     @IBOutlet weak var boltSign: NSTextField!
+    @IBOutlet weak var agentIcon: NSImageView!
     @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var volumeButton: CustomButton!
     @IBOutlet weak var webAppButton: CustomButton!
@@ -154,6 +155,26 @@ class ChatHeaderView: NSView, LoadableNib {
         configureImageOrInitials()
         configureContributionsAndPrices()
         configureTimezoneInfo()
+
+        if contact?.isAgent == true {
+            configureForAgentChat()
+        }
+    }
+
+    func configureForAgentChat() {
+        // Hide call, volume, threads, webApp, secondBrain, options; keep only search
+        callButton.isHidden = true
+        volumeButton.isHidden = true
+        threadsButton.isHidden = true
+        webAppButton.isHidden = true
+        secondBrainButton.isHidden = true
+        optionsButton.isHidden = true
+        searchButton.isHidden = false
+
+        // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
+        lockSign.isHidden = true
+        boltSign.isHidden = true
+        agentIcon.isHidden = false
     }
     
     func configureTimezoneInfo() {
@@ -182,6 +203,7 @@ class ChatHeaderView: NSView, LoadableNib {
     func configureEncryptionSign() {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         lockSign.isHidden = !isEncrypted
+        agentIcon.isHidden = true
         refreshButton.isHidden = true
         
         imageWidthConstraint.constant = isEncrypted ? 46 : 36
@@ -348,6 +370,11 @@ class ChatHeaderView: NSView, LoadableNib {
         }
         
         if isDisable {
+            return
+        }
+
+        if contact?.isAgent == true {
+            configureForAgentChat()
             return
         }
         

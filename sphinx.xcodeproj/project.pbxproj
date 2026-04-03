@@ -650,6 +650,7 @@
 		47FEE1EF2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */; };
 		47FEE1F12A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */; };
 		47FEE1F42A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */; };
+		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		47FEE1F62A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F52A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift */; };
 		47FEE1F82A61B5F100646C4E /* NewChatViewController+TribeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F72A61B5F100646C4E /* NewChatViewController+TribeExtension.swift */; };
 		47FEE1FA2A65A11400646C4E /* NewChatViewController+PodcastExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE1F92A65A11400646C4E /* NewChatViewController+PodcastExtension.swift */; };
@@ -1678,6 +1679,7 @@
 		47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatMessageFieldView+FieldsExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F02A61A1C200646C4E /* ChatMessageFieldView+MentionsMacrosExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatMessageFieldView+MentionsMacrosExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+FetchControllerExtension.swift"; sourceTree = "<group>"; };
+		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F52A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+BottomTopBarsExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F72A61B5F100646C4E /* NewChatViewController+TribeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+TribeExtension.swift"; sourceTree = "<group>"; };
 		47FEE1F92A65A11400646C4E /* NewChatViewController+PodcastExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+PodcastExtension.swift"; sourceTree = "<group>"; };
@@ -3890,6 +3892,7 @@
 			children = (
 				4708C21A2A588F7A00274AD4 /* NewChatViewController.swift */,
 				47FEE1F32A61B1CA00646C4E /* NewChatViewController+FetchControllerExtension.swift */,
+				C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */,
 				47FEE1F52A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift */,
 				47FEE1F72A61B5F100646C4E /* NewChatViewController+TribeExtension.swift */,
 				47FEE1F92A65A11400646C4E /* NewChatViewController+PodcastExtension.swift */,
@@ -4656,6 +4659,7 @@
 				479496492AB3A59500C42D1E /* AudioMessageView.swift in Sources */,
 				473829922EA916E2007E045A /* PaddedTextFieldCell.swift in Sources */,
 				47F8825B25656CB0002A7E71 /* SocketRawView.swift in Sources */,
+				D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */,
 				47FEE1F62A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift in Sources */,
 				474A66882498F3E6002C2D10 /* MessageOptionsHelper.swift in Sources */,
 				47FEE1EF2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift in Sources */,

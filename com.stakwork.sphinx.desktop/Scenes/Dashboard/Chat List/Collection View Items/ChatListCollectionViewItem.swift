@@ -22,6 +22,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var chatInitialsLabel: NSTextField!
     @IBOutlet weak var nameLabel: NSTextField!
     @IBOutlet weak var lockSignLabel: NSTextField!
+    @IBOutlet weak var agentIconView: NSImageView!
     @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var inviteIconLabel: NSTextField!
     @IBOutlet weak var failedMessageIcon: NSTextField!
@@ -66,6 +67,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         dateLabel.stringValue = ""
         
         lockSignLabel.isHidden = true
+        agentIconView.isHidden = true
         muteImageView.isHidden = true
         inviteIconLabel.isHidden = true
         invitePriceContainer.isHidden = true
@@ -120,7 +122,16 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             
             nameLabel.stringValue = chatListObject.getName()
             muteImageView.isHidden = (chatListObject.getChat()?.isMuted() ?? false) == false
-            lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+
+            let isAgent = chatListObject.getContact()?.isAgent == true
+            if isAgent {
+                lockSignLabel.isHidden = true
+                agentIconView.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
+                agentIconView.isHidden = false
+            } else {
+                lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+                agentIconView.isHidden = true
+            }
         }
         
         renderLastMessage(

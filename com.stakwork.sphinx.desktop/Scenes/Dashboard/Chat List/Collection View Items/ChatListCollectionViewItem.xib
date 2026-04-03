@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -109,6 +109,14 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ag4-Nt-cpu">
+                                            <rect key="frame" x="0.0" y="4" width="16" height="15"/>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="cpu" catalog="system" id="Ag4-c-cpu"/>
+                                            <color key="contentTintColor" name="PlaceholderText"/>
+                                            <symbolConfiguration key="symbolConfiguration" scale="medium">
+                                                <nil key="locale"/>
+                                            </symbolConfiguration>
+                                        </imageView>
                                         <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="69t-GJ-bIF">
                                             <rect key="frame" x="-2" y="4" width="19" height="15"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="schedule" id="1up-th-h8P">
@@ -120,6 +128,7 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="3Zj-Kl-BUt" firstAttribute="centerY" secondItem="DGs-Cx-Khc" secondAttribute="centerY" id="6dJ-bm-tvL"/>
+                                        <constraint firstItem="Ag4-Nt-cpu" firstAttribute="centerY" secondItem="3Zj-Kl-BUt" secondAttribute="centerY" id="Ag4-cy-cpu"/>
                                         <constraint firstItem="69t-GJ-bIF" firstAttribute="centerY" secondItem="3Zj-Kl-BUt" secondAttribute="centerY" id="C0E-fE-IAs"/>
                                         <constraint firstItem="DGs-Cx-Khc" firstAttribute="centerY" secondItem="tfQ-XL-WAx" secondAttribute="centerY" id="xxw-9e-Ygv"/>
                                     </constraints>
@@ -127,8 +136,10 @@
                                         <integer value="1000"/>
                                         <integer value="1000"/>
                                         <integer value="1000"/>
+                                        <integer value="1000"/>
                                     </visibilityPriorities>
                                     <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
@@ -396,6 +407,7 @@
         </customView>
         <collectionViewItem id="maJ-B9-Vez" customClass="ChatListCollectionViewItem" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="agentIconView" destination="Ag4-Nt-cpu" id="Ag4-o-cpu"/>
                 <outlet property="backgroundBox" destination="hyM-3H-muz" id="ShV-g5-ZZS"/>
                 <outlet property="chatImageView" destination="MFd-qA-EWn" id="LaT-h3-hKi"/>
                 <outlet property="chatInitialsLabel" destination="inh-ff-0bK" id="UVy-Be-Kg9"/>
@@ -424,6 +436,7 @@
     </objects>
     <resources>
         <image name="clock_icon" width="22" height="22"/>
+        <image name="cpu" catalog="system" width="16" height="15"/>
         <image name="newMuteIcon" width="13" height="13"/>
         <namedColor name="Divider">
             <color red="0.92156862745098034" green="0.92941176470588238" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

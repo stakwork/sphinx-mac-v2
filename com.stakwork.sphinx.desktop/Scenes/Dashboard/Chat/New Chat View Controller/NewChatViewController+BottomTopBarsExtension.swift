@@ -97,7 +97,10 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     }
     
     func didClickHeaderButton() {
-        if let contact = contact {
+        // Resolve contact — for agent chats opened via chatId, contact may not be set directly
+        let resolvedContact = contact ?? chat?.getConversationContact()
+
+        if let contact = resolvedContact {
             
             let contactVC = ContactDetailsViewController.instantiate(
                 contactId: contact.id,
@@ -229,6 +232,10 @@ extension NewChatViewController : ChatBottomViewDelegate {
         price: Int,
         completion: @escaping (Bool) -> ()
     ) {
+        if isAgentChat {
+            handleAgentMessage(text: text, completion: completion)
+            return
+        }
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
         

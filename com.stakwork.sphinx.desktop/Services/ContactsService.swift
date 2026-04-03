@@ -399,7 +399,11 @@ extension ContactsService : @preconcurrency NSFetchedResultsControllerDelegate {
         let orderedObjects = objects.sorted(by: {
             let contact1 = $0 as ChatListCommonObject
             let contact2 = $1 as ChatListCommonObject
-            
+
+            let isAgent1 = ($0.getContact()?.isAgent == true)
+            let isAgent2 = ($1.getContact()?.isAgent == true)
+            if isAgent1 != isAgent2 { return isAgent1 }
+
             if contact1.getInvite() != nil || contact2.getInvite() != nil {
                 return contact1.getInvite() != nil && $1.getInvite() == nil
             }

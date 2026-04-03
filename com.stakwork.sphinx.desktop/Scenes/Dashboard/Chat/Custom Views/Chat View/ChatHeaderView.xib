@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="ChatHeaderView" customModule="Sphinx" customModuleProvider="target">
             <connections>
+                <outlet property="agentIcon" destination="Ag3-Nt-cpu" id="Ag3-o-cpu"/>
                 <outlet property="boltSign" destination="JNa-8X-CaO" id="l6X-eS-s81"/>
                 <outlet property="callButton" destination="VaF-EB-L4n" id="fCY-iw-A5A"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="S8o-19-C94"/>
@@ -116,7 +117,7 @@
                                     <rect key="frame" x="16" y="11" width="372" height="39"/>
                                     <subviews>
                                         <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="2" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kct-k1-Eby">
-                                            <rect key="frame" x="0.0" y="19" width="338" height="20"/>
+                                            <rect key="frame" x="0.0" y="19" width="356" height="20"/>
                                             <subviews>
                                                 <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="uGI-oR-OOS">
                                                     <rect key="frame" x="-2" y="0.0" width="308" height="20"/>
@@ -134,8 +135,16 @@
                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
+                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ag3-Nt-cpu">
+                                                    <rect key="frame" x="323" y="-3" width="16" height="26"/>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="cpu" catalog="system" id="Ag3-c-cpu"/>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <symbolConfiguration key="symbolConfiguration" scale="medium">
+                                                        <nil key="locale"/>
+                                                    </symbolConfiguration>
+                                                </imageView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JNa-8X-CaO">
-                                                    <rect key="frame" x="321" y="2" width="19" height="15"/>
+                                                    <rect key="frame" x="339" y="2" width="19" height="15"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="flash_on" id="9h4-lv-oIq">
                                                         <font key="font" size="15" name="MaterialIcons-Regular"/>
                                                         <color key="textColor" name="SecondaryText"/>
@@ -167,6 +176,7 @@
                                                 </button>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="Ag3-Nt-cpu" firstAttribute="centerY" secondItem="T82-4F-A3v" secondAttribute="centerY" id="Ag3-cy-cpu"/>
                                                 <constraint firstItem="JNa-8X-CaO" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="NKc-wD-7gD"/>
                                                 <constraint firstItem="T82-4F-A3v" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="WrZ-66-YpM"/>
                                                 <constraint firstItem="Lo8-qs-GkY" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="tbo-dR-mRL"/>
@@ -177,8 +187,10 @@
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
                                                 <integer value="1000"/>
+                                                <integer value="1000"/>
                                             </visibilityPriorities>
                                             <customSpacing>
+                                                <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
                                                 <real value="3.4028234663852886e+38"/>
@@ -251,7 +263,7 @@
                                     </customSpacing>
                                 </stackView>
                                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TUM-g0-3nc" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="354" height="60"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="370" height="60"/>
                                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="center" transparent="YES" imageScaling="proportionallyDown" inset="2" id="oku-zd-bBE">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                         <font key="font" metaFont="system"/>
@@ -265,9 +277,9 @@
                                 </button>
                             </subviews>
                             <constraints>
+                                <constraint firstItem="TUM-g0-3nc" firstAttribute="trailing" secondItem="uGI-oR-OOS" secondAttribute="trailing" constant="50" id="Rzx-PN-2Gi"/>
                                 <constraint firstItem="v9P-BL-ytY" firstAttribute="centerY" secondItem="DVp-3x-Zd0" secondAttribute="centerY" id="WW6-qC-Jt0"/>
                                 <constraint firstItem="v9P-BL-ytY" firstAttribute="leading" secondItem="DVp-3x-Zd0" secondAttribute="leading" constant="16" id="Wsy-RE-Bvj"/>
-                                <constraint firstItem="TUM-g0-3nc" firstAttribute="trailing" secondItem="JNa-8X-CaO" secondAttribute="trailing" id="XJC-mm-no2"/>
                                 <constraint firstItem="TUM-g0-3nc" firstAttribute="top" secondItem="DVp-3x-Zd0" secondAttribute="top" id="cBs-qL-kNQ"/>
                                 <constraint firstItem="TUM-g0-3nc" firstAttribute="leading" secondItem="DVp-3x-Zd0" secondAttribute="leading" id="lHW-z4-5Ce"/>
                             </constraints>
@@ -421,6 +433,7 @@
         </customView>
     </objects>
     <resources>
+        <image name="cpu" catalog="system" width="16" height="15"/>
         <image name="muteOffIcon" width="18" height="18"/>
         <image name="refreshIcon" width="32" height="32"/>
         <image name="secondBrainIcon" width="23" height="20"/>
