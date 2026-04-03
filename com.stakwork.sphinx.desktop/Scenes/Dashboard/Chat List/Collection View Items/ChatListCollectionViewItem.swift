@@ -120,7 +120,15 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             
             nameLabel.stringValue = chatListObject.getName()
             muteImageView.isHidden = (chatListObject.getChat()?.isMuted() ?? false) == false
-            lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+
+            let isAgent = chatListObject.getContact()?.isAgent == true
+            if isAgent {
+                lockSignLabel.isHidden = true
+                renderAgentCpuIcon()
+            } else {
+                lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+                removeCpuIconIfNeeded()
+            }
         }
         
         renderLastMessage(
@@ -436,6 +444,37 @@ extension ChatListCollectionViewItem {
     
     override func rightMouseDown(with event: NSEvent) {
         delegate?.didRightClickOn(item: self)
+    }
+}
+
+// MARK: - Agent Icon
+extension ChatListCollectionViewItem {
+    private static let cpuIconTag = 9902
+
+    func renderAgentCpuIcon() {
+        guard lockSignLabel.superview?.viewWithTag(ChatListCollectionViewItem.cpuIconTag) == nil else {
+            lockSignLabel.superview?.viewWithTag(ChatListCollectionViewItem.cpuIconTag)?.isHidden = false
+            return
+        }
+        guard let cpuImage = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil),
+              let superview = lockSignLabel.superview else { return }
+
+        let imageView = NSImageView(frame: NSRect(x: 0, y: 0, width: 12, height: 12))
+        imageView.image = cpuImage
+        imageView.contentTintColor = NSColor.Sphinx.PrimaryGreen
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tag = ChatListCollectionViewItem.cpuIconTag
+        superview.addSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.centerYAnchor.constraint(equalTo: lockSignLabel.centerYAnchor),
+            imageView.leadingAnchor.constraint(equalTo: lockSignLabel.leadingAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 12),
+            imageView.heightAnchor.constraint(equalToConstant: 12)
+        ])
+    }
+
+    func removeCpuIconIfNeeded() {
+        lockSignLabel.superview?.viewWithTag(ChatListCollectionViewItem.cpuIconTag)?.isHidden = true
     }
 }
 

@@ -154,6 +154,44 @@ class ChatHeaderView: NSView, LoadableNib {
         configureImageOrInitials()
         configureContributionsAndPrices()
         configureTimezoneInfo()
+
+        if contact?.isAgent == true {
+            configureForAgentChat()
+        }
+    }
+
+    func configureForAgentChat() {
+        // Hide call, volume, threads, webApp, secondBrain, options; keep only search
+        callButton.isHidden = true
+        volumeButton.isHidden = true
+        threadsButton.isHidden = true
+        webAppButton.isHidden = true
+        secondBrainButton.isHidden = true
+        optionsButton.isHidden = true
+        searchButton.isHidden = false
+
+        // Replace lock icon with cpu SF Symbol
+        lockSign.isHidden = true
+        if let cpuImage = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil) {
+            boltSign.isHidden = true
+            // Use the scheduleIcon slot isn't ideal; add a dedicated imageView approach via subview
+            let cpuImageView = NSImageView(frame: NSRect(x: 0, y: 0, width: 14, height: 14))
+            cpuImageView.image = cpuImage
+            cpuImageView.contentTintColor = NSColor.Sphinx.PrimaryGreen
+            cpuImageView.translatesAutoresizingMaskIntoConstraints = false
+            cpuImageView.tag = 9901
+            // Only add once
+            if lockSign.superview?.viewWithTag(9901) == nil {
+                lockSign.superview?.addSubview(cpuImageView)
+                NSLayoutConstraint.activate([
+                    cpuImageView.centerYAnchor.constraint(equalTo: lockSign.centerYAnchor),
+                    cpuImageView.leadingAnchor.constraint(equalTo: lockSign.leadingAnchor),
+                    cpuImageView.widthAnchor.constraint(equalToConstant: 14),
+                    cpuImageView.heightAnchor.constraint(equalToConstant: 14)
+                ])
+            }
+            cpuImageView.isHidden = false
+        }
     }
     
     func configureTimezoneInfo() {
@@ -348,6 +386,11 @@ class ChatHeaderView: NSView, LoadableNib {
         }
         
         if isDisable {
+            return
+        }
+
+        if contact?.isAgent == true {
+            configureForAgentChat()
             return
         }
         

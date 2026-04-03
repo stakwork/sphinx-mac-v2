@@ -68,14 +68,24 @@ class ContactDetailsViewController: NSCollectionViewItem {
         
         contactName.stringValue = contact.getName()
         contactDate.stringValue = String.init(format: "contact.connected.since".localized, contact.createdAt?.getStringDate(format: "MMMM dd, YYYY") ?? "")
-        publicKeyLabel.stringValue = contact.publicKey ?? ""
-        routeHintLabel.stringValue = contact.routeHint ?? ""
-        
-        if let chat = contact.getChat() {
-            timezoneSharingView.configureViewWith(chat: chat)
-            timezoneSharingView.isHidden = false
-        } else {
+
+        if contact.isAgent {
+            publicKeyLabel.isHidden = true
+            publicKeyButton.isHidden = true
+            routeHintLabel.isHidden = true
             timezoneSharingView.isHidden = true
+            removeContactButtonBack.isHidden = true
+            removeContactButton.isHidden = true
+        } else {
+            publicKeyLabel.stringValue = contact.publicKey ?? ""
+            routeHintLabel.stringValue = contact.routeHint ?? ""
+
+            if let chat = contact.getChat() {
+                timezoneSharingView.configureViewWith(chat: chat)
+                timezoneSharingView.isHidden = false
+            } else {
+                timezoneSharingView.isHidden = true
+            }
         }
     }
     

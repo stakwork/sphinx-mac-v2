@@ -100,6 +100,10 @@ class ChatBottomView: NSView, LoadableNib {
             threadUUID: threadUUID,
             with: delegate
         )
+
+        if contact?.isAgent == true {
+            messageFieldView.configureForAgentChat()
+        }
     }
     
     func updateBottomBarHeight() {

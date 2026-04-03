@@ -93,6 +93,14 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         isThreadOpen = true
         priceContainer.isHidden = true
     }
+
+    func configureForAgentChat() {
+        attachmentsButton.isHidden = true
+        giphyButton.isHidden = true
+        emojiButton.isHidden = true
+        micButton.isHidden = true
+        priceContainer.isHidden = true
+    }
     
     func setupView() {
         setupButtonsCursor()
