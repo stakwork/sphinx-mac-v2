@@ -336,25 +336,17 @@ final class AIAgentManager: @unchecked Sendable {
         let messageText: String
     }
 
-    private struct ReadMessagesInput: Codable, Sendable {
-        let contactName: String
-        let limit: Int?
 
-        enum CodingKeys: String, CodingKey {
-            case contactName = "contact_name"
-            case limit
-        }
-    }
 
-    private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
+    private func buildSendMessageTool() -> TypedTool<SendMessageInput, JSONValue> {
         tool(
             description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
-            execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+            execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 let result = await AIAgentManager.executeSendMessage(
                     contactName: input.contactName,
                     messageText: input.messageText
                 )
-                return .value(result)
+                return .value(.string(result))
             }
         )
     }
@@ -409,7 +401,7 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - Tool: web_search
 
-    private func buildWebSearchTool(apiKey: String) -> TypedTool<JSONValue, String> {
+    private func buildWebSearchTool(apiKey: String) -> TypedTool<JSONValue, JSONValue> {
         let inputSchema = FlexibleSchema<JSONValue>(
             jsonSchema(.object([
                 "type": .string("object"),
@@ -422,13 +414,13 @@ final class AIAgentManager: @unchecked Sendable {
         return tool(
             description: "Search the internet for current events, facts, or any topic. Returns top results with title, snippet, and URL.",
             inputSchema: inputSchema,
-            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard case .object(let dict) = input,
                       case .string(let query) = dict["query"] else {
-                    return .value("Error: missing query parameter.")
+                    return .value(.string("Error: missing query parameter."))
                 }
                 guard let url = URL(string: "https://api.tavily.com/search") else {
-                    return .value("Error: could not construct search URL.")
+                    return .value(.string("Error: could not construct search URL."))
                 }
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
@@ -443,7 +435,7 @@ final class AIAgentManager: @unchecked Sendable {
                     let (data, _) = try await URLSession.shared.data(for: request)
                     guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                           let results = json["results"] as? [[String: Any]] else {
-                        return .value("No results found.")
+                        return .value(.string("No results found."))
                     }
                     let lines: [String] = results.prefix(5).compactMap { result in
                         let title   = result["title"]   as? String ?? "(no title)"
@@ -451,9 +443,9 @@ final class AIAgentManager: @unchecked Sendable {
                         let link    = result["url"]     as? String ?? ""
                         return "Title: \(title) | Snippet: \(snippet) | URL: \(link)"
                     }
-                    return .value(lines.isEmpty ? "No results found." : lines.joined(separator: "\n"))
+                    return .value(.string(lines.isEmpty ? "No results found." : lines.joined(separator: "\n")))
                 } catch {
-                    return .value("Search failed: \(error.localizedDescription)")
+                    return .value(.string("Search failed: \(error.localizedDescription)"))
                 }
             }
         )
@@ -461,12 +453,27 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - Tool: read_recent_messages
 
-    private func buildReadMessagesTool() -> TypedTool<ReadMessagesInput, String> {
-        tool(
+    private func buildReadMessagesTool() -> TypedTool<JSONValue, JSONValue> {
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([
+                    "contact_name": .object(["type": .string("string")]),
+                    "limit": .object(["type": .string("integer")])
+                ]),
+                "required": .array([.string("contact_name")])
+            ]))
+        )
+        return tool(
             description: "Read recent messages from a conversation with a specific Sphinx contact or tribe.",
-            execute: { (input: ReadMessagesInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
-                let contactName = input.contactName
-                let limit = input.limit ?? 20
+            inputSchema: inputSchema,
+            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                guard case .object(let dict) = input,
+                      case .string(let contactName) = dict["contact_name"] else {
+                    return .value(.string("Error: missing contact_name parameter."))
+                }
+                let limit: Int
+                if case .number(let n) = dict["limit"] { limit = Int(n) } else { limit = 20 }
 
                 print("AIAgent read_recent_messages: contactName=\(contactName) limit=\(limit)")
 
@@ -520,7 +527,7 @@ final class AIAgentManager: @unchecked Sendable {
                 }
 
                 print("AIAgent read_recent_messages: returning \(output.count) chars")
-                return .value(output)
+                return .value(.string(output))
             }
         )
     }
