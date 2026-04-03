@@ -174,7 +174,6 @@ class ChatHeaderView: NSView, LoadableNib {
         // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
         lockSign.isHidden = true
         boltSign.isHidden = true
-        agentIcon.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
         agentIcon.isHidden = false
     }
     
