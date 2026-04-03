@@ -206,30 +206,15 @@ final class MarkdownRenderer {
     }
 
     private func renderCodeBlock(_ code: String) -> NSAttributedString {
-        // NSTextField does not render .backgroundColor on attributed text runs in
-        // display mode, so we use Unicode separators + indentation instead.
-        let codeAttrs: [NSAttributedString.Key: Any] = [
+        let attrs: [NSAttributedString.Key: Any] = [
             .font: style.codeFont,
-            .foregroundColor: style.codeForeground
+            .foregroundColor: style.codeForeground,
+            .backgroundColor: style.codeBackground
         ]
-        let separatorAttrs: [NSAttributedString.Key: Any] = [
-            .font: style.codeFont,
-            .foregroundColor: style.quoteBarColor
-        ]
-        let separator = "──────────────────────"
-        let result = NSMutableAttributedString()
-        result.append(NSAttributedString(string: separator, attributes: separatorAttrs))
-        result.append(NSAttributedString(string: "\n", attributes: codeAttrs))
-        let lines = code.components(separatedBy: "\n")
-        for (i, line) in lines.enumerated() {
-            result.append(NSAttributedString(string: "  \(line)", attributes: codeAttrs))
-            if i < lines.count - 1 {
-                result.append(NSAttributedString(string: "\n", attributes: codeAttrs))
-            }
-        }
-        result.append(NSAttributedString(string: "\n", attributes: codeAttrs))
-        result.append(NSAttributedString(string: separator, attributes: separatorAttrs))
-        return result
+        // Pad each line with spaces so background covers the full block width
+        let paddedLines = code.components(separatedBy: "\n").map { "  \($0)  " }
+        let padded = "\n" + paddedLines.joined(separator: "\n") + "\n"
+        return NSAttributedString(string: padded, attributes: attrs)
     }
 
     private func renderBlockquote(_ text: String) -> NSAttributedString {
@@ -352,14 +337,13 @@ final class MarkdownRenderer {
                 continue
             }
             // Inline code: `code`
-            // Note: .backgroundColor is not rendered by NSTextField in display mode,
-            // so we use backtick delimiters + monospace font + secondary color instead.
             if let range = firstRange(in: s, pattern: #"`(.+?)`"#) {
                 appendLiteral(s[s.startIndex..<range.lowerBound], attrs: base, to: result)
                 let inner = String(s[range].dropFirst(1).dropLast(1))
-                result.append(NSAttributedString(string: "`\(inner)`", attributes: [
+                result.append(NSAttributedString(string: " \(inner) ", attributes: [
                     .font: style.codeFont,
-                    .foregroundColor: style.codeForeground
+                    .foregroundColor: style.codeForeground,
+                    .backgroundColor: style.codeBackground
                 ]))
                 s = String(s[range.upperBound...])
                 continue

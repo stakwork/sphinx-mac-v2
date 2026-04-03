@@ -16,7 +16,7 @@ struct DeeplinkData{
 
 class ChatHelper {
     
-    static let markdownRenderer = MarkdownRenderer()
+    nonisolated(unsafe) static let markdownRenderer = MarkdownRenderer()
     
     public static func getSenderColorFor(message: TransactionMessage) -> NSColor {
         var key:String? = nil
