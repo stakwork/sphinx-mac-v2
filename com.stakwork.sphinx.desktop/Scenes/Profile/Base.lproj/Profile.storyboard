@@ -35,6 +35,12 @@
                                     <constraint firstAttribute="height" constant="68" id="aai-kh-001"/>
                                 </constraints>
                             </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-nf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="148" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-nh-001"/>
+                                </constraints>
+                            </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-bt-001" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
                                 <rect key="frame" x="64" y="65" width="272" height="48"/>
                                 <constraints>
@@ -53,6 +59,9 @@
                             <constraint firstItem="aai-kf-001" firstAttribute="top" secondItem="aai-pf-001" secondAttribute="bottom" constant="12" id="aai-c-008"/>
                             <constraint firstItem="aai-kf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-009"/>
                             <constraint firstAttribute="trailing" secondItem="aai-kf-001" secondAttribute="trailing" constant="64" id="aai-c-010"/>
+                            <constraint firstItem="aai-nf-001" firstAttribute="top" secondItem="aai-kf-001" secondAttribute="bottom" constant="12" id="aai-c-014"/>
+                            <constraint firstItem="aai-nf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-015"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-nf-001" secondAttribute="trailing" constant="64" id="aai-c-016"/>
                             <constraint firstItem="aai-bt-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-011"/>
                             <constraint firstAttribute="trailing" secondItem="aai-bt-001" secondAttribute="trailing" constant="64" id="aai-c-012"/>
                             <constraint firstAttribute="bottom" secondItem="aai-bt-001" secondAttribute="bottom" constant="65" id="aai-c-013"/>
@@ -61,6 +70,7 @@
                     <connections>
                         <outlet property="providerFieldView" destination="aai-pf-001" id="aai-o-001"/>
                         <outlet property="apiKeyFieldView" destination="aai-kf-001" id="aai-o-002"/>
+                        <outlet property="agentNameFieldView" destination="aai-nf-001" id="aai-o-004"/>
                         <outlet property="confirmButtonView" destination="aai-bt-001" id="aai-o-003"/>
                     </connections>
                 </viewController>
