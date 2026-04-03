@@ -34,6 +34,9 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             with: replacementString ?? ""
         )
                 
+        if isAgentChat {
+            return true
+        }
         return delegate?.isMessageLengthValid(text: currentChangedString) ?? true
     }
     
