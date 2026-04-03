@@ -22,6 +22,7 @@
                 <outlet property="initialsContainer" destination="4i4-rg-aZX" id="Gbf-ni-kBt"/>
                 <outlet property="initialsLabel" destination="alC-kC-ETc" id="Chb-3Y-Iby"/>
                 <outlet property="lockSign" destination="T82-4F-A3v" id="rdr-J6-a39"/>
+                <outlet property="agentIcon" destination="Ag3-Nt-cpu" id="Ag3-o-cpu"/>
                 <outlet property="nameLabel" destination="uGI-oR-OOS" id="80M-Bb-Zfs"/>
                 <outlet property="optionsButton" destination="Zci-9G-XgN" id="Kkl-TA-zsg"/>
                 <outlet property="profileImageView" destination="cKv-Wh-FUp" id="0ot-4i-RHM"/>
@@ -134,6 +135,15 @@
                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
+                                                <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ag3-Nt-cpu">
+                                                    <rect key="frame" x="304" y="2" width="15" height="15"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="15" id="Ag3-w-cpu"/>
+                                                        <constraint firstAttribute="height" constant="15" id="Ag3-h-cpu"/>
+                                                    </constraints>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="Ag3-c-cpu"/>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                </imageView>
                                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JNa-8X-CaO">
                                                     <rect key="frame" x="321" y="2" width="19" height="15"/>
                                                     <textFieldCell key="cell" lineBreakMode="clipping" title="flash_on" id="9h4-lv-oIq">
@@ -170,6 +180,8 @@
                                                 <constraint firstItem="JNa-8X-CaO" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="NKc-wD-7gD"/>
                                                 <constraint firstItem="T82-4F-A3v" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="WrZ-66-YpM"/>
                                                 <constraint firstItem="Lo8-qs-GkY" firstAttribute="centerY" secondItem="kct-k1-Eby" secondAttribute="centerY" id="tbo-dR-mRL"/>
+                                                <constraint firstItem="Ag3-Nt-cpu" firstAttribute="centerY" secondItem="T82-4F-A3v" secondAttribute="centerY" id="Ag3-cy-cpu"/>
+                                                <constraint firstItem="Ag3-Nt-cpu" firstAttribute="leading" secondItem="T82-4F-A3v" secondAttribute="leading" id="Ag3-lx-cpu"/>
                                             </constraints>
                                             <visibilityPriorities>
                                                 <integer value="1000"/>

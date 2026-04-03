@@ -39,6 +39,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var remoteTimezoneIdentifier: NSTextField!
     @IBOutlet weak var lockSign: NSTextField!
     @IBOutlet weak var boltSign: NSTextField!
+    @IBOutlet weak var agentIcon: NSImageView!
     @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var volumeButton: CustomButton!
     @IBOutlet weak var webAppButton: CustomButton!
@@ -170,28 +171,11 @@ class ChatHeaderView: NSView, LoadableNib {
         optionsButton.isHidden = true
         searchButton.isHidden = false
 
-        // Replace lock icon with cpu SF Symbol
+        // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
         lockSign.isHidden = true
-        if let cpuImage = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil) {
-            boltSign.isHidden = true
-            // Use the scheduleIcon slot isn't ideal; add a dedicated imageView approach via subview
-            let cpuImageView = NSImageView(frame: NSRect(x: 0, y: 0, width: 14, height: 14))
-            cpuImageView.image = cpuImage
-            cpuImageView.contentTintColor = NSColor.Sphinx.PrimaryGreen
-            cpuImageView.translatesAutoresizingMaskIntoConstraints = false
-            cpuImageView.tag = 9901
-            // Only add once
-            if lockSign.superview?.viewWithTag(9901) == nil {
-                lockSign.superview?.addSubview(cpuImageView)
-                NSLayoutConstraint.activate([
-                    cpuImageView.centerYAnchor.constraint(equalTo: lockSign.centerYAnchor),
-                    cpuImageView.leadingAnchor.constraint(equalTo: lockSign.leadingAnchor),
-                    cpuImageView.widthAnchor.constraint(equalToConstant: 14),
-                    cpuImageView.heightAnchor.constraint(equalToConstant: 14)
-                ])
-            }
-            cpuImageView.isHidden = false
-        }
+        boltSign.isHidden = true
+        agentIcon.image = NSImage(systemSymbolName: "cpu", accessibilityDescription: nil)
+        agentIcon.isHidden = false
     }
     
     func configureTimezoneInfo() {
@@ -220,6 +204,7 @@ class ChatHeaderView: NSView, LoadableNib {
     func configureEncryptionSign() {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         lockSign.isHidden = !isEncrypted
+        agentIcon.isHidden = true
         refreshButton.isHidden = true
         
         imageWidthConstraint.constant = isEncrypted ? 46 : 36

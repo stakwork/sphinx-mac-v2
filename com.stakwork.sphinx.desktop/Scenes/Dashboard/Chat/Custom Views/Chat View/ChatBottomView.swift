@@ -101,7 +101,7 @@ class ChatBottomView: NSView, LoadableNib {
             with: delegate
         )
 
-        if contact?.isAgent == true {
+        if contact?.isAgent == true || messageFieldView.isAgentChat {
             messageFieldView.configureForAgentChat()
         }
     }

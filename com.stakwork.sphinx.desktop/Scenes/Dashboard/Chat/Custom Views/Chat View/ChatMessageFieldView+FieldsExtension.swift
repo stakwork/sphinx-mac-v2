@@ -104,10 +104,20 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func togglePriceContainer() {
+        if isAgentChat {
+            priceContainer.isHidden = true
+            return
+        }
         priceContainer.isHidden = isThread || attachments.count > 1 || (attachments.isEmpty && messageTextView.string.isEmpty)
     }
     
     func toggleSendMicButton() {
+        if isAgentChat {
+            let hasText = !messageTextView.string.isEmpty
+            sendButton.isHidden = !hasText
+            micButton.isHidden = true
+            return
+        }
         sendButton.isHidden = messageTextView.string.isEmpty && priceTextField.stringValue.isEmpty && !isAttachmentAdded
         micButton.isHidden = !sendButton.isHidden
     }

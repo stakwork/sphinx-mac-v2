@@ -109,6 +109,15 @@
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ag4-Nt-cpu">
+                                            <rect key="frame" x="141" y="4" width="13" height="13"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="13" id="Ag4-w-cpu"/>
+                                                <constraint firstAttribute="height" constant="13" id="Ag4-h-cpu"/>
+                                            </constraints>
+                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="Ag4-c-cpu"/>
+                                            <color key="contentTintColor" name="PlaceholderText"/>
+                                        </imageView>
                                         <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="69t-GJ-bIF">
                                             <rect key="frame" x="-2" y="4" width="19" height="15"/>
                                             <textFieldCell key="cell" lineBreakMode="clipping" title="schedule" id="1up-th-h8P">
@@ -122,6 +131,8 @@
                                         <constraint firstItem="3Zj-Kl-BUt" firstAttribute="centerY" secondItem="DGs-Cx-Khc" secondAttribute="centerY" id="6dJ-bm-tvL"/>
                                         <constraint firstItem="69t-GJ-bIF" firstAttribute="centerY" secondItem="3Zj-Kl-BUt" secondAttribute="centerY" id="C0E-fE-IAs"/>
                                         <constraint firstItem="DGs-Cx-Khc" firstAttribute="centerY" secondItem="tfQ-XL-WAx" secondAttribute="centerY" id="xxw-9e-Ygv"/>
+                                        <constraint firstItem="Ag4-Nt-cpu" firstAttribute="centerY" secondItem="3Zj-Kl-BUt" secondAttribute="centerY" id="Ag4-cy-cpu"/>
+                                        <constraint firstItem="Ag4-Nt-cpu" firstAttribute="leading" secondItem="3Zj-Kl-BUt" secondAttribute="leading" id="Ag4-lx-cpu"/>
                                     </constraints>
                                     <visibilityPriorities>
                                         <integer value="1000"/>
@@ -408,6 +419,7 @@
                 <outlet property="invitePriceContainer" destination="kk4-Xz-eHc" id="gzA-Zv-Qmo"/>
                 <outlet property="invitePriceLabel" destination="g4O-72-cVb" id="P6P-U8-5Hs"/>
                 <outlet property="lockSignLabel" destination="3Zj-Kl-BUt" id="AW2-BU-l8E"/>
+                <outlet property="agentIconView" destination="Ag4-Nt-cpu" id="Ag4-o-cpu"/>
                 <outlet property="mentionsBadgeContainer" destination="AiS-Wu-Ekf" id="wBo-xl-93G"/>
                 <outlet property="mentionsBadgeLabel" destination="3i2-x4-KyF" id="dHF-9s-Uxw"/>
                 <outlet property="messageLabel" destination="lXx-aV-dLV" id="9iq-fb-1kt"/>

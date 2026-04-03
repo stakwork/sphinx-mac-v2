@@ -60,6 +60,7 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     var threadUUID: String? = nil
     
     var isThreadOpen: Bool = false
+    var isAgentChat: Bool = false
     
     var isThread: Bool {
         get {
@@ -95,11 +96,15 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     }
 
     func configureForAgentChat() {
-        attachmentsButton.isHidden = true
+        isAgentChat = true
+        attachmentsButton.isEnabled = false
+        attachmentsButton.alphaValue = 0.3
         giphyButton.isHidden = true
         emojiButton.isHidden = true
-        micButton.isHidden = true
         priceContainer.isHidden = true
+        // Hide both mic and send — they're shown/hidden via toggleSendMicButton
+        micButton.isHidden = true
+        sendButton.isHidden = true
     }
     
     func setupView() {
