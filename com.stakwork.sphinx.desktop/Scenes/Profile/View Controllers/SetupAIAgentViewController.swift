@@ -146,6 +146,11 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
         userData.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
 
         AIAgentManager.sharedInstance.reconfigure()
+
+        Task { @MainActor in
+            AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
+        }
+
         WindowsManager.sharedInstance.backToProfile()
     }
 }
