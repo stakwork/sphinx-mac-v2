@@ -76,7 +76,6 @@ struct RoomView: View {
         var style = MarkdownStyle()
         style.textColor = .white
         style.secondaryColor = NSColor.white.withAlphaComponent(0.7)
-        style.baseFontSize = 15
         return MarkdownRenderer(style: style)
     }()
 
@@ -341,7 +340,7 @@ struct RoomView: View {
                     Text(message.senderName ?? "Unknown")
                         .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
                         .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
-                    MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                    MarkdownTextView(attributedString: (try? AttributedString(RoomView.markdownRenderer.render(message.text), including: \.appKit)) ?? AttributedString(message.text))
                         .foregroundColor(.white)
                         .padding(8)
                         .background(Color(NSColor.Sphinx.SecondaryText))
@@ -349,7 +348,7 @@ struct RoomView: View {
                 }
                 Spacer()
             } else {
-                MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                MarkdownTextView(attributedString: (try? AttributedString(RoomView.markdownRenderer.render(message.text), including: \.appKit)) ?? AttributedString(message.text))
                     .foregroundColor(.white)
                     .padding(8)
                     .background(Color(NSColor.Sphinx.PrimaryGreen))
