@@ -336,6 +336,16 @@ final class AIAgentManager: @unchecked Sendable {
         let messageText: String
     }
 
+    private struct ReadMessagesInput: Codable, Sendable {
+        let contactName: String
+        let limit: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case contactName = "contact_name"
+            case limit
+        }
+    }
+
     private func buildSendMessageTool() -> TypedTool<SendMessageInput, String> {
         tool(
             description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
@@ -451,39 +461,12 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - Tool: read_recent_messages
 
-    private func buildReadMessagesTool() -> TypedTool<JSONValue, String> {
-        // Use JSONValue as the input type so the SDK's decodeTypedInput short-circuits
-        // (it returns the raw JSONValue without any JSONDecoder involvement), avoiding
-        // camelCase/snake_case mismatches that can cause DecodingError.
-        let inputSchema = FlexibleSchema<JSONValue>(
-            jsonSchema(.object([
-                "type": .string("object"),
-                "properties": .object([
-                    "contact_name": .object(["type": .string("string")]),
-                    "limit": .object(["type": .string("integer")])
-                ]),
-                "required": .array([.string("contact_name")])
-            ]))
-        )
-
-        return tool(
+    private func buildReadMessagesTool() -> TypedTool<ReadMessagesInput, String> {
+        tool(
             description: "Read recent messages from a conversation with a specific Sphinx contact or tribe.",
-            inputSchema: inputSchema,
-            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
-                // Manually extract fields – accept both snake_case and camelCase keys.
-                guard case .object(let dict) = input else {
-                    print("AIAgent read_recent_messages: unexpected input format: \(input)")
-                    return .value("Error: unexpected input format.")
-                }
-
-                let nameValue = dict["contact_name"] ?? dict["contactName"]
-                guard case .string(let contactName) = nameValue else {
-                    print("AIAgent read_recent_messages: missing contact_name in \(dict.keys)")
-                    return .value("Error: missing contact_name parameter.")
-                }
-
-                let limit: Int
-                if case .number(let n) = dict["limit"] { limit = Int(n) } else { limit = 20 }
+            execute: { (input: ReadMessagesInput, _: ToolCallOptions) async throws -> ToolExecutionResult<String> in
+                let contactName = input.contactName
+                let limit = input.limit ?? 20
 
                 print("AIAgent read_recent_messages: contactName=\(contactName) limit=\(limit)")
 

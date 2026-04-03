@@ -14,7 +14,7 @@ extension NewChatViewController {
         let outgoing = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         outgoing.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
         outgoing.type = TransactionMessage.TransactionMessageType.message.rawValue
-        outgoing.status = TransactionMessage.TransactionMessageStatus.confirmed.rawValue
+        outgoing.status = TransactionMessage.TransactionMessageStatus.received.rawValue
         outgoing.senderId = owner.id
         outgoing.receiverId = AIAgentManager.agentLocalId
         outgoing.messageContent = text
