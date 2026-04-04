@@ -530,18 +530,21 @@ final class AIAgentManager: @unchecked Sendable {
                     guard !messages.isEmpty else {
                         return "No unseen messages in '\(input.contactName)'."
                     }
-                    let owner = UserContact.getOwner()
+                    guard let owner = UserContact.getOwner() else {
+                        return "Could not determine owner."
+                    }
+                    let contact = chat.getContact()
                     let isoFormatter = ISO8601DateFormatter()
-                    let lines: [String] = messages.compactMap { msg in
-                        let content = msg.messageContent ?? ""
-                        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
-                        let isMe = owner.map { msg.senderId == $0.id } ?? false
+                    let lines: [String] = messages.map { msg in
+                        let content = msg.getMessageContentPreview(
+                            owner: owner,
+                            contact: contact,
+                            includeSender: false
+                        )
+                        let isMe = msg.senderId == owner.id
                         let sender = isMe ? "Me" : (msg.senderAlias ?? input.contactName)
                         let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
                         return "[\(sender)] \(dateStr): \(content)"
-                    }
-                    guard !lines.isEmpty else {
-                        return "Found \(messages.count) unseen messages in '\(input.contactName)' but none contained readable text."
                     }
                     return "Unseen messages in '\(input.contactName)' (oldest first):\n" + lines.joined(separator: "\n")
                 }
