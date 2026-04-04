@@ -8,6 +8,7 @@ struct MarkdownStyle {
     var codeBackground: NSColor  = NSColor(red: 0, green: 0, blue: 0, alpha: 0.25)
     var codeForeground: NSColor  = NSColor.Sphinx.Text.withAlphaComponent(0.75)
     var linkColor: NSColor       = .Sphinx.PrimaryBlue
+    var mentionColor: NSColor    = .Sphinx.PrimaryBlue
     var quoteColor: NSColor      = .Sphinx.SecondaryText
     var quoteBarColor: NSColor   = .Sphinx.LightDivider
 
@@ -365,6 +366,17 @@ final class MarkdownRenderer {
                     if let url = URL(string: urlStr) { linkAttrs[.link] = url }
                     result.append(NSAttributedString(string: linkText, attributes: linkAttrs))
                 }
+                s = String(s[range.upperBound...])
+                continue
+            }
+            // Mention: @alias
+            if let range = firstRange(in: s, pattern: #"\B@[^\s]+"#) {
+                appendLiteral(s[s.startIndex..<range.lowerBound], attrs: base, to: result)
+                let mention = String(s[range])
+                result.append(NSAttributedString(string: mention, attributes: [
+                    .font: font,
+                    .foregroundColor: style.mentionColor
+                ]))
                 s = String(s[range.upperBound...])
                 continue
             }
