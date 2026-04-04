@@ -529,7 +529,8 @@ extension NewChatListViewController: ChatListCollectionViewItemDelegate {
                     return
                 }
                 
-                let success = SphinxOnionManager.sharedInstance.setReadLevel(
+                let isAgentChat = chat.getConversationContact()?.isAgent == true
+                let success = isAgentChat || SphinxOnionManager.sharedInstance.setReadLevel(
                     index: UInt64(previousMsg.id),
                     chat: chat,
                     recipContact: chat.getContact()

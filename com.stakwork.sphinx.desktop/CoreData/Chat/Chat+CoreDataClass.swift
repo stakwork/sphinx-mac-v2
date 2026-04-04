@@ -638,6 +638,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
                 if let index = readLevelIndex {
                     DispatchQueue.main.async {
                         if let currentChat = Chat.getChatWith(id: chatId) {
+                            guard currentChat.getConversationContact()?.isAgent != true else { return }
                             let _ = SphinxOnionManager.sharedInstance.setReadLevel(
                                 index: index,
                                 chat: currentChat,
