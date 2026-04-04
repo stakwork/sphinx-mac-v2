@@ -92,6 +92,7 @@ final class AIAgentManager: @unchecked Sendable {
     - Tool results starting with "Chat with" and ending with "marked as seen" mean the operation succeeded.
     - Tool results starting with "Connection request sent" mean the friend request is queued — report success.
     - Tool results starting with "Tribe '" and containing "created successfully" mean the tribe was created.
+    - Tool results starting with "Multiple matches found:" mean the name was ambiguous — list the options and ask the user which one they meant before retrying the tool with the exact name.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -364,6 +365,176 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - Tool: send_sphinx_message
 
+    // MARK: - Name Resolution
+
+    private enum NameResolutionResult {
+        case exactContact(UserContact)
+        case exactTribe(Chat)
+        case ambiguous([String])  // e.g. ["Contact: Alexander", "Tribe: Alex's Node"]
+        case noMatch
+    }
+
+    /// Normalise a name: trim, replace underscores with spaces, collapse whitespace, lowercase.
+    private static func normalizeName(_ name: String) -> String {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let underscoresAsSpaces = trimmed.replacingOccurrences(of: "_", with: " ")
+        let components = underscoresAsSpaces.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+        return components.joined(separator: " ").lowercased()
+    }
+
+    /// Remove all spaces — used for "tomtest2" ↔ "Tom Test 2" comparison.
+    private static func stripSpaces(_ name: String) -> String {
+        return name.replacingOccurrences(of: " ", with: "")
+    }
+
+    /// Levenshtein edit distance between two strings.
+    private static func levenshteinDistance(_ a: String, _ b: String) -> Int {
+        let aChars = Array(a), bChars = Array(b)
+        let m = aChars.count, n = bChars.count
+        if m == 0 { return n }
+        if n == 0 { return m }
+        var prev = Array(0...n)
+        var curr = [Int](repeating: 0, count: n + 1)
+        for i in 1...m {
+            curr[0] = i
+            for j in 1...n {
+                curr[j] = aChars[i-1] == bChars[j-1]
+                    ? prev[j-1]
+                    : 1 + min(prev[j-1], prev[j], curr[j-1])
+            }
+            prev = curr
+        }
+        return prev[n]
+    }
+
+    @MainActor
+    private static func resolveContactOrTribe(query: String) -> NameResolutionResult {
+        let normalizedQuery = normalizeName(query)
+        let strippedQuery   = stripSpaces(normalizedQuery)
+
+        let contacts = UserContact.getAll().filter { !$0.isOwner && !$0.isAgent }
+        let tribes   = Chat.getAllTribes()
+
+        // Helper closures
+        let normContact: (UserContact) -> String = { normalizeName($0.nickname ?? "") }
+        let normTribe:   (Chat)        -> String = { normalizeName($0.name    ?? "") }
+
+        // Pass 1 — exact normalised match (handles underscore↔space equivalence)
+        for contact in contacts where normContact(contact) == normalizedQuery {
+            return .exactContact(contact)
+        }
+        for tribe in tribes where normTribe(tribe) == normalizedQuery {
+            return .exactTribe(tribe)
+        }
+
+        // Pass 2 — space-stripped exact match (handles "tomtest2" ↔ "Tom Test 2")
+        if !strippedQuery.isEmpty {
+            for contact in contacts where stripSpaces(normContact(contact)) == strippedQuery {
+                return .exactContact(contact)
+            }
+            for tribe in tribes where stripSpaces(normTribe(tribe)) == strippedQuery {
+                return .exactTribe(tribe)
+            }
+        }
+
+        // Pass 3 — partial / contains match
+        var candidates: [(label: String, contact: UserContact?, tribe: Chat?)] = []
+        for contact in contacts {
+            let n = normContact(contact)
+            if n.contains(normalizedQuery) || stripSpaces(n).contains(strippedQuery) {
+                candidates.append((label: "Contact: \(contact.nickname ?? "")", contact: contact, tribe: nil))
+            }
+        }
+        for tribe in tribes {
+            let n = normTribe(tribe)
+            if n.contains(normalizedQuery) || stripSpaces(n).contains(strippedQuery) {
+                candidates.append((label: "Tribe: \(tribe.name ?? "")", contact: nil, tribe: tribe))
+            }
+        }
+
+        if !candidates.isEmpty {
+            return candidates.count == 1
+                ? (candidates[0].contact.map { .exactContact($0) } ?? candidates[0].tribe.map { .exactTribe($0) } ?? .noMatch)
+                : .ambiguous(candidates.map { $0.label })
+        }
+
+        // Pass 4 — fuzzy (Levenshtein) match; threshold scales with query length
+        let threshold = max(1, normalizedQuery.count / 4)
+        var fuzzyCandidates: [(label: String, contact: UserContact?, tribe: Chat?, dist: Int)] = []
+        for contact in contacts {
+            let d = levenshteinDistance(normContact(contact), normalizedQuery)
+            if d <= threshold {
+                fuzzyCandidates.append((label: "Contact: \(contact.nickname ?? "")", contact: contact, tribe: nil, dist: d))
+            }
+        }
+        for tribe in tribes {
+            let d = levenshteinDistance(normTribe(tribe), normalizedQuery)
+            if d <= threshold {
+                fuzzyCandidates.append((label: "Tribe: \(tribe.name ?? "")", contact: nil, tribe: tribe, dist: d))
+            }
+        }
+
+        // Sort by edit distance so the closest match wins on single-result
+        fuzzyCandidates.sort { $0.dist < $1.dist }
+
+        switch fuzzyCandidates.count {
+        case 0:
+            return .noMatch
+        case 1:
+            if let contact = fuzzyCandidates[0].contact { return .exactContact(contact) }
+            if let tribe   = fuzzyCandidates[0].tribe   { return .exactTribe(tribe) }
+            return .noMatch
+        default:
+            // If the closest match is clearly better (distance gap ≥ 2), pick it
+            if fuzzyCandidates[0].dist + 2 <= fuzzyCandidates[1].dist {
+                if let contact = fuzzyCandidates[0].contact { return .exactContact(contact) }
+                if let tribe   = fuzzyCandidates[0].tribe   { return .exactTribe(tribe) }
+            }
+            return .ambiguous(fuzzyCandidates.map { $0.label })
+        }
+    }
+
+    @MainActor
+    private static func recentMessagesOutput(chat: Chat, chatName: String, limit: Int) -> String {
+        let messages = TransactionMessage.getAllMessagesFor(chat: chat, limit: limit)
+        guard !messages.isEmpty else { return "No messages found in '\(chatName)'." }
+        guard let owner = UserContact.getOwner() else { return "Could not determine owner." }
+        let contact = chat.getContact()
+        let isoFormatter = ISO8601DateFormatter()
+        let lines: [String] = messages.map { msg in
+            let content = msg.getMessageContentPreview(owner: owner, contact: contact, includeSender: false)
+            let isMe = msg.senderId == owner.id
+            let sender = isMe ? "Me" : (msg.senderAlias ?? chatName)
+            let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
+            return "[\(sender)] \(dateStr): \(content)"
+        }
+        return "Messages in '\(chatName)' (most recent last):\n" + lines.joined(separator: "\n")
+    }
+
+    @MainActor
+    private static func unseenMessagesOutput(chat: Chat, chatName: String) -> String {
+        let context = CoreDataManager.sharedManager.getBackgroundContext()
+        let messages = chat.getReceivedUnseenMessages(context: context)
+        guard !messages.isEmpty else {
+            return "No unseen messages in '\(chatName)'."
+        }
+        guard let owner = UserContact.getOwner() else {
+            return "Could not determine owner."
+        }
+        let contact = chat.getContact()
+        let isoFormatter = ISO8601DateFormatter()
+        let lines: [String] = messages.map { msg in
+            let content = msg.getMessageContentPreview(owner: owner, contact: contact, includeSender: false)
+            let isMe = msg.senderId == owner.id
+            let sender = isMe ? "Me" : (msg.senderAlias ?? chatName)
+            let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
+            return "[\(sender)] \(dateStr): \(content)"
+        }
+        return "Unseen messages in '\(chatName)' (oldest first):\n" + lines.joined(separator: "\n")
+    }
+
+    // MARK: - Input structs
+
     private struct SendMessageInput: Codable, Sendable {
         let contactName: String
         let messageText: String
@@ -407,13 +578,9 @@ final class AIAgentManager: @unchecked Sendable {
     }
 
     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
-        // All Core Data access and the actual send must happen on the main thread.
         return await MainActor.run {
-            // 1. Try contact match
-            let contacts = UserContact.getAll()
-            if let contact = contacts.first(where: {
-                ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
-            }) {
+            switch resolveContactOrTribe(query: contactName) {
+            case .exactContact(let contact):
                 guard let chat = contact.getConversation() else {
                     return "Send failed: chat not found for contact '\(contactName)'."
                 }
@@ -425,17 +592,10 @@ final class AIAgentManager: @unchecked Sendable {
                     threadUUID: nil,
                     replyUUID: nil
                 )
-                if let error = error {
-                    return "Send failed: \(error)"
-                }
+                if let error = error { return "Send failed: \(error)" }
                 return "Message sent successfully to \(contact.nickname ?? contactName)."
-            }
 
-            // 2. Try tribe match
-            let tribes = Chat.getAllTribes()
-            if let tribe = tribes.first(where: {
-                ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
-            }) {
+            case .exactTribe(let tribe):
                 let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                     to: nil,
                     content: messageText,
@@ -444,13 +604,15 @@ final class AIAgentManager: @unchecked Sendable {
                     threadUUID: nil,
                     replyUUID: nil
                 )
-                if let error = error {
-                    return "Send failed: \(error)"
-                }
+                if let error = error { return "Send failed: \(error)" }
                 return "Message sent successfully to tribe '\(tribe.name ?? contactName)'."
-            }
 
-            return "No contact or tribe found with name '\(contactName)'."
+            case .ambiguous(let candidates):
+                return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+
+            case .noMatch:
+                return "No contact or tribe found with name '\(contactName)'."
+            }
         }
     }
 
@@ -513,40 +675,20 @@ final class AIAgentManager: @unchecked Sendable {
             description: "Read only unread (unseen) messages from a conversation with a specific Sphinx contact or tribe.",
             execute: { (input: ReadUnseenInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 let output: String = await MainActor.run {
-                    let contacts = UserContact.getAll()
-                    var resolvedChat: Chat? = contacts.first(where: {
-                        ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
-                    })?.getConversation()
-                    if resolvedChat == nil {
-                        resolvedChat = Chat.getAllTribes().first(where: {
-                            ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
-                        })
-                    }
-                    guard let chat = resolvedChat else {
+                    switch AIAgentManager.resolveContactOrTribe(query: input.contactName) {
+                    case .ambiguous(let candidates):
+                        return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+                    case .noMatch:
                         return "No contact or tribe found with name '\(input.contactName)'."
+                    case .exactContact(let contact):
+                        let resolvedChat = contact.getConversation()
+                        guard let chat = resolvedChat else {
+                            return "No contact or tribe found with name '\(input.contactName)'."
+                        }
+                        return AIAgentManager.unseenMessagesOutput(chat: chat, chatName: input.contactName)
+                    case .exactTribe(let tribe):
+                        return AIAgentManager.unseenMessagesOutput(chat: tribe, chatName: input.contactName)
                     }
-                    let context = CoreDataManager.sharedManager.getBackgroundContext()
-                    let messages = chat.getReceivedUnseenMessages(context: context)
-                    guard !messages.isEmpty else {
-                        return "No unseen messages in '\(input.contactName)'."
-                    }
-                    guard let owner = UserContact.getOwner() else {
-                        return "Could not determine owner."
-                    }
-                    let contact = chat.getContact()
-                    let isoFormatter = ISO8601DateFormatter()
-                    let lines: [String] = messages.map { msg in
-                        let content = msg.getMessageContentPreview(
-                            owner: owner,
-                            contact: contact,
-                            includeSender: false
-                        )
-                        let isMe = msg.senderId == owner.id
-                        let sender = isMe ? "Me" : (msg.senderAlias ?? input.contactName)
-                        let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
-                        return "[\(sender)] \(dateStr): \(content)"
-                    }
-                    return "Unseen messages in '\(input.contactName)' (oldest first):\n" + lines.joined(separator: "\n")
                 }
                 return .value(.string(output))
             }
@@ -676,20 +818,21 @@ final class AIAgentManager: @unchecked Sendable {
             description: "Mark all messages in a chat with a contact or tribe as read (seen = true). Useful for clearing unread counts.",
             execute: { (input: MarkSeenInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 let output: String = await MainActor.run {
-                    let contacts = UserContact.getAll()
-                    var resolvedChat: Chat? = contacts.first(where: {
-                        ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
-                    })?.getConversation()
-                    if resolvedChat == nil {
-                        resolvedChat = Chat.getAllTribes().first(where: {
-                            ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
-                        })
-                    }
-                    guard let chat = resolvedChat else {
+                    switch AIAgentManager.resolveContactOrTribe(query: input.contactName) {
+                    case .ambiguous(let candidates):
+                        return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+                    case .noMatch:
                         return "No contact or tribe found with name '\(input.contactName)'."
+                    case .exactContact(let contact):
+                        guard let chat = contact.getConversation() else {
+                            return "No contact or tribe found with name '\(input.contactName)'."
+                        }
+                        chat.setChatMessagesAsSeen(forceSeen: true)
+                        return "Chat with '\(input.contactName)' marked as seen."
+                    case .exactTribe(let tribe):
+                        tribe.setChatMessagesAsSeen(forceSeen: true)
+                        return "Chat with '\(input.contactName)' marked as seen."
                     }
-                    chat.setChatMessagesAsSeen(forceSeen: true)
-                    return "Chat with '\(input.contactName)' marked as seen."
                 }
                 return .value(.string(output))
             }
@@ -773,51 +916,19 @@ final class AIAgentManager: @unchecked Sendable {
                 print("AIAgent read_recent_messages: contactName=\(contactName) limit=\(limit)")
 
                 let output: String = await MainActor.run {
-                    // 1. Try contact
-                    let contacts = UserContact.getAll()
-                    var resolvedChat: Chat? = contacts.first(where: {
-                        ($0.nickname ?? "").caseInsensitiveCompare(contactName) == .orderedSame
-                    })?.getConversation()
-
-                    // 2. Fall back to tribe
-                    if resolvedChat == nil {
-                        resolvedChat = Chat.getAllTribes().first(where: {
-                            ($0.name ?? "").caseInsensitiveCompare(contactName) == .orderedSame
-                        })
-                    }
-
-                    guard let chat = resolvedChat else {
+                    switch AIAgentManager.resolveContactOrTribe(query: contactName) {
+                    case .ambiguous(let candidates):
+                        return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+                    case .noMatch:
                         return "No contact or tribe found with name '\(contactName)'."
+                    case .exactContact(let contact):
+                        guard let chat = contact.getConversation() else {
+                            return "No contact or tribe found with name '\(contactName)'."
+                        }
+                        return AIAgentManager.recentMessagesOutput(chat: chat, chatName: contactName, limit: limit)
+                    case .exactTribe(let tribe):
+                        return AIAgentManager.recentMessagesOutput(chat: tribe, chatName: contactName, limit: limit)
                     }
-
-                    let messages = TransactionMessage.getAllMessagesFor(
-                        chat: chat,
-                        limit: limit
-                    )
-
-                    guard !messages.isEmpty else {
-                        return "No messages found in '\(contactName)'."
-                    }
-
-                    guard let owner = UserContact.getOwner() else {
-                        return "Could not determine owner."
-                    }
-                    let contact = chat.getContact()
-                    let isoFormatter = ISO8601DateFormatter()
-
-                    let lines: [String] = messages.map { msg in
-                        let content = msg.getMessageContentPreview(
-                            owner: owner,
-                            contact: contact,
-                            includeSender: false
-                        )
-                        let isMe = msg.senderId == owner.id
-                        let sender = isMe ? "Me" : (msg.senderAlias ?? contactName)
-                        let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
-                        return "[\(sender)] \(dateStr): \(content)"
-                    }
-
-                    return "Messages in '\(contactName)' (most recent last):\n" + lines.joined(separator: "\n")
                 }
 
                 print("AIAgent read_recent_messages: returning \(output.count) chars")
