@@ -374,56 +374,123 @@ final class AIAgentManager: @unchecked Sendable {
         case noMatch
     }
 
+    /// Normalise a name: trim, replace underscores with spaces, collapse whitespace, lowercase.
     private static func normalizeName(_ name: String) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let components = trimmed.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+        let underscoresAsSpaces = trimmed.replacingOccurrences(of: "_", with: " ")
+        let components = underscoresAsSpaces.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         return components.joined(separator: " ").lowercased()
+    }
+
+    /// Remove all spaces — used for "tomtest2" ↔ "Tom Test 2" comparison.
+    private static func stripSpaces(_ name: String) -> String {
+        return name.replacingOccurrences(of: " ", with: "")
+    }
+
+    /// Levenshtein edit distance between two strings.
+    private static func levenshteinDistance(_ a: String, _ b: String) -> Int {
+        let aChars = Array(a), bChars = Array(b)
+        let m = aChars.count, n = bChars.count
+        if m == 0 { return n }
+        if n == 0 { return m }
+        var prev = Array(0...n)
+        var curr = [Int](repeating: 0, count: n + 1)
+        for i in 1...m {
+            curr[0] = i
+            for j in 1...n {
+                curr[j] = aChars[i-1] == bChars[j-1]
+                    ? prev[j-1]
+                    : 1 + min(prev[j-1], prev[j], curr[j-1])
+            }
+            prev = curr
+        }
+        return prev[n]
     }
 
     @MainActor
     private static func resolveContactOrTribe(query: String) -> NameResolutionResult {
         let normalizedQuery = normalizeName(query)
+        let strippedQuery   = stripSpaces(normalizedQuery)
 
         let contacts = UserContact.getAll().filter { !$0.isOwner && !$0.isAgent }
-        let tribes = Chat.getAllTribes()
+        let tribes   = Chat.getAllTribes()
 
-        // 1. Exact match pass
-        for contact in contacts {
-            if normalizeName(contact.nickname ?? "") == normalizedQuery {
+        // Helper closures
+        let normContact: (UserContact) -> String = { normalizeName($0.nickname ?? "") }
+        let normTribe:   (Chat)        -> String = { normalizeName($0.name    ?? "") }
+
+        // Pass 1 — exact normalised match (handles underscore↔space equivalence)
+        for contact in contacts where normContact(contact) == normalizedQuery {
+            return .exactContact(contact)
+        }
+        for tribe in tribes where normTribe(tribe) == normalizedQuery {
+            return .exactTribe(tribe)
+        }
+
+        // Pass 2 — space-stripped exact match (handles "tomtest2" ↔ "Tom Test 2")
+        if !strippedQuery.isEmpty {
+            for contact in contacts where stripSpaces(normContact(contact)) == strippedQuery {
                 return .exactContact(contact)
             }
-        }
-        for tribe in tribes {
-            if normalizeName(tribe.name ?? "") == normalizedQuery {
+            for tribe in tribes where stripSpaces(normTribe(tribe)) == strippedQuery {
                 return .exactTribe(tribe)
             }
         }
 
-        // 2. Partial / contains match pass
+        // Pass 3 — partial / contains match
         var candidates: [(label: String, contact: UserContact?, tribe: Chat?)] = []
         for contact in contacts {
-            if normalizeName(contact.nickname ?? "").contains(normalizedQuery) {
+            let n = normContact(contact)
+            if n.contains(normalizedQuery) || stripSpaces(n).contains(strippedQuery) {
                 candidates.append((label: "Contact: \(contact.nickname ?? "")", contact: contact, tribe: nil))
             }
         }
         for tribe in tribes {
-            if normalizeName(tribe.name ?? "").contains(normalizedQuery) {
+            let n = normTribe(tribe)
+            if n.contains(normalizedQuery) || stripSpaces(n).contains(strippedQuery) {
                 candidates.append((label: "Tribe: \(tribe.name ?? "")", contact: nil, tribe: tribe))
             }
         }
 
-        switch candidates.count {
+        if !candidates.isEmpty {
+            return candidates.count == 1
+                ? (candidates[0].contact.map { .exactContact($0) } ?? candidates[0].tribe.map { .exactTribe($0) } ?? .noMatch)
+                : .ambiguous(candidates.map { $0.label })
+        }
+
+        // Pass 4 — fuzzy (Levenshtein) match; threshold scales with query length
+        let threshold = max(1, normalizedQuery.count / 4)
+        var fuzzyCandidates: [(label: String, contact: UserContact?, tribe: Chat?, dist: Int)] = []
+        for contact in contacts {
+            let d = levenshteinDistance(normContact(contact), normalizedQuery)
+            if d <= threshold {
+                fuzzyCandidates.append((label: "Contact: \(contact.nickname ?? "")", contact: contact, tribe: nil, dist: d))
+            }
+        }
+        for tribe in tribes {
+            let d = levenshteinDistance(normTribe(tribe), normalizedQuery)
+            if d <= threshold {
+                fuzzyCandidates.append((label: "Tribe: \(tribe.name ?? "")", contact: nil, tribe: tribe, dist: d))
+            }
+        }
+
+        // Sort by edit distance so the closest match wins on single-result
+        fuzzyCandidates.sort { $0.dist < $1.dist }
+
+        switch fuzzyCandidates.count {
         case 0:
             return .noMatch
         case 1:
-            if let contact = candidates[0].contact {
-                return .exactContact(contact)
-            } else if let tribe = candidates[0].tribe {
-                return .exactTribe(tribe)
-            }
+            if let contact = fuzzyCandidates[0].contact { return .exactContact(contact) }
+            if let tribe   = fuzzyCandidates[0].tribe   { return .exactTribe(tribe) }
             return .noMatch
         default:
-            return .ambiguous(candidates.map { $0.label })
+            // If the closest match is clearly better (distance gap ≥ 2), pick it
+            if fuzzyCandidates[0].dist + 2 <= fuzzyCandidates[1].dist {
+                if let contact = fuzzyCandidates[0].contact { return .exactContact(contact) }
+                if let tribe   = fuzzyCandidates[0].tribe   { return .exactTribe(tribe) }
+            }
+            return .ambiguous(fuzzyCandidates.map { $0.label })
         }
     }
 
