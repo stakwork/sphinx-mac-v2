@@ -796,23 +796,22 @@ final class AIAgentManager: @unchecked Sendable {
                         return "No messages found in '\(contactName)'."
                     }
 
-                    let owner = UserContact.getOwner()
+                    guard let owner = UserContact.getOwner() else {
+                        return "Could not determine owner."
+                    }
+                    let contact = chat.getContact()
                     let isoFormatter = ISO8601DateFormatter()
 
-                    // Only include text messages; skip payments, boosts, etc. that have no content.
-                    let lines: [String] = messages.compactMap { msg in
-                        let content = msg.messageContent ?? ""
-                        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                            return nil
-                        }
-                        let isMe = owner.map { msg.senderId == $0.id } ?? false
+                    let lines: [String] = messages.map { msg in
+                        let content = msg.getMessageContentPreview(
+                            owner: owner,
+                            contact: contact,
+                            includeSender: false
+                        )
+                        let isMe = msg.senderId == owner.id
                         let sender = isMe ? "Me" : (msg.senderAlias ?? contactName)
                         let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
                         return "[\(sender)] \(dateStr): \(content)"
-                    }
-
-                    guard !lines.isEmpty else {
-                        return "Found \(messages.count) messages in '\(contactName)' but none contained readable text."
                     }
 
                     return "Messages in '\(contactName)' (most recent last):\n" + lines.joined(separator: "\n")
