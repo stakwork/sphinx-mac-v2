@@ -59,6 +59,22 @@ final class AIAgentManager: @unchecked Sendable {
     up-to-date information. Use this whenever the user asks about recent news, prices, \
     people, or anything you may not know. Present results clearly with titles and URLs.
 
+    - read_unseen_messages: Read only unread messages from a contact or tribe by name. Use this to check what new messages haven't been seen yet.
+
+    - get_contacts_and_tribes: List all contacts and tribes with their names and public keys. Use this to discover who the user knows.
+
+    - get_owner_profile: Retrieve the owner's own profile: nickname, public key, route hint, avatar URL, and default tip amount.
+
+    - modify_owner_nickname: Change the owner's display name. IMPORTANT: Before invoking this tool, describe the change and ask for explicit confirmation. Only invoke after the user confirms.
+
+    - set_tip_amount: Set the default tip/boost amount in sats. IMPORTANT: Before invoking this tool, describe the change and ask for explicit confirmation. Only invoke after the user confirms.
+
+    - mark_chat_as_seen: Mark all messages in a chat as read (seen = true). Use this to clear unread counts for a contact or tribe.
+
+    - connect_with_user: Initiate a new contact connection given a nickname, public key, and route hint. IMPORTANT: Before invoking this tool, describe who you are connecting to and ask for explicit confirmation. Only invoke after the user confirms.
+
+    - create_tribe: Create a new Sphinx tribe with a name and description. IMPORTANT: Before invoking this tool, describe the tribe details and ask for explicit confirmation. Only invoke after the user confirms.
+
     CRITICAL TOOL RESULT RULES:
     - Tool results that start with "Message sent successfully" mean the message was delivered. \
     Always report this as a success. Do NOT say there was an error or that you're unsure.
@@ -67,6 +83,15 @@ final class AIAgentManager: @unchecked Sendable {
     Do NOT say there was a format issue or that you couldn't read them.
     - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
     - When web_search returns results, present them clearly with titles, snippets, and URLs. Never say you cannot search the web.
+    - Tool results starting with "Unseen messages in" mean unread messages were found — present them clearly.
+    - Tool results starting with "No unseen messages" mean the chat is fully read.
+    - Tool results starting with "Contacts:" or "Tribes:" contain the contacts/tribes list — present it clearly.
+    - Tool results starting with "Owner profile:" contain the owner's details — present them clearly.
+    - Tool results starting with "Owner nickname updated" mean the rename succeeded — report success.
+    - Tool results starting with "Default tip amount set" mean the tip was updated — report success.
+    - Tool results starting with "Chat with" and ending with "marked as seen" mean the operation succeeded.
+    - Tool results starting with "Connection request sent" mean the friend request is queued — report success.
+    - Tool results starting with "Tribe '" and containing "created successfully" mean the tribe was created.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -233,8 +258,16 @@ final class AIAgentManager: @unchecked Sendable {
         saveHistory()
 
         var tools: ToolSet = [
-            "send_sphinx_message": buildSendMessageTool().eraseToTool(),
-            "read_recent_messages": buildReadMessagesTool().eraseToTool()
+            "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
+            "read_recent_messages":    buildReadMessagesTool().eraseToTool(),
+            "read_unseen_messages":    buildReadUnseenMessagesTool().eraseToTool(),
+            "get_contacts_and_tribes": buildGetContactsAndTribesTool().eraseToTool(),
+            "get_owner_profile":       buildGetOwnerProfileTool().eraseToTool(),
+            "modify_owner_nickname":   buildModifyOwnerNicknameTool().eraseToTool(),
+            "set_tip_amount":          buildSetTipAmountTool().eraseToTool(),
+            "mark_chat_as_seen":       buildMarkChatAsSeenTool().eraseToTool(),
+            "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
+            "create_tribe":            buildCreateTribeTool().eraseToTool()
         ]
         if let key = tavilyApiKey, !key.isEmpty {
             tools["web_search"] = buildWebSearchTool(apiKey: key).eraseToTool()
@@ -334,6 +367,28 @@ final class AIAgentManager: @unchecked Sendable {
     private struct SendMessageInput: Codable, Sendable {
         let contactName: String
         let messageText: String
+    }
+
+    private struct ReadUnseenInput: Codable, Sendable {
+        let contactName: String
+    }
+    private struct MarkSeenInput: Codable, Sendable {
+        let contactName: String
+    }
+    private struct ModifyOwnerNicknameInput: Codable, Sendable {
+        let newNickname: String
+    }
+    private struct SetTipAmountInput: Codable, Sendable {
+        let amount: Int
+    }
+    private struct ConnectUserInput: Codable, Sendable {
+        let nickname: String
+        let publicKey: String
+        let routeHint: String  // expected format: "lspPubkey_scid"
+    }
+    private struct CreateTribeInput: Codable, Sendable {
+        let name: String
+        let description: String
     }
 
 
@@ -447,6 +502,243 @@ final class AIAgentManager: @unchecked Sendable {
                 } catch {
                     return .value(.string("Search failed: \(error.localizedDescription)"))
                 }
+            }
+        )
+    }
+
+    // MARK: - Tool: read_unseen_messages
+
+    private func buildReadUnseenMessagesTool() -> TypedTool<ReadUnseenInput, JSONValue> {
+        tool(
+            description: "Read only unread (unseen) messages from a conversation with a specific Sphinx contact or tribe.",
+            execute: { (input: ReadUnseenInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    let contacts = UserContact.getAll()
+                    var resolvedChat: Chat? = contacts.first(where: {
+                        ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                    })?.getConversation()
+                    if resolvedChat == nil {
+                        resolvedChat = Chat.getAllTribes().first(where: {
+                            ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                        })
+                    }
+                    guard let chat = resolvedChat else {
+                        return "No contact or tribe found with name '\(input.contactName)'."
+                    }
+                    let context = CoreDataManager.sharedManager.getBackgroundContext()
+                    let messages = chat.getReceivedUnseenMessages(context: context)
+                    guard !messages.isEmpty else {
+                        return "No unseen messages in '\(input.contactName)'."
+                    }
+                    let owner = UserContact.getOwner()
+                    let isoFormatter = ISO8601DateFormatter()
+                    let lines: [String] = messages.compactMap { msg in
+                        let content = msg.messageContent ?? ""
+                        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+                        let isMe = owner.map { msg.senderId == $0.id } ?? false
+                        let sender = isMe ? "Me" : (msg.senderAlias ?? input.contactName)
+                        let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
+                        return "[\(sender)] \(dateStr): \(content)"
+                    }
+                    guard !lines.isEmpty else {
+                        return "Found \(messages.count) unseen messages in '\(input.contactName)' but none contained readable text."
+                    }
+                    return "Unseen messages in '\(input.contactName)' (oldest first):\n" + lines.joined(separator: "\n")
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: get_contacts_and_tribes
+
+    private func buildGetContactsAndTribesTool() -> TypedTool<JSONValue, JSONValue> {
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([:]),
+                "required": .array([])
+            ]))
+        )
+        return tool(
+            description: "List all of the user's Sphinx contacts and tribes with their names and public keys.",
+            inputSchema: inputSchema,
+            execute: { (_: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    let contacts = UserContact.getAll().filter { !$0.isOwner && !$0.isAgent }
+                    let tribes = Chat.getAllTribes()
+                    if contacts.isEmpty && tribes.isEmpty {
+                        return "No contacts or tribes found."
+                    }
+                    var lines: [String] = []
+                    if !contacts.isEmpty {
+                        lines.append("Contacts:")
+                        for c in contacts {
+                            let name = c.nickname ?? "(unnamed)"
+                            let pubkey = c.publicKey ?? "(no pubkey)"
+                            let routeHint = c.routeHint ?? ""
+                            let hint = routeHint.isEmpty ? "" : ", routeHint: \(routeHint)"
+                            lines.append("- \(name) (pubkey: \(pubkey)\(hint))")
+                        }
+                    }
+                    if !tribes.isEmpty {
+                        lines.append("Tribes:")
+                        for t in tribes {
+                            lines.append("- \(t.name ?? "(unnamed)")")
+                        }
+                    }
+                    return lines.joined(separator: "\n")
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: get_owner_profile
+
+    private func buildGetOwnerProfileTool() -> TypedTool<JSONValue, JSONValue> {
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([:]),
+                "required": .array([])
+            ]))
+        )
+        return tool(
+            description: "Retrieve the owner's own Sphinx profile details: nickname, public key, route hint, avatar URL, and default tip amount.",
+            inputSchema: inputSchema,
+            execute: { (_: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    guard let owner = UserContact.getOwner() else {
+                        return "Owner not found."
+                    }
+                    let nickname  = owner.nickname  ?? "(none)"
+                    let pubkey    = owner.publicKey ?? "(none)"
+                    let routeHint = owner.routeHint ?? "(none)"
+                    let avatarUrl = owner.avatarUrl ?? "(none)"
+                    let tipAmount = UserContact.kTipAmount
+                    return """
+                    Owner profile:
+                    Nickname: \(nickname)
+                    Public Key: \(pubkey)
+                    Route Hint: \(routeHint)
+                    Avatar URL: \(avatarUrl)
+                    Tip Amount: \(tipAmount) sats
+                    """
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: modify_owner_nickname
+
+    private func buildModifyOwnerNicknameTool() -> TypedTool<ModifyOwnerNicknameInput, JSONValue> {
+        tool(
+            description: "Change the owner's display name (nickname). IMPORTANT: Before invoking this tool, describe exactly what you are about to change and ask the user for explicit confirmation. Only invoke after the user confirms.",
+            execute: { (input: ModifyOwnerNicknameInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    guard let owner = UserContact.getOwner() else {
+                        return "Failed: owner not found."
+                    }
+                    owner.nickname = input.newNickname
+                    owner.managedObjectContext?.saveContext()
+                    return "Owner nickname updated to '\(input.newNickname)'."
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: set_tip_amount
+
+    private func buildSetTipAmountTool() -> TypedTool<SetTipAmountInput, JSONValue> {
+        tool(
+            description: "Set the default tip/boost amount in sats. IMPORTANT: Before invoking this tool, describe the change and ask the user for explicit confirmation. Only invoke after the user confirms.",
+            execute: { (input: SetTipAmountInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    UserContact.kTipAmount = input.amount
+                    DataSyncManager.sharedInstance.saveTipAmount(value: "\(input.amount)")
+                    return "Default tip amount set to \(input.amount) sats."
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: mark_chat_as_seen
+
+    private func buildMarkChatAsSeenTool() -> TypedTool<MarkSeenInput, JSONValue> {
+        tool(
+            description: "Mark all messages in a chat with a contact or tribe as read (seen = true). Useful for clearing unread counts.",
+            execute: { (input: MarkSeenInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    let contacts = UserContact.getAll()
+                    var resolvedChat: Chat? = contacts.first(where: {
+                        ($0.nickname ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                    })?.getConversation()
+                    if resolvedChat == nil {
+                        resolvedChat = Chat.getAllTribes().first(where: {
+                            ($0.name ?? "").caseInsensitiveCompare(input.contactName) == .orderedSame
+                        })
+                    }
+                    guard let chat = resolvedChat else {
+                        return "No contact or tribe found with name '\(input.contactName)'."
+                    }
+                    chat.setChatMessagesAsSeen(forceSeen: true)
+                    return "Chat with '\(input.contactName)' marked as seen."
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: connect_with_user
+
+    private func buildConnectWithUserTool() -> TypedTool<ConnectUserInput, JSONValue> {
+        tool(
+            description: "Initiate a new Sphinx contact connection given a nickname, public key, and route hint. IMPORTANT: Before invoking this tool, describe exactly who you are connecting to and ask the user for explicit confirmation. Only invoke after the user confirms.",
+            execute: { (input: ConnectUserInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let output: String = await MainActor.run {
+                    let contactInfo = "\(input.publicKey)_\(input.routeHint)"
+                    SphinxOnionManager.sharedInstance.makeFriendRequest(
+                        contactInfo: contactInfo,
+                        nickname: input.nickname
+                    )
+                    return "Connection request sent to '\(input.nickname)'. They will appear in your contacts once the key exchange completes."
+                }
+                return .value(.string(output))
+            }
+        )
+    }
+
+    // MARK: - Tool: create_tribe
+
+    private func buildCreateTribeTool() -> TypedTool<CreateTribeInput, JSONValue> {
+        tool(
+            description: "Create a new Sphinx tribe with a name and description. IMPORTANT: Before invoking this tool, describe the tribe details and ask the user for explicit confirmation. Only invoke after the user confirms.",
+            execute: { (input: CreateTribeInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                let result: String = await withCheckedContinuation { continuation in
+                    let params: [String: Any] = [
+                        "name": input.name,
+                        "description": input.description,
+                        "is_tribe": true
+                    ]
+                    let started = SphinxOnionManager.sharedInstance.createTribe(
+                        params: params,
+                        callback: { _ in
+                            continuation.resume(returning: "Tribe '\(input.name)' created successfully.")
+                        },
+                        errorCallback: { error in
+                            let msg = error?.localizedDescription ?? "unknown error"
+                            continuation.resume(returning: "Failed to create tribe: \(msg)")
+                        }
+                    )
+                    if !started {
+                        continuation.resume(returning: "Failed to create tribe: could not start tribe creation. Check that your seed and tribe server are available.")
+                    }
+                }
+                return .value(.string(result))
             }
         )
     }
