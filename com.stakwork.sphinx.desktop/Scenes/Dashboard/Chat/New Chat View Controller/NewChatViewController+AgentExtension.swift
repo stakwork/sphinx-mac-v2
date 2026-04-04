@@ -49,10 +49,11 @@ extension NewChatViewController {
         intro.receiverId = owner.id
         intro.messageContent = introText
         intro.date = Date()
-        intro.seen = true
+        intro.seen = false
         intro.encrypted = false
         intro.push = false
         intro.chat = chat
+        chat.seen = false
         chat.setLastMessage(intro)
         CoreDataManager.sharedManager.saveContext()
 
@@ -73,8 +74,9 @@ extension NewChatViewController {
         incoming.encrypted = false
         incoming.push = false
         incoming.chat = chat
+        chat.seen = false
         chat.setLastMessage(incoming)
         CoreDataManager.sharedManager.saveContext()
-        NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil)
+        NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: ["chat-ids": [chat.id]])
     }
 }
