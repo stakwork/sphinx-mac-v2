@@ -15,7 +15,6 @@ class SetupAIAgentViewController: NSViewController {
     @IBOutlet weak var providerFieldView: SignupFieldView!
     @IBOutlet weak var apiKeyFieldView: SignupFieldView!
     @IBOutlet weak var agentNameFieldView: SignupFieldView!
-    @IBOutlet weak var searchApiKeyFieldView: SignupFieldView!
     @IBOutlet weak var confirmButtonView: SignupButtonView!
 
     // MARK: - Private
@@ -24,10 +23,9 @@ class SetupAIAgentViewController: NSViewController {
     var newMessageBubbleHelper = NewMessageBubbleHelper()
 
     public enum Fields: Int {
-        case Provider     = 0
-        case APIKey       = 1
-        case AgentName    = 2
-        case SearchApiKey = 3
+        case Provider  = 0
+        case APIKey    = 1
+        case AgentName = 2
     }
 
     // MARK: - Instantiate
@@ -100,19 +98,6 @@ class SetupAIAgentViewController: NSViewController {
             delegate: self
         )
 
-        // Search API Key field (optional)
-        searchApiKeyFieldView.configureWith(
-            placeHolder: "Tavily API Key (optional)",
-            placeHolderColor: NSColor.Sphinx.SecondaryText,
-            label: "Tavily Search Key",
-            textColor: NSColor.white,
-            backgroundColor: NSColor(hex: "#101317"),
-            field: Fields.SearchApiKey.rawValue,
-            value: userData.getAIAgentValue(with: .aiAgentSearchApiKey) ?? "",
-            validationType: nil,
-            delegate: self
-        )
-
         updateConfirmButton()
     }
 
@@ -173,11 +158,8 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
             ? AIAgentManager.AIProvider.anthropic.rawValue
             : providerRaw
 
-        let searchKey = searchApiKeyFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
-
         userData.save(aiAgentValue: resolvedProvider, for: .aiAgentProvider)
         userData.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
-        userData.save(aiAgentValue: searchKey, for: .aiAgentSearchApiKey)
 
         AIAgentManager.sharedInstance.reconfigure()
 
@@ -214,8 +196,6 @@ extension SetupAIAgentViewController: SignupFieldViewDelegate {
             case .APIKey:
                 self.view.window?.makeFirstResponder(self.agentNameFieldView.getTextField())
             case .AgentName:
-                self.view.window?.makeFirstResponder(self.searchApiKeyFieldView.getTextField())
-            case .SearchApiKey:
                 self.view.window?.makeFirstResponder(self.providerFieldView.getTextField())
             default:
                 self.view.window?.makeFirstResponder(self.providerFieldView.getTextField())
