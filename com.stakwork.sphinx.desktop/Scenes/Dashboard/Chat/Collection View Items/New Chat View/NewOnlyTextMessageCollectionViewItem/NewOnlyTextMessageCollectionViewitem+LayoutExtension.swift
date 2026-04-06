@@ -22,8 +22,17 @@ extension NewOnlyTextMessageCollectionViewitem {
     
     func configureWith(
         messageContent: BubbleMessageLayoutState.MessageContent?,
-        searchingTerm: String?
+        messageCellState: MessageTableCellState,
+        searchingTerm: String?,
+        collectionViewWidth: CGFloat
     ) {
+        let labelHeight = ChatHelper.getTextMessageHeightFor(
+            messageCellState,
+            collectionViewWidth: collectionViewWidth
+        )
+        labelHeightConstraint.constant = labelHeight
+        textMessageView.superview?.layoutSubtreeIfNeeded()
+
         if let messageContent = messageContent {
             let rendered = NSMutableAttributedString(
                 attributedString: ChatHelper.markdownRenderer.render(messageContent.text ?? "")

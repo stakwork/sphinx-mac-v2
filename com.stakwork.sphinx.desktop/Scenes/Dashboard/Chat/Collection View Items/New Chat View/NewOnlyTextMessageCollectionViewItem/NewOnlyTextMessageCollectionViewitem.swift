@@ -25,6 +25,7 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
     
     ///Constraints
     @IBOutlet weak var bubbleWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var labelHeightConstraint: NSLayoutConstraint!
     
     ///Thirs Container
     @IBOutlet weak var textMessageView: NSView!
@@ -52,6 +53,8 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         
         messageLabel.setSelectionColor(color: NSColor.getTextSelectionColor())
         messageLabel.allowsEditingTextAttributes = true
+        messageLabel.maximumNumberOfLines = 0
+        messageLabel.cell?.wraps = true
         
         let lineFrame = CGRect(
             x: 0.0,
@@ -106,7 +109,9 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         ///Text message content
         configureWith(
             messageContent: mutableMessageCellState.messageContent,
-            searchingTerm: searchingTerm
+            messageCellState: mutableMessageCellState,
+            searchingTerm: searchingTerm,
+            collectionViewWidth: collectionViewWidth
         )
         
         ///Header and avatar
