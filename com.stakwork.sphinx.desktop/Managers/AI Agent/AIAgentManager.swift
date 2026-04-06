@@ -41,6 +41,9 @@ final class AIAgentManager: @unchecked Sendable {
     /// Tracks the active provider so chat() can register the correct tools
     private var activeProvider: AIProvider = .anthropic
 
+    /// Retained OpenAI provider instance (needed to access .tools.webSearch())
+    private var openAIProvider: OpenAIProvider?
+
     // MARK: - System Prompt
 
     private let systemPrompt = """
@@ -167,11 +170,14 @@ final class AIAgentManager: @unchecked Sendable {
 
         switch provider {
         case .anthropic:
+            openAIProvider = nil
             let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
             activeModel = p.chat(modelId: "claude-sonnet-4-6")
         case .openAI:
             let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "gpt-4o")
+            openAIProvider = p
+            // Responses API is required for native web search support
+            activeModel = p.responses(modelId: "gpt-4o")
         }
 
         // Reset history when credentials change
@@ -269,8 +275,13 @@ final class AIAgentManager: @unchecked Sendable {
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool()
         ]
-        if activeProvider == .anthropic {
-            tools["web_search"] = buildAnthropicWebSearchTool().eraseToTool()
+        switch activeProvider {
+        case .anthropic:
+            tools["web_search"] = anthropicTools.webSearch20250305(.init(maxUses: 5))
+        case .openAI:
+            if let p = openAIProvider {
+                tools["web_search"] = p.tools.webSearch()
+            }
         }
 
         let result: any GenerateTextResult
@@ -613,26 +624,6 @@ final class AIAgentManager: @unchecked Sendable {
                 return "No contact or tribe found with name '\(contactName)'."
             }
         }
-    }
-
-    // MARK: - Tool: web_search (Anthropic native)
-
-    private func buildAnthropicWebSearchTool() -> TypedTool<JSONValue, JSONValue> {
-        let inputSchema = FlexibleSchema<JSONValue>(
-            jsonSchema(.object([
-                "type": .string("web_search_20250305"),
-                "name": .string("web_search"),
-                "max_uses": .number(5)
-            ]))
-        )
-        return tool(
-            description: "Search the internet for current events, facts, or any topic. Returns top results with title, snippet, and URL.",
-            inputSchema: inputSchema,
-            execute: { (_: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
-                // Anthropic executes this tool server-side; this block is a no-op passthrough.
-                return .value(.string(""))
-            }
-        )
     }
 
     // MARK: - Tool: read_unseen_messages
