@@ -38,8 +38,11 @@ final class AIAgentManager: @unchecked Sendable {
     /// The currently active language model (nil if not configured)
     private var activeModel: (any LanguageModelV3)?
 
-    /// Tavily API key for web search (nil or empty = tool not registered)
-    private var tavilyApiKey: String? = nil
+    /// Tracks the active provider so chat() can register the correct tools
+    private var activeProvider: AIProvider = .anthropic
+
+    /// Retained OpenAI provider instance (needed to access .tools.webSearch())
+    private var openAIProvider: OpenAIProvider?
 
     // MARK: - System Prompt
 
@@ -158,8 +161,7 @@ final class AIAgentManager: @unchecked Sendable {
         let apiKey      = userData.getAIAgentValue(with: .aiAgentApiKey)   ?? ""
         let provider    = AIProvider(rawValue: providerRaw) ?? .anthropic
 
-        // Load search key independently (optional, not gated on LLM key)
-        tavilyApiKey = userData.getAIAgentValue(with: .aiAgentSearchApiKey)
+        activeProvider = provider
 
         guard !apiKey.isEmpty else {
             activeModel = nil
@@ -168,11 +170,14 @@ final class AIAgentManager: @unchecked Sendable {
 
         switch provider {
         case .anthropic:
+            openAIProvider = nil
             let p = createAnthropicProvider(settings: AnthropicProviderSettings(apiKey: apiKey))
             activeModel = p.chat(modelId: "claude-sonnet-4-6")
         case .openAI:
             let p = createOpenAIProvider(settings: OpenAIProviderSettings(apiKey: apiKey))
-            activeModel = p.chat(modelId: "gpt-4o")
+            openAIProvider = p
+            // Responses API is required for native web search support
+            activeModel = p.responses(modelId: "gpt-4o")
         }
 
         // Reset history when credentials change
@@ -270,8 +275,13 @@ final class AIAgentManager: @unchecked Sendable {
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool()
         ]
-        if let key = tavilyApiKey, !key.isEmpty {
-            tools["web_search"] = buildWebSearchTool(apiKey: key).eraseToTool()
+        switch activeProvider {
+        case .anthropic:
+            tools["web_search"] = anthropicTools.webSearch20250305(.init(maxUses: 5))
+        case .openAI:
+            if let p = openAIProvider {
+                tools["web_search"] = p.tools.webSearch()
+            }
         }
 
         let result: any GenerateTextResult
@@ -614,58 +624,6 @@ final class AIAgentManager: @unchecked Sendable {
                 return "No contact or tribe found with name '\(contactName)'."
             }
         }
-    }
-
-    // MARK: - Tool: web_search
-
-    private func buildWebSearchTool(apiKey: String) -> TypedTool<JSONValue, JSONValue> {
-        let inputSchema = FlexibleSchema<JSONValue>(
-            jsonSchema(.object([
-                "type": .string("object"),
-                "properties": .object([
-                    "query": .object(["type": .string("string")])
-                ]),
-                "required": .array([.string("query")])
-            ]))
-        )
-        return tool(
-            description: "Search the internet for current events, facts, or any topic. Returns top results with title, snippet, and URL.",
-            inputSchema: inputSchema,
-            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
-                guard case .object(let dict) = input,
-                      case .string(let query) = dict["query"] else {
-                    return .value(.string("Error: missing query parameter."))
-                }
-                guard let url = URL(string: "https://api.tavily.com/search") else {
-                    return .value(.string("Error: could not construct search URL."))
-                }
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                let body: [String: Any] = [
-                    "api_key": apiKey,
-                    "query": query,
-                    "max_results": 5
-                ]
-                request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-                do {
-                    let (data, _) = try await URLSession.shared.data(for: request)
-                    guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                          let results = json["results"] as? [[String: Any]] else {
-                        return .value(.string("No results found."))
-                    }
-                    let lines: [String] = results.prefix(5).compactMap { result in
-                        let title   = result["title"]   as? String ?? "(no title)"
-                        let snippet = result["content"] as? String ?? ""
-                        let link    = result["url"]     as? String ?? ""
-                        return "Title: \(title) | Snippet: \(snippet) | URL: \(link)"
-                    }
-                    return .value(.string(lines.isEmpty ? "No results found." : lines.joined(separator: "\n")))
-                } catch {
-                    return .value(.string("Search failed: \(error.localizedDescription)"))
-                }
-            }
-        )
     }
 
     // MARK: - Tool: read_unseen_messages
