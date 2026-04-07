@@ -193,9 +193,15 @@ class NewChatTableDataSource : NSObject {
         guard currentWidth != lastKnownWidth, currentWidth > 0 else { return }
         lastKnownWidth = currentWidth
 
-        // Debounce layout invalidation to prevent excessive recalculations
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(invalidateLayoutDebounced), object: nil)
-        perform(#selector(invalidateLayoutDebounced), with: nil, afterDelay: 0.1)
+
+        if collectionView.window?.inLiveResize == true {
+            // Window is being dragged — invalidate immediately for smooth continuous resize
+            invalidateLayoutDebounced()
+        } else {
+            // Podcast panel open/close or constraint-driven resize — debounce to let constraints settle
+            perform(#selector(invalidateLayoutDebounced), with: nil, afterDelay: 0.1)
+        }
     }
 
     @objc private func invalidateLayoutDebounced() {
