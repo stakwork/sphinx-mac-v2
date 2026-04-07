@@ -39,7 +39,17 @@ extension NewChatViewController {
               let owner = self.owner,
               chat.lastMessage == nil else { return }
 
-        let introText = "👋 Hi! I'm your Sphinx AI assistant. I can read recent messages, send messages to your contacts and tribes, and search the web."
+        let introText = """
+👋 Hi! I'm your Sphinx AI assistant. Here's what I can do:
+
+• 📖 Read recent or unread messages from any contact or tribe
+• 👥 List all your contacts and tribes
+• 👤 View and update your profile (nickname, tip amount)
+• ✅ Mark chats as read
+• 🔗 Connect with new users
+• 🏕️ Create new tribes
+• 🔍 Search the web for current info
+"""
 
         let intro = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         intro.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
