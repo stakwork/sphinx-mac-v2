@@ -152,6 +152,16 @@ extension NewChatTableDataSource {
         if offset == 0 {
             shimmeringView.toggle(show: false)
             collectionView.alphaValue = 1.0
+        } else {
+            // Safety fallback: force-dismiss if scroll notification never confirms the offset
+            // (e.g. layout shift from threadHeaderView reconfiguration changes documentYOffset)
+            DelayPerformedHelper.performAfterDelay(seconds: 0.3, completion: {
+                if self.collectionView.alphaValue == 0 {
+                    self.shimmeringView.toggle(show: false)
+                    self.collectionView.alphaValue = 1.0
+                    self.scrollViewDesiredOffset = nil
+                }
+            })
         }
     }
     
