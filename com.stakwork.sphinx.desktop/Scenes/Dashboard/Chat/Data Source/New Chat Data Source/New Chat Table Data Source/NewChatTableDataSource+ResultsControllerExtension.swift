@@ -78,7 +78,7 @@ extension NewChatTableDataSource {
             if loadingMoreItems { self.saveSnapshotCurrentState() }
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                if loadingMoreItems || self.isFirstLoad {
+                if loadingMoreItems {
                     self.restoreScrollLastPosition()
                 } else if wasAtBottom {
                     self.scrolledAtBottom = true
