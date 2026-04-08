@@ -158,7 +158,11 @@ struct CallControlView: View {
                 if AVCaptureDevice.default(for: .audio) != nil {
                     isMicrophonePublishingBusy = true
                     defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                    try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                    do {
+                        try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                    } catch {
+                        print("CallControlView: failed to toggle microphone: \(error)")
+                    }
                 }
             }
         } label: {
@@ -195,7 +199,11 @@ struct CallControlView: View {
                Task {
                    isCameraPublishingBusy = true
                    defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                   try await room.localParticipant.setCamera(enabled: false)
+                   do {
+                       try await room.localParticipant.setCamera(enabled: false)
+                   } catch {
+                       print("CallControlView: failed to toggle camera: \(error)")
+                   }
                }
            } else {
                publishOptionsPickerPresented = true
@@ -277,7 +285,11 @@ struct CallControlView: View {
                    Task {
                        isScreenSharePublishingBusy = true
                        defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                       try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                       do {
+                           try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                       } catch {
+                           print("CallControlView: failed to stop screen share: \(error)")
+                       }
                    }
                } else {
                    screenPickerPresented = true
@@ -351,9 +363,13 @@ struct CallControlView: View {
             cameraPublishOptions = publishOptions
             Task {
                 defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                try await room.localParticipant.setCamera(enabled: true,
-                                                          captureOptions: captureOptions,
-                                                          publishOptions: publishOptions)
+                do {
+                    try await room.localParticipant.setCamera(enabled: true,
+                                                              captureOptions: captureOptions,
+                                                              publishOptions: publishOptions)
+                } catch {
+                    print("CallControlView: failed to enable camera with options: \(error)")
+                }
             }
         }
         .padding()
@@ -375,7 +391,11 @@ struct CallControlView: View {
                 Task {
                     isScreenSharePublishingBusy = true
                     defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                    try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                    do {
+                        try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                    } catch {
+                        print("CallControlView: failed to start screen share: \(error)")
+                    }
                 }
                 screenPickerPresented = false
             }

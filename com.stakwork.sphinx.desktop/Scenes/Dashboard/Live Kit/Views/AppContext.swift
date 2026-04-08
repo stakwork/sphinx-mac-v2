@@ -52,6 +52,7 @@ final class AppContext: ObservableObject {
     @Published var outputDevice: AudioDevice = AudioManager.shared.defaultOutputDevice {
         didSet {
             print("didSet outputDevice: \(String(describing: outputDevice))")
+            guard outputDevice.deviceId != AudioManager.shared.outputDevice.deviceId else { return }
             AudioManager.shared.outputDevice = outputDevice
             reloadAudioDevices()
         }
@@ -69,6 +70,7 @@ final class AppContext: ObservableObject {
     @Published var inputDevice: AudioDevice = AudioManager.shared.defaultInputDevice {
         didSet {
             print("didSet inputDevice: \(String(describing: inputDevice))")
+            guard inputDevice.deviceId != AudioManager.shared.inputDevice.deviceId else { return }
             AudioManager.shared.inputDevice = inputDevice
             reloadAudioDevices()
         }
@@ -103,12 +105,20 @@ final class AppContext: ObservableObject {
             let inputId = audioManager.inputDevice.deviceId
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
-                    ?? AudioManager.shared.defaultOutputDevice
-                self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
-                    ?? AudioManager.shared.defaultInputDevice
+                if self.outputDevice.deviceId != outputId {
+                    self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
+                        ?? AudioManager.shared.defaultOutputDevice
+                }
+                if self.inputDevice.deviceId != inputId {
+                    self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
+                        ?? AudioManager.shared.defaultInputDevice
+                }
             }
         }
+    }
+    
+    deinit {
+        AudioManager.shared.onDeviceUpdate = nil
     }
     
     func reloadAudioDevices() {
@@ -119,7 +129,11 @@ final class AppContext: ObservableObject {
             defaultOutputDevice = firstDevice
         }
 
-        let realOutputDevice = AudioManager.shared.outputDevices.first(where: { $0.name == defaultOutputDevice.name && $0.deviceId != "default" }) ?? defaultOutputDevice
+        let realOutputDevice = AudioManager.shared.outputDevices.first(where: {
+            $0.deviceId == defaultOutputDevice.deviceId && $0.deviceId != "default"
+        }) ?? AudioManager.shared.outputDevices.first(where: {
+            $0.name == defaultOutputDevice.name && $0.deviceId != "default"
+        }) ?? defaultOutputDevice
 
         self.realOutputDevice = realOutputDevice
         
@@ -130,7 +144,11 @@ final class AppContext: ObservableObject {
             defaultInputDevice = firstDevice
         }
 
-        let realInputDevice = AudioManager.shared.inputDevices.first(where: { $0.name == defaultInputDevice.name && $0.deviceId != "default" }) ?? defaultInputDevice
+        let realInputDevice = AudioManager.shared.inputDevices.first(where: {
+            $0.deviceId == defaultInputDevice.deviceId && $0.deviceId != "default"
+        }) ?? AudioManager.shared.inputDevices.first(where: {
+            $0.name == defaultInputDevice.name && $0.deviceId != "default"
+        }) ?? defaultInputDevice
 
         self.realInputDevice = realInputDevice
     }
