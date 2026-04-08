@@ -130,6 +130,8 @@ extension NewChatTableDataSource {
                         scrollViewDidScroll()
                     }
                 }
+                shimmeringView.toggle(show: false)
+                collectionView.alphaValue = 1.0
                 return
             }
         }
