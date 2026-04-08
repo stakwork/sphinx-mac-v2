@@ -866,7 +866,11 @@ struct RoomView: View {
                             if AVCaptureDevice.default(for: .audio) != nil {
                                 isMicrophonePublishingBusy = true
                                 defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                                do {
+                                    try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                                } catch {
+                                    newMessageBubbleHelper.showGenericMessageView(text: "Audio device unavailable. Please check your microphone.")
+                                }
                             }
                         }
                     } label: {
@@ -900,7 +904,11 @@ struct RoomView: View {
                         Task {
                             isCameraPublishingBusy = true
                             defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                            try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                            do {
+                                try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                            } catch {
+                                newMessageBubbleHelper.showGenericMessageView(text: "Camera unavailable. Please check your camera.")
+                            }
                         }
                     },
                     label: {

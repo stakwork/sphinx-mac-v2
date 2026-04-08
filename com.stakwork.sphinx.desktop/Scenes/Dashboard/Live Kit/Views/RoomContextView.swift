@@ -91,6 +91,7 @@ struct RoomContextView: View {
             .foregroundColor(Color.white)
             .onDisappear {
                 print("\(String(describing: type(of: self))) onDisappear")
+                AudioManager.shared.onDeviceUpdate = nil
                 Task {
                     await roomCtx.disconnect()
                 }
@@ -148,8 +149,11 @@ struct RoomContextView: View {
     
     func enableMic() {
         Task {
-            if AVCaptureDevice.default(for: .audio) != nil {
+            guard AVCaptureDevice.default(for: .audio) != nil else { return }
+            do {
                 try await roomCtx.room.localParticipant.setMicrophone(enabled: true)
+            } catch {
+                print("Failed to enable microphone: \(error)")
             }
         }
     }
