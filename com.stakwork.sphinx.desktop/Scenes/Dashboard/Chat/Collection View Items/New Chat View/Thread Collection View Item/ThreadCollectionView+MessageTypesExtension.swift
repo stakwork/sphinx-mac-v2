@@ -224,21 +224,36 @@ extension ThreadCollectionViewItem {
     ) {
         if let messageContent = messageContent, let text = messageContent.text, text.isNotEmpty {
             
-            let labelHeight = ChatHelper.getThreadOriginalTextMessageHeightFor(
-                text,
-                collectionViewWidth: collectionViewWidth,
-                highlightedMatches: messageContent.highlightedMatches,
-                boldMatches: messageContent.boldMatches,
-                linkMatches: messageContent.linkMatches,
-                linkMarkdownMatches: messageContent.linkMarkdownMatches
-            )
+            let usePlainText = messageContent.hasNoMarkdown && !text.containsMarkdownSyntax
+            
+            let labelHeight: CGFloat
+            if usePlainText {
+                let maxWidth = min(
+                    CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth,
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                )
+                labelHeight = ChatHelper.getTextHeightFor(
+                    text: text,
+                    width: maxWidth,
+                    useMarkdown: false
+                )
+            } else {
+                labelHeight = ChatHelper.getThreadOriginalTextMessageHeightFor(
+                    text,
+                    collectionViewWidth: collectionViewWidth,
+                    highlightedMatches: messageContent.highlightedMatches,
+                    boldMatches: messageContent.boldMatches,
+                    linkMatches: messageContent.linkMatches,
+                    linkMarkdownMatches: messageContent.linkMarkdownMatches
+                )
+            }
             
             lastReplyLabelHeightConstraint.constant = labelHeight
             textMessageView.superview?.layoutSubtreeIfNeeded()
             
             lastReplyTextMessageView.isHidden = false
             
-            if messageContent.hasNoMarkdown && searchingTerm == nil {
+            if usePlainText && searchingTerm == nil {
                 lastReplyMessageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
                 lastReplyMessageLabel.stringValue = messageContent.text ?? ""
@@ -246,13 +261,8 @@ extension ThreadCollectionViewItem {
             } else {
                 let messageC = messageContent.text ?? ""
 
-                let attributedString = NSMutableAttributedString(string: messageC)
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.font: NSFont.getMessageFont(),
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
-                    ]
-                    , range: messageC.nsRange
+                let attributedString = NSMutableAttributedString(
+                    attributedString: ChatHelper.markdownRenderer.render(messageC)
                 )
                 
                 ///Highlighted text formatting

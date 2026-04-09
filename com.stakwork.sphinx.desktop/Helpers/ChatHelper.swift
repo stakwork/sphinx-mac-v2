@@ -313,14 +313,29 @@ class ChatHelper {
         }
         
         if let text = mutableTableCellState.messageContent?.text, text.isNotEmpty {
-            lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
-                text,
-                collectionViewWidth: collectionViewWidth,
-                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
-                boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches,
-                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
-            )
+            let messageContent = mutableTableCellState.messageContent
+            let usePlainText = (messageContent?.hasNoMarkdown ?? true) && !text.containsMarkdownSyntax
+            
+            if usePlainText {
+                let maxWidth = min(
+                    CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth,
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                )
+                lastReplyTextHeight = getTextHeightFor(
+                    text: text,
+                    width: maxWidth,
+                    useMarkdown: false
+                )
+            } else {
+                lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
+                    text,
+                    collectionViewWidth: collectionViewWidth,
+                    highlightedMatches: messageContent?.highlightedMatches,
+                    boldMatches: messageContent?.boldMatches,
+                    linkMatches: messageContent?.linkMatches,
+                    linkMarkdownMatches: messageContent?.linkMarkdownMatches
+                )
+            }
         }
         
         viewsHeight += ThreadLastMessageHeader.kViewHeight
