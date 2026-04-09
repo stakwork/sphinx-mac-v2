@@ -1288,6 +1288,26 @@ extension String {
         return !isEmpty
     }
     
+    var containsMarkdownSyntax: Bool {
+        let lines = self.components(separatedBy: "\n")
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("#") { return true }
+            if trimmed.hasPrefix("> ") || trimmed == ">" { return true }
+            if trimmed.hasPrefix("```") { return true }
+            for prefix in ["- ", "* ", "+ "] {
+                if trimmed.hasPrefix(prefix) { return true }
+            }
+            // Ordered list: starts with a number followed by ". "
+            if let dotRange = trimmed.range(of: ". "),
+               Int(String(trimmed[trimmed.startIndex..<dotRange.lowerBound])) != nil { return true }
+            // Horizontal rule
+            let stripped = trimmed.replacingOccurrences(of: " ", with: "")
+            if stripped == "---" || stripped == "***" || stripped == "___" { return true }
+        }
+        return false
+    }
+    
     func isNotEmptyString(with placeHolder: String) -> Bool {
         return !isEmpty && self != placeHolder
     }
