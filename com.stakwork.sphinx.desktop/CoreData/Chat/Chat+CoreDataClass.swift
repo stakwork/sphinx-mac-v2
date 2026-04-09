@@ -64,8 +64,8 @@ public class Chat: NSManagedObject, @unchecked Sendable {
             if pic.isNotEmpty {
                 aliasesAndPics[index] = (alias, pic)
             }
-        } else if !aliasesAndPics.contains(where: { $0.1 == pic && pic.isNotEmpty }) {
-            // Add new entry if alias doesn't exist and pic is unique (or empty)
+        } else {
+            // Add new entry — alias is the unique key, not pic
             aliasesAndPics.append((alias, pic))
         }
     }
@@ -73,7 +73,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
     /// Removes alias/pic entry by alias or pic
     private func removeAliasAndPic(alias: String?, pic: String?) {
         if let index = aliasesAndPics.firstIndex(where: {
-            (alias != nil && $0.0 == alias) || (pic != nil && pic!.isNotEmpty && $0.1 == pic)
+            alias != nil ? $0.0 == alias : (pic != nil && pic!.isNotEmpty && $0.1 == pic)
         }) {
             aliasesAndPics.remove(at: index)
         }
@@ -488,9 +488,6 @@ public class Chat: NSManagedObject, @unchecked Sendable {
             if !message.isIncoming(ownerId: ownerId) {
                 continue
             }
-            if isDateBeforeThreeMonthsAgo(message.messageDate) {
-                continue
-            }
             if let alias = message.senderAlias, alias.isNotEmpty {
                 if let remoteTimezoneIdentifier = message.remoteTimezoneIdentifier, remoteTimezoneIdentifier.isNotEmpty {
                     timezoneData[alias] = remoteTimezoneIdentifier
@@ -542,14 +539,6 @@ public class Chat: NSManagedObject, @unchecked Sendable {
 
         // Persist the updated data
         persistAliasesAndPics()
-    }
-    
-    func isDateBeforeThreeMonthsAgo(_ date: Date) -> Bool {
-        let calendar = Calendar.current
-        if let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: Date()) {
-            return date < threeMonthsAgo
-        }
-        return false
     }
     
     static func getChatsWith(uuids: [String]) -> [Chat] {
@@ -1132,6 +1121,15 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         }
     }
     
+    public static func resetAliasesCache(context: NSManagedObjectContext) {
+        let chats: [Chat] = Chat.getAll(context: context)
+
+        for chat in chats {
+            chat.membersAliasesData = nil
+            chat.aliasesAndPics = []
+        }
+    }
+
     public static func setChatsToTimezoneUpdated(context: NSManagedObjectContext) {
         let predicate = NSPredicate(format: "timezoneIdentifier == nil && timezoneEnabled == true")
         
