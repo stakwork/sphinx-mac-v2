@@ -238,7 +238,8 @@ class NewMessageReplyView: NSView, LoadableNib {
             width: self.messageLabel.frame.width,
             font: messageLabel.font,
             labelVerticalMargins: NewMessageReplyView.kViewLabelVerticalMargins,
-            labelHorizontalMargins: 0
+            labelHorizontalMargins: 0,
+            useMarkdown: false
         )
 
         let additionalHeight = max(0, expandedViewHeight - NewMessageReplyView.kViewHeight)
