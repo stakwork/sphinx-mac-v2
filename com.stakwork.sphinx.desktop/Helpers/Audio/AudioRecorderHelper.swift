@@ -164,6 +164,7 @@ class AudioRecorderHelper : NSObject, @unchecked Sendable {
     func recordingDidFail() {
         state = .None
         audioRecorder?.stop()
+        audioRecorder = nil
         let d = delegate
         Task { @MainActor in d?.didStartRecording(false) }
     }
@@ -171,6 +172,7 @@ class AudioRecorderHelper : NSObject, @unchecked Sendable {
     func finishRecording(success: Bool) {
         if let _ = audioRecorder {
             audioRecorder?.stop()
+            audioRecorder = nil
 
             recordingTimer?.invalidate()
             recordingTimer = nil

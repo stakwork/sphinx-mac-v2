@@ -40,10 +40,7 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
 
     private let store: ValueStore<Preferences>
 
-    // Used to show connection error dialog
-    // private var didClose: Bool = false
-    @Published var shouldShowDisconnectReason: Bool = false
-    public var latestError: LiveKitError?
+
 
     public var room: Room!
 
@@ -254,6 +251,9 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     }
 
     func disconnect() async {
+        if room.connectionState == .connected {
+            try? await room.localParticipant.setMicrophone(enabled: false)
+        }
         await room.disconnect()
     }
 
@@ -344,26 +344,7 @@ extension RoomContext: RoomDelegate {
         print("Did update connectionState \(oldValue) -> \(connectionState)")
 
         if case .disconnected = connectionState {
-            if let error = room.disconnectError {
-                if error.type == .cancelled {
-                    onCallEnded?()
-                } else {
-                    latestError = room.disconnectError
-
-                    Task.detached { @MainActor [weak self] in
-                        guard let self else { return }
-                        self.shouldShowDisconnectReason = true
-                        // Reset state
-                        self.focusParticipant = nil
-                        self.textFieldString = ""
-                        self.showMessagesView = false
-                        self.messages.removeAll()
-                        // self.objectWillChange.send()
-                    }
-                }
-            } else {
-                onCallEnded?()
-            }
+            onCallEnded?()
         }
         
         if case .connected = connectionState {
