@@ -461,7 +461,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
             text: text,
             sendingAttachment: chatBottomView.isSendingMedia(),
             threadUUID: self.newChatViewModel.replyingTo?.uuid,
-            replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.replyUUID,
+            replyUUID: self.threadUUID ?? self.newChatViewModel.replyingTo?.uuid,
             metaDataString: chat?.getMetaDataJsonStringValue(forceIncludeTimezone: self.newChatViewModel.wasTimezoneNotSentRecently())
         )
         

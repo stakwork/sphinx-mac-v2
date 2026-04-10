@@ -609,6 +609,15 @@ extension SphinxOnionManager {
         
         localMsg.senderId = owner?.id ?? UserData.sharedInstance.getUserId(context: backgroundContext)
 
+        // Preserve replyUUID from inner content if the local message doesn't already have one
+        if localMsg.replyUUID == nil,
+           let msg = message.message,
+           let innerContent = MessageInnerContent(JSONString: msg),
+           let replyUuid = innerContent.replyUuid
+        {
+            localMsg.replyUUID = replyUuid
+        }
+
         return localMsg
     }
 
