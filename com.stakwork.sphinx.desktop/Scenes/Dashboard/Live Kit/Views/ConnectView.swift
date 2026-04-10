@@ -147,9 +147,5 @@ struct ConnectView: View {
             }
         }
         .frame(minWidth: 500, minHeight: 500)
-        .alert(isPresented: $roomCtx.shouldShowDisconnectReason) {
-            Alert(title: Text("Disconnected"),
-                  message: Text("Reason: " + String(describing: roomCtx.latestError)))
-        }
     }
 }
