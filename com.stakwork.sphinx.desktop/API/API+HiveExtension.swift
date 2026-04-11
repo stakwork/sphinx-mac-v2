@@ -13,6 +13,7 @@ import SwiftyJSON
 typealias HiveAuthTokenCallback = ((String?) -> ())
 typealias HiveWorkspacesCallback = (([Workspace]) -> ())
 typealias HiveTasksCallback = (([WorkspaceTask]) -> ())
+typealias HiveUpdateTaskCallback = (() -> ())
 typealias HiveWorkspaceImageCallback = ((String?) -> ())
 typealias HiveCallLinkCallback = ((String) -> ())
 
@@ -226,6 +227,90 @@ extension API {
                 self?.fetchTasks(
                     workspaceId: workspaceId,
                     includeArchived: includeArchived,
+                    authToken: token,
+                    callback: callback,
+                    errorCallback: errorCallback
+                )
+            },
+            errorCallback: errorCallback
+        )
+    }
+
+    // MARK: - Update Task
+
+    func updateTask(
+        taskId: String,
+        params: [String: AnyObject],
+        authToken: String,
+        callback: @escaping HiveUpdateTaskCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        let urlString = "\(API.kHiveBaseUrl)/tickets/\(taskId)"
+        guard let request = createRequest(urlString, params: params as NSDictionary, method: "PATCH", token: authToken) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                if let error = json["error"].string {
+                    print("[HiveAPI] Update task error: \(error)")
+                    errorCallback()
+                    return
+                }
+                callback()
+            case .failure:
+                errorCallback()
+            }
+        }
+    }
+
+    func updateTaskWithAuth(
+        taskId: String,
+        params: [String: AnyObject],
+        callback: @escaping HiveUpdateTaskCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            updateTask(
+                taskId: taskId,
+                params: params,
+                authToken: storedToken,
+                callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndUpdateTask(
+                        taskId: taskId,
+                        params: params,
+                        callback: callback,
+                        errorCallback: errorCallback
+                    )
+                }
+            )
+        } else {
+            authenticateAndUpdateTask(
+                taskId: taskId,
+                params: params,
+                callback: callback,
+                errorCallback: errorCallback
+            )
+        }
+    }
+
+    private func authenticateAndUpdateTask(
+        taskId: String,
+        params: [String: AnyObject],
+        callback: @escaping HiveUpdateTaskCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(
+            callback: { [weak self] token in
+                guard let token = token else { errorCallback(); return }
+                UserDefaults.Keys.hiveToken.set(token)
+                self?.updateTask(
+                    taskId: taskId,
+                    params: params,
                     authToken: token,
                     callback: callback,
                     errorCallback: errorCallback

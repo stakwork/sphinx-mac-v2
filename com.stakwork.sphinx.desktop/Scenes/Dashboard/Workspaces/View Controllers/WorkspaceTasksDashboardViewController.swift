@@ -21,7 +21,7 @@ class WorkspaceTasksDashboardViewController: NSViewController {
     private var tasks: [WorkspaceTask] = []
     private var includeArchived = false
     private var isLoading = false
-    
+
     private var dataSource: NSCollectionViewDiffableDataSource<Int, WorkspaceTask>!
 
     static func instantiate(workspace: Workspace) -> WorkspaceTasksDashboardViewController {
@@ -56,56 +56,54 @@ class WorkspaceTasksDashboardViewController: NSViewController {
             initialSelectedIndex: 0
         )
     }
-    
+
     private func setupCollectionView() {
-        // Register the cell
         collectionView.register(
             WorkspaceTasksCollectionViewItem.nib,
             forItemWithIdentifier: NSUserInterfaceItemIdentifier(WorkspaceTasksCollectionViewItem.reuseID)
         )
-        
-        // Configure layout with 105pt row height for task rows
-        let layout = NSCollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
+
+        // Row height increased to 135 to accommodate the toggle row
+        let rowHeight: CGFloat = 135
+
+        let layout = NSCollectionViewCompositionalLayout { (_, _) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(105)
+                heightDimension: .absolute(rowHeight)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            
+
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(105)
+                heightDimension: .absolute(rowHeight)
             )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            
-            let section = NSCollectionLayoutSection(group: group)
-            return section
+
+            return NSCollectionLayoutSection(group: group)
         }
-        
+
         collectionView.collectionViewLayout = layout
-        
-        // Setup diffable data source
+
         dataSource = NSCollectionViewDiffableDataSource<Int, WorkspaceTask>(
             collectionView: collectionView
-        ) { (collectionView, indexPath, task) -> NSCollectionViewItem? in
+        ) { [weak self] (collectionView, indexPath, task) -> NSCollectionViewItem? in
             let item = collectionView.makeItem(
                 withIdentifier: NSUserInterfaceItemIdentifier(WorkspaceTasksCollectionViewItem.reuseID),
                 for: indexPath
             ) as? WorkspaceTasksCollectionViewItem
-            
+
+            item?.delegate = self
             item?.render(with: task)
             return item
         }
     }
-    
-    private func updateSnapshot() {
+
+    private func updateSnapshot(animating: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<Int, WorkspaceTask>()
         snapshot.appendSections([0])
         snapshot.appendItems(tasks, toSection: 0)
-        
-        // Apply snapshot without animation when switching tabs to prevent flash
-        dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in
-            // Only show collection view after snapshot has been applied
+
+        dataSource.apply(snapshot, animatingDifferences: animating) { [weak self] in
             DispatchQueue.main.async {
                 self?.collectionView.isHidden = false
             }
@@ -117,7 +115,7 @@ class WorkspaceTasksDashboardViewController: NSViewController {
         isLoading = true
         noResultsFoundLabel.isHidden = true
         errorLabel.isHidden = true
-        collectionView.isHidden = true  // Hide collection view while loading
+        collectionView.isHidden = true
         loadingWheel.startAnimation(nil)
         loadingWheel.isHidden = false
 
@@ -139,18 +137,85 @@ class WorkspaceTasksDashboardViewController: NSViewController {
                     self?.isLoading = false
                     self?.loadingWheel.stopAnimation(nil)
                     self?.loadingWheel.isHidden = true
-                    self?.collectionView.isHidden = false  // Show collection view even on error
+                    self?.collectionView.isHidden = false
                     self?.errorLabel.isHidden = false
                     self?.errorLabel.stringValue = "Failed to load tasks. Please try again."
                 }
             }
         )
     }
+
+    // MARK: - Optimistic Toggle Helpers
+
+    private func updateTask(
+        id taskId: String,
+        params: [String: AnyObject],
+        optimisticUpdate: @escaping (inout WorkspaceTask) -> Void
+    ) {
+        guard let index = tasks.firstIndex(where: { $0.id == taskId }) else { return }
+
+        // Capture snapshot before mutation for potential revert
+        let previousTask = tasks[index]
+
+        // Apply optimistic update to local state
+        var updatedTask = tasks[index]
+        optimisticUpdate(&updatedTask)
+        tasks[index] = updatedTask
+        updateSnapshot()
+
+        API.sharedInstance.updateTaskWithAuth(
+            taskId: taskId,
+            params: params,
+            callback: { /* success — optimistic state already applied */ },
+            errorCallback: { [weak self] in
+                // Revert on failure
+                DispatchQueue.main.async {
+                    guard let self = self,
+                          let revertIndex = self.tasks.firstIndex(where: { $0.id == taskId }) else { return }
+                    self.tasks[revertIndex] = previousTask
+                    self.updateSnapshot()
+                }
+            }
+        )
+    }
 }
+
+// MARK: - ChatsSegmentedControlDelegate
 
 extension WorkspaceTasksDashboardViewController: ChatsSegmentedControlDelegate {
     func segmentedControlDidSwitch(_ segmentedControl: ChatsSegmentedControl, to index: Int) {
         includeArchived = (index == 1)
         loadTasks()
+    }
+}
+
+// MARK: - WorkspaceTasksCollectionViewItemDelegate
+
+extension WorkspaceTasksDashboardViewController: WorkspaceTasksCollectionViewItemDelegate {
+
+    func taskItem(
+        _ item: WorkspaceTasksCollectionViewItem,
+        didToggleRunBuild value: Bool,
+        for taskId: String
+    ) {
+        updateTask(
+            id: taskId,
+            params: ["runBuild": value as AnyObject]
+        ) { task in
+            task.runBuild = value
+        }
+    }
+
+    func taskItem(
+        _ item: WorkspaceTasksCollectionViewItem,
+        didToggleRunTestSuite value: Bool,
+        for taskId: String
+    ) {
+        updateTask(
+            id: taskId,
+            params: ["runTestSuite": value as AnyObject]
+        ) { task in
+            task.runTestSuite = value
+        }
     }
 }

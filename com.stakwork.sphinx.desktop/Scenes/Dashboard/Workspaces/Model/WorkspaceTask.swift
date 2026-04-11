@@ -34,6 +34,8 @@ struct WorkspaceTask: Codable, Hashable {
     let createdByName: String?
     let createdByImage: String?
     let chatMessageCount: Int
+    var runBuild: Bool
+    var runTestSuite: Bool
 
     init?(json: JSON) {
         guard let id = json["id"].string,
@@ -65,5 +67,7 @@ struct WorkspaceTask: Codable, Hashable {
         self.createdByName = json["createdBy"]["name"].string
         self.createdByImage = json["createdBy"]["image"].string
         self.chatMessageCount = json["chatMessageCount"].int ?? 0
+        self.runBuild = json["runBuild"].bool ?? true
+        self.runTestSuite = json["runTestSuite"].bool ?? true
     }
 }

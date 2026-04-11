@@ -94,7 +94,9 @@ struct WorkspaceTasksMockData {
         status: String,
         priority: String,
         repositoryName: String?,
-        updatedAt: String
+        updatedAt: String,
+        runBuild: Bool = true,
+        runTestSuite: Bool = true
     ) -> WorkspaceTask {
         let json: [String: Any] = [
             "id": id,
@@ -103,7 +105,9 @@ struct WorkspaceTasksMockData {
             "priority": priority,
             "updatedAt": updatedAt,
             "repository": repositoryName != nil ? ["name": repositoryName!] : [:],
-            "chatMessageCount": 0
+            "chatMessageCount": 0,
+            "runBuild": runBuild,
+            "runTestSuite": runTestSuite
         ]
         return WorkspaceTask(json: JSON(json))!
     }
