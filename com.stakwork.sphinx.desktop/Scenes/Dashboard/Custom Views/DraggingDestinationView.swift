@@ -203,16 +203,21 @@ class DraggingDestinationView: NSView, LoadableNib {
     }
     
     func shouldAllowDrag(_ draggingInfo: NSDraggingInfo) -> Bool {
-        var shouldAccept = false
         let pasteBoard = draggingInfo.draggingPasteboard
-
         let filteringOptionsCount = filteringOptions[NSPasteboard.ReadingOptionKey.urlReadingContentsConformToTypes]?.count ?? 0
         let options = filteringOptionsCount > 0 ? filteringOptions : nil
-        
-        if pasteBoard.canReadObject(forClasses: [NSURL.self], options: options) {
-            shouldAccept = true
+
+        guard pasteBoard.canReadObject(forClasses: [NSURL.self], options: options) else {
+            return false
         }
-        return shouldAccept
+
+        // In chat mode (no type filtering), reject web URLs — only accept file:// URLs
+        if filteringOptionsCount == 0,
+           let urls = pasteBoard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] {
+            return urls.contains(where: { $0.isFileURL })
+        }
+
+        return true
     }
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -277,15 +282,18 @@ class DraggingDestinationView: NSView, LoadableNib {
                 delegate.imageDragged(image: image)
             }
             
+            var handledAny = false
             for url in urls {
-                if !url.absoluteString.starts(with: "file://") {
-                    continue
-                }
-                
+                guard url.isFileURL else { continue }
                 if let data = getDataFrom(url: url) {
                     chatDelegate?.attachmentAdded(url: url, data: data, image: image)
+                    handledAny = true
                 }
                 resetView()
+            }
+            if !handledAny {
+                resetView()
+                return false
             }
             return true
         } else if let images = pasteBoard.readObjects(forClasses: [NSImage.self], options: options) as? [NSImage], images.count > 0 {
