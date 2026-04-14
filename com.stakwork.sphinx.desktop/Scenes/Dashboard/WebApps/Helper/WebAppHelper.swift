@@ -218,14 +218,16 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func sendAuthorizeMessage(amount: Int? = nil, signature: String? = nil, dict: [String: AnyObject], completion: @escaping () -> ()) {
-        if let pubKey = UserData.sharedInstance.getUserPubKey() {
+        if let owner = UserContact.getOwner(), let pubKey = owner.publicKey {
             var params: [String: AnyObject] = [:]
             setTypeApplicationAndPassword(params: &params, dict: dict)
             
             params["pubkey"] = pubKey as AnyObject
             
-            let routeHint = UserContact.getOwner()?.routeHint ?? ""
-            params["routeHint"] = routeHint as AnyObject
+            if let routeHint = owner.routeHint {
+                params["routeHint"] = routeHint as AnyObject
+                saveValue(routeHint as AnyObject, for: "routeHint")
+            }
             
             saveValue(pubKey as AnyObject, for: "pubkey")
             
@@ -264,6 +266,10 @@ extension WebAppHelper : WKScriptMessageHandler {
         params["success"] = success as AnyObject
         params["budget"] = budget as AnyObject
         params["pubkey"] = pubKey as AnyObject
+        
+        if let routeHint: String? = getValue(withKey: "routeHint") {
+            params["routeHint"] = routeHint as AnyObject
+        }
         
         setTypeApplicationAndPassword(params: &params, dict: dict)
         sendMessage(dict: params)
