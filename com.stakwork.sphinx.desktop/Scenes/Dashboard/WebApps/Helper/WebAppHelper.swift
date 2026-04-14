@@ -224,6 +224,9 @@ extension WebAppHelper : WKScriptMessageHandler {
             
             params["pubkey"] = pubKey as AnyObject
             
+            let routeHint = UserContact.getOwner()?.routeHint ?? ""
+            params["routeHint"] = routeHint as AnyObject
+            
             saveValue(pubKey as AnyObject, for: "pubkey")
             
             if let signature = signature {
