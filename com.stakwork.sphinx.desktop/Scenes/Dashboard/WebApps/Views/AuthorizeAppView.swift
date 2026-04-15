@@ -102,10 +102,15 @@ class AuthorizeAppView: NSView, LoadableNib {
     }
     
     func configureWithBudget() {
-        confirmButtonEnabled = false
         fieldContainer.isHidden = false
         fieldTopLabel.isHidden = false
         fieldBottomLabel.isHidden = false
+        // Enable button if a valid pre-filled amount already exists
+        if let amount = getCurrentAmount(), amount > 0 {
+            confirmButtonEnabled = true
+        } else {
+            confirmButtonEnabled = false
+        }
     }
     
     func configureWithNoBudget() {
