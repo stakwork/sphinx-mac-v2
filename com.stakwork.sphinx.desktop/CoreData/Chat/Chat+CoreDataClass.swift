@@ -914,7 +914,9 @@ public class Chat: NSManagedObject, @unchecked Sendable {
     
     public func updateLastMessage() {
         if lastMessage == nil && messages?.count ?? 0 > 0 {
-            lastMessage = getLastMessageToShow()
+            if let lastM = getLastMessageToShow() {
+                lastMessage = lastM
+            }
         }
     }
     
