@@ -299,9 +299,12 @@ extension WebAppHelper : WKScriptMessageHandler {
                 self.sendKeySendResponse(dict: dict, success: false)
                 return
             }
-            
+
+            let routeHint = dict["route_hint"] as? String
+
             SphinxOnionManager.sharedInstance.keysend(
                 pubkey: dest,
+                routeHint: routeHint,
                 amt: Double(amt)
             ) { success in
                 if success {
