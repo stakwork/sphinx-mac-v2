@@ -105,27 +105,36 @@ extension SphinxOnionManager{
     //invoices related
     func createInvoice(
         amountMsat: Int,
-        description: String? = nil
-    ) -> String? {
-            
+        description: String? = nil,
+        callback: @escaping (String?) -> Void
+    ) {
         guard let seed = getAccountSeed(), let selfContact = UserContact.getOwner(), let _ = selfContact.nickname else {
-            return nil
+            callback(nil)
+            return
         }
-            
+
         do {
-            let rr = try Sphinx.makeInvoice(
+            let rr = try Sphinx.requestInvoice(
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
-                amtMsat: UInt64(amountMsat),
-                description: description ?? ""
+                amtMsat: UInt64(amountMsat)
             )
-            
+
+            self.invoiceGeneratedCallback = callback
             let _ = handleRunReturn(rr: rr)
-                
-            return rr.invoice
+
+            self.invoiceGeneratedTimeoutTimer = Timer.scheduledTimer(
+                withTimeInterval: 30.0,
+                repeats: false
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.invoiceGeneratedCallback?(nil)
+                self.invoiceGeneratedCallback = nil
+                self.invoiceGeneratedTimeoutTimer = nil
+            }
         } catch {
-            return nil
+            callback(nil)
         }
     }
     
