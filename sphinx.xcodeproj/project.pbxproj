@@ -501,6 +501,8 @@
 		47A93EF725DD79F70030DF14 /* lightningNetwork.gif in Resources */ = {isa = PBXBuildFile; fileRef = 47A93EF625DD79F70030DF14 /* lightningNetwork.gif */; };
 		47A93EF925DD7C4B0030DF14 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A93EF825DD7C4B0030DF14 /* NSImageView.swift */; };
 		47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */; };
+		47AA1BFB2A681D8C0029597B /* NSException+Catcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */; };
+		47AA1BFC2A681EE80029597B /* NSException+Catcher.h in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BF92A681D8C0029597B /* NSException+Catcher.h */; };
 		47AE2468287F1F4700EF42BD /* API+RedeemSatsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */; };
 		47AF0D4E2553099100C98398 /* NewPodcastPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */; };
 		47AF0D5025530DDC00C98398 /* PodcastEpisodesHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */; };
@@ -565,8 +567,6 @@
 		47DE1BF62A6813C50029597B /* StatusHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1BF52A6813C50029597B /* StatusHeaderView.xib */; };
 		47DE1BFB2A681D8C0029597B /* String+Geometrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1BFA2A681D8C0029597B /* String+Geometrics.m */; };
 		47DE1BFC2A681EE80029597B /* String+Geometrics.h in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1BF92A681D8C0029597B /* String+Geometrics.h */; };
-		47AA1BFB2A681D8C0029597B /* NSException+Catcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */; };
-		47AA1BFC2A681EE80029597B /* NSException+Catcher.h in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BF92A681D8C0029597B /* NSException+Catcher.h */; };
 		47DE1C042A68813B0029597B /* MessageNoBubbleCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1C022A68813B0029597B /* MessageNoBubbleCollectionViewItem.swift */; };
 		47DE1C052A68813B0029597B /* MessageNoBubbleCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47DE1C032A68813B0029597B /* MessageNoBubbleCollectionViewItem.xib */; };
 		47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47DE1C072A6881F10029597B /* DateSeparatorView.swift */; };
@@ -1517,6 +1517,8 @@
 		47A93EF625DD79F70030DF14 /* lightningNetwork.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = lightningNetwork.gif; sourceTree = "<group>"; };
 		47A93EF825DD7C4B0030DF14 /* NSImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
 		47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentManager.swift; sourceTree = "<group>"; };
+		47AA1BF92A681D8C0029597B /* NSException+Catcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSException+Catcher.h"; sourceTree = "<group>"; };
+		47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSException+Catcher.m"; sourceTree = "<group>"; };
 		47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+RedeemSatsExtension.swift"; sourceTree = "<group>"; };
 		47AF0D4D2553099100C98398 /* NewPodcastPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPodcastPlayerViewController.swift; sourceTree = "<group>"; };
 		47AF0D4F25530DDC00C98398 /* PodcastEpisodesHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastEpisodesHeaderView.swift; sourceTree = "<group>"; };
@@ -1590,8 +1592,6 @@
 		47DE1BF52A6813C50029597B /* StatusHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StatusHeaderView.xib; sourceTree = "<group>"; };
 		47DE1BF92A681D8C0029597B /* String+Geometrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "String+Geometrics.h"; sourceTree = "<group>"; };
 		47DE1BFA2A681D8C0029597B /* String+Geometrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "String+Geometrics.m"; sourceTree = "<group>"; };
-		47AA1BF92A681D8C0029597B /* NSException+Catcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSException+Catcher.h"; sourceTree = "<group>"; };
-		47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSException+Catcher.m"; sourceTree = "<group>"; };
 		47DE1C022A68813B0029597B /* MessageNoBubbleCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageNoBubbleCollectionViewItem.swift; sourceTree = "<group>"; };
 		47DE1C032A68813B0029597B /* MessageNoBubbleCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageNoBubbleCollectionViewItem.xib; sourceTree = "<group>"; };
 		47DE1C072A6881F10029597B /* DateSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateSeparatorView.swift; sourceTree = "<group>"; };
@@ -5759,7 +5759,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 256;
+				CURRENT_PROJECT_VERSION = 257;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5796,7 +5796,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 256;
+				CURRENT_PROJECT_VERSION = 257;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
