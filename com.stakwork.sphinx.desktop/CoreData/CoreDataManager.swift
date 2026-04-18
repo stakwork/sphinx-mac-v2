@@ -329,12 +329,26 @@ extension NSManagedObjectContext {
     /// Synchronous version - blocks the calling thread until the block completes.
     /// Uses performAndWait which is re-entrant, so nesting (e.g. calling getObjectsOfTypeWith
     /// inside this block) is safe and won't deadlock or trigger dispatch queue assertions.
+    ///
+    /// NSExceptionCatcher wraps the block in @try/@catch so that Objective-C exceptions
+    /// (e.g. NSInternalInconsistencyException from Core Data) cannot propagate through
+    /// C++ libdispatch frames and trigger std::terminate / SIGABRT.
     func performSafely(_ block: () throws -> Void) {
         self.performAndWait {
-            do {
-                try block()
-            } catch let error as NSError {
-                Self.logCoreDataError(error)
+            // withoutActuallyEscaping is safe here because NSExceptionCatcher.tryExecute
+            // calls the block synchronously and never stores it beyond the call.
+            withoutActuallyEscaping(block) { escapableBlock in
+                var exceptionReason: NSString? = nil
+                let succeeded = NSExceptionCatcher.tryExecute({
+                    do {
+                        try escapableBlock()
+                    } catch let error as NSError {
+                        Self.logCoreDataError(error)
+                    }
+                }, exceptionReason: &exceptionReason)
+                if !succeeded, let reason = exceptionReason {
+                    print("❌ ObjC exception caught in performSafely: \(reason)")
+                }
             }
         }
     }

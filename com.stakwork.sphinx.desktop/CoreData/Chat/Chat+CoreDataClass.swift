@@ -534,7 +534,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
             timezoneData[tuple.0] == nil ? tuple.0 : nil
         }
 
-        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self)
+        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self, context: managedObjectContext)
 
         timezoneData = timezoneData.merging(newTimezoneMap) { (existing, new) in
             return existing  // Keep original value
