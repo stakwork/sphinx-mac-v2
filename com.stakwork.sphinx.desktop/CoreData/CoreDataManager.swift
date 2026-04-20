@@ -337,15 +337,25 @@ extension NSManagedObjectContext {
         self.performAndWait {
             // withoutActuallyEscaping is safe here because NSExceptionCatcher.tryExecute
             // calls the block synchronously and never stores it beyond the call.
+            // The autoreleasepool forces the ObjC block wrapper to be released before
+            // withoutActuallyEscaping checks the refcount — without it, ObjC ARC
+            // autoreleases the block parameter, leaving a dangling retain that causes
+            // "non-escaping closure has escaped" SIGTRAP.
             withoutActuallyEscaping(block) { escapableBlock in
                 var exceptionReason: NSString? = nil
-                let succeeded = NSExceptionCatcher.tryExecute({
-                    do {
-                        try escapableBlock()
-                    } catch let error as NSError {
-                        Self.logCoreDataError(error)
-                    }
-                }, exceptionReason: &exceptionReason)
+                var swiftError: NSError? = nil
+                let succeeded = autoreleasepool {
+                    NSExceptionCatcher.tryExecute({
+                        do {
+                            try escapableBlock()
+                        } catch let error as NSError {
+                            swiftError = error
+                        }
+                    }, exceptionReason: &exceptionReason)
+                }
+                if let error = swiftError {
+                    Self.logCoreDataError(error)
+                }
                 if !succeeded, let reason = exceptionReason {
                     print("❌ ObjC exception caught in performSafely: \(reason)")
                 }
