@@ -118,7 +118,8 @@ extension SphinxOnionManager{
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
-                amtMsat: UInt64(amountMsat)
+                amtMsat: UInt64(amountMsat),
+                description: description
             )
 
             self.invoiceGeneratedCallback = callback
