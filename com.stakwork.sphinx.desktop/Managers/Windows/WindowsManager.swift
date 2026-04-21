@@ -469,6 +469,21 @@ import SwiftUI
         }
     }
     
+    func showWebAppWindow(vc: WebAppViewController, title: String) {
+        let screen = NSApplication.shared.keyWindow
+        let frame = screen?.frame ?? CGRect(x: 0, y: 0, width: 1024, height: 768)
+        let position = screen?.frame.origin ?? CGPoint.zero
+
+        showNewWindow(
+            with: title,
+            size: CGSize(width: frame.width, height: frame.height),
+            minSize: CGSize(width: 350, height: 550),
+            position: position,
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: vc
+        )
+    }
+
     func showWebAppWindow(chat: Chat?, view: NSView, isAppURL: Bool = true) {
         if let chat = chat, let tribeInfo = chat.tribeInfo, let appURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appURL.isEmpty && appURL.isValidURL,
            let webAppVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {

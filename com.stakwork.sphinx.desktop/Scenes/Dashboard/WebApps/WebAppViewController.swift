@@ -29,6 +29,14 @@ class WebAppViewController: NSViewController {
     var refreshButton: CustomButton!
     var backToChatButton: CustomButton!
     var openInWindowButton: CustomButton!
+    var rightButtonsStack: NSStackView!
+    
+    /// Set to true once this VC is handed to a separate NSWindow so the "open in window" button hides
+    var isOpenedInWindow: Bool = false {
+        didSet {
+            openInWindowButton?.isHidden = isOpenedInWindow
+        }
+    }
     
     weak var webAppDelegate: WebAppViewControllerDelegate?
     
@@ -116,24 +124,8 @@ class WebAppViewController: NSViewController {
         urlLabel.backgroundColor = .clear
         headerBarView.addSubview(urlLabel)
 
-        // Back to chat button (left side)
-        backToChatButton = CustomButton()
-        backToChatButton.translatesAutoresizingMaskIntoConstraints = false
-        backToChatButton.cursor = .pointingHand
-        let backConfig = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
-        backToChatButton.image = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?.withSymbolConfiguration(backConfig)
-        backToChatButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        backToChatButton.isBordered = false
-        backToChatButton.bezelStyle = .shadowlessSquare
-        backToChatButton.imagePosition = .imageOnly
-        backToChatButton.imageScaling = .scaleProportionallyUpOrDown
-        backToChatButton.target = self
-        backToChatButton.action = #selector(backToChatButtonClicked(_:))
-        headerBarView.addSubview(backToChatButton)
-
         // Refresh button
         refreshButton = CustomButton()
-        refreshButton.translatesAutoresizingMaskIntoConstraints = false
         refreshButton.cursor = .pointingHand
         let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
         refreshButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?.withSymbolConfiguration(config)
@@ -144,11 +136,26 @@ class WebAppViewController: NSViewController {
         refreshButton.imageScaling = .scaleProportionallyUpOrDown
         refreshButton.target = self
         refreshButton.action = #selector(refreshButtonClicked(_:))
-        headerBarView.addSubview(refreshButton)
+        refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        // Open in window button (right side)
+        // Back to chat button
+        backToChatButton = CustomButton()
+        backToChatButton.cursor = .pointingHand
+        let backConfig = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
+        backToChatButton.image = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?.withSymbolConfiguration(backConfig)
+        backToChatButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        backToChatButton.isBordered = false
+        backToChatButton.bezelStyle = .shadowlessSquare
+        backToChatButton.imagePosition = .imageOnly
+        backToChatButton.imageScaling = .scaleProportionallyUpOrDown
+        backToChatButton.target = self
+        backToChatButton.action = #selector(backToChatButtonClicked(_:))
+        backToChatButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        backToChatButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Open in window button
         openInWindowButton = CustomButton()
-        openInWindowButton.translatesAutoresizingMaskIntoConstraints = false
         openInWindowButton.cursor = .pointingHand
         openInWindowButton.image = NSImage(named: "openNewWindow")
         openInWindowButton.contentTintColor = NSColor.Sphinx.SecondaryText
@@ -158,31 +165,25 @@ class WebAppViewController: NSViewController {
         openInWindowButton.imageScaling = .scaleProportionallyUpOrDown
         openInWindowButton.target = self
         openInWindowButton.action = #selector(openInWindowButtonClicked(_:))
-        headerBarView.addSubview(openInWindowButton)
+        openInWindowButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        openInWindowButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Stack the three buttons horizontally — hiding a button collapses its space automatically
+        rightButtonsStack = NSStackView(views: [refreshButton, backToChatButton, openInWindowButton])
+        rightButtonsStack.orientation = .horizontal
+        rightButtonsStack.spacing = 8
+        rightButtonsStack.translatesAutoresizingMaskIntoConstraints = false
+        headerBarView.addSubview(rightButtonsStack)
 
         NSLayoutConstraint.activate([
-            // URL label anchored to left, trailing to refresh button
+            // URL label anchored to left, trailing to stack
             urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
-            urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
+            urlLabel.trailingAnchor.constraint(equalTo: rightButtonsStack.leadingAnchor, constant: -8),
             urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
 
-            // Refresh button (leftmost of the right group)
-            refreshButton.trailingAnchor.constraint(equalTo: backToChatButton.leadingAnchor, constant: -8),
-            refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            refreshButton.widthAnchor.constraint(equalToConstant: 20),
-            refreshButton.heightAnchor.constraint(equalToConstant: 20),
-
-            // Back to chat button (middle of the right group)
-            backToChatButton.trailingAnchor.constraint(equalTo: openInWindowButton.leadingAnchor, constant: -8),
-            backToChatButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            backToChatButton.widthAnchor.constraint(equalToConstant: 20),
-            backToChatButton.heightAnchor.constraint(equalToConstant: 20),
-
-            // Open in window button (rightmost)
-            openInWindowButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
-            openInWindowButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            openInWindowButton.widthAnchor.constraint(equalToConstant: 20),
-            openInWindowButton.heightAnchor.constraint(equalToConstant: 20),
+            // Stack pinned to right edge
+            rightButtonsStack.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
+            rightButtonsStack.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
         ])
 
         headerBarView.isHidden = true
@@ -191,7 +192,11 @@ class WebAppViewController: NSViewController {
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        view.window?.delegate = self
+        // Only register as window delegate when running in a separate window.
+        // In inline mode we don't want windowWillClose to fire and call teardown().
+        if isOpenedInWindow {
+            view.window?.delegate = self
+        }
         
         addAndLoadWebView()
     }

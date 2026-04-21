@@ -83,9 +83,8 @@ class DashboardViewController: NSViewController {
         )
     }()
 
-    var cachedWebAppVCs: [Int: WebAppViewController] = [:]
-    var cachedSecondBrainVCs: [Int: WebAppViewController] = [:]
     var activeInlineWebAppChatId: Int? = nil
+    var activeInlineWebAppVC: WebAppViewController? = nil
     
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
@@ -808,6 +807,7 @@ extension DashboardViewController : NSSplitViewDelegate {
         feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
         graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         workspaceTasksDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
+        activeInlineWebAppVC?.resizeSubviews(frame: rightSplittedView.bounds)
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
@@ -957,38 +957,43 @@ extension DashboardViewController : DashboardVCDelegate {
             workspaceTasksDashboardViewController = nil
         }
 
-        for vc in children where vc is WebAppViewController {
-            removeChildVC(child: vc)
+        if let webAppVC = activeInlineWebAppVC {
+            webAppVC.teardown()
+            removeChildVC(child: webAppVC)
+            activeInlineWebAppVC = nil
         }
         activeInlineWebAppChatId = nil
     }
 
     func showInlineWebApp(chat: Chat, isAppURL: Bool) {
-        let existing = isAppURL ? cachedWebAppVCs[chat.id] : cachedSecondBrainVCs[chat.id]
-        let webAppVC: WebAppViewController
-        if let existing = existing {
-            webAppVC = existing
-        } else {
-            guard let vc = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
-            webAppVC = vc
-            if isAppURL {
-                cachedWebAppVCs[chat.id] = vc
-            } else {
-                cachedSecondBrainVCs[chat.id] = vc
-            }
-        }
+        guard let webAppVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
         webAppVC.webAppDelegate = self
+
         let chatId = chat.id
-        resetDetailViewController()
+
+        // Only remove the current main panel VC — do NOT call resetDetailViewController()
+        // so the right-panel (podcast, threads) is preserved and resetVC() is not called
+        // (which would pause the podcast player).
+        if let detailViewController = newDetailViewController {
+            self.removeChildVC(child: detailViewController)
+            newDetailViewController = nil
+        }
+        if let old = activeInlineWebAppVC {
+            old.teardown()
+            removeChildVC(child: old)
+        }
+
         activeInlineWebAppChatId = chatId
+        activeInlineWebAppVC = webAppVC
         addChildVC(child: webAppVC, container: rightSplittedView)
-        webAppVC.addAndLoadWebView()
     }
 
     func dismissInlineWebApp() {
         guard let chatId = activeInlineWebAppChatId else { return }
-        for vc in children where vc is WebAppViewController {
-            removeChildVC(child: vc)
+        if let webAppVC = activeInlineWebAppVC {
+            webAppVC.teardown()
+            removeChildVC(child: webAppVC)
+            activeInlineWebAppVC = nil
         }
         activeInlineWebAppChatId = nil
         presentChatVCFor(chatId: chatId, contactId: nil)
@@ -1202,16 +1207,27 @@ extension DashboardViewController: WebAppViewControllerDelegate {
 
     func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool) {
         guard let chat = chat else { return }
-        if isAppURL {
-            cachedWebAppVCs[chat.id] = nil
-        } else {
-            cachedSecondBrainVCs[chat.id] = nil
+
+        // Grab the existing VC before dismissInlineWebApp tears it down
+        let vcToMove = activeInlineWebAppVC
+
+        // Remove from inline without tearing down
+        if let vc = activeInlineWebAppVC {
+            removeChildVC(child: vc)
+            activeInlineWebAppVC = nil
         }
-        dismissInlineWebApp()
-        if let appURL = appURL, !appURL.isEmpty {
-            WindowsManager.sharedInstance.showWebAppWindow(url: appURL)
-        } else {
-            WindowsManager.sharedInstance.showWebAppWindow(chat: chat, view: view, isAppURL: isAppURL)
+        activeInlineWebAppChatId = nil
+
+        // Restore the chat view
+        presentChatVCFor(chatId: chat.id, contactId: nil)
+
+        // Move the existing (already-loaded) VC into its own window
+        if let vc = vcToMove {
+            vc.isOpenedInWindow = true
+            WindowsManager.sharedInstance.showWebAppWindow(
+                vc: vc,
+                title: chat.name ?? "Web App"
+            )
         }
     }
 }
