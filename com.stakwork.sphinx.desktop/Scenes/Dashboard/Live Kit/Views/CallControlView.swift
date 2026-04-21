@@ -167,7 +167,8 @@ struct CallControlView: View {
                     .padding(.trailing, 8)
             }
         }
-        .frame(minWidth: 60.0, height: 40.0)
+        .frame(minWidth: 60.0)
+        .frame(height: 40.0)
         .background(
             roomCtx.showParticipantsView ?
             Color(NSColor(hex: "#5078F2")).opacity(0.75).cornerRadius(8.0)
