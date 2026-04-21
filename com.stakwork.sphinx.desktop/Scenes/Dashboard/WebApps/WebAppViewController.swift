@@ -9,6 +9,11 @@
 import Cocoa
 @preconcurrency import WebKit
 
+@MainActor protocol WebAppViewControllerDelegate: AnyObject {
+    func webAppDidTapBackToChat()
+    func webAppDidTapOpenInWindow(chat: Chat?, isAppURL: Bool)
+}
+
 class WebAppViewController: NSViewController {
     
     @IBOutlet weak var authorizeModalContainer: NSView!
@@ -22,6 +27,10 @@ class WebAppViewController: NSViewController {
     var headerBarView: NSView!
     var urlLabel: NSTextField!
     var refreshButton: CustomButton!
+    var backToChatButton: CustomButton!
+    var openInWindowButton: CustomButton!
+    
+    weak var webAppDelegate: WebAppViewControllerDelegate?
     
     var webView: WKWebView!
     var appURL: String! = nil
@@ -107,6 +116,21 @@ class WebAppViewController: NSViewController {
         urlLabel.backgroundColor = .clear
         headerBarView.addSubview(urlLabel)
 
+        // Back to chat button (left side)
+        backToChatButton = CustomButton()
+        backToChatButton.translatesAutoresizingMaskIntoConstraints = false
+        backToChatButton.cursor = .pointingHand
+        let backConfig = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
+        backToChatButton.image = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?.withSymbolConfiguration(backConfig)
+        backToChatButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        backToChatButton.isBordered = false
+        backToChatButton.bezelStyle = .shadowlessSquare
+        backToChatButton.imagePosition = .imageOnly
+        backToChatButton.imageScaling = .scaleProportionallyUpOrDown
+        backToChatButton.target = self
+        backToChatButton.action = #selector(backToChatButtonClicked(_:))
+        headerBarView.addSubview(backToChatButton)
+
         // Refresh button
         refreshButton = CustomButton()
         refreshButton.translatesAutoresizingMaskIntoConstraints = false
@@ -122,15 +146,43 @@ class WebAppViewController: NSViewController {
         refreshButton.action = #selector(refreshButtonClicked(_:))
         headerBarView.addSubview(refreshButton)
 
+        // Open in window button (right side)
+        openInWindowButton = CustomButton()
+        openInWindowButton.translatesAutoresizingMaskIntoConstraints = false
+        openInWindowButton.cursor = .pointingHand
+        openInWindowButton.image = NSImage(named: "openNewWindow")
+        openInWindowButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        openInWindowButton.isBordered = false
+        openInWindowButton.bezelStyle = .shadowlessSquare
+        openInWindowButton.imagePosition = .imageOnly
+        openInWindowButton.imageScaling = .scaleProportionallyUpOrDown
+        openInWindowButton.target = self
+        openInWindowButton.action = #selector(openInWindowButtonClicked(_:))
+        headerBarView.addSubview(openInWindowButton)
+
         NSLayoutConstraint.activate([
-            refreshButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
+            // Back to chat button on the left
+            backToChatButton.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 8),
+            backToChatButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+            backToChatButton.widthAnchor.constraint(equalToConstant: 20),
+            backToChatButton.heightAnchor.constraint(equalToConstant: 20),
+
+            // URL label between back button and refresh button
+            urlLabel.leadingAnchor.constraint(equalTo: backToChatButton.trailingAnchor, constant: 8),
+            urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
+            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+
+            // Refresh button to the left of open-in-window button
+            refreshButton.trailingAnchor.constraint(equalTo: openInWindowButton.leadingAnchor, constant: -8),
             refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
             refreshButton.widthAnchor.constraint(equalToConstant: 20),
             refreshButton.heightAnchor.constraint(equalToConstant: 20),
 
-            urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
-            urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
-            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor)
+            // Open in window button on the right
+            openInWindowButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
+            openInWindowButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+            openInWindowButton.widthAnchor.constraint(equalToConstant: 20),
+            openInWindowButton.heightAnchor.constraint(equalToConstant: 20),
         ])
 
         headerBarView.isHidden = true
@@ -271,6 +323,25 @@ class WebAppViewController: NSViewController {
     @IBAction func refreshButtonClicked(_ sender: Any) {
         addAndLoadWebView(forceReload: true)
     }
+
+    @objc func backToChatButtonClicked(_ sender: Any) {
+        webAppDelegate?.webAppDidTapBackToChat()
+    }
+
+    @objc func openInWindowButtonClicked(_ sender: Any) {
+        webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, isAppURL: !isPersonalGraph)
+    }
+
+    func teardown() {
+        finishLoadingTimer?.invalidate()
+        finishLoadingTimer = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
+        webView?.configuration.userContentController.removeAllUserScripts()
+        webView?.removeFromSuperview()
+        webView = nil
+    }
 }
 
 extension WebAppViewController : WKNavigationDelegate {
@@ -327,17 +398,7 @@ extension WebAppViewController : AuthorizeAppViewDelegate {
 
 extension WebAppViewController : NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
-        finishLoadingTimer?.invalidate()
-        finishLoadingTimer = nil
-
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.configuration.userContentController.removeScriptMessageHandler(
-            forName: webAppHelper.messageHandler
-        )
-        webView?.configuration.userContentController.removeAllUserScripts()
-        webView?.removeFromSuperview()
-        webView = nil
+        teardown()
     }
 }
 

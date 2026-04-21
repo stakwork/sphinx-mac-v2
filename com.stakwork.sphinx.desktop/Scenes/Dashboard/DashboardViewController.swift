@@ -82,6 +82,10 @@ class DashboardViewController: NSViewController {
             isPersonalGraph: true
         )
     }()
+
+    var cachedWebAppVCs: [Int: WebAppViewController] = [:]
+    var cachedSecondBrainVCs: [Int: WebAppViewController] = [:]
+    var activeInlineWebAppChatId: Int? = nil
     
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
@@ -882,6 +886,10 @@ extension DashboardViewController : DashboardVCDelegate {
     func shouldReloadChatRowWith(chatId: Int) {
         listViewController?.shouldReloadChatRowWith(chatId: chatId)
     }
+
+    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool) {
+        showInlineWebApp(chat: chat, isAppURL: isAppURL)
+    }
     
     func goToInviteCodeString(inviteCode: String) {
         if inviteCode == "" {
@@ -948,6 +956,41 @@ extension DashboardViewController : DashboardVCDelegate {
             self.removeChildVC(child: tasksVC)
             workspaceTasksDashboardViewController = nil
         }
+
+        for vc in children where vc is WebAppViewController {
+            removeChildVC(child: vc)
+        }
+        activeInlineWebAppChatId = nil
+    }
+
+    func showInlineWebApp(chat: Chat, isAppURL: Bool) {
+        let existing = isAppURL ? cachedWebAppVCs[chat.id] : cachedSecondBrainVCs[chat.id]
+        let webAppVC: WebAppViewController
+        if let existing = existing {
+            webAppVC = existing
+        } else {
+            guard let vc = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
+            webAppVC = vc
+            if isAppURL {
+                cachedWebAppVCs[chat.id] = vc
+            } else {
+                cachedSecondBrainVCs[chat.id] = vc
+            }
+        }
+        webAppVC.webAppDelegate = self
+        activeInlineWebAppChatId = chat.id
+        resetDetailViewController()
+        addChildVC(child: webAppVC, container: rightSplittedView)
+        webAppVC.addAndLoadWebView()
+    }
+
+    func dismissInlineWebApp() {
+        guard let chatId = activeInlineWebAppChatId else { return }
+        for vc in children where vc is WebAppViewController {
+            removeChildVC(child: vc)
+        }
+        activeInlineWebAppChatId = nil
+        presentChatVCFor(chatId: chatId, contactId: nil)
     }
     
     func presentFeedDashboard() {
@@ -1148,5 +1191,22 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
         
         newDetailViewController?.chatBottomView.messageFieldView.isThreadOpen = false
         newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
+    }
+}
+
+extension DashboardViewController: WebAppViewControllerDelegate {
+    func webAppDidTapBackToChat() {
+        dismissInlineWebApp()
+    }
+
+    func webAppDidTapOpenInWindow(chat: Chat?, isAppURL: Bool) {
+        guard let chat = chat else { return }
+        if isAppURL {
+            cachedWebAppVCs[chat.id] = nil
+        } else {
+            cachedSecondBrainVCs[chat.id] = nil
+        }
+        dismissInlineWebApp()
+        WindowsManager.sharedInstance.showWebAppWindow(chat: chat, view: view, isAppURL: isAppURL)
     }
 }

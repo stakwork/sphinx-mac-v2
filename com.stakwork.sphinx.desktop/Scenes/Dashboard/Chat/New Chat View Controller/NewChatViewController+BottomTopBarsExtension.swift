@@ -49,18 +49,13 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     }
     
     func didClickWebAppButton() {
-        WindowsManager.sharedInstance.showWebAppWindow(
-            chat: chat,
-            view: view
-        )
+        guard let chat = chat else { return }
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: true)
     }
     
     func didClickSecondBrainAppButton() {
-        WindowsManager.sharedInstance.showWebAppWindow(
-            chat: chat,
-            view: view,
-            isAppURL: false
-        )
+        guard let chat = chat else { return }
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: false)
     }
     
     func didClickMuteButton() {
