@@ -21,7 +21,7 @@ protocol DashboardVCDelegate: AnyObject {
     func shouldResetContactView()
     func shouldResetTribeView()
     func didSelectWorkspace(_ workspace: Workspace)
-    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool)
+    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?)
 }
 
 class DashboardSplittedViewController: NSViewController {

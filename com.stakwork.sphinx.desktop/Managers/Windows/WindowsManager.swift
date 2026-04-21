@@ -469,11 +469,11 @@ import SwiftUI
         }
     }
     
+    /// Move an already-loaded WebAppViewController into its own window without reloading.
     func showWebAppWindow(vc: WebAppViewController, title: String) {
         let screen = NSApplication.shared.keyWindow
         let frame = screen?.frame ?? CGRect(x: 0, y: 0, width: 1024, height: 768)
-        let position = screen?.frame.origin ?? CGPoint.zero
-
+        let position = screen?.frame.origin ?? .zero
         showNewWindow(
             with: title,
             size: CGSize(width: frame.width, height: frame.height),

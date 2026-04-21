@@ -84,6 +84,11 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var podcastPlayerVC: NewPodcastPlayerViewController? = nil
     var threadVC: NewChatViewController? = nil
+
+    /// Cached inline webview VCs — persists while this chat session is alive.
+    /// Torn down alongside this VC in resetVC().
+    var cachedWebAppVC: WebAppViewController? = nil
+    var cachedSecondBrainVC: WebAppViewController? = nil
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
@@ -281,6 +286,11 @@ class NewChatViewController: DashboardSplittedViewController {
         }
         
         childViewControllerContainer.removeChildVC()
+        
+        cachedWebAppVC?.teardown()
+        cachedWebAppVC = nil
+        cachedSecondBrainVC?.teardown()
+        cachedSecondBrainVC = nil
         
         chatTableDataSource?.stopListeningToResultsController()
         chatTableDataSource?.releaseMemory()

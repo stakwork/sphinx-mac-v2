@@ -50,12 +50,12 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     
     func didClickWebAppButton() {
         guard let chat = chat else { return }
-        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: true)
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: true, cachedVC: cachedWebAppVC)
     }
     
     func didClickSecondBrainAppButton() {
         guard let chat = chat else { return }
-        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: false)
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: false, cachedVC: cachedSecondBrainVC)
     }
     
     func didClickMuteButton() {

@@ -31,11 +31,9 @@ class WebAppViewController: NSViewController {
     var openInWindowButton: CustomButton!
     var rightButtonsStack: NSStackView!
     
-    /// Set to true once this VC is handed to a separate NSWindow so the "open in window" button hides
+    /// True once this VC has been handed to a separate NSWindow — hides the "open in window" button.
     var isOpenedInWindow: Bool = false {
-        didSet {
-            openInWindowButton?.isHidden = isOpenedInWindow
-        }
+        didSet { openInWindowButton?.isHidden = isOpenedInWindow }
     }
     
     weak var webAppDelegate: WebAppViewControllerDelegate?
@@ -168,7 +166,8 @@ class WebAppViewController: NSViewController {
         openInWindowButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
         openInWindowButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        // Stack the three buttons horizontally — hiding a button collapses its space automatically
+        // Stack: REFRESH | BACK-TO-CHAT | OPEN-IN-WINDOW
+        // NSStackView collapses space automatically when a view is hidden.
         rightButtonsStack = NSStackView(views: [refreshButton, backToChatButton, openInWindowButton])
         rightButtonsStack.orientation = .horizontal
         rightButtonsStack.spacing = 8
@@ -176,12 +175,10 @@ class WebAppViewController: NSViewController {
         headerBarView.addSubview(rightButtonsStack)
 
         NSLayoutConstraint.activate([
-            // URL label anchored to left, trailing to stack
             urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
             urlLabel.trailingAnchor.constraint(equalTo: rightButtonsStack.leadingAnchor, constant: -8),
             urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
 
-            // Stack pinned to right edge
             rightButtonsStack.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
             rightButtonsStack.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
         ])
@@ -192,8 +189,8 @@ class WebAppViewController: NSViewController {
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        // Only register as window delegate when running in a separate window.
-        // In inline mode we don't want windowWillClose to fire and call teardown().
+        // Only register as NSWindowDelegate when running in a separate window;
+        // in inline mode we don't want windowWillClose to fire.
         if isOpenedInWindow {
             view.window?.delegate = self
         }
@@ -203,7 +200,6 @@ class WebAppViewController: NSViewController {
     
     func resizeSubviews(frame: NSRect) {
         view.frame = frame
-        // webView is constrained programmatically, no manual frame needed
     }
     
     func addAndLoadWebView(forceReload: Bool = false) {
@@ -337,6 +333,8 @@ class WebAppViewController: NSViewController {
         webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, appURL: appURL, isAppURL: !isPersonalGraph)
     }
 
+    /// Stops the webview and releases its resources.
+    /// Called when leaving a tribe chat or when the separate window closes.
     func teardown() {
         finishLoadingTimer?.invalidate()
         finishLoadingTimer = nil
