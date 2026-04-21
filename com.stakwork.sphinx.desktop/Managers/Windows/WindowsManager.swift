@@ -693,15 +693,15 @@ extension WindowsManager : RoomContextDelegate {
     func createControlsPanel() {
         if controlsPanel == nil {
             let mainScreen = NSScreen.main
-            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
+            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 392) / 2 - 196, y: 15)
             
             controlsPanel = DraggablePanel(
-                contentRect: .init(origin: .zero, size: CGSize(width: 332, height: 100)),
+                contentRect: .init(origin: .zero, size: CGSize(width: 392, height: 100)),
                 styleMask: [.nonactivatingPanel, .borderless],
                 backing: .buffered,
                 defer: false
             )
-            controlsPanel?.setFrame(.init(origin: position, size: CGSize(width: 332, height: 100)), display: true)
+            controlsPanel?.setFrame(.init(origin: position, size: CGSize(width: 392, height: 100)), display: true)
         }
         
         if let controlsPanel = controlsPanel {
@@ -711,7 +711,7 @@ extension WindowsManager : RoomContextDelegate {
     
     func presentCallControlWindowWith(roomCtx: RoomContext) {
         let mainScreen = NSScreen.main
-        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
+        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 392) / 2 - 196, y: 15)
         
         let shareControlView = CallControlView()
             .environmentObject(roomCtx)
@@ -721,8 +721,8 @@ extension WindowsManager : RoomContextDelegate {
         
         self.showControlsPanel(
             with: "",
-            size: CGSize(width: 332, height: 100),
-            minSize: CGSize(width: 332, height: 100),
+            size: CGSize(width: 392, height: 100),
+            minSize: CGSize(width: 392, height: 100),
             position: position,
             identifier: "share-panel",
             backgroundColor: NSColor.clear,
