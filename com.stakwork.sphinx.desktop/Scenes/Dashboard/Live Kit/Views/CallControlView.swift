@@ -100,17 +100,18 @@ struct CallControlView: View {
                 }
                 
                 HStack(spacing: 8) {
+                    participantsButton
                     controlButtonsGroup
                     disconnectButton
                 }
-                .frame(width: 300, height: 80)
+                .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                 .padding(.horizontal, 16.0)
                 .background(
                     onHover ? Color.clear.cornerRadius(8.0) : Color.black.opacity(0.9).cornerRadius(8.0)
                 )
             }
         }
-        .frame(width: 332, height: 100)
+        .frame(width: 392, height: 100)
         .background(
             onHover ? Color.black.opacity(0.9).cornerRadius(8.0) : Color.clear.cornerRadius(8.0)
         )
@@ -137,6 +138,43 @@ struct CallControlView: View {
     }
 
     // MARK: - Extracted Views
+
+    @ViewBuilder
+    private var participantsButton: some View {
+        HStack(spacing: 4.0) {
+            Button(action: {
+                withAnimation {
+                    roomCtx.showParticipantsView.toggle()
+                    if roomCtx.showParticipantsView { roomCtx.showMessagesView = false }
+                }
+            }, label: {
+                Image(systemSymbol: .person2Fill)
+                    .renderingMode(.template)
+                    .foregroundColor(Color.white)
+                    .font(.system(size: 18))
+            })
+            .background(Color.clear)
+            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .padding(.leading, 8.0)
+            .onHover { isHover in
+                if isHover { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
+            }
+            if room.participantCount > 0 {
+                Text("\(room.participantCount)")
+                    .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                    .foregroundColor(Color.white)
+                    .padding(.trailing, 8)
+            }
+        }
+        .frame(minWidth: 60.0)
+        .frame(height: 40.0)
+        .background(
+            roomCtx.showParticipantsView ?
+            Color(NSColor(hex: "#5078F2")).opacity(0.75).cornerRadius(8.0)
+            : Color(NSColor.Sphinx.MainBottomIcons).opacity(0.1).cornerRadius(8.0)
+        )
+    }
 
     @ViewBuilder
     private var controlButtonsGroup: some View {
