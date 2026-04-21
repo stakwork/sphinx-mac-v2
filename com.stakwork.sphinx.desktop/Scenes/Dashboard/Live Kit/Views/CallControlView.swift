@@ -100,10 +100,11 @@ struct CallControlView: View {
                 }
                 
                 HStack(spacing: 8) {
+                    participantsButton
                     controlButtonsGroup
                     disconnectButton
                 }
-                .frame(width: 360, height: 80)
+                .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                 .padding(.horizontal, 16.0)
                 .background(
                     onHover ? Color.clear.cornerRadius(8.0) : Color.black.opacity(0.9).cornerRadius(8.0)
@@ -166,7 +167,7 @@ struct CallControlView: View {
                     .padding(.trailing, 8)
             }
         }
-        .frame(height: 40.0)
+        .frame(minWidth: 60.0, height: 40.0)
         .background(
             roomCtx.showParticipantsView ?
             Color(NSColor(hex: "#5078F2")).opacity(0.75).cornerRadius(8.0)
@@ -177,7 +178,6 @@ struct CallControlView: View {
     @ViewBuilder
     private var controlButtonsGroup: some View {
         Group {
-            participantsButton
             microphoneButton
             cameraButton
             recordingButton
