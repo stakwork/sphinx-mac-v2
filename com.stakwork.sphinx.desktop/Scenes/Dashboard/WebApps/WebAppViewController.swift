@@ -11,7 +11,7 @@ import Cocoa
 
 @MainActor protocol WebAppViewControllerDelegate: AnyObject {
     func webAppDidTapBackToChat()
-    func webAppDidTapOpenInWindow(chat: Chat?, isAppURL: Bool)
+    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool)
 }
 
 class WebAppViewController: NSViewController {
@@ -161,24 +161,24 @@ class WebAppViewController: NSViewController {
         headerBarView.addSubview(openInWindowButton)
 
         NSLayoutConstraint.activate([
-            // Back to chat button on the left
-            backToChatButton.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 8),
-            backToChatButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            backToChatButton.widthAnchor.constraint(equalToConstant: 20),
-            backToChatButton.heightAnchor.constraint(equalToConstant: 20),
-
-            // URL label between back button and refresh button
-            urlLabel.leadingAnchor.constraint(equalTo: backToChatButton.trailingAnchor, constant: 8),
+            // URL label anchored to left, trailing to refresh button
+            urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
             urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
             urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
 
-            // Refresh button to the left of open-in-window button
-            refreshButton.trailingAnchor.constraint(equalTo: openInWindowButton.leadingAnchor, constant: -8),
+            // Refresh button (leftmost of the right group)
+            refreshButton.trailingAnchor.constraint(equalTo: backToChatButton.leadingAnchor, constant: -8),
             refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
             refreshButton.widthAnchor.constraint(equalToConstant: 20),
             refreshButton.heightAnchor.constraint(equalToConstant: 20),
 
-            // Open in window button on the right
+            // Back to chat button (middle of the right group)
+            backToChatButton.trailingAnchor.constraint(equalTo: openInWindowButton.leadingAnchor, constant: -8),
+            backToChatButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+            backToChatButton.widthAnchor.constraint(equalToConstant: 20),
+            backToChatButton.heightAnchor.constraint(equalToConstant: 20),
+
+            // Open in window button (rightmost)
             openInWindowButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
             openInWindowButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
             openInWindowButton.widthAnchor.constraint(equalToConstant: 20),
@@ -329,7 +329,7 @@ class WebAppViewController: NSViewController {
     }
 
     @objc func openInWindowButtonClicked(_ sender: Any) {
-        webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, isAppURL: !isPersonalGraph)
+        webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, appURL: appURL, isAppURL: !isPersonalGraph)
     }
 
     func teardown() {

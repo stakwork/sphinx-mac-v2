@@ -978,8 +978,9 @@ extension DashboardViewController : DashboardVCDelegate {
             }
         }
         webAppVC.webAppDelegate = self
-        activeInlineWebAppChatId = chat.id
+        let chatId = chat.id
         resetDetailViewController()
+        activeInlineWebAppChatId = chatId
         addChildVC(child: webAppVC, container: rightSplittedView)
         webAppVC.addAndLoadWebView()
     }
@@ -1199,7 +1200,7 @@ extension DashboardViewController: WebAppViewControllerDelegate {
         dismissInlineWebApp()
     }
 
-    func webAppDidTapOpenInWindow(chat: Chat?, isAppURL: Bool) {
+    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool) {
         guard let chat = chat else { return }
         if isAppURL {
             cachedWebAppVCs[chat.id] = nil
@@ -1207,6 +1208,10 @@ extension DashboardViewController: WebAppViewControllerDelegate {
             cachedSecondBrainVCs[chat.id] = nil
         }
         dismissInlineWebApp()
-        WindowsManager.sharedInstance.showWebAppWindow(chat: chat, view: view, isAppURL: isAppURL)
+        if let appURL = appURL, !appURL.isEmpty {
+            WindowsManager.sharedInstance.showWebAppWindow(url: appURL)
+        } else {
+            WindowsManager.sharedInstance.showWebAppWindow(chat: chat, view: view, isAppURL: isAppURL)
+        }
     }
 }
