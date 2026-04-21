@@ -111,7 +111,7 @@ class WebAppViewController: NSViewController {
         refreshButton = CustomButton()
         refreshButton.translatesAutoresizingMaskIntoConstraints = false
         refreshButton.cursor = .pointingHand
-        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
         refreshButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?.withSymbolConfiguration(config)
         refreshButton.contentTintColor = NSColor.Sphinx.SecondaryText
         refreshButton.isBordered = false
@@ -125,8 +125,8 @@ class WebAppViewController: NSViewController {
         NSLayoutConstraint.activate([
             refreshButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
             refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            refreshButton.widthAnchor.constraint(equalToConstant: 25),
-            refreshButton.heightAnchor.constraint(equalToConstant: 25),
+            refreshButton.widthAnchor.constraint(equalToConstant: 20),
+            refreshButton.heightAnchor.constraint(equalToConstant: 20),
 
             urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
             urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
