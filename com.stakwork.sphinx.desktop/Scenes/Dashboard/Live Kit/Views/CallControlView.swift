@@ -110,7 +110,7 @@ struct CallControlView: View {
                 )
             }
         }
-        .frame(width: 332, height: 100)
+        .frame(width: 392, height: 100)
         .background(
             onHover ? Color.black.opacity(0.9).cornerRadius(8.0) : Color.clear.cornerRadius(8.0)
         )
