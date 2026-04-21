@@ -18,7 +18,10 @@ class WebAppViewController: NSViewController {
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
     @IBOutlet weak var personalGraphLabelContainer: NSBox!
     @IBOutlet weak var personalGraphLabel: NSTextField!
-    @IBOutlet weak var refreshButton: CustomButton!
+    
+    var headerBarView: NSView!
+    var urlLabel: NSTextField!
+    var refreshButton: CustomButton!
     
     var webView: WKWebView!
     var appURL: String! = nil
@@ -61,7 +64,76 @@ class WebAppViewController: NSViewController {
         
         personalGraphLabelContainer.fillColor = NSColor.Sphinx.Body
         
+        setupHeaderBar()
+    }
+    
+    func setupHeaderBar() {
+        // Container
+        headerBarView = NSView()
+        headerBarView.translatesAutoresizingMaskIntoConstraints = false
+        headerBarView.wantsLayer = true
+        headerBarView.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
+        view.addSubview(headerBarView)
+        NSLayoutConstraint.activate([
+            headerBarView.topAnchor.constraint(equalTo: view.topAnchor),
+            headerBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerBarView.heightAnchor.constraint(equalToConstant: 36)
+        ])
+
+        // Bottom separator
+        let separator = NSView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.wantsLayer = true
+        separator.layer?.backgroundColor = NSColor.Sphinx.SecondaryText.withAlphaComponent(0.2).cgColor
+        headerBarView.addSubview(separator)
+        NSLayoutConstraint.activate([
+            separator.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor),
+            separator.bottomAnchor.constraint(equalTo: headerBarView.bottomAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 1)
+        ])
+
+        // URL label
+        urlLabel = NSTextField(labelWithString: "")
+        urlLabel.translatesAutoresizingMaskIntoConstraints = false
+        urlLabel.textColor = NSColor.Sphinx.SecondaryText
+        urlLabel.font = NSFont.systemFont(ofSize: 12)
+        urlLabel.lineBreakMode = .byTruncatingTail
+        urlLabel.maximumNumberOfLines = 1
+        urlLabel.isEditable = false
+        urlLabel.isSelectable = false
+        urlLabel.isBordered = false
+        urlLabel.backgroundColor = .clear
+        headerBarView.addSubview(urlLabel)
+
+        // Refresh button
+        refreshButton = CustomButton()
+        refreshButton.translatesAutoresizingMaskIntoConstraints = false
         refreshButton.cursor = .pointingHand
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        refreshButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?.withSymbolConfiguration(config)
+        refreshButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        refreshButton.isBordered = false
+        refreshButton.bezelStyle = .shadowlessSquare
+        refreshButton.imagePosition = .imageOnly
+        refreshButton.imageScaling = .scaleProportionallyUpOrDown
+        refreshButton.target = self
+        refreshButton.action = #selector(refreshButtonClicked(_:))
+        headerBarView.addSubview(refreshButton)
+
+        NSLayoutConstraint.activate([
+            refreshButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
+            refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+            refreshButton.widthAnchor.constraint(equalToConstant: 25),
+            refreshButton.heightAnchor.constraint(equalToConstant: 25),
+
+            urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
+            urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
+            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor)
+        ])
+
+        headerBarView.isHidden = true
     }
     
     override func viewDidAppear() {
@@ -74,7 +146,7 @@ class WebAppViewController: NSViewController {
     
     func resizeSubviews(frame: NSRect) {
         view.frame = frame
-        webView?.frame = frame        
+        // webView is constrained programmatically, no manual frame needed
     }
     
     func addAndLoadWebView(forceReload: Bool = false) {
@@ -93,19 +165,22 @@ class WebAppViewController: NSViewController {
         
         guard let appURL = appURL, !appURL.isEmpty else {
             webView?.isHidden = true
-            refreshButton.isHidden = true
+            headerBarView.isHidden = true
             toggleAuthorizationView(show: false)
             return
         }
         if webView != nil {
             if didChangeAppUrl || forceReload {
                 webView?.isHidden = false
-                refreshButton.isHidden = false
+                headerBarView.isHidden = false
+                urlLabel.stringValue = appURL
                 loadPage()
             }
             return
         }
         addWebView()
+        headerBarView.isHidden = false
+        urlLabel.stringValue = appURL
         loadPage()
     }
     
@@ -171,7 +246,7 @@ class WebAppViewController: NSViewController {
     func addWebViewConstraints() {
         webView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0).isActive = true
-        NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0).isActive = true
+        NSLayoutConstraint(item: headerBarView!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0).isActive = true
         NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0).isActive = true
         NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0).isActive = true
     }
