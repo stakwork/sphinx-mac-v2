@@ -55,6 +55,11 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var optionsButton: CustomButton!
     @IBOutlet weak var dashedLineView: NSView!
     @IBOutlet weak var imageWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var chatActionsStack: NSStackView!
+    @IBOutlet weak var webAppActionsStack: NSStackView!
+    @IBOutlet weak var webAppRefreshButton: CustomButton!
+    @IBOutlet weak var webAppBackToChatButton: CustomButton!
+    @IBOutlet weak var webAppOpenInWindowButton: CustomButton!
     
     let kMinimumChatHeaderForButtons: CGFloat = 700
     
@@ -62,11 +67,6 @@ class ChatHeaderView: NSView, LoadableNib {
     var viewWidth: CGFloat? = nil
     var chat: Chat? = nil
     var contact: UserContact? = nil
-
-    var webAppActionsStack: NSStackView!
-    var webAppRefreshButton: CustomButton!
-    var webAppBackToChatButton: CustomButton!
-    var webAppOpenInWindowButton: CustomButton!
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -102,66 +102,21 @@ class ChatHeaderView: NSView, LoadableNib {
         setupWebAppActionsStack()
     }
 
-    func makeWebAppActionButton(symbolName: String? = nil, imageName: String? = nil) -> CustomButton {
-        let button = CustomButton()
-        button.isBordered = false
-        button.cursor = .pointingHand
-        button.contentTintColor = NSColor.Sphinx.SecondaryText
-        button.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 20),
-            button.heightAnchor.constraint(equalToConstant: 20)
-        ])
-        if let symbolName = symbolName {
-            let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
-            button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?.withSymbolConfiguration(config)
-        } else if let imageName = imageName {
-            button.image = NSImage(named: imageName)
-        }
-        return button
-    }
-
     func setupWebAppActionsStack() {
-        webAppRefreshButton = makeWebAppActionButton(symbolName: "arrow.clockwise")
-        webAppBackToChatButton = makeWebAppActionButton(symbolName: "bubble.left")
-        webAppOpenInWindowButton = makeWebAppActionButton(imageName: "openNewWindow")
-
         webAppRefreshButton.target = self
         webAppRefreshButton.action = #selector(webAppRefreshButtonClicked)
         webAppBackToChatButton.target = self
         webAppBackToChatButton.action = #selector(webAppBackToChatButtonClicked)
         webAppOpenInWindowButton.target = self
         webAppOpenInWindowButton.action = #selector(webAppOpenInWindowButtonClicked)
-
-        let stack = NSStackView(views: [webAppRefreshButton, webAppBackToChatButton, webAppOpenInWindowButton])
-        stack.orientation = .horizontal
-        stack.spacing = 8
-        stack.alignment = .centerY
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.isHidden = true
-        webAppActionsStack = stack
-
-        contentView.addSubview(stack)
-
-        // Pin to same trailing/centerY as optionsButton (the rightmost button)
-        NSLayoutConstraint.activate([
-            stack.trailingAnchor.constraint(equalTo: optionsButton.trailingAnchor),
-            stack.centerYAnchor.constraint(equalTo: optionsButton.centerYAnchor)
-        ])
     }
 
     func showWebAppActions(_ show: Bool) {
         if show {
-            searchButton.isHidden = true
-            threadsButton.isHidden = true
-            webAppButton.isHidden = true
-            secondBrainButton.isHidden = true
-            volumeButton.isHidden = true
-            callButton.isHidden = true
-            optionsButton.isHidden = true
-            refreshButton.isHidden = true
+            chatActionsStack.isHidden = true
             webAppActionsStack.isHidden = false
         } else {
+            chatActionsStack.isHidden = false
             webAppActionsStack.isHidden = true
             toggleButtonsWith(width: viewWidth)
         }
