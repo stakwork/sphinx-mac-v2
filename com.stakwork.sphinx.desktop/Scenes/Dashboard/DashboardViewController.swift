@@ -894,7 +894,43 @@ extension DashboardViewController : DashboardVCDelegate {
     func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
         showInlineWebApp(chat: chat, isAppURL: isAppURL, cachedVC: cachedVC)
     }
-    
+
+    func shouldRefreshInlineWebApp() {
+        activeInlineWebAppVC?.addAndLoadWebView(forceReload: true)
+    }
+
+    func shouldDismissInlineWebApp() {
+        dismissInlineWebApp()
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
+    }
+
+    func shouldOpenInlineWebAppInNewWindow() {
+        guard let vc = activeInlineWebAppVC,
+              let chat = vc.chat else { return }
+
+        let appURL = vc.appURL ?? ""
+        let isAppURL = chat.tribeInfo?.appUrl == appURL
+
+        // Detach from inline overlay
+        NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+        activeInlineWebAppConstraints = []
+        vc.view.removeFromSuperview()
+        vc.removeFromParent()
+
+        // Clear inline state and caches
+        activeInlineWebAppVC = nil
+        activeInlineWebAppChatId = nil
+        newDetailViewController?.cachedWebAppVC = nil
+        newDetailViewController?.cachedSecondBrainVC = nil
+
+        // Hide webview action icons in header
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
+
+        // Move VC to its own window
+        let title = chat.name ?? ""
+        WindowsManager.sharedInstance.showWebAppWindow(vc: vc, title: title)
+    }
+
     func goToInviteCodeString(inviteCode: String) {
         if inviteCode == "" {
             return
@@ -997,21 +1033,24 @@ extension DashboardViewController : DashboardVCDelegate {
     func showInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
         let chatId = chat.id
 
-        // If the same overlay is already showing, just unhide it.
+        // If the same overlay is already showing (and cache is intact), just unhide it.
         if let existing = activeInlineWebAppVC,
            activeInlineWebAppChatId == chatId,
-           !existing.view.isHidden {
+           !existing.view.isHidden,
+           cachedVC != nil {
             return
         }
 
-        // If the same overlay was hidden (back-to-chat), just reveal it.
+        // If the same overlay was hidden (back-to-chat) and cache is intact, just reveal it.
         if let existing = activeInlineWebAppVC,
-           activeInlineWebAppChatId == chatId {
+           activeInlineWebAppChatId == chatId,
+           cachedVC != nil {
             existing.view.isHidden = false
+            newDetailViewController?.setWebAppHeaderActionsVisible(true)
             return
         }
 
-        // Different tribe / first open: remove old overlay without teardown
+        // Different tribe / first open / post-open-in-window: remove old overlay without teardown
         // (teardown happens when its owning chat VC is reset).
         if let old = activeInlineWebAppVC {
             NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
@@ -1041,12 +1080,14 @@ extension DashboardViewController : DashboardVCDelegate {
 
         attachWebAppOverlay(webAppVC)
         webAppVC.addAndLoadWebView()
+        newDetailViewController?.setWebAppHeaderActionsVisible(true)
     }
 
     /// Hide the overlay — chat VC stays alive, webview keeps its state.
     func dismissInlineWebApp() {
         guard let webAppVC = activeInlineWebAppVC else { return }
         webAppVC.view.isHidden = true
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
         // Do NOT remove from hierarchy, do NOT call presentChatVCFor.
         // activeInlineWebAppVC / activeInlineWebAppChatId are kept so re-opening
         // the same tribe instantly unhides.

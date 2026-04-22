@@ -22,6 +22,9 @@ protocol DashboardVCDelegate: AnyObject {
     func shouldResetTribeView()
     func didSelectWorkspace(_ workspace: Workspace)
     func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?)
+    func shouldRefreshInlineWebApp()
+    func shouldDismissInlineWebApp()
+    func shouldOpenInlineWebAppInNewWindow()
 }
 
 class DashboardSplittedViewController: NSViewController {
