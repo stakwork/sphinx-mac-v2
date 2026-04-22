@@ -9,11 +9,6 @@
 import Cocoa
 @preconcurrency import WebKit
 
-@MainActor protocol WebAppViewControllerDelegate: AnyObject {
-    func webAppDidTapBackToChat()
-    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool)
-}
-
 class WebAppViewController: NSViewController {
     
     @IBOutlet weak var authorizeModalContainer: NSView!
@@ -23,20 +18,6 @@ class WebAppViewController: NSViewController {
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
     @IBOutlet weak var personalGraphLabelContainer: NSBox!
     @IBOutlet weak var personalGraphLabel: NSTextField!
-    
-    var headerBarView: NSView!
-    var urlLabel: NSTextField!
-    var refreshButton: CustomButton!
-    var backToChatButton: CustomButton!
-    var openInWindowButton: CustomButton!
-    var rightButtonsStack: NSStackView!
-    
-    /// True once this VC has been handed to a separate NSWindow — hides the "open in window" button.
-    var isOpenedInWindow: Bool = false {
-        didSet { openInWindowButton?.isHidden = isOpenedInWindow }
-    }
-    
-    weak var webAppDelegate: WebAppViewControllerDelegate?
     
     var webView: WKWebView!
     var appURL: String! = nil
@@ -78,123 +59,10 @@ class WebAppViewController: NSViewController {
         authorizeModalContainer.alphaValue = 0.0
         
         personalGraphLabelContainer.fillColor = NSColor.Sphinx.Body
-        
-        setupHeaderBar()
-    }
-    
-    func setupHeaderBar() {
-        // Container
-        headerBarView = NSView()
-        headerBarView.translatesAutoresizingMaskIntoConstraints = false
-        headerBarView.wantsLayer = true
-        headerBarView.layer?.backgroundColor = NSColor.Sphinx.HeaderBG.cgColor
-        view.addSubview(headerBarView)
-        NSLayoutConstraint.activate([
-            headerBarView.topAnchor.constraint(equalTo: view.topAnchor),
-            headerBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            headerBarView.heightAnchor.constraint(equalToConstant: 36)
-        ])
-
-        // Bottom separator
-        let separator = NSView()
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.wantsLayer = true
-        separator.layer?.backgroundColor = NSColor.Sphinx.SecondaryText.withAlphaComponent(0.2).cgColor
-        headerBarView.addSubview(separator)
-        NSLayoutConstraint.activate([
-            separator.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor),
-            separator.bottomAnchor.constraint(equalTo: headerBarView.bottomAnchor),
-            separator.heightAnchor.constraint(equalToConstant: 1)
-        ])
-
-        // URL label
-        urlLabel = NSTextField(labelWithString: "")
-        urlLabel.translatesAutoresizingMaskIntoConstraints = false
-        urlLabel.textColor = NSColor.Sphinx.SecondaryText
-        urlLabel.font = NSFont.systemFont(ofSize: 12)
-        urlLabel.lineBreakMode = .byTruncatingTail
-        urlLabel.maximumNumberOfLines = 1
-        urlLabel.isEditable = false
-        urlLabel.isSelectable = false
-        urlLabel.isBordered = false
-        urlLabel.backgroundColor = .clear
-        headerBarView.addSubview(urlLabel)
-
-        // Refresh button
-        refreshButton = CustomButton()
-        refreshButton.cursor = .pointingHand
-        let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
-        refreshButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?.withSymbolConfiguration(config)
-        refreshButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        refreshButton.isBordered = false
-        refreshButton.bezelStyle = .shadowlessSquare
-        refreshButton.imagePosition = .imageOnly
-        refreshButton.imageScaling = .scaleProportionallyUpOrDown
-        refreshButton.target = self
-        refreshButton.action = #selector(refreshButtonClicked(_:))
-        refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        // Back to chat button
-        backToChatButton = CustomButton()
-        backToChatButton.cursor = .pointingHand
-        let backConfig = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
-        backToChatButton.image = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?.withSymbolConfiguration(backConfig)
-        backToChatButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        backToChatButton.isBordered = false
-        backToChatButton.bezelStyle = .shadowlessSquare
-        backToChatButton.imagePosition = .imageOnly
-        backToChatButton.imageScaling = .scaleProportionallyUpOrDown
-        backToChatButton.target = self
-        backToChatButton.action = #selector(backToChatButtonClicked(_:))
-        backToChatButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        backToChatButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        // Open in window button
-        openInWindowButton = CustomButton()
-        openInWindowButton.cursor = .pointingHand
-        openInWindowButton.image = NSImage(named: "openNewWindow")
-        openInWindowButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        openInWindowButton.isBordered = false
-        openInWindowButton.bezelStyle = .shadowlessSquare
-        openInWindowButton.imagePosition = .imageOnly
-        openInWindowButton.imageScaling = .scaleProportionallyUpOrDown
-        openInWindowButton.target = self
-        openInWindowButton.action = #selector(openInWindowButtonClicked(_:))
-        openInWindowButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        openInWindowButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-
-        // Stack: REFRESH | BACK-TO-CHAT | OPEN-IN-WINDOW
-        // NSStackView collapses space automatically when a view is hidden.
-        rightButtonsStack = NSStackView(views: [refreshButton, backToChatButton, openInWindowButton])
-        rightButtonsStack.orientation = .horizontal
-        rightButtonsStack.spacing = 8
-        rightButtonsStack.translatesAutoresizingMaskIntoConstraints = false
-        headerBarView.addSubview(rightButtonsStack)
-
-        NSLayoutConstraint.activate([
-            urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
-            urlLabel.trailingAnchor.constraint(equalTo: rightButtonsStack.leadingAnchor, constant: -8),
-            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-
-            rightButtonsStack.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
-            rightButtonsStack.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-        ])
-
-        headerBarView.isHidden = true
     }
     
     override func viewDidAppear() {
         super.viewDidAppear()
-        
-        // Only register as NSWindowDelegate when running in a separate window;
-        // in inline mode we don't want windowWillClose to fire.
-        if isOpenedInWindow {
-            view.window?.delegate = self
-        }
-        
         addAndLoadWebView()
     }
     
@@ -218,22 +86,17 @@ class WebAppViewController: NSViewController {
         
         guard let appURL = appURL, !appURL.isEmpty else {
             webView?.isHidden = true
-            headerBarView.isHidden = true
             toggleAuthorizationView(show: false)
             return
         }
         if webView != nil {
             if didChangeAppUrl || forceReload {
                 webView?.isHidden = false
-                headerBarView.isHidden = false
-                urlLabel.stringValue = appURL
                 loadPage()
             }
             return
         }
         addWebView()
-        headerBarView.isHidden = false
-        urlLabel.stringValue = appURL
         loadPage()
     }
     
@@ -298,10 +161,12 @@ class WebAppViewController: NSViewController {
     
     func addWebViewConstraints() {
         webView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0).isActive = true
-        NSLayoutConstraint(item: headerBarView!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0).isActive = true
-        NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0).isActive = true
-        NSLayoutConstraint(item: self.view, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: webView, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0).isActive = true
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
     }
     
     func loadPage() {
@@ -319,18 +184,6 @@ class WebAppViewController: NSViewController {
             let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
             webView.load(request)
         }
-    }
-    
-    @IBAction func refreshButtonClicked(_ sender: Any) {
-        addAndLoadWebView(forceReload: true)
-    }
-
-    @objc func backToChatButtonClicked(_ sender: Any) {
-        webAppDelegate?.webAppDidTapBackToChat()
-    }
-
-    @objc func openInWindowButtonClicked(_ sender: Any) {
-        webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, appURL: appURL, isAppURL: !isPersonalGraph)
     }
 
     /// Stops the webview and releases its resources.
