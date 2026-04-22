@@ -984,7 +984,7 @@ extension DashboardViewController : DashboardVCDelegate {
         rightSplittedView.addSubview(webAppVC.view)
 
         let constraints = [
-            webAppVC.view.topAnchor.constraint(equalTo: rightSplittedView.topAnchor),
+            webAppVC.view.topAnchor.constraint(equalTo: newDetailViewController!.chatTopView.bottomAnchor),
             webAppVC.view.bottomAnchor.constraint(equalTo: rightSplittedView.bottomAnchor),
             webAppVC.view.leadingAnchor.constraint(equalTo: rightSplittedView.leadingAnchor),
             webAppVC.view.trailingAnchor.constraint(equalTo: rightSplittedView.trailingAnchor),
@@ -1036,8 +1036,6 @@ extension DashboardViewController : DashboardVCDelegate {
             }
             webAppVC = fresh
         }
-        webAppVC.webAppDelegate = self
-
         activeInlineWebAppVC = webAppVC
         activeInlineWebAppChatId = chatId
 
@@ -1255,40 +1253,4 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
     }
 }
 
-extension DashboardViewController: WebAppViewControllerDelegate {
-    func webAppDidTapBackToChat() {
-        dismissInlineWebApp()
-    }
 
-    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool) {
-        guard let chat = chat else { return }
-
-        // Grab the loaded VC before detaching the overlay.
-        let vcToMove = activeInlineWebAppVC
-
-        // Detach overlay from rightSplittedView WITHOUT teardown — the live VC moves to a window.
-        if let vc = activeInlineWebAppVC {
-            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
-            activeInlineWebAppConstraints = []
-            vc.view.removeFromSuperview()
-            vc.removeFromParent()
-            activeInlineWebAppVC = nil
-            activeInlineWebAppChatId = nil
-        }
-
-        // Clear from cache so re-opening the tribe creates a fresh inline instance.
-        if isAppURL {
-            newDetailViewController?.cachedWebAppVC = nil
-        } else {
-            newDetailViewController?.cachedSecondBrainVC = nil
-        }
-
-        // Chat VC is already live underneath — nothing to restore.
-
-        // Move the already-loaded VC into a separate window (no reload).
-        if let vc = vcToMove {
-            vc.isOpenedInWindow = true
-            WindowsManager.sharedInstance.showWebAppWindow(vc: vc, title: chat.name ?? "Web App")
-        }
-    }
-}
