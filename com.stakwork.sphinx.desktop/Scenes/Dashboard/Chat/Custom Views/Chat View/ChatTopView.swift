@@ -85,6 +85,10 @@ class ChatTopView: NSView, LoadableNib {
     func toggleButtonsWith(width: CGFloat) {
         chatHeaderView.toggleButtonsWith(width: width)
     }
+
+    func showWebAppActions(_ show: Bool) {
+        chatHeaderView.showWebAppActions(show)
+    }
     
     func configureHeaderWith(
         chat: Chat?,

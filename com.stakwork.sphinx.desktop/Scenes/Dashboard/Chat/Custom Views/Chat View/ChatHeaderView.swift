@@ -19,6 +19,9 @@ import SDWebImage
     func didClickSecondBrainAppButton()
     func didClickRefreshButton()
     func didClickOptionsButton()
+    func didClickWebAppRefreshButton()
+    func didClickWebAppBackToChatButton()
+    func didClickWebAppOpenInWindowButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -60,6 +63,11 @@ class ChatHeaderView: NSView, LoadableNib {
     var chat: Chat? = nil
     var contact: UserContact? = nil
 
+    var webAppActionsStack: NSStackView!
+    var webAppRefreshButton: CustomButton!
+    var webAppBackToChatButton: CustomButton!
+    var webAppOpenInWindowButton: CustomButton!
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
@@ -90,6 +98,73 @@ class ChatHeaderView: NSView, LoadableNib {
         threadsButton.cursor = .pointingHand
         searchButton.cursor = .pointingHand
         optionsButton.cursor = .pointingHand
+
+        setupWebAppActionsStack()
+    }
+
+    func makeWebAppActionButton(symbolName: String? = nil, imageName: String? = nil) -> CustomButton {
+        let button = CustomButton()
+        button.isBordered = false
+        button.cursor = .pointingHand
+        button.contentTintColor = NSColor.Sphinx.SecondaryText
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 20),
+            button.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        if let symbolName = symbolName {
+            let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
+            button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?.withSymbolConfiguration(config)
+        } else if let imageName = imageName {
+            button.image = NSImage(named: imageName)
+        }
+        return button
+    }
+
+    func setupWebAppActionsStack() {
+        webAppRefreshButton = makeWebAppActionButton(symbolName: "arrow.clockwise")
+        webAppBackToChatButton = makeWebAppActionButton(symbolName: "bubble.left")
+        webAppOpenInWindowButton = makeWebAppActionButton(imageName: "openNewWindow")
+
+        webAppRefreshButton.target = self
+        webAppRefreshButton.action = #selector(webAppRefreshButtonClicked)
+        webAppBackToChatButton.target = self
+        webAppBackToChatButton.action = #selector(webAppBackToChatButtonClicked)
+        webAppOpenInWindowButton.target = self
+        webAppOpenInWindowButton.action = #selector(webAppOpenInWindowButtonClicked)
+
+        let stack = NSStackView(views: [webAppRefreshButton, webAppBackToChatButton, webAppOpenInWindowButton])
+        stack.orientation = .horizontal
+        stack.spacing = 8
+        stack.alignment = .centerY
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.isHidden = true
+        webAppActionsStack = stack
+
+        contentView.addSubview(stack)
+
+        // Pin to same trailing/centerY as optionsButton (the rightmost button)
+        NSLayoutConstraint.activate([
+            stack.trailingAnchor.constraint(equalTo: optionsButton.trailingAnchor),
+            stack.centerYAnchor.constraint(equalTo: optionsButton.centerYAnchor)
+        ])
+    }
+
+    func showWebAppActions(_ show: Bool) {
+        if show {
+            searchButton.isHidden = true
+            threadsButton.isHidden = true
+            webAppButton.isHidden = true
+            secondBrainButton.isHidden = true
+            volumeButton.isHidden = true
+            callButton.isHidden = true
+            optionsButton.isHidden = true
+            refreshButton.isHidden = true
+            webAppActionsStack.isHidden = false
+        } else {
+            webAppActionsStack.isHidden = true
+            toggleButtonsWith(width: viewWidth)
+        }
     }
     
     func getOptionsButtonView() -> NSView {
@@ -435,5 +510,17 @@ class ChatHeaderView: NSView, LoadableNib {
     
     @IBAction func optionsButtonClicked(_ sender: Any) {
         delegate?.didClickOptionsButton()
+    }
+
+    @objc func webAppRefreshButtonClicked() {
+        delegate?.didClickWebAppRefreshButton()
+    }
+
+    @objc func webAppBackToChatButtonClicked() {
+        delegate?.didClickWebAppBackToChatButton()
+    }
+
+    @objc func webAppOpenInWindowButtonClicked() {
+        delegate?.didClickWebAppOpenInWindowButton()
     }
 }

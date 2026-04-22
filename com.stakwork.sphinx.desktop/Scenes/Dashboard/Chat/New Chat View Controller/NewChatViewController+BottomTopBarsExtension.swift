@@ -132,6 +132,22 @@ extension NewChatViewController : ChatHeaderViewDelegate {
             SphinxOnionManager.sharedInstance.retryAddingContact(contact: contact)
         }
     }
+
+    func didClickWebAppRefreshButton() {
+        delegate?.shouldRefreshInlineWebApp()
+    }
+
+    func didClickWebAppBackToChatButton() {
+        delegate?.shouldDismissInlineWebApp()
+    }
+
+    func didClickWebAppOpenInWindowButton() {
+        delegate?.shouldOpenInlineWebAppInNewWindow()
+    }
+
+    func setWebAppHeaderActionsVisible(_ visible: Bool) {
+        chatTopView.showWebAppActions(visible)
+    }
 }
 
 extension NewChatViewController : GroupDetailsDelegate {
