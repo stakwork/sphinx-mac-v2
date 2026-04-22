@@ -9,6 +9,11 @@
 import Cocoa
 @preconcurrency import WebKit
 
+@MainActor protocol WebAppViewControllerDelegate: AnyObject {
+    func webAppDidTapBackToChat()
+    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool)
+}
+
 class WebAppViewController: NSViewController {
     
     @IBOutlet weak var authorizeModalContainer: NSView!
@@ -22,6 +27,16 @@ class WebAppViewController: NSViewController {
     var headerBarView: NSView!
     var urlLabel: NSTextField!
     var refreshButton: CustomButton!
+    var backToChatButton: CustomButton!
+    var openInWindowButton: CustomButton!
+    var rightButtonsStack: NSStackView!
+    
+    /// True once this VC has been handed to a separate NSWindow — hides the "open in window" button.
+    var isOpenedInWindow: Bool = false {
+        didSet { openInWindowButton?.isHidden = isOpenedInWindow }
+    }
+    
+    weak var webAppDelegate: WebAppViewControllerDelegate?
     
     var webView: WKWebView!
     var appURL: String! = nil
@@ -109,7 +124,6 @@ class WebAppViewController: NSViewController {
 
         // Refresh button
         refreshButton = CustomButton()
-        refreshButton.translatesAutoresizingMaskIntoConstraints = false
         refreshButton.cursor = .pointingHand
         let config = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
         refreshButton.image = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?.withSymbolConfiguration(config)
@@ -120,17 +134,53 @@ class WebAppViewController: NSViewController {
         refreshButton.imageScaling = .scaleProportionallyUpOrDown
         refreshButton.target = self
         refreshButton.action = #selector(refreshButtonClicked(_:))
-        headerBarView.addSubview(refreshButton)
+        refreshButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        refreshButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Back to chat button
+        backToChatButton = CustomButton()
+        backToChatButton.cursor = .pointingHand
+        let backConfig = NSImage.SymbolConfiguration(pointSize: 11, weight: .medium)
+        backToChatButton.image = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?.withSymbolConfiguration(backConfig)
+        backToChatButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        backToChatButton.isBordered = false
+        backToChatButton.bezelStyle = .shadowlessSquare
+        backToChatButton.imagePosition = .imageOnly
+        backToChatButton.imageScaling = .scaleProportionallyUpOrDown
+        backToChatButton.target = self
+        backToChatButton.action = #selector(backToChatButtonClicked(_:))
+        backToChatButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        backToChatButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Open in window button
+        openInWindowButton = CustomButton()
+        openInWindowButton.cursor = .pointingHand
+        openInWindowButton.image = NSImage(named: "openNewWindow")
+        openInWindowButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        openInWindowButton.isBordered = false
+        openInWindowButton.bezelStyle = .shadowlessSquare
+        openInWindowButton.imagePosition = .imageOnly
+        openInWindowButton.imageScaling = .scaleProportionallyUpOrDown
+        openInWindowButton.target = self
+        openInWindowButton.action = #selector(openInWindowButtonClicked(_:))
+        openInWindowButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        openInWindowButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        // Stack: REFRESH | BACK-TO-CHAT | OPEN-IN-WINDOW
+        // NSStackView collapses space automatically when a view is hidden.
+        rightButtonsStack = NSStackView(views: [refreshButton, backToChatButton, openInWindowButton])
+        rightButtonsStack.orientation = .horizontal
+        rightButtonsStack.spacing = 8
+        rightButtonsStack.translatesAutoresizingMaskIntoConstraints = false
+        headerBarView.addSubview(rightButtonsStack)
 
         NSLayoutConstraint.activate([
-            refreshButton.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
-            refreshButton.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
-            refreshButton.widthAnchor.constraint(equalToConstant: 20),
-            refreshButton.heightAnchor.constraint(equalToConstant: 20),
-
             urlLabel.leadingAnchor.constraint(equalTo: headerBarView.leadingAnchor, constant: 12),
-            urlLabel.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -8),
-            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor)
+            urlLabel.trailingAnchor.constraint(equalTo: rightButtonsStack.leadingAnchor, constant: -8),
+            urlLabel.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
+
+            rightButtonsStack.trailingAnchor.constraint(equalTo: headerBarView.trailingAnchor, constant: -8),
+            rightButtonsStack.centerYAnchor.constraint(equalTo: headerBarView.centerYAnchor),
         ])
 
         headerBarView.isHidden = true
@@ -139,14 +189,17 @@ class WebAppViewController: NSViewController {
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        view.window?.delegate = self
+        // Only register as NSWindowDelegate when running in a separate window;
+        // in inline mode we don't want windowWillClose to fire.
+        if isOpenedInWindow {
+            view.window?.delegate = self
+        }
         
         addAndLoadWebView()
     }
     
     func resizeSubviews(frame: NSRect) {
         view.frame = frame
-        // webView is constrained programmatically, no manual frame needed
     }
     
     func addAndLoadWebView(forceReload: Bool = false) {
@@ -271,6 +324,27 @@ class WebAppViewController: NSViewController {
     @IBAction func refreshButtonClicked(_ sender: Any) {
         addAndLoadWebView(forceReload: true)
     }
+
+    @objc func backToChatButtonClicked(_ sender: Any) {
+        webAppDelegate?.webAppDidTapBackToChat()
+    }
+
+    @objc func openInWindowButtonClicked(_ sender: Any) {
+        webAppDelegate?.webAppDidTapOpenInWindow(chat: chat, appURL: appURL, isAppURL: !isPersonalGraph)
+    }
+
+    /// Stops the webview and releases its resources.
+    /// Called when leaving a tribe chat or when the separate window closes.
+    func teardown() {
+        finishLoadingTimer?.invalidate()
+        finishLoadingTimer = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
+        webView?.configuration.userContentController.removeAllUserScripts()
+        webView?.removeFromSuperview()
+        webView = nil
+    }
 }
 
 extension WebAppViewController : WKNavigationDelegate {
@@ -327,17 +401,7 @@ extension WebAppViewController : AuthorizeAppViewDelegate {
 
 extension WebAppViewController : NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
-        finishLoadingTimer?.invalidate()
-        finishLoadingTimer = nil
-
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.configuration.userContentController.removeScriptMessageHandler(
-            forName: webAppHelper.messageHandler
-        )
-        webView?.configuration.userContentController.removeAllUserScripts()
-        webView?.removeFromSuperview()
-        webView = nil
+        teardown()
     }
 }
 

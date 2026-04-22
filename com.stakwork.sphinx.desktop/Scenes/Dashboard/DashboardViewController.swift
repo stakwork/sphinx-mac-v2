@@ -82,6 +82,13 @@ class DashboardViewController: NSViewController {
             isPersonalGraph: true
         )
     }()
+
+    /// The WebAppViewController currently shown inline in rightSplittedView.
+    var activeInlineWebAppVC: WebAppViewController? = nil
+    /// AutoLayout constraints pinning the overlay to rightSplittedView.
+    var activeInlineWebAppConstraints: [NSLayoutConstraint] = []
+    /// The chat ID the overlay belongs to.
+    var activeInlineWebAppChatId: Int? = nil
     
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
@@ -804,6 +811,7 @@ extension DashboardViewController : NSSplitViewDelegate {
         feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
         graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         workspaceTasksDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
+        // activeInlineWebAppVC is pinned via AutoLayout — no manual resize needed.
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
@@ -882,6 +890,10 @@ extension DashboardViewController : DashboardVCDelegate {
     func shouldReloadChatRowWith(chatId: Int) {
         listViewController?.shouldReloadChatRowWith(chatId: chatId)
     }
+
+    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
+        showInlineWebApp(chat: chat, isAppURL: isAppURL, cachedVC: cachedVC)
+    }
     
     func goToInviteCodeString(inviteCode: String) {
         if inviteCode == "" {
@@ -930,24 +942,116 @@ extension DashboardViewController : DashboardVCDelegate {
     }
     
     func resetDetailViewController() {
+        // Detach the overlay from the view hierarchy (no teardown here —
+        // resetVC() below will call teardown() on the cached web VC which is
+        // the same instance).
+        if let webAppVC = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            webAppVC.view.removeFromSuperview()
+            webAppVC.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
         if let detailViewController = newDetailViewController {
             detailViewController.resetVC()
-            
             self.removeChildVC(child: detailViewController)
-            
             newDetailViewController = nil
         }
-        
+
         self.removeChildVC(child: feedDashboardViewController)
-        
+
         if let graphDashboardViewController = graphDashboardViewController {
             self.removeChildVC(child: graphDashboardViewController)
         }
-        
+
         if let tasksVC = workspaceTasksDashboardViewController {
             self.removeChildVC(child: tasksVC)
             workspaceTasksDashboardViewController = nil
         }
+    }
+
+    // MARK: - Inline WebApp Overlay
+
+    /// Pin `webAppVC.view` over `rightSplittedView` using AutoLayout so the chat
+    /// VC underneath never needs to be removed from the hierarchy.
+    private func attachWebAppOverlay(_ webAppVC: WebAppViewController) {
+        guard webAppVC.view.superview == nil else { return }
+
+        addChild(webAppVC)
+        webAppVC.view.translatesAutoresizingMaskIntoConstraints = false
+        rightSplittedView.addSubview(webAppVC.view)
+
+        let constraints = [
+            webAppVC.view.topAnchor.constraint(equalTo: rightSplittedView.topAnchor),
+            webAppVC.view.bottomAnchor.constraint(equalTo: rightSplittedView.bottomAnchor),
+            webAppVC.view.leadingAnchor.constraint(equalTo: rightSplittedView.leadingAnchor),
+            webAppVC.view.trailingAnchor.constraint(equalTo: rightSplittedView.trailingAnchor),
+        ]
+        NSLayoutConstraint.activate(constraints)
+        activeInlineWebAppConstraints = constraints
+    }
+
+    /// Show the WebApp as an overlay over the chat (chat VC stays alive underneath).
+    func showInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
+        let chatId = chat.id
+
+        // If the same overlay is already showing, just unhide it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId,
+           !existing.view.isHidden {
+            return
+        }
+
+        // If the same overlay was hidden (back-to-chat), just reveal it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId {
+            existing.view.isHidden = false
+            return
+        }
+
+        // Different tribe / first open: remove old overlay without teardown
+        // (teardown happens when its owning chat VC is reset).
+        if let old = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            old.view.isHidden = true
+            old.view.removeFromSuperview()
+            old.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
+        // Resolve or create the web VC.
+        let webAppVC: WebAppViewController
+        if let cached = cachedVC {
+            webAppVC = cached
+        } else {
+            guard let fresh = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
+            if isAppURL {
+                newDetailViewController?.cachedWebAppVC = fresh
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = fresh
+            }
+            webAppVC = fresh
+        }
+        webAppVC.webAppDelegate = self
+
+        activeInlineWebAppVC = webAppVC
+        activeInlineWebAppChatId = chatId
+
+        attachWebAppOverlay(webAppVC)
+        webAppVC.addAndLoadWebView()
+    }
+
+    /// Hide the overlay — chat VC stays alive, webview keeps its state.
+    func dismissInlineWebApp() {
+        guard let webAppVC = activeInlineWebAppVC else { return }
+        webAppVC.view.isHidden = true
+        // Do NOT remove from hierarchy, do NOT call presentChatVCFor.
+        // activeInlineWebAppVC / activeInlineWebAppChatId are kept so re-opening
+        // the same tribe instantly unhides.
     }
     
     func presentFeedDashboard() {
@@ -1148,5 +1252,43 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
         
         newDetailViewController?.chatBottomView.messageFieldView.isThreadOpen = false
         newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
+    }
+}
+
+extension DashboardViewController: WebAppViewControllerDelegate {
+    func webAppDidTapBackToChat() {
+        dismissInlineWebApp()
+    }
+
+    func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool) {
+        guard let chat = chat else { return }
+
+        // Grab the loaded VC before detaching the overlay.
+        let vcToMove = activeInlineWebAppVC
+
+        // Detach overlay from rightSplittedView WITHOUT teardown — the live VC moves to a window.
+        if let vc = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            vc.view.removeFromSuperview()
+            vc.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
+        // Clear from cache so re-opening the tribe creates a fresh inline instance.
+        if isAppURL {
+            newDetailViewController?.cachedWebAppVC = nil
+        } else {
+            newDetailViewController?.cachedSecondBrainVC = nil
+        }
+
+        // Chat VC is already live underneath — nothing to restore.
+
+        // Move the already-loaded VC into a separate window (no reload).
+        if let vc = vcToMove {
+            vc.isOpenedInWindow = true
+            WindowsManager.sharedInstance.showWebAppWindow(vc: vc, title: chat.name ?? "Web App")
+        }
     }
 }
