@@ -85,7 +85,9 @@ class DashboardViewController: NSViewController {
 
     /// The WebAppViewController currently shown inline in rightSplittedView.
     var activeInlineWebAppVC: WebAppViewController? = nil
-    /// The chat ID to restore after the inline webview is dismissed.
+    /// AutoLayout constraints pinning the overlay to rightSplittedView.
+    var activeInlineWebAppConstraints: [NSLayoutConstraint] = []
+    /// The chat ID the overlay belongs to.
     var activeInlineWebAppChatId: Int? = nil
     
     static func instantiate() -> DashboardViewController {
@@ -809,7 +811,7 @@ extension DashboardViewController : NSSplitViewDelegate {
         feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
         graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         workspaceTasksDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
-        activeInlineWebAppVC?.resizeSubviews(frame: rightSplittedView.bounds)
+        // activeInlineWebAppVC is pinned via AutoLayout — no manual resize needed.
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
@@ -940,40 +942,93 @@ extension DashboardViewController : DashboardVCDelegate {
     }
     
     func resetDetailViewController() {
+        // Detach the overlay from the view hierarchy (no teardown here —
+        // resetVC() below will call teardown() on the cached web VC which is
+        // the same instance).
+        if let webAppVC = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            webAppVC.view.removeFromSuperview()
+            webAppVC.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
         if let detailViewController = newDetailViewController {
             detailViewController.resetVC()
             self.removeChildVC(child: detailViewController)
             newDetailViewController = nil
         }
-        
+
         self.removeChildVC(child: feedDashboardViewController)
-        
+
         if let graphDashboardViewController = graphDashboardViewController {
             self.removeChildVC(child: graphDashboardViewController)
         }
-        
+
         if let tasksVC = workspaceTasksDashboardViewController {
             self.removeChildVC(child: tasksVC)
             workspaceTasksDashboardViewController = nil
         }
-
-        // Remove any active inline webview (the cached VC is owned by NewChatViewController
-        // and will be torn down via resetVC() above — just detach it from the view hierarchy).
-        if let webAppVC = activeInlineWebAppVC {
-            removeChildVC(child: webAppVC)
-            activeInlineWebAppVC = nil
-        }
-        activeInlineWebAppChatId = nil
     }
 
-    /// Show a webAppVC inline, reusing the cached instance if supplied.
+    // MARK: - Inline WebApp Overlay
+
+    /// Pin `webAppVC.view` over `rightSplittedView` using AutoLayout so the chat
+    /// VC underneath never needs to be removed from the hierarchy.
+    private func attachWebAppOverlay(_ webAppVC: WebAppViewController) {
+        guard webAppVC.view.superview == nil else { return }
+
+        addChild(webAppVC)
+        webAppVC.view.translatesAutoresizingMaskIntoConstraints = false
+        rightSplittedView.addSubview(webAppVC.view)
+
+        let constraints = [
+            webAppVC.view.topAnchor.constraint(equalTo: rightSplittedView.topAnchor),
+            webAppVC.view.bottomAnchor.constraint(equalTo: rightSplittedView.bottomAnchor),
+            webAppVC.view.leadingAnchor.constraint(equalTo: rightSplittedView.leadingAnchor),
+            webAppVC.view.trailingAnchor.constraint(equalTo: rightSplittedView.trailingAnchor),
+        ]
+        NSLayoutConstraint.activate(constraints)
+        activeInlineWebAppConstraints = constraints
+    }
+
+    /// Show the WebApp as an overlay over the chat (chat VC stays alive underneath).
     func showInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
+        let chatId = chat.id
+
+        // If the same overlay is already showing, just unhide it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId,
+           !existing.view.isHidden {
+            return
+        }
+
+        // If the same overlay was hidden (back-to-chat), just reveal it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId {
+            existing.view.isHidden = false
+            return
+        }
+
+        // Different tribe / first open: remove old overlay without teardown
+        // (teardown happens when its owning chat VC is reset).
+        if let old = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            old.view.isHidden = true
+            old.view.removeFromSuperview()
+            old.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
+        // Resolve or create the web VC.
         let webAppVC: WebAppViewController
         if let cached = cachedVC {
             webAppVC = cached
         } else {
             guard let fresh = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
-            // Store it back on the chat VC so it survives back-to-chat and re-open.
             if isAppURL {
                 newDetailViewController?.cachedWebAppVC = fresh
             } else {
@@ -983,40 +1038,20 @@ extension DashboardViewController : DashboardVCDelegate {
         }
         webAppVC.webAppDelegate = self
 
-        let chatId = chat.id
-
-        // Remove the chat VC from the view hierarchy WITHOUT calling resetVC()
-        // (resetVC tears down the podcast player and clears the cache).
-        if let detailVC = newDetailViewController {
-            self.removeChildVC(child: detailVC)
-            // Keep newDetailViewController alive — we'll re-add it on dismiss.
-        }
-        // Remove any previously active inline webview.
-        if let old = activeInlineWebAppVC, old !== webAppVC {
-            removeChildVC(child: old)
-        }
-
-        activeInlineWebAppChatId = chatId
         activeInlineWebAppVC = webAppVC
-        addChildVC(child: webAppVC, container: rightSplittedView)
+        activeInlineWebAppChatId = chatId
+
+        attachWebAppOverlay(webAppVC)
         webAppVC.addAndLoadWebView()
     }
 
+    /// Hide the overlay — chat VC stays alive, webview keeps its state.
     func dismissInlineWebApp() {
-        guard let chatId = activeInlineWebAppChatId else { return }
-
-        if let webAppVC = activeInlineWebAppVC {
-            removeChildVC(child: webAppVC)
-            activeInlineWebAppVC = nil
-        }
-        activeInlineWebAppChatId = nil
-
-        // Re-add the existing chat VC if it's still the right chat, avoiding a full reload.
-        if let existingChatVC = newDetailViewController, existingChatVC.chat?.id == chatId {
-            addChildVC(child: existingChatVC, container: rightSplittedView)
-        } else {
-            presentChatVCFor(chatId: chatId, contactId: nil)
-        }
+        guard let webAppVC = activeInlineWebAppVC else { return }
+        webAppVC.view.isHidden = true
+        // Do NOT remove from hierarchy, do NOT call presentChatVCFor.
+        // activeInlineWebAppVC / activeInlineWebAppChatId are kept so re-opening
+        // the same tribe instantly unhides.
     }
     
     func presentFeedDashboard() {
@@ -1228,31 +1263,29 @@ extension DashboardViewController: WebAppViewControllerDelegate {
     func webAppDidTapOpenInWindow(chat: Chat?, appURL: String?, isAppURL: Bool) {
         guard let chat = chat else { return }
 
-        // Grab the loaded VC before clearing the inline state
+        // Grab the loaded VC before detaching the overlay.
         let vcToMove = activeInlineWebAppVC
 
-        // Detach from inline without tearing down
+        // Detach overlay from rightSplittedView WITHOUT teardown — the live VC moves to a window.
         if let vc = activeInlineWebAppVC {
-            removeChildVC(child: vc)
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            vc.view.removeFromSuperview()
+            vc.removeFromParent()
             activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
         }
-        activeInlineWebAppChatId = nil
 
-        // Clear it from the chat VC cache so re-opening creates a fresh inline instance
+        // Clear from cache so re-opening the tribe creates a fresh inline instance.
         if isAppURL {
             newDetailViewController?.cachedWebAppVC = nil
         } else {
             newDetailViewController?.cachedSecondBrainVC = nil
         }
 
-        // Restore the chat view
-        if let existingChatVC = newDetailViewController, existingChatVC.chat?.id == chat.id {
-            addChildVC(child: existingChatVC, container: rightSplittedView)
-        } else {
-            presentChatVCFor(chatId: chat.id, contactId: nil)
-        }
+        // Chat VC is already live underneath — nothing to restore.
 
-        // Move the already-loaded VC into a separate window (no reload)
+        // Move the already-loaded VC into a separate window (no reload).
         if let vc = vcToMove {
             vc.isOpenedInWindow = true
             WindowsManager.sharedInstance.showWebAppWindow(vc: vc, title: chat.name ?? "Web App")
