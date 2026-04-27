@@ -24,6 +24,20 @@ class WebAppViewController: NSViewController {
     var chat: Chat? = nil
     var finishLoadingTimer : Timer? = nil
     var isPersonalGraph: Bool = false
+    private var navigationDidFail = false
+    
+    private lazy var errorLabel: NSTextField = {
+        let label = NSTextField(wrappingLabelWithString: "")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isEditable = false
+        label.isBordered = false
+        label.backgroundColor = .clear
+        label.textColor = NSColor.Sphinx.SecondaryText
+        label.font = NSFont.systemFont(ofSize: 14)
+        label.alignment = .center
+        label.isHidden = true
+        return label
+    }()
     
     let webAppHelper = WebAppHelper()
     
@@ -59,6 +73,13 @@ class WebAppViewController: NSViewController {
         authorizeModalContainer.alphaValue = 0.0
         
         personalGraphLabelContainer.fillColor = NSColor.Sphinx.Body
+        
+        view.addSubview(errorLabel)
+        NSLayoutConstraint.activate([
+            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            errorLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 300)
+        ])
     }
     
     override func viewDidAppear() {
@@ -70,7 +91,18 @@ class WebAppViewController: NSViewController {
         view.frame = frame
     }
     
+    func showErrorLabel() {
+        navigationDidFail = true
+        finishLoadingTimer?.invalidate()
+        removeLoadingView()
+        webView?.isHidden = true
+        errorLabel.stringValue = "Failed to load page. Use the refresh button to try again."
+        errorLabel.isHidden = false
+    }
+    
     func addAndLoadWebView(forceReload: Bool = false) {
+        navigationDidFail = false
+        errorLabel.isHidden = true
         var didChangeAppUrl = false
         let personalGraphUrl = userData.getPersonalGraphUrl()
         
@@ -138,6 +170,10 @@ class WebAppViewController: NSViewController {
     }
     
     @objc func checkForWebViewDoneLoading(){
+        guard !navigationDidFail else {
+            finishLoadingTimer?.invalidate()
+            return
+        }
         if(webView.isLoading == false){
             finishLoadingTimer?.invalidate()
             webView.isHidden = false
@@ -201,6 +237,14 @@ class WebAppViewController: NSViewController {
 }
 
 extension WebAppViewController : WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        showErrorLabel()
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        showErrorLabel()
+    }
+    
      func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
          if navigationAction.navigationType == .linkActivated  {
              if let url = navigationAction.request.url, url.absoluteString.contains("open=system") {
