@@ -54,7 +54,6 @@
 		470E0B33247C743900177D8A /* LoadingMoreCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470E0B31247C743900177D8A /* LoadingMoreCollectionViewItem.swift */; };
 		4717B6652D9EC9D000E3681E /* API+ChaptersNodesExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */; };
 		4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */; };
-		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
 		4717B66B2D9ECA8D00E3681E /* Chapter+Computed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */; };
 		4717B66E2D9F082300E3681E /* EpisodeChapterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */; };
 		4717B6702D9F082C00E3681E /* EpisodeChapterView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4717B66F2D9F082C00E3681E /* EpisodeChapterView.xib */; };
@@ -709,6 +708,7 @@
 		93FED3662BE238EF008B8DDD /* GroupContactListItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */; };
 		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
+		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
 		CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */; };
@@ -992,7 +992,6 @@
 		470E0B31247C743900177D8A /* LoadingMoreCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingMoreCollectionViewItem.swift; sourceTree = "<group>"; };
 		4717B6642D9EC9C800E3681E /* API+ChaptersNodesExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+ChaptersNodesExtension.swift"; sourceTree = "<group>"; };
 		4717B6672D9ECA3F00E3681E /* ChaptersManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChaptersManager.swift; sourceTree = "<group>"; };
-		662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppSessionManager.swift; sourceTree = "<group>"; };
 		4717B66A2D9ECA8300E3681E /* Chapter+Computed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chapter+Computed.swift"; sourceTree = "<group>"; };
 		4717B66C2D9ECAB700E3681E /* com_stakwork_sphinx_desktop 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 5.xcdatamodel"; sourceTree = "<group>"; };
 		4717B66D2D9F082300E3681E /* EpisodeChapterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeChapterView.swift; sourceTree = "<group>"; };
@@ -1721,6 +1720,7 @@
 		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
 		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
+		662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppSessionManager.swift; sourceTree = "<group>"; };
 		66AE46CC91994BA3BFF11DA3 /* com_stakwork_sphinx_desktop 13.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 13.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TimezoneSharingView.xib; sourceTree = "<group>"; };
@@ -2004,14 +2004,6 @@
 				473E1F482AC5BEBF00DC1CDC /* ThreadHeaderView.xib */,
 			);
 			path = "Chat View";
-			sourceTree = "<group>";
-		};
-		56B5F8942EF500001AD459F3 /* WebApp */ = {
-			isa = PBXGroup;
-			children = (
-				662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */,
-			);
-			path = WebApp;
 			sourceTree = "<group>";
 		};
 		4717B6662D9ECA3700E3681E /* Chapters Manager */ = {
@@ -4033,6 +4025,14 @@
 			path = "Collection View Items";
 			sourceTree = "<group>";
 		};
+		56B5F8942EF500001AD459F3 /* WebApp */ = {
+			isa = PBXGroup;
+			children = (
+				662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */,
+			);
+			path = WebApp;
+			sourceTree = "<group>";
+		};
 		90CB5EBD497A4B4F39AB48EE /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -5771,7 +5771,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 262;
+				CURRENT_PROJECT_VERSION = 264;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5808,7 +5808,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 262;
+				CURRENT_PROJECT_VERSION = 264;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
