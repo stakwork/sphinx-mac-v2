@@ -1089,6 +1089,7 @@ extension DashboardViewController : DashboardVCDelegate {
         activeInlineWebAppVC = webAppVC
         activeInlineWebAppChatId = chatId
 
+        webAppVC.view.isHidden = false
         attachWebAppOverlay(webAppVC)
         webAppVC.addAndLoadWebView()
         newDetailViewController?.setWebAppHeaderActionsVisible(true)
