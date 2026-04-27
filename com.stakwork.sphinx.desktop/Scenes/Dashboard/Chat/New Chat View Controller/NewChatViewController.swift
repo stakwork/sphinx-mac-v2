@@ -287,9 +287,15 @@ class NewChatViewController: DashboardSplittedViewController {
         
         childViewControllerContainer.removeChildVC()
         
-        cachedWebAppVC?.teardown()
+        if let chatId = chat?.id {
+            if let vc = cachedWebAppVC {
+                WebAppSessionManager.sharedInstance.store(vc, chatId: chatId, isAppURL: true)
+            }
+            if let vc = cachedSecondBrainVC {
+                WebAppSessionManager.sharedInstance.store(vc, chatId: chatId, isAppURL: false)
+            }
+        }
         cachedWebAppVC = nil
-        cachedSecondBrainVC?.teardown()
         cachedSecondBrainVC = nil
         
         chatTableDataSource?.stopListeningToResultsController()

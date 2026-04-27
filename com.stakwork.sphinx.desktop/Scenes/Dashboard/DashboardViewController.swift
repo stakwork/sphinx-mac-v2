@@ -923,6 +923,9 @@ extension DashboardViewController : DashboardVCDelegate {
         newDetailViewController?.cachedWebAppVC = nil
         newDetailViewController?.cachedSecondBrainVC = nil
 
+        // Evict from session manager — VC is moving to its own window
+        WebAppSessionManager.sharedInstance.evict(chatId: chat.id, isAppURL: isAppURL)
+
         // Hide webview action icons in header
         newDetailViewController?.setWebAppHeaderActionsVisible(false)
 
@@ -1066,6 +1069,14 @@ extension DashboardViewController : DashboardVCDelegate {
         let webAppVC: WebAppViewController
         if let cached = cachedVC {
             webAppVC = cached
+        } else if let managed = WebAppSessionManager.sharedInstance.retrieve(chatId: chatId, isAppURL: isAppURL) {
+            // Restore from manager — repopulate the NewChatVC's local cache
+            if isAppURL {
+                newDetailViewController?.cachedWebAppVC = managed
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = managed
+            }
+            webAppVC = managed
         } else {
             guard let fresh = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
             if isAppURL {
