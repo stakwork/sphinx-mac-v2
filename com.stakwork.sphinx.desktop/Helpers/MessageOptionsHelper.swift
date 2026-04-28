@@ -292,11 +292,11 @@ import Cocoa
         options.append(
             (ChatHeaderItem.Search.rawValue, nil, nil, "search".localized)
         )
-        if chat.isPublicGroup() {
-            options.append(
-                (ChatHeaderItem.Threads.rawValue, nil, nil, "threads".localized)
-            )
-        }
+//        if chat.isPublicGroup() {
+//            options.append(
+//                (ChatHeaderItem.Threads.rawValue, nil, nil, "threads".localized)
+//            )
+//        }
         if chat.hasWebApp() {
             options.append(
                 (ChatHeaderItem.WebApp.rawValue, nil, nil, "web.app".localized)

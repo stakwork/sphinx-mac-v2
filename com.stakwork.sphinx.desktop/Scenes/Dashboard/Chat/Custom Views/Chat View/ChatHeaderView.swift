@@ -103,10 +103,22 @@ class ChatHeaderView: NSView, LoadableNib {
     }
 
     func setupWebAppActionsStack() {
+        let refreshConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let refreshImage = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?
+              .withSymbolConfiguration(refreshConfig)
+
+        webAppRefreshButton.image = refreshImage
         webAppRefreshButton.target = self
         webAppRefreshButton.action = #selector(webAppRefreshButtonClicked)
+        
+        let chatConfig = NSImage.SymbolConfiguration(pointSize: 17, weight: .semibold)
+        let chatImage = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?
+              .withSymbolConfiguration(chatConfig)
+        
+        webAppBackToChatButton.image = chatImage
         webAppBackToChatButton.target = self
         webAppBackToChatButton.action = #selector(webAppBackToChatButtonClicked)
+        
         webAppOpenInWindowButton.target = self
         webAppOpenInWindowButton.action = #selector(webAppOpenInWindowButtonClicked)
     }
@@ -420,7 +432,7 @@ class ChatHeaderView: NSView, LoadableNib {
             optionsButton.isHidden = false
         } else {
             searchButton.isHidden = false
-            threadsButton.isHidden = chat?.isPublicGroup() == false
+//            threadsButton.isHidden = chat?.isPublicGroup() == false
             webAppButton.isHidden = chat?.hasWebApp() == false
             secondBrainButton.isHidden = chat?.hasSecondBrainApp() == false
             volumeButton.isHidden = false
