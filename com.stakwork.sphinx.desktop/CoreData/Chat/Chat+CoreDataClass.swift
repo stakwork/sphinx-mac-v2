@@ -60,12 +60,12 @@ public class Chat: NSManagedObject, @unchecked Sendable {
     /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new
     private func mergeAliasAndPic(alias: String, pic: String) {
         if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-            // Update existing entry with new pic if provided
+            // Update pic only if a non-empty value is provided
             if pic.isNotEmpty {
                 aliasesAndPics[index] = (alias, pic)
             }
-        } else if !aliasesAndPics.contains(where: { $0.1 == pic && pic.isNotEmpty }) {
-            // Add new entry if alias doesn't exist and pic is unique (or empty)
+        } else {
+            // Always insert a new alias — pic URL is not a uniqueness signal
             aliasesAndPics.append((alias, pic))
         }
     }
