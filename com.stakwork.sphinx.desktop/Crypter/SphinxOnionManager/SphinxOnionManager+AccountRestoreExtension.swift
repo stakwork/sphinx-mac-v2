@@ -358,8 +358,6 @@ extension SphinxOnionManager {
         msgCountLimit: Int,
         reverse: Bool
     ) {
-        startWatchdogTimer()
-        
         let safeLastMsgIndex = max(lastMessageIndex, 0)
         
         do {
@@ -999,9 +997,6 @@ extension SphinxOnionManager {
         
         endWatchdogTime()
         resetFromRestore()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.syncNewMessages()
-        }
     }
     
     func finishMessagesFetch(
@@ -1022,7 +1017,7 @@ extension SphinxOnionManager {
         resetFromRestore()
         updateRoutingInfo()
         
-        if isRestore, let maxIndex = TransactionMessage.getMaxIndex() {
+        if let maxIndex = TransactionMessage.getMaxIndex() {
             maxMessageIndex = maxIndex
         }
     }
