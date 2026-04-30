@@ -1017,7 +1017,7 @@ extension SphinxOnionManager {
         resetFromRestore()
         updateRoutingInfo()
         
-        if let maxIndex = TransactionMessage.getMaxIndex() {
+        if isRestore, let maxIndex = TransactionMessage.getMaxIndex() {
             maxMessageIndex = maxIndex
         }
     }
