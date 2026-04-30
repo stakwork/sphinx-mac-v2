@@ -968,36 +968,6 @@ extension SphinxOnionManager {
         
         return groupActionMessage
     }
-
-    func endWatchdogTime() {
-        watchdogTimer?.invalidate()
-        watchdogTimer = nil
-    }
-    
-    func startWatchdogTimer() {
-        watchdogTimer?.invalidate()
-        
-        watchdogTimer = Timer.scheduledTimer(
-            timeInterval: 10.0,
-            target: self,
-            selector: #selector(watchdogTimerFired),
-            userInfo: nil,
-            repeats: false
-        )
-    }
-    
-    @objc func watchdogTimerFired() {
-        onMessageRestoredCallback = nil
-        firstSCIDMsgsCallback = nil
-        totalMsgsCountCallback = nil
-        
-        messageFetchParams = nil
-        chatsFetchParams = nil
-        messagePerContactFetchParams = nil
-        
-        endWatchdogTime()
-        resetFromRestore()
-    }
     
     func finishMessagesFetch(
         isRestore: Bool = false
@@ -1013,7 +983,6 @@ extension SphinxOnionManager {
         restoredContactInfoTracker = []
         
         requestPings()
-        endWatchdogTime()
         resetFromRestore()
         updateRoutingInfo()
         
