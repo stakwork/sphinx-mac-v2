@@ -142,6 +142,7 @@ class WebAppViewController: NSViewController {
         webView.customUserAgent = "Sphinx"
         webView.isHidden = true
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         
         if #available(macOS 13.3, *) {
             webView.isInspectable = true
@@ -236,7 +237,7 @@ class WebAppViewController: NSViewController {
     }
 }
 
-extension WebAppViewController : WKNavigationDelegate {
+extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         showErrorLabel()
     }
@@ -245,9 +246,9 @@ extension WebAppViewController : WKNavigationDelegate {
         showErrorLabel()
     }
     
-     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
          if navigationAction.navigationType == .linkActivated  {
-             if let url = navigationAction.request.url, url.absoluteString.contains("open=system") {
+             if let url = navigationAction.request.url {
                  NSWorkspace.shared.open(url)
                  decisionHandler(.cancel)
                  return
@@ -259,7 +260,14 @@ extension WebAppViewController : WKNavigationDelegate {
              decisionHandler(.allow)
              return
          }
-     }
+    }
+    
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if let url = navigationAction.request.url {
+            NSWorkspace.shared.open(url)
+        }
+        return nil
+    }
  }
 
 extension WebAppViewController : AuthorizeAppViewDelegate {
