@@ -90,6 +90,7 @@ struct RoomView: View {
     
     @State private var isParticipantsVideoMenuPresented: [String: Bool] = [:]
     @State private var isParticipantsAudioMenuPresented: [String: Bool] = [:]
+    @State private var isParticipantsRemoveConfirmPresented: [String: Bool] = [:]
 
     @State private var cameraPublishOptions = VideoPublishOptions()
 
@@ -580,6 +581,69 @@ struct RoomView: View {
                             .font(.system(size: 17))
                     }
                 }.frame(width: 32.0, height: 32.0)
+                
+                if !(participant is LocalParticipant) {
+                    ZStack(alignment: .center) {
+                        Button(action: {
+                            isParticipantsRemoveConfirmPresented[participant.id] = true
+                        }) {
+                            Image(systemName: "person.fill.xmark")
+                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                .font(.system(size: 15))
+                                .frame(width: 32.0, height: 32.0)
+                        }
+                        .buttonStyle(.borderless)
+                        .background(
+                            Color(NSColor.Sphinx.MainBottomIcons)
+                                .opacity(0.2)
+                                .cornerRadius(8.0)
+                        )
+                        .popover(isPresented: Binding(
+                            get: { isParticipantsRemoveConfirmPresented[participant.id] ?? false },
+                            set: { isParticipantsRemoveConfirmPresented[participant.id] = $0 }
+                        )) {
+                            VStack(spacing: 16) {
+                                Button {
+                                    isParticipantsRemoveConfirmPresented[participant.id] = false
+                                    API.sharedInstance.removeParticipant(
+                                        room: room.name ?? "",
+                                        participantIdentity: participant.identity?.stringValue ?? ""
+                                    ) { success in
+                                        if !success {
+                                            DispatchQueue.main.async {
+                                                newMessageBubbleHelper.showGenericMessageView(
+                                                    text: "Failed to remove participant. Please try again.",
+                                                    delay: 5,
+                                                    textColor: NSColor.white,
+                                                    backColor: NSColor.Sphinx.BadgeRed,
+                                                    backAlpha: 1.0
+                                                )
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Text("Remove from call")
+                                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                }
+                                Button {
+                                    isParticipantsRemoveConfirmPresented[participant.id] = false
+                                } label: {
+                                    Text("Cancel")
+                                }
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .frame(width: 32, height: 32)
+                        .onHover { isHover in
+                            if isHover {
+                                NSCursor.pointingHand.set()
+                            } else {
+                                NSCursor.arrow.set()
+                            }
+                        }
+                    }.frame(width: 32.0, height: 32.0)
+                }
             }
             .frame(height: 62)
             .frame(minWidth: 0, maxWidth: .infinity)
