@@ -975,6 +975,12 @@ extension DashboardViewController : DashboardVCDelegate {
         
         newDetailViewController = newChatVCController
 
+        if let chat = chat,
+           WebAppSessionManager.sharedInstance.isVisible(chatId: chat.id),
+           let cachedVC = WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: true) {
+            showInlineWebApp(chat: chat, isAppURL: true, cachedVC: cachedVC)
+        }
+
         deeplinkData = nil
         
         NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
@@ -1088,6 +1094,7 @@ extension DashboardViewController : DashboardVCDelegate {
         }
         activeInlineWebAppVC = webAppVC
         activeInlineWebAppChatId = chatId
+        WebAppSessionManager.sharedInstance.setVisible(true, chatId: chatId)
 
         webAppVC.view.isHidden = false
         attachWebAppOverlay(webAppVC)
@@ -1099,6 +1106,9 @@ extension DashboardViewController : DashboardVCDelegate {
     func dismissInlineWebApp() {
         guard let webAppVC = activeInlineWebAppVC else { return }
         webAppVC.view.isHidden = true
+        if let chatId = activeInlineWebAppChatId {
+            WebAppSessionManager.sharedInstance.setVisible(false, chatId: chatId)
+        }
         newDetailViewController?.setWebAppHeaderActionsVisible(false)
         // Do NOT remove from hierarchy, do NOT call presentChatVCFor.
         // activeInlineWebAppVC / activeInlineWebAppChatId are kept so re-opening
