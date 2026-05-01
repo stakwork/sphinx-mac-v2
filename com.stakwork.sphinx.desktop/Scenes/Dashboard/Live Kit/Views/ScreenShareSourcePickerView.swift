@@ -102,7 +102,7 @@ struct ScreenShareSourcePickerView: View {
     }
 
     let onPickScreenShareSource: OnPickScreenShareSource?
-    @ObservedObject var ctrl = ScreenShareSourcePickerCtrl()
+    @StateObject private var ctrl = ScreenShareSourcePickerCtrl()
 
     private var columns = [
         GridItem(.fixed(250)),
