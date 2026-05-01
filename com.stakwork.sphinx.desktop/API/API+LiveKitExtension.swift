@@ -110,4 +110,25 @@ extension API {
         // Start the request
         task.resume()
     }
+    
+    func removeParticipant(
+        room: String,
+        participantIdentity: String,
+        callback: @escaping (Bool) -> Void
+    ) {
+        guard let url = URL(string: "\(self.kVideoCallServer)/api/remove-participant") else {
+            callback(false); return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body = ["roomName": room, "participantIdentity": participantIdentity]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            guard error == nil,
+                  let http = response as? HTTPURLResponse,
+                  http.statusCode == 200 else { callback(false); return }
+            callback(true)
+        }.resume()
+    }
 }
