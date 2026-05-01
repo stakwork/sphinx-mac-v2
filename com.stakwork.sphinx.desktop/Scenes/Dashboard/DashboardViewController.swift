@@ -977,7 +977,8 @@ extension DashboardViewController : DashboardVCDelegate {
 
         if let chat = chat,
            WebAppSessionManager.sharedInstance.isVisible(chatId: chat.id),
-           let cachedVC = WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: true) {
+           let cachedVC = WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: true) ?? WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: false)
+        {
             showInlineWebApp(chat: chat, isAppURL: true, cachedVC: cachedVC)
         }
 
