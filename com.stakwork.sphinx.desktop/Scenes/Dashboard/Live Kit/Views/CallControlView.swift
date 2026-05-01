@@ -160,8 +160,8 @@ struct CallControlView: View {
             .onHover { isHover in
                 if isHover { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
             }
-            if room.participantCount > 0 {
-                Text("\(room.participantCount)")
+            if room.allParticipants.count > 0 {
+                Text("\(room.allParticipants.count)")
                     .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
                     .foregroundColor(Color.white)
                     .padding(.trailing, 8)
