@@ -40,6 +40,7 @@ class WebAppViewController: NSViewController {
     }()
     
     let webAppHelper = WebAppHelper()
+    let logStore = WebAppLogStore()
     
     let userData = UserData.sharedInstance
     
@@ -66,6 +67,7 @@ class WebAppViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         webAppHelper.delegate = self
+        webAppHelper.logStore = logStore
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
         
@@ -135,6 +137,24 @@ class WebAppViewController: NSViewController {
     func addWebView() {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController.add(webAppHelper, name: webAppHelper.messageHandler)
+        configuration.userContentController.add(self, name: "sphinxConsole")
+        
+        let consoleScript = """
+        (function() {
+          function intercept(level) {
+            var original = console[level];
+            console[level] = function() {
+              var args = Array.prototype.slice.call(arguments);
+              window.webkit.messageHandlers.sphinxConsole.postMessage({ level: level, message: args.join(' ') });
+              original.apply(console, arguments);
+            };
+          }
+          ['log','warn','error','info'].forEach(intercept);
+        })();
+        """
+        let userScript = WKUserScript(source: consoleScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        configuration.userContentController.addUserScript(userScript)
+        
         configuration.preferences.setValue(true, forKey: "fullScreenEnabled")
         
         let rect = CGRect(x: 0, y: 0, width: 700, height: 500)
@@ -223,13 +243,35 @@ class WebAppViewController: NSViewController {
         }
     }
 
+    func showLogsWindow() {
+        if let existing = NSApplication.shared.windows.first(where: {
+            ($0 as? TaggedWindow)?.windowIdentifier == "web-app-logs"
+        }) {
+            existing.makeKeyAndOrderFront(nil)
+            return
+        }
+        WindowsManager.sharedInstance.showNewWindow(
+            with: "Web App Logs",
+            size: CGSize(width: 700, height: 500),
+            minSize: CGSize(width: 400, height: 300),
+            identifier: "web-app-logs",
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: WebAppLogsViewController.instantiate(store: logStore)
+        )
+    }
+
     /// Stops the webview and releases its resources.
     /// Called when leaving a tribe chat or when the separate window closes.
     func teardown() {
+        logStore.clear()
+        NSApplication.shared.windows.first(where: {
+            ($0 as? TaggedWindow)?.windowIdentifier == "web-app-logs"
+        })?.close()
         finishLoadingTimer?.invalidate()
         finishLoadingTimer = nil
         webView?.stopLoading()
         webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxConsole")
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
         webView?.configuration.userContentController.removeAllUserScripts()
         webView?.removeFromSuperview()
@@ -238,11 +280,23 @@ class WebAppViewController: NSViewController {
 }
 
 extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        let url = webView.url?.absoluteString ?? "unknown"
+        logStore.append(.init(timestamp: Date(), level: .info, source: .navigation, message: "didStartProvisionalNavigation: \(url)"))
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let url = webView.url?.absoluteString ?? "unknown"
+        logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
+    }
+
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFail: \(error.localizedDescription)"))
         showErrorLabel()
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFailProvisionalNavigation: \(error.localizedDescription)"))
         showErrorLabel()
     }
     
@@ -313,5 +367,23 @@ extension WebAppViewController : NSWindowDelegate {
 extension WebAppViewController: WebAppHelperDelegate {
     func setBudget(budget: Int) {
         print(budget)
+    }
+}
+
+extension WebAppViewController: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "sphinxConsole",
+              let dict = message.body as? [String: Any],
+              let levelStr = dict["level"] as? String,
+              let text = dict["message"] as? String else { return }
+
+        let level: WebAppLogStore.LogLevel
+        switch levelStr {
+        case "warn":  level = .warn
+        case "error": level = .error
+        case "info":  level = .info
+        default:      level = .log
+        }
+        logStore.append(.init(timestamp: Date(), level: level, source: .jsConsole, message: text))
     }
 }

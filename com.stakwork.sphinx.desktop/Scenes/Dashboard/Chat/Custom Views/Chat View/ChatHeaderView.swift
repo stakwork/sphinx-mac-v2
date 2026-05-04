@@ -22,6 +22,7 @@ import SDWebImage
     func didClickWebAppRefreshButton()
     func didClickWebAppBackToChatButton()
     func didClickWebAppOpenInWindowButton()
+    func didClickWebAppLogsButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -60,6 +61,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var webAppRefreshButton: CustomButton!
     @IBOutlet weak var webAppBackToChatButton: CustomButton!
     @IBOutlet weak var webAppOpenInWindowButton: CustomButton!
+    @IBOutlet weak var webAppLogsButton: CustomButton!
     
     let kMinimumChatHeaderForButtons: CGFloat = 700
     
@@ -121,6 +123,14 @@ class ChatHeaderView: NSView, LoadableNib {
         
         webAppOpenInWindowButton.target = self
         webAppOpenInWindowButton.action = #selector(webAppOpenInWindowButtonClicked)
+
+        let logsConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let logsImage = NSImage(systemSymbolName: "doc.plaintext", accessibilityDescription: nil)?
+            .withSymbolConfiguration(logsConfig)
+        webAppLogsButton.image = logsImage
+        webAppLogsButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        webAppLogsButton.target = self
+        webAppLogsButton.action = #selector(webAppLogsButtonClicked)
     }
 
     func showWebAppActions(_ show: Bool) {
@@ -489,5 +499,9 @@ class ChatHeaderView: NSView, LoadableNib {
 
     @objc func webAppOpenInWindowButtonClicked() {
         delegate?.didClickWebAppOpenInWindowButton()
+    }
+
+    @objc func webAppLogsButtonClicked() {
+        delegate?.didClickWebAppLogsButton()
     }
 }

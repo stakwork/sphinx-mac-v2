@@ -145,6 +145,10 @@ extension NewChatViewController : ChatHeaderViewDelegate {
         delegate?.shouldOpenInlineWebAppInNewWindow()
     }
 
+    func didClickWebAppLogsButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.showLogsWindow()
+    }
+
     func setWebAppHeaderActionsVisible(_ visible: Bool) {
         chatTopView.showWebAppActions(visible)
     }
