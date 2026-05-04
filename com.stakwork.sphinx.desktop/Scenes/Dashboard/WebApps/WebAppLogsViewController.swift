@@ -94,6 +94,7 @@ class WebAppLogsViewController: NSViewController {
         case .navigation:      return "NAV"
         case .bridgeInbound:   return "BRIDGE-IN"
         case .bridgeOutbound:  return "BRIDGE-OUT"
+        case .network:         return "NET"
         }
     }
 
@@ -107,16 +108,16 @@ class WebAppLogsViewController: NSViewController {
     }
 
     private func lineColor(level: WebAppLogStore.LogLevel, source: WebAppLogStore.LogSource) -> NSColor {
-        // Source takes priority for navigation and bridge
         switch source {
         case .navigation:
             return NSColor.systemBlue
         case .bridgeInbound, .bridgeOutbound:
             return NSColor.systemGreen
+        case .network:
+            return NSColor.systemOrange
         case .jsConsole:
             break
         }
-        // Fall back to level color for JS console entries
         switch level {
         case .error: return NSColor.systemRed
         case .warn:  return NSColor.systemYellow

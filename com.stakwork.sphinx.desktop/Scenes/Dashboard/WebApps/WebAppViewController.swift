@@ -138,6 +138,7 @@ class WebAppViewController: NSViewController {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController.add(webAppHelper, name: webAppHelper.messageHandler)
         configuration.userContentController.add(self, name: "sphinxConsole")
+        configuration.userContentController.add(self, name: "sphinxNetwork")
         
         let consoleScript = """
         (function() {
@@ -152,8 +153,58 @@ class WebAppViewController: NSViewController {
           ['log','warn','error','info'].forEach(intercept);
         })();
         """
-        let userScript = WKUserScript(source: consoleScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-        configuration.userContentController.addUserScript(userScript)
+        let networkScript = """
+        (function() {
+          var post = function(msg) {
+            try { window.webkit.messageHandlers.sphinxNetwork.postMessage(msg); } catch(e) {}
+          };
+
+          // --- XMLHttpRequest ---
+          var OrigXHR = window.XMLHttpRequest;
+          function PatchedXHR() {
+            var xhr = new OrigXHR();
+            var method, url;
+            var origOpen = xhr.open.bind(xhr);
+            var origSend = xhr.send.bind(xhr);
+            xhr.open = function(m, u) {
+              method = m; url = u;
+              return origOpen.apply(xhr, arguments);
+            };
+            xhr.send = function(body) {
+              post({ type: 'xhr-start', method: method, url: url });
+              xhr.addEventListener('load', function() {
+                post({ type: 'xhr-done', method: method, url: url, status: xhr.status });
+              });
+              xhr.addEventListener('error', function() {
+                post({ type: 'xhr-error', method: method, url: url });
+              });
+              return origSend.apply(xhr, arguments);
+            };
+            return xhr;
+          }
+          PatchedXHR.prototype = OrigXHR.prototype;
+          window.XMLHttpRequest = PatchedXHR;
+
+          // --- fetch ---
+          var origFetch = window.fetch;
+          window.fetch = function(input, init) {
+            var method = (init && init.method) ? init.method.toUpperCase() : 'GET';
+            var url = (typeof input === 'string') ? input : (input && input.url) ? input.url : String(input);
+            post({ type: 'fetch-start', method: method, url: url });
+            return origFetch.apply(this, arguments).then(function(resp) {
+              post({ type: 'fetch-done', method: method, url: url, status: resp.status });
+              return resp;
+            }).catch(function(err) {
+              post({ type: 'fetch-error', method: method, url: url, error: String(err) });
+              throw err;
+            });
+          };
+        })();
+        """
+        let consoleUserScript = WKUserScript(source: consoleScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        let networkUserScript = WKUserScript(source: networkScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        configuration.userContentController.addUserScript(consoleUserScript)
+        configuration.userContentController.addUserScript(networkUserScript)
         
         configuration.preferences.setValue(true, forKey: "fullScreenEnabled")
         
@@ -272,6 +323,7 @@ class WebAppViewController: NSViewController {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxConsole")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxNetwork")
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
         webView?.configuration.userContentController.removeAllUserScripts()
         webView?.removeFromSuperview()
@@ -372,18 +424,42 @@ extension WebAppViewController: WebAppHelperDelegate {
 
 extension WebAppViewController: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == "sphinxConsole",
-              let dict = message.body as? [String: Any],
-              let levelStr = dict["level"] as? String,
-              let text = dict["message"] as? String else { return }
+        if message.name == "sphinxConsole" {
+            guard let dict = message.body as? [String: Any],
+                  let levelStr = dict["level"] as? String,
+                  let text = dict["message"] as? String else { return }
+            let level: WebAppLogStore.LogLevel
+            switch levelStr {
+            case "warn":  level = .warn
+            case "error": level = .error
+            case "info":  level = .info
+            default:      level = .log
+            }
+            logStore.append(.init(timestamp: Date(), level: level, source: .jsConsole, message: text))
 
-        let level: WebAppLogStore.LogLevel
-        switch levelStr {
-        case "warn":  level = .warn
-        case "error": level = .error
-        case "info":  level = .info
-        default:      level = .log
+        } else if message.name == "sphinxNetwork" {
+            guard let dict = message.body as? [String: Any],
+                  let type = dict["type"] as? String else { return }
+            let method = dict["method"] as? String ?? "?"
+            let url = dict["url"] as? String ?? "?"
+            let msg: String
+            let level: WebAppLogStore.LogLevel
+            switch type {
+            case "xhr-start", "fetch-start":
+                msg = "→ \(method) \(url)"
+                level = .info
+            case "xhr-done", "fetch-done":
+                let status = dict["status"] as? Int ?? 0
+                msg = "← \(method) \(url) [\(status)]"
+                level = status >= 400 ? .warn : .log
+            case "xhr-error", "fetch-error":
+                let err = dict["error"] as? String ?? ""
+                msg = "✗ \(method) \(url)\(err.isEmpty ? "" : " – \(err)")"
+                level = .error
+            default:
+                return
+            }
+            logStore.append(.init(timestamp: Date(), level: level, source: .network, message: msg))
         }
-        logStore.append(.init(timestamp: Date(), level: level, source: .jsConsole, message: text))
     }
 }
