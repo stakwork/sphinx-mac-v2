@@ -39,6 +39,7 @@
                 <outlet property="webAppActionsStack" destination="xvd-h2-omE" id="vaS-G7-4f3"/>
                 <outlet property="webAppBackToChatButton" destination="gdh-0U-B5q" id="FdN-MO-uYR"/>
                 <outlet property="webAppButton" destination="cuK-dZ-qgQ" id="SGm-Oy-J2P"/>
+                <outlet property="webAppLogsButton" destination="Lgx-7k-pQ2" id="Pxm-9q-rT7"/>
                 <outlet property="webAppOpenInWindowButton" destination="RD8-bs-Z7l" id="1NK-I8-OdG"/>
                 <outlet property="webAppRefreshButton" destination="wMG-FW-dgy" id="ied-Js-Mpl"/>
             </connections>
@@ -473,18 +474,36 @@
                                 <constraint firstAttribute="width" constant="40" id="9cr-v9-Sur"/>
                             </constraints>
                         </button>
+                        <button translatesAutoresizingMaskIntoConstraints="NO" id="Lgx-7k-pQ2" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                            <rect key="frame" x="120" y="0.0" width="40" height="60"/>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" inset="2" id="Bwt-3m-aK9">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                                <imageReference key="image" image="doc.plaintext" catalog="system" symbolScale="large"/>
+                            </buttonCell>
+                            <color key="contentTintColor" name="SecondaryText"/>
+                            <symbolConfiguration key="symbolConfiguration" scale="large" weight="semibold">
+                                <nil key="locale"/>
+                            </symbolConfiguration>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="40" id="Kpz-8n-vR1"/>
+                            </constraints>
+                        </button>
                     </subviews>
                     <constraints>
                         <constraint firstItem="RD8-bs-Z7l" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="68L-CN-0hR"/>
                         <constraint firstItem="gdh-0U-B5q" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="T3U-mt-pvS"/>
                         <constraint firstItem="wMG-FW-dgy" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="scC-LO-8jJ"/>
+                        <constraint firstItem="Lgx-7k-pQ2" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="Aqr-5j-mNv"/>
                     </constraints>
                     <visibilityPriorities>
                         <integer value="1000"/>
                         <integer value="1000"/>
                         <integer value="1000"/>
+                        <integer value="1000"/>
                     </visibilityPriorities>
                     <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>
                         <real value="3.4028234663852886e+38"/>

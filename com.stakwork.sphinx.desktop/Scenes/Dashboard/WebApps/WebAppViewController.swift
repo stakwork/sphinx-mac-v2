@@ -40,6 +40,7 @@ class WebAppViewController: NSViewController {
     }()
     
     let webAppHelper = WebAppHelper()
+    let logStore = WebAppLogStore()
     
     let userData = UserData.sharedInstance
     
@@ -66,6 +67,7 @@ class WebAppViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         webAppHelper.delegate = self
+        webAppHelper.logStore = logStore
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
         
@@ -135,6 +137,75 @@ class WebAppViewController: NSViewController {
     func addWebView() {
         let configuration = WKWebViewConfiguration()
         configuration.userContentController.add(webAppHelper, name: webAppHelper.messageHandler)
+        configuration.userContentController.add(self, name: "sphinxConsole")
+        configuration.userContentController.add(self, name: "sphinxNetwork")
+        
+        let consoleScript = """
+        (function() {
+          function intercept(level) {
+            var original = console[level];
+            console[level] = function() {
+              var args = Array.prototype.slice.call(arguments);
+              window.webkit.messageHandlers.sphinxConsole.postMessage({ level: level, message: args.join(' ') });
+              original.apply(console, arguments);
+            };
+          }
+          ['log','warn','error','info'].forEach(intercept);
+        })();
+        """
+        let networkScript = """
+        (function() {
+          var post = function(msg) {
+            try { window.webkit.messageHandlers.sphinxNetwork.postMessage(msg); } catch(e) {}
+          };
+
+          // --- XMLHttpRequest ---
+          var OrigXHR = window.XMLHttpRequest;
+          function PatchedXHR() {
+            var xhr = new OrigXHR();
+            var method, url;
+            var origOpen = xhr.open.bind(xhr);
+            var origSend = xhr.send.bind(xhr);
+            xhr.open = function(m, u) {
+              method = m; url = u;
+              return origOpen.apply(xhr, arguments);
+            };
+            xhr.send = function(body) {
+              post({ type: 'xhr-start', method: method, url: url });
+              xhr.addEventListener('load', function() {
+                post({ type: 'xhr-done', method: method, url: url, status: xhr.status });
+              });
+              xhr.addEventListener('error', function() {
+                post({ type: 'xhr-error', method: method, url: url });
+              });
+              return origSend.apply(xhr, arguments);
+            };
+            return xhr;
+          }
+          PatchedXHR.prototype = OrigXHR.prototype;
+          window.XMLHttpRequest = PatchedXHR;
+
+          // --- fetch ---
+          var origFetch = window.fetch;
+          window.fetch = function(input, init) {
+            var method = (init && init.method) ? init.method.toUpperCase() : 'GET';
+            var url = (typeof input === 'string') ? input : (input && input.url) ? input.url : String(input);
+            post({ type: 'fetch-start', method: method, url: url });
+            return origFetch.apply(this, arguments).then(function(resp) {
+              post({ type: 'fetch-done', method: method, url: url, status: resp.status });
+              return resp;
+            }).catch(function(err) {
+              post({ type: 'fetch-error', method: method, url: url, error: String(err) });
+              throw err;
+            });
+          };
+        })();
+        """
+        let consoleUserScript = WKUserScript(source: consoleScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        let networkUserScript = WKUserScript(source: networkScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        configuration.userContentController.addUserScript(consoleUserScript)
+        configuration.userContentController.addUserScript(networkUserScript)
+        
         configuration.preferences.setValue(true, forKey: "fullScreenEnabled")
         
         let rect = CGRect(x: 0, y: 0, width: 700, height: 500)
@@ -223,13 +294,36 @@ class WebAppViewController: NSViewController {
         }
     }
 
+    func showLogsWindow() {
+        if let existing = NSApplication.shared.windows.first(where: {
+            ($0 as? TaggedWindow)?.windowIdentifier == "web-app-logs"
+        }) {
+            existing.makeKeyAndOrderFront(nil)
+            return
+        }
+        WindowsManager.sharedInstance.showNewWindow(
+            with: "Web App Logs",
+            size: CGSize(width: 700, height: 500),
+            minSize: CGSize(width: 400, height: 300),
+            identifier: "web-app-logs",
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: WebAppLogsViewController.instantiate(store: logStore)
+        )
+    }
+
     /// Stops the webview and releases its resources.
     /// Called when leaving a tribe chat or when the separate window closes.
     func teardown() {
+        logStore.clear()
+        NSApplication.shared.windows.first(where: {
+            ($0 as? TaggedWindow)?.windowIdentifier == "web-app-logs"
+        })?.close()
         finishLoadingTimer?.invalidate()
         finishLoadingTimer = nil
         webView?.stopLoading()
         webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxConsole")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxNetwork")
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
         webView?.configuration.userContentController.removeAllUserScripts()
         webView?.removeFromSuperview()
@@ -238,11 +332,23 @@ class WebAppViewController: NSViewController {
 }
 
 extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        let url = webView.url?.absoluteString ?? "unknown"
+        logStore.append(.init(timestamp: Date(), level: .info, source: .navigation, message: "didStartProvisionalNavigation: \(url)"))
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let url = webView.url?.absoluteString ?? "unknown"
+        logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
+    }
+
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFail: \(error.localizedDescription)"))
         showErrorLabel()
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFailProvisionalNavigation: \(error.localizedDescription)"))
         showErrorLabel()
     }
     
@@ -313,5 +419,47 @@ extension WebAppViewController : NSWindowDelegate {
 extension WebAppViewController: WebAppHelperDelegate {
     func setBudget(budget: Int) {
         print(budget)
+    }
+}
+
+extension WebAppViewController: WKScriptMessageHandler {
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "sphinxConsole" {
+            guard let dict = message.body as? [String: Any],
+                  let levelStr = dict["level"] as? String,
+                  let text = dict["message"] as? String else { return }
+            let level: WebAppLogStore.LogLevel
+            switch levelStr {
+            case "warn":  level = .warn
+            case "error": level = .error
+            case "info":  level = .info
+            default:      level = .log
+            }
+            logStore.append(.init(timestamp: Date(), level: level, source: .jsConsole, message: text))
+
+        } else if message.name == "sphinxNetwork" {
+            guard let dict = message.body as? [String: Any],
+                  let type = dict["type"] as? String else { return }
+            let method = dict["method"] as? String ?? "?"
+            let url = dict["url"] as? String ?? "?"
+            let msg: String
+            let level: WebAppLogStore.LogLevel
+            switch type {
+            case "xhr-start", "fetch-start":
+                msg = "→ \(method) \(url)"
+                level = .info
+            case "xhr-done", "fetch-done":
+                let status = dict["status"] as? Int ?? 0
+                msg = "← \(method) \(url) [\(status)]"
+                level = status >= 400 ? .warn : .log
+            case "xhr-error", "fetch-error":
+                let err = dict["error"] as? String ?? ""
+                msg = "✗ \(method) \(url)\(err.isEmpty ? "" : " – \(err)")"
+                level = .error
+            default:
+                return
+            }
+            logStore.append(.init(timestamp: Date(), level: level, source: .network, message: msg))
+        }
     }
 }

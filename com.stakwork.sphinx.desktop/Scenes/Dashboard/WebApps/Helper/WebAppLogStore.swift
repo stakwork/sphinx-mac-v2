@@ -11,7 +11,7 @@ class WebAppLogStore {
     }
 
     enum LogSource {
-        case jsConsole, navigation, bridgeInbound, bridgeOutbound
+        case jsConsole, navigation, bridgeInbound, bridgeOutbound, network
     }
 
     struct WebAppLogEntry {
