@@ -485,6 +485,8 @@
 		479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479B19382EC4EBFE00A5B9E2 /* API+ContentItemsExtension.swift */; };
 		479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C792F24EAD243009BA1CD /* SphinxOnionConnector.swift */; };
 		479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793524EC3B2B009BA1CD /* WebAppViewController.swift */; };
+		6C7C5C5E0A3B47BF9EEFDE27 /* WebAppLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */; };
+		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
 		479C793824EC3CCD009BA1CD /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 479C793724EC3CCD009BA1CD /* test.html */; };
 		479C793C24ED61E2009BA1CD /* AuthorizeAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479C793B24ED61E2009BA1CD /* AuthorizeAppView.swift */; };
 		479C793F24ED6A6C009BA1CD /* AuthorizeAppView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 479C794124ED6A6C009BA1CD /* AuthorizeAppView.xib */; };
@@ -1502,6 +1504,8 @@
 		479C794324ED6A71009BA1CD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AuthorizeAppView.strings; sourceTree = "<group>"; };
 		479C794524ED6A72009BA1CD /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/AuthorizeAppView.strings; sourceTree = "<group>"; };
 		479C794724ED6DD8009BA1CD /* WebAppHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppHelper.swift; sourceTree = "<group>"; };
+		A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogStore.swift; sourceTree = "<group>"; };
+		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		479E7D8325ACF8200092595B /* GroupsPinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupsPinManager.swift; sourceTree = "<group>"; };
 		479E7D8525ADD3E10092595B /* PinTimeoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinTimeoutView.swift; sourceTree = "<group>"; };
 		479E7D8A25ADD6DD0092595B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PinTimeoutView.xib; sourceTree = "<group>"; };
@@ -3309,6 +3313,7 @@
 				479C794624ED6DCC009BA1CD /* Helper */,
 				479C793A24ED61CC009BA1CD /* Views */,
 				479C793524EC3B2B009BA1CD /* WebAppViewController.swift */,
+				ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */,
 			);
 			path = WebApps;
 			sourceTree = "<group>";
@@ -3326,6 +3331,7 @@
 			isa = PBXGroup;
 			children = (
 				479C794724ED6DD8009BA1CD /* WebAppHelper.swift */,
+				A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -4538,6 +4544,8 @@
 				475B682429915D25000EF29C /* ContentFeedItem+CoreDataProperties.swift in Sources */,
 				47308E1F2507F3AC00FFAC6F /* GiphySearchView.swift in Sources */,
 				479C793624EC3B2B009BA1CD /* WebAppViewController.swift in Sources */,
+				6C7C5C5E0A3B47BF9EEFDE27 /* WebAppLogStore.swift in Sources */,
+				B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */,
 				4794961F2AB2075C00C42D1E /* PodcastBoostView.swift in Sources */,
 				CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */,
 				475DB98D2D01F5020011C9BA /* AttachmentsPreviewDataSource.swift in Sources */,
