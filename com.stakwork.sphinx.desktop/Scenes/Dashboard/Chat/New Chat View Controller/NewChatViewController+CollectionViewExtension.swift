@@ -87,6 +87,11 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         )
         
         if isThread {
+            if let threadUUID = threadUUID {
+                DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+                    self.chat?.setThreadMessagesAsSeen(threadUUID: threadUUID)
+                })
+            }
             return
         }
         

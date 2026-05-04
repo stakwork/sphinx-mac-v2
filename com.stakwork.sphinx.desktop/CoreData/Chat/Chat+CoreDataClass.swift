@@ -661,6 +661,70 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         }
     }
     
+    @MainActor func setThreadMessagesAsSeen(threadUUID: String) {
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let chatId = self.id
+
+        backgroundContext.performSafely {
+            guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
+                return
+            }
+
+            let userId = UserData.sharedInstance.getUserId()
+            let predicate = NSPredicate(
+                format: "(senderId != %d || type == %d) AND chat == %@ AND threadUUID == %@ AND seen == %@",
+                userId,
+                TransactionMessage.TransactionMessageType.groupJoin.rawValue,
+                chat,
+                threadUUID,
+                NSNumber(booleanLiteral: false)
+            )
+            let unseenThreadMessages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+                predicate: predicate,
+                sortDescriptors: [],
+                entityName: "TransactionMessage",
+                managedContext: backgroundContext
+            )
+
+            for m in unseenThreadMessages {
+                m.seen = true
+            }
+
+            var readLevelIndex: UInt64? = nil
+
+            if !unseenThreadMessages.isEmpty,
+               let lastMessage = chat.getLastMessageToShow(sortById: true, context: backgroundContext),
+               let maxThreadId = unseenThreadMessages.map({ $0.id }).max(),
+               maxThreadId == lastMessage.id,
+               !chat.seen
+            {
+                chat.seen = true
+                if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
+                    readLevelIndex = UInt64(lastMessage.id)
+                }
+            }
+
+            backgroundContext.saveContext()
+
+            if let index = readLevelIndex {
+                DispatchQueue.main.async {
+                    if let currentChat = Chat.getChatWith(id: chatId) {
+                        guard currentChat.getConversationContact()?.isAgent != true else { return }
+                        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                            index: index,
+                            chat: currentChat,
+                            recipContact: currentChat.getConversationContact()
+                        )
+                    }
+                }
+            }
+
+            DispatchQueue.main.async {
+                self.calculateBadge()
+            }
+        }
+    }
+
     static func updateMessageReadStatus(
         chatId: Int,
         lastReadId: Int,
