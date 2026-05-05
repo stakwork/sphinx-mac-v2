@@ -23,6 +23,7 @@ public enum MenuItems: Int {
     case AddFriend = 5
     case CreateTribe = 6
     case ShareQR = 7
+    case Diagnostics = 8
 }
 
 public class NewMenuListView: NSView, LoadableNib {
@@ -52,6 +53,7 @@ public class NewMenuListView: NSView, LoadableNib {
         NewMenuItem(icon: "bottomBar2", menuTitle: "transactions".localized),
         NewMenuItem(icon: "bottomBar4", menuTitle: "request.payment".localized),
         NewMenuItem(icon: "bottomBar1", menuTitle: "pay.invoice".localized),
+        NewMenuItem(icon: "bottomBar3", menuTitle: "diagnostics".localized),
     ]
     
     required init?(coder: NSCoder) {
