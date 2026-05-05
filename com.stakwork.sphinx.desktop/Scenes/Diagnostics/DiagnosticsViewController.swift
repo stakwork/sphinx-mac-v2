@@ -9,6 +9,7 @@ class DiagnosticsViewController: NSViewController {
 
     private var scrollView: NSScrollView!
     private var textView: NSTextView!
+    private var loadingWheel: NSProgressIndicator!
     private var headerView: NSView!
     private var titleLabel: NSTextField!
     private var exportButton: NSButton!
@@ -98,6 +99,16 @@ class DiagnosticsViewController: NSViewController {
         scrollView.documentView = textView
         self.textView = textView
 
+        // ── Loading Wheel ──────────────────────────────────────────────────
+        let spinner = NSProgressIndicator()
+        spinner.style = .spinning
+        spinner.controlSize = .regular
+        spinner.isIndeterminate = true
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.isHidden = true
+        container.addSubview(spinner)
+        self.loadingWheel = spinner
+
         // ── Layout ─────────────────────────────────────────────────────────
         NSLayoutConstraint.activate([
             // Header
@@ -127,6 +138,10 @@ class DiagnosticsViewController: NSViewController {
             scrollView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            // Spinner centred over scroll view
+            spinner.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
         ])
 
         self.view = container
@@ -137,15 +152,51 @@ class DiagnosticsViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Render existing entries
-        for entry in AppLogger.shared.entries {
-            appendLine(for: entry)
-        }
+        // Show spinner, hide text view until entries are rendered
+        textView.isHidden = true
+        loadingWheel.isHidden = false
+        loadingWheel.startAnimation(nil)
 
-        // Live-append new entries
-        AppLogger.shared.onNewEntry = { [weak self] entry in
+        // Snapshot entries to avoid data races
+        let entries = AppLogger.shared.entries
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+
+            // Build full attributed string off main thread
+            let monoFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+            let combined = NSMutableAttributedString()
+            for entry in entries {
+                let timeStr = Self.timeFormatter.string(from: entry.timestamp)
+                let timestampPart = NSAttributedString(
+                    string: "[\(timeStr)] ",
+                    attributes: [.foregroundColor: NSColor.Sphinx.PrimaryBlue, .font: monoFont]
+                )
+                let bodyPart = NSAttributedString(
+                    string: "[\(entry.level.rawValue)] \(entry.message)\n",
+                    attributes: [.foregroundColor: self.lineColor(for: entry.level), .font: monoFont]
+                )
+                combined.append(timestampPart)
+                combined.append(bodyPart)
+            }
+
             DispatchQueue.main.async {
-                self?.appendLine(for: entry)
+                self.textView.textStorage?.setAttributedString(combined)
+                self.scrollToBottom()
+                LoadingWheelHelper.toggleLoadingWheel(
+                    loading: false,
+                    loadingWheel: self.loadingWheel,
+                    color: NSColor.Sphinx.SecondaryText,
+                    controls: []
+                )
+                self.textView.isHidden = false
+
+                // Register live callback AFTER initial render to avoid mid-load race
+                AppLogger.shared.onNewEntry = { [weak self] entry in
+                    DispatchQueue.main.async {
+                        self?.appendLine(for: entry)
+                    }
+                }
             }
         }
     }
@@ -159,15 +210,20 @@ class DiagnosticsViewController: NSViewController {
     // MARK: - Formatting
 
     private func appendLine(for entry: AppLogger.LogEntry) {
+        let monoFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
         let timeStr = Self.timeFormatter.string(from: entry.timestamp)
-        let line = "[\(timeStr)] [\(entry.level.rawValue)] \(entry.message)\n"
-        let color = lineColor(for: entry.level)
-        let attrs: [NSAttributedString.Key: Any] = [
-            .foregroundColor: color,
-            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
-        ]
-        let attrStr = NSAttributedString(string: line, attributes: attrs)
-        textView.textStorage?.append(attrStr)
+        let timestampPart = NSAttributedString(
+            string: "[\(timeStr)] ",
+            attributes: [.foregroundColor: NSColor.Sphinx.PrimaryBlue, .font: monoFont]
+        )
+        let bodyPart = NSAttributedString(
+            string: "[\(entry.level.rawValue)] \(entry.message)\n",
+            attributes: [.foregroundColor: lineColor(for: entry.level), .font: monoFont]
+        )
+        let combined = NSMutableAttributedString()
+        combined.append(timestampPart)
+        combined.append(bodyPart)
+        textView.textStorage?.append(combined)
         scrollToBottom()
     }
 
