@@ -5,7 +5,7 @@ import Foundation
 
 private let kLogRetentionHours: Double = 24
 
-final class AppLogger {
+final class AppLogger: @unchecked Sendable {
 
     // MARK: - Public types
 
@@ -37,7 +37,7 @@ final class AppLogger {
 
     // MARK: - Singleton
 
-    static let shared = AppLogger()
+    nonisolated(unsafe) static let shared = AppLogger()
     private init() {}
 
     // MARK: - State
@@ -52,7 +52,7 @@ final class AppLogger {
 
     // MARK: - Formatters (static so signal handler helpers can use them)
 
-    static let isoFormatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) static let isoFormatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime]
         return f
@@ -258,7 +258,7 @@ enum AppLoggerSignalBridge {
 }
 
 /// C-accessible global buffer for the log file path (1 KB is more than enough).
-private var gSignalLogPath: (
+nonisolated(unsafe) private var gSignalLogPath: (
     CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
     CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
     CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
