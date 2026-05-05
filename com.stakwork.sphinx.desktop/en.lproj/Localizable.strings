@@ -592,3 +592,9 @@
 "notification.keysend.title" = "Keysend Received";
 "notification.amount" = "Amount:";
 "notification.memo" = "Memo:";
+
+//DIAGNOSTICS
+"diagnostics" = "Diagnostics";
+"diagnostics.title" = "Diagnostics";
+"diagnostics.export-button" = "Export Logs";
+"diagnostics.clear-button" = "Clear Logs";

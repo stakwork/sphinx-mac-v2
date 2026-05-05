@@ -49,6 +49,7 @@ import WebKit
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        AppLogger.shared.start()
         setAppSettings()
         clearWebkitCache()
         
@@ -405,6 +406,7 @@ import WebKit
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
+        AppLogger.shared.flush()
         WindowsManager.sharedInstance.saveWindowState()
         CoreDataManager.sharedManager.saveContext()
         ContactsService.sharedInstance.saveSelectedChat()

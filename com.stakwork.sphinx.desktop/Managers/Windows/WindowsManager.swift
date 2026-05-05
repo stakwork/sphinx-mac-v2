@@ -287,6 +287,15 @@ import SwiftUI
             hideDivider: false
         )
     }
+
+    func showDiagnosticsWindow() {
+        showOnCurrentWindow(
+            with: "diagnostics".localized,
+            identifier: "diagnostics-window",
+            contentVC: DiagnosticsViewController.instantiate(),
+            hideDivider: false
+        )
+    }
     
     func addVCIntoPopup(
         dashboardVC: DashboardViewController,
