@@ -40,13 +40,6 @@ class DiagnosticsViewController: NSViewController {
         container.addSubview(header)
         self.headerView = header
 
-        let title = NSTextField(labelWithString: "diagnostics.title".localized)
-        title.font = NSFont.systemFont(ofSize: 14, weight: .semibold)
-        title.textColor = NSColor.Sphinx.Text
-        title.translatesAutoresizingMaskIntoConstraints = false
-        header.addSubview(title)
-        self.titleLabel = title
-
         let exportBtn = NSButton(title: "diagnostics.export-button".localized,
                                  target: self,
                                  action: #selector(exportButtonClicked))
@@ -116,10 +109,6 @@ class DiagnosticsViewController: NSViewController {
             header.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             header.heightAnchor.constraint(equalToConstant: 48),
-
-            // Title centred vertically in header
-            title.centerYAnchor.constraint(equalTo: header.centerYAnchor),
-            title.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
 
             // Buttons on the right
             exportBtn.centerYAnchor.constraint(equalTo: header.centerYAnchor),
@@ -253,11 +242,12 @@ class DiagnosticsViewController: NSViewController {
             return
         }
 
+        guard let window = view.window else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = fileURL.lastPathComponent
         panel.allowedContentTypes = [.plainText]
         panel.canCreateDirectories = true
-        panel.begin { [weak self] response in
+        panel.beginSheetModal(for: window) { [weak self] response in
             guard response == .OK, let destURL = panel.url else { return }
             do {
                 if FileManager.default.fileExists(atPath: destURL.path) {

@@ -53,7 +53,7 @@ public class NewMenuListView: NSView, LoadableNib {
         NewMenuItem(icon: "bottomBar2", menuTitle: "transactions".localized),
         NewMenuItem(icon: "bottomBar4", menuTitle: "request.payment".localized),
         NewMenuItem(icon: "bottomBar1", menuTitle: "pay.invoice".localized),
-        NewMenuItem(icon: "bottomBar3", menuTitle: "diagnostics".localized),
+        NewMenuItem(icon: "apple.terminal", menuTitle: "diagnostics".localized),
     ]
     
     required init?(coder: NSCoder) {

@@ -21,7 +21,11 @@ class NewMenuListItem: NSCollectionViewItem {
     }
     
     func render(with item: NewMenuItem) {
-        self.itemIcon.image = NSImage(named: item.icon)
+        if let image = NSImage(named: item.icon) {
+            self.itemIcon.image = image
+        } else if let sfSymbolImage = NSImage(systemSymbolName: item.icon, accessibilityDescription: item.icon) {
+            self.itemIcon.image = sfSymbolImage
+        }
         self.itemTitle.stringValue = item.menuTitle
     }
     
