@@ -729,6 +729,8 @@
 		CEF18FA92C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */; };
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
+		AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001001AB00CFDA01AA001 /* AppLogger.swift */; };
+		AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1803,6 +1805,8 @@
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
+		AA0001001AB00CFDA01AA001 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2265,6 +2269,7 @@
 			children = (
 				56B5F8942EF500001AD459F3 /* WebApp */,
 				47AA1A032EF431AB00CFDA02 /* AI Agent */,
+				AA0001003EF431AB00CFDA02 /* Logging */,
 				471ABEAD2EF4319900CFD81F /* Data Sync Manager */,
 				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
 				4717B6662D9ECA3700E3681E /* Chapters Manager */,
@@ -2520,6 +2525,7 @@
 				4744FACA246AE68600C5FD94 /* Invite */,
 				479751CD246C78EC00D2106B /* Pin */,
 				479751C2246C72C100D2106B /* Dashboard */,
+				AA0002003EF431AB00CFDB02 /* Diagnostics */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -4156,6 +4162,22 @@
 		};
 /* End PBXNativeTarget section */
 
+		AA0001003EF431AB00CFDA02 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				AA0001001AB00CFDA01AA001 /* AppLogger.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		AA0002003EF431AB00CFDB02 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */,
+			);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
 /* Begin PBXProject section */
 		4734D38A2417E3D400D6957E /* Project object */ = {
 			isa = PBXProject;
@@ -4733,6 +4755,8 @@
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
+				AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */,
+				AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */,
 				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,
 				471ABEB72EF4600000CFD81F /* DataSyncModels.swift in Sources */,
 				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
