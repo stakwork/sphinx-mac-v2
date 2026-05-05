@@ -225,7 +225,7 @@
                     <color key="fillColor" name="HeaderBG"/>
                 </box>
                 <box clipsToBounds="YES" boxType="custom" borderType="none" borderWidth="0.0" cornerRadius="6" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="mYi-R7-KIc">
-                    <rect key="frame" x="386" y="595" width="32" height="32"/>
+                    <rect key="frame" x="386" y="645" width="32" height="32"/>
                     <view key="contentView" clipsToBounds="YES" id="lXD-li-EBR">
                         <rect key="frame" x="0.0" y="0.0" width="32" height="32"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

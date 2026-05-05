@@ -293,7 +293,8 @@ import SwiftUI
             with: "diagnostics".localized,
             identifier: "diagnostics-window",
             contentVC: DiagnosticsViewController.instantiate(),
-            hideDivider: false
+            hideDivider: false,
+            width: 700
         )
     }
     
