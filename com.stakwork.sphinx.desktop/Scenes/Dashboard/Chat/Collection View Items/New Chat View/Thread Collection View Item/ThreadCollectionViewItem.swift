@@ -79,6 +79,11 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     @IBOutlet weak var labelHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var lastReplyLabelHeightConstraint: NSLayoutConstraint!
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        chatAvatarView.resetView()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
