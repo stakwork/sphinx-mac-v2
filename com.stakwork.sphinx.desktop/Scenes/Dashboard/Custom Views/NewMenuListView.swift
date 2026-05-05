@@ -20,10 +20,10 @@ public enum MenuItems: Int {
     case Transactions = 2
     case RequestPayment = 3
     case PayInvoice = 4
-    case AddFriend = 5
-    case CreateTribe = 6
-    case ShareQR = 7
-    case Diagnostics = 8
+    case Diagnostics = 5
+    case AddFriend = 6
+    case CreateTribe = 7
+    case ShareQR = 8
 }
 
 public class NewMenuListView: NSView, LoadableNib {
