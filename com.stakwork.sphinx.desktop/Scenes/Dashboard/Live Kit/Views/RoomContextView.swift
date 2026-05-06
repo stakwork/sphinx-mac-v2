@@ -115,7 +115,7 @@ struct RoomContextView: View {
                             Task { @MainActor in
                                 AlertHelper.showAlert(
                                     title: "error.getting.token.title".localized,
-                                    message: "error.getting.token.description".localized
+                                    message: "Failed to connect to room"
                                 )
                             }
                             self.onCallEnded?()
@@ -158,7 +158,7 @@ struct RoomContextView: View {
                             print("LiveKit connect failed: \(error)")
                             AlertHelper.showAlert(
                                 title: "error.getting.token.title".localized,
-                                message: "error.getting.token.description".localized
+                                message: "Failed to connect to room"
                             )
                             self.onCallEnded?()
                         }
