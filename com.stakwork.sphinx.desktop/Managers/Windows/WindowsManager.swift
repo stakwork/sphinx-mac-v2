@@ -591,7 +591,10 @@ import SwiftUI
                 },
                 errorCallback: { error in
                     self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
-                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
+                    AlertHelper.showAlert(
+                        title: "error.getting.token.title".localized,
+                        message: error
+                    )
                 }
             )
         } else {
