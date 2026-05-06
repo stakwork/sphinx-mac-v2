@@ -14,6 +14,8 @@ class DiagnosticsViewController: NSViewController {
     private var titleLabel: NSTextField!
     private var exportButton: NSButton!
     private var clearButton: NSButton!
+    private var newWindowButton: NSButton!
+    private var logObserverID: UUID?
 
     private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -40,27 +42,22 @@ class DiagnosticsViewController: NSViewController {
         container.addSubview(header)
         self.headerView = header
 
-        let exportBtn = NSButton(title: "diagnostics.export-button".localized,
-                                 target: self,
-                                 action: #selector(exportButtonClicked))
-        exportBtn.bezelStyle = .rounded
-        exportBtn.controlSize = .regular
-        exportBtn.translatesAutoresizingMaskIntoConstraints = false
+        let exportBtn = makeIconButton(systemSymbol: "square.and.arrow.up", tooltip: "Export logs", action: #selector(exportButtonClicked))
         header.addSubview(exportBtn)
         self.exportButton = exportBtn
 
-        let clearBtn = NSButton(title: "diagnostics.clear-button".localized,
-                                target: self,
-                                action: #selector(clearButtonClicked))
-        clearBtn.bezelStyle = .rounded
-        clearBtn.controlSize = .regular
-        clearBtn.translatesAutoresizingMaskIntoConstraints = false
+        let clearBtn = makeIconButton(systemSymbol: "trash", tooltip: "Clear logs", action: #selector(clearButtonClicked))
         header.addSubview(clearBtn)
         self.clearButton = clearBtn
+
+        let newWinBtn = makeIconButton(systemSymbol: "openNewWindow", tooltip: "Open in new window", action: #selector(openInNewWindowButtonClicked))
+        header.addSubview(newWinBtn)
+        self.newWindowButton = newWinBtn
 
         // Separator line
         let separator = NSBox()
         separator.boxType = .separator
+        separator.borderColor = NSColor.Sphinx.SecondaryText
         separator.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(separator)
 
@@ -117,6 +114,9 @@ class DiagnosticsViewController: NSViewController {
             clearBtn.centerYAnchor.constraint(equalTo: header.centerYAnchor),
             clearBtn.trailingAnchor.constraint(equalTo: exportBtn.leadingAnchor, constant: -8),
 
+            newWinBtn.centerYAnchor.constraint(equalTo: header.centerYAnchor),
+            newWinBtn.trailingAnchor.constraint(equalTo: clearBtn.leadingAnchor, constant: -8),
+
             // Separator
             separator.topAnchor.constraint(equalTo: header.bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: container.leadingAnchor),
@@ -146,8 +146,8 @@ class DiagnosticsViewController: NSViewController {
         loadingWheel.isHidden = false
         loadingWheel.startAnimation(nil)
 
-        // Snapshot entries to avoid data races
-        let entries = AppLogger.shared.entries
+        // Snapshot the last 2000 entries — full log is always available via export
+        let entries = Array(AppLogger.shared.entries.suffix(10000))
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -181,10 +181,8 @@ class DiagnosticsViewController: NSViewController {
                 self.textView.isHidden = false
 
                 // Register live callback AFTER initial render to avoid mid-load race
-                AppLogger.shared.onNewEntry = { [weak self] entry in
-                    DispatchQueue.main.async {
-                        self?.appendLine(for: entry)
-                    }
+                self.logObserverID = AppLogger.shared.addObserver { [weak self] entry in
+                    self?.appendLine(for: entry)
                 }
             }
         }
@@ -192,8 +190,10 @@ class DiagnosticsViewController: NSViewController {
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
-        // Remove live callback when hidden
-        AppLogger.shared.onNewEntry = nil
+        if let id = logObserverID {
+            AppLogger.shared.removeObserver(id)
+            logObserverID = nil
+        }
     }
 
     // MARK: - Formatting
@@ -263,6 +263,35 @@ class DiagnosticsViewController: NSViewController {
     @objc private func clearButtonClicked() {
         AppLogger.shared.clear()
         textView.string = ""
+    }
+
+    @objc private func openInNewWindowButtonClicked() {
+        WindowsManager.sharedInstance.showNewWindow(
+            with: "diagnostics".localized,
+            size: CGSize(width: 700, height: 700),
+            identifier: "diagnostics-new-window",
+            contentVC: DiagnosticsViewController.instantiate()
+        )
+    }
+
+    private func makeIconButton(systemSymbol: String, tooltip: String, action: Selector) -> NSButton {
+        var img: NSImage? = nil
+        
+        if let systemImg = NSImage(systemSymbolName: systemSymbol, accessibilityDescription: tooltip) {
+            let config = NSImage.SymbolConfiguration(pointSize: 17, weight: .semibold)
+            img = systemImg.withSymbolConfiguration(config)
+        } else if let assetImg = NSImage(named: systemSymbol) {
+            img = assetImg
+        }
+        
+        let btn = NSButton(image: img!, target: self, action: action)
+        btn.bezelStyle = .texturedRounded
+        btn.isBordered = false
+        btn.toolTip = tooltip
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.widthAnchor.constraint(equalToConstant: 36).isActive = true
+        btn.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        return btn
     }
 
     private func showAlert(_ message: String) {
