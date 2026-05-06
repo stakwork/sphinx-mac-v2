@@ -707,6 +707,8 @@
 		93FED3612BE23708008B8DDD /* TribeMembersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3602BE23708008B8DDD /* TribeMembersDataSource.swift */; };
 		93FED3642BE238CD008B8DDD /* GroupContactListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3632BE238CD008B8DDD /* GroupContactListItem.swift */; };
 		93FED3662BE238EF008B8DDD /* GroupContactListItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */; };
+		AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001001AB00CFDA01AA001 /* AppLogger.swift */; };
+		AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */; };
 		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
 		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
@@ -729,8 +731,6 @@
 		CEF18FA92C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */; };
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
-		AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001001AB00CFDA01AA001 /* AppLogger.swift */; };
-		AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1749,6 +1749,8 @@
 		93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupContactListItem.xib; sourceTree = "<group>"; };
 		97A6F8CB5E1D14A28D7C7A67 /* Pods-com.stakwork.sphinx.desktop.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.release.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.release.xcconfig"; sourceTree = "<group>"; };
 		A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogStore.swift; sourceTree = "<group>"; };
+		AA0001001AB00CFDA01AA001 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViewController.swift; sourceTree = "<group>"; };
 		AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
 		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
@@ -1805,8 +1807,6 @@
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
-		AA0001001AB00CFDA01AA001 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
-		AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4082,6 +4082,22 @@
 			path = GroupContactList;
 			sourceTree = "<group>";
 		};
+		AA0001003EF431AB00CFDA02 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				AA0001001AB00CFDA01AA001 /* AppLogger.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		AA0002003EF431AB00CFDB02 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */,
+			);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
 		CE326B4C294A174700821A53 /* ChatMentionAutocompleteCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -4162,22 +4178,6 @@
 		};
 /* End PBXNativeTarget section */
 
-		AA0001003EF431AB00CFDA02 /* Logging */ = {
-			isa = PBXGroup;
-			children = (
-				AA0001001AB00CFDA01AA001 /* AppLogger.swift */,
-			);
-			path = Logging;
-			sourceTree = "<group>";
-		};
-		AA0002003EF431AB00CFDB02 /* Diagnostics */ = {
-			isa = PBXGroup;
-			children = (
-				AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */,
-			);
-			path = Diagnostics;
-			sourceTree = "<group>";
-		};
 /* Begin PBXProject section */
 		4734D38A2417E3D400D6957E /* Project object */ = {
 			isa = PBXProject;
@@ -5803,7 +5803,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 269;
+				CURRENT_PROJECT_VERSION = 270;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5840,7 +5840,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 269;
+				CURRENT_PROJECT_VERSION = 270;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
