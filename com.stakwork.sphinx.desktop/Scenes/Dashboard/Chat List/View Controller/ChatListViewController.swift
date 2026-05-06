@@ -536,6 +536,16 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 true
             )
             
+        case MenuItems.Diagnostics.rawValue:
+            return (
+                DiagnosticsViewController.instantiate(),
+                "diagnostics".localized,
+                "diagnostics-window",
+                false,
+                nil,
+                nil,
+                false
+            )
         default:
             return (NSViewController(), "", "", false, nil, nil, false)
         }

@@ -59,6 +59,7 @@ struct LSatInProgress {
     
     var persistingValues: [String: AnyObject] = [:]
     weak var delegate : WebAppHelperDelegate? = nil
+    weak var logStore: WebAppLogStore? = nil
     
     var lsatList = [LSATObject]()
     
@@ -138,6 +139,7 @@ extension WebAppHelper : WKScriptMessageHandler {
                     defaultAction(dict)
                     break
                 }
+                logStore?.append(.init(timestamp: Date(), level: .info, source: .bridgeInbound, message: "[\(type)] \(dict)"))
             }
         }
     }
@@ -188,6 +190,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func sendMessage(dict: [String: AnyObject]) {
+        logStore?.append(.init(timestamp: Date(), level: .info, source: .bridgeOutbound, message: dict.description))
         if let string = jsonStringWithObject(obj: dict as AnyObject) {
             let javascript = "window.sphinxMessage('\(string)')"
             webView.evaluateJavaScript(javascript, completionHandler: nil)

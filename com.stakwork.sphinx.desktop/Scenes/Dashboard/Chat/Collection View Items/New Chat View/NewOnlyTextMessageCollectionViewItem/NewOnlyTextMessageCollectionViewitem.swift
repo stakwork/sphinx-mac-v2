@@ -40,6 +40,11 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
     @IBOutlet weak var receivedMessageMenuButton: CustomButton!
     
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        chatAvatarView.resetView()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
