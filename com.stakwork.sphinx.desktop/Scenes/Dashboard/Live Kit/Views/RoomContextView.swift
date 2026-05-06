@@ -99,16 +99,27 @@ struct RoomContextView: View {
             .onAppear() {
                 Task {
                     if !roomCtx.token.isEmpty {
-                        let room = try await roomCtx.connect(onConnected: {
-                            self.enableMic()
-                            
-                            if !self.audioOnly {
-                                self.enableCamera()
+                        do {
+                            let room = try await roomCtx.connect(onConnected: {
+                                self.enableMic()
+                                
+                                if !self.audioOnly {
+                                    self.enableCamera()
+                                }
+                            }, onCallEnded: {
+                                self.onCallEnded?()
+                            })
+                            appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                        } catch {
+                            print("LiveKit connect failed: \(error)")
+                            Task { @MainActor in
+                                AlertHelper.showAlert(
+                                    title: "error.getting.token.title".localized,
+                                    message: "error.getting.token.description".localized
+                                )
                             }
-                        }, onCallEnded: {
                             self.onCallEnded?()
-                        })
-                        appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                        }
                     }
                 }
             }
@@ -140,8 +151,17 @@ struct RoomContextView: View {
                     roomCtx.isE2eeEnabled = e2ee
                     roomCtx.e2eeKey = e2eeKey
                     if !roomCtx.token.isEmpty {
-                        let room = try await roomCtx.connect()
-                        appCtx.connectionHistory.update(room: room, e2ee: e2ee, e2eeKey: e2eeKey)
+                        do {
+                            let room = try await roomCtx.connect()
+                            appCtx.connectionHistory.update(room: room, e2ee: e2ee, e2eeKey: e2eeKey)
+                        } catch {
+                            print("LiveKit connect failed: \(error)")
+                            AlertHelper.showAlert(
+                                title: "error.getting.token.title".localized,
+                                message: "error.getting.token.description".localized
+                            )
+                            self.onCallEnded?()
+                        }
                     }
                 }
             })
