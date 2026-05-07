@@ -589,7 +589,7 @@ struct RoomView: View {
                                 text: "Removing participant, please wait…",
                                 delay: 3,
                                 textColor: NSColor.white,
-                                backColor: NSColor.Sphinx.Text,
+                                backColor: NSColor.Sphinx.SecondaryText,
                                 backAlpha: 1.0
                             )
                             API.sharedInstance.removeParticipant(
