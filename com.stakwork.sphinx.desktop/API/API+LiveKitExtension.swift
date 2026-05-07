@@ -15,6 +15,7 @@ extension API {
         alias: String,
         profilePicture: String?,
         hiveToken: String? = nil,
+        isHost: Bool = false,
         callback: @escaping LiveKitTokenCallback,
         errorCallback: @escaping ErrorCallback
     ) {
@@ -27,6 +28,10 @@ extension API {
         
         if let hiveToken = hiveToken {
             url = url + "&hiveToken=\(hiveToken.urlEncode() ?? hiveToken)"
+        }
+        
+        if isHost {
+            url = url + "&isHost=true"
         }
         
         let request : URLRequest? = createRequest(
@@ -114,6 +119,7 @@ extension API {
     func removeParticipant(
         room: String,
         participantIdentity: String,
+        adminToken: String,
         callback: @escaping (Bool) -> Void
     ) {
         guard let url = URL(string: "\(self.kVideoCallServer)/api/remove-participant") else {
@@ -122,6 +128,7 @@ extension API {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(adminToken)", forHTTPHeaderField: "Authorization")
         let body = ["roomName": room, "participantIdentity": participantIdentity]
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         URLSession.shared.dataTask(with: request) { _, response, error in

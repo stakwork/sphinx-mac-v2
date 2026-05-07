@@ -582,7 +582,7 @@ struct RoomView: View {
                     }
                 }.frame(width: 32.0, height: 32.0)
                 
-                if !(participant is LocalParticipant) {
+                if !(participant is LocalParticipant) && roomCtx.isAdmin {
                     ZStack(alignment: .center) {
                         Button(action: {
                             isParticipantsRemoveConfirmPresented[participant.id] = true
@@ -607,7 +607,8 @@ struct RoomView: View {
                                     isParticipantsRemoveConfirmPresented[participant.id] = false
                                     API.sharedInstance.removeParticipant(
                                         room: room.name ?? "",
-                                        participantIdentity: participant.identity?.stringValue ?? ""
+                                        participantIdentity: participant.identity?.stringValue ?? "",
+                                        adminToken: roomCtx.adminToken
                                     ) { success in
                                         if !success {
                                             DispatchQueue.main.async {

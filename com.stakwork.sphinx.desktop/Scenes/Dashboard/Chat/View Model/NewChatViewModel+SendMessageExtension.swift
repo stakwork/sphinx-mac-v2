@@ -126,7 +126,8 @@ extension NewChatViewModel {
                 WindowsManager.sharedInstance.showCallWindow(
                     link: linkUrl,
                     shouldStartRecording: chat?.hasSecondBrainApp() == true || chat?.hasWebApp() == true,
-                    tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
+                    tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil,
+                    isHost: true
                 )
             }
         }

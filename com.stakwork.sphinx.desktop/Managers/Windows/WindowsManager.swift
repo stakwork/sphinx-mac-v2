@@ -544,7 +544,8 @@ import SwiftUI
         link: String,
         audioOnly: Bool,
         shouldStartRecording: Bool = false,
-        tribeImage: String? = nil
+        tribeImage: String? = nil,
+        isHost: Bool = false
     ) {
         guard let owner = UserContact.getOwner() else {
             return
@@ -564,6 +565,7 @@ import SwiftUI
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
                 hiveToken: linkUrl.liveKitHiveToken,
+                isHost: isHost,
                 callback: { url, token in
                     DispatchQueue.main.async {
                         let appCtx = AppContext(store: sync)
@@ -573,6 +575,11 @@ import SwiftUI
                         roomCtx.startRecording = link.contains("record=true")
                         roomCtx.token = token
                         roomCtx.tribeImage = tribeImage
+                        
+                        if isHost {
+                            roomCtx.isAdmin = true
+                            roomCtx.adminToken = token
+                        }
                         
                         let roomContextView = RoomContextView(
                             audioOnly: audioOnly,
@@ -601,7 +608,8 @@ import SwiftUI
         link: String,
         audioOnly: Bool = false,
         shouldStartRecording: Bool = false,
-        tribeImage: String? = nil
+        tribeImage: String? = nil,
+        isHost: Bool = false
     ) {
         
         if link.isJitsiCallLink {
@@ -620,7 +628,8 @@ import SwiftUI
                 link: link,
                 audioOnly: audioOnly || link.contains("startAudioOnly"),
                 shouldStartRecording: shouldStartRecording,
-                tribeImage: tribeImage
+                tribeImage: tribeImage,
+                isHost: isHost
             )
             return
         }

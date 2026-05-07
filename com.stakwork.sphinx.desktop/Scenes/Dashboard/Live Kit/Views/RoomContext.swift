@@ -55,6 +55,9 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     }
     
     @Published var tribeImage: String? = nil
+    
+    @Published var isAdmin: Bool = false
+    var adminToken: String = ""
 
     @Published var e2eeKey: String = "" {
         didSet { store.value.e2eeKey = e2eeKey }
