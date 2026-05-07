@@ -57,7 +57,7 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     func shouldCloseThread()
     
     ///Invoices
-    func shouldStartCallWith(link: String, audioOnly: Bool)
+    func shouldStartCallWith(link: String, audioOnly: Bool, isHost: Bool)
     
     ///Empty chat placeholder
     func updateEmptyView()

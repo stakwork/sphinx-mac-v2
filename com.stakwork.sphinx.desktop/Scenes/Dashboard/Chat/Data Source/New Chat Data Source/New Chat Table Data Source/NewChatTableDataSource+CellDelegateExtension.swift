@@ -792,7 +792,8 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ), let link = tableCellState.1.callLink?.link {
-            startVideoCall(link: link, audioOnly: true)
+            let isHost = tableCellState.1.message?.isOutgoing(ownerId: owner?.id ?? -1) == true
+            startVideoCall(link: link, audioOnly: true, isHost: isHost)
         }
     }
     
@@ -804,7 +805,8 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ), let link = tableCellState.1.callLink?.link {
-            startVideoCall(link: link, audioOnly: false)
+            let isHost = tableCellState.1.message?.isOutgoing(ownerId: owner?.id ?? -1) == true
+            startVideoCall(link: link, audioOnly: false, isHost: isHost)
         }
     }
     
@@ -1060,9 +1062,9 @@ extension NewChatTableDataSource {
 }
 
 extension NewChatTableDataSource {
-    func startVideoCall(link: String, audioOnly: Bool) {
+    func startVideoCall(link: String, audioOnly: Bool, isHost: Bool = false) {
         let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
-        delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly)
+        delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly, isHost: isHost)
     }
 }
 
