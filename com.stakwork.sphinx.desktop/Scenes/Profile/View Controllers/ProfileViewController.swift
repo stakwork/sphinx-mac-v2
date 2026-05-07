@@ -432,10 +432,6 @@ class ProfileViewController: NSViewController {
             height: 490
         )
     }
-
-    @IBAction func openDiagnosticsButtonClicked(_ sender: Any) {
-        WindowsManager.sharedInstance.showDiagnosticsWindow()
-    }
     
     private func updateTimeAndDate() {
         let timezone = TimeZone.current

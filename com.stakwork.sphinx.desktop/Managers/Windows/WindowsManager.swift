@@ -287,16 +287,6 @@ import SwiftUI
             hideDivider: false
         )
     }
-
-    func showDiagnosticsWindow() {
-        showOnCurrentWindow(
-            with: "diagnostics".localized,
-            identifier: "diagnostics-window",
-            contentVC: DiagnosticsViewController.instantiate(),
-            hideDivider: false,
-            width: 700
-        )
-    }
     
     func addVCIntoPopup(
         dashboardVC: DashboardViewController,
@@ -551,11 +541,11 @@ import SwiftUI
             return
         }
         
-        if openedWindowIdentifiers.contains(link) {
+        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
+        
+        if openedWindowIdentifiers.contains(linkUrl) {
             return
         }
-        
-        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
         
         if linkUrl.isLiveKitCallLink, let room = linkUrl.liveKitRoomName {
             openedWindowIdentifiers.append(linkUrl)
@@ -586,7 +576,7 @@ import SwiftUI
                             shouldStartRecording: shouldStartRecording,
                             onCallEnded: {
                                 Task { @MainActor in
-                                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
+                                    self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
                                     self.hideCallControlWindow(forceClose: true)
                                     self.closeIfExists(identifier: link)
                                 }
@@ -597,9 +587,17 @@ import SwiftUI
                     }
                 },
                 errorCallback: { error in
-                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
-                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
+                    self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
+                    AlertHelper.showAlert(
+                        title: "error.getting.token.title".localized,
+                        message: error
+                    )
                 }
+            )
+        } else {
+            AlertHelper.showAlert(
+                title: "error.getting.token.title".localized,
+                message: "error.getting.token.description".localized
             )
         }
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Alamofire
 import SwiftyJSON
 
 extension API {
@@ -49,15 +50,13 @@ extension API {
         sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
-                if let dictionary = data as? NSDictionary {
-                    if let serverUrl = dictionary["serverUrl"] as? String,
-                       let token = dictionary["participantToken"] as? String
-                    {
-                        callback(serverUrl, token)
-                        return
-                    }
+                let json = JSON(data)
+                if let serverUrl = json["serverUrl"].string,
+                   let token = json["participantToken"].string {
+                    callback(serverUrl, token)
+                } else {
+                    errorCallback("Error getting response data")
                 }
-                errorCallback("Error getting response data")
             case .failure(let error):
                 errorCallback(error.localizedDescription)
             }

@@ -430,6 +430,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
             identifier: vcInfo.2,
             hideDivider: vcInfo.3,
             height: vcInfo.4,
+            width: vcInfo.5,
             hideHeaderView: vcInfo.6
         )
     }
@@ -543,7 +544,7 @@ extension ChatListViewController: NewMenuItemDataSourceDelegate {
                 "diagnostics-window",
                 false,
                 nil,
-                nil,
+                700,
                 false
             )
         default:

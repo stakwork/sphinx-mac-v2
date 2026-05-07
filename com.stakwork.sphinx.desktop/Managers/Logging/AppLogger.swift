@@ -43,7 +43,7 @@ final class AppLogger: @unchecked Sendable {
     // MARK: - State
 
     private(set) var entries: [LogEntry] = []
-    var onNewEntry: ((LogEntry) -> Void)?
+    private var entryObservers: [UUID: (LogEntry) -> Void] = [:]
 
     private let queue = DispatchQueue(label: "com.sphinx.applogger", qos: .utility)
     private var pipe: Pipe?
@@ -112,8 +112,9 @@ final class AppLogger: @unchecked Sendable {
             guard let self else { return }
             self.entries.append(entry)
             self.appendToFile(entry)
+            let observers = self.entryObservers
             DispatchQueue.main.async {
-                self.onNewEntry?(entry)
+                observers.values.forEach { $0(entry) }
             }
         }
     }
@@ -170,6 +171,22 @@ final class AppLogger: @unchecked Sendable {
 
     // MARK: - Public API
 
+    /// Register a callback invoked on the main thread for every new log entry.
+    /// Returns a token that must be passed to `removeObserver` to unsubscribe.
+    func addObserver(_ handler: @escaping (LogEntry) -> Void) -> UUID {
+        let id = UUID()
+        queue.async { [weak self] in
+            self?.entryObservers[id] = handler
+        }
+        return id
+    }
+
+    func removeObserver(_ id: UUID) {
+        queue.async { [weak self] in
+            self?.entryObservers.removeValue(forKey: id)
+        }
+    }
+
     /// Flush in-memory entries to disk (call on app terminate / background)
     func flush() {
         queue.sync {
@@ -201,9 +218,6 @@ final class AppLogger: @unchecked Sendable {
             guard let self else { return }
             self.entries.removeAll()
             try? FileManager.default.removeItem(at: self.logFileURL)
-            DispatchQueue.main.async {
-                self.onNewEntry = nil // keep subscribers intact; just clear buffer
-            }
         }
     }
 
