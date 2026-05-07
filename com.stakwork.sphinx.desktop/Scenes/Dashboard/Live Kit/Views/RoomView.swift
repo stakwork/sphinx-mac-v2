@@ -90,7 +90,7 @@ struct RoomView: View {
     
     @State private var isParticipantsVideoMenuPresented: [String: Bool] = [:]
     @State private var isParticipantsAudioMenuPresented: [String: Bool] = [:]
-    @State private var isParticipantsRemoveConfirmPresented: [String: Bool] = [:]
+
 
     @State private var cameraPublishOptions = VideoPublishOptions()
 
@@ -585,7 +585,38 @@ struct RoomView: View {
                 if !(participant is LocalParticipant) && roomCtx.isAdmin {
                     ZStack(alignment: .center) {
                         Button(action: {
-                            isParticipantsRemoveConfirmPresented[participant.id] = true
+                            newMessageBubbleHelper.showGenericMessageView(
+                                text: "Removing participant, please wait…",
+                                delay: 3,
+                                textColor: NSColor.white,
+                                backColor: NSColor.Sphinx.Text,
+                                backAlpha: 1.0
+                            )
+                            API.sharedInstance.removeParticipant(
+                                room: room.name ?? "",
+                                participantIdentity: participant.identity?.stringValue ?? "",
+                                adminToken: roomCtx.adminToken
+                            ) { success in
+                                DispatchQueue.main.async {
+                                    if success {
+                                        newMessageBubbleHelper.showGenericMessageView(
+                                            text: "Participant removed successfully. They will leave the call shortly.",
+                                            delay: 5,
+                                            textColor: NSColor.white,
+                                            backColor: NSColor.Sphinx.PrimaryGreen,
+                                            backAlpha: 1.0
+                                        )
+                                    } else {
+                                        newMessageBubbleHelper.showGenericMessageView(
+                                            text: "Failed to remove participant. Please try again.",
+                                            delay: 5,
+                                            textColor: NSColor.white,
+                                            backColor: NSColor.Sphinx.BadgeRed,
+                                            backAlpha: 1.0
+                                        )
+                                    }
+                                }
+                            }
                         }) {
                             Image(systemName: "person.fill.xmark")
                                 .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
@@ -598,43 +629,6 @@ struct RoomView: View {
                                 .opacity(0.2)
                                 .cornerRadius(8.0)
                         )
-                        .popover(isPresented: Binding(
-                            get: { isParticipantsRemoveConfirmPresented[participant.id] ?? false },
-                            set: { isParticipantsRemoveConfirmPresented[participant.id] = $0 }
-                        )) {
-                            VStack(spacing: 16) {
-                                Button {
-                                    isParticipantsRemoveConfirmPresented[participant.id] = false
-                                    API.sharedInstance.removeParticipant(
-                                        room: room.name ?? "",
-                                        participantIdentity: participant.identity?.stringValue ?? "",
-                                        adminToken: roomCtx.adminToken
-                                    ) { success in
-                                        if !success {
-                                            DispatchQueue.main.async {
-                                                newMessageBubbleHelper.showGenericMessageView(
-                                                    text: "Failed to remove participant. Please try again.",
-                                                    delay: 5,
-                                                    textColor: NSColor.white,
-                                                    backColor: NSColor.Sphinx.BadgeRed,
-                                                    backAlpha: 1.0
-                                                )
-                                            }
-                                        }
-                                    }
-                                } label: {
-                                    Text("Remove from call")
-                                        .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
-                                }
-                                Button {
-                                    isParticipantsRemoveConfirmPresented[participant.id] = false
-                                } label: {
-                                    Text("Cancel")
-                                }
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
                         .frame(width: 32, height: 32)
                         .onHover { isHover in
                             if isHover {
