@@ -16,6 +16,7 @@ extension API {
         alias: String,
         profilePicture: String?,
         hiveToken: String? = nil,
+        isHost: Bool = false,
         callback: @escaping LiveKitTokenCallback,
         errorCallback: @escaping ErrorCallback
     ) {
@@ -30,7 +31,23 @@ extension API {
             url = url + "&hiveToken=\(hiveToken.urlEncode() ?? hiveToken)"
         }
         
-        AF.request(url, method: .get).responseData { response in
+        if isHost {
+            url = url + "&isHost=true"
+        }
+        
+        let request : URLRequest? = createRequest(
+            url,
+            params: nil,
+            method: "GET"
+        )
+        
+        guard let request = request else {
+            errorCallback("Error creating request")
+            return
+        }
+        
+        //NEEDS TO BE CHANGED
+        sphinxRequest(request) { response in
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
@@ -96,5 +113,28 @@ extension API {
         
         // Start the request
         task.resume()
+    }
+    
+    func removeParticipant(
+        room: String,
+        participantIdentity: String,
+        adminToken: String,
+        callback: @escaping (Bool) -> Void
+    ) {
+        guard let url = URL(string: "\(self.kVideoCallServer)/api/remove-participant") else {
+            callback(false); return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(adminToken)", forHTTPHeaderField: "Authorization")
+        let body = ["roomName": room, "participantIdentity": participantIdentity]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            guard error == nil,
+                  let http = response as? HTTPURLResponse,
+                  http.statusCode == 200 else { callback(false); return }
+            callback(true)
+        }.resume()
     }
 }
