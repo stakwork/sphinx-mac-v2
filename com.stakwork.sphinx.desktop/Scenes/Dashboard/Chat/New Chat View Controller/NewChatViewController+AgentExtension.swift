@@ -49,6 +49,7 @@ extension NewChatViewController {
 • 🔗 Connect with new users
 • 🏕️ Create new tribes
 • 🔍 Search the web for current info
+• 🪵 Read and analyze app logs (filter by time, level, or keyword)
 """
 
         let intro = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
