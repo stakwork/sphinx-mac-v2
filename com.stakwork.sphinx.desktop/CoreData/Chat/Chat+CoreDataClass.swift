@@ -50,7 +50,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
             let data = try JSONSerialization.data(withJSONObject: array)
             if let jsonString = String(data: data, encoding: .utf8) {
                 membersAliasesData = jsonString
-                managedObjectContext?.saveContext()
+                // no save — dirty mark committed by next upstream saveContext()
             }
         } catch {
             print("Failed to encode membersAliasesData: \(error)")
@@ -756,7 +756,7 @@ public class Chat: NSManagedObject, @unchecked Sendable {
                     }
                 }
             }
-            try managedContext.save()
+            // save is handled by context.saveContext() in handleReadStatus after this returns
         } catch let error as NSError {
             print("Error updating messages read status: \(error), \(error.userInfo)")
         }
