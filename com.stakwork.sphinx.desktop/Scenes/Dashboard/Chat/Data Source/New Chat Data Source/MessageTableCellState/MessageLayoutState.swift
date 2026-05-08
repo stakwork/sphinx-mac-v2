@@ -266,6 +266,13 @@ struct BubbleMessageLayoutState {
         }
     }
     
+    struct CallParticipantInfo {
+        let identity: String
+        let name: String
+        let profilePictureUrl: String?
+        let isActive: Bool
+    }
+    
     struct GenericFile {
         var url: URL?
         var mediaKey: String?

@@ -605,6 +605,34 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         }
     }
     
+    func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int) {
+        // Resolve the room name from the authoritative data source record rather than
+        // trusting the view-supplied value, preventing an arbitrary-room lookup via a
+        // mismatched or stale view invocation.
+        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+              let storedLink = tableCellState.1.callLink?.link,
+              let storedURL = URL(string: storedLink),
+              let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
+              authorizedRoomName == roomName else {
+            return
+        }
+
+        API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
+            guard let self = self else { return }
+
+            DispatchQueue.main.async {
+                self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+
+                let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                for key in keysToRemove {
+                    self.rowHeightCache.removeValue(forKey: key)
+                }
+
+                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+            }
+        }
+    }
+    
     func shouldShowOptionsFor(messageId: Int, from button: NSButton) {
         delegate?.shouldShowOptionsFor(messageId: messageId, from: button)
     }

@@ -105,6 +105,7 @@ class NewChatTableDataSource : NSObject {
     var messageTableCellStateArray: [MessageTableCellState] = []
     var messageIdToIndexMap: [Int: Int] = [:]  // O(1) lookup for message IDs
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
+    var participantsDataCached: [Int: MessageTableCellState.ParticipantsData] = [:]
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights

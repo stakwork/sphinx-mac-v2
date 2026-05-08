@@ -254,11 +254,22 @@ extension NewMessageCollectionViewItem {
     }
     
     func configureWith(
-        callLink: BubbleMessageLayoutState.CallLink?
+        callLink: BubbleMessageLayoutState.CallLink?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil
     ) {
         if let callLink = callLink {
             callLinkView.configureWith(callLink: callLink, and: self)
+            callLinkView.configureWith(participantsData: participantsData)
             callLinkView.isHidden = false
+            
+            // Extract room name from call link URL and request participants
+            if let messageId = messageId, let rowIndex = rowIndex {
+                let urlString = callLink.link
+                if let url = URL(string: urlString),
+                   let roomName = url.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last {
+                    delegate?.shouldLoadCallParticipantsFor(messageId: messageId, roomName: roomName, and: rowIndex)
+                }
+            }
         }
     }
     

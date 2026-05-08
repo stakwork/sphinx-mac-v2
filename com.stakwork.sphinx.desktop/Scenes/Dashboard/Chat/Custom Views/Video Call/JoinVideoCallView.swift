@@ -25,9 +25,11 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     @IBOutlet weak var audioButton: CustomButton!
     @IBOutlet weak var videoButton: CustomButton!
     @IBOutlet weak var copyButton: CustomButton!
+    var participantsStackView: NSStackView!
     
     static let kViewHeight: CGFloat = 206
     static let kViewAudioOnlyHeight: CGFloat = 158
+    static let kParticipantsRowHeight: CGFloat = 52
     
     public enum CallButton: Int {
         case Audio
@@ -51,6 +53,27 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         audioButton.cursor = .pointingHand
         videoButton.cursor = .pointingHand
         copyButton.cursor = .pointingHand
+        
+        setupParticipantsStackView()
+    }
+    
+    private func setupParticipantsStackView() {
+        let stackView = NSStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.orientation = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 6
+        stackView.isHidden = true
+        contentView.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            stackView.heightAnchor.constraint(equalToConstant: JoinVideoCallView.kParticipantsRowHeight)
+        ])
+        
+        self.participantsStackView = stackView
     }
     
     func configureWith(
@@ -81,6 +104,29 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         default:
             break
         }
+    }
+    
+    func configureWith(participantsData: MessageTableCellState.ParticipantsData?) {
+        guard let stackView = participantsStackView else { return }
+        
+        // Remove all existing arranged subviews
+        for view in stackView.arrangedSubviews {
+            stackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+        
+        guard let participants = participantsData?.participants, !participants.isEmpty else {
+            stackView.isHidden = true
+            return
+        }
+        
+        for participant in participants {
+            let boxView = ParticipantBoxView()
+            boxView.configure(with: participant)
+            stackView.addArrangedSubview(boxView)
+        }
+        
+        stackView.isHidden = false
     }
     
     @IBAction func callButtonTouched(_ sender: Any) {
