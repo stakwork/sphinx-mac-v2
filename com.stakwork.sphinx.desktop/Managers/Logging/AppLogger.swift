@@ -3,7 +3,7 @@
 
 import Foundation
 
-private let kLogRetentionHours: Double = 24
+private let kLogRetentionHours: Double = 72
 
 final class AppLogger: @unchecked Sendable {
 
