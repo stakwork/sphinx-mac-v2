@@ -252,6 +252,7 @@
 		474E46782AB0BFB50098AD24 /* FileInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474E46772AB0BFB50098AD24 /* FileInfoView.xib */; };
 		474E46792AB0EFC60098AD24 /* MediaMessageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474E467B2AB0EFC60098AD24 /* MediaMessageView.xib */; };
 		474F67512486779200CE6016 /* JoinVideoCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474F67502486779200CE6016 /* JoinVideoCallView.swift */; };
+		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		474F67532486779D00CE6016 /* JoinVideoCallView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474F67522486779D00CE6016 /* JoinVideoCallView.xib */; };
 		474F6759248685AE00CE6016 /* ClipboardHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474F6758248685AE00CE6016 /* ClipboardHelper.swift */; };
 		474F67652486D08800CE6016 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474F67642486D08800CE6016 /* Notification.Name.swift */; };
@@ -1205,6 +1206,7 @@
 		474E467F2AB0EFC80098AD24 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/MediaMessageView.strings; sourceTree = "<group>"; };
 		474E46812AB0EFC80098AD24 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MediaMessageView.strings; sourceTree = "<group>"; };
 		474F67502486779200CE6016 /* JoinVideoCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinVideoCallView.swift; sourceTree = "<group>"; };
+		B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantBoxView.swift; sourceTree = "<group>"; };
 		474F67522486779D00CE6016 /* JoinVideoCallView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = JoinVideoCallView.xib; sourceTree = "<group>"; };
 		474F6758248685AE00CE6016 /* ClipboardHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardHelper.swift; sourceTree = "<group>"; };
 		474F67642486D08800CE6016 /* Notification.Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.Name.swift; sourceTree = "<group>"; };
@@ -2666,6 +2668,7 @@
 			children = (
 				474F67502486779200CE6016 /* JoinVideoCallView.swift */,
 				474F67522486779D00CE6016 /* JoinVideoCallView.xib */,
+				B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */,
 			);
 			path = "Video Call";
 			sourceTree = "<group>";
@@ -4664,6 +4667,7 @@
 				473633EE2555BBAD007405F2 /* PodcastModels.swift in Sources */,
 				474E334A2480009E00F7F603 /* AttachmentPriceView.swift in Sources */,
 				474F67512486779200CE6016 /* JoinVideoCallView.swift in Sources */,
+				E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */,
 				479751DC246D815500D2106B /* SoundsPlayer.swift in Sources */,
 				0DB56AAF2B6285F000B7098E /* ChatTrackingHandler.swift in Sources */,
 				4797E7532785D2750080B966 /* CommonModalView.swift in Sources */,
