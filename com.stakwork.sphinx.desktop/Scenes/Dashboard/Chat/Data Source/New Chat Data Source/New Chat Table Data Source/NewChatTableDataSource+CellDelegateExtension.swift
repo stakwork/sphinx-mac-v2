@@ -623,27 +623,24 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         }
         pendingParticipantRooms.insert(authorizedRoomName)
 
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
-                guard let self = self else { return }
+        API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
+            guard let self = self else { return }
 
-                DispatchQueue.main.async {
-                    self.pendingParticipantRooms.remove(authorizedRoomName)
-                    self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+            DispatchQueue.main.async {
+                self.pendingParticipantRooms.remove(authorizedRoomName)
+                self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
 
-                    // Only force cell reload (with height recalc) when there are actual participants
-                    if !participants.isEmpty {
-                        let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
-                        for key in keysToRemove {
-                            self.rowHeightCache.removeValue(forKey: key)
-                        }
-                        self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                if !participants.isEmpty {
+                    let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                    for key in keysToRemove {
+                        self.rowHeightCache.removeValue(forKey: key)
                     }
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
                 }
-            } errorCallback: { [weak self] _ in
-                DispatchQueue.main.async {
-                    self?.pendingParticipantRooms.remove(authorizedRoomName)
-                }
+            }
+        } errorCallback: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.pendingParticipantRooms.remove(authorizedRoomName)
             }
         }
     }
