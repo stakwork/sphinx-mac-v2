@@ -29,7 +29,7 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     
     static let kViewHeight: CGFloat = 206
     static let kViewAudioOnlyHeight: CGFloat = 158
-    static let kParticipantsRowHeight: CGFloat = 54
+    static let kParticipantsRowHeight: CGFloat = 56
     
     private let participantsCountLabel: NSTextField = {
         let label = NSTextField(labelWithString: "")

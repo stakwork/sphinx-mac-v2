@@ -46,6 +46,10 @@ class ParticipantBoxView: NSView {
     }
     
     private func setupViews() {
+        wantsLayer = true
+        layer?.backgroundColor = NSColor.Sphinx.Body.withAlphaComponent(0.08).cgColor
+        layer?.cornerRadius = 8
+        
         translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(avatarImageView)
@@ -58,11 +62,11 @@ class ParticipantBoxView: NSView {
             avatarImageView.heightAnchor.constraint(equalToConstant: 24),
             
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 4),
-            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
-            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -2),
+            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 2),
+            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: 2),
             
-            widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
+            widthAnchor.constraint(greaterThanOrEqualToConstant: 37)
         ])
         
         // Make avatar circular
