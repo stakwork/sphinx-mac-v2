@@ -609,7 +609,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         // Resolve the room name from the authoritative data source record rather than
         // trusting the view-supplied value, preventing an arbitrary-room lookup via a
         // mismatched or stale view invocation.
-        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
               let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
@@ -629,6 +629,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             DispatchQueue.main.async {
                 self.pendingParticipantRooms.remove(authorizedRoomName)
                 self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+                self.startParticipantsCacheTimer()
 
                 if !participants.isEmpty {
                     let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
@@ -642,6 +643,25 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             DispatchQueue.main.async {
                 self?.pendingParticipantRooms.remove(authorizedRoomName)
             }
+        }
+    }
+
+    func startParticipantsCacheTimer() {
+        guard participantsCacheTimer == nil else { return }
+        participantsCacheTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
+            self?.refreshParticipantsCache()
+        }
+    }
+
+    func refreshParticipantsCache() {
+        guard !participantsDataCached.isEmpty else {
+            participantsCacheTimer?.invalidate()
+            participantsCacheTimer = nil
+            return
+        }
+
+        for messageId in participantsDataCached.keys {
+            participantsDataCached[messageId]?.isStale = true
         }
     }
     

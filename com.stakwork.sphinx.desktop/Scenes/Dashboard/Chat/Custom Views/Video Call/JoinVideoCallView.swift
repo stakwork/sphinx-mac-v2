@@ -25,11 +25,26 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     @IBOutlet weak var audioButton: CustomButton!
     @IBOutlet weak var videoButton: CustomButton!
     @IBOutlet weak var copyButton: CustomButton!
-    var participantsStackView: NSStackView!
+    @IBOutlet weak var participantsStackView: NSStackView!
     
     static let kViewHeight: CGFloat = 206
     static let kViewAudioOnlyHeight: CGFloat = 158
-    static let kParticipantsRowHeight: CGFloat = 52
+    static let kParticipantsRowHeight: CGFloat = 54
+    
+    private let participantsCountLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = NSFont.systemFont(ofSize: 11)
+        label.lineBreakMode = .byTruncatingTail
+        label.maximumNumberOfLines = 1
+        label.isEditable = false
+        label.isSelectable = false
+        label.isBordered = false
+        label.drawsBackground = false
+        label.textColor = .Sphinx.Text
+        label.alignment = .center
+        return label
+    }()
     
     public enum CallButton: Int {
         case Audio
@@ -53,27 +68,6 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         audioButton.cursor = .pointingHand
         videoButton.cursor = .pointingHand
         copyButton.cursor = .pointingHand
-        
-        setupParticipantsStackView()
-    }
-    
-    private func setupParticipantsStackView() {
-        let stackView = NSStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.orientation = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 6
-        stackView.isHidden = true
-        contentView.addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
-            stackView.heightAnchor.constraint(equalToConstant: JoinVideoCallView.kParticipantsRowHeight)
-        ])
-        
-        self.participantsStackView = stackView
     }
     
     func configureWith(
@@ -120,12 +114,25 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
             return
         }
         
-        for participant in participants {
-            let boxView = ParticipantBoxView()
-            boxView.configure(with: participant)
-            stackView.addArrangedSubview(boxView)
+        if !participants.isEmpty {
+            for i in 0..<min(participants.count, 5) {
+                let participant = participants[i]
+                let boxView = ParticipantBoxView()
+                boxView.configure(with: participant)
+                stackView.addArrangedSubview(boxView)
+            }
+            
+            if participants.count > 5 {
+                participantsCountLabel.stringValue = "+\(participants.count - 5)"
+                stackView.addArrangedSubview(participantsCountLabel)
+            }
+                
         }
         
+        let spacer = NSView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        stackView.addArrangedSubview(spacer)
+
         stackView.isHidden = false
     }
     

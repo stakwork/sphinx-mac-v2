@@ -434,7 +434,7 @@
                     </customSpacing>
                 </stackView>
                 <stackView hidden="YES" distribution="fillEqually" orientation="horizontal" alignment="top" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xvd-h2-omE">
-                    <rect key="frame" x="1229" y="0.0" width="120" height="60"/>
+                    <rect key="frame" x="1189" y="0.0" width="160" height="60"/>
                     <subviews>
                         <button translatesAutoresizingMaskIntoConstraints="NO" id="wMG-FW-dgy" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                             <rect key="frame" x="0.0" y="-4.5" width="40.5" height="72"/>
@@ -475,7 +475,7 @@
                             </constraints>
                         </button>
                         <button translatesAutoresizingMaskIntoConstraints="NO" id="Lgx-7k-pQ2" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                            <rect key="frame" x="120" y="0.0" width="40" height="60"/>
+                            <rect key="frame" x="120" y="-5.5" width="40" height="72"/>
                             <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" inset="2" id="Bwt-3m-aK9">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -492,9 +492,9 @@
                     </subviews>
                     <constraints>
                         <constraint firstItem="RD8-bs-Z7l" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="68L-CN-0hR"/>
+                        <constraint firstItem="Lgx-7k-pQ2" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="Aqr-5j-mNv"/>
                         <constraint firstItem="gdh-0U-B5q" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="T3U-mt-pvS"/>
                         <constraint firstItem="wMG-FW-dgy" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="scC-LO-8jJ"/>
-                        <constraint firstItem="Lgx-7k-pQ2" firstAttribute="centerY" secondItem="xvd-h2-omE" secondAttribute="centerY" id="Aqr-5j-mNv"/>
                     </constraints>
                     <visibilityPriorities>
                         <integer value="1000"/>
@@ -530,6 +530,7 @@
         <image name="arrow.clockwise" catalog="system" width="18" height="21"/>
         <image name="bubble.left" catalog="system" width="22" height="20"/>
         <image name="cpu.fill" catalog="system" width="16" height="15"/>
+        <image name="doc.plaintext" catalog="system" width="18" height="21"/>
         <image name="muteOffIcon" width="18" height="18"/>
         <image name="openNewWindow" width="21" height="20"/>
         <image name="refreshIcon" width="32" height="32"/>

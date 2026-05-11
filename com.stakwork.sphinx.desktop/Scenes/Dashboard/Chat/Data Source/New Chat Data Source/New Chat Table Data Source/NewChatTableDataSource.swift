@@ -107,6 +107,7 @@ class NewChatTableDataSource : NSObject {
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
     var participantsDataCached: [Int: MessageTableCellState.ParticipantsData] = [:]
     var pendingParticipantRooms: Set<String> = []
+    nonisolated(unsafe) var participantsCacheTimer: Timer?
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
@@ -186,6 +187,7 @@ class NewChatTableDataSource : NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
+        participantsCacheTimer?.invalidate()
     }
     
     private var lastKnownWidth: CGFloat = 0

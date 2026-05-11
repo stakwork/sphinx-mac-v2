@@ -10,25 +10,27 @@ import Cocoa
 @MainActor
 class ParticipantBoxView: NSView {
     
-    private let avatarImageView: NSImageView = {
-        let imageView = NSImageView()
+    private let avatarImageView: AspectFillNSImageView = {
+        let imageView = AspectFillNSImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.wantsLayer = true
         imageView.imageScaling = .scaleProportionallyUpOrDown
+        imageView.rounded = true
+        imageView.gravity = .resizeAspectFill
         return imageView
     }()
     
     private let nameLabel: NSTextField = {
         let label = NSTextField(labelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = NSFont.systemFont(ofSize: 10)
+        label.font = NSFont.systemFont(ofSize: 9)
         label.lineBreakMode = .byTruncatingTail
         label.maximumNumberOfLines = 1
         label.isEditable = false
         label.isSelectable = false
         label.isBordered = false
         label.drawsBackground = false
-        label.textColor = .secondaryLabelColor
+        label.textColor = .Sphinx.Text
         label.alignment = .center
         return label
     }()
@@ -55,12 +57,12 @@ class ParticipantBoxView: NSView {
             avatarImageView.widthAnchor.constraint(equalToConstant: 24),
             avatarImageView.heightAnchor.constraint(equalToConstant: 24),
             
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 2),
-            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2),
+            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 4),
+            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -2),
             
-            widthAnchor.constraint(greaterThanOrEqualToConstant: 44)
+            widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         
         // Make avatar circular

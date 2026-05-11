@@ -141,6 +141,7 @@ extension API {
                 for (_, item) in json {
                     let name = item["nickname"].stringValue
                     let profilePictureUrl = item["avatarUrl"].string
+                    
                     participants.append(BubbleMessageLayoutState.CallParticipantInfo(
                         identity: name,
                         name: name,
