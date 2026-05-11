@@ -138,16 +138,14 @@ extension API {
             case .success(let data):
                 let json = JSON(data)
                 var participants: [BubbleMessageLayoutState.CallParticipantInfo] = []
-                for (_, item) in json["participants"] {
-                    let identity = item["identity"].stringValue
-                    let name = item["name"].stringValue
-                    let profilePictureUrl = item["profilePictureUrl"].string
-                    let isActive = item["isActive"].bool ?? true
+                for (_, item) in json {
+                    let name = item["nickname"].stringValue
+                    let profilePictureUrl = item["avatarUrl"].string
                     participants.append(BubbleMessageLayoutState.CallParticipantInfo(
-                        identity: identity,
+                        identity: name,
                         name: name,
                         profilePictureUrl: profilePictureUrl,
-                        isActive: isActive
+                        isActive: true
                     ))
                 }
                 callback(participants)
