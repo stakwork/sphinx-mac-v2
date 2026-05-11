@@ -106,6 +106,7 @@ class NewChatTableDataSource : NSObject {
     var messageIdToIndexMap: [Int: Int] = [:]  // O(1) lookup for message IDs
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
     var participantsDataCached: [Int: MessageTableCellState.ParticipantsData] = [:]
+    var pendingParticipantRooms: Set<String> = []
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
@@ -226,6 +227,7 @@ class NewChatTableDataSource : NSObject {
     /// Invalidates the row height cache when data changes
     func invalidateRowHeightCache() {
         rowHeightCache.removeAll(keepingCapacity: true)
+        pendingParticipantRooms.removeAll()
     }
 
     func isFinalDS() -> Bool {

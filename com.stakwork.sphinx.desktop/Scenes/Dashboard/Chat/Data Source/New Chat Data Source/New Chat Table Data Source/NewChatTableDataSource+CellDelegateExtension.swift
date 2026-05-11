@@ -609,7 +609,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         // Resolve the room name from the authoritative data source record rather than
         // trusting the view-supplied value, preventing an arbitrary-room lookup via a
         // mismatched or stale view invocation.
-        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
               let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
@@ -617,18 +617,33 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             return
         }
 
-        API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
-            guard let self = self else { return }
+        // Prevent multiple simultaneous calls for the same room
+        guard !pendingParticipantRooms.contains(authorizedRoomName) else {
+            return
+        }
+        pendingParticipantRooms.insert(authorizedRoomName)
 
-            DispatchQueue.main.async {
-                self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
+                guard let self = self else { return }
 
-                let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
-                for key in keysToRemove {
-                    self.rowHeightCache.removeValue(forKey: key)
+                DispatchQueue.main.async {
+                    self.pendingParticipantRooms.remove(authorizedRoomName)
+                    self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+
+                    // Only force cell reload (with height recalc) when there are actual participants
+                    if !participants.isEmpty {
+                        let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                        for key in keysToRemove {
+                            self.rowHeightCache.removeValue(forKey: key)
+                        }
+                        self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                    }
                 }
-
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+            } errorCallback: { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.pendingParticipantRooms.remove(authorizedRoomName)
+                }
             }
         }
     }
