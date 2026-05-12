@@ -25,11 +25,11 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     @IBOutlet weak var audioButton: CustomButton!
     @IBOutlet weak var videoButton: CustomButton!
     @IBOutlet weak var copyButton: CustomButton!
-    @IBOutlet weak var participantsStackView: NSStackView!
+    @IBOutlet weak var participantsScrollView: NSScrollView!
     
     static let kViewHeight: CGFloat = 206
     static let kViewAudioOnlyHeight: CGFloat = 158
-    static let kParticipantsRowHeight: CGFloat = 56
+    static let kParticipantsRowHeight: CGFloat = 60
     
     private let participantsCountLabel: NSTextField = {
         let label = NSTextField(labelWithString: "")
@@ -44,6 +44,14 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         label.textColor = .Sphinx.Text
         label.alignment = .center
         return label
+    }()
+    
+    private let participantsStackView: NSStackView = {
+        let stackView = NSStackView()
+        stackView.orientation = .horizontal
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 2
+        return stackView
     }()
     
     public enum CallButton: Int {
@@ -68,6 +76,19 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         audioButton.cursor = .pointingHand
         videoButton.cursor = .pointingHand
         copyButton.cursor = .pointingHand
+        
+        participantsScrollView.documentView = participantsStackView
+
+        NSLayoutConstraint.activate([
+            participantsStackView.leadingAnchor.constraint(equalTo: participantsScrollView.contentView.leadingAnchor),
+            participantsStackView.topAnchor.constraint(equalTo: participantsScrollView.contentView.topAnchor),
+            participantsStackView.bottomAnchor.constraint(equalTo: participantsScrollView.contentView.bottomAnchor),
+        ])
+        
+        participantsScrollView.contentView.contentInsets = NSEdgeInsetsZero
+        participantsScrollView.automaticallyAdjustsContentInsets = false
+        participantsScrollView.scrollerStyle = .overlay
+        participantsScrollView.hasHorizontalScroller = false
     }
     
     func configureWith(
@@ -101,7 +122,7 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
     }
     
     func configureWith(participantsData: MessageTableCellState.ParticipantsData?) {
-        guard let stackView = participantsStackView else { return }
+        let stackView = participantsStackView
         
         // Remove all existing arranged subviews
         for view in stackView.arrangedSubviews {
@@ -110,30 +131,18 @@ class JoinVideoCallView: NSView, @preconcurrency LoadableNib {
         }
         
         guard let participants = participantsData?.participants, !participants.isEmpty else {
-            stackView.isHidden = true
+            participantsScrollView.isHidden = true
             return
         }
         
         if !participants.isEmpty {
-            for i in 0..<min(participants.count, 5) {
-                let participant = participants[i]
+            for participant in participants {
                 let boxView = ParticipantBoxView()
                 boxView.configure(with: participant)
                 stackView.addArrangedSubview(boxView)
-            }
-            
-            if participants.count > 5 {
-                participantsCountLabel.stringValue = "+\(participants.count - 5)"
-                stackView.addArrangedSubview(participantsCountLabel)
-            }
-                
+            }       
         }
-        
-        let spacer = NSView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        stackView.addArrangedSubview(spacer)
-
-        stackView.isHidden = false
+        participantsScrollView.isHidden = false
     }
     
     @IBAction func callButtonTouched(_ sender: Any) {

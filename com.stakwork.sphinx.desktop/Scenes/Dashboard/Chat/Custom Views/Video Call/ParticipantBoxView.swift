@@ -56,20 +56,19 @@ class ParticipantBoxView: NSView {
         addSubview(nameLabel)
         
         NSLayoutConstraint.activate([
-            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+            avatarImageView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             avatarImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             avatarImageView.widthAnchor.constraint(equalToConstant: 24),
             avatarImageView.heightAnchor.constraint(equalToConstant: 24),
             
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 4),
-            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 2),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 2),
-            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: 2),
+            nameLabel.widthAnchor.constraint(equalToConstant: 42),
+            nameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 4),
             
-            widthAnchor.constraint(greaterThanOrEqualToConstant: 37)
+            widthAnchor.constraint(equalToConstant: 42),
+            heightAnchor.constraint(equalToConstant: 60)
         ])
         
-        // Make avatar circular
         avatarImageView.wantsLayer = true
         avatarImageView.layer?.cornerRadius = 12
         avatarImageView.layer?.masksToBounds = true
@@ -103,7 +102,7 @@ class ParticipantBoxView: NSView {
         image.lockFocus()
         
         // Background color derived from name
-        let color = colorFor(name: displayName)
+        let color = NSColor.getColorFor(key: participant.identity)
         color.setFill()
         NSBezierPath(ovalIn: NSRect(origin: .zero, size: size)).fill()
         
@@ -124,17 +123,5 @@ class ParticipantBoxView: NSView {
         
         image.unlockFocus()
         return image
-    }
-    
-    private func colorFor(name: String) -> NSColor {
-        let colors: [NSColor] = [
-            NSColor(red: 0.38, green: 0.54, blue: 1.0, alpha: 1),
-            NSColor(red: 0.29, green: 0.79, blue: 0.60, alpha: 1),
-            NSColor(red: 0.96, green: 0.50, blue: 0.27, alpha: 1),
-            NSColor(red: 0.91, green: 0.35, blue: 0.35, alpha: 1),
-            NSColor(red: 0.60, green: 0.40, blue: 0.85, alpha: 1),
-        ]
-        let hash = name.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
-        return colors[abs(hash) % colors.count]
     }
 }
