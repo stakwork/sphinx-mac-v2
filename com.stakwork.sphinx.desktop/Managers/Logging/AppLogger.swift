@@ -4,6 +4,7 @@
 import Foundation
 
 private let kLogRetentionHours: Double = 72
+private let kMaxLogFileBytes: Int = 5 * 1024 * 1024  // 5 MB hard cap
 
 final class AppLogger: @unchecked Sendable {
 
@@ -49,6 +50,7 @@ final class AppLogger: @unchecked Sendable {
     private var pipe: Pipe?
     private var originalStdout: Int32 = -1
     private var originalStderr: Int32 = -1
+    private var appendHandle: FileHandle?
 
     // MARK: - Formatters (static so signal handler helpers can use them)
 
@@ -70,7 +72,11 @@ final class AppLogger: @unchecked Sendable {
     // MARK: - Start
 
     func start() {
-        loadAndPruneExistingLog()
+        // Load previous logs asynchronously — never block launch
+        queue.async { [weak self] in
+            self?.loadAndPruneExistingLog()
+            self?.openAppendHandle()
+        }
         redirectStdoutStderr()
         registerSignalHandlers()
     }
@@ -111,7 +117,7 @@ final class AppLogger: @unchecked Sendable {
         queue.async { [weak self] in
             guard let self else { return }
             self.entries.append(entry)
-            self.appendToFile(entry)
+            self.writeEntryToFile(entry)
             let observers = self.entryObservers
             DispatchQueue.main.async {
                 observers.values.forEach { $0(entry) }
@@ -121,15 +127,58 @@ final class AppLogger: @unchecked Sendable {
 
     // MARK: - Private – file I/O
 
+    private func openAppendHandle() {
+        let url = logFileURL
+        if !FileManager.default.fileExists(atPath: url.path) {
+            FileManager.default.createFile(atPath: url.path, contents: nil)
+        }
+        appendHandle = try? FileHandle(forWritingTo: url)
+        appendHandle?.seekToEndOfFile()
+    }
+
+    private func writeEntryToFile(_ entry: LogEntry) {
+        guard let data = (entry.formatted + "\n").data(using: .utf8) else { return }
+        if let handle = appendHandle {
+            handle.write(data)
+        } else {
+            // Handle not ready yet (still loading on startup); create file and write
+            let url = logFileURL
+            if FileManager.default.fileExists(atPath: url.path) {
+                if let h = try? FileHandle(forWritingTo: url) {
+                    h.seekToEndOfFile(); h.write(data); try? h.close()
+                }
+            } else {
+                try? data.write(to: url, options: .atomic)
+            }
+        }
+    }
+
     private func loadAndPruneExistingLog() {
         let url = logFileURL
-        guard FileManager.default.fileExists(atPath: url.path),
-              let content = try? String(contentsOf: url, encoding: .utf8) else { return }
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+
+        // If the file exceeds the hard cap, keep only the tail before parsing
+        let fileSize = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        let rawContent: String
+        if fileSize > kMaxLogFileBytes {
+            // Read the last 5 MB and drop the first (likely partial) line
+            guard let handle = try? FileHandle(forReadingFrom: url) else { return }
+            let offset = UInt64(max(0, fileSize - kMaxLogFileBytes))
+            try? handle.seek(toOffset: offset)
+            let data = handle.readDataToEndOfFile()
+            try? handle.close()
+            guard var tail = String(data: data, encoding: .utf8) else { return }
+            // Drop the potentially-truncated first line
+            if let nl = tail.range(of: "\n") { tail = String(tail[nl.upperBound...]) }
+            rawContent = tail
+        } else {
+            guard let content = try? String(contentsOf: url, encoding: .utf8) else { return }
+            rawContent = content
+        }
 
         let cutoff = Date().addingTimeInterval(-kLogRetentionHours * 3600)
         var kept: [LogEntry] = []
-
-        for line in content.components(separatedBy: .newlines) where !line.isEmpty {
+        for line in rawContent.components(separatedBy: .newlines) where !line.isEmpty {
             if let entry = parseLogLine(line), entry.timestamp >= cutoff {
                 kept.append(entry)
             }
@@ -154,21 +203,6 @@ final class AppLogger: @unchecked Sendable {
         return LogEntry(level: level, message: message, timestamp: date)
     }
 
-    private func appendToFile(_ entry: LogEntry) {
-        let line = entry.formatted + "\n"
-        guard let data = line.data(using: .utf8) else { return }
-        let url = logFileURL
-        if FileManager.default.fileExists(atPath: url.path) {
-            if let handle = try? FileHandle(forWritingTo: url) {
-                handle.seekToEndOfFile()
-                handle.write(data)
-                try? handle.close()
-            }
-        } else {
-            try? data.write(to: url, options: .atomic)
-        }
-    }
-
     // MARK: - Public API
 
     /// Register a callback invoked on the main thread for every new log entry.
@@ -190,8 +224,7 @@ final class AppLogger: @unchecked Sendable {
     /// Flush in-memory entries to disk (call on app terminate / background)
     func flush() {
         queue.sync {
-            let content = entries.map { $0.formatted }.joined(separator: "\n")
-            try? content.write(to: logFileURL, atomically: true, encoding: .utf8)
+            try? appendHandle?.synchronizeFile()
         }
     }
 
@@ -217,6 +250,8 @@ final class AppLogger: @unchecked Sendable {
         queue.async { [weak self] in
             guard let self else { return }
             self.entries.removeAll()
+            try? self.appendHandle?.close()
+            self.appendHandle = nil
             try? FileManager.default.removeItem(at: self.logFileURL)
         }
     }
@@ -224,8 +259,6 @@ final class AppLogger: @unchecked Sendable {
     // MARK: - Signal handlers
 
     private func registerSignalHandlers() {
-        // Signal handlers must be C-style functions; we use a file-path stored in a
-        // C-accessible global so the handler can write without calling Swift code.
         AppLoggerSignalBridge.install(logFilePath: logFileURL.path)
     }
 }
@@ -244,7 +277,6 @@ enum AppLoggerSignalBridge {
 
         for sig in [SIGSEGV, SIGABRT, SIGILL, SIGBUS, SIGFPE] {
             signal(sig) { signum in
-                // Build sentinel line using only async-signal-safe calls
                 let sigName: String
                 switch signum {
                 case SIGSEGV: sigName = "SIGSEGV"
@@ -263,7 +295,6 @@ enum AppLoggerSignalBridge {
                         try? fd.close()
                     }
                 }
-                // Re-raise so the OS can generate the crash report
                 signal(signum, SIG_DFL)
                 raise(signum)
             }
