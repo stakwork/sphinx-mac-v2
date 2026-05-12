@@ -184,4 +184,9 @@ extension MessageTableCellState {
             self.progress = progress
         }
     }
+    
+    struct ParticipantsData {
+        let participants: [BubbleMessageLayoutState.CallParticipantInfo]
+        var isStale: Bool = false
+    }
 }

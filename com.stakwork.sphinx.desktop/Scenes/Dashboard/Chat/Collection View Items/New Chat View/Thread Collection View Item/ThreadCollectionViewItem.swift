@@ -97,6 +97,7 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,

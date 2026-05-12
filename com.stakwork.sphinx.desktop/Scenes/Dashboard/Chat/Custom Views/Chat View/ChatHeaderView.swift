@@ -198,6 +198,7 @@ class ChatHeaderView: NSView, LoadableNib {
         callButton.isHidden = true
         threadsButton.isHidden = true
         searchButton.isHidden = true
+        agentIcon.isHidden = true
     }
     
     func setChatInfo() {
@@ -207,26 +208,26 @@ class ChatHeaderView: NSView, LoadableNib {
         configureImageOrInitials()
         configureContributionsAndPrices()
         configureTimezoneInfo()
-
-        if contact?.isAgent == true {
-            configureForAgentChat()
-        }
+        configureForAgentChat()
     }
 
     func configureForAgentChat() {
-        // Hide call, volume, threads, webApp, secondBrain, options; keep only search
-        callButton.isHidden = true
-        volumeButton.isHidden = true
-        threadsButton.isHidden = true
-        webAppButton.isHidden = true
-        secondBrainButton.isHidden = true
-        optionsButton.isHidden = true
-        searchButton.isHidden = false
-
-        // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
-        lockSign.isHidden = true
-        boltSign.isHidden = true
-        agentIcon.isHidden = false
+        if contact?.isAgent == true {
+            callButton.isHidden = true
+            volumeButton.isHidden = true
+            threadsButton.isHidden = true
+            webAppButton.isHidden = true
+            secondBrainButton.isHidden = true
+            optionsButton.isHidden = true
+            searchButton.isHidden = false
+            
+            // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
+            lockSign.isHidden = true
+            boltSign.isHidden = true
+            agentIcon.isHidden = false
+        } else {
+            agentIcon.isHidden = true
+        }
     }
     
     func configureTimezoneInfo() {

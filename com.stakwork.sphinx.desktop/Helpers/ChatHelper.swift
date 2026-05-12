@@ -349,6 +349,7 @@ class ChatHelper {
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         replyViewAdditionalHeight: CGFloat? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
@@ -406,6 +407,7 @@ class ChatHelper {
             linkData: linkData,
             tribeData: tribeData,
             mediaData: mediaData,
+            participantsData: participantsData,
             replyViewAdditionalHeight: replyViewAdditionalHeight
         )
         
@@ -573,6 +575,7 @@ class ChatHelper {
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         replyViewAdditionalHeight: CGFloat? = nil
     ) -> CGFloat {
         
@@ -636,11 +639,13 @@ class ChatHelper {
         }
         
         if let link = mutableTableCellState.callLink {
-            if link.callMode == VideoCallHelper.CallMode.Audio {
-                viewsHeight += JoinVideoCallView.kViewAudioOnlyHeight
-            } else {
-                viewsHeight += JoinVideoCallView.kViewHeight
-            }
+            let base: CGFloat = link.callMode == .Audio
+                ? JoinVideoCallView.kViewAudioOnlyHeight
+                : JoinVideoCallView.kViewHeight
+            let extra: CGFloat = (participantsData != nil && !(participantsData!.participants.isEmpty))
+                ? JoinVideoCallView.kParticipantsRowHeight
+                : 0
+            viewsHeight += base + extra
         }
         
         if let _ = mutableTableCellState.podcastBoost {

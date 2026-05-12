@@ -605,6 +605,66 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         }
     }
     
+    func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int) {
+        // Resolve the room name from the authoritative data source record rather than
+        // trusting the view-supplied value, preventing an arbitrary-room lookup via a
+        // mismatched or stale view invocation.
+        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+              let storedLink = tableCellState.1.callLink?.link,
+              let storedURL = URL(string: storedLink),
+              let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
+              authorizedRoomName == roomName else {
+            return
+        }
+
+        // Prevent multiple simultaneous calls for the same room
+        guard !pendingParticipantRooms.contains(authorizedRoomName) else {
+            return
+        }
+        pendingParticipantRooms.insert(authorizedRoomName)
+
+        API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
+            guard let self = self else { return }
+
+            DispatchQueue.main.async {
+                self.pendingParticipantRooms.remove(authorizedRoomName)
+                self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+                self.startParticipantsCacheTimer()
+
+                if !participants.isEmpty {
+                    let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                    for key in keysToRemove {
+                        self.rowHeightCache.removeValue(forKey: key)
+                    }
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                }
+            }
+        } errorCallback: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.pendingParticipantRooms.remove(authorizedRoomName)
+            }
+        }
+    }
+
+    func startParticipantsCacheTimer() {
+        guard participantsCacheTimer == nil else { return }
+        participantsCacheTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
+            self?.refreshParticipantsCache()
+        }
+    }
+
+    func refreshParticipantsCache() {
+        guard !participantsDataCached.isEmpty else {
+            participantsCacheTimer?.invalidate()
+            participantsCacheTimer = nil
+            return
+        }
+
+        for messageId in participantsDataCached.keys {
+            participantsDataCached[messageId]?.isStale = true
+        }
+    }
+    
     func shouldShowOptionsFor(messageId: Int, from button: NSButton) {
         delegate?.shouldShowOptionsFor(messageId: messageId, from: button)
     }
