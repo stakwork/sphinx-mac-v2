@@ -72,19 +72,21 @@ import WebKit
     }
     
     func clearWebkitCache() {
-        URLCache.shared.removeAllCachedResponses()
-
-        if let cookies = HTTPCookieStorage.shared.cookies {
-            for cookie in cookies {
-                HTTPCookieStorage.shared.deleteCookie(cookie)
+        DispatchQueue.global(qos: .utility).async {
+            URLCache.shared.removeAllCachedResponses()
+            if let cookies = HTTPCookieStorage.shared.cookies {
+                for cookie in cookies {
+                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                }
+            }
+            DispatchQueue.main.async {
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+                    modifiedSince: Date(timeIntervalSince1970: 0),
+                    completionHandler: {}
+                )
             }
         }
-        
-        WKWebsiteDataStore.default().removeData(
-            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
-            modifiedSince: Date(timeIntervalSince1970: 0),
-            completionHandler: {}
-        )
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {

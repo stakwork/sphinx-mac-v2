@@ -97,7 +97,7 @@
                                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="una-Rq-nv3">
                                             <rect key="frame" x="61" y="0.0" width="309" height="22"/>
                                         </customView>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jVB-AT-YC6">
+                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jVB-AT-YC6" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
                                             <rect key="frame" x="373" y="-2" width="16" height="27"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" secondItem="jVB-AT-YC6" secondAttribute="height" multiplier="1:1" id="YuK-hb-EOP"/>

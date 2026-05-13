@@ -194,8 +194,8 @@
                                                     <constraints>
                                                         <constraint firstItem="okv-Ag-SIE" firstAttribute="leading" secondItem="4D1-XE-gCv" secondAttribute="leading" id="90f-L3-Gf9"/>
                                                         <constraint firstAttribute="trailing" secondItem="okv-Ag-SIE" secondAttribute="trailing" priority="750" id="LFh-fd-Unr"/>
-                                                        <constraint firstAttribute="height" constant="48" id="hJB-h5-cNj"/>
-                                                        <constraint firstItem="okv-Ag-SIE" firstAttribute="top" secondItem="4D1-XE-gCv" secondAttribute="top" priority="750" constant="16" id="mZ1-GE-TvO"/>
+                                                        <constraint firstAttribute="height" priority="999" constant="48" id="hJB-h5-cNj"/>
+                                                        <constraint firstItem="okv-Ag-SIE" firstAttribute="top" secondItem="4D1-XE-gCv" secondAttribute="top" priority="249" constant="16" id="mZ1-GE-TvO"/>
                                                     </constraints>
                                                 </customView>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="pkI-rw-Lfs" customClass="NewMessageBoostView" customModule="Sphinx" customModuleProvider="target">

@@ -323,11 +323,6 @@
                                                     <font key="font" size="14" name="Roboto-Regular"/>
                                                     <color key="textColor" name="Text"/>
                                                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <userDefinedRuntimeAttributes>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="topPadding">
-                                                            <real key="value" value="20"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                    </userDefinedRuntimeAttributes>
                                                 </textFieldCell>
                                             </textField>
                                             <box boxType="custom" borderType="none" borderWidth="0.0" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HKi-i1-240">
