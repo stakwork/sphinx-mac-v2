@@ -82,7 +82,12 @@ extension API {
             return
         }
 
-        AF.request(request).validate().responseData { response in
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                errorCallback()
+                return
+            }
+            
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
@@ -170,6 +175,12 @@ extension API {
         }
         
         AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                print("[HiveAPI] Tasks fetch unauthorized (401) - token may be expired")
+                errorCallback()
+                return
+            }
+            
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
