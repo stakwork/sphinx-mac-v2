@@ -194,14 +194,18 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         guard let invoice = message.invoice else {
             return
         }
-        
+
         let prd = PaymentRequestDecoder()
         prd.decodePaymentRequest(paymentRequest: invoice)
-        
+
         guard let _ = prd.getAmount() else {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: "Failed to decode invoice"
+            )
             return
         }
-        
+
         SphinxOnionManager.sharedInstance.payInvoiceMessage(message: message)
 
         chatTableDataSource?.reloadAllVisibleRows()

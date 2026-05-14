@@ -36,29 +36,38 @@ extension String {
     }
 
     func substring(fromIndex: Int) -> String {
-      return self[fromIndex ..< length]
+        let from = max(0, min(length, fromIndex))
+        return self[from ..< length]
     }
 
     func substring(toIndex: Int) -> String {
-      return self[0 ..< toIndex]
+        let to = max(0, min(length, toIndex))
+        return self[0 ..< to]
     }
-    
+
     func charAt(index: Int) -> Character {
+        guard index >= 0, index < length else { return "\0" }
         let i = String.Index(utf16Offset: index, in: self)
         return self[i]
     }
-    
+
     func substring(fromIndex: Int, toIndex: Int) -> String {
-      return self[fromIndex ..< toIndex]
+        let from = max(0, min(length, fromIndex))
+        let to = max(from, min(length, toIndex))
+        return self[from ..< to]
     }
 
     func substring(toIndexIncluded: Int) -> String {
-        let end = String.Index(utf16Offset: toIndexIncluded, in: self)
+        guard !isEmpty else { return "" }
+        let clamped = max(0, min(length - 1, toIndexIncluded))
+        let end = String.Index(utf16Offset: clamped, in: self)
         return String(self[...end])
     }
-    
+
     func substring(fromIndex: Int, toIndexIncluded: Int) -> String {
-      return self[fromIndex ..< toIndexIncluded]
+        let from = max(0, min(length, fromIndex))
+        let to = max(from, min(length, toIndexIncluded))
+        return self[from ..< to]
     }
     
     mutating func insert(string:String,ind:Int) {

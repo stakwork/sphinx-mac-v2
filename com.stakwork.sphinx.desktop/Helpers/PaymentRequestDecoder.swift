@@ -104,9 +104,12 @@ public class PaymentRequestDecoder {
     }
     
     func decodePaymentRequest(paymentRequest: String) {
-        self.paymentRequestString = paymentRequest
-        
-        let input = paymentRequest.lowercased().replacingOccurrences(of: "lightning:", with: "")
+        let cleaned = paymentRequest
+            .components(separatedBy: .whitespacesAndNewlines)
+            .joined()
+        self.paymentRequestString = cleaned
+
+        let input = cleaned.lowercased().replacingOccurrences(of: "lightning:", with: "")
         if let splitPosition = input.lastIndex(of: checksumMarker) {
             let index = splitPosition.utf16Offset(in: input) - 1
             if index < 0 {
@@ -211,6 +214,7 @@ public class PaymentRequestDecoder {
     }
     
     func decodeData(data: String, humanReadablePart: String) -> NSDictionary? {
+        guard data.count >= 111 else { return nil }
         let date32 = data.substring(fromIndex: 0, toIndex: 7)
         let dateEpoch = epochToDate(int: bech32ToInt(str: String(date32)))
         let signature = data.substring(fromIndex: data.count - 104, toIndex: data.count)
