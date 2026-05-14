@@ -24,6 +24,7 @@ class WorkspacesListViewController: NSViewController {
 
     var workspaces: [Workspace] = []
     private var allWorkspaces: [Workspace] = []
+    private var loadFailed = false
 
     private var currentDataSnapshot: DataSourceSnapshot!
     private var dataSource: DataSource!
@@ -69,6 +70,7 @@ class WorkspacesListViewController: NSViewController {
     }
 
     func loadWorkspaces() {
+        loadFailed = false
         guard !isLoading else { return }
 
         isLoading = true
@@ -85,10 +87,16 @@ class WorkspacesListViewController: NSViewController {
             },
             errorCallback: { [weak self] in
                 DispatchQueue.main.async {
-                    self?.isLoading = false
-                    self?.allWorkspaces = []
-                    self?.workspaces = []
-                    self?.updateSnapshot()
+                    guard let self = self else { return }
+                    self.loadFailed = true
+                    self.isLoading = false
+                    self.updateSnapshot()
+                    AlertHelper.showTwoOptionsAlert(
+                        title: "Failed to Load Workspaces",
+                        message: "Could not connect to Hive. Please try again.",
+                        confirm: { [weak self] in self?.loadWorkspaces() },
+                        confirmLabel: "Retry"
+                    )
                 }
             }
         )
@@ -337,7 +345,7 @@ extension WorkspacesListViewController {
                 // Keep scroll view visible so header with refresh button is always accessible
                 self.workspacesScrollView.isHidden = false
 
-                let showNoResults = items.isEmpty && !self.isLoading
+                let showNoResults = items.isEmpty && !self.isLoading && !self.loadFailed
                 self.noResultsFoundLabel.isHidden = !showNoResults
 
                 // Bring label to front so it's visible above the scroll view
