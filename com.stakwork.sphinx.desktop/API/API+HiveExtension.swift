@@ -24,8 +24,10 @@ extension API {
         callback: @escaping HiveAuthTokenCallback,
         errorCallback: @escaping EmptyCallback
     ) {
+        print("[Hive] authenticateWithHive: attempting...")
         guard let signedToken = SphinxOnionManager.sharedInstance.getSignedToken(),
               let pubkey = UserData.sharedInstance.getUserPubKey() else {
+            print("[Hive] authenticateWithHive: failed — could not get signed token or pubkey")
             errorCallback()
             return
         }
@@ -47,16 +49,19 @@ extension API {
             return
         }
 
-        AF.request(request).responseData { response in
+        AF.request(request).validate().responseData { response in
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
                 if let token = json["token"].string {
+                    print("[Hive] authenticateWithHive: success — token obtained")
                     callback(token)
                 } else {
+                    print("[Hive] authenticateWithHive: failed — status: \(response.response?.statusCode ?? -1)")
                     errorCallback()
                 }
-            case .failure:
+            case .failure(let error):
+                print("[Hive] authenticateWithHive: failed — status: \(response.response?.statusCode ?? -1)")
                 errorCallback()
             }
         }
@@ -78,6 +83,11 @@ extension API {
         }
 
         AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                errorCallback()
+                return
+            }
+            
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
@@ -91,8 +101,10 @@ extension API {
                     }
                 }
 
+                print("[Hive] fetchWorkspaces: \(workspaces.count) workspace(s) returned")
                 callback(workspaces)
-            case .failure:
+            case .failure(let error):
+                print("[Hive] fetchWorkspaces failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
                 errorCallback()
             }
         }
@@ -163,6 +175,12 @@ extension API {
         }
         
         AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                print("[HiveAPI] Tasks fetch unauthorized (401) - token may be expired")
+                errorCallback()
+                return
+            }
+            
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
