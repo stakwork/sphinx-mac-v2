@@ -22,6 +22,7 @@ protocol DashboardVCDelegate: AnyObject {
     func shouldResetTribeView()
     func didSelectWorkspace(_ workspace: Workspace)
     func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?)
+    func shouldLoadURLInInlineWebApp(chat: Chat, url: String)
     func shouldRefreshInlineWebApp()
     func shouldDismissInlineWebApp()
     func shouldOpenInlineWebAppInNewWindow()

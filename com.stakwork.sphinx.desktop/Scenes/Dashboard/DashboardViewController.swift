@@ -905,6 +905,21 @@ extension DashboardViewController : DashboardVCDelegate {
         showInlineWebApp(chat: chat, isAppURL: isAppURL, cachedVC: cachedVC)
     }
 
+    func shouldLoadURLInInlineWebApp(chat: Chat, url: String) {
+        if let existing = activeInlineWebAppVC, activeInlineWebAppChatId == chat.id {
+            // Reuse existing inline VC — just update its URL and force-reload
+            existing.appURL = url
+            existing.addAndLoadWebView(forceReload: true)
+            existing.view.isHidden = false
+            newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        } else {
+            // No active overlay yet — create one with the deep-link URL
+            guard let freshVC = WebAppViewController.instantiate(chat: chat, appURL: url) else { return }
+            newDetailViewController?.cachedWebAppVC = freshVC
+            showInlineWebApp(chat: chat, isAppURL: true, cachedVC: freshVC)
+        }
+    }
+
     func shouldRefreshInlineWebApp() {
         activeInlineWebAppVC?.addAndLoadWebView(forceReload: true)
     }

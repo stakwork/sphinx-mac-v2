@@ -103,8 +103,6 @@ class WebAppViewController: NSViewController {
     }
     
     func addAndLoadWebView(forceReload: Bool = false) {
-        navigationDidFail = false
-        errorLabel.isHidden = true
         var didChangeAppUrl = false
         let personalGraphUrl = userData.getPersonalGraphUrl()
         
@@ -125,11 +123,21 @@ class WebAppViewController: NSViewController {
         }
         if webView != nil {
             if didChangeAppUrl || forceReload {
+                // Only clear error state when actually reloading
+                navigationDidFail = false
+                errorLabel.isHidden = true
                 webView?.isHidden = false
                 loadPage()
+            } else if navigationDidFail {
+                // Re-show error state when returning to a failed webview
+                webView?.isHidden = true
+                errorLabel.isHidden = false
             }
             return
         }
+        // First load — clear any stale error state
+        navigationDidFail = false
+        errorLabel.isHidden = true
         addWebView()
         loadPage()
     }

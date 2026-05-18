@@ -550,8 +550,7 @@ extension NewChatViewController : ActionsDelegate {
 
     func shouldOpenWebAppLinkInSphinx(url: String) {
         guard let chat = chat else { return }
-        guard let freshVC = WebAppViewController.instantiate(chat: chat, appURL: url) else { return }
-        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: true, cachedVC: freshVC)
+        delegate?.shouldLoadURLInInlineWebApp(chat: chat, url: url)
     }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {

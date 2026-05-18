@@ -143,19 +143,20 @@ class ChatHeaderView: NSView, LoadableNib {
         let forwardImage = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
             .withSymbolConfiguration(navConfig)
 
-        webAppNavBackButton.image = backImage
-        webAppNavBackButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        webAppNavBackButton.cursor = .pointingHand
-        webAppNavBackButton.isEnabled = false
-        webAppNavBackButton.target = self
-        webAppNavBackButton.action = #selector(webAppNavBackButtonClicked)
-
-        webAppNavForwardButton.image = forwardImage
-        webAppNavForwardButton.contentTintColor = NSColor.Sphinx.SecondaryText
-        webAppNavForwardButton.cursor = .pointingHand
-        webAppNavForwardButton.isEnabled = false
-        webAppNavForwardButton.target = self
-        webAppNavForwardButton.action = #selector(webAppNavForwardButtonClicked)
+        for (button, image, action) in [
+            (webAppNavBackButton, backImage, #selector(webAppNavBackButtonClicked)),
+            (webAppNavForwardButton, forwardImage, #selector(webAppNavForwardButtonClicked))
+        ] as [(CustomButton, NSImage?, Selector)] {
+            button.image = image
+            button.imagePosition = .imageOnly
+            button.isBordered = false
+            button.setButtonType(.momentaryChange)
+            button.contentTintColor = NSColor.Sphinx.SecondaryText
+            button.cursor = .pointingHand
+            button.isEnabled = false
+            button.target = self
+            button.action = action
+        }
 
         // Insert back/forward before the existing buttons in the stack
         webAppActionsStack.insertArrangedSubview(webAppNavForwardButton, at: 0)
