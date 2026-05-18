@@ -210,16 +210,23 @@ class ChildVCContainer: NSView, LoadableNib {
         delegate: ActionsDelegate
     ) {
         self.deepLinkURL = deepLinkURL
-        prepareChatMenuViewSize()
+
+        // Size: 2 rows × 55pt + cancel 50pt + 10pt top padding = 170pt
+        containerWidth.constant = 300
+        containerHeight.constant = 170
+        requestOptionContainer.isHidden = false
+        layoutSubtreeIfNeeded()
+
         preparePopupOn(parentVC: parentVC, with: nil, and: nil, delegate: delegate)
 
         if webAppLinkOptionsContainer == nil {
             let container = NSView()
             container.translatesAutoresizingMaskIntoConstraints = false
 
+            // "Open inside Sphinx" first, "Open in Browser" second
             let rows: [(String, String, Int)] = [
-                ("safari", "open.in.browser".localized, ChildVCOptionsMenuButton.OpenInBrowser.rawValue),
                 ("chevron.left.forwardslash.chevron.right", "open.inside.sphinx".localized, ChildVCOptionsMenuButton.OpenInSphinx.rawValue),
+                ("safari", "open.in.browser".localized, ChildVCOptionsMenuButton.OpenInBrowser.rawValue),
             ]
 
             var previousRow: NSView? = nil

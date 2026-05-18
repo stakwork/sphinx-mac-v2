@@ -25,6 +25,8 @@ class WebAppViewController: NSViewController {
     var finishLoadingTimer : Timer? = nil
     var isPersonalGraph: Bool = false
     private var navigationDidFail = false
+    /// When set, `loadURL` is called once after the initial page finishes loading.
+    var pendingDeepLinkURL: String? = nil
     
     private lazy var errorLabel: NSTextField = {
         let label = NSTextField(wrappingLabelWithString: "")
@@ -360,6 +362,10 @@ extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let url = webView.url?.absoluteString ?? "unknown"
         logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
+        if let pending = pendingDeepLinkURL {
+            pendingDeepLinkURL = nil
+            loadURL(pending)
+        }
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
 
