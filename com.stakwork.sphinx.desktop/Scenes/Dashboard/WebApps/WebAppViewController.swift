@@ -285,6 +285,17 @@ class WebAppViewController: NSViewController {
         ])
     }
     
+    /// Navigate the live WKWebView to a URL without replacing appURL,
+    /// so WKWebView's back/forward history remains intact.
+    func loadURL(_ urlString: String) {
+        guard let webView = webView, let url = URL(string: urlString) else { return }
+        navigationDidFail = false
+        errorLabel.isHidden = true
+        webView.isHidden = false
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
+        webView.load(request)
+    }
+
     func loadPage() {
         var url: String = appURL
         
