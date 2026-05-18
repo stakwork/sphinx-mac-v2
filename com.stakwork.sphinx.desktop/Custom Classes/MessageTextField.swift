@@ -36,7 +36,15 @@ class MessageTextField: PaddedTextField, NSTextViewDelegate {
         guard let url = resolvedURL else { return false }
 
         if url.scheme == "sphinx" {
-            DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
+            if url.getLinkAction() == "webapp" {
+                NotificationCenter.default.post(
+                    name: .onWebAppLinkTapped,
+                    object: nil,
+                    userInfo: ["link": url.absoluteString]
+                )
+            } else {
+                DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
+            }
             return true
         }
 

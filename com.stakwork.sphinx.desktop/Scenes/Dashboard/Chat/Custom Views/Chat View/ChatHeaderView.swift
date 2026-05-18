@@ -160,6 +160,7 @@ class ChatHeaderView: NSView, LoadableNib {
         // Insert back/forward before the existing buttons in the stack
         webAppActionsStack.insertArrangedSubview(webAppNavForwardButton, at: 0)
         webAppActionsStack.insertArrangedSubview(webAppNavBackButton, at: 0)
+        webAppActionsStack.setCustomSpacing(8, after: webAppNavBackButton)
     }
 
     func showWebAppActions(_ show: Bool) {
