@@ -24,6 +24,8 @@ protocol ChildVCDelegate: AnyObject {
     func shouldShowAttachmentsPopup()
     func shouldReloadMuteState()
     func didDismissView()
+    func shouldOpenWebAppLinkInBrowser(url: String)
+    func shouldOpenWebAppLinkInSphinx(url: String)
 }
 
 class ChildVCContainer: NSView, LoadableNib {
@@ -43,6 +45,9 @@ class ChildVCContainer: NSView, LoadableNib {
     @IBOutlet weak var containerHeight: NSLayoutConstraint!
     @IBOutlet weak var containerWidth: NSLayoutConstraint!
     
+    // Web app link options popup (programmatic — not in XIB)
+    var webAppLinkOptionsContainer: NSView? = nil
+    
     let menuSize = CGSize(width: 300, height: 170)
     let chatMenuSize = CGSize(width: 300, height: 225)
     let oneOptionMenuSize = CGSize(width: 300, height: 115)
@@ -57,6 +62,7 @@ class ChildVCContainer: NSView, LoadableNib {
     
     var chat : Chat? = nil
     var message: TransactionMessage? = nil
+    var deepLinkURL: String? = nil
     
     public enum ChildVCOptionsMenuButton: Int {
         case Request
@@ -65,6 +71,8 @@ class ChildVCContainer: NSView, LoadableNib {
         case Video
         case Cancel
         case Attach
+        case OpenInBrowser = 10
+        case OpenInSphinx  = 11
     }
     
     enum ViewMode: Int {
@@ -94,6 +102,7 @@ class ChildVCContainer: NSView, LoadableNib {
         childVCContainer.isHidden = true
         tribeMemberPopupView.isHidden = true
         notificationLevelView.isHidden = true
+        webAppLinkOptionsContainer?.isHidden = true
         
         alphaValue = 0.0
         isHidden = true
@@ -195,6 +204,166 @@ class ChildVCContainer: NSView, LoadableNib {
         showView()
     }
     
+    func showWebAppLinkOptionsMenuOn(
+        parentVC: NSViewController,
+        deepLinkURL: String,
+        delegate: ActionsDelegate
+    ) {
+        self.deepLinkURL = deepLinkURL
+        prepareChatMenuViewSize()
+        preparePopupOn(parentVC: parentVC, with: nil, and: nil, delegate: delegate)
+
+        if webAppLinkOptionsContainer == nil {
+            let container = NSView()
+            container.translatesAutoresizingMaskIntoConstraints = false
+
+            let rows: [(String, String, Int)] = [
+                ("safari", "open.in.browser".localized, ChildVCOptionsMenuButton.OpenInBrowser.rawValue),
+                ("chevron.left.forwardslash.chevron.right", "open.inside.sphinx".localized, ChildVCOptionsMenuButton.OpenInSphinx.rawValue),
+            ]
+
+            var previousRow: NSView? = nil
+
+            for (iconName, labelText, tag) in rows {
+                let row = makeOptionRow(sfSymbol: iconName, label: labelText, tag: tag, showDivider: true)
+                container.addSubview(row)
+                NSLayoutConstraint.activate([
+                    row.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 30),
+                    row.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -30),
+                    row.heightAnchor.constraint(equalToConstant: 55),
+                ])
+                if let prev = previousRow {
+                    row.topAnchor.constraint(equalTo: prev.bottomAnchor).isActive = true
+                } else {
+                    row.topAnchor.constraint(equalTo: container.topAnchor, constant: 10).isActive = true
+                }
+                previousRow = row
+            }
+
+            // Cancel row — same style as existing cancel (smaller, red label, no icon)
+            let cancelRow = makeCancelRow(tag: ChildVCOptionsMenuButton.Cancel.rawValue)
+            container.addSubview(cancelRow)
+            NSLayoutConstraint.activate([
+                cancelRow.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 30),
+                cancelRow.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -30),
+                cancelRow.heightAnchor.constraint(equalToConstant: 50),
+                cancelRow.topAnchor.constraint(equalTo: previousRow!.bottomAnchor),
+            ])
+
+            contentBox.addSubview(container)
+            NSLayoutConstraint.activate([
+                container.topAnchor.constraint(equalTo: contentBox.topAnchor),
+                container.bottomAnchor.constraint(equalTo: contentBox.bottomAnchor),
+                container.leadingAnchor.constraint(equalTo: contentBox.leadingAnchor),
+                container.trailingAnchor.constraint(equalTo: contentBox.trailingAnchor),
+            ])
+
+            webAppLinkOptionsContainer = container
+        }
+
+        webAppLinkOptionsContainer?.isHidden = false
+        showView()
+    }
+
+    private func makeOptionRow(sfSymbol: String, label labelText: String, tag: Int, showDivider: Bool) -> NSView {
+        let row = NSView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        // Icon
+        let config = NSImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        let icon = NSImageView()
+        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.image = NSImage(systemSymbolName: sfSymbol, accessibilityDescription: nil)?.withSymbolConfiguration(config)
+        icon.contentTintColor = NSColor(named: "Text")
+        icon.imageScaling = .scaleProportionallyDown
+
+        // Label
+        let label = NSTextField(labelWithString: labelText)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = NSFont(name: "Roboto-Regular", size: 17) ?? NSFont.systemFont(ofSize: 17)
+        label.textColor = NSColor(named: "Text")
+
+        // Divider
+        let divider = NSBox()
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.boxType = .custom
+        divider.borderType = .noBorder
+        divider.fillColor = NSColor(named: "LightDivider") ?? NSColor.separatorColor
+        divider.titlePosition = .noTitle
+
+        // Transparent hit-target button (same pattern as XIB)
+        let button = NSButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.title = ""
+        button.bezelStyle = .rounded
+        button.isBordered = false
+        button.tag = tag
+        button.target = self
+        button.action = #selector(optionButtonClicked(_:))
+
+        row.addSubview(icon)
+        row.addSubview(label)
+        row.addSubview(divider)
+        row.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            icon.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            icon.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            icon.widthAnchor.constraint(equalToConstant: 30),
+            icon.heightAnchor.constraint(equalToConstant: 30),
+
+            label.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 12),
+            label.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: row.trailingAnchor),
+
+            divider.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            divider.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            divider.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 1),
+
+            button.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            button.topAnchor.constraint(equalTo: row.topAnchor),
+            button.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+        ])
+
+        return row
+    }
+
+    private func makeCancelRow(tag: Int) -> NSView {
+        let row = NSView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = NSTextField(labelWithString: "cancel".localized.uppercased())
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = NSFont(name: "Montserrat-Regular", size: 12) ?? NSFont.systemFont(ofSize: 12)
+        label.textColor = NSColor(named: "PrimaryRed") ?? NSColor.systemRed
+
+        let button = NSButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.title = ""
+        button.bezelStyle = .rounded
+        button.isBordered = false
+        button.tag = tag
+        button.target = self
+        button.action = #selector(optionButtonClicked(_:))
+
+        row.addSubview(label)
+        row.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: row.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+
+            button.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            button.topAnchor.constraint(equalTo: row.topAnchor),
+            button.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+        ])
+
+        return row
+    }
+
     func showNotificaionLevelViewOn(parentVC: NSViewController, with chat: Chat, delegate: ActionsDelegate) {
         prepareNotificationLevelPopupSize()
         preparePopupOn(parentVC: parentVC, with: chat, and: message, delegate: delegate)
@@ -335,6 +504,14 @@ class ChildVCContainer: NSView, LoadableNib {
                 hideView()
                 break
             case ChildVCOptionsMenuButton.Cancel.rawValue:
+                hideView()
+                break
+            case ChildVCOptionsMenuButton.OpenInBrowser.rawValue:
+                delegate?.shouldOpenWebAppLinkInBrowser(url: deepLinkURL ?? "")
+                hideView()
+                break
+            case ChildVCOptionsMenuButton.OpenInSphinx.rawValue:
+                delegate?.shouldOpenWebAppLinkInSphinx(url: deepLinkURL ?? "")
                 hideView()
                 break
             default:

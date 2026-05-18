@@ -328,6 +328,16 @@ class DashboardViewController: NSViewController {
                 self?.closeButtonTapped()
             }
         }
+
+        NotificationCenter.default.addObserver(
+            forName: .onWebAppNavigationChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateWebAppNavButtonStates()
+            }
+        }
         
         NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification,
@@ -895,6 +905,21 @@ extension DashboardViewController : DashboardVCDelegate {
         showInlineWebApp(chat: chat, isAppURL: isAppURL, cachedVC: cachedVC)
     }
 
+    func shouldLoadURLInInlineWebApp(chat: Chat, url: String) {
+        if let existing = activeInlineWebAppVC, activeInlineWebAppChatId == chat.id {
+            // Navigate to the deep-link URL inside the existing webview so that
+            // WKWebView's back/forward history is preserved (goBack() returns to appUrl).
+            existing.loadURL(url)
+            existing.view.isHidden = false
+            newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        } else {
+            // No active overlay yet — create one then navigate to the deep-link URL.
+            guard let freshVC = WebAppViewController.instantiate(chat: chat, appURL: url) else { return }
+            newDetailViewController?.cachedWebAppVC = freshVC
+            showInlineWebApp(chat: chat, isAppURL: true, cachedVC: freshVC)
+        }
+    }
+
     func shouldRefreshInlineWebApp() {
         activeInlineWebAppVC?.addAndLoadWebView(forceReload: true)
     }
@@ -902,6 +927,15 @@ extension DashboardViewController : DashboardVCDelegate {
     func shouldDismissInlineWebApp() {
         dismissInlineWebApp()
         newDetailViewController?.setWebAppHeaderActionsVisible(false)
+    }
+
+    func updateWebAppNavButtonStates() {
+        let canGoBack = activeInlineWebAppVC?.webView?.canGoBack ?? false
+        let canGoForward = activeInlineWebAppVC?.webView?.canGoForward ?? false
+        newDetailViewController?.chatTopView.chatHeaderView.updateWebAppNavButtons(
+            canGoBack: canGoBack,
+            canGoForward: canGoForward
+        )
     }
 
     func shouldOpenInlineWebAppInNewWindow() {
@@ -1101,6 +1135,7 @@ extension DashboardViewController : DashboardVCDelegate {
         attachWebAppOverlay(webAppVC)
         webAppVC.addAndLoadWebView()
         newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        updateWebAppNavButtonStates()
     }
 
     /// Hide the overlay — chat VC stays alive, webview keeps its state.

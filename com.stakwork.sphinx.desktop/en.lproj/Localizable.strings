@@ -598,3 +598,6 @@
 "diagnostics.title" = "Diagnostics";
 "diagnostics.export-button" = "Export Logs";
 "diagnostics.clear-button" = "Clear Logs";
+
+"open.in.browser" = "Open in Browser";
+"open.inside.sphinx" = "Open inside Sphinx";

@@ -149,6 +149,14 @@ extension NewChatViewController : ChatHeaderViewDelegate {
         (cachedWebAppVC ?? cachedSecondBrainVC)?.showLogsWindow()
     }
 
+    func didClickWebAppBackButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.webView.goBack()
+    }
+
+    func didClickWebAppForwardButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.webView.goForward()
+    }
+
     func setWebAppHeaderActionsVisible(_ visible: Bool) {
         chatTopView.showWebAppActions(visible)
     }
@@ -533,6 +541,16 @@ extension NewChatViewController : ActionsDelegate {
     
     func didFailInvoiceOrPayment() {
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized, in: view)
+    }
+
+    func shouldOpenWebAppLinkInBrowser(url: String) {
+        guard let openURL = URL(string: url) else { return }
+        NSWorkspace.shared.open(openURL)
+    }
+
+    func shouldOpenWebAppLinkInSphinx(url: String) {
+        guard let chat = chat else { return }
+        delegate?.shouldLoadURLInInlineWebApp(chat: chat, url: url)
     }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {

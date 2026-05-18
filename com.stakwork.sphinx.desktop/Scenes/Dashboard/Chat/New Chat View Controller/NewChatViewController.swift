@@ -175,11 +175,39 @@ class NewChatViewController: DashboardSplittedViewController {
                 }
             }
         }
+
+        NotificationCenter.default.addObserver(
+            forName: .onWebAppLinkTapped,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] notification in
+            Task { @MainActor [weak self] in
+                guard let self = self,
+                      let deepLinkStr = notification.userInfo?["link"] as? String,
+                      let fallbackURL = URL(string: deepLinkStr)?.getWebAppUrl()
+                else { return }
+
+                guard let chat = self.chat else { return }
+
+                if !chat.hasWebApp() {
+                    if let url = URL(string: fallbackURL) {
+                        NSWorkspace.shared.open(url)
+                    }
+                    return
+                }
+                self.childViewControllerContainer.showWebAppLinkOptionsMenuOn(
+                    parentVC: self,
+                    deepLinkURL: fallbackURL,
+                    delegate: self
+                )
+            }
+        }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onWebAppLinkTapped, object: nil)
     }
     
     override func viewDidAppear() {

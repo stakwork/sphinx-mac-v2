@@ -433,7 +433,7 @@
                         <real value="3.4028234663852886e+38"/>
                     </customSpacing>
                 </stackView>
-                <stackView hidden="YES" distribution="fillEqually" orientation="horizontal" alignment="top" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xvd-h2-omE">
+                <stackView hidden="YES" distribution="fillEqually" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xvd-h2-omE">
                     <rect key="frame" x="1189" y="0.0" width="160" height="60"/>
                     <subviews>
                         <button translatesAutoresizingMaskIntoConstraints="NO" id="wMG-FW-dgy" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
