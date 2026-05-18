@@ -262,10 +262,8 @@ extension NewMessageCollectionViewItem {
             callLinkView.configureWith(participantsData: participantsData)
             callLinkView.isHidden = false
             
-            // Fetch when no data yet, or when the timer has marked existing data stale.
-            // Stale data stays visible until the fresh response arrives — no blink.
-            if (participantsData == nil || participantsData?.isStale == true),
-               let messageId = messageId, let rowIndex = rowIndex {
+            // Always call on render — the data source deduplicates via polling timer guard.
+            if let messageId = messageId, let rowIndex = rowIndex {
                 let urlString = callLink.link
                 if let url = URL(string: urlString),
                    let roomName = url.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last {

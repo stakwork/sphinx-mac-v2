@@ -609,7 +609,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         // Resolve the room name from the authoritative data source record rather than
         // trusting the view-supplied value, preventing an arbitrary-room lookup via a
         // mismatched or stale view invocation.
-        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
               let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
@@ -617,7 +617,12 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             return
         }
 
-        // Prevent multiple simultaneous calls for the same room
+        // Skip if a polling timer is already running for this message — it handles refresh
+        guard activeParticipantPollingTimers[messageId] == nil else {
+            return
+        }
+
+        // Prevent multiple simultaneous in-flight calls for the same room
         guard !pendingParticipantRooms.contains(authorizedRoomName) else {
             return
         }
@@ -629,7 +634,6 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             DispatchQueue.main.async {
                 self.pendingParticipantRooms.remove(authorizedRoomName)
                 self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
-                self.startParticipantsCacheTimer()
 
                 if !participants.isEmpty {
                     let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
@@ -637,6 +641,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
                         self.rowHeightCache.removeValue(forKey: key)
                     }
                     self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                    self.startParticipantsPollingTimer(messageId: messageId, roomName: authorizedRoomName)
                 }
             }
         } errorCallback: { [weak self] _ in
@@ -646,22 +651,49 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         }
     }
 
-    func startParticipantsCacheTimer() {
-        guard participantsCacheTimer == nil else { return }
-        participantsCacheTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
-            self?.refreshParticipantsCache()
+    func startParticipantsPollingTimer(messageId: Int, roomName: String) {
+        guard activeParticipantPollingTimers[messageId] == nil else { return }
+        activeParticipantPollingTimers[messageId] = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: true) { [weak self] _ in
+            self?.pollParticipants(messageId: messageId, roomName: roomName)
         }
     }
 
-    func refreshParticipantsCache() {
-        guard !participantsDataCached.isEmpty else {
-            participantsCacheTimer?.invalidate()
-            participantsCacheTimer = nil
+    func stopParticipantsPollingTimer(for messageId: Int) {
+        activeParticipantPollingTimers[messageId]?.invalidate()
+        activeParticipantPollingTimers.removeValue(forKey: messageId)
+    }
+
+    func pollParticipants(messageId: Int, roomName: String) {
+        guard let rowIndex = messageIdToIndexMap[messageId] else { return }
+
+        // Stop polling if the row is no longer visible
+        let isVisible = collectionView.indexPathsForVisibleItems().map { $0.item }.contains(rowIndex)
+        guard isVisible else {
+            stopParticipantsPollingTimer(for: messageId)
             return
         }
 
-        for messageId in participantsDataCached.keys {
-            participantsDataCached[messageId]?.isStale = true
+        // Prevent overlapping in-flight fetches
+        guard !pendingParticipantRooms.contains(roomName) else { return }
+        pendingParticipantRooms.insert(roomName)
+
+        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] participants in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.pendingParticipantRooms.remove(roomName)
+                if !participants.isEmpty {
+                    self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                } else {
+                    self.participantsDataCached.removeValue(forKey: messageId)
+                    self.stopParticipantsPollingTimer(for: messageId)
+                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+                }
+            }
+        } errorCallback: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.pendingParticipantRooms.remove(roomName)
+            }
         }
     }
     

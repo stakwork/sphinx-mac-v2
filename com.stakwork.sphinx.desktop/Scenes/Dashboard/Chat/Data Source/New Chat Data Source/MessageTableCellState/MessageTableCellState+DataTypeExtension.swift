@@ -187,6 +187,5 @@ extension MessageTableCellState {
     
     struct ParticipantsData {
         let participants: [BubbleMessageLayoutState.CallParticipantInfo]
-        var isStale: Bool = false
     }
 }
