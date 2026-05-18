@@ -609,7 +609,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         // Resolve the room name from the authoritative data source record rather than
         // trusting the view-supplied value, preventing an arbitrary-room lookup via a
         // mismatched or stale view invocation.
-        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
               let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,

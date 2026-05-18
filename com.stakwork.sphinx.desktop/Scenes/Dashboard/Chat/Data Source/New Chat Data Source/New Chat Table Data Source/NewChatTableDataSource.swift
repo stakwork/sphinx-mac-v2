@@ -107,7 +107,7 @@ class NewChatTableDataSource : NSObject {
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
     var participantsDataCached: [Int: MessageTableCellState.ParticipantsData] = [:]
     var pendingParticipantRooms: Set<String> = []
-    var activeParticipantPollingTimers: [Int: Timer] = [:]
+    nonisolated(unsafe) var activeParticipantPollingTimers: [Int: Timer] = [:]
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
