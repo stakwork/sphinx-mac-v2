@@ -394,8 +394,8 @@ final class MarkdownRenderer {
                 s = String(s[range.upperBound...])
                 continue
             }
-            // Webapp deep link: sphinx.chat://?action=webapp...
-            if let range = firstRange(in: s, pattern: #"sphinx\.chat://\?action=webapp[^\s]*"#) {
+            // Sphinx deep link: sphinx.chat://...
+            if let range = firstRange(in: s, pattern: #"sphinx\.chat://[^\s]*"#) {
                 result.append(renderInline(String(s[s.startIndex..<range.lowerBound]), font: font, color: color))
                 let urlStr = String(s[range])
                 var linkAttrs: [NSAttributedString.Key: Any] = [
