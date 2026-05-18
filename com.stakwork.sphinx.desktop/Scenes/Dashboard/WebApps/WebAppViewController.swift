@@ -335,21 +335,25 @@ extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         let url = webView.url?.absoluteString ?? "unknown"
         logStore.append(.init(timestamp: Date(), level: .info, source: .navigation, message: "didStartProvisionalNavigation: \(url)"))
+        NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let url = webView.url?.absoluteString ?? "unknown"
         logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
+        NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFail: \(error.localizedDescription)"))
         showErrorLabel()
+        NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFailProvisionalNavigation: \(error.localizedDescription)"))
         showErrorLabel()
+        NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {

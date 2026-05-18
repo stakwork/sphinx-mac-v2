@@ -23,6 +23,8 @@ import SDWebImage
     func didClickWebAppBackToChatButton()
     func didClickWebAppOpenInWindowButton()
     func didClickWebAppLogsButton()
+    func didClickWebAppBackButton()
+    func didClickWebAppForwardButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -62,6 +64,8 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var webAppBackToChatButton: CustomButton!
     @IBOutlet weak var webAppOpenInWindowButton: CustomButton!
     @IBOutlet weak var webAppLogsButton: CustomButton!
+    var webAppNavBackButton: CustomButton = CustomButton()
+    var webAppNavForwardButton: CustomButton = CustomButton()
     
     let kMinimumChatHeaderForButtons: CGFloat = 700
     
@@ -131,6 +135,31 @@ class ChatHeaderView: NSView, LoadableNib {
         webAppLogsButton.contentTintColor = NSColor.Sphinx.SecondaryText
         webAppLogsButton.target = self
         webAppLogsButton.action = #selector(webAppLogsButtonClicked)
+
+        // Back / Forward nav buttons (added programmatically into webAppActionsStack)
+        let navConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let backImage = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: nil)?
+            .withSymbolConfiguration(navConfig)
+        let forwardImage = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
+            .withSymbolConfiguration(navConfig)
+
+        webAppNavBackButton.image = backImage
+        webAppNavBackButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        webAppNavBackButton.cursor = .pointingHand
+        webAppNavBackButton.isEnabled = false
+        webAppNavBackButton.target = self
+        webAppNavBackButton.action = #selector(webAppNavBackButtonClicked)
+
+        webAppNavForwardButton.image = forwardImage
+        webAppNavForwardButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        webAppNavForwardButton.cursor = .pointingHand
+        webAppNavForwardButton.isEnabled = false
+        webAppNavForwardButton.target = self
+        webAppNavForwardButton.action = #selector(webAppNavForwardButtonClicked)
+
+        // Insert back/forward before the existing buttons in the stack
+        webAppActionsStack.insertArrangedSubview(webAppNavForwardButton, at: 0)
+        webAppActionsStack.insertArrangedSubview(webAppNavBackButton, at: 0)
     }
 
     func showWebAppActions(_ show: Bool) {
@@ -504,5 +533,18 @@ class ChatHeaderView: NSView, LoadableNib {
 
     @objc func webAppLogsButtonClicked() {
         delegate?.didClickWebAppLogsButton()
+    }
+
+    @objc func webAppNavBackButtonClicked() {
+        delegate?.didClickWebAppBackButton()
+    }
+
+    @objc func webAppNavForwardButtonClicked() {
+        delegate?.didClickWebAppForwardButton()
+    }
+
+    func updateWebAppNavButtons(canGoBack: Bool, canGoForward: Bool) {
+        webAppNavBackButton.isEnabled = canGoBack
+        webAppNavForwardButton.isEnabled = canGoForward
     }
 }

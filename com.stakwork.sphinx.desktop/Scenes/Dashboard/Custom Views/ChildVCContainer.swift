@@ -24,6 +24,8 @@ protocol ChildVCDelegate: AnyObject {
     func shouldShowAttachmentsPopup()
     func shouldReloadMuteState()
     func didDismissView()
+    func shouldOpenWebAppLinkInBrowser(url: String)
+    func shouldOpenWebAppLinkInSphinx(url: String)
 }
 
 class ChildVCContainer: NSView, LoadableNib {
@@ -43,6 +45,9 @@ class ChildVCContainer: NSView, LoadableNib {
     @IBOutlet weak var containerHeight: NSLayoutConstraint!
     @IBOutlet weak var containerWidth: NSLayoutConstraint!
     
+    // Web app link options popup (programmatic — not in XIB)
+    var webAppLinkOptionsContainer: NSView? = nil
+    
     let menuSize = CGSize(width: 300, height: 170)
     let chatMenuSize = CGSize(width: 300, height: 225)
     let oneOptionMenuSize = CGSize(width: 300, height: 115)
@@ -57,6 +62,7 @@ class ChildVCContainer: NSView, LoadableNib {
     
     var chat : Chat? = nil
     var message: TransactionMessage? = nil
+    var deepLinkURL: String? = nil
     
     public enum ChildVCOptionsMenuButton: Int {
         case Request
@@ -65,6 +71,8 @@ class ChildVCContainer: NSView, LoadableNib {
         case Video
         case Cancel
         case Attach
+        case OpenInBrowser = 10
+        case OpenInSphinx  = 11
     }
     
     enum ViewMode: Int {
@@ -94,6 +102,7 @@ class ChildVCContainer: NSView, LoadableNib {
         childVCContainer.isHidden = true
         tribeMemberPopupView.isHidden = true
         notificationLevelView.isHidden = true
+        webAppLinkOptionsContainer?.isHidden = true
         
         alphaValue = 0.0
         isHidden = true
@@ -195,6 +204,78 @@ class ChildVCContainer: NSView, LoadableNib {
         showView()
     }
     
+    func showWebAppLinkOptionsMenuOn(
+        parentVC: NSViewController,
+        deepLinkURL: String,
+        delegate: ActionsDelegate
+    ) {
+        self.deepLinkURL = deepLinkURL
+        prepareChatMenuViewSize()
+        preparePopupOn(parentVC: parentVC, with: nil, and: nil, delegate: delegate)
+
+        // Build the web app link options container programmatically if needed
+        if webAppLinkOptionsContainer == nil {
+            let container = NSView()
+            container.translatesAutoresizingMaskIntoConstraints = false
+
+            let browserButton = NSButton()
+            browserButton.title = "open.in.browser".localized
+            browserButton.bezelStyle = .rounded
+            browserButton.tag = ChildVCOptionsMenuButton.OpenInBrowser.rawValue
+            browserButton.target = self
+            browserButton.action = #selector(optionButtonClicked(_:))
+            browserButton.translatesAutoresizingMaskIntoConstraints = false
+
+            let sphinxButton = NSButton()
+            sphinxButton.title = "open.inside.sphinx".localized
+            sphinxButton.bezelStyle = .rounded
+            sphinxButton.tag = ChildVCOptionsMenuButton.OpenInSphinx.rawValue
+            sphinxButton.target = self
+            sphinxButton.action = #selector(optionButtonClicked(_:))
+            sphinxButton.translatesAutoresizingMaskIntoConstraints = false
+
+            let cancelButton = NSButton()
+            cancelButton.title = "cancel".localized
+            cancelButton.bezelStyle = .rounded
+            cancelButton.tag = ChildVCOptionsMenuButton.Cancel.rawValue
+            cancelButton.target = self
+            cancelButton.action = #selector(optionButtonClicked(_:))
+            cancelButton.translatesAutoresizingMaskIntoConstraints = false
+
+            container.addSubview(browserButton)
+            container.addSubview(sphinxButton)
+            container.addSubview(cancelButton)
+
+            NSLayoutConstraint.activate([
+                browserButton.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+                browserButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                browserButton.widthAnchor.constraint(equalToConstant: 220),
+
+                sphinxButton.topAnchor.constraint(equalTo: browserButton.bottomAnchor, constant: 10),
+                sphinxButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                sphinxButton.widthAnchor.constraint(equalToConstant: 220),
+
+                cancelButton.topAnchor.constraint(equalTo: sphinxButton.bottomAnchor, constant: 10),
+                cancelButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                cancelButton.widthAnchor.constraint(equalToConstant: 220),
+                cancelButton.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -16)
+            ])
+
+            contentBox.addSubview(container)
+            NSLayoutConstraint.activate([
+                container.topAnchor.constraint(equalTo: contentBox.topAnchor),
+                container.bottomAnchor.constraint(equalTo: contentBox.bottomAnchor),
+                container.leadingAnchor.constraint(equalTo: contentBox.leadingAnchor),
+                container.trailingAnchor.constraint(equalTo: contentBox.trailingAnchor),
+            ])
+
+            webAppLinkOptionsContainer = container
+        }
+
+        webAppLinkOptionsContainer?.isHidden = false
+        showView()
+    }
+
     func showNotificaionLevelViewOn(parentVC: NSViewController, with chat: Chat, delegate: ActionsDelegate) {
         prepareNotificationLevelPopupSize()
         preparePopupOn(parentVC: parentVC, with: chat, and: message, delegate: delegate)
@@ -335,6 +416,14 @@ class ChildVCContainer: NSView, LoadableNib {
                 hideView()
                 break
             case ChildVCOptionsMenuButton.Cancel.rawValue:
+                hideView()
+                break
+            case ChildVCOptionsMenuButton.OpenInBrowser.rawValue:
+                delegate?.shouldOpenWebAppLinkInBrowser(url: deepLinkURL ?? "")
+                hideView()
+                break
+            case ChildVCOptionsMenuButton.OpenInSphinx.rawValue:
+                delegate?.shouldOpenWebAppLinkInSphinx(url: deepLinkURL ?? "")
                 hideView()
                 break
             default:

@@ -328,6 +328,16 @@ class DashboardViewController: NSViewController {
                 self?.closeButtonTapped()
             }
         }
+
+        NotificationCenter.default.addObserver(
+            forName: .onWebAppNavigationChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateWebAppNavButtonStates()
+            }
+        }
         
         NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification,
@@ -904,6 +914,15 @@ extension DashboardViewController : DashboardVCDelegate {
         newDetailViewController?.setWebAppHeaderActionsVisible(false)
     }
 
+    func updateWebAppNavButtonStates() {
+        let canGoBack = activeInlineWebAppVC?.webView?.canGoBack ?? false
+        let canGoForward = activeInlineWebAppVC?.webView?.canGoForward ?? false
+        newDetailViewController?.chatTopView.chatHeaderView.updateWebAppNavButtons(
+            canGoBack: canGoBack,
+            canGoForward: canGoForward
+        )
+    }
+
     func shouldOpenInlineWebAppInNewWindow() {
         guard let vc = activeInlineWebAppVC,
               let chat = vc.chat else { return }
@@ -1101,6 +1120,7 @@ extension DashboardViewController : DashboardVCDelegate {
         attachWebAppOverlay(webAppVC)
         webAppVC.addAndLoadWebView()
         newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        updateWebAppNavButtonStates()
     }
 
     /// Hide the overlay — chat VC stays alive, webview keeps its state.

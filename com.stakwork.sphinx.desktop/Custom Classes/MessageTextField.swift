@@ -30,14 +30,21 @@ class MessageTextField: PaddedTextField, NSTextViewDelegate {
             self.window?.makeFirstResponder(nil)
         }
         
-        if let url = link as? URL {
-            NSWorkspace.shared.open(url)
+        var resolvedURL: URL?
+        if let url = link as? URL { resolvedURL = url }
+        else if let str = link as? String { resolvedURL = URL(string: str) }
+        guard let url = resolvedURL else { return false }
+
+        if url.getLinkAction() == "webapp" {
+            NotificationCenter.default.post(
+                name: .onWebAppLinkTapped,
+                object: nil,
+                userInfo: ["link": url.absoluteString]
+            )
             return true
         }
-        if let urlString = link as? String, let url = URL(string: urlString) {
-            NSWorkspace.shared.open(url)
-            return true
-        }
-        return false
+
+        NSWorkspace.shared.open(url)
+        return true
     }
 }
