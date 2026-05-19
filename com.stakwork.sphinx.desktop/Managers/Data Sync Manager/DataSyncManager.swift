@@ -93,6 +93,14 @@ class DataSyncManager: NSObject, @unchecked Sendable {
         }
     }
 
+    func savePinTimeout(value: String) {
+        saveDataSyncItemWith(
+            key: SettingKey.pinTimeout.rawValue,
+            identifier: "0",
+            value: value
+        )
+    }
+
     func saveFeedItemStatusFor(
         feedId: String,
         itemId: String,
@@ -387,6 +395,14 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                         key: serverItem.identifier
                     )
                 }
+
+            case .pinTimeout:
+                if let intValue = serverItem.value.asInt {
+                    UserData.sharedInstance.setPINHours(hours: intValue)
+                }
+
+            case .biometricEnabled:
+                break // Mac does not support biometric authentication
             }
         }
     }

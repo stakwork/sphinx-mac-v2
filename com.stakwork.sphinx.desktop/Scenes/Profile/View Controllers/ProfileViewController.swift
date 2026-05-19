@@ -364,6 +364,7 @@ class ProfileViewController: NSViewController {
     
     func updatePinSettings(){
         UserData.sharedInstance.setPINHours(hours: pinTimeoutView.getPinHours())
+        DataSyncManager.sharedInstance.savePinTimeout(value: "\(pinTimeoutView.getPinHours())")
     }
     
     func didUpdateProfile() -> Bool {
