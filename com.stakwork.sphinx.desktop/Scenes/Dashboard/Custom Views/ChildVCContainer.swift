@@ -50,6 +50,7 @@ class ChildVCContainer: NSView, LoadableNib {
     
     let menuSize = CGSize(width: 300, height: 170)
     let chatMenuSize = CGSize(width: 300, height: 225)
+    let webAppLinkMenuSize = CGSize(width: 300, height: 170) // 10px top pad + 2 × 55px option rows + 50px cancel = 170px
     let oneOptionMenuSize = CGSize(width: 300, height: 115)
     let invoicePaymentSize = CGSize(width: 380, height: 500)
     let groupMembersSize = CGSize(width: 380, height: 620)
@@ -210,7 +211,9 @@ class ChildVCContainer: NSView, LoadableNib {
         delegate: ActionsDelegate
     ) {
         self.deepLinkURL = deepLinkURL
-        prepareChatMenuViewSize()
+        containerWidth.constant = webAppLinkMenuSize.width
+        containerHeight.constant = webAppLinkMenuSize.height
+        layoutSubtreeIfNeeded()
         preparePopupOn(parentVC: parentVC, with: nil, and: nil, delegate: delegate)
 
         if webAppLinkOptionsContainer == nil {
@@ -218,8 +221,8 @@ class ChildVCContainer: NSView, LoadableNib {
             container.translatesAutoresizingMaskIntoConstraints = false
 
             let rows: [(String, String, Int)] = [
-                ("safari", "open.in.browser".localized, ChildVCOptionsMenuButton.OpenInBrowser.rawValue),
                 ("chevron.left.forwardslash.chevron.right", "open.inside.sphinx".localized, ChildVCOptionsMenuButton.OpenInSphinx.rawValue),
+                ("safari", "open.in.browser".localized, ChildVCOptionsMenuButton.OpenInBrowser.rawValue),
             ]
 
             var previousRow: NSView? = nil

@@ -35,7 +35,7 @@ class MessageTextField: PaddedTextField, NSTextViewDelegate {
         else if let str = link as? String { resolvedURL = URL(string: str) }
         guard let url = resolvedURL else { return false }
 
-        if url.scheme == "sphinx" {
+        if url.scheme == "sphinx.chat" {
             if url.getLinkAction() == "webapp" {
                 NotificationCenter.default.post(
                     name: .onWebAppLinkTapped,

@@ -189,7 +189,7 @@ class NewChatViewController: DashboardSplittedViewController {
 
                 guard let chat = self.chat else { return }
 
-                if !chat.hasWebApp() {
+                if !chat.hasWebApp() && !chat.hasSecondBrainApp() {
                     if let url = URL(string: fallbackURL) {
                         NSWorkspace.shared.open(url)
                     }

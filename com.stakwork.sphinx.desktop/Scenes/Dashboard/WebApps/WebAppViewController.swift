@@ -23,6 +23,7 @@ class WebAppViewController: NSViewController {
     var appURL: String! = nil
     var chat: Chat? = nil
     var finishLoadingTimer : Timer? = nil
+    var pendingDeepLinkURL: String? = nil
     var isPersonalGraph: Bool = false
     private var navigationDidFail = false
     
@@ -332,6 +333,25 @@ class WebAppViewController: NSViewController {
 
     /// Stops the webview and releases its resources.
     /// Called when leaving a tribe chat or when the separate window closes.
+    /// Destroys the existing WKWebView (clearing all back/forward history) and reloads
+    /// the original appURL from scratch. Pending deep link is also cleared.
+    func reloadFromScratch() {
+        pendingDeepLinkURL = nil
+        finishLoadingTimer?.invalidate()
+        finishLoadingTimer = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxConsole")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxNetwork")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
+        webView?.configuration.userContentController.removeAllUserScripts()
+        webView?.removeFromSuperview()
+        webView = nil
+        navigationDidFail = false
+        errorLabel.isHidden = true
+        addAndLoadWebView()
+    }
+
     func teardown() {
         logStore.clear()
         NSApplication.shared.windows.first(where: {
@@ -361,16 +381,22 @@ extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
         let url = webView.url?.absoluteString ?? "unknown"
         logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
+        if let pending = pendingDeepLinkURL {
+            pendingDeepLinkURL = nil
+            loadURL(pending)
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFail: \(error.localizedDescription)"))
+        pendingDeepLinkURL = nil
         showErrorLabel()
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFailProvisionalNavigation: \(error.localizedDescription)"))
+        pendingDeepLinkURL = nil
         showErrorLabel()
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }

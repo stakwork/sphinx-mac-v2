@@ -907,21 +907,26 @@ extension DashboardViewController : DashboardVCDelegate {
 
     func shouldLoadURLInInlineWebApp(chat: Chat, url: String) {
         if let existing = activeInlineWebAppVC, activeInlineWebAppChatId == chat.id {
-            // Navigate to the deep-link URL inside the existing webview so that
-            // WKWebView's back/forward history is preserved (goBack() returns to appUrl).
-            existing.loadURL(url)
+            if existing.webView?.isLoading == true {
+                // Tribe URL still in flight — defer so it commits a back-history entry first
+                existing.pendingDeepLinkURL = url
+            } else {
+                // Tribe URL already committed — navigate immediately, history intact
+                existing.loadURL(url)
+            }
             existing.view.isHidden = false
             newDetailViewController?.setWebAppHeaderActionsVisible(true)
         } else {
-            // No active overlay yet — create one then navigate to the deep-link URL.
-            guard let freshVC = WebAppViewController.instantiate(chat: chat, appURL: url) else { return }
+            // No active overlay — create one with the tribe's main URL, then navigate to the deep link
+            guard let freshVC = WebAppViewController.instantiate(chat: chat, isAppURL: true) else { return }
+            freshVC.pendingDeepLinkURL = url
             newDetailViewController?.cachedWebAppVC = freshVC
             showInlineWebApp(chat: chat, isAppURL: true, cachedVC: freshVC)
         }
     }
 
     func shouldRefreshInlineWebApp() {
-        activeInlineWebAppVC?.addAndLoadWebView(forceReload: true)
+        activeInlineWebAppVC?.reloadFromScratch()
     }
 
     func shouldDismissInlineWebApp() {
