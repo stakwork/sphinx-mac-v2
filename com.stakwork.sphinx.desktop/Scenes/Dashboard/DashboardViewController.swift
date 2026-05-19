@@ -926,7 +926,7 @@ extension DashboardViewController : DashboardVCDelegate {
     }
 
     func shouldRefreshInlineWebApp() {
-        activeInlineWebAppVC?.addAndLoadWebView(forceReload: true)
+        activeInlineWebAppVC?.reloadFromScratch()
     }
 
     func shouldDismissInlineWebApp() {

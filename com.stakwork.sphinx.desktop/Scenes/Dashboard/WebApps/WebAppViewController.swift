@@ -333,6 +333,25 @@ class WebAppViewController: NSViewController {
 
     /// Stops the webview and releases its resources.
     /// Called when leaving a tribe chat or when the separate window closes.
+    /// Destroys the existing WKWebView (clearing all back/forward history) and reloads
+    /// the original appURL from scratch. Pending deep link is also cleared.
+    func reloadFromScratch() {
+        pendingDeepLinkURL = nil
+        finishLoadingTimer?.invalidate()
+        finishLoadingTimer = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxConsole")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "sphinxNetwork")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: webAppHelper.messageHandler)
+        webView?.configuration.userContentController.removeAllUserScripts()
+        webView?.removeFromSuperview()
+        webView = nil
+        navigationDidFail = false
+        errorLabel.isHidden = true
+        addAndLoadWebView()
+    }
+
     func teardown() {
         logStore.clear()
         NSApplication.shared.windows.first(where: {
