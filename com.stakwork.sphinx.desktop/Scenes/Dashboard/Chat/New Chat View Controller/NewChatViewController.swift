@@ -174,7 +174,7 @@ class NewChatViewController: DashboardSplittedViewController {
     override func viewWillDisappear() {
         super.viewWillDisappear()
         
-        chatTableDataSource?.deleteSnapshotCurrentState()
+        chatTableDataSource?.saveSnapshotCurrentState()
         chatTableDataSource?.releaseMemory()
         
         closeThreadAndResetEscapeMonitor()
