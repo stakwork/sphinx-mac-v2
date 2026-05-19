@@ -23,6 +23,7 @@ class WebAppViewController: NSViewController {
     var appURL: String! = nil
     var chat: Chat? = nil
     var finishLoadingTimer : Timer? = nil
+    var pendingDeepLinkURL: String? = nil
     var isPersonalGraph: Bool = false
     private var navigationDidFail = false
     
@@ -361,16 +362,22 @@ extension WebAppViewController : WKNavigationDelegate, WKUIDelegate {
         let url = webView.url?.absoluteString ?? "unknown"
         logStore.append(.init(timestamp: Date(), level: .log, source: .navigation, message: "didFinish: \(url)"))
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
+        if let pending = pendingDeepLinkURL {
+            pendingDeepLinkURL = nil
+            loadURL(pending)
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFail: \(error.localizedDescription)"))
+        pendingDeepLinkURL = nil
         showErrorLabel()
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         logStore.append(.init(timestamp: Date(), level: .error, source: .navigation, message: "didFailProvisionalNavigation: \(error.localizedDescription)"))
+        pendingDeepLinkURL = nil
         showErrorLabel()
         NotificationCenter.default.post(name: .onWebAppNavigationChanged, object: self)
     }
