@@ -67,6 +67,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var mqtt: CocoaMQTT! = nil
     var vc: NSViewController! = nil
     var connectingStartTime: Date? = nil
+    private var connectionInProgress: Bool = false
     
     var isConnected : Bool = false{
         didSet{
@@ -435,17 +436,24 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             return
         }
         
+        guard !connectionInProgress else {
+            print("[MQTT] connectToServer skipped — connection already in progress")
+            return
+        }
+        connectionInProgress = true
+
         if isV2Restore {
             contactRestoreCallback?(2)
         }
-        
+
         self.hideRestoreCallback = hideRestoreViewCallback
         self.contactRestoreCallback = contactRestoreCallback
         self.messageRestoreCallback = messageRestoreCallback
-        
+
         let success = connectToBroker(seed: seed, xpub: my_xpub)
-        
+
         if (success == false) {
+            connectionInProgress = false
             hideRestoreViewCallback?(false)
             return
         }
@@ -460,7 +468,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 connectingMqtt?.disconnect()
                 return
             }
-            
+
+            self.connectionInProgress = false
             self.endReconnectionTimer()
             self.isConnected = true
             
@@ -493,6 +502,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         let disconnectingMqtt = mqtt
         mqtt.didDisconnect = { [weak self] _, _ in
             guard let self = self else { return }
+            self.connectionInProgress = false
             self.isConnected = false
             self.mqttDisconnectCallback?()
             if self.mqtt === disconnectingMqtt {
