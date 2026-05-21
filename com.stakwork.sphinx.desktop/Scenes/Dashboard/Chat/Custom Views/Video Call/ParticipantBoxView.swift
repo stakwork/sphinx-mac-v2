@@ -47,7 +47,7 @@ class ParticipantBoxView: NSView {
     
     private func setupViews() {
         wantsLayer = true
-        layer?.backgroundColor = NSColor.Sphinx.Body.withAlphaComponent(0.08).cgColor
+        layer?.backgroundColor = NSColor.Sphinx.Text.withAlphaComponent(0.05).cgColor
         layer?.cornerRadius = 8
         
         translatesAutoresizingMaskIntoConstraints = false
@@ -66,7 +66,7 @@ class ParticipantBoxView: NSView {
             nameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 4),
             
             widthAnchor.constraint(equalToConstant: 42),
-            heightAnchor.constraint(equalToConstant: 60)
+            heightAnchor.constraint(equalToConstant: 50)
         ])
         
         avatarImageView.wantsLayer = true
