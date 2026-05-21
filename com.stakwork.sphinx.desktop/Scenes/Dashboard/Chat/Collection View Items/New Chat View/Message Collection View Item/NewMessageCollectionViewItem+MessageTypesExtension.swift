@@ -262,6 +262,17 @@ extension NewMessageCollectionViewItem {
             callLinkView.configureWith(participantsData: participantsData)
             callLinkView.isHidden = false
             
+            let hasParticipants = participantsData != nil && !(participantsData!.participants.isEmpty)
+            let base: CGFloat = callLink.callMode == .Audio
+                ? JoinVideoCallView.kViewAudioOnlyHeight
+                : JoinVideoCallView.kViewHeight
+            let requiredHeight = base + (hasParticipants ? JoinVideoCallView.kParticipantsRowHeight : 0)
+            if let heightConstraint = callLinkView.constraints.first(where: {
+                $0.firstAttribute == .height && $0.secondAttribute == .notAnAttribute
+            }) {
+                heightConstraint.constant = requiredHeight
+            }
+            
             // Always call on render — the data source deduplicates via polling timer guard.
             if let messageId = messageId, let rowIndex = rowIndex {
                 let urlString = callLink.link
