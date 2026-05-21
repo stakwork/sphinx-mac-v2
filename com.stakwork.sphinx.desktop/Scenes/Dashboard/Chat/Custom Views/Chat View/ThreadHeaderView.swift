@@ -87,6 +87,7 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
         
         newMessageLabel.textContainerInset = NSSize(width: 0, height: 0)
         newMessageLabel.textContainer?.lineFragmentPadding = 0
+        newMessageLabel.delegate = self
     }
     
     func hideAllViews() {
@@ -444,5 +445,38 @@ extension ThreadHeaderView : @preconcurrency AudioMessageViewDelegate {
         if let messageId = messageId {
             delegate?.didTapPlayPauseButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
         }
+    }
+}
+
+extension ThreadHeaderView : @preconcurrency NSTextViewDelegate {
+    func textView(
+        _ textView: NSTextView,
+        clickedOnLink link: Any,
+        at charIndex: Int
+    ) -> Bool {
+        DispatchQueue.main.async {
+            self.window?.makeFirstResponder(nil)
+        }
+
+        var resolvedURL: URL?
+        if let url = link as? URL { resolvedURL = url }
+        else if let str = link as? String { resolvedURL = URL(string: str) }
+        guard let url = resolvedURL else { return false }
+
+        if url.scheme == "sphinx.chat" {
+            if url.getLinkAction() == "webapp" {
+                NotificationCenter.default.post(
+                    name: .onWebAppLinkTapped,
+                    object: nil,
+                    userInfo: ["link": url.absoluteString]
+                )
+            } else {
+                DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
+            }
+            return true
+        }
+
+        NSWorkspace.shared.open(url)
+        return true
     }
 }
