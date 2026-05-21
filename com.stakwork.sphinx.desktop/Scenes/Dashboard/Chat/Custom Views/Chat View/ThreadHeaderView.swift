@@ -88,6 +88,10 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
         newMessageLabel.textContainerInset = NSSize(width: 0, height: 0)
         newMessageLabel.textContainer?.lineFragmentPadding = 0
         newMessageLabel.delegate = self
+        newMessageLabel.linkTextAttributes = [
+            .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+            .underlineStyle: NSUnderlineStyle.single.rawValue
+        ]
     }
     
     func hideAllViews() {
