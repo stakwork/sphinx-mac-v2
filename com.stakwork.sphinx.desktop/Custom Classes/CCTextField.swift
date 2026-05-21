@@ -33,10 +33,6 @@ class CCTextField: NSTextField {
     func customizeCaretColor() {
         if let fieldEditor = self.window?.fieldEditor(true, for: self) as? NSTextView {
             fieldEditor.insertionPointColor = color
-            fieldEditor.linkTextAttributes = [
-                .foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                .underlineStyle: NSUnderlineStyle.single.rawValue
-            ]
         }
     }
     
