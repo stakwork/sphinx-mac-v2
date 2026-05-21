@@ -23,7 +23,7 @@ class ParticipantBoxView: NSView {
     private let nameLabel: NSTextField = {
         let label = NSTextField(labelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = NSFont.systemFont(ofSize: 9)
+        label.font = NSFont(name: "Roboto-Regular", size: 9.0) ?? NSFont.systemFont(ofSize: 9)
         label.lineBreakMode = .byTruncatingTail
         label.maximumNumberOfLines = 1
         label.isEditable = false
