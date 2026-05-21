@@ -50,14 +50,11 @@ extension URL {
     }
     
     func getWebAppUrl() -> String? {
-        let link = self.absoluteString
-        let components = link.components(separatedBy: "url=")
-        
-        if components.count > 1 {
-            return components[1]
+        if let comps = URLComponents(url: self, resolvingAgainstBaseURL: false),
+           let urlParam = comps.queryItems?.first(where: { $0.name == "url" })?.value {
+            return urlParam
         }
-        
-        return link
+        return self.absoluteString
     }
     
     var domain: String? {

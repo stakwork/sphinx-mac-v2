@@ -917,11 +917,17 @@ extension DashboardViewController : DashboardVCDelegate {
             existing.view.isHidden = false
             newDetailViewController?.setWebAppHeaderActionsVisible(true)
         } else {
-            // No active overlay — create one with the tribe's main URL, then navigate to the deep link
-            guard let freshVC = WebAppViewController.instantiate(chat: chat, isAppURL: true) else { return }
+            // No active overlay — create one with the tribe's main URL, then navigate to the deep link.
+            // Prefer the appURL slot; fall back to secondBrainUrl if appURL is not configured.
+            let useAppURL = chat.hasWebApp()
+            guard let freshVC = WebAppViewController.instantiate(chat: chat, isAppURL: useAppURL) else { return }
             freshVC.pendingDeepLinkURL = url
-            newDetailViewController?.cachedWebAppVC = freshVC
-            showInlineWebApp(chat: chat, isAppURL: true, cachedVC: freshVC)
+            if useAppURL {
+                newDetailViewController?.cachedWebAppVC = freshVC
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = freshVC
+            }
+            showInlineWebApp(chat: chat, isAppURL: useAppURL, cachedVC: freshVC)
         }
     }
 

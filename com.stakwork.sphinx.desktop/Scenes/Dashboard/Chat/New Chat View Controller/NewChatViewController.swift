@@ -182,8 +182,8 @@ class NewChatViewController: DashboardSplittedViewController {
             queue: OperationQueue.main
         ) { [weak self] notification in
             Task { @MainActor [weak self] in
-                guard let self = self,
-                      let deepLinkStr = notification.userInfo?["link"] as? String,
+                guard let self = self, !self.isThread else { return }
+                guard let deepLinkStr = notification.userInfo?["link"] as? String,
                       let fallbackURL = URL(string: deepLinkStr)?.getWebAppUrl()
                 else { return }
 
