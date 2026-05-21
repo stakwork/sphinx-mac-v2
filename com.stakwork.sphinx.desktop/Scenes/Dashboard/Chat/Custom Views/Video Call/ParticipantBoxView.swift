@@ -62,6 +62,7 @@ class ParticipantBoxView: NSView {
             avatarImageView.heightAnchor.constraint(equalToConstant: 24),
             
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 4),
+            nameLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             nameLabel.widthAnchor.constraint(equalToConstant: 42),
             nameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 4),
             
