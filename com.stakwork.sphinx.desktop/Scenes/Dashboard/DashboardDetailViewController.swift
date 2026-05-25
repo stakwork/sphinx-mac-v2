@@ -218,7 +218,7 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
     
     func callButtonTapped() {
         if let threadVC = addedVC.last as? NewChatViewController, threadVC.isThread {
-            threadVC.shouldCreateCall(mode: .All)
+            threadVC.didClickCallButton()
         }
     }
 }
