@@ -251,6 +251,8 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         )
     }
     
+
+    
     func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?) {
         guard let message = message else {
             return
