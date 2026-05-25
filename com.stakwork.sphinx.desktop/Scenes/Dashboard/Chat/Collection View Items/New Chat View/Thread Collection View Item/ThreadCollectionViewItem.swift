@@ -63,6 +63,7 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     @IBOutlet weak var threadLastMessageHeader: ThreadLastMessageHeader!
     
     ///Forth Container
+    @IBOutlet weak var lastReplyCallLinkView: JoinVideoCallView!
     @IBOutlet weak var lastReplyAudioMessageView: AudioMessageView!
     @IBOutlet weak var lastReplyMediaMessageView: MediaMessageView!
     @IBOutlet weak var lastReplyFileDetailsView: FileInfoView!
@@ -168,6 +169,10 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         configureLastReplyWith(
             boosts: mutableMessageCellState.boosts,
             and: bubble
+        )
+        configureLastReplyWith(
+            callLink: mutableMessageCellState.callLink,
+            participantsData: participantsData
         )
         
         ///Thread

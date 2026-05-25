@@ -246,6 +246,7 @@ class ChatHelper {
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         ///No Bubble message views
@@ -311,6 +312,15 @@ class ChatHelper {
         if let _ = mutableTableCellState.boosts {
             viewsHeight += NewMessageBoostView.kViewHeight
         }
+
+        if let link = mutableTableCellState.callLink {
+            let base = link.callMode == .Audio
+                ? JoinVideoCallView.kViewAudioOnlyHeight
+                : JoinVideoCallView.kViewHeight
+            let extra = participantsData?.participants.isEmpty == false
+                ? JoinVideoCallView.kParticipantsRowHeight : 0
+            viewsHeight += base + extra
+        }
         
         if let text = mutableTableCellState.messageContent?.text, text.isNotEmpty {
             let messageContent = mutableTableCellState.messageContent
@@ -361,6 +371,7 @@ class ChatHelper {
                 linkData: linkData,
                 tribeData: tribeData,
                 mediaData: mediaData,
+                participantsData: participantsData,
                 collectionViewWidth: collectionViewWidth
             )
         }
