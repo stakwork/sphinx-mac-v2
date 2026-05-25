@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -10,11 +10,11 @@
         <customObject id="-2" userLabel="File's Owner" customClass="DashboardDetailHeaderView" customModule="Sphinx" customModuleProvider="target">
             <connections>
                 <outlet property="backButton" destination="viw-Ea-oXk" id="FNz-JW-2v6"/>
+                <outlet property="callButton" destination="DDH-CB-btn" id="DDH-CB-out"/>
+                <outlet property="callContainer" destination="DDH-CB-box" id="DDH-CB-oub"/>
                 <outlet property="closeButton" destination="4M3-5v-ixa" id="FRu-34-bKe"/>
                 <outlet property="contentView" destination="R65-74-UBK" id="WW5-OF-dbC"/>
                 <outlet property="headerTitle" destination="9oG-zA-O3y" id="8yz-Gb-JAW"/>
-                <outlet property="callButton" destination="DDH-CB-btn" id="DDH-CB-out"/>
-                <outlet property="callContainer" destination="DDH-CB-box" id="DDH-CB-oub"/>
                 <outlet property="openNWButton" destination="k9V-l1-wd5" id="YWg-yf-iSj"/>
                 <outlet property="openNWContainer" destination="PI2-WS-Z2R" id="byc-lJ-nt8"/>
             </connections>
@@ -72,137 +72,157 @@
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
                             </stackView>
-                            <box borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JKs-qg-lLO">
-                                <rect key="frame" x="441" y="30" width="34" height="34"/>
-                                <view key="contentView" id="d92-eL-k8s">
-                                    <rect key="frame" x="4" y="5" width="26" height="26"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="RQf-Sr-qKJ">
-                                            <rect key="frame" x="7" y="5" width="12" height="16"/>
+                            <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ahX-Ak-BOZ">
+                                <rect key="frame" x="360" y="34" width="112" height="28"/>
+                                <subviews>
+                                    <box borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PI2-WS-Z2R">
+                                        <rect key="frame" x="-3" y="-4" width="34" height="34"/>
+                                        <view key="contentView" id="83o-Zr-GtH">
+                                            <rect key="frame" x="4" y="5" width="26" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="llz-Kc-QlA">
+                                                    <rect key="frame" x="3" y="3" width="21" height="20"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="20" id="49p-Dn-7Ef"/>
+                                                        <constraint firstAttribute="width" constant="21" id="fIY-GH-3aq"/>
+                                                    </constraints>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="openNewWindow" id="Mbv-yo-RJD"/>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                </imageView>
+                                                <button translatesAutoresizingMaskIntoConstraints="NO" id="k9V-l1-wd5" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                                                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="cIn-Sk-caH">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="system"/>
+                                                    </buttonCell>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="26" id="EBQ-iW-S3U"/>
+                                                        <constraint firstAttribute="height" constant="26" id="Mto-wG-ZhS"/>
+                                                    </constraints>
+                                                    <connections>
+                                                        <action selector="openNewWindowButtonTapped:" target="-2" id="dCW-q6-5gy"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="12" id="HKB-9r-Rn5"/>
-                                                <constraint firstAttribute="width" constant="12" id="uUP-TU-khy"/>
+                                                <constraint firstItem="llz-Kc-QlA" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="QB6-92-jwh"/>
+                                                <constraint firstItem="llz-Kc-QlA" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="Y9z-86-IkB"/>
+                                                <constraint firstItem="k9V-l1-wd5" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="r29-cV-WDH"/>
+                                                <constraint firstItem="k9V-l1-wd5" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="w54-NL-dIf"/>
                                             </constraints>
-                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="xmark" catalog="system" id="Y0h-VW-4g6"/>
-                                            <color key="contentTintColor" name="SecondaryText"/>
-                                            <symbolConfiguration key="symbolConfiguration" weight="heavy">
-                                                <nil key="locale"/>
-                                            </symbolConfiguration>
-                                        </imageView>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="4M3-5v-ixa" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
-                                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="fOE-uK-5M9">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <color key="contentTintColor" name="SecondaryText"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="28" id="JET-Ox-HfI"/>
+                                            <constraint firstAttribute="height" constant="28" id="JHh-kU-ocA"/>
+                                        </constraints>
+                                    </box>
+                                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="utk-DP-N9l">
+                                        <rect key="frame" x="36" y="0.0" width="4" height="28"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="4" id="eHk-PG-3TJ"/>
+                                            <constraint firstAttribute="height" constant="28" id="sOT-dU-ncM"/>
+                                        </constraints>
+                                    </customView>
+                                    <box borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-box">
+                                        <rect key="frame" x="45" y="-4" width="34" height="34"/>
+                                        <view key="contentView" id="DDH-CB-cnt">
+                                            <rect key="frame" x="4" y="5" width="26" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <button translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-btn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                                                    <buttonCell key="cell" type="square" title="" bezelStyle="shadowlessSquare" alignment="center" inset="2" id="DDH-CB-cel">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" size="25" name="MaterialIcons-Regular"/>
+                                                    </buttonCell>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="26" id="DDH-CB-ch"/>
+                                                        <constraint firstAttribute="width" constant="26" id="DDH-CB-cw"/>
+                                                    </constraints>
+                                                    <connections>
+                                                        <action selector="callButtonTapped:" target="-2" id="DDH-CB-act"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="width" constant="26" id="Oor-ed-dTV"/>
-                                                <constraint firstAttribute="height" constant="26" id="kOZ-OU-V97"/>
+                                                <constraint firstItem="DDH-CB-btn" firstAttribute="centerX" secondItem="DDH-CB-cnt" secondAttribute="centerX" id="DDH-CB-cx"/>
+                                                <constraint firstItem="DDH-CB-btn" firstAttribute="centerY" secondItem="DDH-CB-cnt" secondAttribute="centerY" id="DDH-CB-cy"/>
                                             </constraints>
-                                            <connections>
-                                                <action selector="closeButtonTapped:" target="-2" id="86z-om-BSN"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="4M3-5v-ixa" firstAttribute="centerY" secondItem="d92-eL-k8s" secondAttribute="centerY" id="bJV-Wt-XTc"/>
-                                        <constraint firstItem="RQf-Sr-qKJ" firstAttribute="centerY" secondItem="d92-eL-k8s" secondAttribute="centerY" id="dcJ-K5-QWr"/>
-                                        <constraint firstItem="4M3-5v-ixa" firstAttribute="centerX" secondItem="d92-eL-k8s" secondAttribute="centerX" id="pDf-L6-9xG"/>
-                                        <constraint firstItem="RQf-Sr-qKJ" firstAttribute="centerX" secondItem="d92-eL-k8s" secondAttribute="centerX" id="wMd-rJ-hUw"/>
-                                    </constraints>
-                                </view>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="28" id="ULo-jY-3ND"/>
-                                    <constraint firstAttribute="height" constant="28" id="vp7-yz-3LN"/>
-                                </constraints>
-                            </box>
-                            <box hidden="YES" borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-box">
-                                <rect key="frame" x="361" y="30" width="34" height="34"/>
-                                <view key="contentView" id="DDH-CB-cnt">
-                                    <rect key="frame" x="4" y="5" width="26" height="26"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-btn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
-                                            <buttonCell key="cell" type="square" title="" bezelStyle="shadowlessSquare" alignment="center" inset="2" id="DDH-CB-cel">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" size="20" name="MaterialIcons-Regular"/>
-                                            </buttonCell>
-                                            <color key="contentTintColor" name="SecondaryText"/>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="28" id="DDH-CB-bh"/>
+                                            <constraint firstAttribute="width" constant="28" id="DDH-CB-bw"/>
+                                        </constraints>
+                                    </box>
+                                    <box borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JKs-qg-lLO">
+                                        <rect key="frame" x="81" y="-4" width="34" height="34"/>
+                                        <view key="contentView" id="d92-eL-k8s">
+                                            <rect key="frame" x="4" y="5" width="26" height="26"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="RQf-Sr-qKJ">
+                                                    <rect key="frame" x="7" y="5" width="12" height="16"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="12" id="HKB-9r-Rn5"/>
+                                                        <constraint firstAttribute="width" constant="12" id="uUP-TU-khy"/>
+                                                    </constraints>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="xmark" catalog="system" id="Y0h-VW-4g6"/>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <symbolConfiguration key="symbolConfiguration" weight="heavy">
+                                                        <nil key="locale"/>
+                                                    </symbolConfiguration>
+                                                </imageView>
+                                                <button translatesAutoresizingMaskIntoConstraints="NO" id="4M3-5v-ixa" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                    <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                                                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="fOE-uK-5M9">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="system"/>
+                                                    </buttonCell>
+                                                    <color key="contentTintColor" name="SecondaryText"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="26" id="Oor-ed-dTV"/>
+                                                        <constraint firstAttribute="height" constant="26" id="kOZ-OU-V97"/>
+                                                    </constraints>
+                                                    <connections>
+                                                        <action selector="closeButtonTapped:" target="-2" id="86z-om-BSN"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="width" constant="26" id="DDH-CB-cw"/>
-                                                <constraint firstAttribute="height" constant="26" id="DDH-CB-ch"/>
+                                                <constraint firstItem="4M3-5v-ixa" firstAttribute="centerY" secondItem="d92-eL-k8s" secondAttribute="centerY" id="bJV-Wt-XTc"/>
+                                                <constraint firstItem="RQf-Sr-qKJ" firstAttribute="centerY" secondItem="d92-eL-k8s" secondAttribute="centerY" id="dcJ-K5-QWr"/>
+                                                <constraint firstItem="4M3-5v-ixa" firstAttribute="centerX" secondItem="d92-eL-k8s" secondAttribute="centerX" id="pDf-L6-9xG"/>
+                                                <constraint firstItem="RQf-Sr-qKJ" firstAttribute="centerX" secondItem="d92-eL-k8s" secondAttribute="centerX" id="wMd-rJ-hUw"/>
                                             </constraints>
-                                            <connections>
-                                                <action selector="callButtonTapped:" target="-2" id="DDH-CB-act"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="DDH-CB-btn" firstAttribute="centerX" secondItem="DDH-CB-cnt" secondAttribute="centerX" id="DDH-CB-cx"/>
-                                        <constraint firstItem="DDH-CB-btn" firstAttribute="centerY" secondItem="DDH-CB-cnt" secondAttribute="centerY" id="DDH-CB-cy"/>
-                                    </constraints>
-                                </view>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="28" id="DDH-CB-bw"/>
-                                    <constraint firstAttribute="height" constant="28" id="DDH-CB-bh"/>
-                                </constraints>
-                            </box>
-                            <box hidden="YES" borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PI2-WS-Z2R">
-                                <rect key="frame" x="401" y="30" width="34" height="34"/>
-                                <view key="contentView" id="83o-Zr-GtH">
-                                    <rect key="frame" x="4" y="5" width="26" height="26"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="llz-Kc-QlA">
-                                            <rect key="frame" x="3" y="3" width="21" height="20"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="20" id="49p-Dn-7Ef"/>
-                                                <constraint firstAttribute="width" constant="21" id="fIY-GH-3aq"/>
-                                            </constraints>
-                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="openNewWindow" id="Mbv-yo-RJD"/>
-                                            <color key="contentTintColor" name="SecondaryText"/>
-                                        </imageView>
-                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="k9V-l1-wd5" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
-                                            <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
-                                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="cIn-Sk-caH">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <color key="contentTintColor" name="SecondaryText"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="26" id="EBQ-iW-S3U"/>
-                                                <constraint firstAttribute="height" constant="26" id="Mto-wG-ZhS"/>
-                                            </constraints>
-                                            <connections>
-                                                <action selector="openNewWindowButtonTapped:" target="-2" id="dCW-q6-5gy"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="llz-Kc-QlA" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="QB6-92-jwh"/>
-                                        <constraint firstItem="llz-Kc-QlA" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="Y9z-86-IkB"/>
-                                        <constraint firstItem="k9V-l1-wd5" firstAttribute="centerX" secondItem="83o-Zr-GtH" secondAttribute="centerX" id="r29-cV-WDH"/>
-                                        <constraint firstItem="k9V-l1-wd5" firstAttribute="centerY" secondItem="83o-Zr-GtH" secondAttribute="centerY" id="w54-NL-dIf"/>
-                                    </constraints>
-                                </view>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="28" id="JET-Ox-HfI"/>
-                                    <constraint firstAttribute="height" constant="28" id="JHh-kU-ocA"/>
-                                </constraints>
-                            </box>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="28" id="ULo-jY-3ND"/>
+                                            <constraint firstAttribute="height" constant="28" id="vp7-yz-3LN"/>
+                                        </constraints>
+                                    </box>
+                                </subviews>
+                                <visibilityPriorities>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                </visibilityPriorities>
+                                <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                </customSpacing>
+                            </stackView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="JKs-qg-lLO" firstAttribute="leading" secondItem="PI2-WS-Z2R" secondAttribute="trailing" constant="12" id="4GN-O2-bgO"/>
-                            <constraint firstItem="PI2-WS-Z2R" firstAttribute="centerY" secondItem="JKs-qg-lLO" secondAttribute="centerY" id="7x5-G6-wPM"/>
-                            <constraint firstItem="PI2-WS-Z2R" firstAttribute="leading" secondItem="DDH-CB-box" secondAttribute="trailing" constant="12" id="DDH-CB-con"/>
-                            <constraint firstItem="DDH-CB-box" firstAttribute="centerY" secondItem="JKs-qg-lLO" secondAttribute="centerY" id="DDH-CB-coy"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="leading" secondItem="GGz-Dy-M3p" secondAttribute="leading" constant="20" id="Pe5-8R-Sev"/>
-                            <constraint firstItem="JKs-qg-lLO" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="QY3-2B-Xgg"/>
+                            <constraint firstAttribute="trailing" secondItem="ahX-Ak-BOZ" secondAttribute="trailing" constant="18" id="Pzd-ia-nrb"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="Tf3-0n-Xha"/>
-                            <constraint firstAttribute="trailing" secondItem="JKs-qg-lLO" secondAttribute="trailing" constant="18" id="Zbq-aP-dcx"/>
+                            <constraint firstItem="ahX-Ak-BOZ" firstAttribute="centerY" secondItem="FhQ-xK-Ti1" secondAttribute="centerY" id="VOm-Oa-gzG"/>
                         </constraints>
                     </view>
                     <color key="fillColor" name="HeaderBG"/>
