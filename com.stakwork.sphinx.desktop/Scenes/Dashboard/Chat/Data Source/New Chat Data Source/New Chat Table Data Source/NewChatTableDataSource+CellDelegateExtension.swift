@@ -633,16 +633,26 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
 
             DispatchQueue.main.async {
                 self.pendingParticipantRooms.remove(authorizedRoomName)
+
+                let newIdentities = Set(participants.map { $0.identity })
+                let cachedIdentities = Set((self.participantsDataCached[messageId]?.participants ?? []).map { $0.identity })
+                let hasChanged = newIdentities != cachedIdentities
+
                 self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+
+                if !participants.isEmpty {
+                    self.startParticipantsPollingTimer(messageId: messageId, roomName: authorizedRoomName)
+                }
+
+                guard hasChanged else { return }
 
                 if !participants.isEmpty {
                     let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
                     for key in keysToRemove {
                         self.rowHeightCache.removeValue(forKey: key)
                     }
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
-                    self.startParticipantsPollingTimer(messageId: messageId, roomName: authorizedRoomName)
                 }
+                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
             }
         } errorCallback: { [weak self] _ in
             DispatchQueue.main.async {
@@ -682,7 +692,14 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             DispatchQueue.main.async {
                 self.pendingParticipantRooms.remove(roomName)
                 if !participants.isEmpty {
+                    let newIdentities = Set(participants.map { $0.identity })
+                    let cachedIdentities = Set((self.participantsDataCached[messageId]?.participants ?? []).map { $0.identity })
+                    let hasChanged = newIdentities != cachedIdentities
+
                     self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
+
+                    guard hasChanged else { return }
+
                     self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
                 } else {
                     self.participantsDataCached.removeValue(forKey: messageId)
