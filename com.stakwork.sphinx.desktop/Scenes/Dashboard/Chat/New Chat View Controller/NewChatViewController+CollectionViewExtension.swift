@@ -251,6 +251,10 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         )
     }
     
+    func shouldCreateCallInThread() {
+        shouldCreateCall(mode: .Video)
+    }
+    
     func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?) {
         guard let message = message else {
             return

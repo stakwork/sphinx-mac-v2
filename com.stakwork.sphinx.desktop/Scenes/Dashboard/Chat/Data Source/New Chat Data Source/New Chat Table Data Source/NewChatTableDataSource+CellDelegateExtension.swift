@@ -704,6 +704,10 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
     func shouldCloseThread() {
         delegate?.shouldCloseThread()
     }
+    
+    func shouldStartCallInThread() {
+        delegate?.shouldCreateCallInThread()
+    }
 }
 
 ///Updating rows after content loaded

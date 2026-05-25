@@ -12,6 +12,7 @@
                 <outlet property="audioFileContainer" destination="aeV-xz-Szv" id="FnT-F8-DEF"/>
                 <outlet property="audioMessageView" destination="anB-jC-h00" id="yrS-2F-wYA"/>
                 <outlet property="chatAvatarView" destination="an0-0c-r6q" id="FIi-Lt-Pc8"/>
+                <outlet property="callButton" destination="Thr-CB-cal" id="Thr-CB-cac"/>
                 <outlet property="closeButton" destination="xTN-ih-vgo" id="Mag-Qa-Hho"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="qRz-cx-MGB"/>
                 <outlet property="dateLabel" destination="pLk-vm-4AH" id="pMF-Ae-Luw"/>
@@ -258,6 +259,17 @@
                         <real value="3.4028234663852886e+38"/>
                     </customSpacing>
                 </stackView>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Thr-CB-cal" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="1174" y="115" width="26" height="22"/>
+                    <buttonCell key="cell" type="bevel" title="video_call" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="Thr-CB-caX" customClass="VerticallyCenteredButtonCell" customModule="Sphinx" customModuleProvider="target">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" size="22" name="MaterialIcons-Regular"/>
+                    </buttonCell>
+                    <color key="contentTintColor" name="WashedOutReceivedText"/>
+                    <connections>
+                        <action selector="callButtonClicked:" target="-2" id="Thr-CB-caa"/>
+                    </connections>
+                </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="L6P-gE-jRx" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
                     <rect key="frame" x="1204" y="115" width="26" height="22"/>
                     <buttonCell key="cell" type="bevel" title="" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="1lQ-0m-pTW" customClass="VerticallyCenteredButtonCell" customModule="Sphinx" customModuleProvider="target">
@@ -288,6 +300,8 @@
                 <constraint firstItem="xTN-ih-vgo" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="Sww-CA-fCC"/>
                 <constraint firstAttribute="bottom" secondItem="6xK-O0-OVb" secondAttribute="bottom" id="U7W-tP-MvG"/>
                 <constraint firstAttribute="bottom" secondItem="6pb-0h-aP6" secondAttribute="bottom" id="WMZ-ai-4Zb"/>
+                <constraint firstItem="Thr-CB-cal" firstAttribute="centerY" secondItem="xTN-ih-vgo" secondAttribute="centerY" id="Thr-CB-ccy"/>
+                <constraint firstItem="Thr-CB-cal" firstAttribute="trailing" secondItem="L6P-gE-jRx" secondAttribute="leading" constant="-8" id="Thr-CB-ccx"/>
                 <constraint firstItem="L6P-gE-jRx" firstAttribute="trailing" secondItem="6pb-0h-aP6" secondAttribute="trailing" constant="10" id="mXd-gF-8Rb"/>
                 <constraint firstItem="rDL-y8-IEm" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="p2z-lc-yp0"/>
                 <constraint firstAttribute="trailing" secondItem="6pb-0h-aP6" secondAttribute="trailing" constant="16" id="pj3-TF-RfW"/>
