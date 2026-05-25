@@ -79,6 +79,7 @@ class DashboardDetailViewController: NSViewController {
         updateVCTitle()
         showBackButton()
         showOpenInNWButton()
+        showCallButton()
         
         for vc in self.children {
             removeChildVC(child: vc)
@@ -111,6 +112,14 @@ class DashboardDetailViewController: NSViewController {
             headerView.setOpenNWButtonVisible(visible: false)
         }
     }
+    
+    func showCallButton() {
+        if let last = addedVC.last, let threadVC = last as? NewChatViewController, threadVC.isThread {
+            headerView.setCallButtonVisible(visible: true)
+        } else {
+            headerView.setCallButtonVisible(visible: false)
+        }
+    }
 }
 
 extension DashboardDetailViewController: DetailHeaderViewDelegate {
@@ -130,6 +139,7 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
             
             showBackButton()
             showOpenInNWButton()
+            showCallButton()
         }
     }
     
@@ -203,6 +213,12 @@ extension DashboardDetailViewController: DetailHeaderViewDelegate {
                     resizable: resizable
                 )
             }
+        }
+    }
+    
+    func callButtonTapped() {
+        if let threadVC = addedVC.last as? NewChatViewController, threadVC.isThread {
+            threadVC.shouldCreateCall(mode: .All)
         }
     }
 }

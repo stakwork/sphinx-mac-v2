@@ -21,7 +21,6 @@ import Cocoa
     func didTapPlayPauseButtonFor(messageId: Int, and rowIndex: Int)
     
     func shouldCloseThread()
-    func shouldStartCallInThread()
     
     func shouldShowOptionsFor(messageId: Int, from button: NSButton)
 }
@@ -55,7 +54,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     @IBOutlet var newMessageLabel: NSTextView!
     @IBOutlet weak var closeButton: CustomButton!
     @IBOutlet weak var optionsButton: CustomButton!
-    @IBOutlet weak var callButton: CustomButton!
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -72,7 +70,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     func setupView() {
         closeButton.cursor = .pointingHand
         optionsButton.cursor = .pointingHand
-        callButton.cursor = .pointingHand
         
         addShadow(
             location: VerticalLocation.bottom,
@@ -418,10 +415,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             messageBoostView.configureWith(boosts: boosts, and: bubble, isThreadHeader: true)
             messageBoostViewContainer.isHidden = false
         }
-    }
-    
-    @IBAction func callButtonClicked(_ sender: Any) {
-        delegate?.shouldStartCallInThread()
     }
     
     @IBAction func optionsButtonClicked(_ sender: Any) {

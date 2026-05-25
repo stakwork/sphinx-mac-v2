@@ -13,6 +13,8 @@
                 <outlet property="closeButton" destination="4M3-5v-ixa" id="FRu-34-bKe"/>
                 <outlet property="contentView" destination="R65-74-UBK" id="WW5-OF-dbC"/>
                 <outlet property="headerTitle" destination="9oG-zA-O3y" id="8yz-Gb-JAW"/>
+                <outlet property="callButton" destination="DDH-CB-btn" id="DDH-CB-out"/>
+                <outlet property="callContainer" destination="DDH-CB-box" id="DDH-CB-oub"/>
                 <outlet property="openNWButton" destination="k9V-l1-wd5" id="YWg-yf-iSj"/>
                 <outlet property="openNWContainer" destination="PI2-WS-Z2R" id="byc-lJ-nt8"/>
             </connections>
@@ -116,6 +118,38 @@
                                     <constraint firstAttribute="height" constant="28" id="vp7-yz-3LN"/>
                                 </constraints>
                             </box>
+                            <box hidden="YES" borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-box">
+                                <rect key="frame" x="361" y="30" width="34" height="34"/>
+                                <view key="contentView" id="DDH-CB-cnt">
+                                    <rect key="frame" x="4" y="5" width="26" height="26"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button translatesAutoresizingMaskIntoConstraints="NO" id="DDH-CB-btn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="26" height="26"/>
+                                            <buttonCell key="cell" type="square" title="" bezelStyle="shadowlessSquare" alignment="center" inset="2" id="DDH-CB-cel">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" size="20" name="MaterialIcons-Regular"/>
+                                            </buttonCell>
+                                            <color key="contentTintColor" name="SecondaryText"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="26" id="DDH-CB-cw"/>
+                                                <constraint firstAttribute="height" constant="26" id="DDH-CB-ch"/>
+                                            </constraints>
+                                            <connections>
+                                                <action selector="callButtonTapped:" target="-2" id="DDH-CB-act"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="DDH-CB-btn" firstAttribute="centerX" secondItem="DDH-CB-cnt" secondAttribute="centerX" id="DDH-CB-cx"/>
+                                        <constraint firstItem="DDH-CB-btn" firstAttribute="centerY" secondItem="DDH-CB-cnt" secondAttribute="centerY" id="DDH-CB-cy"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="28" id="DDH-CB-bw"/>
+                                    <constraint firstAttribute="height" constant="28" id="DDH-CB-bh"/>
+                                </constraints>
+                            </box>
                             <box hidden="YES" borderType="line" title="Box" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PI2-WS-Z2R">
                                 <rect key="frame" x="401" y="30" width="34" height="34"/>
                                 <view key="contentView" id="83o-Zr-GtH">
@@ -163,6 +197,8 @@
                         <constraints>
                             <constraint firstItem="JKs-qg-lLO" firstAttribute="leading" secondItem="PI2-WS-Z2R" secondAttribute="trailing" constant="12" id="4GN-O2-bgO"/>
                             <constraint firstItem="PI2-WS-Z2R" firstAttribute="centerY" secondItem="JKs-qg-lLO" secondAttribute="centerY" id="7x5-G6-wPM"/>
+                            <constraint firstItem="PI2-WS-Z2R" firstAttribute="leading" secondItem="DDH-CB-box" secondAttribute="trailing" constant="12" id="DDH-CB-con"/>
+                            <constraint firstItem="DDH-CB-box" firstAttribute="centerY" secondItem="JKs-qg-lLO" secondAttribute="centerY" id="DDH-CB-coy"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="leading" secondItem="GGz-Dy-M3p" secondAttribute="leading" constant="20" id="Pe5-8R-Sev"/>
                             <constraint firstItem="JKs-qg-lLO" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="QY3-2B-Xgg"/>
                             <constraint firstItem="FhQ-xK-Ti1" firstAttribute="centerY" secondItem="GGz-Dy-M3p" secondAttribute="centerY" id="Tf3-0n-Xha"/>
