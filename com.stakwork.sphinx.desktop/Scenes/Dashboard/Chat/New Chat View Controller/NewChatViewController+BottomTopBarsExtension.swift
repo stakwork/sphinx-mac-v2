@@ -554,6 +554,9 @@ extension NewChatViewController : ActionsDelegate {
     }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {
+        chatBottomView.resetReplyView()
+        ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
+
         let swarmName = VideoCallHelper.extractSwarmName(from: chat?.getAppUrl() ?? "")
             ?? VideoCallHelper.extractSwarmName(from: chat?.getSecondBrainUrl() ?? "")
 
