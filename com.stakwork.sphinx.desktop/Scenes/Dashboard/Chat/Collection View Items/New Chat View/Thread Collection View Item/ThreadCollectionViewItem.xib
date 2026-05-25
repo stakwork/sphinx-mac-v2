@@ -231,6 +231,12 @@
                                                 <constraint firstAttribute="height" priority="750" constant="41" id="Knq-d2-fGa"/>
                                             </constraints>
                                         </customView>
+                                        <customView translatesAutoresizingMaskIntoConstraints="NO" hidden="YES" id="aBc-De-FgH" customClass="JoinVideoCallView" customModule="Sphinx" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="400" height="206"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" priority="750" constant="206" id="iJk-Lm-NoP"/>
+                                            </constraints>
+                                        </customView>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="LIg-v5-fUP" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="5bM-QT-pRW"/>
@@ -238,6 +244,8 @@
                                         <constraint firstAttribute="trailing" secondItem="UdL-Mg-uQw" secondAttribute="trailing" id="BfA-j1-QEl"/>
                                         <constraint firstAttribute="trailing" secondItem="cx7-Ub-j6B" secondAttribute="trailing" id="E3q-3R-Zap"/>
                                         <constraint firstAttribute="trailing" secondItem="LIg-v5-fUP" secondAttribute="trailing" id="FQP-GM-iNt"/>
+                                        <constraint firstAttribute="trailing" secondItem="aBc-De-FgH" secondAttribute="trailing" id="qRs-Tu-VwX"/>
+                                        <constraint firstItem="aBc-De-FgH" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="yZa-Bc-DeF"/>
                                         <constraint firstItem="3st-ai-IfQ" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="FmK-KB-YeN"/>
                                         <constraint firstItem="jgc-0k-iDb" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="IRF-EO-sqM"/>
                                         <constraint firstItem="cx7-Ub-j6B" firstAttribute="leading" secondItem="PqZ-pq-8i0" secondAttribute="leading" id="Mcn-FY-4jG"/>
@@ -270,8 +278,10 @@
                                         <integer value="1000"/>
                                         <integer value="1000"/>
                                         <integer value="1000"/>
+                                        <integer value="1000"/>
                                     </visibilityPriorities>
                                     <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
                                         <real value="3.4028234663852886e+38"/>
@@ -365,6 +375,7 @@
                 <outlet property="chatAvatarView" destination="0w7-Od-NJs" id="FFc-mj-PxM"/>
                 <outlet property="fileDetailsView" destination="RIJ-Mw-fdZ" id="ukc-bz-iaC"/>
                 <outlet property="labelHeightConstraint" destination="hJB-h5-cNj" id="Uqm-IU-mJP"/>
+                <outlet property="lastReplyCallLinkView" destination="aBc-De-FgH" id="gHi-Jk-LmN"/>
                 <outlet property="lastReplyAudioMessageView" destination="UdL-Mg-uQw" id="jX1-Lb-h7v"/>
                 <outlet property="lastReplyFileDetailsView" destination="Gm0-An-OhM" id="QoC-lK-Ilb"/>
                 <outlet property="lastReplyLabelHeightConstraint" destination="Osu-wL-52V" id="LfI-3H-6Bt"/>

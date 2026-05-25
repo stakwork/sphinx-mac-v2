@@ -519,4 +519,23 @@ extension ThreadCollectionViewItem {
             lastReplyMessageBoostView.isHidden = false
         }
     }
+
+    func configureLastReplyWith(
+        callLink: BubbleMessageLayoutState.CallLink?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil
+    ) {
+        if let callLink = callLink {
+            lastReplyCallLinkView.configureWith(callLink: callLink, and: self)
+            lastReplyCallLinkView.configureWith(participantsData: participantsData)
+            lastReplyCallLinkView.isHidden = false
+
+            if let messageId = messageId, let rowIndex = rowIndex {
+                let urlString = callLink.link
+                if let url = URL(string: urlString),
+                   let roomName = url.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last {
+                    delegate?.shouldLoadCallParticipantsFor(messageId: messageId, roomName: roomName, and: rowIndex)
+                }
+            }
+        }
+    }
 }
