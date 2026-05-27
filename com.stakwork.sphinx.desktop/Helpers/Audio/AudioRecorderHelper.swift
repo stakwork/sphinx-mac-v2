@@ -39,6 +39,19 @@ class AudioRecorderHelper : NSObject, @unchecked Sendable {
         self.delegate = delegate
     }
     
+    static func requestMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async { completion(granted) }
+            }
+        default:
+            completion(false)
+        }
+    }
+    
     func requestAudioRecordingPermission(completion: @escaping @Sendable () -> ()) {
         if #available(OSX 10.14, *) {
             let audioPermission = AVCaptureDevice.authorizationStatus(for: .audio)

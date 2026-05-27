@@ -192,14 +192,48 @@ struct CallControlView: View {
         let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
         
         Button {
-            Task {
-                if AVCaptureDevice.default(for: .audio) != nil {
+            let status = AVCaptureDevice.authorizationStatus(for: .audio)
+            switch status {
+            case .denied, .restricted:
+                Task { @MainActor in
+                    AlertHelper.showTwoOptionsAlert(
+                        title: "Microphone Access Required",
+                        message: "Please enable microphone access in System Settings → Privacy & Security → Microphone.",
+                        confirm: {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+                        },
+                        confirmLabel: "Open Settings"
+                    )
+                }
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    guard granted else { return }
+                    Task { @MainActor in
+                        isMicrophonePublishingBusy = true
+                        defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                        do {
+                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                        } catch {
+                            AlertHelper.showAlert(
+                                title: "Microphone Error",
+                                message: error.localizedDescription
+                            )
+                        }
+                    }
+                }
+            default:
+                Task {
                     isMicrophonePublishingBusy = true
                     defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
                     do {
                         try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
                     } catch {
-                        print("CallControlView: failed to toggle microphone: \(error)")
+                        await MainActor.run {
+                            AlertHelper.showAlert(
+                                title: "Microphone Error",
+                                message: error.localizedDescription
+                            )
+                        }
                     }
                 }
             }
