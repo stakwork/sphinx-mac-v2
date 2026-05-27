@@ -204,10 +204,8 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
             e2eeKey = entry.e2eeKey
         }
         
-        let hasMicrophone = AVCaptureDevice.default(for: .audio) != nil
-
         let connectOptions = ConnectOptions(
-            autoSubscribe: autoSubscribe && hasMicrophone
+            autoSubscribe: autoSubscribe
         )
 
         var e2eeOptions: E2EEOptions? = nil

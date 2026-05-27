@@ -168,12 +168,31 @@ struct RoomContextView: View {
     }
     
     func enableMic() {
-        Task {
-            guard AVCaptureDevice.default(for: .audio) != nil else { return }
-            do {
-                try await roomCtx.room.localParticipant.setMicrophone(enabled: true)
-            } catch {
-                print("Failed to enable microphone: \(error)")
+        AudioRecorderHelper.requestMicrophonePermission { granted in
+            if granted {
+                Task {
+                    do {
+                        try await self.roomCtx.room.localParticipant.setMicrophone(enabled: true)
+                    } catch {
+                        await MainActor.run {
+                            AlertHelper.showAlert(
+                                title: "error.getting.token.title".localized,
+                                message: error.localizedDescription
+                            )
+                        }
+                    }
+                }
+            } else {
+                Task { @MainActor in
+                    AlertHelper.showTwoOptionsAlert(
+                        title: "Microphone Access Required",
+                        message: "Please enable microphone access in System Settings → Privacy & Security → Microphone.",
+                        confirm: {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+                        },
+                        confirmLabel: "Open Settings"
+                    )
+                }
             }
         }
     }
