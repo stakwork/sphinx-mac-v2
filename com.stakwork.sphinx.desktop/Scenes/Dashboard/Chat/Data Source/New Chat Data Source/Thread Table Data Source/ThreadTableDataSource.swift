@@ -20,6 +20,11 @@ class ThreadTableDataSource : NewChatTableDataSource {
         }
     }
     
+    override var allItemsLoaded: Bool {
+        get { return true }
+        set { }
+    }
+    
     init(
         chat: Chat?,
         contact: UserContact?,
