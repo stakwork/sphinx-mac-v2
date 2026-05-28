@@ -125,11 +125,24 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                 let itemsPerPage = 100
 
                 backgroundContext.performSafely {
-                    guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else { return }
+                    guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.loadingMoreItems = false
+                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                        }
+                        return
+                    }
                     let minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
 
                     if let minIndex = minIndex {
                         if (minIndex - 1) <= 0 {
+                            Task { @MainActor [weak self] in
+                                guard let self else { return }
+                                self.allItemsLoaded = true
+                                self.loadingMoreItems = false
+                                self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                            }
                             return
                         }
                         DispatchQueue.global(qos: .background).async {
@@ -157,6 +170,13 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                     }
                                 }
                             }
+                        }
+                    } else {
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.allItemsLoaded = true
+                            self.loadingMoreItems = false
+                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
                         }
                     }
                 }

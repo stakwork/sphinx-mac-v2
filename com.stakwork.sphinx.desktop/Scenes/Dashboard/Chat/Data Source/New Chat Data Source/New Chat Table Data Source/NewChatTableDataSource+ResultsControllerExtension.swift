@@ -368,7 +368,7 @@ extension NewChatTableDataSource {
         processMessages(
             messages: messagesArray,
             UIUpdateIndex: self.UIUpdateIndex,
-            showLoadingMore: false
+            showLoadingMore: !allItemsLoaded
         )
     }
     
@@ -868,7 +868,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                        showLoadingMore: !self.allItemsLoaded
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -884,7 +884,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                    showLoadingMore: !self.allItemsLoaded
                 )
             }
             
