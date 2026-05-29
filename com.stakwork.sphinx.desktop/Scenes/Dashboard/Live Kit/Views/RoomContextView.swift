@@ -91,12 +91,12 @@ struct RoomContextView: View {
             .foregroundColor(Color.white)
             .onDisappear {
                 print("\(String(describing: type(of: self))) onDisappear")
-                AudioManager.shared.onDeviceUpdate = nil
                 Task {
                     await roomCtx.disconnect()
                 }
             }
             .onAppear() {
+                appCtx.syncWithSystemAudioDefaults()
                 Task {
                     if !roomCtx.token.isEmpty {
                         do {

@@ -121,6 +121,15 @@ final class AppContext: ObservableObject {
         AudioManager.shared.onDeviceUpdate = nil
     }
     
+    func syncWithSystemAudioDefaults() {
+        let systemOutput = AudioManager.shared.defaultOutputDevice
+        let systemInput = AudioManager.shared.defaultInputDevice
+        print("AudioDevice sync — output: \(systemOutput.name), input: \(systemInput.name)")
+        outputDevice = systemOutput
+        inputDevice = systemInput
+        reloadAudioDevices()
+    }
+
     func reloadAudioDevices() {
         //Audio Output device
         var defaultOutputDevice = outputDevice
