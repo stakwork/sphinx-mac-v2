@@ -36,6 +36,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var stashedInviteCode: String? = nil
     var stashedInviterAlias: String? = nil
     
+    static let kMqttKeepAlive: UInt16 = 15
+    static let kConnectionTimeoutInterval: TimeInterval = 15.0
+    
     var reconnectionTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
     var paymentTimeoutTimers: [String: Timer] = [:]
@@ -343,7 +346,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             
             mqtt.username = now
             mqtt.password = sig
-            mqtt.keepAlive = 30
+            mqtt.keepAlive = SphinxOnionManager.kMqttKeepAlive
 
             if isProductionEnv {
                 mqtt.enableSSL = true
@@ -374,6 +377,21 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         }
         mqttDisconnectCallback = callback
         mqtt?.disconnect()
+    }
+    
+    func prepareForForeground(disconnectCallback: @escaping (() -> ())) {
+        print("[Lifecycle] prepareForForeground")
+        connectionInProgress = false
+        isConnected = false
+        if let existing = self.mqtt {
+            self.mqtt = nil
+            existing.didDisconnect = { _, _ in }
+            existing.didConnectAck = { _, _ in }
+            existing.disconnect() // fire-and-forget
+            disconnectCallback()  // don't wait
+        } else {
+            disconnectCallback()
+        }
     }
     
     func isFetchingContent() -> Bool {
@@ -465,9 +483,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.connectionTimeoutTimer?.invalidate()
-            self.connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
+            self.connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: SphinxOnionManager.kConnectionTimeoutInterval, repeats: false) { [weak self] _ in
                 guard let self = self, self.connectionInProgress else { return }
-                print("[MQTT] Connection timed out after 30s — force-closing and retrying")
+                print("[MQTT] Connection timed out after \(Int(SphinxOnionManager.kConnectionTimeoutInterval))s — force-closing and retrying")
                 self.connectionInProgress = false
                 let dead = self.mqtt
                 self.mqtt = nil
