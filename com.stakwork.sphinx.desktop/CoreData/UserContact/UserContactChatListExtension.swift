@@ -77,13 +77,7 @@ extension UserContact : ChatListCommonObject {
     }
     
     public func getOrderDate() -> Date? {
-        var date: Date? = lastMessage?.date ?? createdAt
-        
-        if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: getChat()?.id, threadUUID: nil) {
-            if draftDate > (date ?? .distantPast) { date = draftDate }
-        }
-        
-        return date ?? Date()
+        return lastMessage?.date ?? createdAt ?? Date()
     }
     
     public func getName() -> String {

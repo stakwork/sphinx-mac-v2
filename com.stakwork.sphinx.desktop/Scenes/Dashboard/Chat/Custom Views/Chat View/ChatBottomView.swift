@@ -40,8 +40,6 @@ import Cocoa
     func shouldMainChatOngoingMessage()
     func isMessageLengthValid(text: String) -> Bool
     
-    ///Draft
-    func shouldUpdateDraftFor(chatId: Int?)
 }
 
 class ChatBottomView: NSView, LoadableNib {

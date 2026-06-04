@@ -262,6 +262,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
         
+        let hadDraft = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
+        
         if let text = giphyText(text: text), let data = draggingView.getMediaData() {
             
             draggingView.setup()
@@ -303,15 +305,14 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 }
             )
         }
+        
+        if hadDraft, let chatId = chat?.id {
+            delegate?.shouldReloadChatRowWith(chatId: chatId)
+        }
     }
     
     func shouldMainChatOngoingMessage() {
         chatVCDelegate?.shouldResetOngoingMessage()
-    }
-    
-    func shouldUpdateDraftFor(chatId: Int?) {
-        guard let chatId = chatId else { return }
-        self.chatVCDelegate?.shouldReloadChatRowWith(chatId: chatId)
     }
     
     func giphyText(
