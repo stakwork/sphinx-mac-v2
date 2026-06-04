@@ -93,20 +93,15 @@ class NewChatListViewController: NSViewController {
             }
             
             var snapshot = dataSource.snapshot()
-            var itemIdentifiers: [DataSourceItem] = []
             
-            let indexes = self.chatListObjects.indices.filter {
-                if let chatId = self.chatListObjects[$0].getChat()?.id {
-                    return chatIds.contains( chatId )
-                }
-                return false
-            }
+            let objectIds = Set(self.chatListObjects.compactMap { obj -> String? in
+                guard let chatId = obj.getChat()?.id, chatIds.contains(chatId) else { return nil }
+                return obj.getObjectId()
+            })
             
-            for index in indexes {
-                if index < snapshot.itemIdentifiers.count {
-                    itemIdentifiers.append(snapshot.itemIdentifiers[index])
-                }
-            }
+            let itemIdentifiers = snapshot.itemIdentifiers.filter { objectIds.contains($0.objectId) }
+            
+            guard !itemIdentifiers.isEmpty else { return }
             
             snapshot.reloadItems(itemIdentifiers)
             
