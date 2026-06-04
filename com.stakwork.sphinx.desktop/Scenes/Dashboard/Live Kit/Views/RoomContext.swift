@@ -348,7 +348,9 @@ extension RoomContext: RoomDelegate {
             onCallEnded?()
         }
         
-        if case .connected = connectionState {
+        if case .connected = connectionState, case .reconnecting = oldValue {
+            // skip onConnected on reconnect — mic is already published
+        } else if case .connected = connectionState {
             onConnected?()
         }
     }
