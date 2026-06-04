@@ -379,21 +379,6 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         mqtt?.disconnect()
     }
     
-    func prepareForForeground(disconnectCallback: @escaping (() -> ())) {
-        print("[Lifecycle] prepareForForeground")
-        connectionInProgress = false
-        isConnected = false
-        if let existing = self.mqtt {
-            self.mqtt = nil
-            existing.didDisconnect = { _, _ in }
-            existing.didConnectAck = { _, _ in }
-            existing.disconnect() // fire-and-forget
-            disconnectCallback()  // don't wait
-        } else {
-            disconnectCallback()
-        }
-    }
-    
     func isFetchingContent() -> Bool {
         return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }

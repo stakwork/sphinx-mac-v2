@@ -430,9 +430,7 @@ import WebKit
             
             Chat.processTimezoneChanges()
             
-            SphinxOnionManager.sharedInstance.prepareForForeground {
-                self.getDashboardVC()?.reconnectToServer()
-            }
+            getDashboardVC()?.reconnectToServer()
             
             feedsManager.fetchFeedItemsInBackground()
             
