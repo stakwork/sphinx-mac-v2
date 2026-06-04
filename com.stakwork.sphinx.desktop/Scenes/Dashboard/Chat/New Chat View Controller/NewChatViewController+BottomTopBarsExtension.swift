@@ -309,6 +309,11 @@ extension NewChatViewController : ChatBottomViewDelegate {
         chatVCDelegate?.shouldResetOngoingMessage()
     }
     
+    func shouldUpdateDraftFor(chatId: Int?) {
+        guard let chatId = chatId else { return }
+        self.chatVCDelegate?.shouldReloadChatRowWith(chatId: chatId)
+    }
+    
     func giphyText(
         text: String
     ) -> String? {

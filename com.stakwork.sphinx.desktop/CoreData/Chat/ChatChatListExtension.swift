@@ -63,6 +63,10 @@ extension Chat : ChatListCommonObject {
             date = webAppLastDate
         }
         
+        if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: self.id, threadUUID: nil) {
+            if draftDate > (date ?? .distantPast) { date = draftDate }
+        }
+        
         return date ?? createdAt ?? Date()
     }
     

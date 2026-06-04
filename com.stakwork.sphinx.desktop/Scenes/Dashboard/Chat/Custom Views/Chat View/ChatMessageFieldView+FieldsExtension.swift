@@ -91,6 +91,8 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                 chatId: self.chat?.id,
                 threadUUID: self.threadUUID
             )
+            
+            delegate?.shouldUpdateDraftFor(chatId: self.chat?.id)
 
             self.processMention(
                 text: string,
