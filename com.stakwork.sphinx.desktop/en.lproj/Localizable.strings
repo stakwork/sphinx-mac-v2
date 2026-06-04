@@ -407,6 +407,8 @@
 "call" = "Call";
 "error.getting.token.title" = "Error getting token";
 "error.getting.token.description" = "There was an error getting a token to join the call. Please try again later";
+"error.enabling.microphone.title" = "Error enabling microphone";
+"error.joining.call.title" = "Error joining call";
 "users" = "users";
 "optional.message.placeholder" = "Optional Message...";
 "price.required" = "Price is required";

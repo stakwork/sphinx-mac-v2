@@ -100,21 +100,19 @@ struct RoomContextView: View {
                 Task {
                     if !roomCtx.token.isEmpty {
                         do {
-                            let room = try await roomCtx.connect(onConnected: {
-                                self.enableMic()
-                                
-                                if !self.audioOnly {
-                                    self.enableCamera()
-                                }
-                            }, onCallEnded: {
+                            let room = try await roomCtx.connect(onCallEnded: {
                                 self.onCallEnded?()
                             })
                             appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                            self.enableMic()
+                            if !self.audioOnly {
+                                self.enableCamera()
+                            }
                         } catch {
                             print("LiveKit connect failed: \(error)")
                             Task { @MainActor in
                                 AlertHelper.showAlert(
-                                    title: "error.getting.token.title".localized,
+                                    title: "error.joining.call.title".localized,
                                     message: "Failed to connect to room"
                                 )
                             }
@@ -157,7 +155,7 @@ struct RoomContextView: View {
                         } catch {
                             print("LiveKit connect failed: \(error)")
                             AlertHelper.showAlert(
-                                title: "error.getting.token.title".localized,
+                                title: "error.joining.call.title".localized,
                                 message: "Failed to connect to room"
                             )
                             self.onCallEnded?()
@@ -176,8 +174,8 @@ struct RoomContextView: View {
                     } catch {
                         await MainActor.run {
                             AlertHelper.showAlert(
-                                title: "error.getting.token.title".localized,
-                                message: error.localizedDescription
+                                title: "error.enabling.microphone.title".localized,
+                                message: "\(error.localizedDescription). You can try enabling it using the microphone button."
                             )
                         }
                     }

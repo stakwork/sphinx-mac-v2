@@ -430,6 +430,8 @@
 "call" = "電話";
 "error.getting.token.title" = "トークンの取得中にエラーが発生しました";
 "error.getting.token.description" = "通話に参加するためのトークンの取得中にエラーが発生しました。しばらくしてからもう一度お試しください。";
+"error.enabling.microphone.title" = "マイクの有効化中にエラーが発生しました";
+"error.joining.call.title" = "通話への参加中にエラーが発生しました";
 "contact.connected.since" = "%@から接続";
 "timezone.changed" = "このチャットのタイムゾーン設定は、\nこのデバイスのみに保存されます。\n他のデバイスでアプリを使用する場合は、\nタイムゾーンを再設定する必要があります。";
 "message.limit.reached" = "文字数の上限に達しました。\nメッセージを編集または送信してください。";
