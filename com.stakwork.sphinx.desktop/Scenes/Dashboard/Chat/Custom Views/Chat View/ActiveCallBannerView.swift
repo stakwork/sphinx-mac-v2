@@ -2,7 +2,7 @@
 //  ActiveCallBannerView.swift
 //  Sphinx
 //
-//  Created for live call banner in tribe chat header.
+//  Persistent live-call strip shown below the tribe chat header.
 //
 
 import Cocoa
@@ -69,13 +69,39 @@ class ActiveCallBannerView: NSView {
         return sv
     }()
     
-    private lazy var joinButton: NSButton = {
-        let btn = NSButton(title: "Join", target: self, action: #selector(joinButtonTapped))
+    // Styled to match app's AUDIO/VIDEO call buttons: blue background, white text, corner radius 8
+    private let joinButtonBG: NSView = {
+        let v = NSView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.wantsLayer = true
+        v.layer?.cornerRadius = 8
+        v.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
+        return v
+    }()
+    
+    private let joinButtonLabel: NSTextField = {
+        let label = NSTextField(labelWithString: "Join")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = NSFont(name: "Montserrat-Regular", size: 12) ?? NSFont.systemFont(ofSize: 12)
+        label.textColor = .white
+        label.isEditable = false
+        label.isSelectable = false
+        label.isBordered = false
+        label.drawsBackground = false
+        label.alignment = .center
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        return label
+    }()
+    
+    // Transparent button layered over joinButtonBG to receive clicks
+    private lazy var joinClickTarget: NSButton = {
+        let btn = NSButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.bezelStyle = .rounded
-        btn.font = NSFont.systemFont(ofSize: 12, weight: .medium)
-        btn.setContentHuggingPriority(.required, for: .horizontal)
-        btn.setContentCompressionResistancePriority(.required, for: .horizontal)
+        btn.isBordered = false
+        btn.title = ""
+        btn.alphaValue = 0.01 // nearly invisible but hittable
+        btn.target = self
+        btn.action = #selector(joinButtonTapped)
         return btn
     }()
     
@@ -106,39 +132,53 @@ class ActiveCallBannerView: NSView {
         wantsLayer = true
         layer?.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
         
-        // Scroll view document view
         participantsScrollView.documentView = participantsStackView
         
+        joinButtonBG.addSubview(joinButtonLabel)
+        joinButtonBG.addSubview(joinClickTarget)
+        
+        addSubview(separatorLine)
         addSubview(pulseCircleView)
         addSubview(liveLabel)
         addSubview(participantsScrollView)
-        addSubview(joinButton)
-        addSubview(separatorLine)
+        addSubview(joinButtonBG)
         
         NSLayoutConstraint.activate([
-            // Separator at bottom
+            // Bottom separator
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorLine.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorLine.heightAnchor.constraint(equalToConstant: 1),
             
-            // Pulsing red circle – left side
+            // Pulsing dot – left side
             pulseCircleView.widthAnchor.constraint(equalToConstant: 10),
             pulseCircleView.heightAnchor.constraint(equalToConstant: 10),
-            pulseCircleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            pulseCircleView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
             pulseCircleView.centerYAnchor.constraint(equalTo: centerYAnchor),
             
-            // "Live Call" label right of circle
+            // "Live Call" label
             liveLabel.leadingAnchor.constraint(equalTo: pulseCircleView.trailingAnchor, constant: 6),
             liveLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             
-            // Join / Open button – right side
-            joinButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
-            joinButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            // Blue button background – right side, 70 × 32
+            joinButtonBG.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14),
+            joinButtonBG.centerYAnchor.constraint(equalTo: centerYAnchor),
+            joinButtonBG.widthAnchor.constraint(equalToConstant: 70),
+            joinButtonBG.heightAnchor.constraint(equalToConstant: 32),
             
-            // Participants scroll view fills the middle
+            // Label centred inside blue bg
+            joinButtonLabel.centerXAnchor.constraint(equalTo: joinButtonBG.centerXAnchor),
+            joinButtonLabel.centerYAnchor.constraint(equalTo: joinButtonBG.centerYAnchor),
+            
+            // Click target fills blue bg
+            joinClickTarget.leadingAnchor.constraint(equalTo: joinButtonBG.leadingAnchor),
+            joinClickTarget.trailingAnchor.constraint(equalTo: joinButtonBG.trailingAnchor),
+            joinClickTarget.topAnchor.constraint(equalTo: joinButtonBG.topAnchor),
+            joinClickTarget.bottomAnchor.constraint(equalTo: joinButtonBG.bottomAnchor),
+            
+            // Participants scroll – fills space between label and button
             participantsScrollView.leadingAnchor.constraint(equalTo: liveLabel.trailingAnchor, constant: 10),
-            participantsScrollView.trailingAnchor.constraint(equalTo: joinButton.leadingAnchor, constant: -10),
+            participantsScrollView.trailingAnchor.constraint(equalTo: joinButtonBG.leadingAnchor, constant: -10),
             participantsScrollView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             participantsScrollView.bottomAnchor.constraint(equalTo: separatorLine.topAnchor, constant: -8),
             
@@ -149,6 +189,13 @@ class ActiveCallBannerView: NSView {
         ])
         
         startPulseAnimation()
+    }
+    
+    override func layout() {
+        super.layout()
+        // Re-apply layer colors after first layout pass (needed for named colors)
+        joinButtonBG.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
+        layer?.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
     }
     
     // MARK: - Pulse animation
@@ -176,9 +223,8 @@ class ActiveCallBannerView: NSView {
         self.isAlreadyInCall = isAlreadyInCall
         self.delegate = delegate
         
-        joinButton.title = isAlreadyInCall ? "Open" : "Join"
+        joinButtonLabel.stringValue = isAlreadyInCall ? "Open" : "Join"
         
-        // Rebuild participant boxes
         for view in participantsStackView.arrangedSubviews {
             participantsStackView.removeArrangedSubview(view)
             view.removeFromSuperview()
@@ -203,11 +249,12 @@ class ActiveCallBannerView: NSView {
         }
     }
     
-    // MARK: - Appearance update
+    // MARK: - Appearance
     
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         layer?.backgroundColor = NSColor.Sphinx.ReceivedMsgBG.cgColor
         separatorLine.layer?.backgroundColor = NSColor.separatorColor.cgColor
+        joinButtonBG.layer?.backgroundColor = NSColor.Sphinx.PrimaryBlue.cgColor
     }
 }
