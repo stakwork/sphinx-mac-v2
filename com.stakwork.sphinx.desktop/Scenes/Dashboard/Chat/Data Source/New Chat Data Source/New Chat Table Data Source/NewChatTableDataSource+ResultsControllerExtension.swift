@@ -861,10 +861,6 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
                     self.processTimezoneNotSentRecently()
                     
-                    if !self.allItemsLoaded && messages.count < self.messagesCount {
-                        self.allItemsLoaded = true
-                    }
-                    
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
@@ -872,7 +868,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: !self.allItemsLoaded
+                        showLoadingMore: self.loadingMoreItems && !self.allItemsLoaded
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -888,7 +884,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: !self.allItemsLoaded
+                    showLoadingMore: self.loadingMoreItems && !self.allItemsLoaded
                 )
             }
             
