@@ -84,7 +84,13 @@ extension NewChatTableDataSource {
                     self.scrolledAtBottom = true
                     self.delegate?.didScrollToBottom()
                 }
+                
+                let wasFirstLoad = self.isFirstLoad
                 self.isFirstLoad = false
+                
+                if wasFirstLoad && self.collectionViewScroll.documentYOffset <= 40 && !self.allItemsLoaded {
+                    self.didScrollToTop()
+                }
                 
                 DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
                     self.loadingMoreItems = false
@@ -868,7 +874,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: self.loadingMoreItems && !self.allItemsLoaded
+                        showLoadingMore: !self.allItemsLoaded
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -884,7 +890,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: self.loadingMoreItems && !self.allItemsLoaded
+                    showLoadingMore: !self.allItemsLoaded
                 )
             }
             
