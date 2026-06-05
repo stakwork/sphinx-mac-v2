@@ -840,6 +840,21 @@ extension TransactionMessage {
         }
     }
     
+    static func getMostRecentCallMessage(
+        for chatId: Int,
+        context: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    ) -> TransactionMessage? {
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        fetchRequest.predicate = NSPredicate(
+            format: "chat.id == %d AND type == %d",
+            chatId,
+            TransactionMessage.TransactionMessageType.call.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = 1
+        return try? context.fetch(fetchRequest).first
+    }
+    
     static func getTimezonesByAlias(
         for senderAliases: [String],
         in chat: Chat,

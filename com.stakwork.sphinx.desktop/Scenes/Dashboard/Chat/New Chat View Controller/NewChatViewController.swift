@@ -91,6 +91,11 @@ class NewChatViewController: DashboardSplittedViewController {
     var cachedWebAppVC: WebAppViewController? = nil
     var cachedSecondBrainVC: WebAppViewController? = nil
     
+    // MARK: - Live call banner
+    var liveCallPollingTimer: Timer?
+    var liveCallRoomName: String?
+    var liveCallLink: String?
+    
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
     static func instantiate(
@@ -207,6 +212,8 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     deinit {
+        liveCallPollingTimer?.invalidate()
+        liveCallPollingTimer = nil
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: .onWebAppLinkTapped, object: nil)
@@ -317,6 +324,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func resetVC() {
+        stopLiveCallBannerPolling()
         stopPlayingClip()
         resetFetchedResultsControllers()
         
@@ -386,6 +394,7 @@ class NewChatViewController: DashboardSplittedViewController {
             )
             
             configurePinnedMessageView()
+            startLiveCallBannerPolling()
             
             chatTopView.isHidden = false
             threadHeaderView.isHidden = true

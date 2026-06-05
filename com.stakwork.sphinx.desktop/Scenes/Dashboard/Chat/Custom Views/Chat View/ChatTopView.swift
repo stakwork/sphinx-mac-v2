@@ -34,6 +34,14 @@ class ChatTopView: NSView, LoadableNib {
         setup()
     }
     
+    // MARK: - Active call banner
+    
+    let activeCallBannerView: ActiveCallBannerView = {
+        let v = ActiveCallBannerView()
+        v.isHidden = true
+        return v
+    }()
+    
     func setup() {
         if NSAppearance.current.name == .darkAqua {
             self.removeShadow()
@@ -45,6 +53,45 @@ class ChatTopView: NSView, LoadableNib {
                 radius: 5.0
             )
         }
+        
+        setupActiveCallBanner()
+    }
+    
+    private func setupActiveCallBanner() {
+        addSubview(activeCallBannerView)
+        
+        NSLayoutConstraint.activate([
+            activeCallBannerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            activeCallBannerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            activeCallBannerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            activeCallBannerView.heightAnchor.constraint(equalToConstant: ActiveCallBannerView.kHeight),
+        ])
+    }
+    
+    func updateActiveCallBanner(
+        participants: [BubbleMessageLayoutState.CallParticipantInfo],
+        callLink: String,
+        isAlreadyInCall: Bool,
+        delegate: ActiveCallBannerDelegate
+    ) {
+        activeCallBannerView.configureWith(
+            participants: participants,
+            callLink: callLink,
+            isAlreadyInCall: isAlreadyInCall,
+            delegate: delegate
+        )
+        guard activeCallBannerView.isHidden else { return }
+        activeCallBannerView.alphaValue = 0
+        activeCallBannerView.isHidden = false
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.25
+            activeCallBannerView.animator().alphaValue = 1
+        }
+    }
+    
+    func hideActiveCallBanner() {
+        activeCallBannerView.isHidden = true
+        activeCallBannerView.alphaValue = 1
     }
     
     func updateViewOnTribeFetch() {
