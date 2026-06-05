@@ -35,38 +35,13 @@ class ChatTopView: NSView, LoadableNib {
     }
     
     // MARK: - Active call banner
-    
+    // The banner view is owned here but installed into the VC's view hierarchy
+    // by NewChatViewController+LiveCallBanner (below chatTopView, not inside it).
     let activeCallBannerView: ActiveCallBannerView = {
         let v = ActiveCallBannerView()
         v.isHidden = true
         return v
     }()
-    
-    func setup() {
-        if NSAppearance.current.name == .darkAqua {
-            self.removeShadow()
-        } else {
-            self.addShadow(
-                location: VerticalLocation.bottom,
-                color: NSColor.black,
-                opacity: 0.1,
-                radius: 5.0
-            )
-        }
-        
-        setupActiveCallBanner()
-    }
-    
-    private func setupActiveCallBanner() {
-        addSubview(activeCallBannerView)
-        
-        NSLayoutConstraint.activate([
-            activeCallBannerView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            activeCallBannerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            activeCallBannerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            activeCallBannerView.heightAnchor.constraint(equalToConstant: ActiveCallBannerView.kHeight),
-        ])
-    }
     
     func updateActiveCallBanner(
         participants: [BubbleMessageLayoutState.CallParticipantInfo],
@@ -92,6 +67,21 @@ class ChatTopView: NSView, LoadableNib {
     func hideActiveCallBanner() {
         activeCallBannerView.isHidden = true
         activeCallBannerView.alphaValue = 1
+    }
+    
+    // MARK: - Setup
+
+    func setup() {
+        if NSAppearance.current.name == .darkAqua {
+            self.removeShadow()
+        } else {
+            self.addShadow(
+                location: VerticalLocation.bottom,
+                color: NSColor.black,
+                opacity: 0.1,
+                radius: 5.0
+            )
+        }
     }
     
     func updateViewOnTribeFetch() {

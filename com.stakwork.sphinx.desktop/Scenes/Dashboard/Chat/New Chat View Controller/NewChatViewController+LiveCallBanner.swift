@@ -3,19 +3,38 @@
 //  Sphinx
 //
 //  Polls for active LiveKit call participants and surfaces a persistent
-//  banner below the tribe chat header.
+//  banner directly below the tribe chat header (chatTopView).
 //
 
 import Cocoa
 
 extension NewChatViewController: ActiveCallBannerDelegate {
     
+    // MARK: - Banner installation
+    
+    // Installs the banner view into the VC's own view hierarchy, sitting directly
+    // below chatTopView. Called once from setupChatTopView().
+    func installActiveCallBannerIfNeeded() {
+        let banner = chatTopView.activeCallBannerView
+        guard banner.superview == nil else { return }
+        
+        view.addSubview(banner)
+        
+        NSLayoutConstraint.activate([
+            banner.leadingAnchor.constraint(equalTo: chatTopView.leadingAnchor),
+            banner.trailingAnchor.constraint(equalTo: chatTopView.trailingAnchor),
+            banner.topAnchor.constraint(equalTo: chatTopView.bottomAnchor),
+            banner.heightAnchor.constraint(equalToConstant: ActiveCallBannerView.kHeight),
+        ])
+    }
+    
     // MARK: - Polling lifecycle
     
     func startLiveCallBannerPolling() {
-        // Only for public-group (tribe) chats, never for threads
         guard chat?.isPublicGroup() == true, !isThread else { return }
         guard let chatId = chat?.id else { return }
+        
+        installActiveCallBannerIfNeeded()
         
         // Find the most recent call message and extract the actual call link URL.
         // messageContent is stored as "call::{json}" — parse via VoIPRequestMessage.
@@ -46,7 +65,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
         // Immediate first poll
         pollForActiveCall()
         
-        // Repeating 15-second timer on .common run loop mode (so it fires during scroll)
+        // Repeating 15-second timer on .common run loop mode (fires during scroll)
         let timer = Timer(timeInterval: 15, repeats: true) { [weak self] _ in
             self?.pollForActiveCall()
         }
@@ -65,7 +84,6 @@ extension NewChatViewController: ActiveCallBannerDelegate {
                     guard let self = self else { return }
                     if participants.isEmpty {
                         self.chatTopView.hideActiveCallBanner()
-                        // Call has ended – stop polling
                         self.liveCallPollingTimer?.invalidate()
                         self.liveCallPollingTimer = nil
                     } else {
@@ -86,7 +104,6 @@ extension NewChatViewController: ActiveCallBannerDelegate {
     func stopLiveCallBannerPolling() {
         liveCallPollingTimer?.invalidate()
         liveCallPollingTimer = nil
-        // chatTopView is an implicitly-unwrapped outlet; guard in case view is torn down
         if isViewLoaded {
             chatTopView?.hideActiveCallBanner()
         }
