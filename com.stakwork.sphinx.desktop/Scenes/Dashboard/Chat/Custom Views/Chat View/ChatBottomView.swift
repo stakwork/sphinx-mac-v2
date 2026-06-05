@@ -39,6 +39,7 @@ import Cocoa
     func shouldSendMessage(text: String, price: Int, completion: @escaping (Bool) -> ())
     func shouldMainChatOngoingMessage()
     func isMessageLengthValid(text: String) -> Bool
+    
 }
 
 class ChatBottomView: NSView, LoadableNib {

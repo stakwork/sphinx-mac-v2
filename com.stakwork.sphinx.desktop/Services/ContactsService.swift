@@ -412,12 +412,23 @@ extension ContactsService : @preconcurrency NSFetchedResultsControllerDelegate {
                 return $0.isPending() && !$1.isPending()
             }
 
-            if let contact1Date = contact1.getOrderDate() {
-                if let contact2Date = contact2.getOrderDate() {
+            func effectiveDate(for obj: ChatListCommonObject) -> Date? {
+                var date = obj.getOrderDate()
+                if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(
+                    chatId: obj.getChat()?.id,
+                    threadUUID: nil
+                ) {
+                    if draftDate > (date ?? .distantPast) { date = draftDate }
+                }
+                return date
+            }
+
+            if let contact1Date = effectiveDate(for: contact1) {
+                if let contact2Date = effectiveDate(for: contact2) {
                     return contact1Date > contact2Date
                 }
                 return true
-            } else if let _ = contact2.getOrderDate() {
+            } else if let _ = effectiveDate(for: contact2) {
                 return false
             }
 

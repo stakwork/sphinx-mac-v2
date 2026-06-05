@@ -322,6 +322,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         willNotifyOnlyMentions: Bool
     ) {
         scheduleIcon.isHidden = true
+        messageLabel.stringValue = ""
         
         if let invite = chatListObject.getInvite(), chatListObject.isPending() {
             
@@ -353,6 +354,33 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         } else {
             inviteIconLabel.isHidden = true
             failedMessageIcon.isHidden = true
+            
+            let chatId = chatListObject.getChat()?.id
+            if let draft = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chatId, threadUUID: nil),
+               !draft.isEmpty {
+                let attributed = NSMutableAttributedString()
+                let font = messageLabel.font ?? NSFont.systemFont(ofSize: 13)
+                attributed.append(NSAttributedString(
+                    string: "Draft: ",
+                    attributes: [.foregroundColor: NSColor.Sphinx.PrimaryGreen, .font: font]
+                ))
+                attributed.append(NSAttributedString(
+                    string: draft,
+                    attributes: [.foregroundColor: NSColor.Sphinx.SecondaryText, .font: font]
+                ))
+                messageLabel.attributedStringValue = attributed
+                messageLabel.superview?.isHidden = false
+                failedMessageIcon.isHidden = true
+                inviteIconLabel.isHidden = true
+
+                if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chatId, threadUUID: nil) {
+                    dateLabel.stringValue = draftDate.getLastMessageDateFormat()
+                    dateLabel.isHidden = false
+                } else {
+                    dateLabel.isHidden = true
+                }
+                return
+            }
             
             if let lastMessage = chatListObject.lastMessage {
                 

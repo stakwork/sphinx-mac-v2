@@ -20,6 +20,7 @@ class ChatTrackingHandler {
     
     var replyableMessages: [Int: Int] = [:]
     var ongoingMessages : [String: String] = [:]
+    var draftTimestamps: [String: Date] = [:]
     
     func deleteReplyableMessage(with chatId: Int?) {
         guard let chatId = chatId else { return }
@@ -53,6 +54,7 @@ class ChatTrackingHandler {
         guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
         
         ongoingMessages.removeValue(forKey: key)
+        draftTimestamps.removeValue(forKey: key)
     }
     
     func saveOngoingMessage(
@@ -63,6 +65,20 @@ class ChatTrackingHandler {
         guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
         
         ongoingMessages[key] = message
+        
+        if message.isEmpty {
+            draftTimestamps.removeValue(forKey: key)
+        } else {
+            draftTimestamps[key] = Date()
+        }
+    }
+    
+    func getDraftTimestampFor(
+        chatId: Int?,
+        threadUUID: String?
+    ) -> Date? {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return nil }
+        return draftTimestamps[key]
     }
     
     func getOngoingMessageFor(

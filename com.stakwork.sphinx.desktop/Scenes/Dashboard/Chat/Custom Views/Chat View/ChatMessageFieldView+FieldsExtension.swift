@@ -91,7 +91,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                 chatId: self.chat?.id,
                 threadUUID: self.threadUUID
             )
-
+            
             self.processMention(
                 text: string,
                 cursorPosition: cursorPosition

@@ -262,6 +262,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
         
+        let hadDraft = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
+        
         if let text = giphyText(text: text), let data = draggingView.getMediaData() {
             
             draggingView.setup()
@@ -302,6 +304,10 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     completion(success)
                 }
             )
+        }
+        
+        if hadDraft, let chatId = chat?.id {
+            delegate?.shouldReloadChatRowWith(chatId: chatId)
         }
     }
     

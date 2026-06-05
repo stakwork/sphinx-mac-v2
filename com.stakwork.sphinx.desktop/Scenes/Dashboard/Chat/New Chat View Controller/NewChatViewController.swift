@@ -55,6 +55,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var threadUUID: String? = nil
     var escapeMonitor: Any? = nil
+    var hadDraftOnEntry: Bool = false
     
     var isThread: Bool {
         get {
@@ -144,6 +145,7 @@ class NewChatViewController: DashboardSplittedViewController {
         configureCollectionView()
         setupChatTopView()
         setupChatData()
+        hadDraftOnEntry = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
         updateEmptyView()
         listenForNotifications()
         
@@ -234,7 +236,16 @@ class NewChatViewController: DashboardSplittedViewController {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.chat?.setChatMessagesAsSeen()
             })
-        }        
+        }
+        
+        if !isThread {
+            let hasDraftNow = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
+            if hasDraftNow || hadDraftOnEntry {
+                if let chatId = chat?.id {
+                    delegate?.shouldReloadChatRowWith(chatId: chatId)
+                }
+            }
+        }
     }
     
     override func viewDidDisappear() {
