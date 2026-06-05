@@ -71,6 +71,8 @@ class ParticipantBoxView: NSView {
         ])
         
         avatarImageView.wantsLayer = true
+        avatarImageView.rounded = true
+        avatarImageView.radius = 12
         avatarImageView.layer?.cornerRadius = 12
         avatarImageView.layer?.masksToBounds = true
         avatarImageView.layer?.borderWidth = 1
