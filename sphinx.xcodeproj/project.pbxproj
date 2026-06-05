@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0DB56AAF2B6285F000B7098E /* ChatTrackingHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB56AAE2B6285F000B7098E /* ChatTrackingHandler.swift */; };
 		1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82C242433501D81263FED4C2 /* Pods_Sphinx.framework */; };
+		26D0F440071247209F79D530 /* NewChatViewController+LiveCallBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */; };
 		4702BCF0248FE5C400EE9394 /* ShareInviteCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4702BCEF248FE5C400EE9394 /* ShareInviteCodeViewController.swift */; };
 		4702BCF2248FE6B700EE9394 /* NSImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4702BCF1248FE6B700EE9394 /* NSImage.swift */; };
 		470396E9253721D7007F9C23 /* API+PodcastExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470396E8253721D7007F9C23 /* API+PodcastExtension.swift */; };
@@ -712,6 +713,7 @@
 		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
 		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
+		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
 		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -732,8 +734,6 @@
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
-		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
-		26D0F440071247209F79D530 /* NewChatViewController+LiveCallBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -784,6 +784,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCallBannerView.swift; sourceTree = "<group>"; };
 		0DB56AAE2B6285F000B7098E /* ChatTrackingHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTrackingHandler.swift; sourceTree = "<group>"; };
 		1728D33343FCD0F3C86E770D /* Pods-Sphinx.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.release.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.release.xcconfig"; sourceTree = "<group>"; };
 		334B3AAE2B8147070003EA63 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/NewEpisodeAlertView.strings; sourceTree = "<group>"; };
@@ -1732,6 +1733,7 @@
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TimezoneSharingView.xib; sourceTree = "<group>"; };
 		77CFCEC22D80D370008B2BB7 /* TimezoneSharingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneSharingView.swift; sourceTree = "<group>"; };
+		7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+LiveCallBanner.swift"; sourceTree = "<group>"; };
 		82C242433501D81263FED4C2 /* Pods_Sphinx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sphinx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		931083BE2BE0271B00D03EC9 /* TribeMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeMembersViewController.swift; sourceTree = "<group>"; };
 		934082782BC8827700FD7E34 /* DashboardPresenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardPresenterViewController.swift; sourceTree = "<group>"; };
@@ -1810,8 +1812,6 @@
 		CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEmptyAvatarPlaceholderView.swift; sourceTree = "<group>"; };
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
-		0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCallBannerView.swift; sourceTree = "<group>"; };
-		7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+LiveCallBanner.swift"; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -5815,7 +5815,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 283;
+				CURRENT_PROJECT_VERSION = 284;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5852,7 +5852,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 283;
+				CURRENT_PROJECT_VERSION = 284;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
