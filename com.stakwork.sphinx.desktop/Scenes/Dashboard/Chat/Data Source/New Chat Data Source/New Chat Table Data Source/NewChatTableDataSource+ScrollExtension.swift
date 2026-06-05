@@ -95,6 +95,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         collectionViewScroll.verticalScrollElasticity = .none
         loadingMoreItems = true
+        processMessages(messages: messagesArray, UIUpdateIndex: UIUpdateIndex, showLoadingMore: true)
         
         DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             self.fetchMoreItems()
