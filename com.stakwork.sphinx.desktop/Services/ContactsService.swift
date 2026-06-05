@@ -414,10 +414,13 @@ extension ContactsService : @preconcurrency NSFetchedResultsControllerDelegate {
 
             func effectiveDate(for obj: ChatListCommonObject) -> Date? {
                 var date = obj.getOrderDate()
-                if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(
-                    chatId: obj.getChat()?.id,
-                    threadUUID: nil
-                ) {
+                let chatId = obj.getChat()?.id
+                if let draftDate = MainActor.assumeIsolated({
+                    ChatTrackingHandler.shared.getDraftTimestampFor(
+                        chatId: chatId,
+                        threadUUID: nil
+                    )
+                }) {
                     if draftDate > (date ?? .distantPast) { date = draftDate }
                 }
                 return date

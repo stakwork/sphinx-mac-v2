@@ -13,7 +13,7 @@ class ChatTrackingHandler {
     
     class var shared : ChatTrackingHandler {
         struct Static {
-            static let instance = ChatTrackingHandler()
+            nonisolated(unsafe) static let instance = ChatTrackingHandler()
         }
         return Static.instance
     }

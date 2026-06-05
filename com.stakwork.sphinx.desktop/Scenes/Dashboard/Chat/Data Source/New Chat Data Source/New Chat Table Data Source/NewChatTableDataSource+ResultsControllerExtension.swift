@@ -84,7 +84,13 @@ extension NewChatTableDataSource {
                     self.scrolledAtBottom = true
                     self.delegate?.didScrollToBottom()
                 }
+                
+                let wasFirstLoad = self.isFirstLoad
                 self.isFirstLoad = false
+                
+                if wasFirstLoad && self.collectionViewScroll.documentYOffset <= 40 && !self.allItemsLoaded {
+                    self.didScrollToTop()
+                }
                 
                 DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
                     self.loadingMoreItems = false
@@ -368,7 +374,7 @@ extension NewChatTableDataSource {
         processMessages(
             messages: messagesArray,
             UIUpdateIndex: self.UIUpdateIndex,
-            showLoadingMore: !allItemsLoaded
+            showLoadingMore: !allItemsLoaded && self.chat?.conversationContact?.isAgent != true
         )
     }
     
@@ -861,10 +867,6 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
                     self.processTimezoneNotSentRecently()
                     
-                    if !self.allItemsLoaded && messages.count < self.messagesCount {
-                        self.allItemsLoaded = true
-                    }
-                    
                     self.UIUpdateIndex += 1
                     
                     self.updateMessagesStatusesFrom(messages: self.messagesArray)
@@ -872,7 +874,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: !self.allItemsLoaded
+                        showLoadingMore: !self.allItemsLoaded && self.chat?.conversationContact?.isAgent != true
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -888,7 +890,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: !self.allItemsLoaded
+                    showLoadingMore: !self.allItemsLoaded && self.chat?.conversationContact?.isAgent != true
                 )
             }
             
