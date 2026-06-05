@@ -92,7 +92,7 @@ class NewChatViewController: DashboardSplittedViewController {
     var cachedSecondBrainVC: WebAppViewController? = nil
     
     // MARK: - Live call banner
-    var liveCallPollingTimer: Timer?
+    nonisolated(unsafe) var liveCallPollingTimer: Timer?
     var liveCallRoomName: String?
     var liveCallLink: String?
     
