@@ -732,6 +732,8 @@
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
+		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
+		26D0F440071247209F79D530 /* NewChatViewController+LiveCallBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1808,6 +1810,8 @@
 		CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEmptyAvatarPlaceholderView.swift; sourceTree = "<group>"; };
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
+		0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCallBannerView.swift; sourceTree = "<group>"; };
+		7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+LiveCallBanner.swift"; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2005,6 +2009,7 @@
 				4708C2142A58852000274AD4 /* ChatBottomView.xib */,
 				4708C2162A5885CB00274AD4 /* ChatTopView.swift */,
 				4708C2182A5885D200274AD4 /* ChatTopView.xib */,
+				0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */,
 				4708C21C2A58958C00274AD4 /* ChatMessageFieldView.swift */,
 				4708C21E2A58959900274AD4 /* ChatMessageFieldView.xib */,
 				47FEE1EE2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift */,
@@ -3924,6 +3929,7 @@
 				47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */,
 				479496752AB8CA7500C42D1E /* NewChatViewController+MessageMenuExtension.swift */,
 				47469D6A2ACEF53F004F0490 /* NewChatViewController+SearchMessagesExtension.swift */,
+				7E88DA89AA244D63BD344C4C /* NewChatViewController+LiveCallBanner.swift */,
 			);
 			path = "New Chat View Controller";
 			sourceTree = "<group>";
@@ -4636,6 +4642,7 @@
 				47FEE2042A66D3D700646C4E /* MessageTableCellState+DataTypeExtension.swift in Sources */,
 				47E19DD72BB1FE0100A0E596 /* SphinxOnionManager.swift in Sources */,
 				4708C2172A5885CB00274AD4 /* ChatTopView.swift in Sources */,
+				B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */,
 				4744FA8F2469C9F800C5FD94 /* Chat+CoreDataProperties.swift in Sources */,
 				47F8825525656CB0002A7E71 /* SocketEngine.swift in Sources */,
 				479496522AB4BB7900C42D1E /* SentPaidDetails.swift in Sources */,
@@ -4713,6 +4720,7 @@
 				473829922EA916E2007E045A /* PaddedTextFieldCell.swift in Sources */,
 				47F8825B25656CB0002A7E71 /* SocketRawView.swift in Sources */,
 				D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */,
+				26D0F440071247209F79D530 /* NewChatViewController+LiveCallBanner.swift in Sources */,
 				47FEE1F62A61B5B000646C4E /* NewChatViewController+BottomTopBarsExtension.swift in Sources */,
 				474A66882498F3E6002C2D10 /* MessageOptionsHelper.swift in Sources */,
 				47FEE1EF2A61A19E00646C4E /* ChatMessageFieldView+FieldsExtension.swift in Sources */,
