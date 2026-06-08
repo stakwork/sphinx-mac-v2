@@ -162,6 +162,7 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
         userData.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
 
         AIAgentManager.sharedInstance.reconfigure()
+        DataSyncManager.sharedInstance.saveAIAgentConfig(provider: resolvedProvider, apiKey: apiKey)
 
         Task { @MainActor in
             AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()

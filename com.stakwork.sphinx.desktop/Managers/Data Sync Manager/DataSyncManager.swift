@@ -101,6 +101,15 @@ class DataSyncManager: NSObject, @unchecked Sendable {
         )
     }
 
+    func saveAIAgentConfig(provider: String, apiKey: String) {
+        guard !apiKey.isEmpty else { return }
+        saveDataSyncItemWith(
+            key: SettingKey.aiAgentConfig.rawValue,
+            identifier: "0",
+            value: "\(provider)|\(apiKey)"
+        )
+    }
+
     func saveFeedItemStatusFor(
         feedId: String,
         itemId: String,
@@ -403,6 +412,17 @@ class DataSyncManager: NSObject, @unchecked Sendable {
 
             case .biometricEnabled:
                 break // Mac does not support biometric authentication
+
+            case .aiAgentConfig:
+                guard let composed = serverItem.value.asString, !composed.isEmpty else { return }
+                let parts = composed.components(separatedBy: "|")
+                guard parts.count >= 2 else { return }
+                let provider = parts[0]
+                let apiKey = parts.dropFirst().joined(separator: "|")
+                guard !apiKey.isEmpty else { return }
+                UserData.sharedInstance.save(aiAgentValue: provider, for: .aiAgentProvider)
+                UserData.sharedInstance.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
+                AIAgentManager.sharedInstance.reconfigure()
             }
         }
     }
