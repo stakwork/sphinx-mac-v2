@@ -101,6 +101,15 @@ class DataSyncManager: NSObject, @unchecked Sendable {
         )
     }
 
+    func saveAIAgentConfig(provider: String, apiKey: String, agentName: String) {
+        guard !apiKey.isEmpty else { return }
+        saveDataSyncItemWith(
+            key: SettingKey.aiAgentConfig.rawValue,
+            identifier: "0",
+            value: "\(provider)|\(apiKey)|\(agentName)"
+        )
+    }
+
     func saveFeedItemStatusFor(
         feedId: String,
         itemId: String,
@@ -403,6 +412,25 @@ class DataSyncManager: NSObject, @unchecked Sendable {
 
             case .biometricEnabled:
                 break // Mac does not support biometric authentication
+
+            case .aiAgentConfig:
+                guard let composed = serverItem.value.asString, !composed.isEmpty else { return }
+                let parts = composed.components(separatedBy: "|")
+                guard parts.count >= 2 else { return }
+                let provider = parts[0]
+                let agentName = parts.count >= 3 ? parts[parts.count - 1] : ""
+                let apiKey = parts.count >= 3
+                    ? parts[1..<(parts.count - 1)].joined(separator: "|")
+                    : parts.dropFirst().joined(separator: "|")
+                guard !apiKey.isEmpty else { return }
+                UserData.sharedInstance.save(aiAgentValue: provider, for: .aiAgentProvider)
+                UserData.sharedInstance.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
+                AIAgentManager.sharedInstance.reconfigure()
+                if !agentName.isEmpty,
+                   let agentContact = UserContact.getContactWith(id: AIAgentManager.agentLocalId) {
+                    agentContact.nickname = agentName
+                    CoreDataManager.sharedManager.saveContext()
+                }
             }
         }
     }
