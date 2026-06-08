@@ -161,15 +161,15 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
         userData.save(aiAgentValue: resolvedProvider, for: .aiAgentProvider)
         userData.save(aiAgentValue: apiKey, for: .aiAgentApiKey)
 
+        let agentName = agentNameFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
+        let resolvedName = agentName.isEmpty ? "Sphinx Agent" : agentName
+
         AIAgentManager.sharedInstance.reconfigure()
-        DataSyncManager.sharedInstance.saveAIAgentConfig(provider: resolvedProvider, apiKey: apiKey)
+        DataSyncManager.sharedInstance.saveAIAgentConfig(provider: resolvedProvider, apiKey: apiKey, agentName: resolvedName)
 
         Task { @MainActor in
             AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
 
-            // Apply agent name after contact is created/confirmed
-            let agentName = self.agentNameFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
-            let resolvedName = agentName.isEmpty ? "Sphinx Agent" : agentName
             if let agentContact = UserContact.getContactWith(id: AIAgentManager.agentLocalId) {
                 agentContact.nickname = resolvedName
                 CoreDataManager.sharedManager.saveContext()
