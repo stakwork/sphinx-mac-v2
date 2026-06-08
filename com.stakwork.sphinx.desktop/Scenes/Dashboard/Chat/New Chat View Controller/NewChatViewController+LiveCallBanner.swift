@@ -28,14 +28,14 @@ extension NewChatViewController: ActiveCallBannerDelegate {
         ])
     }
     
-    // MARK: - Polling lifecycle
-    
+    // MARK: - WebSocket-based banner lifecycle
+
     func startLiveCallBannerPolling() {
         guard chat?.isPublicGroup() == true, !isThread else { return }
         guard let chatId = chat?.id else { return }
-        
+
         installActiveCallBannerIfNeeded()
-        
+
         // Find the most recent call message and extract the actual call link URL.
         // messageContent is stored as "call::{json}" — parse via VoIPRequestMessage.
         // Fall back to using rawContent directly if it's already a bare call link.
@@ -43,7 +43,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
               let rawContent = callMessage.messageContent else {
             return
         }
-        
+
         let callLink: String
         if let parsed = VoIPRequestMessage.getFromString(rawContent)?.link, parsed.isCallLink {
             callLink = parsed
@@ -52,70 +52,49 @@ extension NewChatViewController: ActiveCallBannerDelegate {
         } else {
             return
         }
-        
+
         // Extract room name from URL (last non-empty path component)
         guard let url = URL(string: callLink),
               let roomName = url.pathComponents.last(where: { !$0.isEmpty && $0 != "/" }) else {
             return
         }
-        
+
         liveCallRoomName = roomName
         liveCallLink = callLink
-        
-        // Immediate first poll
-        pollForActiveCall()
-        
-        // Repeating 15-second timer on .common run loop mode (fires during scroll)
-        let timer = Timer(timeInterval: 15, repeats: true) { [weak self] _ in
-            self?.pollForActiveCall()
+
+        // Subscribe for banner-level updates via the shared socket manager on the data source
+        // (covers the case where the call cell hasn't rendered yet)
+        if chatTableDataSource?.callParticipantsSocketManager == nil {
+            chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
+            chatTableDataSource?.callParticipantsSocketManager?.delegate = chatTableDataSource
         }
-        RunLoop.main.add(timer, forMode: .common)
-        liveCallPollingTimer = timer
+        chatTableDataSource?.subscribedRooms.insert(roomName)
+        chatTableDataSource?.messageIdToRoomName[-1] = roomName  // sentinel for banner-only subscriptions
+        chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
     }
-    
-    func pollForActiveCall() {
-        guard let roomName = liveCallRoomName,
-              let callLink = liveCallLink else { return }
-        
-        API.sharedInstance.getCallParticipants(
-            roomName: roomName,
-            callback: { [weak self] participants in
-                DispatchQueue.main.async {
-                    guard let self = self else { return }
-                    if participants.isEmpty {
-                        self.chatTopView.hideActiveCallBanner()
-                        self.liveCallPollingTimer?.invalidate()
-                        self.liveCallPollingTimer = nil
-                    } else {
-                        let isInCall = WindowsManager.sharedInstance.getLiveKitCallWindow() != nil
-                        self.chatTopView.updateActiveCallBanner(
-                            participants: participants,
-                            callLink: callLink,
-                            isAlreadyInCall: isInCall,
-                            delegate: self
-                        )
-                    }
-                }
-            },
-            errorCallback: { _ in }
-        )
-    }
-    
+
     func stopLiveCallBannerPolling() {
-        liveCallPollingTimer?.invalidate()
-        liveCallPollingTimer = nil
+        chatTableDataSource?.unsubscribeAllRooms()
         if isViewLoaded {
             chatTopView?.hideActiveCallBanner()
         }
     }
     
     // MARK: - ActiveCallBannerDelegate
-    
+
     func didTapJoin(callLink: String) {
         shouldStartCallWith(link: callLink, audioOnly: false, isHost: false)
     }
-    
+
     func didTapOpen() {
         WindowsManager.sharedInstance.getLiveKitCallWindow()?.makeKeyAndOrderFront(nil)
+    }
+}
+
+// MARK: - NewChatTableDataSourceDelegate room finished
+extension NewChatViewController {
+    func roomFinished(roomName: String) {
+        guard roomName == liveCallRoomName else { return }
+        chatTopView.hideActiveCallBanner()
     }
 }

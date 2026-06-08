@@ -23,7 +23,9 @@ extension NewChatTableDataSource: NSCollectionViewDelegateFlowLayout {
         let tribeData = (tableCellState.linkTribe?.uuid != nil) ? self.preloaderHelper.tribesData[tableCellState.linkTribe!.uuid] : nil
         let mediaData = (tableCellState.messageId != nil) ? self.mediaCached[tableCellState.messageId!] : nil
         let replyViewAdditionalHeight = (tableCellState.messageId != nil) ? self.replyViewAdditionalHeight[tableCellState.messageId!] : nil
-        let participantsData = (tableCellState.messageId != nil) ? self.participantsDataCached[tableCellState.messageId!] : nil
+        let rowRoomName = tableCellState.messageId.flatMap { self.messageIdToRoomName[$0] }
+        let rowParticipantsList = rowRoomName.flatMap { self.callParticipantsStore[$0] } ?? []
+        let participantsData = rowParticipantsList.isEmpty ? nil : MessageTableCellState.ParticipantsData(participants: rowParticipantsList)
 
         // Create cache key based on factors that affect row height
         var cacheKey = createHeightCacheKey(
