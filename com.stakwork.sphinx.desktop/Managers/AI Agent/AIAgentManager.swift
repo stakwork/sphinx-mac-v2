@@ -202,7 +202,7 @@ final class AIAgentManager: @unchecked Sendable {
 
     @MainActor
     func createAgentContactAndChatIfNeeded() {
-        guard activeModel != nil, let owner = UserContact.getOwner() else { return }
+        guard let owner = UserContact.getOwner() else { return }
         guard UserContact.getContactWith(id: AIAgentManager.agentLocalId) == nil else { return }
 
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext

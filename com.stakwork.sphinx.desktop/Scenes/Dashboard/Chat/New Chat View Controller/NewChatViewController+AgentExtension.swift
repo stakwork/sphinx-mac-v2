@@ -39,7 +39,9 @@ extension NewChatViewController {
               let owner = self.owner,
               chat.lastMessage == nil else { return }
 
-        let introText = """
+        let introText: String
+        if AIAgentManager.sharedInstance.isConfigured {
+            introText = """
 👋 Hi! I'm your Sphinx AI assistant. Here's what I can do:
 
 • 📖 Read recent or unread messages from any contact or tribe
@@ -51,6 +53,9 @@ extension NewChatViewController {
 • 🔍 Search the web for current info
 • 🪵 Read and analyze app logs (filter by time, level, or keyword)
 """
+        } else {
+            introText = "👋 Welcome to Sphinx AI! To get started, go to Profile → Configure AI Agent and enter your Anthropic or OpenAI API key."
+        }
 
         let intro = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         intro.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
