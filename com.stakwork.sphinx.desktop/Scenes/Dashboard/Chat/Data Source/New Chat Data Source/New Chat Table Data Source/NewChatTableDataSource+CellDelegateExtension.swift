@@ -606,7 +606,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
     }
     
     func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int) {
-        guard let tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
               let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
@@ -614,15 +614,16 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             return
         }
 
-        guard !subscribedRooms.contains(authorizedRoomName) else { return }
-
         if callParticipantsSocketManager == nil {
             callParticipantsSocketManager = CallParticipantsSocketManager()
             callParticipantsSocketManager?.delegate = self
         }
         messageIdToRoomName[messageId] = authorizedRoomName
-        subscribedRooms.insert(authorizedRoomName)
-        callParticipantsSocketManager?.subscribe(roomName: authorizedRoomName)
+        
+        if !subscribedRooms.contains(authorizedRoomName) {
+            subscribedRooms.insert(authorizedRoomName)
+            callParticipantsSocketManager?.subscribe(roomName: authorizedRoomName)
+        }
     }
 
     func unsubscribeAllRooms() {
@@ -1316,6 +1317,11 @@ extension NewChatTableDataSource: CallParticipantsSocketDelegate {
             rn == roomName ? msgId : nil
         }
         for messageId in affectedMessageIds {
+            if messageId == -1 {
+                let participants = callParticipantsStore[roomName] ?? []
+                delegate?.shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
+                continue
+            }
             if let rowIndex = messageIdToIndexMap[messageId] {
                 let keysToRemove = rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
                 for key in keysToRemove {

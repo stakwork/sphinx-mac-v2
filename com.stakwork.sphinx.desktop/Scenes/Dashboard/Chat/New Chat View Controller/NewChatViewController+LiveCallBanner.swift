@@ -68,9 +68,11 @@ extension NewChatViewController: ActiveCallBannerDelegate {
             chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
             chatTableDataSource?.callParticipantsSocketManager?.delegate = chatTableDataSource
         }
-        chatTableDataSource?.subscribedRooms.insert(roomName)
+        if chatTableDataSource?.subscribedRooms.contains(roomName) == false {
+            chatTableDataSource?.subscribedRooms.insert(roomName)
+            chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
+        }
         chatTableDataSource?.messageIdToRoomName[-1] = roomName  // sentinel for banner-only subscriptions
-        chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
     }
 
     func stopLiveCallBannerPolling() {
@@ -91,10 +93,30 @@ extension NewChatViewController: ActiveCallBannerDelegate {
     }
 }
 
-// MARK: - NewChatTableDataSourceDelegate room finished
+// MARK: - NewChatTableDataSourceDelegate live call banner
 extension NewChatViewController {
     func roomFinished(roomName: String) {
         guard roomName == liveCallRoomName else { return }
         chatTopView.hideActiveCallBanner()
+    }
+
+    func newCallMessageReceived() {
+        stopLiveCallBannerPolling()
+        startLiveCallBannerPolling()
+    }
+
+    func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {
+        guard roomName == liveCallRoomName, let callLink = liveCallLink else { return }
+        if participants.isEmpty {
+            chatTopView.hideActiveCallBanner()
+        } else {
+            let isAlreadyInCall = WindowsManager.sharedInstance.getLiveKitCallWindow() != nil
+            chatTopView.updateActiveCallBanner(
+                participants: participants,
+                callLink: callLink,
+                isAlreadyInCall: isAlreadyInCall,
+                delegate: self
+            )
+        }
     }
 }

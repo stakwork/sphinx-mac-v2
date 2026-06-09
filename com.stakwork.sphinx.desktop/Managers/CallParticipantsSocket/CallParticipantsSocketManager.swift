@@ -9,7 +9,7 @@
 import Foundation
 import Starscream
 
-class CallParticipantsSocketManager: NSObject, WebSocketDelegate {
+class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sendable {
 
     var socket: WebSocketClient?
     var subscribedRooms: Set<String> = []
@@ -146,9 +146,10 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate {
 
     private func parseParticipantDict(_ dict: [String: Any]) -> BubbleMessageLayoutState.CallParticipantInfo? {
         guard let nickname = dict["nickname"] as? String else { return nil }
+        let identity = dict["identity"] as? String
         let avatarUrl = dict["avatarUrl"] as? String
         return BubbleMessageLayoutState.CallParticipantInfo(
-            identity: nickname,
+            identity: identity ?? nickname,
             name: nickname,
             profilePictureUrl: avatarUrl,
             isActive: true

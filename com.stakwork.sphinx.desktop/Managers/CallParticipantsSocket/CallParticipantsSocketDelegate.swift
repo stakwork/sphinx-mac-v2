@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol CallParticipantsSocketDelegate: AnyObject {
+@MainActor protocol CallParticipantsSocketDelegate: AnyObject {
     func didReceiveCurrentParticipants(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo])
     func participantJoined(roomName: String, participant: BubbleMessageLayoutState.CallParticipantInfo)
     func participantLeft(roomName: String, identity: String)

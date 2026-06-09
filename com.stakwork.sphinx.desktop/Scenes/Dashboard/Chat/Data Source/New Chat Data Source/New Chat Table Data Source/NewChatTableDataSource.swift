@@ -61,6 +61,8 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
 
     ///Live call banner
     func roomFinished(roomName: String)
+    func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo])
+    func newCallMessageReceived()
     
     ///Empty chat placeholder
     func updateEmptyView()
@@ -112,6 +114,7 @@ class NewChatTableDataSource : NSObject {
     var subscribedRooms: Set<String> = []
     var messageIdToRoomName: [Int: String] = [:]
     var callParticipantsSocketManager: CallParticipantsSocketManager?
+    var lastSeenCallMessageId: Int? = nil
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
