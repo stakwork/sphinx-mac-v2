@@ -149,7 +149,9 @@ extension NewChatTableDataSource {
         let linkData = (dataSourceItem.linkWeb?.link != nil) ? self.preloaderHelper.linksData[dataSourceItem.linkWeb!.link] : nil
         let uploadProgressData = (dataSourceItem.messageId != nil) ? self.uploadingProgress[dataSourceItem.messageId!] : nil
         let replyViewAdditionalHeight = (dataSourceItem.messageId != nil) ? self.replyViewAdditionalHeight[dataSourceItem.messageId!] : nil
-        let participantsData = (dataSourceItem.messageId != nil) ? self.participantsDataCached[dataSourceItem.messageId!] : nil
+        let roomName = dataSourceItem.messageId.flatMap { self.messageIdToRoomName[$0] }
+        let participantsList = roomName.flatMap { self.callParticipantsStore[$0] } ?? []
+        let participantsData = participantsList.isEmpty ? nil : MessageTableCellState.ParticipantsData(participants: participantsList)
 
         cell?.configureWith(
             messageCellState: dataSourceItem,
@@ -865,6 +867,17 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     }
                     
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
+
+                    if let lastMessage = self.messagesArray.last, lastMessage.isCallLink() {
+                        if lastMessage.id != self.lastSeenCallMessageId {
+                            let wasFirstLoad = self.lastSeenCallMessageId == nil
+                            self.lastSeenCallMessageId = lastMessage.id
+                            if !wasFirstLoad {
+                                DispatchQueue.main.async { self.delegate?.newCallMessageReceived() }
+                            }
+                        }
+                    }
+
                     self.processTimezoneNotSentRecently()
                     
                     self.UIUpdateIndex += 1

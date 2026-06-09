@@ -606,9 +606,6 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
     }
     
     func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int) {
-        // Resolve the room name from the authoritative data source record rather than
-        // trusting the view-supplied value, preventing an arbitrary-room lookup via a
-        // mismatched or stale view invocation.
         guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
               let storedLink = tableCellState.1.callLink?.link,
               let storedURL = URL(string: storedLink),
@@ -617,101 +614,24 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
             return
         }
 
-        // Skip if a polling timer is already running for this message — it handles refresh
-        guard activeParticipantPollingTimers[messageId] == nil else {
-            return
+        if callParticipantsSocketManager == nil {
+            callParticipantsSocketManager = CallParticipantsSocketManager()
+            callParticipantsSocketManager?.delegate = self
         }
-
-        // Prevent multiple simultaneous in-flight calls for the same room
-        guard !pendingParticipantRooms.contains(authorizedRoomName) else {
-            return
-        }
-        pendingParticipantRooms.insert(authorizedRoomName)
-
-        API.sharedInstance.getCallParticipants(roomName: authorizedRoomName) { [weak self] participants in
-            guard let self = self else { return }
-
-            DispatchQueue.main.async {
-                self.pendingParticipantRooms.remove(authorizedRoomName)
-
-                let newIdentities = Set(participants.map { $0.identity })
-                let cachedIdentities = Set((self.participantsDataCached[messageId]?.participants ?? []).map { $0.identity })
-                let hasChanged = newIdentities != cachedIdentities
-
-                self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
-
-                if !participants.isEmpty {
-                    self.startParticipantsPollingTimer(messageId: messageId, roomName: authorizedRoomName)
-                }
-
-                guard hasChanged else { return }
-
-                if !participants.isEmpty {
-                    let keysToRemove = self.rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
-                    for key in keysToRemove {
-                        self.rowHeightCache.removeValue(forKey: key)
-                    }
-                }
-                self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
-            }
-        } errorCallback: { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.pendingParticipantRooms.remove(authorizedRoomName)
-            }
+        messageIdToRoomName[messageId] = authorizedRoomName
+        
+        if !subscribedRooms.contains(authorizedRoomName) {
+            subscribedRooms.insert(authorizedRoomName)
+            callParticipantsSocketManager?.subscribe(roomName: authorizedRoomName)
         }
     }
 
-    func startParticipantsPollingTimer(messageId: Int, roomName: String) {
-        guard activeParticipantPollingTimers[messageId] == nil else { return }
-        activeParticipantPollingTimers[messageId] = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: true) { [weak self] _ in
-            self?.pollParticipants(messageId: messageId, roomName: roomName)
-        }
-    }
-
-    func stopParticipantsPollingTimer(for messageId: Int) {
-        activeParticipantPollingTimers[messageId]?.invalidate()
-        activeParticipantPollingTimers.removeValue(forKey: messageId)
-    }
-
-    func pollParticipants(messageId: Int, roomName: String) {
-        guard let rowIndex = messageIdToIndexMap[messageId] else { return }
-
-        // Stop polling if the row is no longer visible
-        let isVisible = collectionView.indexPathsForVisibleItems().map { $0.item }.contains(rowIndex)
-        guard isVisible else {
-            stopParticipantsPollingTimer(for: messageId)
-            return
-        }
-
-        // Prevent overlapping in-flight fetches
-        guard !pendingParticipantRooms.contains(roomName) else { return }
-        pendingParticipantRooms.insert(roomName)
-
-        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] participants in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.pendingParticipantRooms.remove(roomName)
-                if !participants.isEmpty {
-                    let newIdentities = Set(participants.map { $0.identity })
-                    let cachedIdentities = Set((self.participantsDataCached[messageId]?.participants ?? []).map { $0.identity })
-                    let hasChanged = newIdentities != cachedIdentities
-
-                    self.participantsDataCached[messageId] = MessageTableCellState.ParticipantsData(participants: participants)
-
-                    guard hasChanged else { return }
-
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
-                } else {
-                    self.participantsDataCached.removeValue(forKey: messageId)
-                    self.stopParticipantsPollingTimer(for: messageId)
-                    self.updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
-                }
-            }
-        } errorCallback: { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.pendingParticipantRooms.remove(roomName)
-            }
-        }
+    func unsubscribeAllRooms() {
+        subscribedRooms.forEach { callParticipantsSocketManager?.unsubscribe(roomName: $0) }
+        subscribedRooms.removeAll()
+        callParticipantsStore.removeAll()
+        messageIdToRoomName.removeAll()
+        callParticipantsSocketManager = nil
     }
     
     func shouldShowOptionsFor(messageId: Int, from button: NSButton) {
@@ -1361,5 +1281,54 @@ extension NewChatTableDataSource {
         }
 
         return tableCellStates
+    }
+}
+
+// MARK: - CallParticipantsSocketDelegate
+extension NewChatTableDataSource: CallParticipantsSocketDelegate {
+
+    func didReceiveCurrentParticipants(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {
+        callParticipantsStore[roomName] = participants
+        reloadCellsForRoom(roomName)
+    }
+
+    func participantJoined(roomName: String, participant: BubbleMessageLayoutState.CallParticipantInfo) {
+        var current = callParticipantsStore[roomName] ?? []
+        current.append(participant)
+        callParticipantsStore[roomName] = current
+        reloadCellsForRoom(roomName)
+    }
+
+    func participantLeft(roomName: String, identity: String) {
+        var current = callParticipantsStore[roomName] ?? []
+        current.removeAll { $0.identity == identity }
+        callParticipantsStore[roomName] = current
+        reloadCellsForRoom(roomName)
+    }
+
+    func roomFinished(roomName: String) {
+        callParticipantsStore.removeValue(forKey: roomName)
+        reloadCellsForRoom(roomName)
+        delegate?.roomFinished(roomName: roomName)
+    }
+
+    private func reloadCellsForRoom(_ roomName: String) {
+        let affectedMessageIds = messageIdToRoomName.compactMap { (msgId, rn) -> Int? in
+            rn == roomName ? msgId : nil
+        }
+        for messageId in affectedMessageIds {
+            if messageId == -1 {
+                let participants = callParticipantsStore[roomName] ?? []
+                delegate?.shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
+                continue
+            }
+            if let rowIndex = messageIdToIndexMap[messageId] {
+                let keysToRemove = rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                for key in keysToRemove {
+                    rowHeightCache.removeValue(forKey: key)
+                }
+                updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+            }
+        }
     }
 }

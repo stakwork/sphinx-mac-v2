@@ -92,7 +92,6 @@ class NewChatViewController: DashboardSplittedViewController {
     var cachedSecondBrainVC: WebAppViewController? = nil
     
     // MARK: - Live call banner
-    nonisolated(unsafe) var liveCallPollingTimer: Timer?
     var liveCallRoomName: String?
     var liveCallLink: String?
     
@@ -212,8 +211,6 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     deinit {
-        liveCallPollingTimer?.invalidate()
-        liveCallPollingTimer = nil
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: .onWebAppLinkTapped, object: nil)

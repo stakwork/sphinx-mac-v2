@@ -58,6 +58,11 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     
     ///Invoices
     func shouldStartCallWith(link: String, audioOnly: Bool, isHost: Bool)
+
+    ///Live call banner
+    func roomFinished(roomName: String)
+    func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo])
+    func newCallMessageReceived()
     
     ///Empty chat placeholder
     func updateEmptyView()
@@ -105,9 +110,11 @@ class NewChatTableDataSource : NSObject {
     var messageTableCellStateArray: [MessageTableCellState] = []
     var messageIdToIndexMap: [Int: Int] = [:]  // O(1) lookup for message IDs
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
-    var participantsDataCached: [Int: MessageTableCellState.ParticipantsData] = [:]
-    var pendingParticipantRooms: Set<String> = []
-    nonisolated(unsafe) var activeParticipantPollingTimers: [Int: Timer] = [:]
+    var callParticipantsStore: [String: [BubbleMessageLayoutState.CallParticipantInfo]] = [:]
+    var subscribedRooms: Set<String> = []
+    var messageIdToRoomName: [Int: String] = [:]
+    var callParticipantsSocketManager: CallParticipantsSocketManager?
+    var lastSeenCallMessageId: Int? = nil
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
@@ -187,8 +194,6 @@ class NewChatTableDataSource : NSObject {
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
-        activeParticipantPollingTimers.values.forEach { $0.invalidate() }
-        activeParticipantPollingTimers.removeAll()
     }
     
     private var lastKnownWidth: CGFloat = 0
@@ -230,7 +235,6 @@ class NewChatTableDataSource : NSObject {
     /// Invalidates the row height cache when data changes
     func invalidateRowHeightCache() {
         rowHeightCache.removeAll(keepingCapacity: true)
-        pendingParticipantRooms.removeAll()
     }
 
     func isFinalDS() -> Bool {

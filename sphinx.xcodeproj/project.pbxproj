@@ -121,6 +121,8 @@
 		4730EF712CDBD10D0014581F /* Participant+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF702CDBD10D0014581F /* Participant+Helper.swift */; };
 		4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */; };
 		4730EF772CDBD4E20014581F /* API+LiveKitExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */; };
+		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
+		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		4730EF7B2CDBE5C90014581F /* RoomContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF7A2CDBE5C90014581F /* RoomContextView.swift */; };
 		4733ED252CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */; };
 		4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED292CB43AA600078EF2 /* ColorsManager.swift */; };
@@ -1057,6 +1059,8 @@
 		4730EF702CDBD10D0014581F /* Participant+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+Helper.swift"; sourceTree = "<group>"; };
 		4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareSourcePickerView.swift; sourceTree = "<group>"; };
 		4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+LiveKitExtension.swift"; sourceTree = "<group>"; };
+		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
+		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		4730EF7A2CDBE5C90014581F /* RoomContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomContextView.swift; sourceTree = "<group>"; };
 		4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+PeopleExtension.swift"; sourceTree = "<group>"; };
 		4733ED292CB43AA600078EF2 /* ColorsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsManager.swift; sourceTree = "<group>"; };
@@ -2271,9 +2275,19 @@
 			path = ContentItem;
 			sourceTree = "<group>";
 		};
+		CAFF00042EF500001AD45004 /* CallParticipantsSocket */ = {
+			isa = PBXGroup;
+			children = (
+				CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */,
+				CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */,
+			);
+			path = CallParticipantsSocket;
+			sourceTree = "<group>";
+		};
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				CAFF00042EF500001AD45004 /* CallParticipantsSocket */,
 				56B5F8942EF500001AD459F3 /* WebApp */,
 				47AA1A032EF431AB00CFDA02 /* AI Agent */,
 				AA0001003EF431AB00CFDA02 /* Logging */,
@@ -4524,6 +4538,8 @@
 				47DE1C182A6976120029597B /* NewMessageCollectionViewItem+GeneralSetup.swift in Sources */,
 				47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */,
 				4730EF772CDBD4E20014581F /* API+LiveKitExtension.swift in Sources */,
+				CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */,
+				CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */,
 				47DE1C342A6AF5FA0029597B /* ShimmeringView.swift in Sources */,
 				47B5509E248BD256000514BF /* SendPaymentViewController.swift in Sources */,
 				47F8825C25656CB0002A7E71 /* SocketIOClientSpec.swift in Sources */,
