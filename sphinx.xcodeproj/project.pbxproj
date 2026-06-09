@@ -121,8 +121,6 @@
 		4730EF712CDBD10D0014581F /* Participant+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF702CDBD10D0014581F /* Participant+Helper.swift */; };
 		4730EF752CDBD2B90014581F /* ScreenShareSourcePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */; };
 		4730EF772CDBD4E20014581F /* API+LiveKitExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */; };
-		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
-		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		4730EF7B2CDBE5C90014581F /* RoomContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4730EF7A2CDBE5C90014581F /* RoomContextView.swift */; };
 		4733ED252CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */; };
 		4733ED2A2CB43AA600078EF2 /* ColorsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4733ED292CB43AA600078EF2 /* ColorsManager.swift */; };
@@ -717,6 +715,8 @@
 		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
 		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
 		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
+		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
+		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
 		CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */; };
@@ -1059,8 +1059,6 @@
 		4730EF702CDBD10D0014581F /* Participant+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Participant+Helper.swift"; sourceTree = "<group>"; };
 		4730EF742CDBD2B90014581F /* ScreenShareSourcePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareSourcePickerView.swift; sourceTree = "<group>"; };
 		4730EF762CDBD4E20014581F /* API+LiveKitExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+LiveKitExtension.swift"; sourceTree = "<group>"; };
-		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
-		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		4730EF7A2CDBE5C90014581F /* RoomContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomContextView.swift; sourceTree = "<group>"; };
 		4733ED242CA7294500078EF2 /* SphinxOnionManager+PeopleExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+PeopleExtension.swift"; sourceTree = "<group>"; };
 		4733ED292CB43AA600078EF2 /* ColorsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsManager.swift; sourceTree = "<group>"; };
@@ -1764,6 +1762,8 @@
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
 		B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantBoxView.swift; sourceTree = "<group>"; };
 		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
+		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
+		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDetailSelectionVC.swift; sourceTree = "<group>"; };
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
 		CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LsatListViewController.swift; sourceTree = "<group>"; };
@@ -2273,15 +2273,6 @@
 				473829A32EB3F3F5007E045A /* ContentItem+CoreDataProperties.swift */,
 			);
 			path = ContentItem;
-			sourceTree = "<group>";
-		};
-		CAFF00042EF500001AD45004 /* CallParticipantsSocket */ = {
-			isa = PBXGroup;
-			children = (
-				CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */,
-				CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */,
-			);
-			path = CallParticipantsSocket;
 			sourceTree = "<group>";
 		};
 		47393E4A2461A8DD00E6F93E /* Managers */ = {
@@ -4121,6 +4112,15 @@
 			path = Diagnostics;
 			sourceTree = "<group>";
 		};
+		CAFF00042EF500001AD45004 /* CallParticipantsSocket */ = {
+			isa = PBXGroup;
+			children = (
+				CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */,
+				CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */,
+			);
+			path = CallParticipantsSocket;
+			sourceTree = "<group>";
+		};
 		CE326B4C294A174700821A53 /* ChatMentionAutocompleteCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -5831,7 +5831,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 284;
+				CURRENT_PROJECT_VERSION = 285;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5868,7 +5868,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 284;
+				CURRENT_PROJECT_VERSION = 285;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
