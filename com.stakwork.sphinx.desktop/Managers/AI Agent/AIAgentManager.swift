@@ -164,7 +164,7 @@ final class AIAgentManager: @unchecked Sendable {
     // MARK: - Reconfigure
 
     /// Call this after saving new provider / key settings in the profile.
-    func reconfigure() {
+    func reconfigure(clearHistory: Bool = false) {
         let userData = UserData.sharedInstance
         let providerRaw = userData.getAIAgentValue(with: .aiAgentProvider) ?? ""
         let apiKey      = userData.getAIAgentValue(with: .aiAgentApiKey)   ?? ""
@@ -190,7 +190,9 @@ final class AIAgentManager: @unchecked Sendable {
         }
 
         // Reset history when credentials change
-        reset()
+        if clearHistory {
+            reset()
+        }
 
         // Create agent contact + chat if not already present
         Task { @MainActor in

@@ -164,7 +164,7 @@ extension SetupAIAgentViewController: SignupButtonViewDelegate {
         let agentName = agentNameFieldView.getFieldValue().trimmingCharacters(in: .whitespaces)
         let resolvedName = agentName.isEmpty ? "Sphinx Agent" : agentName
 
-        AIAgentManager.sharedInstance.reconfigure()
+        AIAgentManager.sharedInstance.reconfigure(clearHistory: true)
         DataSyncManager.sharedInstance.saveAIAgentConfig(provider: resolvedProvider, apiKey: apiKey, agentName: resolvedName)
 
         Task { @MainActor in
