@@ -350,6 +350,8 @@ extension SphinxOnionManager {
             msgCountLimit: itemsPerPage,
             reverse: reverse
         )
+        
+        startMessageFetchTimeoutTimer()
     }
     
     func fetchMessageBlock(
@@ -519,6 +521,8 @@ extension SphinxOnionManager {
     }
     
     func handleFetchMessagesBatchInForward(msgs: [Msg]) {
+        startMessageFetchTimeoutTimer()
+        
         guard let params = messageFetchParams else {
             finishMessagesFetch()
             return
@@ -969,18 +973,41 @@ extension SphinxOnionManager {
         return groupActionMessage
     }
     
-    func finishMessagesFetch(
-        isRestore: Bool = false
-    ) {
+    func clearFetchCallbacks() {
         onMessageRestoredCallback = nil
         firstSCIDMsgsCallback = nil
         totalMsgsCountCallback = nil
-        
         messageFetchParams = nil
         chatsFetchParams = nil
         messagePerContactFetchParams = nil
-        
         restoredContactInfoTracker = []
+    }
+    
+    func startMessageFetchTimeoutTimer() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.messageFetchTimeoutTimer?.invalidate()
+            self.messageFetchTimeoutTimer = Timer.scheduledTimer(
+                withTimeInterval: SphinxOnionManager.kMessageFetchTimeout,
+                repeats: false
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                print("[FetchWatchdog] Message fetch timed out after \(Int(SphinxOnionManager.kMessageFetchTimeout))s — clearing stuck callbacks")
+                self.clearFetchCallbacks()
+            }
+        }
+    }
+    
+    func invalidateMessageFetchTimeoutTimer() {
+        messageFetchTimeoutTimer?.invalidate()
+        messageFetchTimeoutTimer = nil
+    }
+    
+    func finishMessagesFetch(
+        isRestore: Bool = false
+    ) {
+        clearFetchCallbacks()
+        invalidateMessageFetchTimeoutTimer()
         
         requestPings()
         resetFromRestore()
