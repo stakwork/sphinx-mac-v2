@@ -92,8 +92,7 @@ class NewChatViewController: DashboardSplittedViewController {
     var cachedSecondBrainVC: WebAppViewController? = nil
     
     // MARK: - Live call banner
-    var liveCallRoomName: String?
-    var liveCallLink: String?
+    var liveCallRooms: [String: String] = [:]  // roomName -> callLink
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     

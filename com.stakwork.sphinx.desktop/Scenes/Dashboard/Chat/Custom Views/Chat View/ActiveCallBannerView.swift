@@ -249,6 +249,12 @@ class ActiveCallBannerView: NSView {
         }
     }
     
+    // MARK: - Intrinsic size (for NSStackView stacking)
+
+    override var intrinsicContentSize: NSSize {
+        return CGSize(width: NSView.noIntrinsicMetric, height: ActiveCallBannerView.kHeight)
+    }
+
     // MARK: - Appearance
     
     override func viewDidChangeEffectiveAppearance() {

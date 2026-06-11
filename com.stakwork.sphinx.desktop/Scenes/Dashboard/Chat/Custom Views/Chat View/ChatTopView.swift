@@ -34,39 +34,84 @@ class ChatTopView: NSView, LoadableNib {
         setup()
     }
     
-    // MARK: - Active call banner
-    // The banner view is owned here but installed into the VC's view hierarchy
-    // by NewChatViewController+LiveCallBanner (below chatTopView, not inside it).
-    let activeCallBannerView: ActiveCallBannerView = {
-        let v = ActiveCallBannerView()
-        v.isHidden = true
-        return v
+    // MARK: - Active call banner stack
+    // A self-sizing vertical stack of banner rows (one per active call room).
+    // Owned here, installed into the VC's view hierarchy by
+    // NewChatViewController+LiveCallBanner (below chatTopView, not inside it).
+    private(set) var liveCallBannerStack: NSStackView = {
+        let sv = NSStackView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.orientation = .vertical
+        sv.spacing = 0
+        sv.alignment = .leading
+        sv.distribution = .fill
+        sv.isHidden = true
+        return sv
     }()
-    
-    func updateActiveCallBanner(
+
+    private var bannerViews: [String: ActiveCallBannerView] = [:]
+
+    /// Creates or reuses the banner row for `roomName`, configures it, and makes it visible.
+    func showCallBanner(
+        roomName: String,
         participants: [BubbleMessageLayoutState.CallParticipantInfo],
         callLink: String,
         isAlreadyInCall: Bool,
         delegate: ActiveCallBannerDelegate
     ) {
-        activeCallBannerView.configureWith(
+        let banner: ActiveCallBannerView
+        if let existing = bannerViews[roomName] {
+            banner = existing
+        } else {
+            // Cap at 3 visible rows
+            let visibleCount = bannerViews.values.filter { !$0.isHidden }.count
+            guard visibleCount < 3 else { return }
+            banner = ActiveCallBannerView()
+            bannerViews[roomName] = banner
+            liveCallBannerStack.addArrangedSubview(banner)
+            NSLayoutConstraint.activate([
+                banner.leadingAnchor.constraint(equalTo: liveCallBannerStack.leadingAnchor),
+                banner.trailingAnchor.constraint(equalTo: liveCallBannerStack.trailingAnchor),
+            ])
+        }
+
+        banner.configureWith(
             participants: participants,
             callLink: callLink,
             isAlreadyInCall: isAlreadyInCall,
             delegate: delegate
         )
-        guard activeCallBannerView.isHidden else { return }
-        activeCallBannerView.alphaValue = 0
-        activeCallBannerView.isHidden = false
-        NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.25
-            activeCallBannerView.animator().alphaValue = 1
+
+        liveCallBannerStack.isHidden = false
+
+        if banner.isHidden {
+            banner.alphaValue = 0
+            banner.isHidden = false
+            NSAnimationContext.runAnimationGroup { ctx in
+                ctx.duration = 0.25
+                banner.animator().alphaValue = 1
+            }
         }
     }
-    
-    func hideActiveCallBanner() {
-        activeCallBannerView.isHidden = true
-        activeCallBannerView.alphaValue = 1
+
+    /// Hides the row for `roomName`; collapses the stack if all rows are hidden.
+    func hideCallBanner(roomName: String) {
+        bannerViews[roomName]?.isHidden = true
+        if bannerViews.values.allSatisfy({ $0.isHidden }) {
+            liveCallBannerStack.isHidden = true
+        }
+    }
+
+    /// Hides every banner row and collapses the stack.
+    func hideAllCallBanners() {
+        bannerViews.values.forEach { $0.isHidden = true }
+        liveCallBannerStack.isHidden = true
+        // Remove all arranged subviews so the next chat starts clean
+        for view in liveCallBannerStack.arrangedSubviews {
+            liveCallBannerStack.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+        bannerViews.removeAll()
     }
     
     // MARK: - Setup

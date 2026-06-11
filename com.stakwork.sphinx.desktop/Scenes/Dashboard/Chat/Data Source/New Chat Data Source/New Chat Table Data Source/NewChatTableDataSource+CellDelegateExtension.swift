@@ -631,6 +631,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         subscribedRooms.removeAll()
         callParticipantsStore.removeAll()
         messageIdToRoomName.removeAll()
+        bannerRooms.removeAll()
         callParticipantsSocketManager = nil
     }
     
@@ -1313,15 +1314,17 @@ extension NewChatTableDataSource: CallParticipantsSocketDelegate {
     }
 
     private func reloadCellsForRoom(_ roomName: String) {
+        // Notify banner if this room is tracked at the banner level
+        if bannerRooms.contains(roomName) {
+            let participants = callParticipantsStore[roomName] ?? []
+            delegate?.shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
+        }
+
+        // Reload individual call message cells for this room
         let affectedMessageIds = messageIdToRoomName.compactMap { (msgId, rn) -> Int? in
             rn == roomName ? msgId : nil
         }
         for messageId in affectedMessageIds {
-            if messageId == -1 {
-                let participants = callParticipantsStore[roomName] ?? []
-                delegate?.shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
-                continue
-            }
             if let rowIndex = messageIdToIndexMap[messageId] {
                 let keysToRemove = rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
                 for key in keysToRemove {
