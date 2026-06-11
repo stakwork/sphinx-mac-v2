@@ -25,7 +25,7 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
                 date: Date(),
                 chat: chat,
                 replyUUID: (index == attachmentObjects.count - 1) ? replyingTo?.uuid : nil,
-                threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+                threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.replyUUID ?? replyingTo?.uuid
             ) {
                 
                 chatDataSource?.setMediaDataForMessageWith(
@@ -57,7 +57,7 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
             index: 0,
             chat: chat,
             replyingMessage: replyingTo,
-            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+            threadUUID: threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.replyUUID ?? replyingTo?.uuid
         )
 
         resetReply()

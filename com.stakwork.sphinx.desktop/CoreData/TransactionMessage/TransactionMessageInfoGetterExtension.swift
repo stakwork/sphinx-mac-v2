@@ -536,7 +536,7 @@ extension TransactionMessage {
     
     var isReplyActionAllowed: Bool {
         get {
-            return (isTextMessage() || isAttachment() || isBotResponse()) && !(uuid ?? "").isEmpty
+            return (isTextMessage() || isAttachment() || isBotResponse()) && !(uuid ?? "").isEmpty && !isProvisional()
         }
     }
     
