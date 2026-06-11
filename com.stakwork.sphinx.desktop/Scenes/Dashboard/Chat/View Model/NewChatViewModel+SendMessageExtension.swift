@@ -59,7 +59,7 @@ extension NewChatViewModel {
             return
         }
         
-        let tuuid = threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.uuid
+        let tuuid = threadUUID ?? replyingTo?.threadUUID ?? replyingTo?.replyUUID ?? replyingTo?.uuid
         
         let (validMessage, errorMsg) = SphinxOnionManager.sharedInstance.sendMessage(
             to: contact,
