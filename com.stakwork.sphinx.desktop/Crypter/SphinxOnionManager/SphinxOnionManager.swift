@@ -38,8 +38,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     
     static let kMqttKeepAlive: UInt16 = 15
     static let kConnectionTimeoutInterval: TimeInterval = 15.0
+    static let kMessageFetchTimeout: TimeInterval = 30.0
     
     var reconnectionTimer: Timer? = nil
+    var messageFetchTimeoutTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
     var paymentTimeoutTimers: [String: Timer] = [:]
     
