@@ -90,6 +90,15 @@ import SwiftUI
         }).last as? TaggedWindow
     }
     
+    func closeActiveCallWindow() {
+        guard let callWindow = getLiveKitCallWindow(),
+              let identifier = callWindow.windowIdentifier else { return }
+        openedWindowIdentifiers.removeAll(where: { $0 == identifier })
+        hideCallControlWindow(forceClose: true)
+        closeIfExists(identifier: identifier)
+        NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
+    }
+    
     func getCenteredFrameFor(size: CGSize) -> CGRect {
         let mainScreen = NSScreen.main
         let centerPoint = CGPoint(x: ((mainScreen?.frame.width ?? 1000) / 2) - (size.width / 2), y: ((mainScreen?.frame.height ?? 735) / 2) - (size.height / 2))
@@ -579,11 +588,13 @@ import SwiftUI
                                     self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
                                     self.hideCallControlWindow(forceClose: true)
                                     self.closeIfExists(identifier: link)
+                                    NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
                                 }
                         }).environmentObject(appCtx).environmentObject(roomCtx)
                         
                         let hostingController = NSHostingController(rootView: roomContextView)
                         self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
+                        NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
                     }
                 },
                 errorCallback: { error in

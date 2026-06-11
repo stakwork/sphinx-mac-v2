@@ -53,4 +53,6 @@ extension Notification.Name {
     
     static let onWebAppLinkTapped = Notification.Name("onWebAppLinkTapped")
     static let onWebAppNavigationChanged = Notification.Name("onWebAppNavigationChanged")
+    
+    static let liveKitCallWindowDidChange = Notification.Name("liveKitCallWindowDidChange")
 }
