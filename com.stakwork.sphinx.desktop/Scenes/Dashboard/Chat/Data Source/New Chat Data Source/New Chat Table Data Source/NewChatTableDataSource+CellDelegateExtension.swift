@@ -1295,9 +1295,27 @@ extension NewChatTableDataSource: CallParticipantsSocketDelegate {
 
     func participantJoined(roomName: String, participant: BubbleMessageLayoutState.CallParticipantInfo) {
         var current = callParticipantsStore[roomName] ?? []
+        // Dedup: ignore if this identity is already tracked
+        guard !current.contains(where: { $0.identity == participant.identity }) else { return }
         current.append(participant)
         callParticipantsStore[roomName] = current
         reloadCellsForRoom(roomName)
+        // LiveKit may not have resolved the display name yet — refresh after 2s
+        if participant.name.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                self?.refreshParticipants(for: roomName)
+            }
+        }
+    }
+
+    private func refreshParticipants(for roomName: String) {
+        callParticipantsSocketManager?.sendSubscribeTo(roomName: roomName)
+        
+//        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] fresh in
+//            guard let self = self, !fresh.isEmpty else { return }
+//            self.callParticipantsStore[roomName] = fresh
+//            self.reloadCellsForRoom(roomName)
+//        }
     }
 
     func participantLeft(roomName: String, identity: String) {

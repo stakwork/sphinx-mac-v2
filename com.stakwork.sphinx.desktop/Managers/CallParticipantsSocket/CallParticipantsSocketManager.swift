@@ -55,6 +55,10 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
             sendSubscribe(roomName: roomName)
         }
     }
+    
+    func sendSubscribeTo(roomName: String) {
+        sendSubscribe(roomName: roomName)
+    }
 
     func unsubscribe(roomName: String) {
         sendUnsubscribe(roomName: roomName)
