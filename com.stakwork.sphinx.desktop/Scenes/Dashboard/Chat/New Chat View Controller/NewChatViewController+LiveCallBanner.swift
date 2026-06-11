@@ -102,7 +102,8 @@ extension NewChatViewController {
         if participants.isEmpty {
             chatTopView.hideCallBanner(roomName: roomName)
         } else {
-            let isAlreadyInCall = WindowsManager.sharedInstance.getLiveKitCallWindow() != nil
+            let activeRoomName = WindowsManager.sharedInstance.getLiveKitCallWindow()?.windowIdentifier?.liveKitRoomName
+            let isAlreadyInCall = activeRoomName == roomName
             chatTopView.showCallBanner(
                 roomName: roomName,
                 participants: participants,
