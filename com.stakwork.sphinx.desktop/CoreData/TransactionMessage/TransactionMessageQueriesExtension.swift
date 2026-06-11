@@ -854,6 +854,22 @@ extension TransactionMessage {
         fetchRequest.fetchLimit = 1
         return try? context.fetch(fetchRequest).first
     }
+
+    static func getRecentCallMessages(
+        for chatId: Int,
+        limit: Int = 3,
+        context: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    ) -> [TransactionMessage] {
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        fetchRequest.predicate = NSPredicate(
+            format: "chat.id == %d AND type == %d",
+            chatId,
+            TransactionMessage.TransactionMessageType.call.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = limit
+        return (try? context.fetch(fetchRequest)) ?? []
+    }
     
     static func getTimezonesByAlias(
         for senderAliases: [String],

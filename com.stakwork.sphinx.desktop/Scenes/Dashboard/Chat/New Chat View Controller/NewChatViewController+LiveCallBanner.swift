@@ -12,20 +12,18 @@ extension NewChatViewController: ActiveCallBannerDelegate {
     
     // MARK: - Banner installation
     
-    // Installs the banner view into the VC's own view hierarchy, sitting directly
+    // Installs the banner stack into the VC's own view hierarchy, sitting directly
     // below chatTopView. Called once from setupChatTopView().
     func installActiveCallBannerIfNeeded() {
-        let banner = chatTopView.activeCallBannerView
-        guard banner.superview == nil else { return }
-        
-        view.addSubview(banner)
-        
+        let stack = chatTopView.liveCallBannerStack
+        guard stack.superview == nil else { return }
+        view.addSubview(stack)
         NSLayoutConstraint.activate([
-            banner.leadingAnchor.constraint(equalTo: chatTopView.leadingAnchor),
-            banner.trailingAnchor.constraint(equalTo: chatTopView.trailingAnchor),
-            banner.topAnchor.constraint(equalTo: chatTopView.bottomAnchor),
-            banner.heightAnchor.constraint(equalToConstant: ActiveCallBannerView.kHeight),
+            stack.leadingAnchor.constraint(equalTo: chatTopView.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: chatTopView.trailingAnchor),
+            stack.topAnchor.constraint(equalTo: chatTopView.bottomAnchor),
         ])
+        // No fixed height — stack self-sizes via each row's intrinsicContentSize
     }
     
     // MARK: - WebSocket-based banner lifecycle
@@ -36,49 +34,44 @@ extension NewChatViewController: ActiveCallBannerDelegate {
 
         installActiveCallBannerIfNeeded()
 
-        // Find the most recent call message and extract the actual call link URL.
-        // messageContent is stored as "call::{json}" — parse via VoIPRequestMessage.
-        // Fall back to using rawContent directly if it's already a bare call link.
-        guard let callMessage = TransactionMessage.getMostRecentCallMessage(for: chatId),
-              let rawContent = callMessage.messageContent else {
-            return
-        }
+        let callMessages = TransactionMessage.getRecentCallMessages(for: chatId, limit: 3)
+        for callMessage in callMessages {
+            guard let rawContent = callMessage.messageContent else { continue }
 
-        let callLink: String
-        if let parsed = VoIPRequestMessage.getFromString(rawContent)?.link, parsed.isCallLink {
-            callLink = parsed
-        } else if rawContent.isCallLink {
-            callLink = rawContent
-        } else {
-            return
-        }
+            let callLink: String
+            if let parsed = VoIPRequestMessage.getFromString(rawContent)?.link, parsed.isCallLink {
+                callLink = parsed
+            } else if rawContent.isCallLink {
+                callLink = rawContent
+            } else {
+                continue
+            }
 
-        // Extract room name from URL (last non-empty path component)
-        guard let url = URL(string: callLink),
-              let roomName = url.pathComponents.last(where: { !$0.isEmpty && $0 != "/" }) else {
-            return
-        }
+            guard let url = URL(string: callLink),
+                  let roomName = url.pathComponents.last(where: { !$0.isEmpty && $0 != "/" }) else {
+                continue
+            }
 
-        liveCallRoomName = roomName
-        liveCallLink = callLink
+            liveCallRooms[roomName] = callLink
 
-        // Subscribe for banner-level updates via the shared socket manager on the data source
-        // (covers the case where the call cell hasn't rendered yet)
-        if chatTableDataSource?.callParticipantsSocketManager == nil {
-            chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
-            chatTableDataSource?.callParticipantsSocketManager?.delegate = chatTableDataSource
+            if chatTableDataSource?.callParticipantsSocketManager == nil {
+                chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
+                chatTableDataSource?.callParticipantsSocketManager?.delegate = chatTableDataSource
+            }
+            if chatTableDataSource?.subscribedRooms.contains(roomName) == false {
+                chatTableDataSource?.subscribedRooms.insert(roomName)
+                chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
+            }
+            chatTableDataSource?.bannerRooms.insert(roomName)
         }
-        if chatTableDataSource?.subscribedRooms.contains(roomName) == false {
-            chatTableDataSource?.subscribedRooms.insert(roomName)
-            chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
-        }
-        chatTableDataSource?.messageIdToRoomName[-1] = roomName  // sentinel for banner-only subscriptions
     }
 
     func stopLiveCallBannerPolling() {
         chatTableDataSource?.unsubscribeAllRooms()
+        chatTableDataSource?.bannerRooms.removeAll()
+        liveCallRooms.removeAll()
         if isViewLoaded {
-            chatTopView?.hideActiveCallBanner()
+            chatTopView?.hideAllCallBanners()
         }
     }
     
@@ -96,8 +89,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
 // MARK: - NewChatTableDataSourceDelegate live call banner
 extension NewChatViewController {
     func roomFinished(roomName: String) {
-        guard roomName == liveCallRoomName else { return }
-        chatTopView.hideActiveCallBanner()
+        chatTopView.hideCallBanner(roomName: roomName)
     }
 
     func newCallMessageReceived() {
@@ -106,12 +98,13 @@ extension NewChatViewController {
     }
 
     func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {
-        guard roomName == liveCallRoomName, let callLink = liveCallLink else { return }
+        guard let callLink = liveCallRooms[roomName] else { return }
         if participants.isEmpty {
-            chatTopView.hideActiveCallBanner()
+            chatTopView.hideCallBanner(roomName: roomName)
         } else {
             let isAlreadyInCall = WindowsManager.sharedInstance.getLiveKitCallWindow() != nil
-            chatTopView.updateActiveCallBanner(
+            chatTopView.showCallBanner(
+                roomName: roomName,
                 participants: participants,
                 callLink: callLink,
                 isAlreadyInCall: isAlreadyInCall,

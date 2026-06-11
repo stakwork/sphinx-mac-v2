@@ -113,6 +113,7 @@ class NewChatTableDataSource : NSObject {
     var callParticipantsStore: [String: [BubbleMessageLayoutState.CallParticipantInfo]] = [:]
     var subscribedRooms: Set<String> = []
     var messageIdToRoomName: [Int: String] = [:]
+    var bannerRooms: Set<String> = []
     var callParticipantsSocketManager: CallParticipantsSocketManager?
     var lastSeenCallMessageId: Int? = nil
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
