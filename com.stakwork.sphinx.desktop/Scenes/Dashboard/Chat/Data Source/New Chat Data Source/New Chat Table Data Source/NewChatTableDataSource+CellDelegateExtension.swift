@@ -1309,11 +1309,13 @@ extension NewChatTableDataSource: CallParticipantsSocketDelegate {
     }
 
     private func refreshParticipants(for roomName: String) {
-        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] fresh in
-            guard let self = self, !fresh.isEmpty else { return }
-            self.callParticipantsStore[roomName] = fresh
-            self.reloadCellsForRoom(roomName)
-        }
+        callParticipantsSocketManager?.sendSubscribeTo(roomName: roomName)
+        
+//        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] fresh in
+//            guard let self = self, !fresh.isEmpty else { return }
+//            self.callParticipantsStore[roomName] = fresh
+//            self.reloadCellsForRoom(roomName)
+//        }
     }
 
     func participantLeft(roomName: String, identity: String) {
