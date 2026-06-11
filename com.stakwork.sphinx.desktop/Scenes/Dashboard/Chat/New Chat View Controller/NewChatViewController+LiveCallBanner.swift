@@ -24,6 +24,10 @@ extension NewChatViewController: ActiveCallBannerDelegate {
             stack.topAnchor.constraint(equalTo: chatTopView.bottomAnchor),
         ])
         // No fixed height — stack self-sizes via each row's intrinsicContentSize
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleCallWindowChange),
+            name: .liveKitCallWindowDidChange, object: nil
+        )
     }
     
     // MARK: - WebSocket-based banner lifecycle
@@ -73,12 +77,28 @@ extension NewChatViewController: ActiveCallBannerDelegate {
         if isViewLoaded {
             chatTopView?.hideAllCallBanners()
         }
+        NotificationCenter.default.removeObserver(self, name: .liveKitCallWindowDidChange, object: nil)
     }
     
     // MARK: - ActiveCallBannerDelegate
 
     func didTapJoin(callLink: String) {
+        WindowsManager.sharedInstance.closeActiveCallWindow()
         shouldStartCallWith(link: callLink, audioOnly: false, isHost: false)
+    }
+    
+    // MARK: - Call window change notification
+    
+    @objc private func handleCallWindowChange() {
+        refreshAllBanners()
+    }
+    
+    private func refreshAllBanners() {
+        for roomName in liveCallRooms.keys {
+            let participants = chatTableDataSource?.callParticipantsStore[roomName] ?? []
+            guard !participants.isEmpty else { continue }
+            shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
+        }
     }
 
     func didTapOpen() {
