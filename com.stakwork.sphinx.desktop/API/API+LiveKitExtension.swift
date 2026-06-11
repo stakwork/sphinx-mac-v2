@@ -115,6 +115,41 @@ extension API {
         task.resume()
     }
     
+    func getCallParticipants(
+        roomName: String,
+        callback: @escaping ([BubbleMessageLayoutState.CallParticipantInfo]) -> Void,
+        errorCallback: ((String) -> Void)? = nil
+    ) {
+        let url = "\(self.kVideoCallServer)/api/participants?roomName=\(roomName.urlEncode() ?? roomName)"
+        let request: URLRequest? = createRequest(url, params: nil, method: "GET")
+        guard let request = request else {
+            errorCallback?("Error creating request")
+            callback([])
+            return
+        }
+        sphinxRequest(request) { response in
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                var participants: [BubbleMessageLayoutState.CallParticipantInfo] = []
+                for (_, item) in json {
+                    let name = item["nickname"].stringValue
+                    guard !name.isEmpty else { continue }
+                    participants.append(BubbleMessageLayoutState.CallParticipantInfo(
+                        identity: name,
+                        name: name,
+                        profilePictureUrl: item["avatarUrl"].string,
+                        isActive: true
+                    ))
+                }
+                callback(participants)
+            case .failure(let error):
+                errorCallback?(error.localizedDescription)
+                callback([])
+            }
+        }
+    }
+
     func removeParticipant(
         room: String,
         participantIdentity: String,
