@@ -24,10 +24,6 @@ extension NewChatViewController: ActiveCallBannerDelegate {
             stack.topAnchor.constraint(equalTo: chatTopView.bottomAnchor),
         ])
         // No fixed height — stack self-sizes via each row's intrinsicContentSize
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(handleCallWindowChange),
-            name: .liveKitCallWindowDidChange, object: nil
-        )
     }
     
     // MARK: - WebSocket-based banner lifecycle
@@ -35,6 +31,13 @@ extension NewChatViewController: ActiveCallBannerDelegate {
     func startLiveCallBannerPolling() {
         guard chat?.isPublicGroup() == true, !isThread else { return }
         guard let chatId = chat?.id else { return }
+
+        chatTableDataSource?.hasDoneInitialCallBannerSetup = true
+        NotificationCenter.default.removeObserver(self, name: .liveKitCallWindowDidChange, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleCallWindowChange),
+            name: .liveKitCallWindowDidChange, object: nil
+        )
 
         installActiveCallBannerIfNeeded()
 
@@ -113,8 +116,52 @@ extension NewChatViewController {
     }
 
     func newCallMessageReceived() {
-        stopLiveCallBannerPolling()
-        startLiveCallBannerPolling()
+        guard chat?.isPublicGroup() == true, !isThread,
+              let chatId = chat?.id else { return }
+
+        // Recompute the current top-3 call rooms
+        var freshRooms: [String: String] = [:]
+        for msg in TransactionMessage.getRecentCallMessages(for: chatId, limit: 3) {
+            guard let raw = msg.messageContent else { continue }
+            let link: String?
+            if let parsed = VoIPRequestMessage.getFromString(raw)?.link, parsed.isCallLink {
+                link = parsed
+            } else if raw.isCallLink {
+                link = raw
+            } else {
+                link = nil
+            }
+            guard let link,
+                  let url = URL(string: link),
+                  let room = url.pathComponents.last(where: { !$0.isEmpty && $0 != "/" })
+            else { continue }
+            freshRooms[room] = link
+        }
+
+        // Remove rooms that fell out of the top-3
+        for room in Set(liveCallRooms.keys).subtracting(freshRooms.keys) {
+            chatTableDataSource?.subscribedRooms.remove(room)
+            chatTableDataSource?.bannerRooms.remove(room)
+            chatTableDataSource?.callParticipantsStore.removeValue(forKey: room)
+            chatTableDataSource?.callParticipantsSocketManager?.unsubscribe(roomName: room)
+            chatTopView.removeCallBanner(roomName: room)
+        }
+
+        // Subscribe to rooms newly entering the top-3
+        for (room, link) in freshRooms where liveCallRooms[room] == nil {
+            liveCallRooms[room] = link
+            if chatTableDataSource?.callParticipantsSocketManager == nil {
+                chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
+                chatTableDataSource?.callParticipantsSocketManager?.delegate = chatTableDataSource
+            }
+            if chatTableDataSource?.subscribedRooms.contains(room) == false {
+                chatTableDataSource?.subscribedRooms.insert(room)
+                chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: room)
+            }
+            chatTableDataSource?.bannerRooms.insert(room)
+        }
+
+        liveCallRooms = freshRooms
     }
 
     func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {

@@ -870,9 +870,8 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
 
                     if let lastMessage = self.messagesArray.last, lastMessage.isCallLink() {
                         if lastMessage.id != self.lastSeenCallMessageId {
-                            let wasFirstLoad = self.lastSeenCallMessageId == nil
                             self.lastSeenCallMessageId = lastMessage.id
-                            if !wasFirstLoad {
+                            if self.hasDoneInitialCallBannerSetup {
                                 DispatchQueue.main.async { self.delegate?.newCallMessageReceived() }
                             }
                         }

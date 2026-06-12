@@ -116,6 +116,7 @@ class NewChatTableDataSource : NSObject {
     var bannerRooms: Set<String> = []
     var callParticipantsSocketManager: CallParticipantsSocketManager?
     var lastSeenCallMessageId: Int? = nil
+    var hasDoneInitialCallBannerSetup: Bool = false
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights

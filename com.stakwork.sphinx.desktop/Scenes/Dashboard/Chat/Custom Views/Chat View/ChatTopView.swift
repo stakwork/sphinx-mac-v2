@@ -94,6 +94,15 @@ class ChatTopView: NSView, LoadableNib {
         }
     }
 
+    /// Fully removes the banner row for `roomName` from the stack and view hierarchy.
+    func removeCallBanner(roomName: String) {
+        guard let banner = bannerViews[roomName] else { return }
+        liveCallBannerStack.removeArrangedSubview(banner)
+        banner.removeFromSuperview()
+        bannerViews.removeValue(forKey: roomName)
+        if bannerViews.isEmpty { liveCallBannerStack.isHidden = true }
+    }
+
     /// Hides the row for `roomName`; collapses the stack if all rows are hidden.
     func hideCallBanner(roomName: String) {
         bannerViews[roomName]?.isHidden = true
