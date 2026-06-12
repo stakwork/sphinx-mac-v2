@@ -57,6 +57,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
             }
 
             liveCallRooms[roomName] = callLink
+            liveCallRoomDates[roomName] = callMessage.date ?? Date()
 
             if chatTableDataSource?.callParticipantsSocketManager == nil {
                 chatTableDataSource?.callParticipantsSocketManager = CallParticipantsSocketManager()
@@ -65,6 +66,9 @@ extension NewChatViewController: ActiveCallBannerDelegate {
             if chatTableDataSource?.subscribedRooms.contains(roomName) == false {
                 chatTableDataSource?.subscribedRooms.insert(roomName)
                 chatTableDataSource?.callParticipantsSocketManager?.subscribe(roomName: roomName)
+            } else {
+                // Already subscribed — force the server to re-emit current_participants
+                chatTableDataSource?.callParticipantsSocketManager?.sendSubscribeTo(roomName: roomName)
             }
             chatTableDataSource?.bannerRooms.insert(roomName)
         }
@@ -74,6 +78,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
         chatTableDataSource?.unsubscribeAllRooms()
         chatTableDataSource?.bannerRooms.removeAll()
         liveCallRooms.removeAll()
+        liveCallRoomDates.removeAll()
         if isViewLoaded {
             chatTopView?.hideAllCallBanners()
         }
@@ -91,12 +96,16 @@ extension NewChatViewController: ActiveCallBannerDelegate {
     
     @objc private func handleCallWindowChange() {
         refreshAllBanners()
+        if WindowsManager.sharedInstance.getLiveKitCallWindow() != nil {
+            for roomName in chatTableDataSource?.bannerRooms ?? [] {
+                chatTableDataSource?.callParticipantsSocketManager?.sendSubscribeTo(roomName: roomName)
+            }
+        }
     }
     
     private func refreshAllBanners() {
         for roomName in liveCallRooms.keys {
             let participants = chatTableDataSource?.callParticipantsStore[roomName] ?? []
-            guard !participants.isEmpty else { continue }
             shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
         }
     }
@@ -124,10 +133,12 @@ extension NewChatViewController {
         } else {
             let activeRoomName = WindowsManager.sharedInstance.getLiveKitCallWindow()?.windowIdentifier?.liveKitRoomName
             let isAlreadyInCall = activeRoomName == roomName
+            let messageDate = liveCallRoomDates[roomName] ?? .distantPast
             chatTopView.showCallBanner(
                 roomName: roomName,
                 participants: participants,
                 callLink: callLink,
+                messageDate: messageDate,
                 isAlreadyInCall: isAlreadyInCall,
                 delegate: self
             )

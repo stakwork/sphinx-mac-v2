@@ -552,6 +552,12 @@ import SwiftUI
         
         let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
         
+        // Auto-leave any existing call when joining a different room
+        if let existingRoom = getLiveKitCallWindow()?.windowIdentifier?.liveKitRoomName,
+           existingRoom != linkUrl.liveKitRoomName {
+            closeActiveCallWindow()
+        }
+        
         if openedWindowIdentifiers.contains(linkUrl) {
             return
         }
