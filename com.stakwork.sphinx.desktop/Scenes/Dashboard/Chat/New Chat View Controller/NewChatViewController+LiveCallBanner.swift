@@ -38,7 +38,7 @@ extension NewChatViewController: ActiveCallBannerDelegate {
 
         installActiveCallBannerIfNeeded()
 
-        let callMessages = TransactionMessage.getRecentCallMessages(for: chatId, limit: 3)
+        let callMessages = TransactionMessage.getRecentCallMessages(for: chatId)
         for callMessage in callMessages {
             guard let rawContent = callMessage.messageContent else { continue }
 
