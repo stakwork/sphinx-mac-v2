@@ -100,14 +100,18 @@ struct RoomContextView: View {
                 Task {
                     if !roomCtx.token.isEmpty {
                         do {
-                            let room = try await roomCtx.connect(onCallEnded: {
-                                self.onCallEnded?()
-                            })
+                            let room = try await roomCtx.connect(
+                                onConnected: {
+                                    self.enableMic()
+                                    if !self.audioOnly {
+                                        self.enableCamera()
+                                    }
+                                },
+                                onCallEnded: {
+                                    self.onCallEnded?()
+                                }
+                            )
                             appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
-                            self.enableMic()
-                            if !self.audioOnly {
-                                self.enableCamera()
-                            }
                         } catch {
                             print("LiveKit connect failed: \(error)")
                             Task { @MainActor in
