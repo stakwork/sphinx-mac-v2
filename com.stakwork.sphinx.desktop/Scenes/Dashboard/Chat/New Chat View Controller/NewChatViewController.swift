@@ -93,6 +93,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     // MARK: - Live call banner
     var liveCallRooms: [String: String] = [:]  // roomName -> callLink
+    var liveCallRoomDates: [String: Date] = [:]  // roomName → call message date
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     

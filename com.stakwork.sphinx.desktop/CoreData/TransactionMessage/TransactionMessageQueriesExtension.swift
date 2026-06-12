@@ -857,7 +857,7 @@ extension TransactionMessage {
 
     static func getRecentCallMessages(
         for chatId: Int,
-        limit: Int = 3,
+        limit: Int? = nil,
         context: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
     ) -> [TransactionMessage] {
         let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
@@ -867,7 +867,9 @@ extension TransactionMessage {
             TransactionMessage.TransactionMessageType.call.rawValue
         )
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
-        fetchRequest.fetchLimit = limit
+        if let limit = limit {
+            fetchRequest.fetchLimit = limit
+        }
         return (try? context.fetch(fetchRequest)) ?? []
     }
     
