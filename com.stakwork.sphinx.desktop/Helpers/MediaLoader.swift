@@ -339,7 +339,7 @@ import SDWebImage
         DispatchQueue.global().async {
             let avAssetImageGenerator = AVAssetImageGenerator(asset: asset)
             avAssetImageGenerator.appliesPreferredTrackTransform = true
-            let thumnailTime = CMTimeMake(value: 5, timescale: 1)
+            let thumnailTime = CMTimeMake(value: 2, timescale: 1)
             do {
                 let cgThumbImage = try avAssetImageGenerator.copyCGImage(at: thumnailTime, actualTime: nil)
                 let thumbImage = NSImage(cgImage: cgThumbImage, size: NSSize(width: 220, height: 220))
