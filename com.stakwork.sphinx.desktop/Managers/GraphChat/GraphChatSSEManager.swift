@@ -49,7 +49,7 @@ class GraphChatSSEManager: NSObject {
         // Build JSON body
         let body: [String: Any] = [
             "messages": messages,
-            "workspaceId": workspaceSlug
+            "workspaceSlug": workspaceSlug
         ]
 
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {

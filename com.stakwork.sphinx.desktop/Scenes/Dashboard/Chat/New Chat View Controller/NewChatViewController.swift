@@ -74,6 +74,10 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var viewMode = ViewMode.Standard
     var isAgentChat: Bool = false
+
+    var agentProcessingBar: AgentProcessingBarView?
+    var agentBarHeightConstraint: NSLayoutConstraint?
+    var agentProcessingBarTimer: Timer?
     
     var contactResultsController: NSFetchedResultsController<UserContact>!
     var chatResultsController: NSFetchedResultsController<Chat>!
@@ -146,6 +150,7 @@ class NewChatViewController: DashboardSplittedViewController {
 
         addShimmeringView()
         setupViews()
+        setupAgentProcessingBar()
         configureCollectionView()
         setupChatTopView()
         setupChatData()

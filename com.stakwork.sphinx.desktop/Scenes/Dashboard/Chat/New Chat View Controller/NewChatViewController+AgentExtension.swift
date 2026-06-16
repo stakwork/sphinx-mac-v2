@@ -2,6 +2,59 @@ import Foundation
 
 extension NewChatViewController {
 
+    // MARK: - Agent Processing Bar
+
+    func setupAgentProcessingBar() {
+        guard isAgentChat else { return }
+        let bar = AgentProcessingBarView()
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bar)
+        let heightConstraint = bar.heightAnchor.constraint(equalToConstant: 0)
+        NSLayoutConstraint.activate([
+            bar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bar.bottomAnchor.constraint(equalTo: chatBottomView.topAnchor),
+            heightConstraint
+        ])
+        agentBarHeightConstraint = heightConstraint
+        agentProcessingBar = bar
+    }
+
+    func showAgentProcessingBar() {
+        guard let bar = agentProcessingBar,
+              let heightConstraint = agentBarHeightConstraint,
+              heightConstraint.constant == 0 else { return }
+        heightConstraint.constant = 32
+        chatScrollView.contentInsets.bottom += 32
+        bar.startAnimating()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.2
+            view.layoutSubtreeIfNeeded()
+        }
+        // 5-minute auto-dismiss timeout
+        agentProcessingBarTimer?.invalidate()
+        agentProcessingBarTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: false) { [weak self] _ in
+            DispatchQueue.main.async { self?.hideAgentProcessingBar() }
+        }
+    }
+
+    func hideAgentProcessingBar() {
+        agentProcessingBarTimer?.invalidate()
+        agentProcessingBarTimer = nil
+        guard let bar = agentProcessingBar,
+              let heightConstraint = agentBarHeightConstraint,
+              heightConstraint.constant > 0 else { return }
+        heightConstraint.constant = 0
+        chatScrollView.contentInsets.bottom = max(0, chatScrollView.contentInsets.bottom - 32)
+        bar.stopAnimating()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.2
+            view.layoutSubtreeIfNeeded()
+        }
+    }
+
+    // MARK: - Agent Message Handling
+
     func handleAgentMessage(text: String, completion: @escaping (Bool) -> ()) {
         guard let chat = self.chat, let owner = self.owner else {
             completion(false)
@@ -26,6 +79,7 @@ extension NewChatViewController {
         chat.setLastMessage(outgoing)
         CoreDataManager.sharedManager.saveContext()
         completion(true)
+//        showAgentProcessingBar()
 
         Task {
             let reply = await AIAgentManager.sharedInstance.chat(text)
@@ -78,6 +132,7 @@ extension NewChatViewController {
     }
 
     func insertAgentReply(_ text: String) {
+        hideAgentProcessingBar()
         guard let chat = self.chat, let owner = self.owner else { return }
         let incoming = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
