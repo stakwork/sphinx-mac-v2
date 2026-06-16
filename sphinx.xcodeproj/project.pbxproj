@@ -738,6 +738,7 @@
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
+		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1819,6 +1820,7 @@
 		CE9BA46129D772BD000C8837 /* PodcastDetailActionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastDetailActionCell.xib; sourceTree = "<group>"; };
 		CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEmptyAvatarPlaceholderView.swift; sourceTree = "<group>"; };
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
+		CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentProcessingBarView.swift; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3814,6 +3816,7 @@
 		47E771352472E44600C9CFEB /* Custom Views */ = {
 			isa = PBXGroup;
 			children = (
+				CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */,
 				47DE1BF12A68138B0029597B /* New Chat View Rows */,
 				4708C2112A5884FC00274AD4 /* Chat View */,
 				474C7A3D28D211AB007A3E17 /* Notifications */,
@@ -4936,6 +4939,7 @@
 				474F67652486D08800CE6016 /* Notification.Name.swift in Sources */,
 				474A66842497CAFE002C2D10 /* MessageReplyView.swift in Sources */,
 				47DE1C3F2A6AFA070029597B /* ChatShimmeringView.swift in Sources */,
+				CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */,
 				938209E42BD88ED0000A9ED8 /* NewMenuListItem.swift in Sources */,
 				471ABEB52EF447C000CFD81F /* DataSync+CoreDataClass.swift in Sources */,
 				475DB9912D01FCE10011C9BA /* AttachmentPreviewCollectionViewItem.swift in Sources */,
