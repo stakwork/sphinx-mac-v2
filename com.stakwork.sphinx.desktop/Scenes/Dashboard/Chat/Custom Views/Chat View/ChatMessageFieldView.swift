@@ -293,6 +293,10 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
                 return
             }
             
+            if messageTextView.string == text {
+                return
+            }
+            
             messageTextView.string = text
             
             self.textDidChange(Notification(name: NSControl.textDidChangeNotification))
