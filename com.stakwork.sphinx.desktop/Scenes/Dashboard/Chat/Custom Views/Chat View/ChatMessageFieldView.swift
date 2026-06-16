@@ -269,6 +269,7 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         
         initializeMacros()
         setOngoingMessage()
+        setOngoingAttachments()
     }
     
     func updatePriceTagField() {
