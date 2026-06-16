@@ -97,10 +97,10 @@ extension AIAgentManager {
         case .ambiguous(let candidates):
             return "Multiple workspaces match '\(workspaceName)': \(candidates.joined(separator: ", ")). Please be more specific."
         case .found(let matchedWorkspace):
-            // Use slug if available, fall back to name
-            let slug = matchedWorkspace.slug ?? matchedWorkspace.name
+            // Use workspace id (UUID) as required by the Hive API
+            let workspaceId = matchedWorkspace.id
 
-            print("AIAgent [HiveGraph] querying workspace '\(slug)': \(question)")
+            print("AIAgent [HiveGraph] querying workspace '\(matchedWorkspace.name)' (id: \(workspaceId)): \(question)")
 
             // Step 3: Resolve auth token
             let token: String? = await withCheckedContinuation { continuation in
@@ -128,7 +128,7 @@ extension AIAgentManager {
                 bridge.continuation = continuation
                 sseManager.startStream(
                     messages: [["role": "user", "content": question]],
-                    workspaceSlug: slug,
+                    workspaceSlug: workspaceId,
                     token: token
                 )
             }

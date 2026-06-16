@@ -200,14 +200,14 @@ class CreateTribeViewController: NSViewController {
         viewModel.setInfo(
             name: nameField.stringValue,
             description: descriptionField.stringValue,
-            img: imageField.stringValue,
+            img: imageField.stringValue.trimmingCharacters(in: .whitespaces),
             priceToJoin: Int(priceToJoinField.stringValue),
             pricePerMessage: Int(pricePerMessageField.stringValue),
             amountToStake: Int(amountToStakeField.stringValue),
             timeToStake: Int(timeToStakeField.stringValue),
-            appUrl: appUrlField.stringValue,
-            secondBrainUrl: secondBrainUrlField.stringValue,
-            feedUrl: feedUrlField.stringValue,
+            appUrl: appUrlField.stringValue.trimmingCharacters(in: .whitespaces),
+            secondBrainUrl: secondBrainUrlField.stringValue.trimmingCharacters(in: .whitespaces),
+            feedUrl: feedUrlField.stringValue.trimmingCharacters(in: .whitespaces),
             listInTribes: listSwitch.state == NSControl.StateValue.on,
             privateTribe: approveRequestSwitch.state == NSControl.StateValue.on
         )

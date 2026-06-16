@@ -356,8 +356,13 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             failedMessageIcon.isHidden = true
             
             let chatId = chatListObject.getChat()?.id
+            let lastMessageDate = chatListObject.lastMessage?.date ?? .distantPast
+            let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chatId, threadUUID: nil)
+
             if let draft = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chatId, threadUUID: nil),
-               !draft.isEmpty {
+               !draft.isEmpty,
+               let draftDate = draftDate,
+               draftDate > lastMessageDate {
                 let attributed = NSMutableAttributedString()
                 let font = messageLabel.font ?? NSFont.systemFont(ofSize: 13)
                 attributed.append(NSAttributedString(
@@ -372,13 +377,8 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
                 messageLabel.superview?.isHidden = false
                 failedMessageIcon.isHidden = true
                 inviteIconLabel.isHidden = true
-
-                if let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chatId, threadUUID: nil) {
-                    dateLabel.stringValue = draftDate.getLastMessageDateFormat()
-                    dateLabel.isHidden = false
-                } else {
-                    dateLabel.isHidden = true
-                }
+                dateLabel.stringValue = draftDate.getLastMessageDateFormat()
+                dateLabel.isHidden = false
                 return
             }
             
