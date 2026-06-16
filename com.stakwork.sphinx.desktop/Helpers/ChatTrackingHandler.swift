@@ -11,12 +11,7 @@ import Foundation
 @MainActor 
 class ChatTrackingHandler {
     
-    class var shared : ChatTrackingHandler {
-        struct Static {
-            nonisolated(unsafe) static let instance = ChatTrackingHandler()
-        }
-        return Static.instance
-    }
+    static let shared = ChatTrackingHandler()
     
     var replyableMessages: [Int: Int] = [:]
     var ongoingMessages : [String: String] = [:]
