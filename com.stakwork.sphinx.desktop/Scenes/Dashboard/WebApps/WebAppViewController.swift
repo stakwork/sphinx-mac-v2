@@ -298,7 +298,7 @@ class WebAppViewController: NSViewController {
     }
 
     func loadPage() {
-        var url: String = appURL
+        var url: String = appURL.trimmingCharacters(in: .whitespaces)
         
         if let tribeUUID = chat?.tribeInfo?.uuid ?? chat?.uuid {
             url = url.withURLParam(key: "uuid", value: tribeUUID)
