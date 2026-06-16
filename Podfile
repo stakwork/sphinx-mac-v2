@@ -27,4 +27,5 @@ target 'Sphinx' do
    pod 'ObjectMapper'
    pod 'CocoaMQTT'
    pod 'MessagePack.swift', '~> 4.0'
+   pod 'LDSwiftEventSource', '~> 3.3'
 end

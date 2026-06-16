@@ -676,6 +676,8 @@
 		47FEE2292A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2282A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift */; };
 		47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */; };
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
+		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
+		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
 		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
@@ -1716,6 +1718,8 @@
 		47FEE2282A66F75800646C4E /* NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+LayoutExtension.swift"; sourceTree = "<group>"; };
 		47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
+		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
+		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
 		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
@@ -2281,6 +2285,7 @@
 				CAFF00042EF500001AD45004 /* CallParticipantsSocket */,
 				56B5F8942EF500001AD459F3 /* WebApp */,
 				47AA1A032EF431AB00CFDA02 /* AI Agent */,
+				47HG0031EF431AB00CFDA03 /* GraphChat */,
 				AA0001003EF431AB00CFDA02 /* Logging */,
 				471ABEAD2EF4319900CFD81F /* Data Sync Manager */,
 				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
@@ -3399,6 +3404,7 @@
 			isa = PBXGroup;
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
+				47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";
@@ -4010,6 +4016,14 @@
 			path = NewOnlyTextMessageCollectionViewItem;
 			sourceTree = "<group>";
 		};
+		47HG0031EF431AB00CFDA03 /* GraphChat */ = {
+			isa = PBXGroup;
+			children = (
+				47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */,
+			);
+			path = GraphChat;
+			sourceTree = "<group>";
+		};
 		47WORKG12F19000000000011 /* Workspaces */ = {
 			isa = PBXGroup;
 			children = (
@@ -4455,8 +4469,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "\n";
 		};
 		79D01615633138DB27132C48 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4488,13 +4501,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4783,6 +4792,8 @@
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
+				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
+				47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */,
 				AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */,
 				AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */,
 				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,

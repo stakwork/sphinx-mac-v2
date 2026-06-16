@@ -31,6 +31,8 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - State
 
+    private(set) var isProcessing: Bool = false
+
     var conversationHistory: [ModelMessage] = []
     var lastIncomingMessageDate: Date? = nil
     private var lastCheckedIncomingDate: Date? = nil
@@ -84,6 +86,8 @@ final class AIAgentManager: @unchecked Sendable {
       a diagnostic question like "any MQTT errors?" or "what caused the crash at 8AM?". \
       Current device time is always injected in the tool description to resolve relative time references.
 
+    - query_hive_graph: Query a Hive workspace knowledge graph by workspace name and question. Use this when the user asks about their codebase, project structure, recent commits, or any information that lives in a Hive workspace graph.
+
     CRITICAL TOOL RESULT RULES:
     // - Tool results that start with "Message sent successfully" mean the message was delivered. \
     //   Always report this as a success. Do NOT say there was an error or that you're unsure.
@@ -105,6 +109,8 @@ final class AIAgentManager: @unchecked Sendable {
     - Results starting with "App logs" contain filtered log entries — present them clearly; summarise patterns if the list is long.
     - Results starting with "Log analysis for" contain a structured summary — present it directly; do not re-list raw lines.
     - Results starting with "No entries matching" mean filters returned nothing — tell the user and suggest broader filters.
+    - Results starting with "Graph answer:" or any non-error text from query_hive_graph contain the knowledge graph response — present it clearly.
+    - Results starting with "Hive graph error" or "Failed to fetch" from query_hive_graph mean the tool failed — report the issue and suggest checking Hive configuration.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -265,6 +271,8 @@ final class AIAgentManager: @unchecked Sendable {
             return "AI agent is not configured. Please set your provider and API key in Profile → Advanced → Configure AI Agent."
         }
 
+        isProcessing = true
+
         // Track incoming messages timestamp silently
         if let incoming = lastIncomingMessageDate, incoming != lastCheckedIncomingDate {
             lastCheckedIncomingDate = incoming
@@ -285,7 +293,8 @@ final class AIAgentManager: @unchecked Sendable {
             "mark_chat_as_seen":       buildMarkChatAsSeenTool().eraseToTool(),
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool(),
-            "read_app_logs":           buildReadAppLogsTool().eraseToTool()
+            "read_app_logs":           buildReadAppLogsTool().eraseToTool(),
+            "query_hive_graph":        buildQueryHiveGraphTool().eraseToTool()
         ]
         switch activeProvider {
         case .anthropic:
@@ -312,6 +321,7 @@ final class AIAgentManager: @unchecked Sendable {
             let errText = "Sorry, I encountered an error: \(error.localizedDescription)"
             conversationHistory.append(.assistant(errText))
             saveHistory()
+            isProcessing = false
             return errText
         }
 
@@ -361,6 +371,7 @@ final class AIAgentManager: @unchecked Sendable {
 
         conversationHistory.append(.assistant(responseText))
         saveHistory()
+        isProcessing = false
         return responseText
     }
 
