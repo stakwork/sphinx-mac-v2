@@ -502,6 +502,8 @@
 		47A93EF725DD79F70030DF14 /* lightningNetwork.gif in Resources */ = {isa = PBXBuildFile; fileRef = 47A93EF625DD79F70030DF14 /* lightningNetwork.gif */; };
 		47A93EF925DD7C4B0030DF14 /* NSImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A93EF825DD7C4B0030DF14 /* NSImageView.swift */; };
 		47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */; };
+		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
+		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47AA1BFB2A681D8C0029597B /* NSException+Catcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */; };
 		47AA1BFC2A681EE80029597B /* NSException+Catcher.h in Sources */ = {isa = PBXBuildFile; fileRef = 47AA1BF92A681D8C0029597B /* NSException+Catcher.h */; };
 		47AE2468287F1F4700EF42BD /* API+RedeemSatsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */; };
@@ -1528,6 +1530,8 @@
 		47A93EF625DD79F70030DF14 /* lightningNetwork.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = lightningNetwork.gif; sourceTree = "<group>"; };
 		47A93EF825DD7C4B0030DF14 /* NSImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSImageView.swift; sourceTree = "<group>"; };
 		47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentManager.swift; sourceTree = "<group>"; };
+		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
+		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47AA1BF92A681D8C0029597B /* NSException+Catcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSException+Catcher.h"; sourceTree = "<group>"; };
 		47AA1BFA2A681D8C0029597B /* NSException+Catcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSException+Catcher.m"; sourceTree = "<group>"; };
 		47AE2467287F1F4700EF42BD /* API+RedeemSatsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+RedeemSatsExtension.swift"; sourceTree = "<group>"; };
@@ -2281,6 +2285,7 @@
 				CAFF00042EF500001AD45004 /* CallParticipantsSocket */,
 				56B5F8942EF500001AD459F3 /* WebApp */,
 				47AA1A032EF431AB00CFDA02 /* AI Agent */,
+				47HG0031EF431AB00CFDA03 /* GraphChat */,
 				AA0001003EF431AB00CFDA02 /* Logging */,
 				471ABEAD2EF4319900CFD81F /* Data Sync Manager */,
 				479B19322EC36ABB00A5B9E2 /* S3 Uploader */,
@@ -3399,8 +3404,17 @@
 			isa = PBXGroup;
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
+				47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */,
 			);
 			path = "AI Agent";
+			sourceTree = "<group>";
+		};
+		47HG0031EF431AB00CFDA03 /* GraphChat */ = {
+			isa = PBXGroup;
+			children = (
+				47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */,
+			);
+			path = GraphChat;
 			sourceTree = "<group>";
 		};
 		47B55083248958B3000514BF /* Payments */ = {
@@ -4783,6 +4797,8 @@
 				4794966E2AB8B50E00C42D1E /* InvoiceView.swift in Sources */,
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
+				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
+				47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */,
 				AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */,
 				AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */,
 				471ABEAF2EF431AE00CFD81F /* DataSyncManager.swift in Sources */,
