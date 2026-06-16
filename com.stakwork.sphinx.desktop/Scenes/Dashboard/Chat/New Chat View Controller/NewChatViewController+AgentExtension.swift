@@ -79,7 +79,7 @@ extension NewChatViewController {
         chat.setLastMessage(outgoing)
         CoreDataManager.sharedManager.saveContext()
         completion(true)
-        showAgentProcessingBar()
+//        showAgentProcessingBar()
 
         Task {
             let reply = await AIAgentManager.sharedInstance.chat(text)

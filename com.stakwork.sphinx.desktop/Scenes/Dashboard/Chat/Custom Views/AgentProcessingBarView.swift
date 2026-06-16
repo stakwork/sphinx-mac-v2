@@ -41,7 +41,7 @@ final class AgentProcessingBarView: NSView {
 
     private func setup() {
         wantsLayer = true
-        layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        layer?.backgroundColor = NSColor.Sphinx.Body.cgColor
 
         addSubview(progressIndicator)
         addSubview(label)
@@ -56,6 +56,8 @@ final class AgentProcessingBarView: NSView {
             label.centerYAnchor.constraint(equalTo: centerYAnchor),
             label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -8)
         ])
+        
+        isHidden = true
     }
 
     func startAnimating() {
