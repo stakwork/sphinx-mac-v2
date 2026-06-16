@@ -57,13 +57,13 @@ class GraphChatSSEManager: NSObject {
             return
         }
 
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        urlRequest.httpBody = bodyData
-
-        let config = EventSource.Config(handler: self, url: urlRequest)
+        var config = EventSource.Config(handler: self, url: url)
+        config.method = "POST"
+        config.body = bodyData
+        config.headers = [
+            "Content-Type": "application/json",
+            "Authorization": "Bearer \(token)"
+        ]
         eventSource = EventSource(config: config)
         eventSource?.start()
     }

@@ -49,7 +49,7 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
 
 extension AIAgentManager {
 
-    private struct QueryHiveGraphInput: Codable, Sendable {
+    struct QueryHiveGraphInput: Codable, Sendable {
         let workspace_name: String
         let question: String
     }
