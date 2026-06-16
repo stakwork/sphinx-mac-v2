@@ -117,9 +117,9 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
                 }
 
             case "participant_left":
-                let identity = (json["identity"] as? String) ?? ""
-                self.delegate?.participantLeft(roomName: roomName, identity: identity)
-
+                if let identity = (json["identity"] as? String) {
+                    self.delegate?.participantLeft(roomName: roomName, identity: identity)
+                }
             case "room_finished":
                 self.delegate?.roomFinished(roomName: roomName)
 
@@ -149,12 +149,14 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
     }
 
     private func parseParticipantDict(_ dict: [String: Any]) -> BubbleMessageLayoutState.CallParticipantInfo? {
-        guard let nickname = dict["nickname"] as? String else { return nil }
-        let identity = dict["identity"] as? String
+        guard let identity = dict["identity"] as? String else {
+            return nil
+        }
+        let nickname = dict["nickname"] as? String
         let avatarUrl = dict["avatarUrl"] as? String
         return BubbleMessageLayoutState.CallParticipantInfo(
-            identity: identity ?? nickname,
-            name: nickname,
+            identity: identity,
+            name: nickname ?? "",
             profilePictureUrl: avatarUrl,
             isActive: true
         )
