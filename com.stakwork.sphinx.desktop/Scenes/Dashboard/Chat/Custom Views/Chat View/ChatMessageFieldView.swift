@@ -269,6 +269,7 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         
         initializeMacros()
         setOngoingMessage()
+        setOngoingAttachments()
     }
     
     func updatePriceTagField() {
@@ -290,6 +291,10 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     func setOngoingMessage() {
         if let text = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chat?.id, threadUUID: threadUUID) {
             if text.isEmpty {
+                return
+            }
+            
+            if messageTextView.string == text {
                 return
             }
             
