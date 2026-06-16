@@ -67,6 +67,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             with: chat?.id,
             threadUUID: threadUUID
         )
+        ChatTrackingHandler.shared.deleteOngoingAttachments(with: chat?.id, threadUUID: threadUUID)
         messageTextView.string = ""
         priceTextField.stringValue = ""
         textDidChange(Notification(name: NSControl.textDidChangeNotification))

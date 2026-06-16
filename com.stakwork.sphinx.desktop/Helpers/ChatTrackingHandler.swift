@@ -21,6 +21,7 @@ class ChatTrackingHandler {
     var replyableMessages: [Int: Int] = [:]
     var ongoingMessages : [String: String] = [:]
     var draftTimestamps: [String: Date] = [:]
+    var ongoingAttachments: [String: [AttachmentPreview]] = [:]
     
     func deleteReplyableMessage(with chatId: Int?) {
         guard let chatId = chatId else { return }
@@ -94,6 +95,35 @@ class ChatTrackingHandler {
         return nil
     }
     
+    func saveOngoingAttachments(
+        _ attachments: [AttachmentPreview],
+        chatId: Int?,
+        threadUUID: String?
+    ) {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
+        if attachments.isEmpty {
+            ongoingAttachments.removeValue(forKey: key)
+        } else {
+            ongoingAttachments[key] = attachments
+        }
+    }
+
+    func getOngoingAttachmentsFor(
+        chatId: Int?,
+        threadUUID: String?
+    ) -> [AttachmentPreview]? {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return nil }
+        return ongoingAttachments[key]
+    }
+
+    func deleteOngoingAttachments(
+        with chatId: Int?,
+        threadUUID: String?
+    ) {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
+        ongoingAttachments.removeValue(forKey: key)
+    }
+
     func getComposedKeyFor(
         chatId: Int?,
         threadUUID: String?
