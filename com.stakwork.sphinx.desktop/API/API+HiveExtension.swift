@@ -110,6 +110,24 @@ extension API {
         }
     }
 
+    func resolveHiveToken(
+        callback: @escaping (String) -> Void,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            callback(storedToken)
+        } else {
+            authenticateWithHive(
+                callback: { token in
+                    guard let token = token else { errorCallback(); return }
+                    UserDefaults.Keys.hiveToken.set(token)
+                    callback(token)
+                },
+                errorCallback: errorCallback
+            )
+        }
+    }
+
     func fetchWorkspacesWithAuth(
         callback: @escaping HiveWorkspacesCallback,
         errorCallback: @escaping EmptyCallback

@@ -52,6 +52,7 @@ extension NewChatViewController {
 • 🏕️ Create new tribes
 • 🔍 Search the web for current info
 • 🪵 Read and analyze app logs (filter by time, level, or keyword)
+• 🧠 Query any Hive workspace knowledge graph
 """
         } else {
             introText = "👋 Welcome to Sphinx AI! To get started, go to Profile → Configure AI Agent and enter your Anthropic or OpenAI API key."
