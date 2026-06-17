@@ -2076,28 +2076,33 @@ extension SphinxOnionManager {
         let dispatchQueue = DispatchQueue.global(qos: .utility)
         dispatchQueue.async {
             let backgroundContext = self.backgroundContext
-            
+
+            var tagChunks: [[String]] = []
+
             backgroundContext.performSafely {
                 let messages = TransactionMessage.getAllNotConfirmed(context: backgroundContext)
-                
+
                 if messages.isEmpty {
                     return
                 }
-                
-                Task {
-                    for i in stride(from: 0, to: messages.count, by: 200) {
-                        let chunk = Array(messages[i..<min(i + 200, messages.count)])
-                        
-                        let tags = chunk.compactMap({ $0.tag })
-                        
-                        SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
-                        
-                        try? await Task.sleep(nanoseconds: 500_000_000)
+
+                for i in stride(from: 0, to: messages.count, by: 200) {
+                    let chunk = Array(messages[i..<min(i + 200, messages.count)])
+                    let tags = chunk.compactMap({ $0.tag })
+                    if !tags.isEmpty {
+                        tagChunks.append(tags)
                     }
                 }
             }
-            
-            backgroundContext.saveContext()
+
+            guard !tagChunks.isEmpty else { return }
+
+            Task {
+                for tags in tagChunks {
+                    SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+            }
         }
     }
     

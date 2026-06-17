@@ -416,10 +416,11 @@ class FeedsManager : NSObject, @unchecked Sendable {
             
             if let url = episode.getAudioUrl(), episode.duration == nil {
                 let asset = AVAsset(url: url)
-                asset.loadValuesAsynchronously(forKeys: ["duration"], completionHandler: {
-                    let duration = Int(Double(asset.duration.value) / Double(asset.duration.timescale))
-                    episode.duration = duration
-                })
+                Task {
+                    if let d = try? await asset.load(.duration) {
+                        episode.duration = Int(Double(d.value) / Double(d.timescale))
+                    }
+                }
             }
         }
     }
@@ -436,14 +437,12 @@ class FeedsManager : NSObject, @unchecked Sendable {
                 
                 if let url = episode.getAudioUrl(), episode.duration == nil {
                     let asset = AVAsset(url: url)
-                    asset.loadValuesAsynchronously(forKeys: ["duration"], completionHandler: {
-                        let duration = Int(Double(asset.duration.value) / Double(asset.duration.timescale))
-                        episode.duration = duration
-                        
-                        DispatchQueue.main.async {
-                            completion()
+                    Task {
+                        if let d = try? await asset.load(.duration) {
+                            episode.duration = Int(Double(d.value) / Double(d.timescale))
                         }
-                    })
+                        await MainActor.run { completion() }
+                    }
                     return
                 }
             }
