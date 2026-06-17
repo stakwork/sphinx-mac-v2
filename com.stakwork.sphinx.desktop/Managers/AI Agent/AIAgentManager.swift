@@ -100,6 +100,32 @@ final class AIAgentManager: @unchecked Sendable {
     required to connect to the correct graph chat. Only invoke query_hive_graph once \
     you have a workspace name.
 
+    ## Hive Workspace / Feature / Task Tools
+
+    ### Read Tools (no confirmation required)
+    - list_hive_workspaces: List all Hive workspaces the user has access to with name, slug, role, and member count.
+    - get_workspace_detail: Get full details about a workspace (description, members list) by workspace name.
+    - search_workspace: Search within a workspace for tasks, features, or content matching a query string.
+    - list_features: List all features in a workspace. Includes feature title, status, and ID. Shows a hint if more exist.
+    - get_feature_detail: Get detailed info about a specific feature (title, status, priority, description, task count) by name.
+    - list_tasks: List tasks in a workspace. Optionally pass include_archived=true to include archived tasks. Shows up to 50 with a hint if more exist.
+    - get_task_detail: Get full details about a specific task (status, priority, assignee, feature, workflow status, repo, timestamps) by name.
+    - get_task_messages: Get the last 20 chat messages for a specific task, formatted as [role]: message.
+
+    ### Write Tools (ALL require explicit user confirmation before invocation)
+    - create_feature: Create a new feature in a workspace. Requires workspace_name, title, and optional description.
+    - update_feature: Update an existing feature's title or description. Requires workspace_name and feature_name.
+    - trigger_task_generation: Trigger automatic AI task generation for a feature. Requires workspace_name and feature_name.
+    - update_task_status: Change a task's status. Valid values: TODO, IN_PROGRESS, DONE, CANCELLED, BLOCKED.
+    - start_task: Start (assign and begin) a task. Requires workspace_name and task_name.
+    - retry_task_workflow: Retry the workflow for a failed or stalled task.
+    - archive_task: Archive a task so it no longer appears in active task lists.
+
+    ### Hive Ambiguity Behaviour
+    - If a workspace/feature/task name is ambiguous, the tool returns a list of candidates — ask the user to clarify before retrying.
+    - All workspace/feature/task lookups use fuzzy name matching (exact → contains → Levenshtein).
+    - Write tools must never be called until the user has explicitly confirmed the action.
+
     CRITICAL TOOL RESULT RULES:
     // - Tool results that start with "Message sent successfully" mean the message was delivered. \
     //   Always report this as a success. Do NOT say there was an error or that you're unsure.
@@ -123,6 +149,23 @@ final class AIAgentManager: @unchecked Sendable {
     - Results starting with "No entries matching" mean filters returned nothing — tell the user and suggest broader filters.
     - Results starting with "Graph answer:" or any non-error text from query_hive_graph contain the knowledge graph response — present it clearly.
     - Results starting with "Hive graph error" or "Failed to fetch" from query_hive_graph mean the tool failed — report the issue and suggest checking Hive configuration.
+    - Results starting with "Hive workspaces" contain the workspace list — present it clearly.
+    - Results starting with "Workspace:" contain workspace detail — present it clearly.
+    - Results starting with "Search results in" contain search hits — present them clearly.
+    - Results starting with "Features in" contain the feature list — present it clearly.
+    - Results starting with "Feature:" contain feature detail — present it clearly.
+    - Results starting with "Tasks in" contain the task list — present it clearly.
+    - Results starting with "Task:" contain task detail — present it clearly.
+    - Results starting with "Messages for task" contain task chat messages — present them clearly.
+    - Results starting with "Feature '" and containing "created successfully" mean the feature was created — report success.
+    - Results starting with "Feature '" and containing "updated successfully" mean the feature was updated — report success.
+    - Results starting with "Task generation triggered" mean the generation started — report success.
+    - Results starting with "Task '" and containing "status updated" mean the status change succeeded — report success.
+    - Results starting with "Task '" and containing "started" mean the task was started — report success.
+    - Results starting with "Workflow retry triggered" mean the retry was initiated — report success.
+    - Results starting with "Task '" and containing "archived" mean the task was archived — report success.
+    - Results starting with "Multiple workspaces match" or "Multiple features match" or "Multiple tasks match" mean the name was ambiguous — list the candidates and ask the user to clarify before retrying with the exact name.
+    - Results starting with "No workspace found" or "No feature found" or "No task found" mean the item was not found — tell the user and list the available options.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -306,7 +349,23 @@ final class AIAgentManager: @unchecked Sendable {
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool(),
             "read_app_logs":           buildReadAppLogsTool().eraseToTool(),
-            "query_hive_graph":        buildQueryHiveGraphTool().eraseToTool()
+            "query_hive_graph":        buildQueryHiveGraphTool().eraseToTool(),
+            // Hive workspace/feature/task tools
+            "list_hive_workspaces":    buildListHiveWorkspacesTool().eraseToTool(),
+            "get_workspace_detail":    buildGetWorkspaceDetailTool().eraseToTool(),
+            "search_workspace":        buildSearchWorkspaceTool().eraseToTool(),
+            "list_features":           buildListFeaturesTool().eraseToTool(),
+            "get_feature_detail":      buildGetFeatureDetailTool().eraseToTool(),
+            "list_tasks":              buildListTasksTool().eraseToTool(),
+            "get_task_detail":         buildGetTaskDetailTool().eraseToTool(),
+            "get_task_messages":       buildGetTaskMessagesTool().eraseToTool(),
+            "create_feature":          buildCreateFeatureTool().eraseToTool(),
+            "update_feature":          buildUpdateFeatureTool().eraseToTool(),
+            "trigger_task_generation": buildTriggerTaskGenerationTool().eraseToTool(),
+            "update_task_status":      buildUpdateTaskStatusTool().eraseToTool(),
+            "start_task":              buildStartTaskTool().eraseToTool(),
+            "retry_task_workflow":     buildRetryTaskWorkflowTool().eraseToTool(),
+            "archive_task":            buildArchiveTaskTool().eraseToTool()
         ]
         switch activeProvider {
         case .anthropic:

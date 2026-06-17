@@ -677,6 +677,7 @@
 		47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */; };
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
+		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
@@ -1720,6 +1721,7 @@
 		47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
+		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
@@ -3407,6 +3409,7 @@
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
 				47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */,
+				47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";
@@ -4801,6 +4804,7 @@
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
 				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
+				47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */,
 				47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */,
 				AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */,
 				AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */,
