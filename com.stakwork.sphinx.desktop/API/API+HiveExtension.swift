@@ -403,10 +403,8 @@ extension API {
             self?.fetchWorkspaceImage(slug: slug, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-}
 
     // MARK: - Workspace Detail
-
     func fetchWorkspaceDetail(
         slug: String,
         authToken: String,
