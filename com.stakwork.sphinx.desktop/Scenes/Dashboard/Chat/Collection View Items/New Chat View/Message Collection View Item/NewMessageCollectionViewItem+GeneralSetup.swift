@@ -20,6 +20,8 @@ extension NewMessageCollectionViewItem {
     func setupViews() {
         messageLabel.setSelectionColor(color: NSColor.getTextSelectionColor())
         messageLabel.allowsEditingTextAttributes = true
+        messageLabel.maximumNumberOfLines = 0
+        messageLabel.cell?.wraps = true
 
         receivedArrow.drawReceivedBubbleArrow(color: NSColor.Sphinx.ReceivedMsgBG)
         sentArrow.drawSentBubbleArrow(color: NSColor.Sphinx.SentMsgBG)
