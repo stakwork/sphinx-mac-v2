@@ -38,6 +38,9 @@ extension NewOnlyTextMessageCollectionViewitem {
                 )
             }
             
+            // Clear the control-level font so NSTextField doesn't override
+            // per-run font attributes (bold, code, headings) in the attributed string.
+            messageLabel.font = nil
             messageLabel.attributedStringValue = rendered
             messageLabel.isEnabled = true
         }
