@@ -819,7 +819,15 @@ extension TransactionMessage {
         case TransactionMessage.TransactionMessageType.textAttachment.rawValue:
             return "\("paid.message.capitalize".localized) \(directionString)"
         case TransactionMessage.TransactionMessageType.botResponse.rawValue:
-            return "\("bot.response".localized) \(directionString)"
+            if isBotHTMLResponse() {
+                return "\("bot.response.preview".localized) \(directionString)"
+            } else {
+                if includeSender {
+                    return "\(senderAlias): \(self.getMessageDescription())"
+                } else {
+                    return self.getMessageDescription()
+                }
+            }
         case TransactionMessage.TransactionMessageType.groupLeave.rawValue,
              TransactionMessage.TransactionMessageType.groupJoin.rawValue,
              TransactionMessage.TransactionMessageType.groupKick.rawValue,
