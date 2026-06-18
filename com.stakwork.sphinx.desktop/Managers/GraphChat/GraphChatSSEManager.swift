@@ -105,10 +105,17 @@ class GraphChatSSEManager: NSObject {
         var body: [String: Any] = [
             "workspaceSlugs": orgSlugs,
             "orgId": orgId,
-            "message": question,
-            "skipEnrichments": true
+            "skipEnrichments": true,
+            "turnId": UUID().uuidString
         ]
-        if let cid = conversationId { body["conversationId"] = cid }
+        if let cid = conversationId {
+            // Server-history mode — subsequent turns
+            body["message"] = question
+            body["conversationId"] = cid
+        } else {
+            // First turn — send full messages array so server does not require conversationId
+            body["messages"] = [["role": "user", "content": question]]
+        }
 
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
             delegate?.onError("Failed to serialize request body.")
@@ -236,7 +243,9 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
            let cid = http.allHeaderFields["X-Conversation-Id"] as? String,
            !orgConversationIdFired {
             orgConversationIdFired = true
-            DispatchQueue.main.async { self.onConversationId?(cid) }
+            // Persist synchronously before allowing data to flow so the ID is
+            // stored before any subsequent turn could be triggered.
+            onConversationId?(cid)
         }
         completionHandler(.allow)
     }
