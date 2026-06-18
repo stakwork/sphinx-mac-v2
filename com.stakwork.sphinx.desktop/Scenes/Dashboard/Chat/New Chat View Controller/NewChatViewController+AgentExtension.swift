@@ -106,7 +106,7 @@ extension NewChatViewController {
 • 🏕️ Create new tribes
 • 🔍 Search the web for current info
 • 🪵 Read and analyze app logs (filter by time, level, or keyword)
-• 🧠 Query any Hive workspace knowledge graph
+• 🤖 Ask Jamie anything about your org — features, tasks, codebase, project status
 • 🐝 Browse, search & manage Hive workspaces, features, and tasks
 """
         } else {

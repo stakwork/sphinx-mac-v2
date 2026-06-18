@@ -86,17 +86,31 @@ final class AIAgentManager: @unchecked Sendable {
       a diagnostic question like "any MQTT errors?" or "what caused the crash at 8AM?". \
       Current device time is always injected in the tool description to resolve relative time references.
 
-    - query_hive_graph: Query the Hive org knowledge graph (Jamie). Use this when the user \
-      asks about their org's codebase, project structure, recent commits, features, tasks, \
-      or asks to talk to Jamie. No workspace name is needed — Jamie has full access to the \
-      entire organization.
+    - query_hive_graph: Query the Hive org knowledge graph via Jamie (the Hive AI agent). \
+      DEFAULT tool for any Hive question that is analytical, open-ended, or needs org-wide \
+      context — project status, team activity, architecture, "what are we working on", recent \
+      changes, or any cross-entity question. No workspace name needed. Prefer this over \
+      specific Hive tools unless the user explicitly requests a targeted CRUD operation.
 
-    HIVE AGENT — JAMIE:
-    Jamie is the Hive org AI agent. When the user says anything like "ask Jamie", \
-    "talk to Jamie", "tell Jamie", mentions Jamie, or asks about their org's projects, \
-    features, tasks, or codebase, call query_hive_graph immediately with their question. \
-    No workspace name is needed — Jamie has full access to the entire organization. \
-    Do NOT ask for a workspace name before invoking query_hive_graph.
+    HIVE AGENT — JAMIE (DEFAULT FOR OPEN-ENDED HIVE QUESTIONS):
+    Jamie is the Hive org AI agent accessible via query_hive_graph. You do NOT need the user \
+    to mention "Jamie" — call query_hive_graph proactively whenever the user's question is \
+    analytical, open-ended, or requires org-wide understanding. Trigger it immediately when \
+    the user:
+    - Asks any broad or summary question about workspaces, features, tasks, or the codebase \
+      (e.g. "What are we working on?", "Any bugs in progress?", "Status of our project?")
+    - Asks about team activity, architecture, design decisions, recent commits, or progress
+    - Asks a cross-entity question spanning multiple workspaces, features, or tasks
+    - Explicitly mentions Jamie in any form ("ask Jamie", "tell Jamie", "what does Jamie think?")
+
+    Use specific Hive tools ONLY when the user explicitly requests a targeted CRUD operation:
+    - "List my workspaces" → list_hive_workspaces
+    - "Show details for feature X" → get_feature_detail
+    - "Create feature X" → create_feature (with confirmation)
+    - "Update task X to DONE" → update_task_status (with confirmation)
+
+    When in doubt, prefer query_hive_graph. Never ask the user which tool to use. \
+    Do NOT ask for a workspace name before calling query_hive_graph.
 
     ## Hive Workspace / Feature / Task Tools
 
