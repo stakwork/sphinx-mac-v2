@@ -45,6 +45,38 @@ class ChatHelper {
         return NSColor.Sphinx.SecondaryText
     }
     
+    public static func applySphinxLinkTransforms(to attrStr: NSMutableAttributedString) {
+        let fullRange = NSRange(location: 0, length: attrStr.length)
+        let text = attrStr.string
+
+        // Pass 1 — video call links: existing .link attributes pointing to kVideoCallServer
+        // → replace the attribute URL with callLinkDeepLink (display text unchanged)
+        attrStr.enumerateAttribute(.link, in: fullRange) { value, range, _ in
+            guard let url = value as? URL,
+                  url.absoluteString.hasPrefix(API.sharedInstance.kVideoCallServer) else { return }
+            let deepLink = url.absoluteString.callLinkDeepLink
+            if let deepURL = URL(string: deepLink) {
+                attrStr.addAttribute(.link, value: deepURL, range: range)
+            }
+        }
+
+        // Pass 2 — bare pubkeys: 66-char hex strings with no existing link attribute
+        // → add blue/underline styling + .link pointing to shareContactDeepLink
+        guard let regex = try? NSRegularExpression(pattern: "[A-F0-9a-f]{66}") else { return }
+        regex.enumerateMatches(in: text, range: NSRange(text.startIndex..., in: text)) { match, _, _ in
+            guard let range = match?.range else { return }
+            guard range.location != NSNotFound, NSMaxRange(range) <= attrStr.length else { return }
+            guard attrStr.attribute(.link, at: range.location, effectiveRange: nil) == nil else { return }
+            let pubkey = (text as NSString).substring(with: range)
+            guard let deepURL = URL(string: pubkey.shareContactDeepLink) else { return }
+            attrStr.addAttributes([
+                .link: deepURL,
+                .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                .underlineStyle: NSUnderlineStyle.single.rawValue
+            ], range: range)
+        }
+    }
+
     public static func removeDuplicatedContainedFrom(
         urlRanges: [NSRange]
     ) -> [NSRange] {

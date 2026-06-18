@@ -154,64 +154,12 @@ extension ThreadListCollectionViewItem {
             originalMessageTextLabel.font = NSFont.getThreadListFont()
         } else {
             let messageC = threadOriginalMessage.text
-            
-            let attributedString = NSMutableAttributedString(string: messageC)
-            attributedString.addAttributes([NSAttributedString.Key.font: NSFont.getThreadListFont()], range: messageC.nsRange)
-            
-            ///Highlighted text formatting
-            let highlightedNsRanges = threadOriginalMessage.highlightedMatches.map {
-                return $0.range
-            }
-                
-            for nsRange in highlightedNsRanges {
-                
-                let adaptedRange = NSRange(
-                    location: nsRange.location,
-                    length: nsRange.length
-                )
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
-                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                        NSAttributedString.Key.font: NSFont.getThreadListHightlightedFont()
-                    ],
-                    range: adaptedRange
-                )
-            }
-            
-            ///Bold text formatting
-            let boldNsRanges = threadOriginalMessage.boldMatches.map {
-                return $0.range
-            }
-            
-            for nsRange in boldNsRanges {
-                let adaptedRange = NSRange(
-                    location: nsRange.location,
-                    length: nsRange.length
-                )
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.font: NSFont.getThreadListBoldFont()
-                    ],
-                    range: adaptedRange
-                )
-            }
-            
-            ///Links formatting
-            for match in threadOriginalMessage.linkMatches {
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                        NSAttributedString.Key.font: NSFont.getThreadListFont()
-                    ],
-                    range: match.range
-                )
-            }
-            
+
+            let attributedString = NSMutableAttributedString(
+                attributedString: ChatHelper.markdownRenderer.render(messageC)
+            )
+            ChatHelper.applySphinxLinkTransforms(to: attributedString)
+
             originalMessageTextLabel.attributedStringValue = attributedString
         }
     }

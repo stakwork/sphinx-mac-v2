@@ -28,6 +28,7 @@ extension NewOnlyTextMessageCollectionViewitem {
             let rendered = NSMutableAttributedString(
                 attributedString: ChatHelper.markdownRenderer.render(messageContent.text ?? "")
             )
+            ChatHelper.applySphinxLinkTransforms(to: rendered)
             
             if let term = searchingTerm, !term.isEmpty {
                 let messageC = messageContent.text ?? ""
