@@ -264,110 +264,16 @@ extension ThreadCollectionViewItem {
                 let attributedString = NSMutableAttributedString(
                     attributedString: ChatHelper.markdownRenderer.render(messageC)
                 )
+                ChatHelper.applySphinxLinkTransforms(to: attributedString)
 
-                let renderedLength = attributedString.length
-
-                ///Highlighted text formatting
-                let highlightedNsRanges = messageContent.highlightedMatches.map {
-                    return $0.range
-                }
-
-                for nsRange in highlightedNsRanges {
-                    guard nsRange.location != NSNotFound,
-                          NSMaxRange(nsRange) <= renderedLength else { continue }
-
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
-                            NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: NSFont.getHighlightedMessageFont()
-                        ],
-                        range: nsRange
-                    )
-                }
-
-                ///Bold text formatting
-                let boldNsRanges = messageContent.boldMatches.map {
-                    return $0.range
-                }
-
-                for nsRange in boldNsRanges {
-                    guard nsRange.location != NSNotFound,
-                          NSMaxRange(nsRange) <= renderedLength else { continue }
-
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.font: NSFont.getMessageBoldFont()
-                        ],
-                        range: nsRange
-                    )
-                }
-
-                ///Links formatting
-                var nsRanges = messageContent.linkMatches.map {
-                    return $0.range
-                }
-
-                nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-                for nsRange in nsRanges {
-                    guard nsRange.location != NSNotFound,
-                          NSMaxRange(nsRange) <= renderedLength else { continue }
-
-                    if let text = messageContent.text, let range = Range(nsRange, in: text) {
-
-                        var substring = String(text[range])
-
-                        if substring.isPubKey {
-                            substring = substring.shareContactDeepLink
-                        } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                            substring = substring.callLinkDeepLink
-                        } else if !substring.isTribeJoinLink {
-                            substring = substring.withProtocol(protocolString: "http")
-                        }
-
-                        if let url = URL(string: substring) {
-                            attributedString.addAttributes(
-                                [
-                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: NSFont.getMessageFont(),
-                                    NSAttributedString.Key.link: url
-                                ],
-                                range: nsRange
-                            )
-                        }
-                    }
-                }
-
-                ///Markdown Links formatting
-                for (textCheckingResult, _, link, _) in messageContent.linkMarkdownMatches {
-                    let nsRange = textCheckingResult.range
-                    guard nsRange.location != NSNotFound,
-                          NSMaxRange(nsRange) <= renderedLength else { continue }
-
-                    if let url = URL(string: link) {
-                        attributedString.addAttributes(
-                            [
-                                NSAttributedString.Key.link: url,
-                                NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                NSAttributedString.Key.font: NSFont.getMessageFont()
-                            ],
-                            range: nsRange
-                        )
-                    }
-                }
-                
                 ///Search term formatting
-                let term = searchingTerm ?? ""
-                let searchingTermRange = (messageC.lowercased() as NSString).range(of: term.lowercased())
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.PrimaryGreen
-                    ]
-                    , range: searchingTermRange
-                )
+                if let term = searchingTerm, !term.isEmpty {
+                    let searchingTermRange = (messageC.lowercased() as NSString).range(of: term.lowercased())
+                    attributedString.addAttributes(
+                        [NSAttributedString.Key.backgroundColor: NSColor.Sphinx.PrimaryGreen],
+                        range: searchingTermRange
+                    )
+                }
 
                 lastReplyMessageLabel.attributedStringValue = attributedString
                 lastReplyMessageLabel.isEnabled = true

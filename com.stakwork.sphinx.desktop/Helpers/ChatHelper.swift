@@ -45,6 +45,53 @@ class ChatHelper {
         return NSColor.Sphinx.SecondaryText
     }
     
+    public static func applySphinxLinkTransforms(to attrStr: NSMutableAttributedString) {
+        let fullRange = NSRange(location: 0, length: attrStr.length)
+        let text = attrStr.string
+
+        // Pass 1 — video call links: existing .link attributes pointing to kVideoCallServer
+        // → replace the attribute URL with callLinkDeepLink (display text unchanged)
+        attrStr.enumerateAttribute(.link, in: fullRange) { value, range, _ in
+            guard let url = value as? URL,
+                  url.absoluteString.hasPrefix(API.sharedInstance.kVideoCallServer) else { return }
+            let deepLink = url.absoluteString.callLinkDeepLink
+            if let deepURL = URL(string: deepLink) {
+                attrStr.addAttribute(.link, value: deepURL, range: range)
+            }
+        }
+
+        // Pass 2 — bare pubkeys and virtual pubkeys (pubkey_mixerpubkey_channelid),
+        // with no existing link attribute → add blue/underline styling + .link pointing to shareContactDeepLink.
+        // Virtual pubkey pattern is matched first so the full compound string is linked as one unit.
+        let patterns = [
+            "[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+",
+            "[A-F0-9a-f]{66}"
+        ]
+        // Track ranges already linked in this pass to avoid double-linking sub-segments.
+        var linkedRanges: [NSRange] = []
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            regex.enumerateMatches(in: text, range: NSRange(text.startIndex..., in: text)) { match, _, _ in
+                guard let range = match?.range else { return }
+                guard range.location != NSNotFound, NSMaxRange(range) <= attrStr.length else { return }
+                // Skip if already covered by a previously linked range (e.g. 66-char segment inside a virtual key).
+                let alreadyCovered = linkedRanges.contains {
+                    $0.location <= range.location && NSMaxRange($0) >= NSMaxRange(range)
+                }
+                guard !alreadyCovered else { return }
+                guard attrStr.attribute(.link, at: range.location, effectiveRange: nil) == nil else { return }
+                let pubkey = (text as NSString).substring(with: range)
+                guard let deepURL = URL(string: pubkey.shareContactDeepLink) else { return }
+                attrStr.addAttributes([
+                    .link: deepURL,
+                    .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                    .underlineStyle: NSUnderlineStyle.single.rawValue
+                ], range: range)
+                linkedRanges.append(range)
+            }
+        }
+    }
+
     public static func removeDuplicatedContainedFrom(
         urlRanges: [NSRange]
     ) -> [NSRange] {
