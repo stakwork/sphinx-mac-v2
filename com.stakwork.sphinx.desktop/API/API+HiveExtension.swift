@@ -10,7 +10,17 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+// MARK: - HiveOrg Model
+
+struct HiveOrg {
+    let id: String
+    let githubLogin: String
+    let name: String
+}
+
 typealias HiveAuthTokenCallback = ((String?) -> ())
+typealias HiveOrgsCallback = ((HiveOrg) -> ())
+typealias HiveOrgSlugsCallback = (([String]) -> ())
 typealias HiveWorkspacesCallback = (([Workspace]) -> ())
 typealias HiveTasksCallback = (([WorkspaceTask]) -> ())
 typealias HiveWorkspaceImageCallback = ((String?) -> ())
@@ -177,6 +187,143 @@ extension API {
             },
             errorCallback: errorCallback
         )
+    }
+
+    // MARK: - Orgs
+
+    func fetchOrgs(
+        authToken: String,
+        callback: @escaping HiveOrgsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        guard let request = createRequest(
+            "\(API.kHiveBaseUrl)/orgs",
+            params: nil,
+            method: "GET",
+            token: authToken
+        ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                errorCallback()
+                return
+            }
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                guard let orgsArray = json.array, let firstOrg = orgsArray.first,
+                      let id = firstOrg["id"].string,
+                      let githubLogin = firstOrg["githubLogin"].string,
+                      let name = firstOrg["name"].string else {
+                    print("[Hive] fetchOrgs: no orgs found or parse failed")
+                    errorCallback()
+                    return
+                }
+                let org = HiveOrg(id: id, githubLogin: githubLogin, name: name)
+                print("[Hive] fetchOrgs: found org '\(name)' id=\(id)")
+                callback(org)
+            case .failure(let error):
+                print("[Hive] fetchOrgs failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchOrgsWithAuth(
+        callback: @escaping HiveOrgsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            fetchOrgs(authToken: storedToken, callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndFetchOrgs(callback: callback, errorCallback: errorCallback)
+                })
+        } else {
+            authenticateAndFetchOrgs(callback: callback, errorCallback: errorCallback)
+        }
+    }
+
+    private func authenticateAndFetchOrgs(
+        callback: @escaping HiveOrgsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(callback: { [weak self] token in
+            guard let token = token else { errorCallback(); return }
+            UserDefaults.Keys.hiveToken.set(token)
+            self?.fetchOrgs(authToken: token, callback: callback, errorCallback: errorCallback)
+        }, errorCallback: errorCallback)
+    }
+
+    func fetchOrgWorkspaces(
+        githubLogin: String,
+        authToken: String,
+        callback: @escaping HiveOrgSlugsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        guard let encodedLogin = githubLogin.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let request = createRequest(
+                "\(API.kHiveBaseUrl)/orgs/\(encodedLogin)/workspaces",
+                params: nil,
+                method: "GET",
+                token: authToken
+              ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                errorCallback()
+                return
+            }
+            switch response.result {
+            case .success(let data):
+                let json = JSON(data)
+                let slugs: [String]
+                if let arr = json.array {
+                    slugs = arr.compactMap { $0["slug"].string }
+                } else if let arr = json["workspaces"].array {
+                    slugs = arr.compactMap { $0["slug"].string }
+                } else {
+                    slugs = []
+                }
+                print("[Hive] fetchOrgWorkspaces: \(slugs.count) slug(s)")
+                callback(slugs)
+            case .failure(let error):
+                print("[Hive] fetchOrgWorkspaces failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchOrgWorkspacesWithAuth(
+        githubLogin: String,
+        callback: @escaping HiveOrgSlugsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            fetchOrgWorkspaces(githubLogin: githubLogin, authToken: storedToken, callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndFetchOrgWorkspaces(githubLogin: githubLogin, callback: callback, errorCallback: errorCallback)
+                })
+        } else {
+            authenticateAndFetchOrgWorkspaces(githubLogin: githubLogin, callback: callback, errorCallback: errorCallback)
+        }
+    }
+
+    private func authenticateAndFetchOrgWorkspaces(
+        githubLogin: String,
+        callback: @escaping HiveOrgSlugsCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(callback: { [weak self] token in
+            guard let token = token else { errorCallback(); return }
+            UserDefaults.Keys.hiveToken.set(token)
+            self?.fetchOrgWorkspaces(githubLogin: githubLogin, authToken: token, callback: callback, errorCallback: errorCallback)
+        }, errorCallback: errorCallback)
     }
 
     func fetchTasks(

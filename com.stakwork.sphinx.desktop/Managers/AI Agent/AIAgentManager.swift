@@ -86,19 +86,17 @@ final class AIAgentManager: @unchecked Sendable {
       a diagnostic question like "any MQTT errors?" or "what caused the crash at 8AM?". \
       Current device time is always injected in the tool description to resolve relative time references.
 
-    - query_hive_graph: Query a Hive workspace knowledge graph by workspace name and question. \
-      Use this when the user asks about their codebase, project structure, recent commits, \
-      or any information that lives in a Hive workspace graph. Also use this when the user \
-      asks to talk to or ask "Jamie" — Jamie is the name of the Hive AI agent.
+    - query_hive_graph: Query the Hive org knowledge graph (Jamie). Use this when the user \
+      asks about their org's codebase, project structure, recent commits, features, tasks, \
+      or asks to talk to Jamie. No workspace name is needed — Jamie has full access to the \
+      entire organization.
 
     HIVE AGENT — JAMIE:
-    The Hive AI agent is named Jamie. When the user says anything like "ask Jamie", \
-    "talk to Jamie", "tell Jamie", or directs a question to Jamie, you must use the \
-    query_hive_graph tool to relay that question to the Hive knowledge graph. \
-    Before invoking the tool, if the user has not specified a workspace, you MUST ask: \
-    "Which workspace would you like me to ask Jamie about?" — the workspace name is \
-    required to connect to the correct graph chat. Only invoke query_hive_graph once \
-    you have a workspace name.
+    Jamie is the Hive org AI agent. When the user says anything like "ask Jamie", \
+    "talk to Jamie", "tell Jamie", mentions Jamie, or asks about their org's projects, \
+    features, tasks, or codebase, call query_hive_graph immediately with their question. \
+    No workspace name is needed — Jamie has full access to the entire organization. \
+    Do NOT ask for a workspace name before invoking query_hive_graph.
 
     ## Hive Workspace / Feature / Task Tools
 
@@ -164,8 +162,8 @@ final class AIAgentManager: @unchecked Sendable {
     - Results starting with "Task '" and containing "started" mean the task was started — report success.
     - Results starting with "Workflow retry triggered" mean the retry was initiated — report success.
     - Results starting with "Task '" and containing "archived" mean the task was archived — report success.
-    - Results starting with "Multiple workspaces match" or "Multiple features match" or "Multiple tasks match" mean the name was ambiguous — list the candidates and ask the user to clarify before retrying with the exact name.
-    - Results starting with "No workspace found" or "No feature found" or "No task found" mean the item was not found — tell the user and list the available options.
+    - Results starting with "Multiple features match" or "Multiple tasks match" mean the name was ambiguous — list the candidates and ask the user to clarify before retrying with the exact name.
+    - Results starting with "No feature found" or "No task found" mean the item was not found — tell the user and list the available options.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
     """
@@ -253,6 +251,12 @@ final class AIAgentManager: @unchecked Sendable {
         // Reset history when credentials change
         if clearHistory {
             reset()
+        }
+
+        // Pre-cache Hive org info in the background
+        Task {
+            await AIAgentManager.fetchAndCacheHiveOrg()
+            await AIAgentManager.fetchAndCacheOrgSlugs()
         }
 
         // Create agent contact + chat if not already present

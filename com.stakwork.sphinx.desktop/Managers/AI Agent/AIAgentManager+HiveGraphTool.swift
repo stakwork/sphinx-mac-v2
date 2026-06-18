@@ -50,54 +50,40 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
 extension AIAgentManager {
 
     struct QueryHiveGraphInput: Codable, Sendable {
-        let workspace_name: String
         let question: String
     }
 
     func buildQueryHiveGraphTool() -> TypedTool<QueryHiveGraphInput, JSONValue> {
         tool(
-            description: "Query a Hive workspace knowledge graph by workspace name and question. Use this when the user asks about their codebase, project structure, recent commits, or any information that lives in a Hive workspace graph.",
+            description: "Query the Hive org knowledge graph (Jamie). Use this when the user asks about their org's codebase, project structure, recent commits, features, tasks, or asks to talk to Jamie. No workspace name is needed — Jamie has full access to the entire organization.",
             execute: { (input: QueryHiveGraphInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
-                let result = await AIAgentManager.executeQueryHiveGraph(
-                    workspaceName: input.workspace_name,
-                    question: input.question
-                )
+                let result = await AIAgentManager.executeQueryHiveGraph(question: input.question)
                 return .value(.string(result))
             }
         )
     }
 
-    private static func executeQueryHiveGraph(
-        workspaceName: String,
-        question: String
-    ) async -> String {
+    static func executeQueryHiveGraph(question: String) async -> String {
 
-        // Step 1: Fetch workspaces
-        let workspaces: [Workspace]? = await withCheckedContinuation { continuation in
-            API.sharedInstance.fetchWorkspacesWithAuth(
-                callback: { continuation.resume(returning: $0) },
-                errorCallback: { continuation.resume(returning: nil) }
-            )
+        // Step 1: Ensure org slugs are cached (refresh if stale)
+        var slugs = AIAgentManager.cachedOrgSlugs()
+        if slugs == nil {
+            await AIAgentManager.fetchAndCacheOrgSlugs()
+            slugs = AIAgentManager.cachedOrgSlugs()
+        }
+        guard let orgSlugs = slugs, !orgSlugs.isEmpty else {
+            return "Hive org not configured. Please check your Hive connection in settings."
+        }
+        guard let orgId: String = UserDefaults.Keys.hiveOrgId.get(), !orgId.isEmpty else {
+            return "Hive org ID not found. Please reconfigure your Hive connection."
         }
 
-        guard let workspaces = workspaces, !workspaces.isEmpty else {
-            return "Failed to fetch Hive workspaces. Make sure your Hive token is configured."
-        }
-
-        // Step 2: Fuzzy-match workspace name using shared resolver
-        let (matchedWorkspace, candidates) = resolveWorkspace(query: workspaceName, from: workspaces)
-        guard let matchedWorkspace = matchedWorkspace else {
-            if candidates.count > 1 {
-                return "Multiple workspaces match '\(workspaceName)': \(candidates.joined(separator: ", ")). Please be more specific."
-            }
-            let names = workspaces.map { $0.name }.joined(separator: ", ")
-            return "No Hive workspace found matching '\(workspaceName)'. Available workspaces: \(names)"
-        }
-
-        // Prefer slug over UUID (matches what the server expects)
-        let slug = matchedWorkspace.slug ?? matchedWorkspace.id
-
-        print("AIAgent [HiveGraph] querying workspace '\(matchedWorkspace.name)' (slug: \(slug)): \(question)")
+        // Step 2: Read persisted conversationId for this org
+        let conversationId: String? = {
+            guard let data: Data = UserDefaults.Keys.hiveConversationIdByOrg.get(),
+                  let dict = try? JSONDecoder().decode([String: String].self, from: data) else { return nil }
+            return dict[orgId]
+        }()
 
         // Step 3: Resolve auth token
         let token: String? = await withCheckedContinuation { continuation in
@@ -106,26 +92,37 @@ extension AIAgentManager {
                 errorCallback: { continuation.resume(returning: nil) }
             )
         }
-
         guard let token = token else {
             return "Hive authentication failed. Please check your Hive configuration."
         }
 
-        // Step 4: Stream the graph response
+        // Step 4: Stream via org SSE
         let bridge = HiveGraphBridge()
         let sseManager = GraphChatSSEManager()
         bridge.sseManager = sseManager
         sseManager.delegate = bridge
 
-        let result: String = await withCheckedContinuation { continuation in
-            bridge.continuation = continuation
-            sseManager.startStream(
-                messages: [["role": "user", "content": question]],
-                workspaceSlug: slug,
-                token: token
+        let result: String = await withCheckedContinuation { cont in
+            bridge.continuation = cont
+            sseManager.startOrgStream(
+                question: question,
+                orgSlugs: orgSlugs,
+                orgId: orgId,
+                conversationId: conversationId,
+                token: token,
+                onConversationId: { newCid in
+                    var dict: [String: String] = [:]
+                    if let data: Data = UserDefaults.Keys.hiveConversationIdByOrg.get(),
+                       let existing = try? JSONDecoder().decode([String: String].self, from: data) {
+                        dict = existing
+                    }
+                    dict[orgId] = newCid
+                    if let encoded = try? JSONEncoder().encode(dict) {
+                        UserDefaults.Keys.hiveConversationIdByOrg.set(encoded)
+                    }
+                }
             )
         }
-
         return result
     }
 }
