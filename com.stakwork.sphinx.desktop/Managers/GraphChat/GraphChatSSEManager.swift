@@ -23,7 +23,7 @@ protocol GraphChatSSEDelegate: AnyObject {
 
 // MARK: - GraphChatSSEManager
 
-class GraphChatSSEManager: NSObject {
+class GraphChatSSEManager: NSObject, EventHandler, @unchecked Sendable {
 
     static let kGraphChatEndpoint = "https://hive.sphinx.chat/api/ask/quick"
 
@@ -142,7 +142,7 @@ class GraphChatSSEManager: NSObject {
 
 // MARK: - EventHandler
 
-extension GraphChatSSEManager: EventHandler {
+extension GraphChatSSEManager {
 
     func onOpened() {
         print("[GraphChatSSE] Stream opened.")
@@ -283,9 +283,12 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
             guard line.hasPrefix("data: ") else { continue }
             let payload = String(line.dropFirst(6))
             guard payload != "[DONE]",
-                  let data = payload.data(using: .utf8),
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
-            DispatchQueue.main.async { self.handleOrgSSEJson(json) }
+                  let _ = payload.data(using: .utf8) else { continue }
+            DispatchQueue.main.async {
+                guard let data = payload.data(using: .utf8),
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+                self.handleOrgSSEJson(json)
+            }
         }
     }
 

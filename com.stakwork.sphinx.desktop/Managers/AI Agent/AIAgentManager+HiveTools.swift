@@ -1117,7 +1117,7 @@ extension AIAgentManager {
             let newSet = Set(slugs)
             if oldSet != newSet {
                 print("[AIAgent] fetchAndCacheOrgSlugs: slug set changed, clearing conversationId cache")
-                UserDefaults.Keys.hiveConversationIdByOrg.set(nil)
+                UserDefaults.Keys.hiveConversationIdByOrg.set(nil as Data?)
             }
         }
 
