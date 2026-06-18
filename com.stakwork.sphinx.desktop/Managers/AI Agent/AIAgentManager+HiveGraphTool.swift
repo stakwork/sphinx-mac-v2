@@ -55,7 +55,7 @@ extension AIAgentManager {
 
     func buildQueryHiveGraphTool() -> TypedTool<QueryHiveGraphInput, JSONValue> {
         tool(
-            description: "Query the Hive org knowledge graph (Jamie). Use this when the user asks about their org's codebase, project structure, recent commits, features, tasks, or asks to talk to Jamie. No workspace name is needed — Jamie has full access to the entire organization.",
+            description: "Query the Hive org knowledge graph via Jamie (the Hive AI agent). DEFAULT tool for any Hive question that is analytical, open-ended, or requires org-wide context — features, tasks, workspaces, codebase, architecture, team activity, or project status. Call this proactively WITHOUT waiting for the user to mention 'Jamie'. No workspace name needed. Only skip in favour of specific Hive CRUD tools when the user explicitly requests a targeted operation (list, detail, create, update, archive).",
             execute: { (input: QueryHiveGraphInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 let result = await AIAgentManager.executeQueryHiveGraph(question: input.question)
                 return .value(.string(result))
