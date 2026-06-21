@@ -45,7 +45,6 @@ class NewMessageReplyView: NSView, LoadableNib {
     static let kViewLabelVerticalMargins: CGFloat = 34.0
     
     var isMouseOver: Bool = false
-    private var expandToken: UUID = UUID()
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -261,12 +260,25 @@ class NewMessageReplyView: NSView, LoadableNib {
 
     override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
-        
-        guard isMouseOver else { return }
-        isMouseOver = false
-        expandToken = UUID() // invalidate any pending safety check
 
+        guard isMouseOver else { return }
+
+        // Reject spurious exits caused by NSTrackingArea recreation during layout resize
+        let mouseLocation = window?.mouseLocationOutsideOfEventStream ?? .zero
+        let localPoint = self.convert(mouseLocation, from: nil)
+        guard !self.bounds.contains(localPoint) else { return }
+
+        isMouseOver = false
         delegate?.onReplyViewMouseExit?()
+    }
+
+    func updateHoverVisuals(isHovered: Bool, bubble: BubbleMessageLayoutState.Bubble) {
+        isMouseOver = isHovered
+        messageLabel.textColor = isHovered
+            ? NSColor.Sphinx.Text.withAlphaComponent(0.9)
+            : (bubble.direction.isIncoming()
+                ? NSColor.Sphinx.WashedOutReceivedText
+                : NSColor.Sphinx.WashedOutSentText)
     }
     
     @IBAction func replyButtonClicked(_ sender: Any) {
