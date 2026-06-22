@@ -25,14 +25,25 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
     
     func onReplyViewMouseOver(messageId: Int, rowIndex: Int, additionalHeight: CGFloat) {
         replyViewAdditionalHeight[messageId] = additionalHeight
-        
-        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+        applyHoverState(isHovered: true, rowIndex: rowIndex, messageId: messageId, additionalHeight: additionalHeight)
     }
     
     func onReplyViewMouseExit(messageId: Int, rowIndex: Int) {
         replyViewAdditionalHeight[messageId] = nil
-        
-        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+        applyHoverState(isHovered: false, rowIndex: rowIndex, messageId: messageId, additionalHeight: 0)
+    }
+
+    private func applyHoverState(isHovered: Bool, rowIndex: Int, messageId: Int, additionalHeight: CGFloat) {
+        // Directly update the live cell — no snapshot reload, no tracking area recreation
+        if var cellStateTuple = getTableCellStateFor(messageId: messageId, and: rowIndex),
+           let bubble = cellStateTuple.1.bubble,
+           let item = collectionView.item(at: IndexPath(item: rowIndex, section: 0)) as? NewMessageCollectionViewItem {
+            item.updateReplyViewHoverState(isHovered: isHovered, additionalHeight: additionalHeight, bubble: bubble)
+        }
+
+        // Invalidate layout so the collection view resizes the item.
+        // replyViewAdditionalHeight already updated → sizeForItemAt produces new cache key → correct height.
+        collectionView.collectionViewLayout?.invalidateLayout()
     }
     
     func updateMessageTableCellStateFor(

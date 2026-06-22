@@ -23,6 +23,16 @@ extension NewMessageCollectionViewItem {
         }
     }
     
+    func updateReplyViewHoverState(
+        isHovered: Bool,
+        additionalHeight: CGFloat,
+        bubble: BubbleMessageLayoutState.Bubble
+    ) {
+        replyViewHeightConstraint.constant = NewMessageReplyView.kViewHeight + additionalHeight
+        messageReplyView.updateHoverVisuals(isHovered: isHovered, bubble: bubble)
+        // No layoutSubtreeIfNeeded() — invalidateLayout() resizes from the outside
+    }
+
     func configureWith(
         directPayment: BubbleMessageLayoutState.DirectPayment?,
         and bubble: BubbleMessageLayoutState.Bubble
