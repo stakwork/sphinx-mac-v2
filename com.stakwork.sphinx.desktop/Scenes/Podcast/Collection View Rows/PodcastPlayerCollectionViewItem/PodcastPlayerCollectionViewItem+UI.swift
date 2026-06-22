@@ -88,18 +88,17 @@ extension PodcastPlayerCollectionViewItem {
             )
             
             let asset = AVAsset(url: url)
-            asset.loadValuesAsynchronously(forKeys: ["duration"], completionHandler: {
-                let duration = Int(Double(asset.duration.value) / Double(asset.duration.timescale))
-                episode?.duration = duration
-                
-                DispatchQueue.main.async {
+            Task { @MainActor in
+                if let d = try? await asset.load(.duration) {
+                    let duration = Int(Double(d.value) / Double(d.timescale))
+                    episode?.duration = duration
                     self.setProgress(
                         duration: duration,
                         currentTime: episode?.currentTime ?? 0
                     )
-                    self.audioLoading = false
                 }
-            })
+                self.audioLoading = false
+            }
         }
     }
     
