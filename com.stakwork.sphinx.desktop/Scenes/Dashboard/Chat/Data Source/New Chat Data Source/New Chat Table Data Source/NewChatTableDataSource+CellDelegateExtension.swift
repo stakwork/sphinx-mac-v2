@@ -35,7 +35,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
 
     private func applyHoverState(isHovered: Bool, rowIndex: Int, messageId: Int, additionalHeight: CGFloat) {
         // Directly update the live cell — no snapshot reload, no tracking area recreation
-        if let cellStateTuple = getTableCellStateFor(messageId: messageId, and: rowIndex),
+        if var cellStateTuple = getTableCellStateFor(messageId: messageId, and: rowIndex),
            let bubble = cellStateTuple.1.bubble,
            let item = collectionView.item(at: IndexPath(item: rowIndex, section: 0)) as? NewMessageCollectionViewItem {
             item.updateReplyViewHoverState(isHovered: isHovered, additionalHeight: additionalHeight, bubble: bubble)
