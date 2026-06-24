@@ -37,6 +37,10 @@ final class AIAgentManager: @unchecked Sendable {
     var lastIncomingMessageDate: Date? = nil
     private var lastCheckedIncomingDate: Date? = nil
 
+    // Canvas transcript for proposal approval flow
+    var canvasChatHistory: [CanvasChatMessage] = []
+    var pendingProposal: PendingProposal? = nil
+
     /// The currently active language model (nil if not configured)
     private var activeModel: (any LanguageModelV3)?
 
@@ -180,6 +184,17 @@ final class AIAgentManager: @unchecked Sendable {
     - Results starting with "No feature found" or "No task found" mean the item was not found — tell the user and list the available options.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
+
+    PROPOSAL APPROVALS:
+    When Jamie proposes a feature, initiative, or milestone (visible as a proposal card in the chat),
+    the user can approve or reject it. If the user says "approve", "yes", "reject", "no" in context of
+    a visible proposal card, call approve_proposal or reject_proposal with the proposalId.
+    Do NOT fabricate proposalIds — only use ones present in the current conversation history.
+    - Results starting with "Proposal approved successfully" mean the approval succeeded — report success.
+    - Results starting with "Proposal rejected" mean the rejection succeeded — report success.
+    - Results starting with "Approval failed" or "Rejection failed" mean the request failed — tell the user to try again.
+    - Results starting with "Proposal not found" mean the proposalId is invalid — do not retry.
+    - Results starting with "This proposal has already been actioned" mean it was already handled — inform the user.
     """
 
     // MARK: - History persistence
@@ -383,7 +398,9 @@ final class AIAgentManager: @unchecked Sendable {
             "update_task_status":      buildUpdateTaskStatusTool().eraseToTool(),
             "start_task":              buildStartTaskTool().eraseToTool(),
             "retry_task_workflow":     buildRetryTaskWorkflowTool().eraseToTool(),
-            "archive_task":            buildArchiveTaskTool().eraseToTool()
+            "archive_task":            buildArchiveTaskTool().eraseToTool(),
+            "approve_proposal":        buildApproveProposalTool().eraseToTool(),
+            "reject_proposal":         buildRejectProposalTool().eraseToTool()
         ]
         switch activeProvider {
         case .anthropic:
