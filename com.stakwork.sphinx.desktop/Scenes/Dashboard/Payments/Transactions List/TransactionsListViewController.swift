@@ -139,7 +139,7 @@ class TransactionsListViewController: NSViewController {
     }
     
     deinit {
-        print("here is the TransactionsListViewController going to sleep")
+
     }
 }
 

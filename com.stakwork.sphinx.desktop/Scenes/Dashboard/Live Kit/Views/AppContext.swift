@@ -51,7 +51,6 @@ final class AppContext: ObservableObject {
 
     @Published var outputDevice: AudioDevice = AudioManager.shared.defaultOutputDevice {
         didSet {
-            print("didSet outputDevice: \(String(describing: outputDevice))")
             guard outputDevice.deviceId != AudioManager.shared.outputDevice.deviceId else { return }
             AudioManager.shared.outputDevice = outputDevice
             reloadAudioDevices()
@@ -62,14 +61,12 @@ final class AppContext: ObservableObject {
     
     @Published var outputDeviceId: String = AudioManager.shared.defaultOutputDevice.deviceId {
         didSet {
-            print("didSet outputDevice: \(String(describing: outputDevice))")
             outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputDeviceId }) ?? AudioManager.shared.defaultOutputDevice
         }
     }
 
     @Published var inputDevice: AudioDevice = AudioManager.shared.defaultInputDevice {
         didSet {
-            print("didSet inputDevice: \(String(describing: inputDevice))")
             guard inputDevice.deviceId != AudioManager.shared.inputDevice.deviceId else { return }
             AudioManager.shared.inputDevice = inputDevice
             reloadAudioDevices()
@@ -80,7 +77,6 @@ final class AppContext: ObservableObject {
     
     @Published var inputDeviceId: String = AudioManager.shared.defaultInputDevice.deviceId {
         didSet {
-            print("didSet inputDevice: \(String(describing: inputDeviceId))")
             inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputDeviceId }) ?? AudioManager.shared.defaultInputDevice
         }
     }
@@ -124,7 +120,7 @@ final class AppContext: ObservableObject {
     func syncWithSystemAudioDefaults() {
         let systemOutput = AudioManager.shared.defaultOutputDevice
         let systemInput = AudioManager.shared.defaultInputDevice
-        print("AudioDevice sync — output: \(systemOutput.name), input: \(systemInput.name)")
+
         outputDevice = systemOutput
         inputDevice = systemInput
         reloadAudioDevices()

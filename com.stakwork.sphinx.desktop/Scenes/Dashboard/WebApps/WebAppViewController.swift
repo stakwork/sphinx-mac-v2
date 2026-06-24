@@ -467,7 +467,7 @@ extension WebAppViewController : NSWindowDelegate {
 
 extension WebAppViewController: WebAppHelperDelegate {
     func setBudget(budget: Int) {
-        print(budget)
+
     }
 }
 
