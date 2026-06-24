@@ -292,6 +292,15 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
         }
     }
 
+    /// Coerce any JSON value (String, Dict, Array, Number, Bool) to a JSON string.
+    private func jsonValueToString(_ value: Any?) -> String {
+        guard let value = value else { return "" }
+        if let str = value as? String { return str }
+        if let data = try? JSONSerialization.data(withJSONObject: value),
+           let str = String(data: data, encoding: .utf8) { return str }
+        return "\(value)"
+    }
+
     private func handleOrgSSEJson(_ json: [String: Any]) {
         let type = json["type"] as? String ?? ""
         switch type {
@@ -305,15 +314,15 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
             delegate?.onError(msg)
         case "tool-input-available":
             let toolName = json["toolName"] as? String ?? ""
-            let input = (json["input"] as? String) ?? ""
+            let input = jsonValueToString(json["input"])
             delegate?.onToolInputAvailable(toolName, input)
         case "tool-call":
             let toolName = json["toolName"] as? String ?? ""
-            let input = (json["args"] as? String) ?? (json["input"] as? String) ?? ""
+            let input = jsonValueToString(json["args"] ?? json["input"])
             delegate?.onToolCall(toolName, input)
         case "tool-output-available", "tool-result":
             let toolName = json["toolName"] as? String ?? ""
-            let output = (json["output"] as? String) ?? ""
+            let output = jsonValueToString(json["output"])
             delegate?.onToolOutputAvailable(toolName, output)
         default:
             if let text = json["delta"] as? String ?? json["text"] as? String, !text.isEmpty {

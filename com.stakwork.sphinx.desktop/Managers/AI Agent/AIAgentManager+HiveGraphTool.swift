@@ -125,6 +125,29 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
 
 extension AIAgentManager {
 
+    // MARK: - JSON Helpers
+
+    /// Parse a JSON string into a flat [String: String] dict.
+    /// Nested objects/arrays are re-serialised as JSON strings so no data is lost.
+    static func jsonStringToStringDict(_ jsonStr: String) -> [String: String]? {
+        guard !jsonStr.isEmpty,
+              let data = jsonStr.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        var result: [String: String] = [:]
+        for (key, value) in obj {
+            if let str = value as? String {
+                result[key] = str
+            } else if let num = value as? NSNumber {
+                result[key] = num.stringValue
+            } else if let nested = try? JSONSerialization.data(withJSONObject: value),
+                      let nestedStr = String(data: nested, encoding: .utf8) {
+                result[key] = nestedStr
+            }
+        }
+        return result.isEmpty ? nil : result
+    }
+
     // MARK: - Canvas History
 
     func loadCanvasHistory(orgId: String) {
@@ -234,12 +257,8 @@ extension AIAgentManager {
         // Convert captured tool calls from bridge
         let toolCalls: [ToolCall]? = bridge.capturedToolCalls.isEmpty ? nil :
             bridge.capturedToolCalls.map { tc in
-                let inputDict = (try? JSONSerialization.jsonObject(
-                    with: tc.inputStr.data(using: .utf8) ?? Data()
-                ) as? [String: Any])?.compactMapValues { "\($0)" }
-                let outputDict = (try? JSONSerialization.jsonObject(
-                    with: tc.outputStr.data(using: .utf8) ?? Data()
-                ) as? [String: Any])?.compactMapValues { "\($0)" }
+                let inputDict = AIAgentManager.jsonStringToStringDict(tc.inputStr)
+                let outputDict = AIAgentManager.jsonStringToStringDict(tc.outputStr)
                 return ToolCall(toolName: tc.name, input: inputDict, output: outputDict)
             }
 
@@ -254,14 +273,29 @@ extension AIAgentManager {
            let pid   = tc.output?["proposalId"] ?? tc.input?["proposalId"],
            let kind  = tc.output?["kind"]       ?? tc.input?["kind"],
            let title = tc.output?["title"]      ?? tc.input?["title"] {
+            let desc = tc.output?["description"] ?? tc.input?["description"]
             pendingProposal = PendingProposal(
                 proposalId: pid, kind: kind, title: title,
-                description: tc.output?["description"] ?? tc.input?["description"]
+                description: desc
             )
             print("AIAgent [HiveGraph] proposal detected — id: \(pid), kind: \(kind)")
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .aiAgentProposalDetected, object: self.pendingProposal)
             }
+            // Inject proposal context into the tool result so the agent LLM
+            // knows the proposalId and can call approve_proposal/reject_proposal
+            // when the user says "approve it" or "reject it".
+            let proposalContext = """
+
+[PROPOSAL CARD DISPLAYED — A native approval card has been shown to the user.]
+proposalId: \(pid)
+kind: \(kind)
+title: \(title)\(desc.map { "\ndescription: \($0)" } ?? "")
+
+To approve this proposal, call approve_proposal with proposalId "\(pid)".
+To reject it, call reject_proposal with proposalId "\(pid)".
+"""
+            return result + proposalContext
         }
 
         return result
