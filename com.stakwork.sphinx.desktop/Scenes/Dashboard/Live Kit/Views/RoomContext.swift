@@ -256,6 +256,12 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
             try? await room.localParticipant.setMicrophone(enabled: false)
         }
         await room.disconnect()
+        // Hold a strong reference to Room for a moment after disconnect so that
+        // LiveKit's background audio threads (AVAudioEngine, AUVoiceProcessor)
+        // can finish tearing down before Room is deallocated. Without this, the
+        // AUVoiceProcessor property-change callback fires concurrently with
+        // AVAudioEngine.dealloc, causing a SIGSEGV on the audio dispatch queue.
+        try? await Task.sleep(for: .milliseconds(500))
     }
 
     func sendMessage() {

@@ -277,23 +277,20 @@ enum AppLoggerSignalBridge {
 
         for sig in [SIGSEGV, SIGABRT, SIGILL, SIGBUS, SIGFPE] {
             signal(sig) { signum in
-                let sigName: String
-                switch signum {
-                case SIGSEGV: sigName = "SIGSEGV"
-                case SIGABRT: sigName = "SIGABRT"
-                case SIGILL:  sigName = "SIGILL"
-                case SIGBUS:  sigName = "SIGBUS"
-                case SIGFPE:  sigName = "SIGFPE"
-                default:      sigName = "SIG\(signum)"
-                }
-                let msg = "💥 CRASH — signal \(sigName) at \(Date())\n"
-                if let data = msg.data(using: .utf8) {
-                    let path = String(cString: &gSignalLogPath.0)
-                    if let fd = try? FileHandle(forWritingTo: URL(fileURLWithPath: path)) {
-                        fd.seekToEndOfFile()
-                        fd.write(data)
-                        try? fd.close()
+                // Only async-signal-safe POSIX syscalls here — no Swift heap
+                // allocation, no ObjC, no Foundation. String(cString:) and
+                // FileHandle are not signal-safe and will crash if the runtime
+                // heap is corrupted at the point the signal fires.
+                withUnsafePointer(to: gSignalLogPath) { ptr in
+                    let pathPtr = UnsafeRawPointer(ptr).assumingMemoryBound(to: CChar.self)
+                    guard pathPtr.pointee != 0 else { return }
+                    let fd = open(pathPtr, O_WRONLY | O_CREAT | O_APPEND, 0o644)
+                    guard fd >= 0 else { return }
+                    let marker: StaticString = "CRASH — signal received\n"
+                    marker.withUTF8Buffer { buf in
+                        _ = Darwin.write(fd, buf.baseAddress!, buf.count)
                     }
+                    _ = Darwin.close(fd)
                 }
                 signal(signum, SIG_DFL)
                 raise(signum)
