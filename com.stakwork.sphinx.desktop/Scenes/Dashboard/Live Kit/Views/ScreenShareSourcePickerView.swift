@@ -74,7 +74,7 @@ class ScreenShareSourcePickerCtrl: ObservableObject, @unchecked Sendable {
     }
 
     deinit {
-        print("\(type(of: self)) deinit")
+
 
         // copy
         let _tracks = tracks

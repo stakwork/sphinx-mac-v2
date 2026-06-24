@@ -633,7 +633,7 @@ class DashboardViewController: NSViewController {
         if let query = n.userInfo?["query"] as? String,
            let feedID = query.getLinkValueFor(key: "feedID"),
            let itemID = query.getLinkValueFor(key: "itemID"){
-            print(query)
+
             
             if let feed = ContentFeed.getFeedById(feedId: feedID),
                let chat = feed.chat {
