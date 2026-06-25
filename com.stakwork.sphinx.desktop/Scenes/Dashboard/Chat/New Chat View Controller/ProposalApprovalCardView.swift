@@ -239,6 +239,14 @@ final class ProposalApprovalCardView: NSView {
         }
     }
 
+    func showError(_ message: String) {
+        approveButton.isHidden = false
+        rejectButton.isHidden = false
+        stampLabel.stringValue = "⚠️ \(message)"
+        stampLabel.textColor = NSColor.systemRed
+        stampLabel.isHidden = false
+    }
+
     func resetToActionable() {
         isActioned = false
         approveButton.isHidden = false

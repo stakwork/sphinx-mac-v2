@@ -22,7 +22,11 @@ extension NewChatViewController {
             object: nil,
             queue: .main
         ) { [weak self] note in
-            self?.handleProposalActioned(note.object as? AIAgentManager.ApprovalResult)
+            if let result = note.object as? AIAgentManager.ApprovalResult {
+                self?.handleProposalActioned(result: result, error: nil)
+            } else {
+                self?.handleProposalActioned(result: nil, error: note.object as? String)
+            }
         }
     }
 
@@ -64,22 +68,13 @@ extension NewChatViewController {
         chatScrollView.contentInsets.bottom += max(cardHeight, 80)
     }
 
-    func handleProposalActioned(_ result: AIAgentManager.ApprovalResult?) {
+    func handleProposalActioned(result: AIAgentManager.ApprovalResult?, error: String?) {
         guard let card = proposalCard else { return }
         if let result = result {
             card.showStamp(approved: result.approved)
         } else {
-            // POST failed — revert to actionable + show alert
             card.resetToActionable()
-            let alert = NSAlert()
-            alert.messageText = "Action failed"
-            alert.informativeText = "The request could not be completed. Please try again."
-            alert.alertStyle = .warning
-            if let window = view.window {
-                alert.beginSheetModal(for: window)
-            } else {
-                alert.runModal()
-            }
+            card.showError(error ?? "The request could not be completed. Please try again.")
         }
     }
 
