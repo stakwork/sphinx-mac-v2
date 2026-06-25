@@ -56,10 +56,9 @@ final class AIAgentManager: @unchecked Sendable {
     You are a helpful AI assistant embedded inside the Sphinx messaging app on macOS.
     You can interact with the user's Sphinx contacts and chats using the following tools:
 
-    // - send_sphinx_message: Send a message to one of the user's Sphinx contacts or tribes by name. \
-    // IMPORTANT: Before invoking this tool, you MUST describe exactly what you are about to do \
-    // (contact name and message text) and ask the user for explicit confirmation (e.g. "Shall I send this?"). \
-    // Only invoke the tool after the user confirms.
+    - send_sphinx_message: Send a message to one of the user's Sphinx contacts or tribes by name. \
+    IMPORTANT: It's not needed to confirm with the user before sending the message unless it's unclear the message content \
+    or the destination of the message. 
 
     - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
     Use this to look up what was said in a chat.
@@ -371,7 +370,7 @@ final class AIAgentManager: @unchecked Sendable {
         saveHistory()
 
         var tools: ToolSet = [
-            // "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
+            "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
             "read_recent_messages":    buildReadMessagesTool().eraseToTool(),
             "read_unseen_messages":    buildReadUnseenMessagesTool().eraseToTool(),
             "get_contacts_and_tribes": buildGetContactsAndTribesTool().eraseToTool(),
@@ -674,10 +673,10 @@ final class AIAgentManager: @unchecked Sendable {
 
     // MARK: - Input structs
 
-    // private struct SendMessageInput: Codable, Sendable {
-    //     let contactName: String
-    //     let messageText: String
-    // }
+     private struct SendMessageInput: Codable, Sendable {
+         let contactName: String
+         let messageText: String
+     }
 
     private struct ReadUnseenInput: Codable, Sendable {
         let contactName: String
@@ -703,57 +702,57 @@ final class AIAgentManager: @unchecked Sendable {
 
 
 
-    // private func buildSendMessageTool() -> TypedTool<SendMessageInput, JSONValue> {
-    //     tool(
-    //         description: "Send a Sphinx message to a contact or tribe by name. Always confirm with the user before calling this tool.",
-    //         execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
-    //             let result = await AIAgentManager.executeSendMessage(
-    //                 contactName: input.contactName,
-    //                 messageText: input.messageText
-    //             )
-    //             return .value(.string(result))
-    //         }
-    //     )
-    // }
+     private func buildSendMessageTool() -> TypedTool<SendMessageInput, JSONValue> {
+         tool(
+             description: "Send a Sphinx message to a contact or tribe by name. No need to confirm with the user before calling this tool.",
+             execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                 let result = await AIAgentManager.executeSendMessage(
+                     contactName: input.contactName,
+                     messageText: input.messageText
+                 )
+                 return .value(.string(result))
+             }
+         )
+     }
 
-    // private static func executeSendMessage(contactName: String, messageText: String) async -> String {
-    //     return await MainActor.run {
-    //         switch resolveContactOrTribe(query: contactName) {
-    //         case .exactContact(let contact):
-    //             guard let chat = contact.getConversation() else {
-    //                 return "Send failed: chat not found for contact '\(contactName)'."
-    //             }
-    //             let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
-    //                 to: contact,
-    //                 content: messageText,
-    //                 chat: chat,
-    //                 provisionalMessage: nil,
-    //                 threadUUID: nil,
-    //                 replyUUID: nil
-    //             )
-    //             if let error = error { return "Send failed: \(error)" }
-    //             return "Message sent successfully to \(contact.nickname ?? contactName)."
-    //
-    //         case .exactTribe(let tribe):
-    //             let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
-    //                 to: nil,
-    //                 content: messageText,
-    //                 chat: tribe,
-    //                 provisionalMessage: nil,
-    //                 threadUUID: nil,
-    //                 replyUUID: nil
-    //             )
-    //             if let error = error { return "Send failed: \(error)" }
-    //             return "Message sent successfully to tribe '\(tribe.name ?? contactName)'."
-    //
-    //         case .ambiguous(let candidates):
-    //             return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
-    //
-    //         case .noMatch:
-    //             return "No contact or tribe found with name '\(contactName)'."
-    //         }
-    //     }
-    // }
+     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
+         return await MainActor.run {
+             switch resolveContactOrTribe(query: contactName) {
+             case .exactContact(let contact):
+                 guard let chat = contact.getConversation() else {
+                     return "Send failed: chat not found for contact '\(contactName)'."
+                 }
+                 let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
+                     to: contact,
+                     content: messageText,
+                     chat: chat,
+                     provisionalMessage: nil,
+                     threadUUID: nil,
+                     replyUUID: nil
+                 )
+                 if let error = error { return "Send failed: \(error)" }
+                 return "Message sent successfully to \(contact.nickname ?? contactName)."
+    
+             case .exactTribe(let tribe):
+                 let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
+                     to: nil,
+                     content: messageText,
+                     chat: tribe,
+                     provisionalMessage: nil,
+                     threadUUID: nil,
+                     replyUUID: nil
+                 )
+                 if let error = error { return "Send failed: \(error)" }
+                 return "Message sent successfully to tribe '\(tribe.name ?? contactName)'."
+    
+             case .ambiguous(let candidates):
+                 return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+    
+             case .noMatch:
+                 return "No contact or tribe found with name '\(contactName)'."
+             }
+         }
+     }
 
     // MARK: - Tool: read_unseen_messages
 
