@@ -302,9 +302,14 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
     }
 
     private func handleOrgSSEJson(_ json: [String: Any]) {
-        let type = json["type"] as? String ?? ""
+        // toolName may appear as "toolName" or "tool_name"
+        func extractToolName() -> String {
+            (json["toolName"] as? String) ?? (json["tool_name"] as? String) ?? ""
+        }
+
+        let type = (json["type"] as? String) ?? ""
         switch type {
-        case "text-delta":
+        case "text-delta", "text_delta":
             let delta = (json["delta"] as? String) ?? (json["text"] as? String) ?? ""
             if !delta.isEmpty { delegate?.onTextDelta(delta) }
         case "finish", "done":
@@ -312,20 +317,22 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
         case "error":
             let msg = (json["errorText"] as? String) ?? (json["message"] as? String) ?? "An error occurred"
             delegate?.onError(msg)
-        case "tool-input-available":
-            let toolName = json["toolName"] as? String ?? ""
+        case "tool-input-available", "tool_input_available":
             let input = jsonValueToString(json["input"])
-            delegate?.onToolInputAvailable(toolName, input)
-        case "tool-call":
-            let toolName = json["toolName"] as? String ?? ""
+            delegate?.onToolInputAvailable(extractToolName(), input)
+        case "tool-call", "tool_call":
             let input = jsonValueToString(json["args"] ?? json["input"])
-            delegate?.onToolCall(toolName, input)
-        case "tool-output-available", "tool-result":
-            let toolName = json["toolName"] as? String ?? ""
+            delegate?.onToolCall(extractToolName(), input)
+        case "tool-output-available", "tool_output_available", "tool-result", "tool_result":
             let output = jsonValueToString(json["output"])
-            delegate?.onToolOutputAvailable(toolName, output)
+            delegate?.onToolOutputAvailable(extractToolName(), output)
         default:
-            if let text = json["delta"] as? String ?? json["text"] as? String, !text.isEmpty {
+            // Handle {"finish_reason":"stop"} which carries no "type" key
+            if json["finish_reason"] != nil {
+                delegate?.onFinish()
+                return
+            }
+            if let text = (json["delta"] as? String) ?? (json["text"] as? String), !text.isEmpty {
                 delegate?.onTextDelta(text)
             }
         }

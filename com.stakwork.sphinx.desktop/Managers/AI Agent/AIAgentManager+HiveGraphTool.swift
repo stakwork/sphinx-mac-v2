@@ -111,12 +111,21 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
     func onToolInputAvailable(_ toolName: String, _ input: String) {}
 
     func onToolCall(_ toolName: String, _ input: String) {
-        capturedToolCalls.append((name: toolName, inputStr: input, outputStr: ""))
+        // Upsert: if a slot already exists for this name (from a prior tool-result arriving
+        // out of order or a duplicate call event), update it; otherwise append.
+        if let idx = capturedToolCalls.indices.last(where: { capturedToolCalls[$0].name == toolName && capturedToolCalls[$0].inputStr.isEmpty }) {
+            capturedToolCalls[idx].inputStr = input
+        } else {
+            capturedToolCalls.append((name: toolName, inputStr: input, outputStr: ""))
+        }
     }
 
     func onToolOutputAvailable(_ toolName: String, _ output: String) {
         if let idx = capturedToolCalls.indices.last(where: { capturedToolCalls[$0].name == toolName }) {
             capturedToolCalls[idx].outputStr = output
+        } else {
+            // tool-result arrived before tool-call (or tool-call was missing) — create an entry
+            capturedToolCalls.append((name: toolName, inputStr: "", outputStr: output))
         }
     }
 }
@@ -127,25 +136,38 @@ extension AIAgentManager {
 
     // MARK: - JSON Helpers
 
-    /// Parse a JSON string into a flat [String: String] dict.
+    /// Parse a JSON string (possibly double-encoded) into a flat [String: String] dict.
     /// Nested objects/arrays are re-serialised as JSON strings so no data is lost.
     static func jsonStringToStringDict(_ jsonStr: String) -> [String: String]? {
-        guard !jsonStr.isEmpty,
-              let data = jsonStr.data(using: .utf8),
-              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else { return nil }
-        var result: [String: String] = [:]
-        for (key, value) in obj {
-            if let str = value as? String {
-                result[key] = str
-            } else if let num = value as? NSNumber {
-                result[key] = num.stringValue
-            } else if let nested = try? JSONSerialization.data(withJSONObject: value),
-                      let nestedStr = String(data: nested, encoding: .utf8) {
-                result[key] = nestedStr
+        guard !jsonStr.isEmpty else { return nil }
+        let trimmed = jsonStr.trimmingCharacters(in: .whitespaces)
+
+        // Attempt parse as JSON object
+        func parseDict(from data: Data) -> [String: String]? {
+            guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+            var result: [String: String] = [:]
+            for (key, value) in obj {
+                if let str = value as? String {
+                    result[key] = str
+                } else if let num = value as? NSNumber {
+                    result[key] = num.stringValue
+                } else if let nested = try? JSONSerialization.data(withJSONObject: value),
+                          let nestedStr = String(data: nested, encoding: .utf8) {
+                    result[key] = nestedStr
+                }
             }
+            return result.isEmpty ? nil : result
         }
-        return result.isEmpty ? nil : result
+
+        if let data = trimmed.data(using: .utf8) {
+            // Direct parse
+            if let dict = parseDict(from: data) { return dict }
+            // Handle double-encoded: the string is itself a JSON-encoded string wrapping an object
+            if let inner = try? JSONSerialization.jsonObject(with: data) as? String,
+               let innerData = inner.data(using: .utf8),
+               let dict = parseDict(from: innerData) { return dict }
+        }
+        return nil
     }
 
     // MARK: - Canvas History
@@ -267,6 +289,11 @@ extension AIAgentManager {
         persistCanvasHistory(orgId: orgId)
         print("AIAgent [HiveGraph] canvas history updated — \(canvasChatHistory.count) messages")
 
+        // Log all captured tool calls for diagnostics
+        for tc in bridge.capturedToolCalls {
+            print("AIAgent [HiveGraph] captured tool: \(tc.name) | inputStr: \(tc.inputStr.prefix(200)) | outputStr: \(tc.outputStr.prefix(200))")
+        }
+
         // Step 6: Proposal detection
         let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
         if let tc = assistantMsg.toolCalls?.first(where: { proposalNames.contains($0.toolName) }),
@@ -305,7 +332,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
 
     func buildApproveProposalTool() -> TypedTool<ApproveProposalInput, JSONValue> {
         tool(
-            description: "Approve a proposal from Jamie. Only call this when the user confirms approval of a visible proposal card. Use the proposalId from the current canvasChatHistory — never fabricate one.",
+            description: "Approve a Jamie proposal. Call this when the user says 'approve', 'yes', 'go ahead', or similar after Jamie proposed a feature/initiative/milestone. The proposalId is shown in the [PROPOSAL CARD DISPLAYED] block that appeared in the query_hive_graph tool result earlier in this conversation — copy it exactly. Never fabricate a proposalId.",
             execute: { [weak self] (input: ApproveProposalInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard let self = self else { return .value(.string("Agent unavailable.")) }
                 return await self.executeApproveProposal(proposalId: input.proposalId)
@@ -316,13 +343,16 @@ To reject it, call reject_proposal with proposalId "\(pid)".
     func executeApproveProposal(proposalId: String) async -> ToolExecutionResult<JSONValue> {
         let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
 
-        // IDOR guard: proposalId must exist in canvasChatHistory
-        guard canvasChatHistory.contains(where: {
+        // IDOR guard: proposalId must match the server-originated pendingProposal
+        // OR exist in canvasChatHistory (for proposals loaded from persistence on restart).
+        let inPending = pendingProposal?.proposalId == proposalId
+        let inHistory = canvasChatHistory.contains(where: {
             $0.toolCalls?.contains(where: {
                 proposalNames.contains($0.toolName) &&
                 ($0.output?["proposalId"] == proposalId || $0.input?["proposalId"] == proposalId)
             }) == true
-        }) else {
+        })
+        guard inPending || inHistory else {
             return .value(.string("Proposal not found in current conversation. Cannot approve."))
         }
 
@@ -407,7 +437,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
 
     func buildRejectProposalTool() -> TypedTool<RejectProposalInput, JSONValue> {
         tool(
-            description: "Reject a proposal from Jamie. Only call this when the user explicitly rejects a visible proposal card. Use the proposalId from the current canvasChatHistory — never fabricate one.",
+            description: "Reject a Jamie proposal. Call this when the user says 'reject', 'no', 'cancel', or similar after Jamie proposed a feature/initiative/milestone. The proposalId is shown in the [PROPOSAL CARD DISPLAYED] block that appeared in the query_hive_graph tool result earlier in this conversation — copy it exactly. Never fabricate a proposalId.",
             execute: { [weak self] (input: RejectProposalInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard let self = self else { return .value(.string("Agent unavailable.")) }
                 return await self.executeRejectProposal(proposalId: input.proposalId)
@@ -418,13 +448,15 @@ To reject it, call reject_proposal with proposalId "\(pid)".
     func executeRejectProposal(proposalId: String) async -> ToolExecutionResult<JSONValue> {
         let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
 
-        // IDOR guard
-        guard canvasChatHistory.contains(where: {
+        // IDOR guard: match against server-originated pendingProposal or persisted canvasChatHistory
+        let inPending = pendingProposal?.proposalId == proposalId
+        let inHistory = canvasChatHistory.contains(where: {
             $0.toolCalls?.contains(where: {
                 proposalNames.contains($0.toolName) &&
                 ($0.output?["proposalId"] == proposalId || $0.input?["proposalId"] == proposalId)
             }) == true
-        }) else {
+        })
+        guard inPending || inHistory else {
             return .value(.string("Proposal not found in current conversation. Cannot reject."))
         }
 
