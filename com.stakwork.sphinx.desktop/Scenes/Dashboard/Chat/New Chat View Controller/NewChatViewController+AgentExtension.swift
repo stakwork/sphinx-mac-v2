@@ -3,109 +3,6 @@ import AppKit
 
 extension NewChatViewController {
 
-    // MARK: - Proposal Card
-
-    func setupProposalCardObservers() {
-        guard isAgentChat else { return }
-
-        NotificationCenter.default.addObserver(
-            forName: .aiAgentProposalDetected,
-            object: nil,
-            queue: .main
-        ) { [weak self] note in
-            guard let proposal = note.object as? AIAgentManager.PendingProposal else { return }
-            self?.showProposalCard(proposal)
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .aiAgentProposalActioned,
-            object: nil,
-            queue: .main
-        ) { [weak self] note in
-            if let result = note.object as? AIAgentManager.ApprovalResult {
-                self?.handleProposalActioned(result: result, error: nil)
-            } else {
-                self?.handleProposalActioned(result: nil, error: note.object as? String)
-            }
-        }
-    }
-
-    func showProposalCard(_ proposal: AIAgentManager.PendingProposal) {
-        removeProposalCard()
-
-        let card = ProposalApprovalCardView(proposal: proposal)
-        card.translatesAutoresizingMaskIntoConstraints = false
-        card.alphaValue = 0
-        view.addSubview(card)
-
-        NSLayoutConstraint.activate([
-            card.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            card.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
-            card.bottomAnchor.constraint(equalTo: chatBottomView.topAnchor, constant: -8)
-        ])
-
-        card.onApprove = { [weak self] pid in
-            Task {
-                _ = await AIAgentManager.sharedInstance.executeApproveProposal(proposalId: pid)
-            }
-        }
-        card.onReject = { [weak self] pid in
-            Task {
-                _ = await AIAgentManager.sharedInstance.executeRejectProposal(proposalId: pid)
-            }
-        }
-
-        proposalCard = card
-
-        NSAnimationContext.runAnimationGroup { ctx in
-            ctx.duration = 0.2
-            card.animator().alphaValue = 1
-        }
-
-        // Adjust scroll view inset to avoid overlap
-        card.layoutSubtreeIfNeeded()
-        let cardHeight = card.fittingSize.height + 8
-        chatScrollView.contentInsets.bottom += max(cardHeight, 80)
-    }
-
-    func handleProposalActioned(result: AIAgentManager.ApprovalResult?, error: String?) {
-        guard let card = proposalCard else { return }
-        if let result = result {
-            card.showStamp(approved: result.approved)
-        } else {
-            card.resetToActionable()
-            card.showError(error ?? "The request could not be completed. Please try again.")
-        }
-    }
-
-    func removeProposalCard() {
-        if let card = proposalCard {
-            let cardHeight = card.fittingSize.height + 8
-            chatScrollView.contentInsets.bottom = max(0, chatScrollView.contentInsets.bottom - max(cardHeight, 80))
-            card.removeFromSuperview()
-        }
-        proposalCard = nil
-    }
-
-    func restoreProposalCardIfNeeded() {
-        guard isAgentChat else { return }
-        guard let pending = AIAgentManager.sharedInstance.pendingProposal else { return }
-        // Check if already actioned in history
-        guard let orgId: String = UserDefaults.Keys.hiveOrgId.get(), !orgId.isEmpty else { return }
-        AIAgentManager.sharedInstance.loadCanvasHistory(orgId: orgId)
-        let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
-        let alreadyActioned = AIAgentManager.sharedInstance.canvasChatHistory.contains(where: {
-            guard let toolCalls = $0.toolCalls else { return false }
-            return toolCalls.contains(where: {
-                proposalNames.contains($0.toolName) &&
-                ($0.output?["proposalId"] == pending.proposalId || $0.input?["proposalId"] == pending.proposalId)
-            }) && $0.approvalResult != nil
-        })
-        if !alreadyActioned {
-            showProposalCard(pending)
-        }
-    }
-
     // MARK: - Agent Processing Bar
 
     func setupAgentProcessingBar() {
@@ -212,7 +109,6 @@ extension NewChatViewController {
 • 🪵 Read and analyze app logs (filter by time, level, or keyword)
 • 🤖 Ask Jamie anything about your org — features, tasks, codebase, project status
 • 🐝 Browse, search & manage Hive workspaces, features, and tasks
-• ✅ Approve or reject Jamie proposals directly from chat
 """
         } else {
             introText = "👋 Welcome to Sphinx AI! To get started, go to Profile → Configure AI Agent and enter your Anthropic or OpenAI API key."
