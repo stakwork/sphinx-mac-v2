@@ -78,7 +78,6 @@ class NewChatViewController: DashboardSplittedViewController {
     var agentProcessingBar: AgentProcessingBarView?
     var agentBarHeightConstraint: NSLayoutConstraint?
     var agentProcessingBarTimer: Timer?
-    var proposalCard: ProposalApprovalCardView?
     
     var contactResultsController: NSFetchedResultsController<UserContact>!
     var chatResultsController: NSFetchedResultsController<Chat>!
@@ -152,7 +151,6 @@ class NewChatViewController: DashboardSplittedViewController {
         addShimmeringView()
         setupViews()
         setupAgentProcessingBar()
-        setupProposalCardObservers()
         configureCollectionView()
         setupChatTopView()
         setupChatData()
@@ -232,7 +230,6 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
-        restoreProposalCardIfNeeded()
         
     }
     

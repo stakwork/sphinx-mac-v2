@@ -56,6 +56,4 @@ extension Notification.Name {
     
     static let liveKitCallWindowDidChange = Notification.Name("liveKitCallWindowDidChange")
     
-    static let aiAgentProposalDetected = Notification.Name("aiAgentProposalDetected")
-    static let aiAgentProposalActioned = Notification.Name("aiAgentProposalActioned")
 }
