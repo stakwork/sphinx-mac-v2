@@ -711,6 +711,7 @@
 		93FED3612BE23708008B8DDD /* TribeMembersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3602BE23708008B8DDD /* TribeMembersDataSource.swift */; };
 		93FED3642BE238CD008B8DDD /* GroupContactListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FED3632BE238CD008B8DDD /* GroupContactListItem.swift */; };
 		93FED3662BE238EF008B8DDD /* GroupContactListItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */; };
+		A1B2C3D4E5F60001A1B2C3D4 /* CallAudioRouteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */; };
 		AA0001002EF431AE00CFDA01 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0001001AB00CFDA01AA001 /* AppLogger.swift */; };
 		AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */; };
 		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
@@ -721,7 +722,6 @@
 		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
 		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
-
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
 		CE1FA8FA2A01A68F0014360C /* LsatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F92A01A68F0014360C /* LsatListViewController.swift */; };
@@ -741,7 +741,6 @@
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
-		A1B2C3D4E5F60001A1B2C3D4 /* CallAudioRouteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1764,6 +1763,7 @@
 		93FED3632BE238CD008B8DDD /* GroupContactListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupContactListItem.swift; sourceTree = "<group>"; };
 		93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GroupContactListItem.xib; sourceTree = "<group>"; };
 		97A6F8CB5E1D14A28D7C7A67 /* Pods-com.stakwork.sphinx.desktop.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.release.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.release.xcconfig"; sourceTree = "<group>"; };
+		A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitor.swift; sourceTree = "<group>"; };
 		A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogStore.swift; sourceTree = "<group>"; };
 		AA0001001AB00CFDA01AA001 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViewController.swift; sourceTree = "<group>"; };
@@ -1771,7 +1771,6 @@
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
 		B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantBoxView.swift; sourceTree = "<group>"; };
 		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
-
 		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
 		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentProcessingBarView.swift; sourceTree = "<group>"; };
@@ -1826,7 +1825,6 @@
 		CE9BA46129D772BD000C8837 /* PodcastDetailActionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastDetailActionCell.xib; sourceTree = "<group>"; };
 		CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEmptyAvatarPlaceholderView.swift; sourceTree = "<group>"; };
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
-		A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitor.swift; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3938,14 +3936,6 @@
 			path = "Live Kit";
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F60002A1B2C3D4 /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		47FEE1F22A61B1AF00646C4E /* New Chat View Controller */ = {
 			isa = PBXGroup;
 			children = (
@@ -4127,6 +4117,14 @@
 				93FED3652BE238EF008B8DDD /* GroupContactListItem.xib */,
 			);
 			path = GroupContactList;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60002A1B2C3D4 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		AA0001003EF431AB00CFDA02 /* Logging */ = {
@@ -5869,7 +5867,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 294;
+				CURRENT_PROJECT_VERSION = 295;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5906,7 +5904,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 294;
+				CURRENT_PROJECT_VERSION = 295;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
