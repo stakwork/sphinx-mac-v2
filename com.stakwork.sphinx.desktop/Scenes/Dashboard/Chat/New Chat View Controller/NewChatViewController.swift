@@ -79,6 +79,7 @@ class NewChatViewController: DashboardSplittedViewController {
     var agentBarHeightConstraint: NSLayoutConstraint?
     var agentProcessingBarTimer: Timer?
     var proposalCard: ProposalApprovalCardView?
+    var proposalCardInset: CGFloat = 0
     
     var contactResultsController: NSFetchedResultsController<UserContact>!
     var chatResultsController: NSFetchedResultsController<Chat>!
