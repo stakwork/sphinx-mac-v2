@@ -16,7 +16,7 @@ protocol GraphChatSSEDelegate: AnyObject {
     func onTextDelta(_ delta: String)
     func onFinish()
     func onError(_ text: String)
-    func onToolInputAvailable(_ toolName: String, _ input: String)
+    func onToolInputAvailable(_ toolName: String, _ toolCallId: String, _ input: String)
     func onToolCall(_ toolName: String, _ input: String)
     func onToolOutputAvailable(_ toolName: String, _ output: String)
 }
@@ -191,8 +191,9 @@ extension GraphChatSSEManager {
             }
         case "tool_input_available":
             let toolName = json["tool_name"].stringValue
+            let toolCallId = json["toolCallId"].stringValue
             let input = json["input"].rawString() ?? ""
-            delegate?.onToolInputAvailable(toolName, input)
+            delegate?.onToolInputAvailable(toolName, toolCallId, input)
         case "tool_call":
             let toolName = json["tool_name"].stringValue
             let input = json["input"].rawString() ?? ""
@@ -318,8 +319,9 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
             let msg = (json["errorText"] as? String) ?? (json["message"] as? String) ?? "An error occurred"
             delegate?.onError(msg)
         case "tool-input-available", "tool_input_available":
+            let toolCallId = (json["toolCallId"] as? String) ?? ""
             let input = jsonValueToString(json["input"])
-            delegate?.onToolInputAvailable(extractToolName(), input)
+            delegate?.onToolInputAvailable(extractToolName(), toolCallId, input)
         case "tool-call", "tool_call":
             let input = jsonValueToString(json["args"] ?? json["input"])
             delegate?.onToolCall(extractToolName(), input)

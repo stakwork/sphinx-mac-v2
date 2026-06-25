@@ -21,9 +21,21 @@ extension AIAgentManager {
     }
 
     struct ToolCall: Codable {
+        let id: String?            // toolCallId from SSE (e.g. "toolu_01RZ8...")
         let toolName: String
+        let status: String?        // "output-available" once output is known
         var input: [String: String]?
         var output: [String: String]?
+
+        // Custom encoding: omit nil-optional fields entirely (avoid sending JSON null to server)
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encodeIfPresent(id, forKey: .id)
+            try container.encode(toolName, forKey: .toolName)
+            try container.encodeIfPresent(status, forKey: .status)
+            try container.encodeIfPresent(input, forKey: .input)
+            try container.encodeIfPresent(output, forKey: .output)
+        }
     }
 
     struct ProposalOutput: Codable {
@@ -54,6 +66,8 @@ extension AIAgentManager {
         let kind: String
         let title: String
         let description: String?
+        let toolCallId: String?       // SSE toolCallId, used when building the approval transcript
+        let rawInput: [String: String]? // Full input dict from tool-input-available event
     }
 
     // MARK: - Approve/Reject input structs
@@ -77,8 +91,8 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
     var buffer: String = ""
     var resumed: Bool = false
 
-    // Tool call capture
-    var capturedToolCalls: [(name: String, inputStr: String, outputStr: String)] = []
+    // Tool call capture — toolCallId is the SSE id (e.g. "toolu_01RZ8…")
+    var capturedToolCalls: [(name: String, toolCallId: String, inputStr: String, outputStr: String)] = []
 
     func onTextDelta(_ delta: String) {
         buffer += delta
@@ -101,24 +115,39 @@ private class HiveGraphBridge: GraphChatSSEDelegate {
         continuation?.resume(returning: "Hive graph error: \(text)")
     }
 
-    func onToolInputAvailable(_ toolName: String, _ input: String) {}
+    /// Fired for `tool-input-available` events.
+    /// For propose_* tools the input already contains proposalId, kind, title etc.,
+    /// so we can create a synthetic tool call entry immediately — no need to wait for
+    /// a tool-result event that may never arrive.
+    func onToolInputAvailable(_ toolName: String, _ toolCallId: String, _ input: String) {
+        let proposalPrefixes = ["propose_feature", "propose_initiative", "propose_milestone"]
+        guard proposalPrefixes.contains(where: { toolName.hasPrefix($0) }) else { return }
+
+        // Upsert: avoid duplicates if both tool-input-available and tool-call fire.
+        if let idx = capturedToolCalls.indices.last(where: { capturedToolCalls[$0].name == toolName && capturedToolCalls[$0].toolCallId.isEmpty }) {
+            capturedToolCalls[idx] = (name: toolName, toolCallId: toolCallId, inputStr: input, outputStr: capturedToolCalls[idx].outputStr)
+        } else if !capturedToolCalls.contains(where: { $0.name == toolName && $0.toolCallId == toolCallId }) {
+            capturedToolCalls.append((name: toolName, toolCallId: toolCallId, inputStr: input, outputStr: ""))
+        }
+        print("AIAgent [HiveGraph] onToolInputAvailable captured propose tool: \(toolName) id: \(toolCallId)")
+    }
 
     func onToolCall(_ toolName: String, _ input: String) {
         // Upsert: if a slot already exists for this name (from a prior tool-result arriving
         // out of order or a duplicate call event), update it; otherwise append.
         if let idx = capturedToolCalls.indices.last(where: { capturedToolCalls[$0].name == toolName && capturedToolCalls[$0].inputStr.isEmpty }) {
-            capturedToolCalls[idx].inputStr = input
+            capturedToolCalls[idx] = (name: toolName, toolCallId: capturedToolCalls[idx].toolCallId, inputStr: input, outputStr: capturedToolCalls[idx].outputStr)
         } else {
-            capturedToolCalls.append((name: toolName, inputStr: input, outputStr: ""))
+            capturedToolCalls.append((name: toolName, toolCallId: "", inputStr: input, outputStr: ""))
         }
     }
 
     func onToolOutputAvailable(_ toolName: String, _ output: String) {
         if let idx = capturedToolCalls.indices.last(where: { capturedToolCalls[$0].name == toolName }) {
-            capturedToolCalls[idx].outputStr = output
+            capturedToolCalls[idx] = (name: toolName, toolCallId: capturedToolCalls[idx].toolCallId, inputStr: capturedToolCalls[idx].inputStr, outputStr: output)
         } else {
             // tool-result arrived before tool-call (or tool-call was missing) — create an entry
-            capturedToolCalls.append((name: toolName, inputStr: "", outputStr: output))
+            capturedToolCalls.append((name: toolName, toolCallId: "", inputStr: "", outputStr: output))
         }
     }
 }
@@ -269,12 +298,34 @@ extension AIAgentManager {
         // Step 5: Append to canvas history
         canvasChatHistory.append(CanvasChatMessage(role: "user", content: question))
 
-        // Convert captured tool calls from bridge
+        // Convert captured tool calls from bridge.
+        // For propose_* tools that arrived via tool-input-available (no tool-result follows),
+        // synthesise an output dict from the input fields so the server's handleApproval can
+        // locate the proposal by proposalId.
+        let proposalPrefixSet = ["propose_feature", "propose_initiative", "propose_milestone"]
         let toolCalls: [ToolCall]? = bridge.capturedToolCalls.isEmpty ? nil :
             bridge.capturedToolCalls.map { tc in
                 let inputDict = AIAgentManager.jsonStringToStringDict(tc.inputStr)
-                let outputDict = AIAgentManager.jsonStringToStringDict(tc.outputStr)
-                return ToolCall(toolName: tc.name, input: inputDict, output: outputDict)
+                var outputDict = AIAgentManager.jsonStringToStringDict(tc.outputStr)
+                // If this is a proposal tool and output is missing/empty, build it from input.
+                if proposalPrefixSet.contains(where: { tc.name.hasPrefix($0) }),
+                   (outputDict == nil || outputDict!.isEmpty),
+                   let inputD = inputDict {
+                    var synthetic: [String: String] = [:]
+                    if let pid = inputD["proposalId"] { synthetic["proposalId"] = pid }
+                    // Infer kind from tool name (propose_feature → "feature", etc.)
+                    if let rawKind = inputD["kind"] {
+                        synthetic["kind"] = rawKind
+                    } else if tc.name.hasPrefix("propose_") {
+                        synthetic["kind"] = String(tc.name.dropFirst("propose_".count))
+                    }
+                    if let t = inputD["title"] { synthetic["title"] = t }
+                    if let d = inputD["description"] { synthetic["description"] = d }
+                    outputDict = synthetic.isEmpty ? nil : synthetic
+                }
+                let tcId = tc.toolCallId.isEmpty ? nil : tc.toolCallId
+                let status: String? = (outputDict != nil) ? "output-available" : nil
+                return ToolCall(id: tcId, toolName: tc.name, status: status, input: inputDict, output: outputDict)
             }
 
         let assistantMsg = CanvasChatMessage(role: "assistant", content: result, toolCalls: toolCalls)
@@ -289,14 +340,16 @@ extension AIAgentManager {
 
         // Step 6: Proposal detection
         let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
-        if let tc = assistantMsg.toolCalls?.first(where: { proposalNames.contains($0.toolName) }),
+        if let tc = assistantMsg.toolCalls?.first(where: { call in proposalPrefixSet.contains(where: { call.toolName.hasPrefix($0) }) || proposalNames.contains(call.toolName) }),
            let pid   = tc.output?["proposalId"] ?? tc.input?["proposalId"],
            let kind  = tc.output?["kind"]       ?? tc.input?["kind"],
            let title = tc.output?["title"]      ?? tc.input?["title"] {
             let desc = tc.output?["description"] ?? tc.input?["description"]
             pendingProposal = PendingProposal(
                 proposalId: pid, kind: kind, title: title,
-                description: desc
+                description: desc,
+                toolCallId: tc.id,
+                rawInput: tc.input
             )
             print("AIAgent [HiveGraph] proposal detected — id: \(pid), kind: \(kind)")
             DispatchQueue.main.async {
@@ -534,11 +587,14 @@ To reject it, call reject_proposal with proposalId "\(pid)".
 
     #if DEBUG
     func injectMockProposal(kind: String = "feature") {
+        let mockProposalId = "mock-\(UUID().uuidString)"
         let mock = PendingProposal(
-            proposalId: "mock-\(UUID().uuidString)",
+            proposalId: mockProposalId,
             kind: kind,
             title: "[MOCK] Build \(kind) dashboard",
-            description: "A mock proposal for UI development."
+            description: "A mock proposal for UI development.",
+            toolCallId: nil,
+            rawInput: ["proposalId": mockProposalId, "kind": kind, "title": "[MOCK] Build \(kind) dashboard"]
         )
         pendingProposal = mock
         NotificationCenter.default.post(name: .aiAgentProposalDetected, object: mock)
