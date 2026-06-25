@@ -27,9 +27,9 @@ typealias HiveWorkspaceImageCallback = ((String?) -> ())
 typealias HiveCallLinkCallback = ((String) -> ())
 
 extension API {
-
+    
     static let kHiveBaseUrl = "https://hive.sphinx.chat/api"
-
+    
     func authenticateWithHive(
         callback: @escaping HiveAuthTokenCallback,
         errorCallback: @escaping EmptyCallback
@@ -41,15 +41,15 @@ extension API {
             errorCallback()
             return
         }
-
+        
         let timestamp = Int(Date().timeIntervalSince1970)
-
+        
         let params: [String: AnyObject] = [
             "token": signedToken as AnyObject,
             "pubkey": pubkey as AnyObject,
             "timestamp": timestamp as AnyObject
         ]
-
+        
         guard let request = createRequest(
             "\(API.kHiveBaseUrl)/auth/sphinx/token",
             params: params as NSDictionary,
@@ -58,7 +58,7 @@ extension API {
             errorCallback()
             return
         }
-
+        
         AF.request(request).validate().responseData { response in
             switch response.result {
             case .success(let data):
@@ -76,7 +76,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchWorkspaces(
         authToken: String,
         callback: @escaping HiveWorkspacesCallback,
@@ -91,7 +91,7 @@ extension API {
             errorCallback()
             return
         }
-
+        
         AF.request(request).responseData { response in
             if let statusCode = response.response?.statusCode, statusCode == 401 {
                 errorCallback()
@@ -102,7 +102,7 @@ extension API {
             case .success(let data):
                 let json = JSON(data)
                 var workspaces: [Workspace] = []
-
+                
                 if let workspacesArray = json["workspaces"].array {
                     for workspaceJson in workspacesArray {
                         if let workspace = Workspace(json: workspaceJson) {
@@ -110,7 +110,7 @@ extension API {
                         }
                     }
                 }
-
+                
                 print("[Hive] fetchWorkspaces: \(workspaces.count) workspace(s) returned")
                 callback(workspaces)
             case .failure(let error):
@@ -119,7 +119,7 @@ extension API {
             }
         }
     }
-
+    
     func resolveHiveToken(
         callback: @escaping (String) -> Void,
         errorCallback: @escaping EmptyCallback
@@ -137,7 +137,7 @@ extension API {
             )
         }
     }
-
+    
     func fetchWorkspacesWithAuth(
         callback: @escaping HiveWorkspacesCallback,
         errorCallback: @escaping EmptyCallback
@@ -164,7 +164,7 @@ extension API {
             )
         }
     }
-
+    
     private func authenticateAndFetchWorkspaces(
         callback: @escaping HiveWorkspacesCallback,
         errorCallback: @escaping EmptyCallback
@@ -175,10 +175,10 @@ extension API {
                     errorCallback()
                     return
                 }
-
+                
                 // Store the new token
                 UserDefaults.Keys.hiveToken.set(token)
-
+                
                 self?.fetchWorkspaces(
                     authToken: token,
                     callback: callback,
@@ -188,9 +188,9 @@ extension API {
             errorCallback: errorCallback
         )
     }
-
+    
     // MARK: - Orgs
-
+    
     func fetchOrgs(
         authToken: String,
         callback: @escaping HiveOrgsCallback,
@@ -205,7 +205,7 @@ extension API {
             errorCallback()
             return
         }
-
+        
         AF.request(request).responseData { response in
             if let statusCode = response.response?.statusCode, statusCode == 401 {
                 errorCallback()
@@ -231,21 +231,21 @@ extension API {
             }
         }
     }
-
+    
     func fetchOrgsWithAuth(
         callback: @escaping HiveOrgsCallback,
         errorCallback: @escaping EmptyCallback
     ) {
         if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
             fetchOrgs(authToken: storedToken, callback: callback,
-                errorCallback: { [weak self] in
-                    self?.authenticateAndFetchOrgs(callback: callback, errorCallback: errorCallback)
-                })
+                      errorCallback: { [weak self] in
+                self?.authenticateAndFetchOrgs(callback: callback, errorCallback: errorCallback)
+            })
         } else {
             authenticateAndFetchOrgs(callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchOrgs(
         callback: @escaping HiveOrgsCallback,
         errorCallback: @escaping EmptyCallback
@@ -256,7 +256,7 @@ extension API {
             self?.fetchOrgs(authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func fetchOrgWorkspaces(
         githubLogin: String,
         authToken: String,
@@ -273,7 +273,7 @@ extension API {
             errorCallback()
             return
         }
-
+        
         AF.request(request).responseData { response in
             if let statusCode = response.response?.statusCode, statusCode == 401 {
                 errorCallback()
@@ -298,7 +298,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchOrgWorkspacesWithAuth(
         githubLogin: String,
         callback: @escaping HiveOrgSlugsCallback,
@@ -306,14 +306,14 @@ extension API {
     ) {
         if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
             fetchOrgWorkspaces(githubLogin: githubLogin, authToken: storedToken, callback: callback,
-                errorCallback: { [weak self] in
-                    self?.authenticateAndFetchOrgWorkspaces(githubLogin: githubLogin, callback: callback, errorCallback: errorCallback)
-                })
+                               errorCallback: { [weak self] in
+                self?.authenticateAndFetchOrgWorkspaces(githubLogin: githubLogin, callback: callback, errorCallback: errorCallback)
+            })
         } else {
             authenticateAndFetchOrgWorkspaces(githubLogin: githubLogin, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchOrgWorkspaces(
         githubLogin: String,
         callback: @escaping HiveOrgSlugsCallback,
@@ -325,7 +325,7 @@ extension API {
             self?.fetchOrgWorkspaces(githubLogin: githubLogin, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func fetchTasks(
         workspaceId: String,
         includeArchived: Bool,
@@ -349,14 +349,14 @@ extension API {
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
-
+                
                 // Check if the response contains an error
                 if let error = json["error"].string {
                     print("[HiveAPI] Tasks fetch error: \(error)")
                     errorCallback()
                     return
                 }
-
+                
                 let tasks: [WorkspaceTask] = (json["data"].array ?? []).compactMap { WorkspaceTask(json: $0) }
                 callback(tasks)
             case .failure:
@@ -364,7 +364,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchTasksWithAuth(
         workspaceId: String,
         includeArchived: Bool,
@@ -395,7 +395,7 @@ extension API {
             )
         }
     }
-
+    
     private func authenticateAndFetchTasks(
         workspaceId: String,
         includeArchived: Bool,
@@ -417,9 +417,9 @@ extension API {
             errorCallback: errorCallback
         )
     }
-
+    
     // MARK: - Tribe Call Link
-
+    
     func generateTribeCallLink(
         swarmName: String,
         authToken: String,
@@ -453,7 +453,7 @@ extension API {
             }
         }
     }
-
+    
     func generateTribeCallLinkWithAuth(
         swarmName: String,
         callback: @escaping HiveCallLinkCallback,
@@ -461,14 +461,14 @@ extension API {
     ) {
         if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
             generateTribeCallLink(swarmName: swarmName, authToken: storedToken, callback: callback,
-                errorCallback: { [weak self] in
-                    self?.authenticateAndGenerateTribeCallLink(swarmName: swarmName, callback: callback, errorCallback: errorCallback)
-                })
+                                  errorCallback: { [weak self] in
+                self?.authenticateAndGenerateTribeCallLink(swarmName: swarmName, callback: callback, errorCallback: errorCallback)
+            })
         } else {
             authenticateAndGenerateTribeCallLink(swarmName: swarmName, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndGenerateTribeCallLink(
         swarmName: String,
         callback: @escaping HiveCallLinkCallback,
@@ -480,9 +480,9 @@ extension API {
             self?.generateTribeCallLink(swarmName: swarmName, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Workspace Image
-
+    
     func fetchWorkspaceImage(
         slug: String,
         authToken: String,
@@ -519,7 +519,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchWorkspaceImageWithAuth(
         slug: String,
         callback: @escaping HiveWorkspaceImageCallback,
@@ -531,14 +531,14 @@ extension API {
         }
         if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
             fetchWorkspaceImage(slug: slug, authToken: storedToken, callback: callback,
-                errorCallback: { [weak self] in
-                    self?.authenticateAndFetchWorkspaceImage(slug: slug, callback: callback, errorCallback: errorCallback)
-                })
+                                errorCallback: { [weak self] in
+                self?.authenticateAndFetchWorkspaceImage(slug: slug, callback: callback, errorCallback: errorCallback)
+            })
         } else {
             authenticateAndFetchWorkspaceImage(slug: slug, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchWorkspaceImage(
         slug: String,
         callback: @escaping HiveWorkspaceImageCallback,
@@ -550,7 +550,7 @@ extension API {
             self?.fetchWorkspaceImage(slug: slug, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Workspace Detail
     func fetchWorkspaceDetail(
         slug: String,
@@ -570,7 +570,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchWorkspaceDetailWithAuth(
         slug: String,
         callback: @escaping (JSON) -> Void,
@@ -578,12 +578,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchWorkspaceDetail(slug: slug, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchWorkspaceDetail(slug: slug, callback: callback, errorCallback: errorCallback) })
+                                 errorCallback: { [weak self] in self?.authenticateAndFetchWorkspaceDetail(slug: slug, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchWorkspaceDetail(slug: slug, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchWorkspaceDetail(
         slug: String,
         callback: @escaping (JSON) -> Void,
@@ -595,9 +595,9 @@ extension API {
             self?.fetchWorkspaceDetail(slug: slug, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Workspace Members
-
+    
     func fetchWorkspaceMembers(
         slug: String,
         authToken: String,
@@ -613,10 +613,10 @@ extension API {
             switch response.result {
             case .success(let data): callback(JSON(data))
             case .failure: errorCallback()
-        }
+            }
         }
     }
-
+    
     func fetchWorkspaceMembersWithAuth(
         slug: String,
         callback: @escaping (JSON) -> Void,
@@ -624,12 +624,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchWorkspaceMembers(slug: slug, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchWorkspaceMembers(slug: slug, callback: callback, errorCallback: errorCallback) })
+                                  errorCallback: { [weak self] in self?.authenticateAndFetchWorkspaceMembers(slug: slug, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchWorkspaceMembers(slug: slug, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchWorkspaceMembers(
         slug: String,
         callback: @escaping (JSON) -> Void,
@@ -641,9 +641,9 @@ extension API {
             self?.fetchWorkspaceMembers(slug: slug, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Search Workspace
-
+    
     func searchWorkspace(
         slug: String,
         query: String,
@@ -664,7 +664,7 @@ extension API {
             }
         }
     }
-
+    
     func searchWorkspaceWithAuth(
         slug: String,
         query: String,
@@ -673,12 +673,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             searchWorkspace(slug: slug, query: query, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndSearchWorkspace(slug: slug, query: query, callback: callback, errorCallback: errorCallback) })
+                            errorCallback: { [weak self] in self?.authenticateAndSearchWorkspace(slug: slug, query: query, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndSearchWorkspace(slug: slug, query: query, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndSearchWorkspace(
         slug: String,
         query: String,
@@ -691,9 +691,9 @@ extension API {
             self?.searchWorkspace(slug: slug, query: query, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Features
-
+    
     func fetchFeatures(
         workspaceId: String,
         authToken: String,
@@ -711,7 +711,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchFeaturesWithAuth(
         workspaceId: String,
         callback: @escaping (JSON) -> Void,
@@ -719,12 +719,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchFeatures(workspaceId: workspaceId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchFeatures(workspaceId: workspaceId, callback: callback, errorCallback: errorCallback) })
+                          errorCallback: { [weak self] in self?.authenticateAndFetchFeatures(workspaceId: workspaceId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchFeatures(workspaceId: workspaceId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchFeatures(
         workspaceId: String,
         callback: @escaping (JSON) -> Void,
@@ -736,7 +736,7 @@ extension API {
             self?.fetchFeatures(workspaceId: workspaceId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func fetchFeatureDetail(
         featureId: String,
         authToken: String,
@@ -754,7 +754,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchFeatureDetailWithAuth(
         featureId: String,
         callback: @escaping (JSON) -> Void,
@@ -762,12 +762,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchFeatureDetail(featureId: featureId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchFeatureDetail(featureId: featureId, callback: callback, errorCallback: errorCallback) })
+                               errorCallback: { [weak self] in self?.authenticateAndFetchFeatureDetail(featureId: featureId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchFeatureDetail(featureId: featureId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchFeatureDetail(
         featureId: String,
         callback: @escaping (JSON) -> Void,
@@ -779,7 +779,7 @@ extension API {
             self?.fetchFeatureDetail(featureId: featureId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func createFeature(
         workspaceId: String,
         params: NSDictionary,
@@ -798,7 +798,7 @@ extension API {
             }
         }
     }
-
+    
     func createFeatureWithAuth(
         workspaceId: String,
         params: NSDictionary,
@@ -807,12 +807,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             createFeature(workspaceId: workspaceId, params: params, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndCreateFeature(workspaceId: workspaceId, params: params, callback: callback, errorCallback: errorCallback) })
+                          errorCallback: { [weak self] in self?.authenticateAndCreateFeature(workspaceId: workspaceId, params: params, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndCreateFeature(workspaceId: workspaceId, params: params, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndCreateFeature(
         workspaceId: String,
         params: NSDictionary,
@@ -825,7 +825,7 @@ extension API {
             self?.createFeature(workspaceId: workspaceId, params: params, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func updateFeature(
         featureId: String,
         params: NSDictionary,
@@ -844,7 +844,7 @@ extension API {
             }
         }
     }
-
+    
     func updateFeatureWithAuth(
         featureId: String,
         params: NSDictionary,
@@ -853,12 +853,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             updateFeature(featureId: featureId, params: params, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndUpdateFeature(featureId: featureId, params: params, callback: callback, errorCallback: errorCallback) })
+                          errorCallback: { [weak self] in self?.authenticateAndUpdateFeature(featureId: featureId, params: params, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndUpdateFeature(featureId: featureId, params: params, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndUpdateFeature(
         featureId: String,
         params: NSDictionary,
@@ -871,9 +871,9 @@ extension API {
             self?.updateFeature(featureId: featureId, params: params, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Task Detail & Messages
-
+    
     func fetchTaskDetail(
         taskId: String,
         authToken: String,
@@ -891,7 +891,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchTaskDetailWithAuth(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -899,12 +899,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchTaskDetail(taskId: taskId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchTaskDetail(taskId: taskId, callback: callback, errorCallback: errorCallback) })
+                            errorCallback: { [weak self] in self?.authenticateAndFetchTaskDetail(taskId: taskId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchTaskDetail(taskId: taskId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchTaskDetail(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -916,7 +916,7 @@ extension API {
             self?.fetchTaskDetail(taskId: taskId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func fetchTaskMessages(
         taskId: String,
         authToken: String,
@@ -934,7 +934,7 @@ extension API {
             }
         }
     }
-
+    
     func fetchTaskMessagesWithAuth(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -942,12 +942,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             fetchTaskMessages(taskId: taskId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndFetchTaskMessages(taskId: taskId, callback: callback, errorCallback: errorCallback) })
+                              errorCallback: { [weak self] in self?.authenticateAndFetchTaskMessages(taskId: taskId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndFetchTaskMessages(taskId: taskId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndFetchTaskMessages(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -959,9 +959,9 @@ extension API {
             self?.fetchTaskMessages(taskId: taskId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     // MARK: - Task Write Operations
-
+    
     func triggerTaskGeneration(
         featureId: String,
         authToken: String,
@@ -979,7 +979,7 @@ extension API {
             }
         }
     }
-
+    
     func triggerTaskGenerationWithAuth(
         featureId: String,
         callback: @escaping (JSON) -> Void,
@@ -987,12 +987,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             triggerTaskGeneration(featureId: featureId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndTriggerTaskGeneration(featureId: featureId, callback: callback, errorCallback: errorCallback) })
+                                  errorCallback: { [weak self] in self?.authenticateAndTriggerTaskGeneration(featureId: featureId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndTriggerTaskGeneration(featureId: featureId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndTriggerTaskGeneration(
         featureId: String,
         callback: @escaping (JSON) -> Void,
@@ -1004,7 +1004,7 @@ extension API {
             self?.triggerTaskGeneration(featureId: featureId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func updateTaskStatus(
         taskId: String,
         status: String,
@@ -1024,7 +1024,7 @@ extension API {
             }
         }
     }
-
+    
     func updateTaskStatusWithAuth(
         taskId: String,
         status: String,
@@ -1033,12 +1033,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             updateTaskStatus(taskId: taskId, status: status, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndUpdateTaskStatus(taskId: taskId, status: status, callback: callback, errorCallback: errorCallback) })
+                             errorCallback: { [weak self] in self?.authenticateAndUpdateTaskStatus(taskId: taskId, status: status, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndUpdateTaskStatus(taskId: taskId, status: status, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndUpdateTaskStatus(
         taskId: String,
         status: String,
@@ -1051,7 +1051,7 @@ extension API {
             self?.updateTaskStatus(taskId: taskId, status: status, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func startTask(
         taskId: String,
         authToken: String,
@@ -1069,7 +1069,7 @@ extension API {
             }
         }
     }
-
+    
     func startTaskWithAuth(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1077,12 +1077,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             startTask(taskId: taskId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndStartTask(taskId: taskId, callback: callback, errorCallback: errorCallback) })
+                      errorCallback: { [weak self] in self?.authenticateAndStartTask(taskId: taskId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndStartTask(taskId: taskId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndStartTask(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1094,7 +1094,7 @@ extension API {
             self?.startTask(taskId: taskId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func retryTaskWorkflow(
         taskId: String,
         authToken: String,
@@ -1112,7 +1112,7 @@ extension API {
             }
         }
     }
-
+    
     func retryTaskWorkflowWithAuth(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1120,12 +1120,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             retryTaskWorkflow(taskId: taskId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndRetryTaskWorkflow(taskId: taskId, callback: callback, errorCallback: errorCallback) })
+                              errorCallback: { [weak self] in self?.authenticateAndRetryTaskWorkflow(taskId: taskId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndRetryTaskWorkflow(taskId: taskId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndRetryTaskWorkflow(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1137,7 +1137,7 @@ extension API {
             self?.retryTaskWorkflow(taskId: taskId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
-
+    
     func archiveTask(
         taskId: String,
         authToken: String,
@@ -1155,7 +1155,7 @@ extension API {
             }
         }
     }
-
+    
     func archiveTaskWithAuth(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1163,12 +1163,12 @@ extension API {
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
             archiveTask(taskId: taskId, authToken: token, callback: callback,
-                errorCallback: { [weak self] in self?.authenticateAndArchiveTask(taskId: taskId, callback: callback, errorCallback: errorCallback) })
+                        errorCallback: { [weak self] in self?.authenticateAndArchiveTask(taskId: taskId, callback: callback, errorCallback: errorCallback) })
         } else {
             authenticateAndArchiveTask(taskId: taskId, callback: callback, errorCallback: errorCallback)
         }
     }
-
+    
     private func authenticateAndArchiveTask(
         taskId: String,
         callback: @escaping (JSON) -> Void,
@@ -1179,6 +1179,91 @@ extension API {
             UserDefaults.Keys.hiveToken.set(token)
             self?.archiveTask(taskId: taskId, authToken: token, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
+    }
+    
+    // MARK: - Proposal Approval / Rejection
+    func sendApprovalIntent(
+        orgId: String,
+        conversationId: String,
+        turnId: String,
+        proposalId: String,
+        canvasChatMessages: [[String: Any]],
+        token: String,
+        completion: @escaping (AIAgentManager.ApprovalResult?) -> Void
+    ) {
+        guard let url = URL(string: "https://hive.sphinx.chat/api/ask/quick") else {
+            completion(nil); return
+        }
+        let body: [String: Any] = [
+            "orgId": orgId,
+            "conversationId": conversationId,
+            "turnId": turnId,
+            "approvalIntent": ["proposalId": proposalId],
+            "canvasChatMessages": canvasChatMessages
+        ]
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        print("AIAgent [HiveGraph] approval POST fired — turnId: \(turnId)")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("AIAgent [HiveGraph] approval POST failed: \(error.localizedDescription)")
+                completion(nil); return
+            }
+            var result: AIAgentManager.ApprovalResult? = nil
+            if let http = response as? HTTPURLResponse,
+               let header = http.allHeaderFields["X-Approval-Result"] as? String,
+               let headerData = header.data(using: .utf8) {
+                result = try? JSONDecoder().decode(AIAgentManager.ApprovalResult.self, from: headerData)
+                print("AIAgent [HiveGraph] X-Approval-Result parsed: \(header)")
+            }
+            // If no header but status 200, treat as success with a minimal result
+            if result == nil, let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) {
+                result = AIAgentManager.ApprovalResult(approved: true, proposalId: proposalId, message: nil)
+            }
+            completion(result)
+        }.resume()
+    }
+    
+    func sendRejectionIntent(
+        orgId: String,
+        conversationId: String,
+        turnId: String,
+        proposalId: String,
+        canvasChatMessages: [[String: Any]],
+        token: String,
+        completion: @escaping (Bool) -> Void
+    ) {
+        guard let url = URL(string: "https://hive.sphinx.chat/api/ask/quick") else {
+            completion(false); return
+        }
+        let body: [String: Any] = [
+            "orgId": orgId,
+            "conversationId": conversationId,
+            "turnId": turnId,
+            "rejectionIntent": ["proposalId": proposalId],
+            "canvasChatMessages": canvasChatMessages
+        ]
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        print("AIAgent [HiveGraph] rejection POST fired — turnId: \(turnId)")
+        
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                print("AIAgent [HiveGraph] rejection POST failed: \(error.localizedDescription)")
+                completion(false); return
+            }
+            print("AIAgent [HiveGraph] rejection POST succeeded")
+            completion(true)
+        }.resume()
     }
 }
 

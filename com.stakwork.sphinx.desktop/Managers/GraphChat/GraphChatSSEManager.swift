@@ -16,7 +16,7 @@ protocol GraphChatSSEDelegate: AnyObject {
     func onTextDelta(_ delta: String)
     func onFinish()
     func onError(_ text: String)
-    func onToolInputAvailable(_ toolName: String, _ input: String)
+    func onToolInputAvailable(_ toolName: String, _ toolCallId: String, _ input: String)
     func onToolCall(_ toolName: String, _ input: String)
     func onToolOutputAvailable(_ toolName: String, _ output: String)
 }
@@ -191,8 +191,9 @@ extension GraphChatSSEManager {
             }
         case "tool_input_available":
             let toolName = json["tool_name"].stringValue
+            let toolCallId = json["toolCallId"].stringValue
             let input = json["input"].rawString() ?? ""
-            delegate?.onToolInputAvailable(toolName, input)
+            delegate?.onToolInputAvailable(toolName, toolCallId, input)
         case "tool_call":
             let toolName = json["tool_name"].stringValue
             let input = json["input"].rawString() ?? ""
@@ -292,10 +293,24 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
         }
     }
 
+    /// Coerce any JSON value (String, Dict, Array, Number, Bool) to a JSON string.
+    private func jsonValueToString(_ value: Any?) -> String {
+        guard let value = value else { return "" }
+        if let str = value as? String { return str }
+        if let data = try? JSONSerialization.data(withJSONObject: value),
+           let str = String(data: data, encoding: .utf8) { return str }
+        return "\(value)"
+    }
+
     private func handleOrgSSEJson(_ json: [String: Any]) {
-        let type = json["type"] as? String ?? ""
+        // toolName may appear as "toolName" or "tool_name"
+        func extractToolName() -> String {
+            (json["toolName"] as? String) ?? (json["tool_name"] as? String) ?? ""
+        }
+
+        let type = (json["type"] as? String) ?? ""
         switch type {
-        case "text-delta":
+        case "text-delta", "text_delta":
             let delta = (json["delta"] as? String) ?? (json["text"] as? String) ?? ""
             if !delta.isEmpty { delegate?.onTextDelta(delta) }
         case "finish", "done":
@@ -303,20 +318,23 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
         case "error":
             let msg = (json["errorText"] as? String) ?? (json["message"] as? String) ?? "An error occurred"
             delegate?.onError(msg)
-        case "tool-input-available":
-            let toolName = json["toolName"] as? String ?? ""
-            let input = (json["input"] as? String) ?? ""
-            delegate?.onToolInputAvailable(toolName, input)
-        case "tool-call":
-            let toolName = json["toolName"] as? String ?? ""
-            let input = (json["args"] as? String) ?? (json["input"] as? String) ?? ""
-            delegate?.onToolCall(toolName, input)
-        case "tool-output-available", "tool-result":
-            let toolName = json["toolName"] as? String ?? ""
-            let output = (json["output"] as? String) ?? ""
-            delegate?.onToolOutputAvailable(toolName, output)
+        case "tool-input-available", "tool_input_available":
+            let toolCallId = (json["toolCallId"] as? String) ?? ""
+            let input = jsonValueToString(json["input"])
+            delegate?.onToolInputAvailable(extractToolName(), toolCallId, input)
+        case "tool-call", "tool_call":
+            let input = jsonValueToString(json["args"] ?? json["input"])
+            delegate?.onToolCall(extractToolName(), input)
+        case "tool-output-available", "tool_output_available", "tool-result", "tool_result":
+            let output = jsonValueToString(json["output"])
+            delegate?.onToolOutputAvailable(extractToolName(), output)
         default:
-            if let text = json["delta"] as? String ?? json["text"] as? String, !text.isEmpty {
+            // Handle {"finish_reason":"stop"} which carries no "type" key
+            if json["finish_reason"] != nil {
+                delegate?.onFinish()
+                return
+            }
+            if let text = (json["delta"] as? String) ?? (json["text"] as? String), !text.isEmpty {
                 delegate?.onTextDelta(text)
             }
         }

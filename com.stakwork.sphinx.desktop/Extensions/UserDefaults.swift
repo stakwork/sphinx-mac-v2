@@ -30,6 +30,7 @@ extension UserDefaults {
         public static let hiveOrgSlugs            = DefaultKey<Data>("hiveOrgSlugs")
         public static let hiveOrgSlugsCacheDate   = DefaultKey<Double>("hiveOrgSlugsCacheDate")
         public static let hiveConversationIdByOrg = DefaultKey<Data>("hiveConversationIdByOrg")
+        public static let hiveCanvasChatHistoryByOrg = DefaultKey<Data>("hiveCanvasChatHistoryByOrg")
         public static let inviterNickname = DefaultKey<String>("inviterNickname")
         public static let inviterPubkey = DefaultKey<String>("inviterPubkey")
         public static let inviterRouteHint = DefaultKey<String>("inviterRouteHint")
