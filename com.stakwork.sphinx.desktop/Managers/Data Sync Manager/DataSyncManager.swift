@@ -178,9 +178,6 @@ class DataSyncManager: NSObject, @unchecked Sendable {
         
         guard !isSyncing else {
             syncLock.unlock()
-            #if DEBUG
-            print("DataSync: Sync already in progress, skipping")
-            #endif
             return
         }
         isSyncing = true
@@ -199,9 +196,6 @@ class DataSyncManager: NSObject, @unchecked Sendable {
             // CRITICAL: If we couldn't retrieve or parse server data, don't proceed with sync.
             // Proceeding with an empty itemsResponse would overwrite server data and cause data loss.
             guard serverDataString != nil || parsedResponse != nil else {
-                #if DEBUG
-                print("DataSync: Could not retrieve server data, skipping sync to prevent data loss")
-                #endif
                 return
             }
 
@@ -285,15 +279,8 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                         self.syncContext.delete(item)
                     }
                     self.syncContext.saveContext()
-
-                    #if DEBUG
-                    print("DataSync: Successfully synced and deleted \(itemsToDelete.count) local items")
-                    #endif
                 }
             } else {
-                #if DEBUG
-                print("DataSync: Upload failed, preserving \(itemsToDelete.count) local items for retry")
-                #endif
             }
         }
     }
@@ -491,10 +478,6 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                     value: .string(colorHex)
                 )
                 updatedResponse.items.append(newItem)
-
-                #if DEBUG
-                print("DataSync: Adding local chat color to server: \(colorKey) = \(colorHex)")
-                #endif
             }
         }
 
@@ -539,98 +522,84 @@ class DataSyncManager: NSObject, @unchecked Sendable {
 
     private func parseFileText(text: String) -> ItemsResponse? {
         guard let data = text.data(using: .utf8) else {
-            #if DEBUG
-            print("DataSync: Failed to convert text to data")
-            #endif
             return nil
         }
 
         do {
             let decoder = JSONDecoder()
             let response = try decoder.decode(ItemsResponse.self, from: data)
-
-            #if DEBUG
-            printParsedItems(response)
-            #endif
-
             return response
         } catch {
-            #if DEBUG
-            print("DataSync: Error parsing JSON: \(error)")
-            if let decodingError = error as? DecodingError {
-                printDecodingError(decodingError)
-            }
-            #endif
             return nil
         }
     }
 
-    #if DEBUG
-    private func printParsedItems(_ response: ItemsResponse) {
-        print("DataSync: Successfully parsed \(response.items.count) items\n")
-
-        // Create formatter once outside the loop (DateFormatter Optimization)
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .medium
-        formatter.timeZone = TimeZone.current
-
-        for item in response.items {
-            print("DataSync: ----------------------------------------")
-            print("DataSync: Key: \(item.key)")
-            print("DataSync: Identifier: \(item.identifier)")
-            print("DataSync: Date: \(formatter.string(from: item.date))")
-
-            switch item.value {
-            case .string(let value):
-                print("DataSync: Value (String): \(value)")
-            case .int(let value):
-                print("DataSync: Value (Int): \(value)")
-            case .bool(let value):
-                print("DataSync: Value (Bool): \(value)")
-            case .timezone(let timezone):
-                print("DataSync: Value (Timezone):")
-                print("DataSync:    - Enabled: \(timezone.timezoneEnabled)")
-                print("DataSync:    - Identifier: \(timezone.timezoneIdentifier ?? "nil (device timezone)")")
-            case .feedStatus(let feedStatus):
-                print("DataSync: Value (Feed Status):")
-                print("DataSync:    - Chat Pubkey: \(feedStatus.chatPubkey)")
-                print("DataSync:    - Feed URL: \(feedStatus.feedUrl)")
-                print("DataSync:    - Subscribed: \(feedStatus.subscribed)")
-                print("DataSync:    - Sats/Minute: \(feedStatus.satsPerMinute)")
-                print("DataSync:    - Player Speed: \(feedStatus.playerSpeed)x")
-                print("DataSync:    - Item ID: \(feedStatus.itemId)")
-            case .feedItemStatus(let itemStatus):
-                print("DataSync: Value (Feed Item Status):")
-                print("DataSync:    - Duration: \(itemStatus.duration)s")
-                print("DataSync:    - Current Time: \(itemStatus.currentTime)s")
-                print("DataSync:    - Progress: \(String(format: "%.1f", itemStatus.progressPercentage))%")
-                print("DataSync:    - Remaining: \(itemStatus.remainingTime)s")
-                print("DataSync:    - Completed: \(itemStatus.isCompleted ? "Yes" : "No")")
-            }
-            print()
-        }
-    }
-
-    private func printDecodingError(_ error: DecodingError) {
-        switch error {
-        case .dataCorrupted(let context):
-            print("DataSync:    Context: \(context.debugDescription)")
-            print("DataSync:    Path: \(context.codingPath.map { $0.stringValue }.joined(separator: " -> "))")
-        case .keyNotFound(let key, let context):
-            print("DataSync:    Key '\(key.stringValue)' not found")
-            print("DataSync:    Context: \(context.debugDescription)")
-        case .typeMismatch(let type, let context):
-            print("DataSync:    Type '\(type)' mismatch")
-            print("DataSync:    Context: \(context.debugDescription)")
-        case .valueNotFound(let type, let context):
-            print("DataSync:    Value '\(type)' not found")
-            print("DataSync:    Context: \(context.debugDescription)")
-        @unknown default:
-            print("DataSync:    Unknown decoding error")
-        }
-    }
-    #endif
+//    #if DEBUG
+//    private func printParsedItems(_ response: ItemsResponse) {
+//        print("DataSync: Successfully parsed \(response.items.count) items\n")
+//
+//        // Create formatter once outside the loop (DateFormatter Optimization)
+//        let formatter = DateFormatter()
+//        formatter.dateStyle = .medium
+//        formatter.timeStyle = .medium
+//        formatter.timeZone = TimeZone.current
+//
+//        for item in response.items {
+//            print("DataSync: ----------------------------------------")
+//            print("DataSync: Key: \(item.key)")
+//            print("DataSync: Identifier: \(item.identifier)")
+//            print("DataSync: Date: \(formatter.string(from: item.date))")
+//
+//            switch item.value {
+//            case .string(let value):
+//                print("DataSync: Value (String): \(value)")
+//            case .int(let value):
+//                print("DataSync: Value (Int): \(value)")
+//            case .bool(let value):
+//                print("DataSync: Value (Bool): \(value)")
+//            case .timezone(let timezone):
+//                print("DataSync: Value (Timezone):")
+//                print("DataSync:    - Enabled: \(timezone.timezoneEnabled)")
+//                print("DataSync:    - Identifier: \(timezone.timezoneIdentifier ?? "nil (device timezone)")")
+//            case .feedStatus(let feedStatus):
+//                print("DataSync: Value (Feed Status):")
+//                print("DataSync:    - Chat Pubkey: \(feedStatus.chatPubkey)")
+//                print("DataSync:    - Feed URL: \(feedStatus.feedUrl)")
+//                print("DataSync:    - Subscribed: \(feedStatus.subscribed)")
+//                print("DataSync:    - Sats/Minute: \(feedStatus.satsPerMinute)")
+//                print("DataSync:    - Player Speed: \(feedStatus.playerSpeed)x")
+//                print("DataSync:    - Item ID: \(feedStatus.itemId)")
+//            case .feedItemStatus(let itemStatus):
+//                print("DataSync: Value (Feed Item Status):")
+//                print("DataSync:    - Duration: \(itemStatus.duration)s")
+//                print("DataSync:    - Current Time: \(itemStatus.currentTime)s")
+//                print("DataSync:    - Progress: \(String(format: "%.1f", itemStatus.progressPercentage))%")
+//                print("DataSync:    - Remaining: \(itemStatus.remainingTime)s")
+//                print("DataSync:    - Completed: \(itemStatus.isCompleted ? "Yes" : "No")")
+//            }
+//            print()
+//        }
+//    }
+//
+//    private func printDecodingError(_ error: DecodingError) {
+//        switch error {
+//        case .dataCorrupted(let context):
+//            print("DataSync:    Context: \(context.debugDescription)")
+//            print("DataSync:    Path: \(context.codingPath.map { $0.stringValue }.joined(separator: " -> "))")
+//        case .keyNotFound(let key, let context):
+//            print("DataSync:    Key '\(key.stringValue)' not found")
+//            print("DataSync:    Context: \(context.debugDescription)")
+//        case .typeMismatch(let type, let context):
+//            print("DataSync:    Type '\(type)' mismatch")
+//            print("DataSync:    Context: \(context.debugDescription)")
+//        case .valueNotFound(let type, let context):
+//            print("DataSync:    Value '\(type)' not found")
+//            print("DataSync:    Context: \(context.debugDescription)")
+//        @unknown default:
+//            print("DataSync:    Unknown decoding error")
+//        }
+//    }
+//    #endif
 
     // MARK: - Server Communication
 
@@ -650,9 +619,6 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                     continuation.resume(returning: true)
                 },
                 errorCompletion: {
-                    #if DEBUG
-                    print("DataSync: Error authenticating with memes server")
-                    #endif
                     continuation.resume(returning: false)
                 }
             )
@@ -722,9 +688,6 @@ class DataSyncManager: NSObject, @unchecked Sendable {
 
         // Convert to data safely (Force Unwrap Fixed)
         guard let data = encrypted.data(using: .utf8) else {
-            #if DEBUG
-            print("DataSync: Failed to convert encrypted string to data")
-            #endif
             return false
         }
 
@@ -734,20 +697,12 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                 pubkey: base64URLPubkey,
                 token: token,
                 progressCallback: { progress in
-                    #if DEBUG
-                    print("DataSync: Upload progress: \(progress)")
-                    #endif
+
                 },
                 callback: { (success, _) in
-                    #if DEBUG
-                    print("DataSync: Upload completed with success: \(success)")
-                    #endif
                     continuation.resume(returning: success)
                 },
                 errorCallback: { error in
-                    #if DEBUG
-                    print("DataSync: Upload error: \(error)")
-                    #endif
                     continuation.resume(returning: false)
                 }
             )
@@ -804,13 +759,7 @@ class DataSyncManager: NSObject, @unchecked Sendable {
 
         do {
             try fileManager.removeItem(at: fileURL)
-            #if DEBUG
-            print("DataSync: File deleted successfully")
-            #endif
         } catch {
-            #if DEBUG
-            print("DataSync: Error deleting file: \(error)")
-            #endif
         }
     }
 }

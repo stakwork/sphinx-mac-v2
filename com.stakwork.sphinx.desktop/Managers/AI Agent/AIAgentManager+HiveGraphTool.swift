@@ -9,13 +9,6 @@
 import Foundation
 import SwiftAISDK
 
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let aiAgentProposalDetected = Notification.Name("aiAgentProposalDetected")
-    static let aiAgentProposalActioned = Notification.Name("aiAgentProposalActioned")
-}
-
 // MARK: - Codable Models
 
 extension AIAgentManager {
