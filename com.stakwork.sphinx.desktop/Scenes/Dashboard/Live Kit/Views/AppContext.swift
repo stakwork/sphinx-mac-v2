@@ -112,8 +112,9 @@ final class AppContext: ObservableObject {
                     self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
                         ?? AudioManager.shared.defaultInputDevice
                 }
-                // Delegate removal-detection and fallback routing to the monitor.
-                self.routeMonitor.handleDeviceUpdate(from: audioManager)
+                // Use AudioManager.shared directly rather than the closure parameter
+                // to avoid sending a non-Sendable value across the actor boundary.
+                self.routeMonitor.handleDeviceUpdate(from: AudioManager.shared)
             }
         }
 
