@@ -241,7 +241,7 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
         completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
     ) {
         if let http = response as? HTTPURLResponse,
-           let cid = http.allHeaderFields["X-Conversation-Id"] as? String,
+           let cid = http.value(forHTTPHeaderField: "x-conversation-id"),
            !orgConversationIdFired {
             orgConversationIdFired = true
             // Persist synchronously before allowing data to flow so the ID is
