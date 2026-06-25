@@ -62,9 +62,6 @@ extension NewChatViewController {
 
         proposalCard = card
 
-        // Set flag so the first insertAgentReply (the proposal-carrying reply) doesn't dismiss the card
-        skipNextAgentReplyDismiss = true
-
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0.2
             card.animator().alphaValue = 1
@@ -254,16 +251,6 @@ extension NewChatViewController {
 
     func insertAgentReply(_ text: String) {
         hideAgentProcessingBar()
-
-        // Dismiss proposal card on subsequent agent replies (skip the first one — it's the proposal-carrying reply)
-        if proposalCard != nil {
-            if skipNextAgentReplyDismiss {
-                skipNextAgentReplyDismiss = false
-            } else {
-                removeProposalCard()
-            }
-        }
-
         guard let chat = self.chat, let owner = self.owner else { return }
         let incoming = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
