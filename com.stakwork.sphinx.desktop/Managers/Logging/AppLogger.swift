@@ -222,6 +222,11 @@ final class AppLogger: @unchecked Sendable {
     }
 
     /// Flush in-memory entries to disk (call on app terminate / background)
+    /// Write a log entry directly (bypasses stdout/stderr redirection).
+    func log(level: LogLevel, message: String) {
+        ingest(message: message, level: level)
+    }
+
     func flush() {
         queue.sync {
             try? appendHandle?.synchronizeFile()

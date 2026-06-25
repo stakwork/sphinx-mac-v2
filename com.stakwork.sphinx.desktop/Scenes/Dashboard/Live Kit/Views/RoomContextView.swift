@@ -91,6 +91,10 @@ struct RoomContextView: View {
             .foregroundColor(Color.white)
             .onDisappear {
                 print("\(String(describing: type(of: self))) onDisappear")
+                // Clear the route monitor callback before disconnecting so that
+                // any late-firing device-removal event doesn't operate on a
+                // torn-down audio engine context.
+                appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
                 Task {
                     await roomCtx.disconnect()
                 }
@@ -112,6 +116,19 @@ struct RoomContextView: View {
                                 }
                             )
                             appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                            // Wire the route monitor: if all audio output devices vanish
+                            // mid-call, end the call cleanly instead of crashing.
+                            appCtx.configureRouteMonitor {
+                                Task { @MainActor in
+                                    AlertHelper.showAlert(
+                                        title: "Audio Device Lost",
+                                        message: "All audio output devices were removed. The call has ended."
+                                    )
+                                    appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
+                                    await roomCtx.disconnect()
+                                    self.onCallEnded?()
+                                }
+                            }
                         } catch {
                             print("LiveKit connect failed: \(error)")
                             Task { @MainActor in

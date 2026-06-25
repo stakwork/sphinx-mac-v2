@@ -23,6 +23,9 @@ import SwiftUI
 final class AppContext: ObservableObject {
     private let store: ValueStore<Preferences>
 
+    // Monitor that re-routes audio when the in-use device is removed mid-call.
+    private let routeMonitor = CallAudioRouteMonitor()
+
     @Published var videoViewVisible: Bool = true {
         didSet { store.value.videoViewVisible = videoViewVisible }
     }
@@ -96,7 +99,7 @@ final class AppContext: ObservableObject {
         videoViewMirrored = store.value.videoViewMirrored
         connectionHistory = store.value.connectionHistory
 
-        AudioManager.shared.onDeviceUpdate = { audioManager in
+        AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
             let outputId = audioManager.outputDevice.deviceId
             let inputId = audioManager.inputDevice.deviceId
             Task { @MainActor [weak self] in
@@ -109,8 +112,18 @@ final class AppContext: ObservableObject {
                     self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
                         ?? AudioManager.shared.defaultInputDevice
                 }
+                // Delegate removal-detection and fallback routing to the monitor.
+                self.routeMonitor.handleDeviceUpdate(from: audioManager)
             }
         }
+
+        routeMonitor.appContext = self
+    }
+
+    /// Attach a callback for when no audio output device is available mid-call.
+    /// Pass `nil` to clear the callback (e.g., when the call is ending).
+    func configureRouteMonitor(onNoDeviceAvailable: (() -> Void)?) {
+        routeMonitor.onNoDeviceAvailable = onNoDeviceAvailable
     }
     
     deinit {

@@ -740,6 +740,7 @@
 		CEF18FAB2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
+		A1B2C3D4E5F60001A1B2C3D4 /* CallAudioRouteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1823,6 +1824,7 @@
 		CE9BA46129D772BD000C8837 /* PodcastDetailActionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PodcastDetailActionCell.xib; sourceTree = "<group>"; };
 		CEF18FA82C8B768800D62C0F /* ChatEmptyAvatarPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatEmptyAvatarPlaceholderView.swift; sourceTree = "<group>"; };
 		CEF18FAA2C8B76D100D62C0F /* ChatEmptyAvatarPlaceholderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatEmptyAvatarPlaceholderView.xib; sourceTree = "<group>"; };
+		A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitor.swift; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3929,8 +3931,17 @@
 			isa = PBXGroup;
 			children = (
 				4730EF5F2CDBD0270014581F /* Views */,
+				A1B2C3D4E5F60002A1B2C3D4 /* Helpers */,
 			);
 			path = "Live Kit";
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60002A1B2C3D4 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60000A1B2C3D4 /* CallAudioRouteMonitor.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		47FEE1F22A61B1AF00646C4E /* New Chat View Controller */ = {
@@ -4691,6 +4702,7 @@
 				479751DA246C9A7E00D2106B /* AlertHelper.swift in Sources */,
 				47A4EFFE24B6321700117AE6 /* ConnectivityHelper.swift in Sources */,
 				4730EF632CDBD0470014581F /* AppContext.swift in Sources */,
+				A1B2C3D4E5F60001A1B2C3D4 /* CallAudioRouteMonitor.swift in Sources */,
 				4797E75A278607960080B966 /* PeopleTorActionsView.swift in Sources */,
 				473E1F472AC5BEB600DC1CDC /* ThreadHeaderView.swift in Sources */,
 				4708C2052A55CA4800274AD4 /* NSViewController.swift in Sources */,
