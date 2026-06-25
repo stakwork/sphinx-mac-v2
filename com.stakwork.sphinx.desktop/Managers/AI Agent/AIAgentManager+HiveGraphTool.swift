@@ -401,7 +401,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         guard inPending || inHistory else {
             print("AIAgent [HiveGraph] approve_proposal: proposal not found — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Proposal not found in current conversation.")
             }
             return .value(.string("Proposal not found in current conversation. Cannot approve."))
         }
@@ -415,7 +415,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         }), canvasChatHistory[idx].approvalResult != nil {
             print("AIAgent [HiveGraph] approve_proposal: already actioned — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "This proposal has already been actioned.")
             }
             return .value(.string("This proposal has already been actioned."))
         }
@@ -427,7 +427,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         else {
             print("AIAgent [HiveGraph] approve_proposal: missing org context — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Missing org context. Please try again.")
             }
             return .value(.string("Missing org context. Cannot approve."))
         }
@@ -439,7 +439,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         guard let token = token else {
             print("AIAgent [HiveGraph] approve_proposal: authentication failed — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Authentication failed. Please try again.")
             }
             return .value(.string("Authentication failed. Cannot approve."))
         }
@@ -462,7 +462,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                 guard let self = self else {
                     print("AIAgent [HiveGraph] approve_proposal: agent unavailable — proposalId: \(proposalId)")
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Agent unavailable. Please try again.")
                     }
                     cont.resume(returning: .value(.string("Agent unavailable.")))
                     return
@@ -491,7 +491,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                 } else {
                     print("AIAgent [HiveGraph] approval POST failed — leaving card actionable")
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Approval failed. Please try again.")
                     }
                     cont.resume(returning: .value(.string("Approval failed. Please try again — the card is still actionable.")))
                 }
@@ -525,7 +525,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         guard inPending || inHistory else {
             print("AIAgent [HiveGraph] reject_proposal: proposal not found — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Proposal not found in current conversation.")
             }
             return .value(.string("Proposal not found in current conversation. Cannot reject."))
         }
@@ -539,7 +539,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         }), canvasChatHistory[idx].approvalResult != nil {
             print("AIAgent [HiveGraph] reject_proposal: already actioned — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "This proposal has already been actioned.")
             }
             return .value(.string("This proposal has already been actioned."))
         }
@@ -551,7 +551,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         else {
             print("AIAgent [HiveGraph] reject_proposal: missing org context — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Missing org context. Please try again.")
             }
             return .value(.string("Missing org context. Cannot reject."))
         }
@@ -563,7 +563,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         guard let token = token else {
             print("AIAgent [HiveGraph] reject_proposal: authentication failed — proposalId: \(proposalId)")
             DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Authentication failed. Please try again.")
             }
             return .value(.string("Authentication failed. Cannot reject."))
         }
@@ -586,7 +586,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                 guard let self = self else {
                     print("AIAgent [HiveGraph] reject_proposal: agent unavailable — proposalId: \(proposalId)")
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Agent unavailable. Please try again.")
                     }
                     cont.resume(returning: .value(.string("Agent unavailable.")))
                     return
@@ -615,7 +615,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                 } else {
                     print("AIAgent [HiveGraph] rejection POST failed — leaving card actionable")
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: nil)
+                        NotificationCenter.default.post(name: .aiAgentProposalActioned, object: "Rejection failed. Please try again.")
                     }
                     cont.resume(returning: .value(.string("Rejection failed. Please try again — the card is still actionable.")))
                 }
