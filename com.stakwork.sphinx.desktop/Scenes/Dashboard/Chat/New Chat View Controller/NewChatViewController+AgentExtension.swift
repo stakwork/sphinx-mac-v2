@@ -55,34 +55,45 @@ extension NewChatViewController {
             }
         }
 
+        // Use onDismiss so manual ✕ tap goes through the VC and restores inset
+        card.onDismiss = { [weak self] in
+            self?.removeProposalCard()
+        }
+
         proposalCard = card
+
+        // Set flag so the first insertAgentReply (the proposal-carrying reply) doesn't dismiss the card
+        skipNextAgentReplyDismiss = true
 
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0.2
             card.animator().alphaValue = 1
         }
 
-        // Adjust scroll view inset to avoid overlap
+        // Adjust scroll view inset to avoid overlap — store exact amount for precise restoration
         card.layoutSubtreeIfNeeded()
         let cardHeight = card.fittingSize.height + 8
-        chatScrollView.contentInsets.bottom += max(cardHeight, 80)
+        let inset = max(cardHeight, 80)
+        proposalCardInset = inset
+        chatScrollView.contentInsets.bottom += inset
     }
 
     func handleProposalActioned(result: AIAgentManager.ApprovalResult?, error: String?) {
         guard let card = proposalCard else { return }
         if let result = result {
+            // Success: show stamp, card auto-dismisses via onDismiss after 3s
             card.showStamp(approved: result.approved)
         } else {
-            card.resetToActionable()
-            card.showError(error ?? "The request could not be completed. Please try again.")
+            // Failure: show inline error and re-enable buttons
+            card.showError(error ?? "Something went wrong. Please try again.")
         }
     }
 
     func removeProposalCard() {
-        if let card = proposalCard {
-            let cardHeight = card.fittingSize.height + 8
-            chatScrollView.contentInsets.bottom = max(0, chatScrollView.contentInsets.bottom - max(cardHeight, 80))
-            card.removeFromSuperview()
+        if proposalCard != nil {
+            chatScrollView.contentInsets.bottom = max(0, chatScrollView.contentInsets.bottom - proposalCardInset)
+            proposalCard?.removeFromSuperview()
+            proposalCardInset = 0
         }
         proposalCard = nil
     }
@@ -182,6 +193,10 @@ extension NewChatViewController {
         outgoing.chat = chat
         chat.setLastMessage(outgoing)
         CoreDataManager.sharedManager.saveContext()
+
+        // Dismiss any visible proposal card when the user sends a new message
+        removeProposalCard()
+
         completion(true)
 //        showAgentProcessingBar()
 
@@ -239,6 +254,16 @@ extension NewChatViewController {
 
     func insertAgentReply(_ text: String) {
         hideAgentProcessingBar()
+
+        // Dismiss proposal card on subsequent agent replies (skip the first one — it's the proposal-carrying reply)
+        if proposalCard != nil {
+            if skipNextAgentReplyDismiss {
+                skipNextAgentReplyDismiss = false
+            } else {
+                removeProposalCard()
+            }
+        }
+
         guard let chat = self.chat, let owner = self.owner else { return }
         let incoming = TransactionMessage(context: CoreDataManager.sharedManager.persistentContainer.viewContext)
         incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
