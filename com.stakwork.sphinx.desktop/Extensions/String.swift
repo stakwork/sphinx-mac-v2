@@ -802,6 +802,13 @@ extension String {
         }
     }
     
+    var hiveCallKey: String? {
+        get {
+            guard let components = URLComponents(string: self) else { return nil }
+            return components.queryItems?.first(where: { $0.name == "callKey" })?.value
+        }
+    }
+    
     var isCallLink: Bool {
         get {
             return self.lowerClean.starts(with: "http") && self.lowerClean.contains(TransactionMessage.kCallRoomName)

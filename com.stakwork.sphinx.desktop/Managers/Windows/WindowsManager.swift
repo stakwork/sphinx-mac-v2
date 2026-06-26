@@ -569,7 +569,7 @@ import SwiftUI
                 room: room,
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
-                hiveToken: linkUrl.liveKitHiveToken,
+                hiveCallKey: linkUrl.hiveCallKey,
                 isHost: isHost,
                 callback: { url, token in
                     DispatchQueue.main.async {
