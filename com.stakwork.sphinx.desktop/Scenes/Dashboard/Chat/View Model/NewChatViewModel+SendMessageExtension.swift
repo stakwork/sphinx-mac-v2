@@ -176,19 +176,19 @@ extension NewChatViewModel {
 //        })
     }
     
-    func sendCallMessage(link: String) {
-        let voipRequestMessage = VoIPRequestMessage()
-        voipRequestMessage.recurring = false
-        voipRequestMessage.link = link
-        voipRequestMessage.cron = ""
-        
-        let messageText = voipRequestMessage.getCallLinkMessage() ?? link
-        
+    func sendCallMessage(link: String, completion: ((Bool, String?) -> Void)? = nil) {
+//        let voipRequestMessage = VoIPRequestMessage()
+//        voipRequestMessage.recurring = false
+//        voipRequestMessage.link = link
+//        voipRequestMessage.cron = ""
+//
+//        let messageText = voipRequestMessage.getCallLinkMessage() ?? link
+
         self.shouldSendMessage(
-            text: messageText,
+            text: link,
             type: TransactionMessage.TransactionMessageType.call.rawValue,
             provisionalMessage: nil,
-            completion: { _, _ in }
+            completion: { success, errorMsg in completion?(success, errorMsg) }
         )
     }
 }

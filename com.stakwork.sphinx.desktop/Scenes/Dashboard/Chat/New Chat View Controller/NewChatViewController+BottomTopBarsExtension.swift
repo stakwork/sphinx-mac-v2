@@ -571,8 +571,13 @@ extension NewChatViewController : ActionsDelegate {
                 swarmName: swarmName,
                 callback: { [weak self] link in
                     DispatchQueue.main.async {
+                        guard let self else { return }
                         let finalLink = mode == .Audio ? link + "&startAudioOnly=true" : link
-                        self?.newChatViewModel.sendCallMessage(link: finalLink)
+                        self.newChatViewModel.sendCallMessage(link: finalLink) { [weak self] success, errorMsg in
+                            if !success {
+                                self?.showCallLinkSendError(errorMsg: errorMsg)
+                            }
+                        }
                     }
                 },
                 errorCallback: { [weak self] in
@@ -583,7 +588,11 @@ extension NewChatViewController : ActionsDelegate {
                         appUrl: self.chat?.getAppUrl()
                     )
                     DispatchQueue.main.async {
-                        self.newChatViewModel.sendCallMessage(link: link)
+                        self.newChatViewModel.sendCallMessage(link: link) { [weak self] success, errorMsg in
+                            if !success {
+                                self?.showCallLinkSendError(errorMsg: errorMsg)
+                            }
+                        }
                     }
                 }
             )
@@ -593,8 +602,19 @@ extension NewChatViewController : ActionsDelegate {
                 secondBrainUrl: chat?.getSecondBrainUrl(),
                 appUrl: chat?.getAppUrl()
             )
-            newChatViewModel.sendCallMessage(link: link)
+            newChatViewModel.sendCallMessage(link: link) { [weak self] success, errorMsg in
+                if !success {
+                    self?.showCallLinkSendError(errorMsg: errorMsg)
+                }
+            }
         }
+    }
+
+    private func showCallLinkSendError(errorMsg: String? = nil) {
+        messageBubbleHelper.showGenericMessageView(
+            text: errorMsg ?? "generic.error.message".localized,
+            in: view
+        )
     }
     
     func shouldSendPaymentFor(
