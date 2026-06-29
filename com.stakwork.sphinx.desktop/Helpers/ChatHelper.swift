@@ -828,11 +828,25 @@ class ChatHelper {
         let kLabelHorizontalMargins: CGFloat = labelHorizontalMargins ?? 32.0
         let kLabelVerticalMargins: CGFloat = labelVerticalMargins ?? 32.0
         
-        let textHeight = attributedString.boundingRect(
-            with: NSSize(width: width - kLabelHorizontalMargins, height: CGFLOAT_MAX),
-            options: [.usesLineFragmentOrigin, .usesFontLeading]
-        ).height + kLabelVerticalMargins
+        let measuredWidth = width - kLabelHorizontalMargins
+        let textHeight = ChatHelper.measuredTextHeight(for: attributedString, width: measuredWidth) + kLabelVerticalMargins
         
         return textHeight
+    }
+    
+    /// Measures attributed string height using the same NSLayoutManager stack
+    /// that MessageTextField uses for rendering — lineFragmentPadding = 0.
+    public static func measuredTextHeight(for attributedString: NSAttributedString, width: CGFloat) -> CGFloat {
+        let textStorage = NSTextStorage(attributedString: attributedString)
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(
+            containerSize: NSSize(width: width, height: CGFloat.greatestFiniteMagnitude)
+        )
+        textContainer.lineFragmentPadding = 0
+        textContainer.maximumNumberOfLines = 0
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+        layoutManager.ensureLayout(for: textContainer)
+        return ceil(layoutManager.usedRect(for: textContainer).height)
     }
 }
