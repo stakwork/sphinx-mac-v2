@@ -123,7 +123,7 @@ class PaddedTextField: CCTextField {
     override var intrinsicContentSize: NSSize {
         var size = super.intrinsicContentSize
         size.width += contentPadding.left + contentPadding.right
-        size.height += contentPadding.top + contentPadding.bottom + 40
+        size.height += contentPadding.top + contentPadding.bottom
         return size
     }
     
