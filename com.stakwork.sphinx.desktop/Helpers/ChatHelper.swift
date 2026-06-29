@@ -835,10 +835,12 @@ class ChatHelper {
     }
     
     /// Measures attributed string height using the same NSLayoutManager stack
-    /// that MessageTextField uses for rendering — lineFragmentPadding = 0.
+    /// that MessageTextField uses for rendering — lineFragmentPadding = 0, usesFontLeading = false.
+    /// NSTextFieldCell draws without font leading, so we match that here.
     public static func measuredTextHeight(for attributedString: NSAttributedString, width: CGFloat) -> CGFloat {
         let textStorage = NSTextStorage(attributedString: attributedString)
         let layoutManager = NSLayoutManager()
+        layoutManager.usesFontLeading = false
         let textContainer = NSTextContainer(
             containerSize: NSSize(width: width, height: CGFloat.greatestFiniteMagnitude)
         )
