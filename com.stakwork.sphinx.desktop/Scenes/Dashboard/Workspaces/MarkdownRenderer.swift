@@ -244,8 +244,6 @@ final class MarkdownRenderer {
         let content = renderInline(text, font: style.baseFont, color: style.textColor)
         let result = NSMutableAttributedString(attributedString: prefix)
         result.append(content)
-        // Extra spacing below each list item
-        result.append(NSAttributedString(string: "\n", attributes: [.font: style.baseFont]))
         return result
     }
 
@@ -264,14 +262,10 @@ final class MarkdownRenderer {
                                  range: NSRange(location: 0, length: mutable.length))
             let result = NSMutableAttributedString(attributedString: prefix)
             result.append(mutable)
-            // Extra spacing below each task item
-            result.append(NSAttributedString(string: "\n", attributes: [.font: style.baseFont]))
             return result
         }
         let result = NSMutableAttributedString(attributedString: prefix)
         result.append(content)
-        // Extra spacing below each task item
-        result.append(NSAttributedString(string: "\n", attributes: [.font: style.baseFont]))
         return result
     }
 
