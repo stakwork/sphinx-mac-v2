@@ -97,6 +97,8 @@ class PaddedTextField: CCTextField {
         }
         
         self.cell = paddedCell
+        invalidateIntrinsicContentSize()
+        needsLayout = true
         needsDisplay = true
     }
     
@@ -121,9 +123,26 @@ class PaddedTextField: CCTextField {
     }
     
     override var intrinsicContentSize: NSSize {
+        let hPad = contentPadding.left + contentPadding.right
+        let vPad = contentPadding.top + contentPadding.bottom
+        // PaddedTextFieldCell narrows the drawing rect by hPad, so measure text
+        // at the actual available width; otherwise super underestimates height and
+        // the bubble (NSBox) clips the last line.
+        let effectiveWidth = bounds.width - hPad
+        if effectiveWidth > 0 {
+            let height = attributedStringValue.boundingRect(
+                with: NSSize(width: effectiveWidth, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading]
+            ).height
+            var size = super.intrinsicContentSize
+            size.width += hPad
+            size.height = ceil(height) + vPad
+            return size
+        }
+        // Fallback when bounds aren't established yet
         var size = super.intrinsicContentSize
-        size.width += contentPadding.left + contentPadding.right
-        size.height += contentPadding.top + contentPadding.bottom + 40
+        size.width += hPad
+        size.height += vPad + 40
         return size
     }
     
