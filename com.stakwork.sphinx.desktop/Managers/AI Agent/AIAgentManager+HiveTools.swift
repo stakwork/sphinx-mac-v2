@@ -124,7 +124,7 @@ extension AIAgentManager {
 
     // MARK: - Async workspace fetch helper
 
-    private static func fetchWorkspacesAsync() async -> [Workspace]? {
+    static func fetchWorkspacesAsync() async -> [Workspace]? {
         await withCheckedContinuation { continuation in
             API.sharedInstance.fetchWorkspacesWithAuth(
                 callback: { continuation.resume(returning: $0) },

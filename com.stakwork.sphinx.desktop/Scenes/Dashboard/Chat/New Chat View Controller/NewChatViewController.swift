@@ -151,6 +151,7 @@ class NewChatViewController: DashboardSplittedViewController {
         addShimmeringView()
         setupViews()
         setupAgentProcessingBar()
+        setupProposalCardObservers()
         configureCollectionView()
         setupChatTopView()
         setupChatData()
@@ -230,7 +231,8 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
-        
+        restoreProposalCardIfNeeded()
+
     }
     
     override func viewWillDisappear() {
