@@ -3,6 +3,79 @@ import AppKit
 
 extension NewChatViewController {
 
+    // MARK: - Proposal Card
+
+    func setupProposalCardObservers() {
+        guard isAgentChat else { return }
+
+        NotificationCenter.default.addObserver(
+            forName: .aiAgentProposalDetected,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            guard let proposal = note.object as? AIAgentManager.PendingProposal else { return }
+            self?.showProposalCard(proposal)
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .aiAgentProposalActioned,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            if let result = note.object as? AIAgentManager.ApprovalResult {
+                self?.handleProposalActioned(result: result, error: nil)
+            } else {
+                self?.handleProposalActioned(result: nil, error: note.object as? String)
+            }
+        }
+    }
+
+    func showProposalCard(_ proposal: AIAgentManager.PendingProposal) {
+        chatBottomView.showProposalCard(
+            proposal,
+            onApprove: { pid in
+                Task { _ = await AIAgentManager.sharedInstance.executeApproveProposal(proposalId: pid) }
+            },
+            onReject: { pid in
+                Task { _ = await AIAgentManager.sharedInstance.executeRejectProposal(proposalId: pid) }
+            },
+            onDismiss: {}
+        )
+        chatCollectionView.scrollToBottom(animated: false)
+    }
+
+    func handleProposalActioned(result: AIAgentManager.ApprovalResult?, error: String?) {
+        chatBottomView.handleProposalActioned(result: result, error: error)
+        if let text = result?.summaryText {
+            insertAgentReply(text)
+        }
+    }
+
+    func removeProposalCard() {
+        chatBottomView.hideProposalCard()
+    }
+
+    func restoreProposalCardIfNeeded() {
+        guard isAgentChat else { return }
+        // Restore from UserDefaults if the in-memory proposal was lost on app restart
+        AIAgentManager.sharedInstance.loadPersistedPendingProposal()
+        guard let pending = AIAgentManager.sharedInstance.pendingProposal else { return }
+        // Check if already actioned in history
+        guard let orgId: String = UserDefaults.Keys.hiveOrgId.get(), !orgId.isEmpty else { return }
+        AIAgentManager.sharedInstance.loadCanvasHistory(orgId: orgId)
+        let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
+        let alreadyActioned = AIAgentManager.sharedInstance.canvasChatHistory.contains(where: {
+            guard let toolCalls = $0.toolCalls else { return false }
+            return toolCalls.contains(where: {
+                proposalNames.contains($0.toolName) &&
+                ($0.output?.string(for: "proposalId") == pending.proposalId || $0.input?["proposalId"] == pending.proposalId)
+            }) && $0.approvalResult != nil
+        })
+        if !alreadyActioned {
+            showProposalCard(pending)
+        }
+    }
+
     // MARK: - Agent Processing Bar
 
     func setupAgentProcessingBar() {
@@ -79,6 +152,10 @@ extension NewChatViewController {
         outgoing.chat = chat
         chat.setLastMessage(outgoing)
         CoreDataManager.sharedManager.saveContext()
+
+        // Dismiss any visible proposal card when the user sends a new message
+        removeProposalCard()
+
         completion(true)
 //        showAgentProcessingBar()
 
@@ -109,6 +186,7 @@ extension NewChatViewController {
 • 🪵 Read and analyze app logs (filter by time, level, or keyword)
 • 🤖 Ask Jamie anything about your org — features, tasks, codebase, project status
 • 🐝 Browse, search & manage Hive workspaces, features, and tasks
+• ✅ Approve or reject Jamie proposals directly from chat
 """
         } else {
             introText = "👋 Welcome to Sphinx AI! To get started, go to Profile → Configure AI Agent and enter your Anthropic or OpenAI API key."

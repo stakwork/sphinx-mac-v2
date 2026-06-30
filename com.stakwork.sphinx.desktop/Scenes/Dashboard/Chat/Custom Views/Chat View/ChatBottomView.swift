@@ -52,6 +52,12 @@ class ChatBottomView: NSView, LoadableNib {
     @IBOutlet weak var giphySearchView: GiphySearchView!
     @IBOutlet weak var messageFieldView: ChatMessageFieldView!
     @IBOutlet weak var chatSearchView: ChatSearchResultsBar!
+
+    private var proposalCard: ProposalApprovalCardView?
+
+    private var mainStackView: NSStackView? {
+        contentView.subviews.compactMap { $0 as? NSStackView }.first
+    }
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -258,5 +264,65 @@ extension ChatBottomView {
 extension ChatBottomView : ChatSearchResultsBarDelegate {
     func didTapNavigateArrowButton(button: ChatSearchResultsBar.NavigateArrowButton) {
         searchDelegate?.didTapNavigateArrowButton(button: button)
+    }
+}
+
+// MARK: - Proposal Card
+extension ChatBottomView {
+
+    var hasProposalCard: Bool { proposalCard != nil }
+
+    func showProposalCard(
+        _ proposal: AIAgentManager.PendingProposal,
+        onApprove: @escaping (String) -> Void,
+        onReject: @escaping (String) -> Void,
+        onDismiss: @escaping () -> Void
+    ) {
+        hideProposalCard()
+
+        guard let stack = mainStackView else { return }
+
+        let card = ProposalApprovalCardView(proposal: proposal)
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.alphaValue = 0
+
+        stack.insertArrangedSubview(card, at: 0)
+        stack.setCustomSpacing(4, after: card)
+
+        NSLayoutConstraint.activate([
+            card.centerXAnchor.constraint(equalTo: stack.centerXAnchor),
+            card.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -32)
+        ])
+
+        card.onApprove = onApprove
+        card.onReject = onReject
+        card.onDismiss = { [weak self] in self?.hideProposalCard(); onDismiss() }
+
+        proposalCard = card
+
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.2
+            card.animator().alphaValue = 1
+        }
+    }
+
+    func hideProposalCard() {
+        guard let card = proposalCard else { return }
+        proposalCard = nil
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.2
+            card.animator().alphaValue = 0
+        }, completionHandler: {
+            card.removeFromSuperview()
+        })
+    }
+
+    func handleProposalActioned(result: AIAgentManager.ApprovalResult?, error: String?) {
+        guard let card = proposalCard else { return }
+        if let result = result {
+            card.showStamp(approved: result.approved)
+        } else {
+            card.showError(error ?? "Something went wrong. Please try again.")
+        }
     }
 }
