@@ -350,15 +350,16 @@ extension AIAgentManager {
     }
 
     func persistCanvasHistory(orgId: String) {
+        let capped = canvasChatHistory.count > 30 ? Array(canvasChatHistory.suffix(30)) : canvasChatHistory
         var dict: [String: [CanvasChatMessage]] = [:]
         if let data: Data = UserDefaults.Keys.hiveCanvasChatHistoryByOrg.get(),
            let existing = try? JSONDecoder().decode([String: [CanvasChatMessage]].self, from: data) {
             dict = existing
         }
-        dict[orgId] = canvasChatHistory
+        dict[orgId] = capped
         if let encoded = try? JSONEncoder().encode(dict) {
             UserDefaults.Keys.hiveCanvasChatHistoryByOrg.set(encoded)
-            print("AIAgent [HiveGraph] canvas history persisted — \(canvasChatHistory.count) messages")
+            print("AIAgent [HiveGraph] canvas history persisted — \(capped.count) messages")
         }
     }
 
@@ -700,6 +701,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                         self.persistCanvasHistory(orgId: orgId)
                     }
                     self.clearPersistedPendingProposal()
+                    self.pendingProposal = nil
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: .aiAgentProposalActioned, object: result)
                     }
@@ -830,6 +832,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
                         self.persistCanvasHistory(orgId: orgId)
                     }
                     self.clearPersistedPendingProposal()
+                    self.pendingProposal = nil
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: .aiAgentProposalActioned, object: rejectionResult)
                     }
