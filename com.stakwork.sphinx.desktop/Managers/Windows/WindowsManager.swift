@@ -290,10 +290,11 @@ import SwiftUI
 
     func showNotificationPreferencesWindow() {
         showOnCurrentWindow(
-            with: "Notification Preferences",
+            with: "Hive Notifications",
             identifier: "notification-preferences-window",
             contentVC: HiveNotificationPreferencesViewController.instantiate(),
-            hideDivider: false
+            hideDivider: false,
+            height: 750
         )
     }
     

@@ -8,6 +8,10 @@
 
 import Cocoa
 
+private class FlippedClipView: NSClipView {
+    override var isFlipped: Bool { return true }
+}
+
 class HiveNotificationPreferencesViewController: NSViewController {
 
     // Notification metadata is defined in HiveNotificationConstants
@@ -62,11 +66,24 @@ class HiveNotificationPreferencesViewController: NSViewController {
         return tf
     }()
 
+    private lazy var saveButtonContainer: NSBox = {
+        let box = NSBox()
+        box.translatesAutoresizingMaskIntoConstraints = false
+        box.boxType = .custom
+        box.borderType = .noBorder
+        box.wantsLayer = true
+        box.fillColor = NSColor.Sphinx.PrimaryBlue
+        box.layer?.cornerRadius = 8
+        return box
+    }()
+
     private lazy var saveButton: CustomButton = {
         let btn = CustomButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.title = "Save"
-        btn.bezelStyle = .rounded
+        btn.isBordered = false
+        btn.font = NSFont.systemFont(ofSize: 13, weight: .medium)
+        btn.contentTintColor = .white
         btn.cursor = .pointingHand
         btn.target = self
         btn.action = #selector(saveButtonClicked(_:))
@@ -111,32 +128,42 @@ class HiveNotificationPreferencesViewController: NSViewController {
     private func setupUI() {
         view.wantsLayer = true
 
-        // Scroll content
-        scrollView.documentView = stackView
+        // Scroll content — use a flipped clip view so the stack view starts at the visual top
+        let clipView = FlippedClipView()
+        clipView.drawsBackground = false
+        clipView.documentView = stackView
+        scrollView.contentView = clipView
         view.addSubview(scrollView)
         view.addSubview(loadingWheel)
         view.addSubview(errorLabel)
-        view.addSubview(saveButton)
+        saveButtonContainer.addSubview(saveButton)
+        view.addSubview(saveButtonContainer)
         view.addSubview(saveLoadingWheel)
 
         NSLayoutConstraint.activate([
-            // Save button pinned to bottom
-            saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16),
-            saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            saveButton.widthAnchor.constraint(equalToConstant: 120),
-            saveButton.heightAnchor.constraint(equalToConstant: 32),
+            // Save button container pinned to bottom
+            saveButtonContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16),
+            saveButtonContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            saveButtonContainer.widthAnchor.constraint(equalToConstant: 120),
+            saveButtonContainer.heightAnchor.constraint(equalToConstant: 32),
 
-            // Save loading wheel aligned with save button
-            saveLoadingWheel.centerYAnchor.constraint(equalTo: saveButton.centerYAnchor),
-            saveLoadingWheel.leadingAnchor.constraint(equalTo: saveButton.trailingAnchor, constant: 8),
+            // Save button fills the container
+            saveButton.leadingAnchor.constraint(equalTo: saveButtonContainer.leadingAnchor),
+            saveButton.trailingAnchor.constraint(equalTo: saveButtonContainer.trailingAnchor),
+            saveButton.topAnchor.constraint(equalTo: saveButtonContainer.topAnchor),
+            saveButton.bottomAnchor.constraint(equalTo: saveButtonContainer.bottomAnchor),
+
+            // Save loading wheel aligned with save button container
+            saveLoadingWheel.centerYAnchor.constraint(equalTo: saveButtonContainer.centerYAnchor),
+            saveLoadingWheel.leadingAnchor.constraint(equalTo: saveButtonContainer.trailingAnchor, constant: 8),
 
             // Scroll view fills remaining space above save button
             scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scrollView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -12),
+            scrollView.bottomAnchor.constraint(equalTo: saveButtonContainer.topAnchor, constant: -12),
 
-            // Stack view width matches scroll view
+            // Stack view width matches scroll view; top-alignment is handled by FlippedClipView
             stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             // Loading wheel centred in scroll area
@@ -159,6 +186,8 @@ class HiveNotificationPreferencesViewController: NSViewController {
             let row = makeToggleRow(key: entry.key, label: entry.label)
             row.isHidden = true
             stackView.addArrangedSubview(row)
+            // Width constraint must be activated after the row is in the stack view hierarchy
+            row.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
         }
     }
 
@@ -231,7 +260,6 @@ class HiveNotificationPreferencesViewController: NSViewController {
             textField.trailingAnchor.constraint(lessThanOrEqualTo: container.leadingAnchor, constant: -8),
             container.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -4),
             container.centerYAnchor.constraint(equalTo: row.centerYAnchor),
-            row.widthAnchor.constraint(equalTo: stackView.widthAnchor)
         ])
 
         // Corner radii — apply after constraints are in place
@@ -272,7 +300,7 @@ class HiveNotificationPreferencesViewController: NSViewController {
     }
 
     @objc private func saveButtonClicked(_ sender: Any) {
-        saveButton.isEnabled = false
+        setSaveButtonEnabled(false)
         saveLoadingWheel.isHidden = false
         saveLoadingWheel.startAnimation(nil)
 
@@ -288,7 +316,7 @@ class HiveNotificationPreferencesViewController: NSViewController {
             errorCallback: { [weak self] in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
-                    self.saveButton.isEnabled = true
+                    self.setSaveButtonEnabled(true)
                     self.saveLoadingWheel.stopAnimation(nil)
                     self.saveLoadingWheel.isHidden = true
                     AlertHelper.showAlert(
@@ -331,25 +359,30 @@ class HiveNotificationPreferencesViewController: NSViewController {
 
     // MARK: - UI state helpers
 
+    private func setSaveButtonEnabled(_ enabled: Bool) {
+        saveButton.isEnabled = enabled
+        saveButtonContainer.alphaValue = enabled ? 1.0 : 0.5
+    }
+
     private func showLoadingState() {
         loadingWheel.isHidden = false
         loadingWheel.startAnimation(nil)
         errorLabel.isHidden = true
         stackView.arrangedSubviews.forEach { $0.isHidden = true }
-        saveButton.isEnabled = false
+        setSaveButtonEnabled(false)
     }
 
     private func showContentState() {
         loadingWheel.stopAnimation(nil)
         loadingWheel.isHidden = true
         errorLabel.isHidden = true
-        saveButton.isEnabled = true
+        setSaveButtonEnabled(true)
     }
 
     private func showErrorState() {
         loadingWheel.stopAnimation(nil)
         loadingWheel.isHidden = true
         errorLabel.isHidden = false
-        saveButton.isEnabled = false
+        setSaveButtonEnabled(false)
     }
 }
