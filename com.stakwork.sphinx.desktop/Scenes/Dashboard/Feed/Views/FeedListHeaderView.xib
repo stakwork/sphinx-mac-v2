@@ -14,6 +14,7 @@
                 <outlet property="contentView" destination="c22-O7-iKe" id="wXY-yH-cHZ"/>
                 <outlet property="headerLabel" destination="6vR-lm-Zop" id="M2Y-Ds-MHm"/>
                 <outlet property="loadingWheel" destination="poA-9h-9fr" id="DM2-mF-PgC"/>
+                <outlet property="notificationsButton" destination="bel-l1-btn" id="not-bt-out"/>
                 <outlet property="refreshButton" destination="dmK-d4-SGn" id="ZcO-yl-jqz"/>
             </connections>
         </customObject>
@@ -67,6 +68,32 @@
                         <action selector="refreshButtonClicked:" target="-2" id="Nm1-Wq-iQG"/>
                     </connections>
                 </button>
+                <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bel-l1-btn" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                    <rect key="frame" x="396" y="5.5" width="40.5" height="42"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" imagePosition="only" alignment="center" imageScaling="proportionallyDown" inset="2" id="bel-l1-cel">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                        <imageReference key="image" image="bell.badge" catalog="system" symbolScale="large" renderingMode="hierarchical-single">
+                            <hierarchicalColors>
+                                <color name="Text"/>
+                                <color name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                <color name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
+                            </hierarchicalColors>
+                        </imageReference>
+                    </buttonCell>
+                    <color key="bezelColor" name="Text"/>
+                    <color key="contentTintColor" name="Text"/>
+                    <symbolConfiguration key="symbolConfiguration" scale="large">
+                        <nil key="locale"/>
+                    </symbolConfiguration>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="bel-w-cst"/>
+                        <constraint firstAttribute="height" constant="30" id="bel-h-cst"/>
+                    </constraints>
+                    <connections>
+                        <action selector="notificationsButtonClicked:" target="-2" id="bel-l1-act"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstItem="6vR-lm-Zop" firstAttribute="centerY" secondItem="c22-O7-iKe" secondAttribute="centerY" id="1aB-AC-8Sz"/>
@@ -79,12 +106,15 @@
                 <constraint firstItem="6ql-Tj-TXJ" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" id="gFO-fa-Bxb"/>
                 <constraint firstItem="poA-9h-9fr" firstAttribute="centerY" secondItem="dmK-d4-SGn" secondAttribute="centerY" id="jl0-Eh-qq0"/>
                 <constraint firstItem="poA-9h-9fr" firstAttribute="centerX" secondItem="dmK-d4-SGn" secondAttribute="centerX" id="l4f-dn-1so"/>
+                <constraint firstItem="bel-l1-btn" firstAttribute="centerY" secondItem="6vR-lm-Zop" secondAttribute="centerY" id="bel-cy-cst"/>
+                <constraint firstItem="dmK-d4-SGn" firstAttribute="leading" secondItem="bel-l1-btn" secondAttribute="trailing" constant="4" id="bel-tr-cst"/>
             </constraints>
             <point key="canvasLocation" x="121" y="154"/>
         </customView>
     </objects>
     <resources>
         <image name="arrow.clockwise" catalog="system" width="18" height="21"/>
+        <image name="bell.badge" catalog="system" width="18" height="21"/>
         <namedColor name="Text">
             <color red="0.23529411764705882" green="0.24705882352941178" blue="0.25490196078431371" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

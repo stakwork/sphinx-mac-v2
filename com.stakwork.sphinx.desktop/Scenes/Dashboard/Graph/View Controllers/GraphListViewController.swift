@@ -565,4 +565,8 @@ extension GraphListViewController : FeedListHeaderViewDelegate {
     func didClickRefreshButton(completion: @escaping () -> ()) {
         ContentItemsManager.shared.startBackgroundProcessing(completion: completion)
     }
+
+    func didClickNotificationsButton() {
+        // Not used in this context; notifications button is hidden for this header
+    }
 }

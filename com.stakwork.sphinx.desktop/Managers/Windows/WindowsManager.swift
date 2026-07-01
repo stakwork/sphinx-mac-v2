@@ -287,6 +287,15 @@ import SwiftUI
             hideDivider: false
         )
     }
+
+    func showNotificationPreferencesWindow() {
+        showOnCurrentWindow(
+            with: "Notification Preferences",
+            identifier: "notification-preferences-window",
+            contentVC: HiveNotificationPreferencesViewController.instantiate(),
+            hideDivider: false
+        )
+    }
     
     func showTransationsListWindow() {
         showOnCurrentWindow(

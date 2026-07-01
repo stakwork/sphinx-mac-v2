@@ -275,7 +275,8 @@ extension WorkspacesListViewController {
                 (headerView as? FeedListHeaderView)?.renderWith(
                     title: "Workspaces",
                     showRefreshButton: true,
-                    delegate: self
+                    delegate: self,
+                    showNotificationsButton: true
                 )
 
                 return headerView
@@ -380,6 +381,10 @@ extension WorkspacesListViewController: FeedListHeaderViewDelegate {
     func didClickRefreshButton(completion: @escaping () -> ()) {
         loadWorkspaces()
         completion()
+    }
+
+    func didClickNotificationsButton() {
+        WindowsManager.sharedInstance.showNotificationPreferencesWindow()
     }
 }
 // MARK: - Search/Filter
