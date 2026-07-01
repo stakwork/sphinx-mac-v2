@@ -692,6 +692,8 @@
 		47WORK172F19000000000017 /* WorkspaceTasksCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */; };
 		47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */; };
 		47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1A2F1900000000001A /* MarkdownRenderer.swift */; };
+		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
+		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
 		47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1C2F1900000000001C /* MarkdownTextView.swift */; };
 		6C7C5C5E0A3B47BF9EEFDE27 /* WebAppLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */; };
 		77CFCEC12D809241008B2BB7 /* TimezoneSharingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */; };
@@ -1737,6 +1739,8 @@
 		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksMockData.swift; sourceTree = "<group>"; };
 		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
+		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
+		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
 		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		4D774492DD11495E83000BD4 /* ProposalApprovalCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalApprovalCardView.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2238,6 +2242,7 @@
 			isa = PBXGroup;
 			children = (
 				4734D3AB2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift */,
+				47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -4043,6 +4048,7 @@
 				47WORKG32F19000000000013 /* View Controllers */,
 				47WORKG42F19000000000014 /* Collection View Items */,
 				47WORK1A2F1900000000001A /* MarkdownRenderer.swift */,
+				47HIVENC002F190000000001 /* HiveNotificationConstants.swift */,
 			);
 			path = Workspaces;
 			sourceTree = "<group>";
@@ -4557,6 +4563,7 @@
 				47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */,
 				47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */,
 				47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */,
+				47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */,
 				47WORK152F19000000000015 /* WorkspaceTasksCollectionViewItem.swift in Sources */,
 				47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */,
 				47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */,
@@ -5094,6 +5101,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4734D3AC2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift in Sources */,
+				47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

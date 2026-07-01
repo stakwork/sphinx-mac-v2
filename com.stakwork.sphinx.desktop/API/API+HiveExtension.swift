@@ -1181,6 +1181,168 @@ extension API {
         }, errorCallback: errorCallback)
     }
 
+    // MARK: - Notification Preferences
+
+    private func fetchNotificationPreferences(
+        authToken: String,
+        callback: @escaping ([String: Bool]) -> Void,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        print("[Hive] fetchNotificationPreferences: requesting...")
+        guard let request = createRequest(
+            "\(API.kHiveBaseUrl)/user/notification-preferences",
+            params: nil,
+            method: "GET",
+            token: authToken
+        ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                print("[Hive] fetchNotificationPreferences: failed — status: 401")
+                errorCallback()
+                return
+            }
+            switch response.result {
+            case .success(let data):
+                if let dict = (try? JSONSerialization.jsonObject(with: data)) as? [String: Bool] {
+                    print("[Hive] fetchNotificationPreferences: success — \(dict.count) preference(s) returned")
+                    callback(dict)
+                } else {
+                    print("[Hive] fetchNotificationPreferences: decode failed — returning empty dict")
+                    callback([:])
+                }
+            case .failure(let error):
+                print("[Hive] fetchNotificationPreferences: failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
+                errorCallback()
+            }
+        }
+    }
+
+    func fetchNotificationPreferencesWithAuth(
+        callback: @escaping ([String: Bool]) -> Void,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            fetchNotificationPreferences(
+                authToken: storedToken,
+                callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndFetchNotificationPreferences(
+                        callback: callback,
+                        errorCallback: errorCallback
+                    )
+                }
+            )
+        } else {
+            authenticateAndFetchNotificationPreferences(
+                callback: callback,
+                errorCallback: errorCallback
+            )
+        }
+    }
+
+    private func authenticateAndFetchNotificationPreferences(
+        callback: @escaping ([String: Bool]) -> Void,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(
+            callback: { [weak self] token in
+                guard let token = token else { errorCallback(); return }
+                UserDefaults.Keys.hiveToken.set(token)
+                self?.fetchNotificationPreferences(
+                    authToken: token,
+                    callback: callback,
+                    errorCallback: errorCallback
+                )
+            },
+            errorCallback: errorCallback
+        )
+    }
+
+    private func updateNotificationPreferences(
+        preferences: [String: Bool],
+        authToken: String,
+        callback: @escaping EmptyCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        print("[Hive] updateNotificationPreferences: requesting...")
+        guard let request = createRequest(
+            "\(API.kHiveBaseUrl)/user/notification-preferences",
+            params: preferences as NSDictionary,
+            method: "PATCH",
+            token: authToken
+        ) else {
+            errorCallback()
+            return
+        }
+
+        AF.request(request).responseData { response in
+            if let statusCode = response.response?.statusCode, statusCode == 401 {
+                print("[Hive] updateNotificationPreferences: failed — status: 401")
+                errorCallback()
+                return
+            }
+            switch response.result {
+            case .success:
+                print("[Hive] updateNotificationPreferences: success")
+                callback()
+            case .failure(let error):
+                print("[Hive] updateNotificationPreferences: failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
+                errorCallback()
+            }
+        }
+    }
+
+    func updateNotificationPreferencesWithAuth(
+        preferences: [String: Bool],
+        callback: @escaping EmptyCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        if let storedToken: String = UserDefaults.Keys.hiveToken.get() {
+            updateNotificationPreferences(
+                preferences: preferences,
+                authToken: storedToken,
+                callback: callback,
+                errorCallback: { [weak self] in
+                    self?.authenticateAndUpdateNotificationPreferences(
+                        preferences: preferences,
+                        callback: callback,
+                        errorCallback: errorCallback
+                    )
+                }
+            )
+        } else {
+            authenticateAndUpdateNotificationPreferences(
+                preferences: preferences,
+                callback: callback,
+                errorCallback: errorCallback
+            )
+        }
+    }
+
+    private func authenticateAndUpdateNotificationPreferences(
+        preferences: [String: Bool],
+        callback: @escaping EmptyCallback,
+        errorCallback: @escaping EmptyCallback
+    ) {
+        authenticateWithHive(
+            callback: { [weak self] token in
+                guard let token = token else { errorCallback(); return }
+                UserDefaults.Keys.hiveToken.set(token)
+                self?.updateNotificationPreferences(
+                    preferences: preferences,
+                    authToken: token,
+                    callback: callback,
+                    errorCallback: errorCallback
+                )
+            },
+            errorCallback: errorCallback
+        )
+    }
+
     // MARK: - Proposal Approval / Rejection
     private func buildEntityUrl(
         result: AIAgentManager.ApprovalResult,
