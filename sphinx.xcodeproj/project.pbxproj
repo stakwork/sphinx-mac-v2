@@ -679,6 +679,9 @@
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
+		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
+		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
+		47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */; };
 		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
@@ -692,8 +695,6 @@
 		47WORK172F19000000000017 /* WorkspaceTasksCollectionViewItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */; };
 		47WORK192F19000000000019 /* WorkspaceTasksMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */; };
 		47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1A2F1900000000001A /* MarkdownRenderer.swift */; };
-		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
-		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
 		47WORK1D2F1900000000001D /* MarkdownTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK1C2F1900000000001C /* MarkdownTextView.swift */; };
 		6C7C5C5E0A3B47BF9EEFDE27 /* WebAppLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E9C480E82D4AAABCFAB3B0 /* WebAppLogStore.swift */; };
 		77CFCEC12D809241008B2BB7 /* TimezoneSharingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */; };
@@ -1726,6 +1727,9 @@
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
+		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
+		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
+		47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesViewController.swift; sourceTree = "<group>"; };
 		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
@@ -1739,8 +1743,6 @@
 		47WORK162F19000000000016 /* WorkspaceTasksCollectionViewItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WorkspaceTasksCollectionViewItem.xib; sourceTree = "<group>"; };
 		47WORK182F19000000000018 /* WorkspaceTasksMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceTasksMockData.swift; sourceTree = "<group>"; };
 		47WORK1A2F1900000000001A /* MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRenderer.swift; sourceTree = "<group>"; };
-		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
-		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
 		47WORK1C2F1900000000001C /* MarkdownTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextView.swift; sourceTree = "<group>"; };
 		4D774492DD11495E83000BD4 /* ProposalApprovalCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalApprovalCardView.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
@@ -4067,6 +4069,7 @@
 			isa = PBXGroup;
 			children = (
 				47WORK042F19000000000004 /* WorkspacesListViewController.swift */,
+				47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */,
 				47WORK122F19000000000012 /* WorkspaceTasksDashboardViewController.swift */,
 			);
 			path = "View Controllers";
@@ -4559,6 +4562,7 @@
 				47WORK032F19000000000003 /* Workspace.swift in Sources */,
 				47WORK112F19000000000011 /* WorkspaceTask.swift in Sources */,
 				47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */,
+				47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */,
 				47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */,
 				47WORK132F19000000000013 /* WorkspaceTasksDashboardViewController.swift in Sources */,
 				47WORK1B2F1900000000001B /* MarkdownRenderer.swift in Sources */,
@@ -5879,7 +5883,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 299;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5916,7 +5920,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 298;
+				CURRENT_PROJECT_VERSION = 299;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
