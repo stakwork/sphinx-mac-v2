@@ -243,6 +243,7 @@ class NewChatTableDataSource : NSObject {
     }
     
     func releaseMemory() {
+        unsubscribeAllRooms()
         preloaderHelper.releaseMemory()
     }
     

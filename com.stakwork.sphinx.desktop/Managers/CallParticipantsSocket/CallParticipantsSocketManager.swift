@@ -15,6 +15,16 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
     var subscribedRooms: Set<String> = []
     weak var delegate: CallParticipantsSocketDelegate?
 
+    // Keeps managers alive until their WebSocket fully disconnects, preventing
+    // a race where the socket's CFStream is freed while a pending dispatch-queue
+    // event is still trying to CFRetain it (Starscream / FoundationStream bug).
+    private nonisolated(unsafe) static var disconnecting: [CallParticipantsSocketManager] = []
+
+    deinit {
+        socket?.delegate = nil
+        socket?.disconnect()
+    }
+
     // MARK: - Connection
 
     private func buildSocketURL() -> URL? {
@@ -41,8 +51,13 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
     }
 
     private func disconnect() {
+        guard socket != nil else { return }
+        // Retain self in the static list so neither the manager nor its socket
+        // can be ARC-released until websocketDidDisconnect fires. Without this,
+        // the WebSocket's deinit can run inside a dequeueWrite closure, causing
+        // FoundationStream.cleanup() to race with a pending CFStream event (crash).
+        CallParticipantsSocketManager.disconnecting.append(self)
         socket?.disconnect()
-        socket = nil
     }
 
     // MARK: - Public API
@@ -94,8 +109,8 @@ class CallParticipantsSocketManager: NSObject, WebSocketDelegate, @unchecked Sen
     }
 
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
-        // No auto-reconnect; reconnect happens on next subscribe call
         self.socket = nil
+        CallParticipantsSocketManager.disconnecting.removeAll { $0 === self }
     }
 
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
