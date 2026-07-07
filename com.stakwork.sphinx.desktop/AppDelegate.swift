@@ -10,6 +10,7 @@ import Cocoa
 import CoreData
 import SDWebImage
 import WebKit
+import SphinxErrorReporter
 
 @main
 @MainActor class AppDelegate: NSObject, NSApplicationDelegate {
@@ -50,6 +51,7 @@ import WebKit
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         AppLogger.shared.start()
+        startErrorReporter()
         setAppSettings()
         clearWebkitCache()
         
@@ -71,6 +73,31 @@ import WebKit
 //        DataSyncManager.sharedInstance.deleteFile()
     }
     
+    private func startErrorReporter() {
+        // Hive base URL (same constant used across the app for Hive API calls)
+        guard let hiveURL = URL(string: API.kHiveBaseUrl) else { return }
+
+        // Build version from bundle metadata
+        let release = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        let releaseString = [release, buildNumber].compactMap { $0 }.joined(separator: "+")
+
+        let config = SphinxErrorReporter.Config(
+            hiveBaseURL: hiveURL,
+            ingestKey: Config.sphinxErrorReporterApiKey,
+            mainRepo: "stakwork/sphinx-mac-v2",
+            environment: "production",
+            release: releaseString.isEmpty ? nil : releaseString,
+            commitSha: nil,
+            debug: false
+        )
+
+        // Called after AppLogger.start() so any early log entries are already captured.
+        // Chains with any previously-installed crash handlers (there are none currently
+        // on macOS, but the chaining is safe for future crash SDK additions).
+        SphinxErrorReporter.start(config)
+    }
+
     func clearWebkitCache() {
         DispatchQueue.global(qos: .utility).async {
             URLCache.shared.removeAllCachedResponses()

@@ -13,3 +13,5 @@ com.stakwork.sphinx.desktop/Config.swift
 com.stakwork.sphinx.desktop/Secrets.debug.xcconfig
 com.stakwork.sphinx.desktop/Secrets.release.xcconfig
 
+LocalPackages/SphinxErrorReporter/.build/
+

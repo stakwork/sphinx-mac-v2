@@ -32,6 +32,7 @@
 		47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF22F76E7B200DFA990 /* AnthropicProvider */; };
 		47088CF52F76E7B200DFA990 /* OpenAIProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF42F76E7B200DFA990 /* OpenAIProvider */; };
 		47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF62F76E7B200DFA990 /* SwiftAISDK */; };
+		47SER0003A2B3C4D00000003 /* SphinxErrorReporter in Frameworks */ = {isa = PBXBuildFile; productRef = 47SER0002A2B3C4D00000002 /* SphinxErrorReporter */; };
 		4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FA2A55A31700274AD4 /* ChatsSegmentedControl.swift */; };
 		4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FC2A55BA7200274AD4 /* NewChatListViewController.swift */; };
 		4708C1FF2A55BCE300274AD4 /* UserContactsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FE2A55BCE300274AD4 /* UserContactsHelper.swift */; };
@@ -1853,6 +1854,7 @@
 				47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */,
 				47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */,
 				47FCE2B72CD8FABC005DB8AF /* LiveKit in Frameworks */,
+				47SER0003A2B3C4D00000003 /* SphinxErrorReporter in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4201,6 +4203,7 @@
 				47088CF22F76E7B200DFA990 /* AnthropicProvider */,
 				47088CF42F76E7B200DFA990 /* OpenAIProvider */,
 				47088CF62F76E7B200DFA990 /* SwiftAISDK */,
+				47SER0002A2B3C4D00000002 /* SphinxErrorReporter */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -4287,6 +4290,7 @@
 				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
+				47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
 			projectDirPath = "";
@@ -6122,6 +6126,13 @@
 		};
 /* End XCRemoteSwiftPackageReference section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = LocalPackages/SphinxErrorReporter;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		47088CF22F76E7B200DFA990 /* AnthropicProvider */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -6157,6 +6168,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 47FCE2B52CD8FABC005DB8AF /* XCRemoteSwiftPackageReference "client-sdk-swift" */;
 			productName = LiveKit;
+		};
+		47SER0002A2B3C4D00000002 /* SphinxErrorReporter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */;
+			productName = SphinxErrorReporter;
 		};
 /* End XCSwiftPackageProductDependency section */
 
