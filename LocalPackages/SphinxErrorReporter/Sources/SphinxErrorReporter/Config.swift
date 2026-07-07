@@ -8,7 +8,7 @@ import Foundation
 
 /// Configuration object for SphinxErrorReporter.
 /// Pass an instance to `SphinxErrorReporter.start(_:)` at app launch.
-public struct Config: Sendable {
+public struct SphinxErrorReporterConfig: Sendable {
     /// Base URL for the Hive ingest endpoint (e.g. "https://hive.sphinx.chat/api")
     public let hiveBaseURL: URL
     /// Ingest API key (format: "hive_...")
@@ -42,3 +42,5 @@ public struct Config: Sendable {
         self.debug = debug
     }
 }
+
+public typealias Config = SphinxErrorReporterConfig

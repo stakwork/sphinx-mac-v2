@@ -77,10 +77,6 @@ import SphinxErrorReporter
         // Hive base URL (same constant used across the app for Hive API calls)
         guard let hiveURL = URL(string: API.kHiveBaseUrl) else { return }
 
-        // Use the stored Hive auth token as the ingest key (nil-safe: SDK fails
-        // silently if the key is absent or empty at startup)
-        let ingestKey: String = UserDefaults.Keys.hiveToken.get(defaultValue: nil) ?? ""
-
         // Build version from bundle metadata
         let release = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
         let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
@@ -88,7 +84,7 @@ import SphinxErrorReporter
 
         let config = SphinxErrorReporter.Config(
             hiveBaseURL: hiveURL,
-            ingestKey: ingestKey,
+            ingestKey: Config.sphinxErrorReporterApiKey,
             mainRepo: "stakwork/sphinx-mac-v2",
             environment: "production",
             release: releaseString.isEmpty ? nil : releaseString,

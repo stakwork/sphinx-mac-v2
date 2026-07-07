@@ -20,9 +20,11 @@ import Foundation
 /// ```
 public enum SphinxErrorReporter {
 
+    public typealias Config = SphinxErrorReporterConfig
+
     // MARK: - Internal state (package-internal, visible to CrashHandler)
 
-    static var currentConfig: Config?
+    static var currentConfig: SphinxErrorReporterConfig?
     static var reportStore: ReportStore?
     private static var transport: Transport?
 
@@ -30,7 +32,7 @@ public enum SphinxErrorReporter {
 
     /// Start the SDK. Install crash/signal handlers, flush any pending reports.
     /// Call once at app launch, after any other crash-reporting SDK (so handlers chain).
-    public static func start(_ config: Config) {
+    public static func start(_ config: SphinxErrorReporterConfig) {
         currentConfig = config
 
         let store = ReportStore()

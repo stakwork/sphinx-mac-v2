@@ -28,7 +28,9 @@ enum CrashHandler {
     static func install() {
         // Capture prior exception handler for chaining
         priorExceptionHandler = NSGetUncaughtExceptionHandler()
-        NSSetUncaughtExceptionHandler(sphinxExceptionHandler)
+        NSSetUncaughtExceptionHandler { exception in
+            CrashHandler.handleException(exception)
+        }
 
         // Install signal handlers
         installSignalHandler(SIGABRT, &priorSIGABRT)
@@ -40,10 +42,6 @@ enum CrashHandler {
     }
 
     // MARK: - Exception handler
-
-    private static let sphinxExceptionHandler: NSUncaughtExceptionHandler = { exception in
-        handleException(exception)
-    }
 
     private static func handleException(_ exception: NSException) {
         // Build report from exception
@@ -83,21 +81,10 @@ enum CrashHandler {
 
     private static func installSignalHandler(_ sig: Int32, _ prior: inout sigaction) {
         var action = sigaction()
-        // Use sa_sigaction (takes siginfo_t) — more info than sa_handler
-        withUnsafeMutablePointer(to: &action.__sigaction_u) {
-            $0.withMemoryRebound(to: (@convention(c) (Int32, UnsafeMutablePointer<__siginfo>?, UnsafeMutableRawPointer?) -> Void).self, capacity: 1) {
-                $0.pointee = sphinxSignalHandler
-            }
-        }
-        action.sa_flags = SA_SIGINFO
+        action.__sigaction_u.__sa_handler = { sig in CrashHandler.handleSignal(sig) }
+        sigemptyset(&action.sa_mask)
+        action.sa_flags = 0
         sigaction(sig, &action, &prior)
-    }
-
-    // swiftlint:disable:next identifier_name
-    private static let sphinxSignalHandler: @convention(c) (
-        Int32, UnsafeMutablePointer<__siginfo>?, UnsafeMutableRawPointer?
-    ) -> Void = { sig, _, _ in
-        handleSignal(sig)
     }
 
     private static func handleSignal(_ sig: Int32) {
@@ -126,11 +113,9 @@ enum CrashHandler {
         // Re-raise to chain to prior handler (Bugsnag, default crash reporter, etc.)
         // Reset to default handler first to avoid infinite loop
         var defAction = sigaction()
-        withUnsafeMutablePointer(to: &defAction.__sigaction_u) {
-            $0.withMemoryRebound(to: (@convention(c) (Int32) -> Void).self, capacity: 1) {
-                $0.pointee = SIG_DFL
-            }
-        }
+        defAction.__sigaction_u.__sa_handler = SIG_DFL
+        sigemptyset(&defAction.sa_mask)
+        defAction.sa_flags = 0
         sigaction(sig, &defAction, nil)
         kill(getpid(), sig)
     }
