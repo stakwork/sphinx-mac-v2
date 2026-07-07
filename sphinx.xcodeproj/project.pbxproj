@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -32,7 +32,6 @@
 		47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF22F76E7B200DFA990 /* AnthropicProvider */; };
 		47088CF52F76E7B200DFA990 /* OpenAIProvider in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF42F76E7B200DFA990 /* OpenAIProvider */; };
 		47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */ = {isa = PBXBuildFile; productRef = 47088CF62F76E7B200DFA990 /* SwiftAISDK */; };
-		47SER0003A2B3C4D00000003 /* SphinxErrorReporter in Frameworks */ = {isa = PBXBuildFile; productRef = 47SER0002A2B3C4D00000002 /* SphinxErrorReporter */; };
 		4708C1FB2A55A31700274AD4 /* ChatsSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FA2A55A31700274AD4 /* ChatsSegmentedControl.swift */; };
 		4708C1FD2A55BA7200274AD4 /* NewChatListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FC2A55BA7200274AD4 /* NewChatListViewController.swift */; };
 		4708C1FF2A55BCE300274AD4 /* UserContactsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C1FE2A55BCE300274AD4 /* UserContactsHelper.swift */; };
@@ -685,6 +684,7 @@
 		47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */; };
 		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
+		47SER0003A2B3C4D00000003 /* SphinxErrorReporter in Frameworks */ = {isa = PBXBuildFile; productRef = 47SER0002A2B3C4D00000002 /* SphinxErrorReporter */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
 		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
 		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
@@ -5887,7 +5887,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 300;
+				CURRENT_PROJECT_VERSION = 301;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -5924,7 +5924,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 300;
+				CURRENT_PROJECT_VERSION = 301;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -6083,6 +6083,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = LocalPackages/SphinxErrorReporter;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -6125,13 +6132,6 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = LocalPackages/SphinxErrorReporter;
-		};
-/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		47088CF22F76E7B200DFA990 /* AnthropicProvider */ = {
