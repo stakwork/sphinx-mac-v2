@@ -23,8 +23,9 @@ import SwiftUI
 final class AppContext: ObservableObject {
     private let store: ValueStore<Preferences>
 
-    // Monitor that re-routes audio when the in-use device is removed mid-call.
-    private let routeMonitor = CallAudioRouteMonitor()
+    // Monitor that re-routes audio when the in-use device is removed or the active
+    // route changes mid-call (e.g. AirPods stem-press triggers a CoreAudio reroute).
+    private let routeMonitor: CallAudioRouteMonitor
 
     @Published var videoViewVisible: Bool = true {
         didSet { store.value.videoViewVisible = videoViewVisible }
@@ -54,6 +55,10 @@ final class AppContext: ObservableObject {
 
     @Published var outputDevice: AudioDevice = AudioManager.shared.defaultOutputDevice {
         didSet {
+            // Guard prevents a re-entrancy loop:
+            //   handleDeviceUpdate → applyOutputDevice writes appCtx.outputDevice
+            //   → didSet fires → would write AudioManager.shared.outputDevice again
+            //   → triggers another onDeviceUpdate callback → handleDeviceUpdate…
             guard outputDevice.deviceId != AudioManager.shared.outputDevice.deviceId else { return }
             AudioManager.shared.outputDevice = outputDevice
             reloadAudioDevices()
@@ -70,6 +75,7 @@ final class AppContext: ObservableObject {
 
     @Published var inputDevice: AudioDevice = AudioManager.shared.defaultInputDevice {
         didSet {
+            // Same re-entrancy guard as outputDevice above.
             guard inputDevice.deviceId != AudioManager.shared.inputDevice.deviceId else { return }
             AudioManager.shared.inputDevice = inputDevice
             reloadAudioDevices()
@@ -89,8 +95,10 @@ final class AppContext: ObservableObject {
         }
     #endif
 
-    public init(store: ValueStore<Preferences>) {
+    public init(store: ValueStore<Preferences>,
+                audioManagerProvider: any AudioManagerInterface = AudioManager.shared) {
         self.store = store
+        self.routeMonitor = CallAudioRouteMonitor(audioManagerProvider: audioManagerProvider)
 
         videoViewVisible = store.value.videoViewVisible
         showInformationOverlay = store.value.showInformationOverlay
@@ -100,10 +108,16 @@ final class AppContext: ObservableObject {
         connectionHistory = store.value.connectionHistory
 
         AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
+            // Capture stable value IDs across the actor boundary (AudioDevice is
+            // a value type so this is safe; we re-look up the live objects on the
+            // main actor so the monitor always sees the freshest state).
             let outputId = audioManager.outputDevice.deviceId
-            let inputId = audioManager.inputDevice.deviceId
+            let inputId  = audioManager.inputDevice.deviceId
             Task { @MainActor [weak self] in
                 guard let self else { return }
+                // Sync AppContext's published devices with what AudioManager reports
+                // *before* invoking the route monitor, so the monitor operates on
+                // up-to-date state.
                 if self.outputDevice.deviceId != outputId {
                     self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
                         ?? AudioManager.shared.defaultOutputDevice
@@ -114,7 +128,7 @@ final class AppContext: ObservableObject {
                 }
                 // Use AudioManager.shared directly rather than the closure parameter
                 // to avoid sending a non-Sendable value across the actor boundary.
-                self.routeMonitor.handleDeviceUpdate(from: AudioManager.shared)
+                self.routeMonitor.handleDeviceUpdate()
             }
         }
 
@@ -171,5 +185,8 @@ final class AppContext: ObservableObject {
 
         self.realInputDevice = realInputDevice
     }
-
 }
+
+// MARK: - AppContext + AudioContextInterface
+
+extension AppContext: AudioContextInterface {}
