@@ -1300,7 +1300,7 @@ extension NewChatTableDataSource {
 extension NewChatTableDataSource: CallParticipantsSocketDelegate {
 
     func didReceiveCurrentParticipants(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {
-        callParticipantsStore[roomName] = participants
+        callParticipantsStore[roomName] = participants.filter { $0.name.isNotEmpty }
         reloadCellsForRoom(roomName)
     }
 
@@ -1308,9 +1308,12 @@ extension NewChatTableDataSource: CallParticipantsSocketDelegate {
         var current = callParticipantsStore[roomName] ?? []
         // Dedup: ignore if this identity is already tracked
         guard !current.contains(where: { $0.identity == participant.identity }) else { return }
-        current.append(participant)
-        callParticipantsStore[roomName] = current
-        reloadCellsForRoom(roomName)
+        
+        if participant.name.isNotEmpty {
+            current.append(participant)
+            callParticipantsStore[roomName] = current
+            reloadCellsForRoom(roomName)
+        }
         // LiveKit may not have resolved the display name yet — refresh after 2s
         if participant.name.isEmpty {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
