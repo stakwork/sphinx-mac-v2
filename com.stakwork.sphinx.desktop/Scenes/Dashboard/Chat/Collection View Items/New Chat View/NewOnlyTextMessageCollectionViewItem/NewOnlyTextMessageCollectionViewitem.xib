@@ -129,6 +129,7 @@
                                                 <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="d54-Qo-HA4" secondAttribute="leading" id="rR7-3W-nxf"/>
                                                 <constraint firstItem="7nT-GT-4h9" firstAttribute="leading" secondItem="d54-Qo-HA4" secondAttribute="leading" id="w2g-8z-QSW"/>
                                                 <constraint firstAttribute="trailing" secondItem="7nT-GT-4h9" secondAttribute="trailing" id="zAt-KU-ECV"/>
+                                                <constraint firstAttribute="height" constant="48" id="hJB-h5-cNj-only"/>
                                             </constraints>
                                         </customView>
                                     </subviews>
@@ -261,6 +262,7 @@
                 <outlet property="sentMessageMenuButton" destination="RqW-7V-PIs" id="2bU-AU-QHf"/>
                 <outlet property="statusHeaderView" destination="pCr-jf-cNZ" id="cWy-hb-E5V"/>
                 <outlet property="statusHeaderViewContainer" destination="9rC-bS-7Ll" id="6WL-tm-vMv"/>
+                <outlet property="labelHeightConstraint" destination="hJB-h5-cNj-only" id="lHC-on-ly1"/>
                 <outlet property="textMessageView" destination="d54-Qo-HA4" id="yRC-tJ-VmA"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="BkZ-7O-Bm8"/>
             </connections>
