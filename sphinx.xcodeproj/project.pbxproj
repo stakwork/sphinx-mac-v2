@@ -727,6 +727,7 @@
 		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
 		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */; };
+		CHATHT0100000001CHATHT01 /* ChatHelperHeightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CHATHT0000000001CHATHT00 /* ChatHelperHeightTests.swift */; };
 		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -1784,6 +1785,7 @@
 		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
 		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitorTests.swift; sourceTree = "<group>"; };
+		CHATHT0000000001CHATHT00 /* ChatHelperHeightTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHelperHeightTests.swift; sourceTree = "<group>"; };
 		CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentProcessingBarView.swift; sourceTree = "<group>"; };
 		CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDetailSelectionVC.swift; sourceTree = "<group>"; };
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
@@ -2250,6 +2252,7 @@
 				4734D3AB2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift */,
 				47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
+			CHATHT0000000001CHATHT00 /* ChatHelperHeightTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -5114,6 +5117,7 @@
 				4734D3AC2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift in Sources */,
 				47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
+				CHATHT0100000001CHATHT01 /* ChatHelperHeightTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -121,6 +121,20 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         )
         configureWith(bubble: bubble)
         
+        /// Set bubble width programmatically to match the pre-calculation in getTextMessageHeightFor.
+        /// The XIB has a fixed 500pt equality constraint on NNK-2K-vda (the bubble container),
+        /// which causes Auto Layout conflicts when the collection view is narrower (e.g. thread panel).
+        /// Clamping to the same maxBubbleWidth used during height pre-calculation ensures the
+        /// render-time bubble width equals the measured width, preventing text clipping.
+        let outerMargins = bubble.direction.isOutgoing()
+            ? CommonNewMessageCollectionViewitem.kTextLabelMarginsOutgoing
+            : CommonNewMessageCollectionViewitem.kTextLabelMargins
+        let maxBubbleWidth = min(
+            CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth,
+            collectionViewWidth - outerMargins
+        )
+        bubbleWidthConstraint.constant = max(maxBubbleWidth, 0)
+        
         ///Invoice Lines
         configureWith(invoiceLines: mutableMessageCellState.invoicesLines)
     }
