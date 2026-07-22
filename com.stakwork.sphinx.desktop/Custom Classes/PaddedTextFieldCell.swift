@@ -48,23 +48,22 @@ class PaddedTextField: CCTextField {
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        DispatchQueue.main.async {
-            self.setupPaddedCell()
-        }
+        // Set up synchronously so that the PaddedTextFieldCell (with its horizontal
+        // insets) is installed before Auto Layout's first intrinsicContentSize call.
+        // Async dispatch caused a one-frame race where self.cell was still a plain
+        // NSTextFieldCell with no insets, producing an under-estimated height that
+        // clipped text on the first render pass.
+        setupPaddedCell()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        DispatchQueue.main.async {
-            self.setupPaddedCell()
-        }
+        setupPaddedCell()
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        DispatchQueue.main.async {
-            self.setupPaddedCell()
-        }
+        setupPaddedCell()
     }
     
     private func setupPaddedCell() {
@@ -139,10 +138,17 @@ class PaddedTextField: CCTextField {
             size.height = ceil(height) + vPad
             return size
         }
-        // Fallback when bounds aren't established yet
+        // Fallback: bounds haven't been established yet (zero-width first pass).
+        // Rather than committing a magic overestimate (+40 was undocumented), trigger
+        // a deferred re-measurement once the view has real bounds, and return a
+        // minimal valid size for now.  The deferred invalidation ensures Auto Layout
+        // re-runs intrinsicContentSize as soon as the view's bounds are known.
+        DispatchQueue.main.async { [weak self] in
+            self?.invalidateIntrinsicContentSize()
+        }
         var size = super.intrinsicContentSize
         size.width += hPad
-        size.height += vPad + 40
+        size.height += vPad
         return size
     }
     

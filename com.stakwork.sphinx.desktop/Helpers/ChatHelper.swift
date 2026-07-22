@@ -494,68 +494,77 @@ class ChatHelper {
     ) -> CGFloat {
         var mutableTableCellState = tableCellState
         var textHeight: CGFloat = 0.0
-        
+
+        // Use direction-aware outer margin so the measurement width matches
+        // the actual text-drawing width at render time.
+        // Received: 16(leading) + 40(avatar) + 4(spacer) + 7(trailing spacer) + 16(trailing) = 83
+        // Outgoing: 16(leading) + 0(no avatar/spacer) + 7(trailing spacer) + 16(trailing)   = 39
+        let isOutgoing = mutableTableCellState.bubble?.direction.isOutgoing() == true
+        let outerMargins = isOutgoing
+            ? CommonNewMessageCollectionViewitem.kTextLabelMarginsOutgoing
+            : CommonNewMessageCollectionViewitem.kTextLabelMargins
+
         var maxWidth = min(
             CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth,
-            collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+            collectionViewWidth - outerMargins
         )
         
         if let _ = mutableTableCellState.directPayment {
             if let _ = mutableTableCellState.messageMedia {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentWithMediaBubbleWidth,
-                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                    collectionViewWidth - outerMargins
                 )
             } else if let _ = mutableTableCellState.messageContent {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentWithTextBubbleWidth,
-                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                    collectionViewWidth - outerMargins
                 )
             } else {
                 maxWidth = min(
                     CommonNewMessageCollectionViewitem.kMaximumDirectPaymentBubbleWidth,
-                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                    collectionViewWidth - outerMargins
                 )
             }
         } else if let _ = mutableTableCellState.messageMedia {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumMediaBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = mutableTableCellState.genericFile {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumFileBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = mutableTableCellState.audio {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumAudioBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = linkData {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = tribeData {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = mutableTableCellState.contactLink {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = mutableTableCellState.podcastComment {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumPodcastAudioBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         } else if let _ = mutableTableCellState.messageContent, let _ = mutableTableCellState.paidContent {
             maxWidth = min(
                 CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth,
-                collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                collectionViewWidth - outerMargins
             )
         }
         
