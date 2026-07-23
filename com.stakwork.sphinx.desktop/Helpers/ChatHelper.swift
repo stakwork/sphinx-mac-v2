@@ -591,13 +591,18 @@ class ChatHelper {
         )
         
         if let text = text, text.isNotEmpty {
+            // Use useMarkdown: false so height measurement matches the plain-text string
+            // assigned to messageLabel.stringValue in configureOriginalMessageTextWith.
+            // Markdown-rendered strings can be shorter than their plain-text equivalents,
+            // which would produce a labelHeightConstraint.constant that is too small.
             textHeight = ChatHelper.getTextHeightFor(
                 text: text,
                 width: maxWidth,
                 highlightedMatches: highlightedMatches,
                 boldMatches: boldMatches,
                 linkMatches: linkMatches,
-                linkMarkdownMatches: linkMarkdownMatches
+                linkMarkdownMatches: linkMarkdownMatches,
+                useMarkdown: false
             )
         }
         
