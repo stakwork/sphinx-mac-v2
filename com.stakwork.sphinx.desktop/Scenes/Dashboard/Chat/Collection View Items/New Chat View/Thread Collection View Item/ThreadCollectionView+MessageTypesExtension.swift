@@ -191,17 +191,25 @@ extension ThreadCollectionViewItem {
     ) {
         if let originalMessage = threadMessage?.originalMessage, let text = originalMessage.text, text.isNotEmpty {
             
+            // Set content FIRST so intrinsic-size measurement operates on current text and font.
+            messageLabel.stringValue = text
+            messageLabel.font = NSFont.getMessageFont()
+            
+            // Compute the 2-line cap height from the plain-text content (useMarkdown: false).
             let labelHeight = ChatHelper.getThreadOriginalTextMessageHeightFor(
                 text,
                 collectionViewWidth: collectionViewWidth,
                 maxHeight: Constants.kMessageLineHeight * 2
             )
             
+            // Push the cap directly to the label's intrinsic size so auto-layout cannot
+            // override it via the priority-750 container constraint alone.
+            messageLabel.maximumHeight = labelHeight
+            messageLabel.invalidateIntrinsicContentSize()
+            
+            // Also set the container constraint to the same value, then force one layout pass.
             labelHeightConstraint.constant = labelHeight
             textMessageView.superview?.layoutSubtreeIfNeeded()
-            
-            messageLabel.stringValue = text
-            messageLabel.font = NSFont.getMessageFont()
             
             textMessageView.isHidden = false
             
