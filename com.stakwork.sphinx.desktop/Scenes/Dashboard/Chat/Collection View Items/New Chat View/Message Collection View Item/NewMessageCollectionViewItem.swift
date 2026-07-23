@@ -99,7 +99,8 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         configureViewsWidthWith(
             messageCellState: messageCellState,
             linkData: linkData,
-            tribeData: tribeData
+            tribeData: tribeData,
+            collectionViewWidth: collectionViewWidth
         )
         
         ///Status Header
@@ -143,12 +144,14 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         
         ///Avatar
         configureWith(avatarImage: mutableMessageCellState.avatarImage)
-        
+
         ///Direction and grouping
         configureWith(bubble: bubble)
-        
+
         ///Invoice Lines
         configureWith(invoiceLines: mutableMessageCellState.invoicesLines)
+
+        view.layoutSubtreeIfNeeded()
     }
     
     @IBAction func messageMenuButtonClicked(_ sender: Any) {

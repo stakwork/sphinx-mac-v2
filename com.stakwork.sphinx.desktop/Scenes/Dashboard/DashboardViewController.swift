@@ -805,14 +805,6 @@ extension DashboardViewController : NSSplitViewDelegate {
         if let _ = view.window {
             resizeSubviews()
 
-            resizeTimer?.invalidate()
-            resizeTimer = Timer.scheduledTimer(
-                timeInterval: 0.05,
-                target: self,
-                selector: #selector(resizeSubviews),
-                userInfo: nil,
-                repeats: false
-            )
         }
     }
 
@@ -828,7 +820,13 @@ extension DashboardViewController : NSSplitViewDelegate {
         
         listViewController?.view.frame = leftSplittedView.bounds
         dashboardDetailViewController?.updateCurrentVCFrame()
-        newDetailViewController?.chatTableDataSource?.updateFrame()
+
+        // During panel open/close (not live resize), bypass the debounce in updateFrame()
+        // so the main chat re-renders immediately instead of waiting ~0.5s for the
+        // animation to settle. Live resize is already handled immediately by viewDidLayout().
+        if view.window?.inLiveResize != true {
+            newDetailViewController?.chatTableDataSource?.invalidateLayoutDebounced()
+        }
     }
 }
 

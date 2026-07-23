@@ -52,13 +52,15 @@ extension NewMessageCollectionViewItem {
     func configureViewsWidthWith(
         messageCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData?,
-        tribeData: MessageTableCellState.TribeData?
+        tribeData: MessageTableCellState.TribeData?,
+        collectionViewWidth: CGFloat
     ) {
         var mutableCellState = messageCellState
-        
+        let availableWidth = collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+
         if let _ = mutableCellState.directPayment {
             var width: CGFloat = 0
-            
+
             if let _ = mutableCellState.messageMedia {
                 width = CommonNewMessageCollectionViewitem.kMaximumDirectPaymentWithMediaBubbleWidth
             } else if let _ = mutableCellState.messageContent {
@@ -66,35 +68,35 @@ extension NewMessageCollectionViewItem {
             } else {
                 width = CommonNewMessageCollectionViewitem.kMaximumDirectPaymentBubbleWidth
             }
-            
+
             widthConstraint.constant = width
-            
+
         } else if let _ = mutableCellState.callLink {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumCallLinkBubbleWidth
         } else if let _ = mutableCellState.messageMedia {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumMediaBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumMediaBubbleWidth, availableWidth)
         } else if let _ = mutableCellState.audio {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumAudioBubbleWidth
         } else if let _ = mutableCellState.podcastComment {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPodcastAudioBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumPodcastAudioBubbleWidth, availableWidth)
         } else if let _ = mutableCellState.podcastBoost {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPodcastBoostBubbleWidth
         } else if let _ = mutableCellState.genericFile {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumGenericFileBubbleWidth
         } else if let _ = mutableCellState.contactLink {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth, availableWidth)
         } else if let _ = linkData {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth, availableWidth)
         } else if let _ = tribeData {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth, availableWidth)
         } else if let _ = mutableCellState.messageContent, let _ = mutableCellState.paidContent {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth, availableWidth)
         } else if let _ = mutableCellState.invoice {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumInvoiceBubbleWidth
         } else if let _ = mutableCellState.payment {
             widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumInvoiceBubbleWidth
         } else {
-            widthConstraint.constant = CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth
+            widthConstraint.constant = min(CommonNewMessageCollectionViewitem.kMaximumLabelBubbleWidth, availableWidth)
         }
         
         self.messageContentStackView.layoutSubtreeIfNeeded()

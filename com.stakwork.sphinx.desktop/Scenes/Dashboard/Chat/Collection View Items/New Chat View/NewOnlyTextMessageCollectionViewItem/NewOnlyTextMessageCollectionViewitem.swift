@@ -39,7 +39,8 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
     @IBOutlet weak var sentMessageMenuButton: CustomButton!
     @IBOutlet weak var receivedMessageMenuButton: CustomButton!
     
-
+    @IBOutlet weak var labelHeightConstraint: NSLayoutConstraint!
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         chatAvatarView.resetView()
@@ -111,8 +112,9 @@ class NewOnlyTextMessageCollectionViewitem: CommonNewMessageCollectionViewitem, 
         
         ///Text message content
         configureWith(
-            messageContent: mutableMessageCellState.messageContent,
-            searchingTerm: searchingTerm
+            messageCellState: mutableMessageCellState,
+            searchingTerm: searchingTerm,
+            collectionViewWidth: collectionViewWidth
         )
         
         ///Header and avatar

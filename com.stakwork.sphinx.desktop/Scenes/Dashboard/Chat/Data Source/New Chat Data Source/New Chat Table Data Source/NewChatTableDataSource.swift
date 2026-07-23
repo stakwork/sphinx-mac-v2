@@ -215,9 +215,28 @@ class NewChatTableDataSource : NSObject {
         }
     }
 
-    @objc private func invalidateLayoutDebounced() {
-        invalidateRowHeightCache()
-        collectionView.collectionViewLayout?.invalidateLayout()
+    @objc func invalidateLayoutDebounced() {
+        if isThread {
+            if let responderView = collectionView.window?.firstResponder as? NSView,
+               responderView.isDescendant(of: collectionView) {
+                return
+            }
+            
+            invalidateRowHeightCache()
+            collectionView.collectionViewLayout?.invalidateLayout()
+
+            let visibleStates = collectionView.indexPathsForVisibleItems()
+                .sorted()
+                .compactMap { getTableCellStateFor(rowIndex: $0.item) }
+            if !visibleStates.isEmpty {
+                var snapshot = dataSource.snapshot()
+                snapshot.reloadItems(visibleStates)
+                dataSource.apply(snapshot, animatingDifferences: false)
+            }
+        } else {
+            invalidateRowHeightCache()
+            collectionView.collectionViewLayout?.invalidateLayout()
+        }
     }
 
     /// Updates the messageId to index mapping for O(1) lookups

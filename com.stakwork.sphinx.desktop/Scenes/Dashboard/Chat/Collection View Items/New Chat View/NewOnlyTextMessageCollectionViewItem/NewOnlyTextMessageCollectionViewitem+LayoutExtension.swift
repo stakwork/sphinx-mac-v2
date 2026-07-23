@@ -21,10 +21,21 @@ extension NewOnlyTextMessageCollectionViewitem {
     }
     
     func configureWith(
-        messageContent: BubbleMessageLayoutState.MessageContent?,
-        searchingTerm: String?
+        messageCellState: MessageTableCellState,
+        searchingTerm: String?,
+        collectionViewWidth: CGFloat,
     ) {
-        if let messageContent = messageContent {
+        var mutableMessageCellState = messageCellState
+        
+        if let messageContent = mutableMessageCellState.messageContent {
+            
+            let labelHeight = ChatHelper.getTextMessageHeightFor(
+                mutableMessageCellState,
+                collectionViewWidth: collectionViewWidth
+            )
+
+            labelHeightConstraint.constant = labelHeight
+            
             let rendered = NSMutableAttributedString(
                 attributedString: ChatHelper.markdownRenderer.render(messageContent.text ?? "")
             )

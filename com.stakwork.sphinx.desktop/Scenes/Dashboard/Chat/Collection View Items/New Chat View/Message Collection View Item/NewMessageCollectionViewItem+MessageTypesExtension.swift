@@ -231,13 +231,12 @@ extension NewMessageCollectionViewItem {
             )
             
             labelHeightConstraint.constant = labelHeight
-            textMessageView.superview?.layoutSubtreeIfNeeded()
-                        
+
             let rendered = NSMutableAttributedString(
                 attributedString: ChatHelper.markdownRenderer.render(messageContent.text ?? "")
             )
             ChatHelper.applySphinxLinkTransforms(to: rendered)
-            
+
             if let term = searchingTerm, !term.isEmpty {
                 let messageC = messageContent.text ?? ""
                 let searchRange = (messageC.lowercased() as NSString).range(of: term.lowercased())
