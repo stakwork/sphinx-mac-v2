@@ -511,13 +511,17 @@ extension SphinxOnionManager {
                     ///Callback to chat when restoring msgs for a specifc chat
                     if let restoringMsgsForPublicKey = self.restoringMsgsForPublicKey,
                         let onMessagePerPublicKeyRestoredCallback = self.onMessagePerPublicKeyRestoredCallback,
-                        messages.allSatisfy({ $0.isMsgInTribeWith(pubkey: restoringMsgsForPublicKey)  })
+                        !messages.isEmpty
                     {
                         self.restoringMsgsForPublicKey = nil
                         self.onMessagePerPublicKeyRestoredCallback = nil
-                        onMessagePerPublicKeyRestoredCallback(messages.count)
+                        // Count only messages for this chat; previously allSatisfy would silently
+                        // drop the callback when even one message belonged to a different chat,
+                        // leaving loadingMoreItems stuck true permanently.
+                        let matchingCount = messages.filter({ $0.isMsgInTribeWith(pubkey: restoringMsgsForPublicKey) }).count
+                        onMessagePerPublicKeyRestoredCallback(matchingCount)
                     }
-                    
+
                     self.getReads()
                 }
             }
