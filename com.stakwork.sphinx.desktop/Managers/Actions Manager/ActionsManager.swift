@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-class ActionsManager {
+class ActionsManager: @unchecked Sendable {
     
     static let PODCAST_TYPE = "podcast"
     static let YOUTUBE_VIDEO_TYPE = "youtube"

@@ -9,8 +9,8 @@ import Foundation
 import Network
 import Cocoa
 
-class NetworkMonitor {
-    static let shared = NetworkMonitor()
+class NetworkMonitor: @unchecked Sendable {
+    nonisolated(unsafe) static let shared = NetworkMonitor()
     private var nwMonitor: NWPathMonitor?
     private var isNwMonitoring = false
     

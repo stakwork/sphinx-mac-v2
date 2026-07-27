@@ -87,6 +87,11 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         )
         
         if isThread {
+            if let threadUUID = threadUUID {
+                DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+                    self.chat?.setThreadMessagesAsSeen(threadUUID: threadUUID)
+                })
+            }
             return
         }
         
@@ -189,14 +194,18 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         guard let invoice = message.invoice else {
             return
         }
-        
+
         let prd = PaymentRequestDecoder()
         prd.decodePaymentRequest(paymentRequest: invoice)
-        
+
         guard let _ = prd.getAmount() else {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: "Failed to decode invoice"
+            )
             return
         }
-        
+
         SphinxOnionManager.sharedInstance.payInvoiceMessage(message: message)
 
         chatTableDataSource?.reloadAllVisibleRows()
@@ -233,13 +242,16 @@ extension NewChatViewController : NewChatTableDataSourceDelegate {
         }
     }
     
-    func shouldStartCallWith(link: String, audioOnly: Bool) {
+    func shouldStartCallWith(link: String, audioOnly: Bool, isHost: Bool) {
         WindowsManager.sharedInstance.showCallWindow(
             link: link,
             audioOnly: audioOnly,
-            tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil
+            tribeImage: (chat?.isPublicGroup() == true) ? (chat?.tribeInfo?.img ?? chat?.photoUrl) : nil,
+            isHost: isHost
         )
     }
+    
+
     
     func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?) {
         guard let message = message else {

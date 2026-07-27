@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol DashboardVCDelegate: AnyObject {
     func didClickOnChatRow(chatId: Int?, contactId: Int?)
     func shouldReloadChatRowWith(chatId: Int)
@@ -20,6 +21,11 @@ protocol DashboardVCDelegate: AnyObject {
     func shouldResetContactView()
     func shouldResetTribeView()
     func didSelectWorkspace(_ workspace: Workspace)
+    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?)
+    func shouldLoadURLInInlineWebApp(chat: Chat, url: String)
+    func shouldRefreshInlineWebApp()
+    func shouldDismissInlineWebApp()
+    func shouldOpenInlineWebAppInNewWindow()
 }
 
 class DashboardSplittedViewController: NSViewController {

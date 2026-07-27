@@ -93,6 +93,8 @@ extension ChatListViewController : ChildVCDelegate, ActionsDelegate {
     func shouldGoForward(paymentViewModel: PaymentViewModel) {}
     func shouldGoBack(paymentViewModel: PaymentViewModel) {}
     func shouldSendPaymentFor(paymentObject: PaymentViewModel.PaymentObject) {}
+    func shouldOpenWebAppLinkInBrowser(url: String) {}
+    func shouldOpenWebAppLinkInSphinx(url: String) {}
 }
 
 extension ChatListViewController : NewChatListViewControllerDelegate {

@@ -17,6 +17,9 @@ enum DataSyncSettingKey: String, CaseIterable {
     case feedStatus = "feed_status"
     case feedItemStatus = "feed_item_status"
     case chatColor = "chat_color"
+    case pinTimeout = "pin_timeout"
+    case biometricEnabled = "biometric_enabled"
+    case aiAgentConfig = "ai_agent_config"
 }
 
 // MARK: - Items Response
@@ -316,6 +319,27 @@ enum SettingValue: Codable {
 
         case .chatColor:
             // chat_color is a hex color string
+            return .string(string)
+
+        case .pinTimeout:
+            guard let intValue = Int(string) else {
+                #if DEBUG
+                print("DataSync: Failed to parse '\(string)' as Int for \(key.rawValue)")
+                #endif
+                return nil
+            }
+            return .int(intValue)
+
+        case .biometricEnabled:
+            guard let boolValue = parseBool(from: string) else {
+                #if DEBUG
+                print("DataSync: Failed to parse '\(string)' as Bool for \(key.rawValue)")
+                #endif
+                return nil
+            }
+            return .bool(boolValue)
+
+        case .aiAgentConfig:
             return .string(string)
         }
     }

@@ -16,19 +16,22 @@ struct ThreadLayoutState {
         var threadPeopleCount: Int
         var repliesCount: Int
         var lastReplyTimestamp: String
+        var mentionsCount: Int
         
         init(
             orignalThreadMessage: ThreadOriginalMessage,
             threadPeople: [ThreadPeople],
             threadPeopleCount: Int,
             repliesCount: Int,
-            lastReplyTimestamp: String
+            lastReplyTimestamp: String,
+            mentionsCount: Int = 0
         ) {
             self.orignalThreadMessage = orignalThreadMessage
             self.threadPeople = threadPeople
             self.threadPeopleCount = threadPeopleCount
             self.repliesCount = repliesCount
             self.lastReplyTimestamp = lastReplyTimestamp
+            self.mentionsCount = mentionsCount
         }
     }
     

@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChatsSegmentedControlDelegate: AnyObject {
 
     func segmentedControlDidSwitch(

@@ -56,8 +56,6 @@ extension NewChatViewController {
             shouldReplace: false,
             panelFixedWidth: true
         )
-        
-        chatTableDataSource?.updateFrame()
     }
 }
 

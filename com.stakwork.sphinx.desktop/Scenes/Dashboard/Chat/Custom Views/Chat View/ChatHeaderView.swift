@@ -9,7 +9,7 @@
 import Cocoa
 import SDWebImage
 
-protocol ChatHeaderViewDelegate : AnyObject {
+@MainActor protocol ChatHeaderViewDelegate : AnyObject {
     func didClickThreadsButton()
     func didClickWebAppButton()
     func didClickMuteButton()
@@ -19,6 +19,12 @@ protocol ChatHeaderViewDelegate : AnyObject {
     func didClickSecondBrainAppButton()
     func didClickRefreshButton()
     func didClickOptionsButton()
+    func didClickWebAppRefreshButton()
+    func didClickWebAppBackToChatButton()
+    func didClickWebAppOpenInWindowButton()
+    func didClickWebAppLogsButton()
+    func didClickWebAppBackButton()
+    func didClickWebAppForwardButton()
 }
 
 class ChatHeaderView: NSView, LoadableNib {
@@ -39,6 +45,7 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var remoteTimezoneIdentifier: NSTextField!
     @IBOutlet weak var lockSign: NSTextField!
     @IBOutlet weak var boltSign: NSTextField!
+    @IBOutlet weak var agentIcon: NSImageView!
     @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var volumeButton: CustomButton!
     @IBOutlet weak var webAppButton: CustomButton!
@@ -51,6 +58,14 @@ class ChatHeaderView: NSView, LoadableNib {
     @IBOutlet weak var optionsButton: CustomButton!
     @IBOutlet weak var dashedLineView: NSView!
     @IBOutlet weak var imageWidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var chatActionsStack: NSStackView!
+    @IBOutlet weak var webAppActionsStack: NSStackView!
+    @IBOutlet weak var webAppRefreshButton: CustomButton!
+    @IBOutlet weak var webAppBackToChatButton: CustomButton!
+    @IBOutlet weak var webAppOpenInWindowButton: CustomButton!
+    @IBOutlet weak var webAppLogsButton: CustomButton!
+    var webAppNavBackButton: CustomButton = CustomButton()
+    var webAppNavForwardButton: CustomButton = CustomButton()
     
     let kMinimumChatHeaderForButtons: CGFloat = 700
     
@@ -89,6 +104,75 @@ class ChatHeaderView: NSView, LoadableNib {
         threadsButton.cursor = .pointingHand
         searchButton.cursor = .pointingHand
         optionsButton.cursor = .pointingHand
+
+        setupWebAppActionsStack()
+    }
+
+    func setupWebAppActionsStack() {
+        let refreshConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let refreshImage = NSImage(systemSymbolName: "arrow.clockwise", accessibilityDescription: nil)?
+              .withSymbolConfiguration(refreshConfig)
+
+        webAppRefreshButton.image = refreshImage
+        webAppRefreshButton.target = self
+        webAppRefreshButton.action = #selector(webAppRefreshButtonClicked)
+        
+        let chatConfig = NSImage.SymbolConfiguration(pointSize: 17, weight: .semibold)
+        let chatImage = NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil)?
+              .withSymbolConfiguration(chatConfig)
+        
+        webAppBackToChatButton.image = chatImage
+        webAppBackToChatButton.target = self
+        webAppBackToChatButton.action = #selector(webAppBackToChatButtonClicked)
+        
+        webAppOpenInWindowButton.target = self
+        webAppOpenInWindowButton.action = #selector(webAppOpenInWindowButtonClicked)
+
+        let logsConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let logsImage = NSImage(systemSymbolName: "doc.plaintext", accessibilityDescription: nil)?
+            .withSymbolConfiguration(logsConfig)
+        webAppLogsButton.image = logsImage
+        webAppLogsButton.contentTintColor = NSColor.Sphinx.SecondaryText
+        webAppLogsButton.target = self
+        webAppLogsButton.action = #selector(webAppLogsButtonClicked)
+
+        // Back / Forward nav buttons (added programmatically into webAppActionsStack)
+        let navConfig = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        let backImage = NSImage(systemSymbolName: "chevron.left", accessibilityDescription: nil)?
+            .withSymbolConfiguration(navConfig)
+        let forwardImage = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)?
+            .withSymbolConfiguration(navConfig)
+
+        for (button, image, action) in [
+            (webAppNavBackButton, backImage, #selector(webAppNavBackButtonClicked)),
+            (webAppNavForwardButton, forwardImage, #selector(webAppNavForwardButtonClicked))
+        ] as [(CustomButton, NSImage?, Selector)] {
+            button.image = image
+            button.imagePosition = .imageOnly
+            button.isBordered = false
+            button.setButtonType(.momentaryChange)
+            button.contentTintColor = NSColor.Sphinx.SecondaryText
+            button.cursor = .pointingHand
+            button.isEnabled = false
+            button.target = self
+            button.action = action
+        }
+
+        // Insert back/forward before the existing buttons in the stack
+        webAppActionsStack.insertArrangedSubview(webAppNavForwardButton, at: 0)
+        webAppActionsStack.insertArrangedSubview(webAppNavBackButton, at: 0)
+        webAppActionsStack.setCustomSpacing(8, after: webAppNavBackButton)
+    }
+
+    func showWebAppActions(_ show: Bool) {
+        if show {
+            chatActionsStack.isHidden = true
+            webAppActionsStack.isHidden = false
+        } else {
+            chatActionsStack.isHidden = false
+            webAppActionsStack.isHidden = true
+            toggleButtonsWith(width: viewWidth)
+        }
     }
     
     func getOptionsButtonView() -> NSView {
@@ -145,6 +229,7 @@ class ChatHeaderView: NSView, LoadableNib {
         callButton.isHidden = true
         threadsButton.isHidden = true
         searchButton.isHidden = true
+        agentIcon.isHidden = true
     }
     
     func setChatInfo() {
@@ -154,6 +239,26 @@ class ChatHeaderView: NSView, LoadableNib {
         configureImageOrInitials()
         configureContributionsAndPrices()
         configureTimezoneInfo()
+        configureForAgentChat()
+    }
+
+    func configureForAgentChat() {
+        if contact?.isAgent == true {
+            callButton.isHidden = true
+            volumeButton.isHidden = true
+            threadsButton.isHidden = true
+            webAppButton.isHidden = true
+            secondBrainButton.isHidden = true
+            optionsButton.isHidden = true
+            searchButton.isHidden = false
+            
+            // Replace lock icon with cpu SF Symbol (same SecondaryText color as lock)
+            lockSign.isHidden = true
+            boltSign.isHidden = true
+            agentIcon.isHidden = false
+        } else {
+            agentIcon.isHidden = true
+        }
     }
     
     func configureTimezoneInfo() {
@@ -182,6 +287,7 @@ class ChatHeaderView: NSView, LoadableNib {
     func configureEncryptionSign() {
         let isEncrypted = (contact?.status == UserContact.Status.Confirmed.rawValue) || (chat?.status == Chat.ChatStatus.approved.rawValue)
         lockSign.isHidden = !isEncrypted
+        agentIcon.isHidden = true
         refreshButton.isHidden = true
         
         imageWidthConstraint.constant = isEncrypted ? 46 : 36
@@ -350,6 +456,11 @@ class ChatHeaderView: NSView, LoadableNib {
         if isDisable {
             return
         }
+
+        if contact?.isAgent == true {
+            configureForAgentChat()
+            return
+        }
         
         viewWidth = width
         
@@ -363,7 +474,7 @@ class ChatHeaderView: NSView, LoadableNib {
             optionsButton.isHidden = false
         } else {
             searchButton.isHidden = false
-            threadsButton.isHidden = chat?.isPublicGroup() == false
+//            threadsButton.isHidden = chat?.isPublicGroup() == false
             webAppButton.isHidden = chat?.hasWebApp() == false
             secondBrainButton.isHidden = chat?.hasSecondBrainApp() == false
             volumeButton.isHidden = false
@@ -408,5 +519,34 @@ class ChatHeaderView: NSView, LoadableNib {
     
     @IBAction func optionsButtonClicked(_ sender: Any) {
         delegate?.didClickOptionsButton()
+    }
+
+    @objc func webAppRefreshButtonClicked() {
+        delegate?.didClickWebAppRefreshButton()
+    }
+
+    @objc func webAppBackToChatButtonClicked() {
+        delegate?.didClickWebAppBackToChatButton()
+    }
+
+    @objc func webAppOpenInWindowButtonClicked() {
+        delegate?.didClickWebAppOpenInWindowButton()
+    }
+
+    @objc func webAppLogsButtonClicked() {
+        delegate?.didClickWebAppLogsButton()
+    }
+
+    @objc func webAppNavBackButtonClicked() {
+        delegate?.didClickWebAppBackButton()
+    }
+
+    @objc func webAppNavForwardButtonClicked() {
+        delegate?.didClickWebAppForwardButton()
+    }
+
+    func updateWebAppNavButtons(canGoBack: Bool, canGoForward: Bool) {
+        webAppNavBackButton.isEnabled = canGoBack
+        webAppNavForwardButton.isEnabled = canGoForward
     }
 }

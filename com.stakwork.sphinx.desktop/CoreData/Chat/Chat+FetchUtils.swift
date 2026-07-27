@@ -59,7 +59,7 @@ extension Chat {
 
     public enum SortDescriptors {
 
-        public static let nameAscending: NSSortDescriptor = NSSortDescriptor(
+        public nonisolated(unsafe) static let nameAscending: NSSortDescriptor = NSSortDescriptor(
             key: #keyPath(Chat.name),
             ascending: true,
 
@@ -72,7 +72,7 @@ extension Chat {
         )
 
 
-        public static let nameDescending: NSSortDescriptor = {
+        public nonisolated(unsafe) static let nameDescending: NSSortDescriptor = {
             guard let descriptor = nameAscending.reversedSortDescriptor as? NSSortDescriptor else {
                 preconditionFailure("Unable to make reversed sort descriptor")
             }

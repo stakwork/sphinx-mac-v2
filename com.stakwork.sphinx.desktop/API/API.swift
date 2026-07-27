@@ -68,11 +68,11 @@ extension API {
     }
 }
 
-class API {
+class API: @unchecked Sendable {
     
     class var sharedInstance : API {
         struct Static {
-            static let instance = API()
+            nonisolated(unsafe) static let instance = API()
         }
         return Static.instance
     }
@@ -234,7 +234,7 @@ class API {
     }
     
     func networksConnectionLost() {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.connectionStatus = .NoNetwork
             self.messageBubbleHelper.showGenericMessageView(text: "network.connection.lost".localized, delay: 3)
         }

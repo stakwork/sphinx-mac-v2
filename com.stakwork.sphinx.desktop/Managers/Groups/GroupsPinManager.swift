@@ -8,18 +8,18 @@
 
 import Foundation
 
-class GroupsPinManager {
+class GroupsPinManager: @unchecked Sendable {
 
     class var sharedInstance : GroupsPinManager {
         struct Static {
-            static let instance = GroupsPinManager()
+            nonisolated(unsafe) static let instance = GroupsPinManager()
         }
         return Static.instance
     }
-    
+
     var userData = UserData.sharedInstance
-    
-    func shouldAskForPin() -> Bool {
+
+    @MainActor func shouldAskForPin() -> Bool {
         if UserData.sharedInstance.isUserLogged() {
             if userData.getPINNeverOverride() {
                 return false

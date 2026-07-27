@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol MessageOptionViewDelegate: AnyObject {
+@MainActor protocol MessageOptionViewDelegate: AnyObject {
     func didTapButton(tag: Int)
 }
 

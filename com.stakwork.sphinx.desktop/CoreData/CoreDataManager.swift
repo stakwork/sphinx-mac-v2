@@ -6,18 +6,24 @@
 //  Copyright © 2020 Sphinx. All rights reserved.
 //
 
-import Foundation
-import CoreData
+@preconcurrency import Foundation
+@preconcurrency import CoreData
 
 class CoreDataManager {
-    
-    static let sharedManager = CoreDataManager()
-    
+
+    nonisolated(unsafe) static let sharedManager = CoreDataManager()
+
+    nonisolated(unsafe) private static let mergePolicy: Any = NSMergeByPropertyObjectTrumpMergePolicy
+
     private init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
         
         let container = NSPersistentContainer(name: "com_stakwork_sphinx_desktop")
+        
+        let description = container.persistentStoreDescriptions.first
+        description?.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
+        description?.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
         
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -25,7 +31,7 @@ class CoreDataManager {
             }
         })
         
-        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        container.viewContext.mergePolicy = CoreDataManager.mergePolicy
         container.viewContext.shouldDeleteInaccessibleFaults = true
         
         // 🔑 Ensures that the `mainContext` is aware of any changes that were made
@@ -44,16 +50,16 @@ class CoreDataManager {
     func saveContext() {
         CoreDataManager.sharedManager.persistentContainer.viewContext.saveContext()
     }
-    
+
     func getBackgroundContext() -> NSManagedObjectContext {
         let backgroundContext = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
-        backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        backgroundContext.mergePolicy = CoreDataManager.mergePolicy
         backgroundContext.shouldDeleteInaccessibleFaults = true
         backgroundContext.automaticallyMergesChangesFromParent = true
-        
+
         return backgroundContext
     }
-    
+
     func clearCoreDataStore() {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         context.performAndWait {
@@ -65,13 +71,13 @@ class CoreDataManager {
             }
         }
     }
-    
+
     func resetContext() {
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
         context.reset()
     }
     
-    func deleteExpiredInvites() {
+    @MainActor func deleteExpiredInvites() {
         for contact in UserContact.getPendingContacts() {
             if let invite = contact.invite, !contact.isOwner, !contact.isConfirmed() && invite.isExpired() {
                 invite.removeFromPaymentProcessed()
@@ -82,7 +88,7 @@ class CoreDataManager {
         saveContext()
     }
     
-    func deleteContactObjectsFor(_ contact: UserContact) {
+    @MainActor func deleteContactObjectsFor(_ contact: UserContact) {
         if let chat = contact.getConversation() {
             for message in chat.getAllMessages(limit: nil, forceAllMsgs: true) {
                 MediaLoader.clearMessageMediaCache(message: message)
@@ -105,6 +111,7 @@ class CoreDataManager {
         saveContext()
     }
     
+    @MainActor
     func deleteChatObjectsFor(_ chat: Chat) {
         let managedContext = persistentContainer.viewContext
         managedContext.performAndWait {
@@ -266,6 +273,7 @@ class CoreDataManager {
         return nil
     }
     
+    @MainActor
     func deleteObject(object: NSManagedObject) {
         let managedContext = persistentContainer.viewContext
         managedContext.performAndWait {
@@ -318,26 +326,55 @@ extension NSManagedObjectContext {
         }
     }
     
-    /// Fire-and-forget version - schedules the block but returns immediately
-    func performSafely(_ block: @escaping () throws -> Void) {
-        self.perform {
-            do {
-                try block()
-            } catch let error as NSError {
-                Self.logCoreDataError(error)
+    /// Synchronous version - blocks the calling thread until the block completes.
+    /// Uses performAndWait which is re-entrant, so nesting (e.g. calling getObjectsOfTypeWith
+    /// inside this block) is safe and won't deadlock or trigger dispatch queue assertions.
+    ///
+    /// NSExceptionCatcher wraps the block in @try/@catch so that Objective-C exceptions
+    /// (e.g. NSInternalInconsistencyException from Core Data) cannot propagate through
+    /// C++ libdispatch frames and trigger std::terminate / SIGABRT.
+    func performSafely(_ block: () throws -> Void) {
+        self.performAndWait {
+            // withoutActuallyEscaping is safe here because NSExceptionCatcher.tryExecute
+            // calls the block synchronously and never stores it beyond the call.
+            // The autoreleasepool forces the ObjC block wrapper to be released before
+            // withoutActuallyEscaping checks the refcount — without it, ObjC ARC
+            // autoreleases the block parameter, leaving a dangling retain that causes
+            // "non-escaping closure has escaped" SIGTRAP.
+            withoutActuallyEscaping(block) { escapableBlock in
+                var exceptionReason: NSString? = nil
+                var swiftError: NSError? = nil
+                let succeeded = autoreleasepool {
+                    NSExceptionCatcher.tryExecute({
+                        do {
+                            try escapableBlock()
+                        } catch let error as NSError {
+                            swiftError = error
+                        }
+                    }, exceptionReason: &exceptionReason)
+                }
+                if let error = swiftError {
+                    Self.logCoreDataError(error)
+                }
+                if !succeeded, let reason = exceptionReason {
+                    print("❌ ObjC exception caught in performSafely: \(reason)")
+                }
             }
         }
     }
 
     /// Async version - waits for the block to complete before returning
     /// Use this when you need to ensure the operation completes before continuing
-    func performSafely(_ block: @escaping () throws -> Void) async {
-        await self.perform {
-            do {
-                try block()
-            } catch let error as NSError {
-                Self.logCoreDataError(error)
-            }
+    func performSafely<T>(_ block: @escaping () throws -> T) async throws -> T {
+        try await perform {
+            try block()
+        }
+    }
+    
+    // Non-throwing version
+    func performSafely(_ block: @escaping () -> Void) async {
+        await perform {
+            block()
         }
     }
 

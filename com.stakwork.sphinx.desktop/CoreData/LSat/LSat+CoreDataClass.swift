@@ -34,6 +34,7 @@ public class LSat: NSManagedObject {
         }
     }
     
+    @MainActor
     static func getLSatWith(
         identifier: String,
         managedContext: NSManagedObjectContext? = nil
@@ -50,6 +51,7 @@ public class LSat: NSManagedObject {
         return LSat
     }
     
+    @MainActor
     static func getActiveLSat(
         issuer: String? = nil,
         managedContext: NSManagedObjectContext? = nil
@@ -72,6 +74,7 @@ public class LSat: NSManagedObject {
         return LSat
     }
     
+    @MainActor
     static func saveObjectFrom(
         lsatIP: LSatInProgress
     ) {

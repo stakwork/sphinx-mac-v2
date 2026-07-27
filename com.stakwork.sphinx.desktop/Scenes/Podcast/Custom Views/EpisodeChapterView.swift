@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChapterViewDelegate : NSObject {
     func shouldPlayChapterWith(index: Int)
 }

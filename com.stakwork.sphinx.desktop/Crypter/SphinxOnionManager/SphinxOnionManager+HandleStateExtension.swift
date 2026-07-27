@@ -122,6 +122,9 @@ extension SphinxOnionManager {
 
             ///Handling topics subscription
             handleTopicsToSubscribe(topics: rr.subscriptionTopics)
+
+            ///Handling generated invoice
+            handleInvoiceGenerated(invoice: rr.invoice)
         }
         
         //Publishing to topics
@@ -167,7 +170,7 @@ extension SphinxOnionManager {
     
     func updateStateMap(stateMap: Data?) {
         if let stateMap = stateMap {
-            let _ = storeOnionState(inc: stateMap.bytes)
+            let _ = storeOnionState(inc: [UInt8](stateMap))
         }
     }
     
@@ -218,8 +221,10 @@ extension SphinxOnionManager {
     
     func handleBalanceUpdate(newBalance: UInt64?) {
         if let newBalance = newBalance {
-            self.walletBalanceService.balance = newBalance
-            
+            Task { @MainActor in
+                self.walletBalanceService.balance = newBalance
+            }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
                 NotificationCenter.default.post(
                     Notification(
@@ -263,6 +268,14 @@ extension SphinxOnionManager {
         }
     }
     
+    func handleInvoiceGenerated(invoice: String?) {
+        guard let invoice = invoice else { return }
+        invoiceGeneratedTimeoutTimer?.invalidate()
+        invoiceGeneratedTimeoutTimer = nil
+        invoiceGeneratedCallback?(invoice)
+        invoiceGeneratedCallback = nil
+    }
+
     func handleInvoiceSentStatus(sentStatus: String?) {
         if let sentStatus = sentStatus {
             if let data = sentStatus.data(using: .utf8) {
@@ -488,7 +501,7 @@ extension SphinxOnionManager {
         messages: [Msg]
     ) {
         ///Restore callbacks
-        DispatchQueue.main.async {
+        Task { @MainActor in
             if topic?.isMessagesFetchResponseTopic == true {
                 if let firstSCIDMsgsCallback = self.firstSCIDMsgsCallback {
                     firstSCIDMsgsCallback(messages)
@@ -498,13 +511,17 @@ extension SphinxOnionManager {
                     ///Callback to chat when restoring msgs for a specifc chat
                     if let restoringMsgsForPublicKey = self.restoringMsgsForPublicKey,
                         let onMessagePerPublicKeyRestoredCallback = self.onMessagePerPublicKeyRestoredCallback,
-                        messages.allSatisfy({ $0.isMsgInTribeWith(pubkey: restoringMsgsForPublicKey)  })
+                        !messages.isEmpty
                     {
                         self.restoringMsgsForPublicKey = nil
                         self.onMessagePerPublicKeyRestoredCallback = nil
-                        onMessagePerPublicKeyRestoredCallback(messages.count)
+                        // Count only messages for this chat; previously allSatisfy would silently
+                        // drop the callback when even one message belonged to a different chat,
+                        // leaving loadingMoreItems stuck true permanently.
+                        let matchingCount = messages.filter({ $0.isMsgInTribeWith(pubkey: restoringMsgsForPublicKey) }).count
+                        onMessagePerPublicKeyRestoredCallback(matchingCount)
                     }
-                    
+
                     self.getReads()
                 }
             }
@@ -547,7 +564,13 @@ extension SphinxOnionManager {
     }
     
     func handleTopicsToPush(topics: [String], payloads: [Data]) {
+        // Capture the current mqtt instance at schedule time.
+        // If a reconnect replaces self.mqtt before the delay fires,
+        // initialSetup will re-publish any pending messages from state,
+        // so we must skip this stale publish to avoid sending duplicates.
+        let scheduledMqtt = self.mqtt
         DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
+            guard self.mqtt === scheduledMqtt else { return }
             for i in 0..<topics.count {
                 let _ = self.handleTopicToPush(
                     topic: topics[i],
@@ -581,19 +604,27 @@ extension SphinxOnionManager {
     func handleRegisterTopic(
         rr: RunReturn,
         skipAsyncTopic: Bool,
-        callback: @escaping (RunReturn, Bool) -> ()
+        callback: @escaping @Sendable (RunReturn, Bool) -> ()
     ) {
         if let topic = rr.registerTopic, let payload = rr.registerPayload {
             let byteArray: [UInt8] = [UInt8](payload)
             
+            let message = CocoaMQTTMessage(
+                topic: topic,
+                payload: byteArray
+            )
+            message.qos = .qos0
+            
             self.mqtt?.publish(
-                CocoaMQTTMessage(
-                    topic: topic,
-                    payload: byteArray
-                )
+                message
             )
             
+            // Capture mqtt at schedule time so we can skip the callback if a
+            // reconnect replaces self.mqtt before the delay fires — initialSetup
+            // on the new connection will re-publish any pending messages from state.
+            let scheduledMqtt = self.mqtt
             DelayPerformedHelper.performAfterDelay(seconds: 0.25, completion: {
+                guard self.mqtt === scheduledMqtt else { return }
                 callback(rr, skipAsyncTopic)
             })
             
@@ -605,7 +636,7 @@ extension SphinxOnionManager {
     func handleTopicsToSubscribe(topics: [String]) {
         for topic in topics {
             self.mqtt.subscribe([
-                (topic, CocoaMQTTQoS.qos1)
+                (topic, CocoaMQTTQoS.qos0)
             ])
         }
     }
@@ -702,7 +733,9 @@ extension SphinxOnionManager {
                             
                             if !chatIds.isEmpty {
                                 let userInfo: [String: [Int]] = ["chat-ids" : chatIds]
-                                NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: userInfo)
+                                DispatchQueue.main.async {
+                                    NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: userInfo)
+                                }
                             }
                         }
                     } catch {

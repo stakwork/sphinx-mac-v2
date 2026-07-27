@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol LoadableNib {
     var contentView: NSView! { get }
 }

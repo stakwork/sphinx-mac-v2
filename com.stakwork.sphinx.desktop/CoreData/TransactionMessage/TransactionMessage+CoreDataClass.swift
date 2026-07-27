@@ -11,7 +11,7 @@ import CoreData
 import SwiftyJSON
 
 @objc(TransactionMessage)
-public class TransactionMessage: NSManagedObject {
+public class TransactionMessage: NSManagedObject, @unchecked Sendable {
     
     var uploadingObject: AttachmentObject? = nil
     var uploadingProgress: Int? = nil
@@ -453,7 +453,7 @@ public class TransactionMessage: NSManagedObject {
         return message
     }
     
-    static func deleteMessageWith(
+    @MainActor static func deleteMessageWith(
         id: Int
     ) {
         if let message = TransactionMessage.getMessageWith(id: id) {

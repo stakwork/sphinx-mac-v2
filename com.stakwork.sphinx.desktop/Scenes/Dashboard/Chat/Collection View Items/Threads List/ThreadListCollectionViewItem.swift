@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ThreadListTableViewCellDelegate: AnyObject {
     func shouldLoadImageDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadPdfDataFor(messageId: Int, and rowIndex: Int)
@@ -58,6 +59,9 @@ class ThreadListCollectionViewItem: NSCollectionViewItem {
     
     @IBOutlet weak var repliesCountLabel: NSTextField!
     @IBOutlet weak var lastReplyDateLabel: NSTextField!
+    
+    @IBOutlet weak var mentionsBadgeContainer: NSBox!
+    @IBOutlet weak var mentionsBadgeLabel: NSTextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()

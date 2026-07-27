@@ -100,17 +100,18 @@ struct CallControlView: View {
                 }
                 
                 HStack(spacing: 8) {
+                    participantsButton
                     controlButtonsGroup
                     disconnectButton
                 }
-                .frame(width: 300, height: 80)
+                .frame(maxWidth: .infinity, minHeight: 80, maxHeight: 80)
                 .padding(.horizontal, 16.0)
                 .background(
                     onHover ? Color.clear.cornerRadius(8.0) : Color.black.opacity(0.9).cornerRadius(8.0)
                 )
             }
         }
-        .frame(width: 332, height: 100)
+        .frame(width: 392, height: 100)
         .background(
             onHover ? Color.black.opacity(0.9).cornerRadius(8.0) : Color.clear.cornerRadius(8.0)
         )
@@ -139,6 +140,43 @@ struct CallControlView: View {
     // MARK: - Extracted Views
 
     @ViewBuilder
+    private var participantsButton: some View {
+        HStack(spacing: 4.0) {
+            Button(action: {
+                withAnimation {
+                    roomCtx.showParticipantsView.toggle()
+                    if roomCtx.showParticipantsView { roomCtx.showMessagesView = false }
+                }
+            }, label: {
+                Image(systemSymbol: .person2Fill)
+                    .renderingMode(.template)
+                    .foregroundColor(Color.white)
+                    .font(.system(size: 18))
+            })
+            .background(Color.clear)
+            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .padding(.leading, 8.0)
+            .onHover { isHover in
+                if isHover { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
+            }
+            if room.allParticipants.count > 0 {
+                Text("\(room.allParticipants.count)")
+                    .font(Font(NSFont(name: "Roboto-Regular", size: 14.0)!))
+                    .foregroundColor(Color.white)
+                    .padding(.trailing, 8)
+            }
+        }
+        .frame(minWidth: 60.0)
+        .frame(height: 40.0)
+        .background(
+            roomCtx.showParticipantsView ?
+            Color(NSColor(hex: "#5078F2")).opacity(0.75).cornerRadius(8.0)
+            : Color(NSColor.Sphinx.MainBottomIcons).opacity(0.1).cornerRadius(8.0)
+        )
+    }
+
+    @ViewBuilder
     private var controlButtonsGroup: some View {
         Group {
             microphoneButton
@@ -154,11 +192,49 @@ struct CallControlView: View {
         let isMicrophoneEnabled = room.localParticipant.isMicrophoneEnabled()
         
         Button {
-            Task {
-                if AVCaptureDevice.default(for: .audio) != nil {
+            let status = AVCaptureDevice.authorizationStatus(for: .audio)
+            switch status {
+            case .denied, .restricted:
+                Task { @MainActor in
+                    AlertHelper.showTwoOptionsAlert(
+                        title: "Microphone Access Required",
+                        message: "Please enable microphone access in System Settings → Privacy & Security → Microphone.",
+                        confirm: {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+                        },
+                        confirmLabel: "Open Settings"
+                    )
+                }
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    guard granted else { return }
+                    Task { @MainActor in
+                        isMicrophonePublishingBusy = true
+                        defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
+                        do {
+                            try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                        } catch {
+                            AlertHelper.showAlert(
+                                title: "Microphone Error",
+                                message: error.localizedDescription
+                            )
+                        }
+                    }
+                }
+            default:
+                Task {
                     isMicrophonePublishingBusy = true
                     defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                    try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                    do {
+                        try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                    } catch {
+                        await MainActor.run {
+                            AlertHelper.showAlert(
+                                title: "Microphone Error",
+                                message: error.localizedDescription
+                            )
+                        }
+                    }
                 }
             }
         } label: {
@@ -195,7 +271,11 @@ struct CallControlView: View {
                Task {
                    isCameraPublishingBusy = true
                    defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                   try await room.localParticipant.setCamera(enabled: false)
+                   do {
+                       try await room.localParticipant.setCamera(enabled: false)
+                   } catch {
+                       print("CallControlView: failed to toggle camera: \(error)")
+                   }
                }
            } else {
                publishOptionsPickerPresented = true
@@ -277,7 +357,11 @@ struct CallControlView: View {
                    Task {
                        isScreenSharePublishingBusy = true
                        defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                       try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                       do {
+                           try await roomCtx.setScreenShareMacOS(isEnabled: false)
+                       } catch {
+                           print("CallControlView: failed to stop screen share: \(error)")
+                       }
                    }
                } else {
                    screenPickerPresented = true
@@ -351,9 +435,13 @@ struct CallControlView: View {
             cameraPublishOptions = publishOptions
             Task {
                 defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                try await room.localParticipant.setCamera(enabled: true,
-                                                          captureOptions: captureOptions,
-                                                          publishOptions: publishOptions)
+                do {
+                    try await room.localParticipant.setCamera(enabled: true,
+                                                              captureOptions: captureOptions,
+                                                              publishOptions: publishOptions)
+                } catch {
+                    print("CallControlView: failed to enable camera with options: \(error)")
+                }
             }
         }
         .padding()
@@ -375,7 +463,11 @@ struct CallControlView: View {
                 Task {
                     isScreenSharePublishingBusy = true
                     defer { Task { @MainActor in isScreenSharePublishingBusy = false } }
-                    try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                    do {
+                        try await roomCtx.setScreenShareMacOS(isEnabled: true, screenShareSource: source)
+                    } catch {
+                        print("CallControlView: failed to start screen share: \(error)")
+                    }
                 }
                 screenPickerPresented = false
             }

@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 class ClipboardHelper {
     
-    public static func copyToClipboard(text: String, message: String? = "text.copied.clipboard".localized, bubbleContainer: NSView? = nil) {
+    @MainActor public static func copyToClipboard(text: String, message: String? = "text.copied.clipboard".localized, bubbleContainer: NSView? = nil) {
         let pasteBoard = NSPasteboard.general
         pasteBoard.clearContents()
         pasteBoard.setString(text, forType: .string)
@@ -21,7 +21,7 @@ class ClipboardHelper {
         }
     }
     
-    public static func addImageToClipboard(image:NSImage,bubbleContainer: NSView? = nil){
+    @MainActor public static func addImageToClipboard(image:NSImage,bubbleContainer: NSView? = nil){
         if let cgImage = image.cgImage{
             let pasteBoard = NSPasteboard.general
             pasteBoard.clearContents()
@@ -34,7 +34,7 @@ class ClipboardHelper {
         }
     }
     
-    public static func addVcImageToClipboard(
+    @MainActor public static func addVcImageToClipboard(
         screenshot: NSImage,
         bubbleContainer: NSView? = nil
     ) {

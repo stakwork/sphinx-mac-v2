@@ -11,6 +11,7 @@
 
 #import "sphinxrsFFI.h"
 #import "String+Geometrics.h"
+#import "NSException+Catcher.h"
 
 
 #endif /* Sphinxrs_Bridging_Header_h */

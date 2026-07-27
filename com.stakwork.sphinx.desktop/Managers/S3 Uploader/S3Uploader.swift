@@ -69,7 +69,7 @@ class S3Uploader {
     func uploadFile(
         fileURL: URL,
         key: String,
-        progressHandler: ((Double) -> Void)? = nil
+        progressHandler: (@Sendable (Double) -> Void)? = nil
     ) async throws -> String {
         
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
@@ -153,7 +153,7 @@ class S3Uploader {
     func uploadLargeFile(
         fileURL: URL,
         key: String,
-        progressHandler: ((Double) -> Void)? = nil
+        progressHandler: (@Sendable (Double) -> Void)? = nil
     ) async throws -> String {
         
         // For local, just use regular upload

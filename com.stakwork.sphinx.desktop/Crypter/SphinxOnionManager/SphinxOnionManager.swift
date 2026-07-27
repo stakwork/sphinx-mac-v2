@@ -12,9 +12,9 @@ import SwiftyJSON
 import CoreData
 
 
-class SphinxOnionManager : NSObject {
+class SphinxOnionManager : NSObject, @unchecked Sendable {
     
-    private static var _sharedInstance: SphinxOnionManager? = nil
+    nonisolated(unsafe) private static var _sharedInstance: SphinxOnionManager? = nil
 
     static var sharedInstance: SphinxOnionManager {
         if _sharedInstance == nil {
@@ -36,8 +36,12 @@ class SphinxOnionManager : NSObject {
     var stashedInviteCode: String? = nil
     var stashedInviterAlias: String? = nil
     
-    var watchdogTimer: Timer? = nil
+    static let kMqttKeepAlive: UInt16 = 15
+    static let kConnectionTimeoutInterval: TimeInterval = 15.0
+    static let kMessageFetchTimeout: TimeInterval = 30.0
+    
     var reconnectionTimer: Timer? = nil
+    var messageFetchTimeoutTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
     var paymentTimeoutTimers: [String: Timer] = [:]
     
@@ -67,6 +71,9 @@ class SphinxOnionManager : NSObject {
     
     var mqtt: CocoaMQTT! = nil
     var vc: NSViewController! = nil
+    var connectingStartTime: Date? = nil
+    private var connectionInProgress: Bool = false
+    private var connectionTimeoutTimer: Timer?
     
     var isConnected : Bool = false{
         didSet{
@@ -89,6 +96,8 @@ class SphinxOnionManager : NSObject {
     var tribeMembersCallback: (([String: AnyObject]) -> ())? = nil
     var paymentsHistoryCallback: ((String?, String?) -> ())? = nil
     var inviteCreationCallback: ((String?) -> ())? = nil
+    var invoiceGeneratedCallback: ((String?) -> Void)? = nil
+    var invoiceGeneratedTimeoutTimer: Timer? = nil
     var mqttDisconnectCallback: (() -> ())? = nil
     
     ///Session Pin to decrypt mnemonic and seed
@@ -118,8 +127,8 @@ class SphinxOnionManager : NSObject {
     }
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
-    let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-    let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+    nonisolated(unsafe) let managedContext: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    nonisolated(unsafe) let backgroundContext: NSManagedObjectContext = CoreDataManager.sharedManager.getBackgroundContext()
     
     //MARK: Hardcoded Values!
     var serverIP: String {
@@ -264,7 +273,11 @@ class SphinxOnionManager : NSObject {
         var result : String? = nil
         do {
             result = try Sphinx.mnemonicFromEntropy(
-                entropy: Data.randomBytes(length: 16).hexString
+                entropy: {
+                    var bytes = [UInt8](repeating: 0, count: 16)
+                    SecRandomCopyBytes(kSecRandomDefault, 16, &bytes)
+                    return Data(bytes).hexString
+                }()
             )
             guard let result = result else {
                 return nil
@@ -335,7 +348,8 @@ class SphinxOnionManager : NSObject {
             
             mqtt.username = now
             mqtt.password = sig
-            
+            mqtt.keepAlive = SphinxOnionManager.kMqttKeepAlive
+
             if isProductionEnv {
                 mqtt.enableSSL = true
                 mqtt.allowUntrustCACertificate = true
@@ -347,6 +361,7 @@ class SphinxOnionManager : NSObject {
             
             let success = mqtt.connect()
             print("mqtt.connect success:\(success)")
+            if success { connectingStartTime = Date() }
             return success
         } catch {
             return false
@@ -356,6 +371,8 @@ class SphinxOnionManager : NSObject {
     func disconnectMqtt(
         callback: (() -> ())? = nil
     ) {
+        connectionTimeoutTimer?.invalidate()
+        connectionTimeoutTimer = nil
         if self.mqtt == nil || mqtt?.connState == .disconnected {
             callback?()
             return
@@ -370,14 +387,24 @@ class SphinxOnionManager : NSObject {
     
     func reconnectToServer(
         connectingCallback: (() -> ())? = nil,
-        hideRestoreViewCallback: ((Bool)->())? = nil
+        hideRestoreViewCallback: ((Bool)->())? = nil,
+        forceReconnect: Bool = false
     ) {
-        if let mqtt = self.mqtt, mqtt.connState == .connected && isConnected {
-            if !isV2Restore {
-                getReads()
-                hideRestoreViewCallback?(false)
+        if let mqtt = self.mqtt, !forceReconnect {
+            if mqtt.connState == .connecting {
+                // Treat stale connecting attempts (>10s) as failed and retry
+                if let startTime = connectingStartTime, Date().timeIntervalSince(startTime) < 10.0 {
+                    return
+                }
+            } else if mqtt.connState == .connected && isConnected {
+                if !isV2Restore {
+                    if !isFetchingContent() {
+                        startNewMsgsSync()
+                    }
+                    hideRestoreViewCallback?(false)
+                }
+                return
             }
-            return
         }
         connectToServer(
             connectingCallback: connectingCallback,
@@ -418,30 +445,60 @@ class SphinxOnionManager : NSObject {
             return
         }
         
-        mqtt?.disconnect()
-        
+        guard !connectionInProgress else {
+            print("[MQTT] connectToServer skipped — connection already in progress")
+            return
+        }
+        connectionInProgress = true
+
         if isV2Restore {
             contactRestoreCallback?(2)
         }
-        
+
         self.hideRestoreCallback = hideRestoreViewCallback
         self.contactRestoreCallback = contactRestoreCallback
         self.messageRestoreCallback = messageRestoreCallback
-        
+
         let success = connectToBroker(seed: seed, xpub: my_xpub)
-        
+
         if (success == false) {
+            connectionInProgress = false
             hideRestoreViewCallback?(false)
             return
         }
-        
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.connectionTimeoutTimer?.invalidate()
+            self.connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: SphinxOnionManager.kConnectionTimeoutInterval, repeats: false) { [weak self] _ in
+                guard let self = self, self.connectionInProgress else { return }
+                print("[MQTT] Connection timed out after \(Int(SphinxOnionManager.kConnectionTimeoutInterval))s — force-closing and retrying")
+                self.connectionInProgress = false
+                let dead = self.mqtt
+                self.mqtt = nil
+                dead?.didDisconnect = { _, _ in }
+                dead?.didConnectAck = { _, _ in }
+                dead?.disconnect()
+                self.startReconnectionTimer(delay: 2.0)
+            }
+        }
+
+        let connectingMqtt = mqtt
         mqtt.didConnectAck = { [weak self] _, _ in
             guard let self = self else {
                 return
             }
-            
-            self.endReconnectionTimer()
+            // If self.mqtt has been replaced by a newer connection, discard this stale ack
+            guard self.mqtt === connectingMqtt else {
+                connectingMqtt?.disconnect()
+                return
+            }
+
+            self.connectionTimeoutTimer?.invalidate()
+            self.connectionTimeoutTimer = nil
             self.isConnected = true
+            self.connectionInProgress = false
+            self.endReconnectionTimer()
             
             self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
             
@@ -469,11 +526,18 @@ class SphinxOnionManager : NSObject {
             completionHandler(true)
         }
         
-        mqtt.didDisconnect = { _, _ in
+        let disconnectingMqtt = mqtt
+        mqtt.didDisconnect = { [weak self] _, _ in
+            guard let self = self else { return }
+            self.connectionTimeoutTimer?.invalidate()
+            self.connectionTimeoutTimer = nil
+            self.connectionInProgress = false
             self.isConnected = false
             self.mqttDisconnectCallback?()
-            self.mqtt = nil
-            self.startReconnectionTimer()
+            if self.mqtt === disconnectingMqtt {
+                self.mqtt = nil
+                self.startReconnectionTimer()
+            }
         }
     }
     
@@ -539,7 +603,7 @@ class SphinxOnionManager : NSObject {
             )
             
             self.mqtt.subscribe([
-                (tribeMgmtTopic, CocoaMQTTQoS.qos1)
+                (tribeMgmtTopic, CocoaMQTTQoS.qos0)
             ])
         } catch {}
     }
@@ -563,7 +627,7 @@ class SphinxOnionManager : NSObject {
     func listAndUpdateContacts() {
         do {
             let listContactsResponse = try Sphinx.listContacts(state: loadOnionStateAsData())
-            print("MY LIST CONTACTS RESPONSE \(listContactsResponse)")
+
         } catch {}
     }
     
@@ -655,18 +719,20 @@ class SphinxOnionManager : NSObject {
     }
     
     func showSuccessWithMessage(_ message: String) {
-        self.newMessageBubbleHelper.showGenericMessageView(
-            text: message,
-            delay: 6,
-            textColor: NSColor.white,
-            backColor: NSColor.Sphinx.PrimaryGreen,
-            backAlpha: 1.0
-        )
+        Task { @MainActor in
+            self.newMessageBubbleHelper.showGenericMessageView(
+                text: message,
+                delay: 6,
+                textColor: NSColor.white,
+                backColor: NSColor.Sphinx.PrimaryGreen,
+                backAlpha: 1.0
+            )
+        }
     }
 }
 
 extension SphinxOnionManager {//Sign Up UI Related:
-    func showMnemonicToUser(
+    @MainActor func showMnemonicToUser(
         completion:@escaping (Bool)->()
     ){
         let generateSeedCallback: (() -> ()) = {
@@ -685,16 +751,16 @@ extension SphinxOnionManager {//Sign Up UI Related:
     
     func importSeedPhrase(){
         if let vc = self.vc as? ImportSeedViewDelegate {
-            vc.showImportSeedView()
+            Task { @MainActor in vc.showImportSeedView() }
         }
     }
     
-    func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
+    @MainActor func showMnemonicToUser(mnemonic: String, callback: @escaping () -> ()) {
         guard let _ = vc else {
             callback()
             return
         }
-        
+
         AlertHelper.showAlert(
             title: "profile.store-mnemonic".localized,
             message: mnemonic,

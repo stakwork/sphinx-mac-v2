@@ -29,6 +29,7 @@ extension UserContact {
     @NSManaged public var timeZone: String?
     @NSManaged public var contactKey: String?
     @NSManaged public var fromGroup: Bool
+    @NSManaged public var isAgent: Bool
     @NSManaged public var privatePhoto: Bool
     @NSManaged public var tipAmount: Int
     @NSManaged public var pin: String?

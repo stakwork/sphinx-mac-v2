@@ -11,7 +11,7 @@ import CoreData
 import SwiftyJSON
 
 @objc(Chat)
-public class Chat: NSManagedObject {
+public class Chat: NSManagedObject, @unchecked Sendable {
     
     public var conversationContact : UserContact? = nil
     public var tribeAdmin: UserContact? = nil
@@ -50,7 +50,7 @@ public class Chat: NSManagedObject {
             let data = try JSONSerialization.data(withJSONObject: array)
             if let jsonString = String(data: data, encoding: .utf8) {
                 membersAliasesData = jsonString
-                managedObjectContext?.saveContext()
+                // no save — dirty mark committed by next upstream saveContext()
             }
         } catch {
             print("Failed to encode membersAliasesData: \(error)")
@@ -60,12 +60,12 @@ public class Chat: NSManagedObject {
     /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new
     private func mergeAliasAndPic(alias: String, pic: String) {
         if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
-            // Update existing entry with new pic if provided
+            // Update pic only if a non-empty value is provided
             if pic.isNotEmpty {
                 aliasesAndPics[index] = (alias, pic)
             }
-        } else if !aliasesAndPics.contains(where: { $0.1 == pic && pic.isNotEmpty }) {
-            // Add new entry if alias doesn't exist and pic is unique (or empty)
+        } else {
+            // Always insert a new alias — pic URL is not a uniqueness signal
             aliasesAndPics.append((alias, pic))
         }
     }
@@ -346,17 +346,18 @@ public class Chat: NSManagedObject {
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
-        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+        let results: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
             entityName: "Chat",
             fetchLimit: 1,
             managedContext: context
-        ).first
-        
+        )
+        let chat: Chat? = results.first
+
         return chat
     }
-    
+
     static func getTribeChatWithOwnerPubkey(
         ownerPubkey: String,
         context: NSManagedObjectContext? = nil
@@ -369,17 +370,18 @@ public class Chat: NSManagedObject {
         
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
-        let chat : Chat? = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+        let results2: [Chat] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
             entityName: "Chat",
             fetchLimit: 1,
             managedContext: context
-        ).first
-        
+        )
+        let chat: Chat? = results2.first
+
         return chat
     }
-    
+
     static func getChatTribesFor(
         ownerPubkeys: [String],
         context: NSManagedObjectContext? = nil
@@ -437,15 +439,16 @@ public class Chat: NSManagedObject {
         }
         
         let context = CoreDataManager.sharedManager.getBackgroundContext()
-        
-        context.performSafely { [weak self] in
-            guard let self = self else {
+        let chatId = self.id
+
+        context.performSafely {
+            guard let chat = Chat.getChatWith(id: chatId, managedContext: context) else {
                 return
             }
 
             let messages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
                 predicate: TransactionMessage.getPredicate(
-                    chat: self,
+                    chat: chat,
                     threadUUID: nil,
                     typesToExclude: [],
                     pinnedMessageId: nil
@@ -454,12 +457,12 @@ public class Chat: NSManagedObject {
                 entityName: "TransactionMessage",
                 managedContext: context
             )
-            
+
             if messages.isEmpty {
                 return
             }
-            
-            self.processAliasesFrom(messages: messages.reversed())
+
+            chat.processAliasesFrom(messages: messages.reversed())
         }
     }
     
@@ -531,7 +534,7 @@ public class Chat: NSManagedObject {
             timezoneData[tuple.0] == nil ? tuple.0 : nil
         }
 
-        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self)
+        let newTimezoneMap = TransactionMessage.getTimezonesByAlias(for: aliasesWithoutTimezone, in: self, context: managedObjectContext)
 
         timezoneData = timezoneData.merging(newTimezoneMap) { (existing, new) in
             return existing  // Keep original value
@@ -580,19 +583,22 @@ public class Chat: NSManagedObject {
         return TransactionMessage.getAllMessagesCountFor(chat: self)
     }
     
-    func setChatMessagesAsSeen(
+    @MainActor func setChatMessagesAsSeen(
         shouldSync: Bool = true,
         shouldSave: Bool = true,
         forceSeen: Bool = false
     ) {
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
-        if NSApplication.shared.isActive || forceSeen {
-            backgroundContext.performSafely { [weak self] in
-                guard let self = self else {
-                    return
-                }
-                guard let chat = Chat.getChatWith(id: self.id, managedContext: backgroundContext) else {
+        // Capture primitive id before crossing context boundary (Swift 6 threading safety)
+        let chatId = self.id
+        
+        // Read MainActor-isolated property on the main thread
+        let isAppActive = Thread.isMainThread ? NSApplication.shared.isActive : false
+        
+        if isAppActive || forceSeen {
+            backgroundContext.performSafely {
+                guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
                     return
                 }
                 let receivedUnseenMessages = chat.getReceivedUnseenMessages(context: backgroundContext)
@@ -610,6 +616,9 @@ public class Chat: NSManagedObject {
                 chat.unseenMessagesCount = 0
                 chat.unseenMentionsCount = 0
                 
+                var readLevelIndex: UInt64? = nil
+                let chatId = chat.id
+
                 if let lastMessage = chat.getLastMessageToShow(
                     includeContactKeyTypes: true,
                     sortById: true,
@@ -617,29 +626,31 @@ public class Chat: NSManagedObject {
                 ) {
                     if lastMessage.isKeyExchangeType() || (lastMessage.isTribeInitialMessageType() && chat.messages?.count == 1) {
                         if let maxMessageIndex = TransactionMessage.getMaxIndex(context: backgroundContext) {
-                            let _  = SphinxOnionManager.sharedInstance.setReadLevel(
-                                index: UInt64(maxMessageIndex),
-                                chat: chat,
-                                recipContact: chat.getConversationContact(context: backgroundContext)
-                            )
+                            readLevelIndex = UInt64(maxMessageIndex)
                         }
                     } else if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
-                        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
-                            index: UInt64(lastMessage.id),
-                            chat: chat,
-                            recipContact: chat.getConversationContact(context: backgroundContext)
-                        )
+                        readLevelIndex = UInt64(lastMessage.id)
                     }
                 }
-                
+
                 backgroundContext.saveContext()
+
+                if let index = readLevelIndex {
+                    DispatchQueue.main.async {
+                        if let currentChat = Chat.getChatWith(id: chatId) {
+                            guard currentChat.getConversationContact()?.isAgent != true else { return }
+                            let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                                index: index,
+                                chat: currentChat,
+                                recipContact: currentChat.getConversationContact()
+                            )
+                        }
+                    }
+                }
             }
         }
         
-        backgroundContext.performSafely { [weak self] in
-            guard let _ = self else {
-                return
-            }
+        backgroundContext.performSafely {
             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
             
             DispatchQueue.main.async {
@@ -650,6 +661,70 @@ public class Chat: NSManagedObject {
         }
     }
     
+    @MainActor func setThreadMessagesAsSeen(threadUUID: String) {
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let chatId = self.id
+
+        backgroundContext.performSafely {
+            guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
+                return
+            }
+
+            let userId = UserData.sharedInstance.getUserId()
+            let predicate = NSPredicate(
+                format: "(senderId != %d || type == %d) AND chat == %@ AND threadUUID == %@ AND seen == %@",
+                userId,
+                TransactionMessage.TransactionMessageType.groupJoin.rawValue,
+                chat,
+                threadUUID,
+                NSNumber(booleanLiteral: false)
+            )
+            let unseenThreadMessages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
+                predicate: predicate,
+                sortDescriptors: [],
+                entityName: "TransactionMessage",
+                managedContext: backgroundContext
+            )
+
+            for m in unseenThreadMessages {
+                m.seen = true
+            }
+
+            var readLevelIndex: UInt64? = nil
+
+            if !unseenThreadMessages.isEmpty,
+               let lastMessage = chat.getLastMessageToShow(sortById: true, context: backgroundContext),
+               let maxThreadId = unseenThreadMessages.map({ $0.id }).max(),
+               maxThreadId == lastMessage.id,
+               !chat.seen
+            {
+                chat.seen = true
+                if SphinxOnionManager.sharedInstance.messageIdIsFromHashed(msgId: lastMessage.id) == false {
+                    readLevelIndex = UInt64(lastMessage.id)
+                }
+            }
+
+            backgroundContext.saveContext()
+
+            if let index = readLevelIndex {
+                DispatchQueue.main.async {
+                    if let currentChat = Chat.getChatWith(id: chatId) {
+                        guard currentChat.getConversationContact()?.isAgent != true else { return }
+                        let _ = SphinxOnionManager.sharedInstance.setReadLevel(
+                            index: index,
+                            chat: currentChat,
+                            recipContact: currentChat.getConversationContact()
+                        )
+                    }
+                }
+            }
+
+            DispatchQueue.main.async {
+                self.calculateBadge()
+            }
+        }
+    }
+
     static func updateMessageReadStatus(
         chatId: Int,
         lastReadId: Int,
@@ -676,11 +751,12 @@ public class Chat: NSManagedObject {
                     }
                     message.seen = true
                 } else {
-                    message.seen = false
-                    message.chat?.seen = false
+                    if !message.seen {
+                        message.chat?.seen = false
+                    }
                 }
             }
-            try managedContext.save()
+            // save is handled by context.saveContext() in handleReadStatus after this returns
         } catch let error as NSError {
             print("Error updating messages read status: \(error), \(error.userInfo)")
         }
@@ -902,7 +978,9 @@ public class Chat: NSManagedObject {
     
     public func updateLastMessage() {
         if lastMessage == nil && messages?.count ?? 0 > 0 {
-            lastMessage = getLastMessageToShow()
+            if let lastM = getLastMessageToShow() {
+                lastMessage = lastM
+            }
         }
     }
     
@@ -966,7 +1044,7 @@ public class Chat: NSManagedObject {
         return getContactIdsArray().contains(id)
     }
     
-    func updateTribeInfo(completion: @escaping () -> ()) {
+    @MainActor func updateTribeInfo(completion: @escaping () -> ()) {
         let host = SphinxOnionManager.sharedInstance.tribesServerIP
         
         if let uuid = ownerPubkey,
@@ -977,7 +1055,17 @@ public class Chat: NSManagedObject {
                 host: host,
                 uuid: uuid,
                 callback: { chatJson in
+                    let oldAppUrl = self.tribeInfo?.appUrl
+                    let oldSecondBrainUrl = self.tribeInfo?.secondBrainUrl
                     self.tribeInfo = GroupsManager.sharedInstance.getTribesInfoFrom(json: chatJson)
+                    let newAppUrl = self.tribeInfo?.appUrl
+                    let newSecondBrainUrl = self.tribeInfo?.secondBrainUrl
+                    if oldAppUrl != newAppUrl {
+                        WebAppSessionManager.sharedInstance.evict(chatId: self.id, isAppURL: true)
+                    }
+                    if oldSecondBrainUrl != newSecondBrainUrl {
+                        WebAppSessionManager.sharedInstance.evict(chatId: self.id, isAppURL: false)
+                    }
                     self.updateChatFromTribesInfo()
                     
                     if let feedUrl = self.tribeInfo?.feedUrl, !feedUrl.isEmpty {

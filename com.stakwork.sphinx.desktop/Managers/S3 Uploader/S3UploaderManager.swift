@@ -8,7 +8,7 @@
 import Foundation
 import AWSS3
 
-class S3UploaderManager {
+class S3UploaderManager: @unchecked Sendable {
     
     class var sharedInstance : S3UploaderManager {
         struct Static {

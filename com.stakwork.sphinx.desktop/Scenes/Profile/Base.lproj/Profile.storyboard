@@ -1,12 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Setup AI Agent View Controller-->
+        <scene sceneID="aai-ag-001">
+            <objects>
+                <viewController storyboardIdentifier="SetupAIAgentViewController" id="aai-vc-001" customClass="SetupAIAgentViewController" customModule="Sphinx" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="aai-vw-001">
+                        <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderType="none" borderWidth="0.0" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="aai-bx-001">
+                                <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
+                                <view key="contentView" id="aai-cv-001">
+                                    <rect key="frame" x="0.0" y="0.0" width="400" height="490"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <color key="fillColor" name="Body"/>
+                            </box>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-pf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="308" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-ph-001"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-kf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="228" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-kh-001"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-nf-001" customClass="SignupFieldView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="228" width="272" height="68"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="aai-nh-001"/>
+                                </constraints>
+                            </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="aai-bt-001" customClass="SignupButtonView" customModule="Sphinx" customModuleProvider="target">
+                                <rect key="frame" x="64" y="65" width="272" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="aai-bh-001"/>
+                                </constraints>
+                            </customView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="aai-bx-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" id="aai-c-001"/>
+                            <constraint firstItem="aai-bx-001" firstAttribute="top" secondItem="aai-vw-001" secondAttribute="top" id="aai-c-002"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-bx-001" secondAttribute="trailing" id="aai-c-003"/>
+                            <constraint firstAttribute="bottom" secondItem="aai-bx-001" secondAttribute="bottom" id="aai-c-004"/>
+                            <constraint firstItem="aai-pf-001" firstAttribute="top" secondItem="aai-vw-001" secondAttribute="top" constant="32" id="aai-c-005"/>
+                            <constraint firstItem="aai-pf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-006"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-pf-001" secondAttribute="trailing" constant="64" id="aai-c-007"/>
+                            <constraint firstItem="aai-kf-001" firstAttribute="top" secondItem="aai-pf-001" secondAttribute="bottom" constant="12" id="aai-c-008"/>
+                            <constraint firstItem="aai-kf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-009"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-kf-001" secondAttribute="trailing" constant="64" id="aai-c-010"/>
+                            <constraint firstItem="aai-nf-001" firstAttribute="top" secondItem="aai-kf-001" secondAttribute="bottom" constant="12" id="aai-c-014"/>
+                            <constraint firstItem="aai-nf-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-015"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-nf-001" secondAttribute="trailing" constant="64" id="aai-c-016"/>
+                            <constraint firstItem="aai-bt-001" firstAttribute="leading" secondItem="aai-vw-001" secondAttribute="leading" constant="64" id="aai-c-011"/>
+                            <constraint firstAttribute="trailing" secondItem="aai-bt-001" secondAttribute="trailing" constant="64" id="aai-c-012"/>
+                            <constraint firstAttribute="bottom" secondItem="aai-bt-001" secondAttribute="bottom" constant="65" id="aai-c-013"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="providerFieldView" destination="aai-pf-001" id="aai-o-001"/>
+                        <outlet property="apiKeyFieldView" destination="aai-kf-001" id="aai-o-002"/>
+                        <outlet property="agentNameFieldView" destination="aai-nf-001" id="aai-o-004"/>
+                        <outlet property="confirmButtonView" destination="aai-bt-001" id="aai-o-003"/>
+                    </connections>
+                </viewController>
+                <customObject id="aai-fr-001" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-900" y="249.5"/>
+        </scene>
         <!--Setup Personal Graph View Controller-->
         <scene sceneID="3Pt-5i-8Fb">
             <objects>
@@ -820,12 +891,12 @@ with contacts</string>
                                                         </constraints>
                                                     </customView>
                                                     <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="T8K-Kg-5gY">
-                                                        <rect key="frame" x="0.0" y="214" width="414" height="555"/>
+                                                        <rect key="frame" x="0.0" y="214" width="414" height="635"/>
                                                         <subviews>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="p1M-yS-Ktl">
-                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="635"/>
                                                                 <view key="contentView" id="76N-0s-umu">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="555"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="414" height="635"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="2tJ-IM-OLS">
@@ -914,6 +985,38 @@ with contacts</string>
                                                                             </constraints>
                                                                             <color key="fillColor" name="Body"/>
                                                                         </box>
+                                                                        <box boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="A1B-C2-D3E">
+                                                                            <rect key="frame" x="0.0" y="200" width="414" height="80"/>
+                                                                            <view key="contentView" id="A1B-C2-F4G">
+                                                                                <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                                <subviews>
+                                                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="A1B-C2-H5I" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                                                                        <buttonCell key="cell" type="square" title="Configure AI Agent" bezelStyle="shadowlessSquare" alignment="center" imageScaling="proportionallyDown" inset="2" id="A1B-C2-J6K">
+                                                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                                            <font key="font" size="12" name="Roboto-Medium"/>
+                                                                                        </buttonCell>
+                                                                                        <color key="contentTintColor" name="PrimaryBlue"/>
+                                                                                        <constraints>
+                                                                                            <constraint firstAttribute="height" constant="80" id="A1B-C2-L7M"/>
+                                                                                        </constraints>
+                                                                                        <connections>
+                                                                                            <action selector="configureAIAgentButtonClicked:" target="nVT-b1-Xti" id="A1B-C2-R0S"/>
+                                                                                        </connections>
+                                                                                    </button>
+                                                                                </subviews>
+                                                                                <constraints>
+                                                                                    <constraint firstAttribute="bottom" secondItem="A1B-C2-H5I" secondAttribute="bottom" id="A1B-C2-N8O"/>
+                                                                                    <constraint firstItem="A1B-C2-H5I" firstAttribute="leading" secondItem="A1B-C2-F4G" secondAttribute="leading" id="A1B-C2-P9Q"/>
+                                                                                    <constraint firstAttribute="trailing" secondItem="A1B-C2-H5I" secondAttribute="trailing" id="A1B-C2-L7MT"/>
+                                                                                </constraints>
+                                                                            </view>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="80" id="A1B-C2-HHH"/>
+                                                                            </constraints>
+                                                                            <color key="fillColor" name="Body"/>
+                                                                        </box>
                                                                         <box hidden="YES" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="TFx-jf-Byq">
                                                                             <rect key="frame" x="0.0" y="200" width="414" height="80"/>
                                                                             <view key="contentView" id="h2o-0A-9Pj">
@@ -994,7 +1097,10 @@ with contacts</string>
                                                                         <constraint firstAttribute="trailing" secondItem="2tJ-IM-OLS" secondAttribute="trailing" id="dJ0-Xl-5Zd"/>
                                                                         <constraint firstAttribute="trailing" secondItem="8uj-eM-lzW" secondAttribute="trailing" id="nRg-Cy-fM1"/>
                                                                         <constraint firstAttribute="trailing" secondItem="Ugr-dN-uij" secondAttribute="trailing" id="xmr-WB-Pp2"/>
-                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="Ugr-dN-uij" secondAttribute="bottom" constant="10" id="xxE-c9-HHq"/>
+                                                                        <constraint firstItem="A1B-C2-D3E" firstAttribute="top" secondItem="Ugr-dN-uij" secondAttribute="bottom" constant="10" id="xxE-c9-HHq"/>
+                                                                        <constraint firstItem="A1B-C2-D3E" firstAttribute="leading" secondItem="76N-0s-umu" secondAttribute="leading" id="A1B-CC-LD1"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="A1B-C2-D3E" secondAttribute="trailing" id="A1B-CC-TR1"/>
+                                                                        <constraint firstItem="TFx-jf-Byq" firstAttribute="top" secondItem="A1B-C2-D3E" secondAttribute="bottom" constant="10" id="A1B-CC-HQ1"/>
                                                                     </constraints>
                                                                 </view>
                                                                 <color key="fillColor" name="HeaderBG"/>
@@ -1002,7 +1108,7 @@ with contacts</string>
                                                         </subviews>
                                                         <constraints>
                                                             <constraint firstItem="p1M-yS-Ktl" firstAttribute="top" secondItem="T8K-Kg-5gY" secondAttribute="top" id="6O7-mA-1CC"/>
-                                                            <constraint firstAttribute="height" constant="555" id="Lx0-Dw-ijg"/>
+                                                            <constraint firstAttribute="height" constant="635" id="Lx0-Dw-ijg"/>
                                                             <constraint firstAttribute="trailing" secondItem="p1M-yS-Ktl" secondAttribute="trailing" id="Xiq-6y-fhK"/>
                                                             <constraint firstItem="p1M-yS-Ktl" firstAttribute="leading" secondItem="T8K-Kg-5gY" secondAttribute="leading" id="bEz-0I-D1x"/>
                                                             <constraint firstAttribute="bottom" secondItem="p1M-yS-Ktl" secondAttribute="bottom" id="scp-X9-gIq"/>

@@ -18,14 +18,14 @@ import LiveKit
 import SwiftUI
 import AVFoundation
 
-protocol RoomContextDelegate: AnyObject {
+@MainActor protocol RoomContextDelegate: AnyObject {
     func createControlsPanel()
     func presentCallControlWindowWith(roomCtx: RoomContext)
     func hideCallControlWindow(forceClose: Bool)
 }
 
 // This class contains the logic to control behavior of the whole app.
-final class RoomContext: NSObject, ObservableObject {
+final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     
     weak var delegate: RoomContextDelegate?
     
@@ -40,10 +40,7 @@ final class RoomContext: NSObject, ObservableObject {
 
     private let store: ValueStore<Preferences>
 
-    // Used to show connection error dialog
-    // private var didClose: Bool = false
-    @Published var shouldShowDisconnectReason: Bool = false
-    public var latestError: LiveKitError?
+
 
     public var room: Room!
 
@@ -58,6 +55,9 @@ final class RoomContext: NSObject, ObservableObject {
     }
     
     @Published var tribeImage: String? = nil
+    
+    @Published var isAdmin: Bool = false
+    var adminToken: String = ""
 
     @Published var e2eeKey: String = "" {
         didSet { store.value.e2eeKey = e2eeKey }
@@ -138,7 +138,7 @@ final class RoomContext: NSObject, ObservableObject {
     }
     
 
-    public init(
+    @MainActor public init(
         store: ValueStore<Preferences>,
         delegate: RoomContextDelegate
     ) {
@@ -204,10 +204,8 @@ final class RoomContext: NSObject, ObservableObject {
             e2eeKey = entry.e2eeKey
         }
         
-        let hasMicrophone = AVCaptureDevice.default(for: .audio) != nil
-
         let connectOptions = ConnectOptions(
-            autoSubscribe: autoSubscribe && hasMicrophone
+            autoSubscribe: autoSubscribe
         )
 
         var e2eeOptions: E2EEOptions? = nil
@@ -254,7 +252,16 @@ final class RoomContext: NSObject, ObservableObject {
     }
 
     func disconnect() async {
+        if room.connectionState == .connected {
+            try? await room.localParticipant.setMicrophone(enabled: false)
+        }
         await room.disconnect()
+        // Hold a strong reference to Room for a moment after disconnect so that
+        // LiveKit's background audio threads (AVAudioEngine, AUVoiceProcessor)
+        // can finish tearing down before Room is deallocated. Without this, the
+        // AUVoiceProcessor property-change callback fires concurrently with
+        // AVAudioEngine.dealloc, causing a SIGSEGV on the audio dispatch queue.
+        try? await Task.sleep(for: .milliseconds(500))
     }
 
     func sendMessage() {
@@ -297,8 +304,8 @@ final class RoomContext: NSObject, ObservableObject {
         @available(macOS 12.3, *)
         func setScreenShareMacOS(isEnabled: Bool, screenShareSource: MacOSScreenCaptureSource? = nil) async throws {
             if isEnabled, let screenShareSource {
-                let windowsToExcludeIds = WindowsManager.sharedInstance.getWindowsToExclude()
-                
+                let windowsToExcludeIds = await WindowsManager.sharedInstance.getWindowsToExclude()
+
                 let track = LocalVideoTrack.createMacOSScreenShareTrack(
                     source: screenShareSource,
                     options: ScreenShareCaptureOptions(
@@ -344,29 +351,12 @@ extension RoomContext: RoomDelegate {
         print("Did update connectionState \(oldValue) -> \(connectionState)")
 
         if case .disconnected = connectionState {
-            if let error = room.disconnectError {
-                if error.type == .cancelled {
-                    onCallEnded?()
-                } else {
-                    latestError = room.disconnectError
-
-                    Task.detached { @MainActor [weak self] in
-                        guard let self else { return }
-                        self.shouldShowDisconnectReason = true
-                        // Reset state
-                        self.focusParticipant = nil
-                        self.textFieldString = ""
-                        self.showMessagesView = false
-                        self.messages.removeAll()
-                        // self.objectWillChange.send()
-                    }
-                }
-            } else {
-                onCallEnded?()
-            }
+            onCallEnded?()
         }
         
-        if case .connected = connectionState {
+        if case .connected = connectionState, case .reconnecting = oldValue {
+            // skip onConnected on reconnect — mic is already published
+        } else if case .connected = connectionState {
             onConnected?()
         }
     }
@@ -415,7 +405,7 @@ extension RoomContext: RoomDelegate {
     }
 
     func room(_: Room, participant _: Participant, trackPublication _: TrackPublication, didReceiveTranscriptionSegments segments: [TranscriptionSegment]) {
-        print("didReceiveTranscriptionSegments: \(segments.map { "(\($0.id): \($0.text), \($0.firstReceivedTime)-\($0.lastReceivedTime), \($0.isFinal))" }.joined(separator: ", "))")
+
     }
 
     func room(_: Room, trackPublication _: TrackPublication, didUpdateE2EEState state: E2EEState) {
@@ -423,7 +413,7 @@ extension RoomContext: RoomDelegate {
     }
     
     func room(_ room: Room, didUpdateIsRecording isRecording: Bool) {
-        print("didUpdateIsRecording: \(isRecording)")
+
     }
 }
 

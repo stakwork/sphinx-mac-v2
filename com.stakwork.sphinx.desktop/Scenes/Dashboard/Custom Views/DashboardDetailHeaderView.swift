@@ -8,10 +8,12 @@
 
 import Cocoa
 
+@MainActor
 protocol DetailHeaderViewDelegate: AnyObject {
     func backButtonTapped()
     func closeButtonTapped()
     func openInNSTapped()
+    func callButtonTapped()
 }
 class DashboardDetailHeaderView: NSView, LoadableNib {
     
@@ -23,6 +25,8 @@ class DashboardDetailHeaderView: NSView, LoadableNib {
     @IBOutlet weak var headerTitle: NSTextField!
     @IBOutlet weak var openNWContainer: NSBox!
     @IBOutlet weak var openNWButton: CustomButton!
+    @IBOutlet weak var callContainer: NSBox!
+    @IBOutlet weak var callButton: CustomButton!
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -34,8 +38,10 @@ class DashboardDetailHeaderView: NSView, LoadableNib {
         closeButton.cursor = .pointingHand
         backButton.cursor = .pointingHand
         openNWButton.cursor = .pointingHand
+        callButton.cursor = .pointingHand
         
         hideBackButton(hide: true)
+        setCallButtonVisible(visible: false)
     }
     
     func setHeaderTitle(_ title: String) {
@@ -44,6 +50,14 @@ class DashboardDetailHeaderView: NSView, LoadableNib {
     
     func setOpenNWButtonVisible(visible: Bool) {
         openNWContainer.isHidden = !visible
+    }
+    
+    func setCallButtonVisible(visible: Bool) {
+        callContainer.isHidden = !visible
+    }
+    
+    @IBAction func callButtonTapped(_ sender: Any) {
+        delegate?.callButtonTapped()
     }
     
     @IBAction func openNewWindowButtonTapped(_ sender: Any) {

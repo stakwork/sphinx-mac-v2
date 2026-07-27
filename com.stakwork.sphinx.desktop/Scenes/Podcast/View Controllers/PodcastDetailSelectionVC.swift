@@ -9,6 +9,7 @@
 import Foundation
 import Cocoa
 
+@MainActor
 protocol PodcastDetailSelectionVCDelegate: NSObject {
     func shareButtonTapped(_ sender: Any)
     func shouldReloadList()

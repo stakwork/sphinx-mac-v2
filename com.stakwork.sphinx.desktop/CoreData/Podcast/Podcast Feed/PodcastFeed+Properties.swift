@@ -8,7 +8,7 @@ import Foundation
 import CoreData
 import SwiftyJSON
 
-public class PodcastFeed: NSObject {
+public class PodcastFeed: NSObject, @unchecked Sendable {
     
     public var feedID: String
     public var title: String?

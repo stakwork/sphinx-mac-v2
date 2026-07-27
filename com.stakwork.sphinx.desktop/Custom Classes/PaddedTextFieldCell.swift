@@ -46,22 +46,46 @@ class PaddedTextField: CCTextField {
         }
     }
     
+    /// When > 0, `intrinsicContentSize.height` is clamped to this value.
+    /// Set externally (e.g. from ThreadCollectionViewItem) before calling
+    /// `invalidateIntrinsicContentSize()` so auto-layout uses the capped size.
+    var maximumHeight: CGFloat = 0
+    
+    // One-entry height cache keyed on (stringValue, effectiveWidth).
+    // Avoids repeated boundingRect calls within a single layout pass.
+    private var _cachedHeight: CGFloat = -1
+    private var _cacheText: String = ""
+    private var _cacheWidth: CGFloat = 0
+    
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        setupPaddedCell()
+        DispatchQueue.main.async {
+            self.setupPaddedCell()
+        }
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setupPaddedCell()
+        DispatchQueue.main.async {
+            self.setupPaddedCell()
+        }
     }
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        setupPaddedCell()
+        DispatchQueue.main.async {
+            self.setupPaddedCell()
+        }
     }
     
-    private func setupPaddedCell() {
+    override func invalidateIntrinsicContentSize() {
+        _cachedHeight = -1
+        super.invalidateIntrinsicContentSize()
+    }
+    
+    /// Internal so the unit-test target can drain the run-loop and call this
+    /// directly, ensuring `PaddedTextFieldCell` is installed before measurement.
+    func setupPaddedCell() {
         guard !(cell is PaddedTextFieldCell) else { return }
         
         let paddedCell = PaddedTextFieldCell()
@@ -69,7 +93,12 @@ class PaddedTextField: CCTextField {
         
         // Copy all properties from existing cell
         if let existingCell = cell as? NSTextFieldCell {
-            paddedCell.stringValue = existingCell.stringValue
+            // Must set allowsEditingTextAttributes before attributedStringValue
+            // so rich text attributes (links, formatting) are preserved correctly
+            paddedCell.allowsEditingTextAttributes = existingCell.allowsEditingTextAttributes
+            // Copy attributed string instead of plain stringValue to preserve
+            // link attributes, colors, underlines, etc.
+            paddedCell.attributedStringValue = existingCell.attributedStringValue
             paddedCell.font = existingCell.font
             paddedCell.alignment = existingCell.alignment
             paddedCell.textColor = existingCell.textColor
@@ -86,6 +115,8 @@ class PaddedTextField: CCTextField {
         }
         
         self.cell = paddedCell
+        invalidateIntrinsicContentSize()
+        needsLayout = true
         needsDisplay = true
     }
     
@@ -97,10 +128,65 @@ class PaddedTextField: CCTextField {
         }
     }
     
+    /// Override to ensure the cell's allowsEditingTextAttributes stays in sync.
+    /// This is essential for link tapping to work: when the cell is replaced by
+    /// setupPaddedCell() asynchronously, we need the PaddedTextFieldCell to
+    /// also reflect any later changes to this property.
+    override var allowsEditingTextAttributes: Bool {
+        get { return super.allowsEditingTextAttributes }
+        set {
+            super.allowsEditingTextAttributes = newValue
+            (cell as? PaddedTextFieldCell)?.allowsEditingTextAttributes = newValue
+        }
+    }
+    
     override var intrinsicContentSize: NSSize {
+        let hPad = contentPadding.left + contentPadding.right
+        let vPad = contentPadding.top  + contentPadding.bottom
+        // PaddedTextFieldCell narrows the drawing rect by hPad, so measure text
+        // at the actual available width; otherwise super underestimates height and
+        // the bubble (NSBox) clips the last line.
+        let effectiveWidth = bounds.width - hPad
+
+        if effectiveWidth > 0 {
+            let currentText = stringValue
+            let height: CGFloat
+
+            if currentText == _cacheText && effectiveWidth == _cacheWidth && _cachedHeight >= 0 {
+                height = _cachedHeight
+            } else {
+                let attrStr = attributedStringValue
+                var measured = ceil(attrStr.boundingRect(
+                    with: NSSize(width: effectiveWidth, height: .greatestFiniteMagnitude),
+                    options: [.usesLineFragmentOrigin, .usesFontLeading]
+                ).height)
+                if maximumHeight > 0 {
+                    measured = min(measured, maximumHeight)
+                }
+                _cacheText    = currentText
+                _cacheWidth   = effectiveWidth
+                _cachedHeight = measured
+                height = measured
+            }
+
+            var size = super.intrinsicContentSize
+            // NSTextField returns noIntrinsicMetric (-1) for width when wrapping.
+            // Adding hPad to -1 yields ~31 pt, which auto-layout treats as a real
+            // intrinsic width at hugging-priority 1000, collapsing the field.
+            // Only add padding when super returns a real (non-sentinel) width.
+            if size.width != NSView.noIntrinsicMetric {
+                size.width += hPad
+            }
+            size.height = height + vPad
+            return size
+        }
+
+        // Fallback when bounds aren't established yet.
         var size = super.intrinsicContentSize
-        size.width += contentPadding.left + contentPadding.right
-        size.height += contentPadding.top + contentPadding.bottom + 40
+        if size.width != NSView.noIntrinsicMetric {
+            size.width += hPad
+        }
+        size.height += vPad + 40
         return size
     }
     

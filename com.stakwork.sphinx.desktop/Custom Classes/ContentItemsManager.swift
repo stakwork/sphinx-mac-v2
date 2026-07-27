@@ -7,6 +7,7 @@
 //
 import CoreData
 
+@MainActor
 class ContentItemsManager {
     static let shared = ContentItemsManager()
     
@@ -15,7 +16,7 @@ class ContentItemsManager {
     private var processingTimer: Timer?
     private var isProcessing = false
     private let processingInterval: TimeInterval = 1800
-    private let maxRetries = 3
+    nonisolated static let maxRetries = 3
     
     private init() {}
     
@@ -28,7 +29,9 @@ class ContentItemsManager {
             withTimeInterval: processingInterval,
             repeats: true
         ) { [weak self] _ in
-            self?.processContentItems()
+            Task { @MainActor [weak self] in
+                self?.processContentItems()
+            }
         }
         
         RunLoop.current.add(processingTimer!, forMode: .common)
@@ -55,7 +58,7 @@ class ContentItemsManager {
         }
     }
     
-    private func performProcessing() async {
+    nonisolated private func performProcessing() async {
         print("🔄 [\(Date())] Starting processing cycle")
         
         let startTime = Date()
@@ -71,9 +74,9 @@ class ContentItemsManager {
         print("   - Processing items checked: \(checkedCount)")
     }
     
-    private func processUploadedAndFailedItems() async -> Int {
+    nonisolated private func processUploadedAndFailedItems() async -> Int {
         let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         
         var processedCount = 0
         
@@ -95,9 +98,9 @@ class ContentItemsManager {
         return processedCount
     }
     
-    private func checkProcessingItems() async -> Int {
+    nonisolated private func checkProcessingItems() async -> Int {
         let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         
         var checkedCount = 0
         
@@ -118,8 +121,8 @@ class ContentItemsManager {
         return checkedCount
     }
     
-    private func processItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
-        for attempt in 1...maxRetries {
+    nonisolated private func processItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
+        for attempt in 1...ContentItemsManager.maxRetries {
             do {
                 var response: API.CheckNodeResponse? = nil
                 var didRetry = false
@@ -134,6 +137,7 @@ class ContentItemsManager {
                 } else {
                     response = try await API.sharedInstance.checkItemNodeExists(url: item.value)
                 }
+                
                 
                 await context.performSafely {
                     item.status = Int16(ContentItem.ContentItemStatus.processing.rawValue)
@@ -153,10 +157,10 @@ class ContentItemsManager {
             } catch {
                 print("✗ Attempt \(attempt) failed for item \(item.uuid?.uuidString ?? "Empty UUID"): \(error)")
                 
-                if attempt == maxRetries {
+                if attempt == ContentItemsManager.maxRetries {
                     await context.performSafely {
                         item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
-                        item.errorMessage = "Failed after \(self.maxRetries) attempts: \(error.localizedDescription)"
+                        item.errorMessage = "Failed after \(ContentItemsManager.maxRetries) attempts: \(error.localizedDescription)"
                     }
                 } else {
                     try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
@@ -167,8 +171,8 @@ class ContentItemsManager {
         return false
     }
     
-    private func checkItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
-        for attempt in 1...maxRetries {
+    nonisolated private func checkItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
+        for attempt in 1...ContentItemsManager.maxRetries {
             guard let referenceId = item.referenceId else {
                 continue
             }
@@ -201,7 +205,7 @@ class ContentItemsManager {
                 
                 return true
             } catch {
-                if attempt < maxRetries {
+                if attempt < ContentItemsManager.maxRetries {
                     try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
                 }
             }
@@ -212,7 +216,7 @@ class ContentItemsManager {
     
     func add(value: String) {
         let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         
         let contentitem = ContentItem.saveObjectFrom(value: value, context: context)
         
@@ -235,28 +239,29 @@ class ContentItemsManager {
         }
         
         if let url = URL(string: contentitem.value) {
-            Task {
-                if contentitem.shouldBeUploaded() {
-                    if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
-                        await context.performSafely {
-                            contentitem.value = resultUrl
-                            contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
-                        }
-                        
-                        let _ = await self.processItemWithRetry(contentitem, context: context)
-                    } else {
-                        await context.performSafely {
-                            contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
-                        }
-                    }
-                } else {
-                    let _ = await self.processItemWithRetry(contentitem, context: context)
-                }
-                
+            Task { await processAddedItem(contentitem, url: url, context: context) }
+        }
+    }
+
+    nonisolated private func processAddedItem(_ contentitem: ContentItem, url: URL, context: NSManagedObjectContext) async {
+        if contentitem.shouldBeUploaded() {
+            if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
                 await context.performSafely {
-                    context.saveContext()
+                    contentitem.value = resultUrl
+                    contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
+                }
+                let _ = await processItemWithRetry(contentitem, context: context)
+            } else {
+                await context.performSafely {
+                    contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
                 }
             }
+        } else {
+            let _ = await processItemWithRetry(contentitem, context: context)
+        }
+
+        await context.performSafely {
+            context.saveContext()
         }
     }
     

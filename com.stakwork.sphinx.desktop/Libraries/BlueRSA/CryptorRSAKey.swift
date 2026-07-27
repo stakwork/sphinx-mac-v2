@@ -595,13 +595,13 @@ extension CryptorRSA {
 		public struct KeySize {
 			let bits: Int
 			/// A 1024 bit RSA key. Not recommended since this may become breakable in the near future.
-			public static let bits1024 = KeySize(bits: 1024)
+			nonisolated(unsafe) public static let bits1024 = KeySize(bits: 1024)
 			/// A 2048 bit RSA key. Recommended if security will not be required beyond 2030.
-			public static let bits2048 = KeySize(bits: 2048)
+			nonisolated(unsafe) public static let bits2048 = KeySize(bits: 2048)
 			/// A 3072 bit RSA key. Recommended if security is required beyond 2030.
-			public static let bits3072 = KeySize(bits: 3072)
+			nonisolated(unsafe) public static let bits3072 = KeySize(bits: 3072)
 			/// A 4096 bit RSA key.
-			public static let bits4096 = KeySize(bits: 4096)
+			nonisolated(unsafe) public static let bits4096 = KeySize(bits: 4096)
 		}
 		
 		// MARK: Properties

@@ -9,11 +9,11 @@
 import Foundation
 import KeychainAccess
 
-class KeychainManager {
+class KeychainManager: @unchecked Sendable {
     
     class var sharedInstance : KeychainManager {
         struct Static {
-            static let instance = KeychainManager()
+            nonisolated(unsafe) static let instance = KeychainManager()
         }
         return Static.instance
     }
@@ -27,6 +27,8 @@ class KeychainManager {
         case personalGraphToken = "mac.personal_graph_token"
         case personalGraphWorkflowId = "mac.personal_graph_workflow_id"
         case personalGraphLabel = "mac.personal_graph_label"
+        case aiAgentProvider = "mac.ai_agent_provider"
+        case aiAgentApiKey = "mac.ai_agent_api_key"
     }
     
     let keychain = Keychain(service: "sphinx-app", accessGroup: KeychainManager.kKeychainGroup).synchronizable(true)

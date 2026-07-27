@@ -10,7 +10,7 @@ import Cocoa
 import AVKit
 
 ///Loading content in background
-extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderViewDelegate {
+extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurrency ThreadHeaderViewDelegate {
     func shouldReplyToMessageWith(messageId: Int, and rowIndex: Int) {
         if let tableCellState = getTableCellStateFor(
             messageId: messageId,
@@ -25,14 +25,25 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
     
     func onReplyViewMouseOver(messageId: Int, rowIndex: Int, additionalHeight: CGFloat) {
         replyViewAdditionalHeight[messageId] = additionalHeight
-        
-        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+        applyHoverState(isHovered: true, rowIndex: rowIndex, messageId: messageId, additionalHeight: additionalHeight)
     }
     
     func onReplyViewMouseExit(messageId: Int, rowIndex: Int) {
         replyViewAdditionalHeight[messageId] = nil
-        
-        updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+        applyHoverState(isHovered: false, rowIndex: rowIndex, messageId: messageId, additionalHeight: 0)
+    }
+
+    private func applyHoverState(isHovered: Bool, rowIndex: Int, messageId: Int, additionalHeight: CGFloat) {
+        // Directly update the live cell — no snapshot reload, no tracking area recreation
+        if var cellStateTuple = getTableCellStateFor(messageId: messageId, and: rowIndex),
+           let bubble = cellStateTuple.1.bubble,
+           let item = collectionView.item(at: IndexPath(item: rowIndex, section: 0)) as? NewMessageCollectionViewItem {
+            item.updateReplyViewHoverState(isHovered: isHovered, additionalHeight: additionalHeight, bubble: bubble)
+        }
+
+        // Invalidate layout so the collection view resizes the item.
+        // replyViewAdditionalHeight already updated → sizeForItemAt produces new cache key → correct height.
+        collectionView.collectionViewLayout?.invalidateLayout()
     }
     
     func updateMessageTableCellStateFor(
@@ -498,7 +509,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
         }
     }
     
-    func isImageURL(_ url: URL, completion: @escaping (Bool) -> Void) {
+    func isImageURL(_ url: URL, completion: @escaping @Sendable (Bool) -> Void) {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
 
@@ -570,11 +581,11 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                         asset.loadValuesAsynchronously(forKeys: ["duration"], completionHandler: {
                             let duration = Int(Double(asset.duration.value) / Double(asset.duration.timescale))
                             episode.duration = duration
-                            
-                            updateWith(
-                                duration: Double(duration),
-                                currentTime: Double(podcastComment.timestamp ?? 0)
-                            )
+                            let d = Double(duration)
+                            let t = Double(podcastComment.timestamp ?? 0)
+                            Task { @MainActor in
+                                updateWith(duration: d, currentTime: t)
+                            }
                         })
                     }
                 }
@@ -603,6 +614,36 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, ThreadHeaderV
                 with: updatedMediaData
             )
         }
+    }
+    
+    func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int) {
+        guard var tableCellState = getTableCellStateFor(messageId: messageId, and: rowIndex),
+              let storedLink = tableCellState.1.callLink?.link,
+              let storedURL = URL(string: storedLink),
+              let authorizedRoomName = storedURL.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last,
+              authorizedRoomName == roomName else {
+            return
+        }
+
+        if callParticipantsSocketManager == nil {
+            callParticipantsSocketManager = CallParticipantsSocketManager()
+            callParticipantsSocketManager?.delegate = self
+        }
+        messageIdToRoomName[messageId] = authorizedRoomName
+        
+        if !subscribedRooms.contains(authorizedRoomName) {
+            subscribedRooms.insert(authorizedRoomName)
+            callParticipantsSocketManager?.subscribe(roomName: authorizedRoomName)
+        }
+    }
+
+    func unsubscribeAllRooms() {
+        subscribedRooms.forEach { callParticipantsSocketManager?.unsubscribe(roomName: $0) }
+        subscribedRooms.removeAll()
+        callParticipantsStore.removeAll()
+        messageIdToRoomName.removeAll()
+        bannerRooms.removeAll()
+        callParticipantsSocketManager = nil
     }
     
     func shouldShowOptionsFor(messageId: Int, from button: NSButton) {
@@ -792,7 +833,8 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ), let link = tableCellState.1.callLink?.link {
-            startVideoCall(link: link, audioOnly: true)
+            let isHost = tableCellState.1.message?.isOutgoing(ownerId: owner?.id ?? -1) == true
+            startVideoCall(link: link, audioOnly: true, isHost: isHost)
         }
     }
     
@@ -804,7 +846,8 @@ extension NewChatTableDataSource {
             messageId: messageId,
             and: rowIndex
         ), let link = tableCellState.1.callLink?.link {
-            startVideoCall(link: link, audioOnly: false)
+            let isHost = tableCellState.1.message?.isOutgoing(ownerId: owner?.id ?? -1) == true
+            startVideoCall(link: link, audioOnly: false, isHost: isHost)
         }
     }
     
@@ -1060,9 +1103,9 @@ extension NewChatTableDataSource {
 }
 
 extension NewChatTableDataSource {
-    func startVideoCall(link: String, audioOnly: Bool) {
+    func startVideoCall(link: String, audioOnly: Bool, isHost: Bool = false) {
         let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
-        delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly)
+        delegate?.shouldStartCallWith(link: linkUrl, audioOnly: audioOnly, isHost: isHost)
     }
 }
 
@@ -1250,5 +1293,77 @@ extension NewChatTableDataSource {
         }
 
         return tableCellStates
+    }
+}
+
+// MARK: - CallParticipantsSocketDelegate
+extension NewChatTableDataSource: CallParticipantsSocketDelegate {
+
+    func didReceiveCurrentParticipants(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo]) {
+        callParticipantsStore[roomName] = participants.filter { $0.name.isNotEmpty }
+        reloadCellsForRoom(roomName)
+    }
+
+    func participantJoined(roomName: String, participant: BubbleMessageLayoutState.CallParticipantInfo) {
+        var current = callParticipantsStore[roomName] ?? []
+        // Dedup: ignore if this identity is already tracked
+        guard !current.contains(where: { $0.identity == participant.identity }) else { return }
+        
+        if participant.name.isNotEmpty {
+            current.append(participant)
+            callParticipantsStore[roomName] = current
+            reloadCellsForRoom(roomName)
+        }
+        // LiveKit may not have resolved the display name yet — refresh after 2s
+        if participant.name.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                self?.refreshParticipants(for: roomName)
+            }
+        }
+    }
+
+    private func refreshParticipants(for roomName: String) {
+        callParticipantsSocketManager?.sendSubscribeTo(roomName: roomName)
+        
+//        API.sharedInstance.getCallParticipants(roomName: roomName) { [weak self] fresh in
+//            guard let self = self, !fresh.isEmpty else { return }
+//            self.callParticipantsStore[roomName] = fresh
+//            self.reloadCellsForRoom(roomName)
+//        }
+    }
+
+    func participantLeft(roomName: String, identity: String) {
+        var current = callParticipantsStore[roomName] ?? []
+        current.removeAll { $0.identity == identity }
+        callParticipantsStore[roomName] = current
+        reloadCellsForRoom(roomName)
+    }
+
+    func roomFinished(roomName: String) {
+        callParticipantsStore.removeValue(forKey: roomName)
+        reloadCellsForRoom(roomName)
+        delegate?.roomFinished(roomName: roomName)
+    }
+
+    private func reloadCellsForRoom(_ roomName: String) {
+        // Notify banner if this room is tracked at the banner level
+        if bannerRooms.contains(roomName) {
+            let participants = callParticipantsStore[roomName] ?? []
+            delegate?.shouldUpdateLiveCallBanner(roomName: roomName, participants: participants)
+        }
+
+        // Reload individual call message cells for this room
+        let affectedMessageIds = messageIdToRoomName.compactMap { (msgId, rn) -> Int? in
+            rn == roomName ? msgId : nil
+        }
+        for messageId in affectedMessageIds {
+            if let rowIndex = messageIdToIndexMap[messageId] {
+                let keysToRemove = rowHeightCache.keys.filter { $0.hasPrefix("\(messageId)_") }
+                for key in keysToRemove {
+                    rowHeightCache.removeValue(forKey: key)
+                }
+                updateMessageTableCellStateFor(rowIndex: rowIndex, messageId: messageId)
+            }
+        }
     }
 }

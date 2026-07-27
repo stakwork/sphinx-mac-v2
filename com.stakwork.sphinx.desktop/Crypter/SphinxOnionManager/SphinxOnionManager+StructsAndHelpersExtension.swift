@@ -12,7 +12,7 @@ import SwiftyJSON
 
 //MARK: Helper Structs & Functions:
 
-var wordsListPossibilities : [WordList] = [
+nonisolated(unsafe) var wordsListPossibilities : [WordList] = [
     .english,
     .japanese,
     .korean,
@@ -253,12 +253,12 @@ struct GenericIncomingMessage: Mappable {
                 self.fullContactInfo = innerContent.fullContactInfo
             }
             
-            let isTribe = isTribeMessage
-            
-            if let timestamp = msg.timestamp, isTribe == false {
+            if let timestamp = msg.timestamp {
                 self.timestamp = Int(timestamp)
             } else {
                 self.timestamp = innerContent.date
+                
+                print("⚠️ [GenericIncomingMessage] msg.timestamp is nil for \(isTribeMessage ? "tribe" : "DM") message — falling back to innerContent.date: \(String(describing: innerContent.date))")
             }
             
             if let metadataString = innerContent.metadata,
@@ -329,7 +329,7 @@ struct TribeMembersRRObject: Mappable {
 }
 
 
-class SentStatus: Mappable {
+class SentStatus: Mappable, @unchecked Sendable {
     var tag: String?
     var status: String?
     var preimage: String?

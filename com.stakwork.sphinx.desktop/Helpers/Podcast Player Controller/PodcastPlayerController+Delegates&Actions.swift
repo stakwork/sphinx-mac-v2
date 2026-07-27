@@ -78,9 +78,12 @@ extension PodcastPlayerController {
         let asset = AVURLAsset(url: url)
 
         asset.loadValuesAsynchronously(forKeys: ["playable"]) {
-            let item = CachingPlayerItem(asset: asset, automaticallyLoadedAssetKeys: nil)
-            self.allItems[urlPath] = item
-            self.dispatchSemaphore.signal()
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                let item = CachingPlayerItem(asset: asset, automaticallyLoadedAssetKeys: nil)
+                self.allItems[urlPath] = item
+                self.dispatchSemaphore.signal()
+            }
         }
     }
     
@@ -163,23 +166,26 @@ extension PodcastPlayerController {
             
             DispatchQueue.global(qos: .userInitiated).async {
                 if let item = item {
-                    DispatchQueue.main.async {
+                    Task { @MainActor [weak self] in
+                        guard let self = self else { return }
                         playAssetAfterLoad(item)
                     }
                     return
                 }
-                
+
                 if !ConnectivityHelper.isConnectedToInternet {
-                    self.runErrorStateUpdate()
+                    Task { @MainActor [weak self] in
+                        guard let self = self else { return }
+                        self.runErrorStateUpdate()
+                    }
                     return
                 }
-                
+
                 let asset = AVURLAsset(url: podcastData.episodeUrl)
-                let item = CachingPlayerItem(asset: asset, automaticallyLoadedAssetKeys: nil)
-                
-                self.podcastItems[podcastData.episodeUrl.absoluteString] = item
-                
-                DispatchQueue.main.async {
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    let item = CachingPlayerItem(asset: asset, automaticallyLoadedAssetKeys: nil)
+                    self.podcastItems[podcastData.episodeUrl.absoluteString] = item
                     playAssetAfterLoad(item)
                 }
             }
@@ -206,7 +212,9 @@ extension PodcastPlayerController {
             
             if let currentTime = podcastData.currentTime, currentTime > 0 {
                 player?.seek(to: CMTime(seconds: Double(currentTime), preferredTimescale: 1)) { _ in
-                    addObserverToPlayerItem()
+                    Task { @MainActor in
+                        addObserverToPlayerItem()
+                    }
                 }
             } else {
                 addObserverToPlayerItem()
@@ -218,10 +226,13 @@ extension PodcastPlayerController {
         if keyPath == "status", let playerItem = object as? AVPlayerItem {
             switch playerItem.status {
             case .readyToPlay:
-                self.player?.play()
-                
-                if let playerItem = self.player?.currentItem {
-                    self.didStartPlaying(playerItem)
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    self.player?.play()
+
+                    if let playerItem = self.player?.currentItem {
+                        self.didStartPlaying(playerItem)
+                    }
                 }
             default:
                 break
@@ -261,9 +272,8 @@ extension PodcastPlayerController {
     
     func preloadNextEpisode() {
         if let nextEpisode = podcast?.getNextEpisode() {
-            let dispatchQueue = DispatchQueue.global(qos: .background)
-            dispatchQueue.async {
-                self.preloadEpisode(nextEpisode)
+            Task { @MainActor [weak self] in
+                self?.preloadEpisode(nextEpisode)
             }
         }
     }
@@ -345,13 +355,16 @@ extension PodcastPlayerController {
             invalidateTime()
             
             player.seek(to: CMTime(seconds: Double(currentTime), preferredTimescale: 1)) { _ in
-                if self.isPlaying {
-                    self.trackItemStarted(endTimestamp: previousTime)
-                    /// If playing start timer again to update UI every X seconds
-                    self.configureTimer()
-                } else {
-                    /// If not playing run pause state delegate to update UI in case seek was triggered from control center
-                    self.runPausedStateUpdate()
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    if self.isPlaying {
+                        self.trackItemStarted(endTimestamp: previousTime)
+                        /// If playing start timer again to update UI every X seconds
+                        self.configureTimer()
+                    } else {
+                        /// If not playing run pause state delegate to update UI in case seek was triggered from control center
+                        self.runPausedStateUpdate()
+                    }
                 }
             }
         }

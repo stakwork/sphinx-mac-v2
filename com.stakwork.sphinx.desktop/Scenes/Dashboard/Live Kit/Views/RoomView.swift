@@ -21,7 +21,7 @@ import SDWebImageSwiftUI
 import AVFoundation
 
 let adaptiveMin = 300.0
-let toolbarPlacement: ToolbarItemPlacement = .primaryAction
+nonisolated(unsafe) let toolbarPlacement: ToolbarItemPlacement = .primaryAction
 
 extension CIImage {
     // helper to create a `CIImage` for both platforms
@@ -31,6 +31,7 @@ extension CIImage {
 }
 
 // keeps weak reference to NSWindow
+@MainActor
 class WindowAccess: ObservableObject {
     private weak var window: NSWindow?
 
@@ -75,7 +76,6 @@ struct RoomView: View {
         var style = MarkdownStyle()
         style.textColor = .white
         style.secondaryColor = NSColor.white.withAlphaComponent(0.7)
-        style.baseFontSize = 15
         return MarkdownRenderer(style: style)
     }()
 
@@ -90,6 +90,7 @@ struct RoomView: View {
     
     @State private var isParticipantsVideoMenuPresented: [String: Bool] = [:]
     @State private var isParticipantsAudioMenuPresented: [String: Bool] = [:]
+
 
     @State private var cameraPublishOptions = VideoPublishOptions()
 
@@ -340,7 +341,7 @@ struct RoomView: View {
                     Text(message.senderName ?? "Unknown")
                         .font(Font(NSFont(name: "Roboto-Medium", size: 11.0)!))
                         .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
-                    MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                    MarkdownTextView(attributedString: (try? AttributedString(RoomView.markdownRenderer.render(message.text), including: \.appKit)) ?? AttributedString(message.text))
                         .foregroundColor(.white)
                         .padding(8)
                         .background(Color(NSColor.Sphinx.SecondaryText))
@@ -348,7 +349,7 @@ struct RoomView: View {
                 }
                 Spacer()
             } else {
-                MarkdownTextView(attributedString: RoomView.markdownRenderer.render(message.text))
+                MarkdownTextView(attributedString: (try? AttributedString(RoomView.markdownRenderer.render(message.text), including: \.appKit)) ?? AttributedString(message.text))
                     .foregroundColor(.white)
                     .padding(8)
                     .background(Color(NSColor.Sphinx.PrimaryGreen))
@@ -580,6 +581,64 @@ struct RoomView: View {
                             .font(.system(size: 17))
                     }
                 }.frame(width: 32.0, height: 32.0)
+                
+                if !(participant is LocalParticipant) && roomCtx.isAdmin {
+                    ZStack(alignment: .center) {
+                        Button(action: {
+                            newMessageBubbleHelper.showGenericMessageView(
+                                text: "Removing participant, please wait…",
+                                delay: 3,
+                                textColor: NSColor.white,
+                                backColor: NSColor.Sphinx.SecondaryText,
+                                backAlpha: 1.0
+                            )
+                            API.sharedInstance.removeParticipant(
+                                room: room.name ?? "",
+                                participantIdentity: participant.identity?.stringValue ?? "",
+                                adminToken: roomCtx.adminToken
+                            ) { success in
+                                DispatchQueue.main.async {
+                                    if success {
+                                        newMessageBubbleHelper.showGenericMessageView(
+                                            text: "Participant removed successfully. They will leave the call shortly.",
+                                            delay: 5,
+                                            textColor: NSColor.white,
+                                            backColor: NSColor.Sphinx.PrimaryGreen,
+                                            backAlpha: 1.0
+                                        )
+                                    } else {
+                                        newMessageBubbleHelper.showGenericMessageView(
+                                            text: "Failed to remove participant. Please try again.",
+                                            delay: 5,
+                                            textColor: NSColor.white,
+                                            backColor: NSColor.Sphinx.BadgeRed,
+                                            backAlpha: 1.0
+                                        )
+                                    }
+                                }
+                            }
+                        }) {
+                            Image(systemName: "person.fill.xmark")
+                                .foregroundColor(Color(NSColor.Sphinx.BadgeRed))
+                                .font(.system(size: 15))
+                                .frame(width: 32.0, height: 32.0)
+                        }
+                        .buttonStyle(.borderless)
+                        .background(
+                            Color(NSColor.Sphinx.MainBottomIcons)
+                                .opacity(0.2)
+                                .cornerRadius(8.0)
+                        )
+                        .frame(width: 32, height: 32)
+                        .onHover { isHover in
+                            if isHover {
+                                NSCursor.pointingHand.set()
+                            } else {
+                                NSCursor.arrow.set()
+                            }
+                        }
+                    }.frame(width: 32.0, height: 32.0)
+                }
             }
             .frame(height: 62)
             .frame(minWidth: 0, maxWidth: .infinity)
@@ -866,7 +925,11 @@ struct RoomView: View {
                             if AVCaptureDevice.default(for: .audio) != nil {
                                 isMicrophonePublishingBusy = true
                                 defer { Task { @MainActor in isMicrophonePublishingBusy = false } }
-                                try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                                do {
+                                    try await room.localParticipant.setMicrophone(enabled: !isMicrophoneEnabled)
+                                } catch {
+                                    newMessageBubbleHelper.showGenericMessageView(text: "Audio device unavailable. Please check your microphone.")
+                                }
                             }
                         }
                     } label: {
@@ -900,7 +963,11 @@ struct RoomView: View {
                         Task {
                             isCameraPublishingBusy = true
                             defer { Task { @MainActor in isCameraPublishingBusy = false } }
-                            try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                            do {
+                                try await room.localParticipant.setCamera(enabled: !isCameraEnabled)
+                            } catch {
+                                newMessageBubbleHelper.showGenericMessageView(text: "Camera unavailable. Please check your camera.")
+                            }
                         }
                     },
                     label: {
@@ -1222,11 +1289,7 @@ struct RoomView: View {
         }
     }
     
-    struct ScreenSharePopoverView: View, Equatable {
-        static func == (lhs: RoomView.ScreenSharePopoverView, rhs: RoomView.ScreenSharePopoverView) -> Bool {
-            return lhs.screenPickerPresented == rhs.screenPickerPresented
-        }
-
+    struct ScreenSharePopoverView: View {
         @Binding var screenPickerPresented: Bool
         var onSelect: (MacOSScreenCaptureSource) -> Void
 

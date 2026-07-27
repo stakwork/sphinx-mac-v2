@@ -9,7 +9,7 @@
 import Cocoa
 import WebKit
 
-protocol NewChatViewControllerDelegate: AnyObject {
+@MainActor protocol NewChatViewControllerDelegate: AnyObject {
     func shouldResetOngoingMessage()
     func shouldCloseThread()
 }
@@ -55,6 +55,7 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var threadUUID: String? = nil
     var escapeMonitor: Any? = nil
+    var hadDraftOnEntry: Bool = false
     
     var isThread: Bool {
         get {
@@ -72,6 +73,11 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     var viewMode = ViewMode.Standard
+    var isAgentChat: Bool = false
+
+    var agentProcessingBar: AgentProcessingBarView?
+    var agentBarHeightConstraint: NSLayoutConstraint?
+    var agentProcessingBarTimer: Timer?
     
     var contactResultsController: NSFetchedResultsController<UserContact>!
     var chatResultsController: NSFetchedResultsController<Chat>!
@@ -83,6 +89,15 @@ class NewChatViewController: DashboardSplittedViewController {
     
     var podcastPlayerVC: NewPodcastPlayerViewController? = nil
     var threadVC: NewChatViewController? = nil
+
+    /// Cached inline webview VCs — persists while this chat session is alive.
+    /// Torn down alongside this VC in resetVC().
+    var cachedWebAppVC: WebAppViewController? = nil
+    var cachedSecondBrainVC: WebAppViewController? = nil
+    
+    // MARK: - Live call banner
+    var liveCallRooms: [String: String] = [:]  // roomName -> callLink
+    var liveCallRoomDates: [String: Date] = [:]  // roomName → call message date
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
@@ -119,6 +134,7 @@ class NewChatViewController: DashboardSplittedViewController {
         viewController.deepLinkData = deepLinkData
         viewController.owner = owner
         viewController.threadUUID = threadUUID
+        viewController.isAgentChat = viewController.contact?.isAgent == true
         
         viewController.newChatViewModel = NewChatViewModel(
             chat: viewController.chat,
@@ -134,9 +150,12 @@ class NewChatViewController: DashboardSplittedViewController {
 
         addShimmeringView()
         setupViews()
+        setupAgentProcessingBar()
+        setupProposalCardObservers()
         configureCollectionView()
         setupChatTopView()
         setupChatData()
+        hadDraftOnEntry = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
         updateEmptyView()
         listenForNotifications()
         
@@ -151,12 +170,56 @@ class NewChatViewController: DashboardSplittedViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handleImagePaste()
+            Task { @MainActor [weak self] in
+                self?.handleImagePaste()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self, !self.isThread else { return }
+                if self.chatCollectionView.isAtBottom() {
+                    self.chat?.setChatMessagesAsSeen()
+                }
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .onWebAppLinkTapped,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] notification in
+            Task { @MainActor [weak self] in
+                guard let self = self, !self.isThread else { return }
+                guard let deepLinkStr = notification.userInfo?["link"] as? String,
+                      let fallbackURL = URL(string: deepLinkStr)?.getWebAppUrl()
+                else { return }
+
+                guard let chat = self.chat else { return }
+
+                if !chat.hasWebApp() && !chat.hasSecondBrainApp() {
+                    if let url = URL(string: fallbackURL) {
+                        NSWorkspace.shared.open(url)
+                    }
+                    return
+                }
+                self.childViewControllerContainer.showWebAppLinkOptionsMenuOn(
+                    parentVC: self,
+                    deepLinkURL: fallbackURL,
+                    delegate: self
+                )
+            }
         }
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: .onFilePaste, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onWebAppLinkTapped, object: nil)
     }
     
     override func viewDidAppear() {
@@ -168,7 +231,8 @@ class NewChatViewController: DashboardSplittedViewController {
         configureFetchResultsController()
         loadReplyableMeesage()
         addEscapeMonitor()
-        
+        restoreProposalCardIfNeeded()
+
     }
     
     override func viewWillDisappear() {
@@ -183,7 +247,16 @@ class NewChatViewController: DashboardSplittedViewController {
             DelayPerformedHelper.performAfterDelay(seconds: 0.5, completion: {
                 self.chat?.setChatMessagesAsSeen()
             })
-        }        
+        }
+        
+        if !isThread {
+            let hasDraftNow = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
+            if hasDraftNow || hadDraftOnEntry {
+                if let chatId = chat?.id {
+                    delegate?.shouldReloadChatRowWith(chatId: chatId)
+                }
+            }
+        }
     }
     
     override func viewDidDisappear() {
@@ -195,7 +268,9 @@ class NewChatViewController: DashboardSplittedViewController {
         if isThread {
             return
         }
-        SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
+        if !isAgentChat {
+            SphinxOnionManager.sharedInstance.batchDeleteOldMessagesInBackground(forChat: chat)
+        }
     }
     
     override func viewDidLayout() {
@@ -253,6 +328,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func resetVC() {
+        stopLiveCallBannerPolling()
         stopPlayingClip()
         resetFetchedResultsControllers()
         
@@ -261,6 +337,17 @@ class NewChatViewController: DashboardSplittedViewController {
         }
         
         childViewControllerContainer.removeChildVC()
+        
+        if let chatId = chat?.id {
+            if let vc = cachedWebAppVC {
+                WebAppSessionManager.sharedInstance.store(vc, chatId: chatId, isAppURL: true)
+            }
+            if let vc = cachedSecondBrainVC {
+                WebAppSessionManager.sharedInstance.store(vc, chatId: chatId, isAppURL: false)
+            }
+        }
+        cachedWebAppVC = nil
+        cachedSecondBrainVC = nil
         
         chatTableDataSource?.stopListeningToResultsController()
         chatTableDataSource?.releaseMemory()
@@ -311,6 +398,7 @@ class NewChatViewController: DashboardSplittedViewController {
             )
             
             configurePinnedMessageView()
+            startLiveCallBannerPolling()
             
             chatTopView.isHidden = false
             threadHeaderView.isHidden = true
@@ -351,6 +439,7 @@ class NewChatViewController: DashboardSplittedViewController {
     func setupChatData() {
         processChatAliases()
         showPendingApprovalMessage()
+        insertIntroMessageIfNeeded()
     }
     
     func showThread(
@@ -461,11 +550,15 @@ class NewChatViewController: DashboardSplittedViewController {
     func updateEmptyView() {
         if shouldShowPendingChat {
             setupPendingChatPlaceholder()
-        } else if chat?.lastMessage == nil {
-            setupEmptyChatPlaceholder()
         } else {
-            chatEmptyAvatarPlaceholderView.isHidden = true
-            chatBottomView.isHidden = false
+            chat?.updateLastMessage()
+            if chat?.lastMessage == nil {
+                guard !isAgentChat else { return }
+                setupEmptyChatPlaceholder()
+            } else {
+                chatEmptyAvatarPlaceholderView.isHidden = true
+                chatBottomView.isHidden = false
+            }
         }
     }
 }

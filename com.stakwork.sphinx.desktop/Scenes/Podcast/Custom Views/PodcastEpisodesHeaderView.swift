@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol PodcastEpisodesHeaderViewDelegate : AnyObject {
     func skipAdsButtonClicked() -> Bool
 }

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class ChatMessageFieldView: NSView, LoadableNib {
+class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate: ChatBottomViewDelegate?
 
@@ -60,6 +60,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
     var threadUUID: String? = nil
     
     var isThreadOpen: Bool = false
+    var isAgentChat: Bool = false
     
     var isThread: Bool {
         get {
@@ -92,6 +93,18 @@ class ChatMessageFieldView: NSView, LoadableNib {
     func setupForThread() {
         isThreadOpen = true
         priceContainer.isHidden = true
+    }
+
+    func configureForAgentChat() {
+        isAgentChat = true
+        attachmentsButton.isEnabled = false
+        attachmentsButton.alphaValue = 0.3
+        giphyButton.isHidden = true
+        emojiButton.isHidden = true
+        priceContainer.isHidden = true
+        // Hide both mic and send — they're shown/hidden via toggleSendMicButton
+        micButton.isHidden = true
+        sendButton.isHidden = true
     }
     
     func setupView() {
@@ -256,6 +269,7 @@ class ChatMessageFieldView: NSView, LoadableNib {
         
         initializeMacros()
         setOngoingMessage()
+        setOngoingAttachments()
     }
     
     func updatePriceTagField() {
@@ -277,6 +291,10 @@ class ChatMessageFieldView: NSView, LoadableNib {
     func setOngoingMessage() {
         if let text = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chat?.id, threadUUID: threadUUID) {
             if text.isEmpty {
+                return
+            }
+            
+            if messageTextView.string == text {
                 return
             }
             

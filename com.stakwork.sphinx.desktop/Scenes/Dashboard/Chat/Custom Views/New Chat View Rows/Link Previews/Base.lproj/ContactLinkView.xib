@@ -55,7 +55,7 @@
                         <customView translatesAutoresizingMaskIntoConstraints="NO" id="FXi-mD-jG6">
                             <rect key="frame" x="0.0" y="56" width="480" height="100"/>
                             <subviews>
-                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CAD-h8-xXg">
+                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CAD-h8-xXg" customClass="AspectFillNSImageView" customModule="Sphinx" customModuleProvider="target">
                                     <rect key="frame" x="16" y="20" width="60" height="60"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="60" id="WNe-MU-9mM"/>

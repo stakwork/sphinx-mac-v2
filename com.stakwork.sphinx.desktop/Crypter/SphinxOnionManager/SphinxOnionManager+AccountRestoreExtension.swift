@@ -11,6 +11,10 @@ import CoreData
 import ObjectMapper
 import SwiftyJSON
 
+extension JSON: @unchecked Sendable {}
+extension RunReturn: @unchecked Sendable {}
+extension Msg: @unchecked Sendable {}
+
 class ChatsFetchParams {
     var restoreInProgress: Bool
     var itemsPerPage: Int
@@ -346,6 +350,8 @@ extension SphinxOnionManager {
             msgCountLimit: itemsPerPage,
             reverse: reverse
         )
+        
+        startMessageFetchTimeoutTimer()
     }
     
     func fetchMessageBlock(
@@ -354,8 +360,6 @@ extension SphinxOnionManager {
         msgCountLimit: Int,
         reverse: Bool
     ) {
-        startWatchdogTimer()
-        
         let safeLastMsgIndex = max(lastMessageIndex, 0)
         
         do {
@@ -517,6 +521,8 @@ extension SphinxOnionManager {
     }
     
     func handleFetchMessagesBatchInForward(msgs: [Msg]) {
+        startMessageFetchTimeoutTimer()
+        
         guard let params = messageFetchParams else {
             finishMessagesFetch()
             return
@@ -692,7 +698,7 @@ extension SphinxOnionManager {
     func fetchMissingTribesFor(
         rr: RunReturn,
         topic: String?,
-        completion: @escaping (RunReturn, [String: JSON], String?) -> ()
+        completion: @escaping @Sendable (RunReturn, [String: JSON], String?) -> ()
     ) {
         let messages = rr.msgs
         
@@ -966,52 +972,44 @@ extension SphinxOnionManager {
         
         return groupActionMessage
     }
-
-    func endWatchdogTime() {
-        watchdogTimer?.invalidate()
-        watchdogTimer = nil
-    }
     
-    func startWatchdogTimer() {
-        watchdogTimer?.invalidate()
-        
-        watchdogTimer = Timer.scheduledTimer(
-            timeInterval: 10.0,
-            target: self,
-            selector: #selector(watchdogTimerFired),
-            userInfo: nil,
-            repeats: false
-        )
-    }
-    
-    @objc func watchdogTimerFired() {
+    func clearFetchCallbacks() {
         onMessageRestoredCallback = nil
         firstSCIDMsgsCallback = nil
         totalMsgsCountCallback = nil
-        
         messageFetchParams = nil
         chatsFetchParams = nil
         messagePerContactFetchParams = nil
-        
-        endWatchdogTime()
-        resetFromRestore()
+        restoredContactInfoTracker = []
+    }
+    
+    func startMessageFetchTimeoutTimer() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.messageFetchTimeoutTimer?.invalidate()
+            self.messageFetchTimeoutTimer = Timer.scheduledTimer(
+                withTimeInterval: SphinxOnionManager.kMessageFetchTimeout,
+                repeats: false
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                print("[FetchWatchdog] Message fetch timed out after \(Int(SphinxOnionManager.kMessageFetchTimeout))s — clearing stuck callbacks")
+                self.clearFetchCallbacks()
+            }
+        }
+    }
+    
+    func invalidateMessageFetchTimeoutTimer() {
+        messageFetchTimeoutTimer?.invalidate()
+        messageFetchTimeoutTimer = nil
     }
     
     func finishMessagesFetch(
         isRestore: Bool = false
     ) {
-        onMessageRestoredCallback = nil
-        firstSCIDMsgsCallback = nil
-        totalMsgsCountCallback = nil
-        
-        messageFetchParams = nil
-        chatsFetchParams = nil
-        messagePerContactFetchParams = nil
-        
-        restoredContactInfoTracker = []
+        clearFetchCallbacks()
+        invalidateMessageFetchTimeoutTimer()
         
         requestPings()
-        endWatchdogTime()
         resetFromRestore()
         updateRoutingInfo()
         
@@ -1085,7 +1083,8 @@ extension SphinxOnionManager {
                         shouldSetLastMessage: true
                     )
                 } else if lastMessage.isOutgoing() {
-                    chat.setChatMessagesAsSeen()
+                    let chatId = chat.id
+                    Task { @MainActor in Chat.getChatWith(id: chatId)?.setChatMessagesAsSeen() }
                 } else {
                     chat.lastMessage = lastMessage
                 }

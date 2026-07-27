@@ -25,6 +25,13 @@ extension UserDefaults {
         public static let attachmentsToken = DefaultKey<String>("attachmentsToken")
         public static let attachmentsTokenExpDate = DefaultKey<Date>("attachmentsTokenExpDate")
         public static let hiveToken = DefaultKey<String>("hiveToken")
+        public static let hiveOrgId               = DefaultKey<String>("hiveOrgId")
+        public static let hiveGithubLogin         = DefaultKey<String>("hiveGithubLogin")
+        public static let hiveOrgSlugs            = DefaultKey<Data>("hiveOrgSlugs")
+        public static let hiveOrgSlugsCacheDate   = DefaultKey<Double>("hiveOrgSlugsCacheDate")
+        public static let hiveConversationIdByOrg = DefaultKey<Data>("hiveConversationIdByOrg")
+        public static let hiveCanvasChatHistoryByOrg = DefaultKey<Data>("hiveCanvasChatHistoryByOrg")
+        public static let hivePendingProposal         = DefaultKey<Data>("hivePendingProposal")
         public static let inviterNickname = DefaultKey<String>("inviterNickname")
         public static let inviterPubkey = DefaultKey<String>("inviterPubkey")
         public static let inviterRouteHint = DefaultKey<String>("inviterRouteHint")
@@ -117,7 +124,7 @@ extension UserDefaults {
 
 }
 
-public class DefaultKey<S> {
+public class DefaultKey<S>: @unchecked Sendable {
     private let name: String
 
     init(_ name: String) {

@@ -8,9 +8,9 @@
 
 import Cocoa
 
+@MainActor
 extension NewChatTableDataSource: NSCollectionViewDelegate {
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
-        
         collectionView.deselectAll(nil)
         
         if let indexPath = indexPaths.first {
@@ -32,8 +32,10 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
             object: collectionViewScroll.contentView,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.scrollViewDidScroll()
-        }        
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
+        }
     }
     
     func scrollViewDidScroll() {
@@ -41,6 +43,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         
         if let scrollViewDesiredOffset = scrollViewDesiredOffset {
             if scrollViewDesiredOffset == collectionViewScroll.documentYOffset {
+                self.scrollViewDesiredOffset = nil
                 DelayPerformedHelper.performAfterDelay(seconds: 0.05, completion: {
                     self.shimmeringView.toggle(show: false)
                     self.collectionView.alphaValue = 1.0
@@ -111,17 +114,35 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         if isThread {
             return
         }
+        if contact?.isAgent == true {
+            loadMoreItems()
+            return
+        }
         if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
             if let chat = chat {
+                let chatId = chat.id
                 let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-                var minIndex: Int? = nil
                 let itemsPerPage = 100
 
                 backgroundContext.performSafely {
-                    minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+                    guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.loadingMoreItems = false
+                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                        }
+                        return
+                    }
+                    let minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
 
                     if let minIndex = minIndex {
                         if (minIndex - 1) <= 0 {
+                            Task { @MainActor [weak self] in
+                                guard let self else { return }
+                                self.allItemsLoaded = true
+                                self.loadingMoreItems = false
+                                self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                            }
                             return
                         }
                         DispatchQueue.global(qos: .background).async {
@@ -131,22 +152,34 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
                                 stopIndex: 0,
                                 publicKey: publicKey
                             ) { messagesCount in
-                                if messagesCount < itemsPerPage {
-                                    self.allItemsLoaded = true
+                                Task { @MainActor in
+                                    // Fetched messages arrive as unconfirmed — check their send status now
+                                    // rather than waiting for the next didChangeContentWith cycle.
+                                    SphinxOnionManager.sharedInstance.getMessagesStatusForPendingMessages()
+                                    if messagesCount < itemsPerPage {
+                                        self.allItemsLoaded = true
 
-                                    self.processMessages(
-                                        messages: self.messagesArray,
-                                        UIUpdateIndex: self.UIUpdateIndex,
-                                        showLoadingMore: false
-                                    )
+                                        self.processMessages(
+                                            messages: self.messagesArray,
+                                            UIUpdateIndex: self.UIUpdateIndex,
+                                            showLoadingMore: false
+                                        )
 
-                                    if self.isSearching {
-                                        self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                        if self.isSearching {
+                                            self.delegate?.shouldToggleSearchLoadingWheel(active: false)
+                                        }
+                                    } else {
+                                        self.loadMoreItems(itemsCount: messagesCount)
                                     }
-                                } else {
-                                    self.loadMoreItems(itemsCount: messagesCount)
                                 }
                             }
+                        }
+                    } else {
+                        Task { @MainActor [weak self] in
+                            guard let self else { return }
+                            self.allItemsLoaded = true
+                            self.loadingMoreItems = false
+                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
                         }
                     }
                 }

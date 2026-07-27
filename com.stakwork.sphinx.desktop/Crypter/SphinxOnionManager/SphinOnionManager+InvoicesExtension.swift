@@ -105,33 +105,44 @@ extension SphinxOnionManager{
     //invoices related
     func createInvoice(
         amountMsat: Int,
-        description: String? = nil
-    ) -> String? {
-            
+        description: String? = nil,
+        callback: @escaping (String?) -> Void
+    ) {
         guard let seed = getAccountSeed(), let selfContact = UserContact.getOwner(), let _ = selfContact.nickname else {
-            return nil
+            callback(nil)
+            return
         }
-            
+
         do {
-            let rr = try Sphinx.makeInvoice(
+            let rr = try Sphinx.requestInvoice(
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: loadOnionStateAsData(),
                 amtMsat: UInt64(amountMsat),
-                description: description ?? ""
+                description: description
             )
-            
+
+            self.invoiceGeneratedCallback = callback
             let _ = handleRunReturn(rr: rr)
-                
-            return rr.invoice
+
+            self.invoiceGeneratedTimeoutTimer = Timer.scheduledTimer(
+                withTimeInterval: 30.0,
+                repeats: false
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.invoiceGeneratedCallback?(nil)
+                self.invoiceGeneratedCallback = nil
+                self.invoiceGeneratedTimeoutTimer = nil
+            }
         } catch {
-            return nil
+            callback(nil)
         }
     }
     
     func getInvoiceDetails(invoice: String) -> ParseInvoiceResult? {
+        let normalizedInvoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         do {
-            let rawInvoiceDetails = try parseInvoice(invoiceJson: invoice)
+            let rawInvoiceDetails = try parseInvoice(invoiceJson: normalizedInvoice)
             let parsedInvoiceDetails = ParseInvoiceResult(JSONString: rawInvoiceDetails)
             return parsedInvoiceDetails
         } catch {
@@ -144,6 +155,7 @@ extension SphinxOnionManager{
         overPayAmountMsat: UInt64? = nil,
         callback: ((Bool, String?) -> ())? = nil
     ){
+        let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
@@ -187,6 +199,7 @@ extension SphinxOnionManager{
         overPayAmountMsat: UInt64? = nil,
         callback: ((Bool, String?) -> ())? = nil
     ){
+        let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         guard let invoiceDict = getInvoiceDetails(invoice: invoice),
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
@@ -228,6 +241,7 @@ extension SphinxOnionManager{
         invoice: String,
         callback: ((Bool, String?) -> ())? = nil
     ) {
+        let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         guard let seed = getAccountSeed() else{
             callback?(false, "Account seed not found")
             return
@@ -256,6 +270,7 @@ extension SphinxOnionManager{
         amount: UInt64,
         callback: ((Bool, String?) -> ())? = nil
     ) {
+        let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         guard let seed = getAccountSeed() else{
             callback?(false, "Account seed not found")
             return
@@ -344,10 +359,12 @@ extension SphinxOnionManager{
                 self.finalizePayInvoiceMessage(message: message)
             } else {
                 ///error getting route info
-                AlertHelper.showAlert(
-                    title: "Routing Error",
-                    message: "Could not find a route to the target. Please try again."
-                )
+                DispatchQueue.main.async {
+                    AlertHelper.showAlert(
+                        title: "Routing Error",
+                        message: "Could not find a route to the target. Please try again."
+                    )
+                }
             }
         }
     }
@@ -356,14 +373,16 @@ extension SphinxOnionManager{
         message: TransactionMessage
     ) {
         guard message.type == TransactionMessage.TransactionMessageType.invoice.rawValue,
-              let invoice = message.invoice,
+              let rawInvoice = message.invoice,
               let seed = getAccountSeed(),
               let owner = UserContact.getOwner(),
               let nickname = owner.nickname else
         {
             return
         }
-        
+
+        let invoice = rawInvoice.components(separatedBy: .whitespacesAndNewlines).joined()
+
         do {
             let rr = try Sphinx.payContactInvoice(
                 seed: seed,

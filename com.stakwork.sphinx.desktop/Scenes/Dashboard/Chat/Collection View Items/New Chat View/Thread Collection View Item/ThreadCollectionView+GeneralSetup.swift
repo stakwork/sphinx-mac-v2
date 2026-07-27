@@ -54,6 +54,7 @@ extension ThreadCollectionViewItem {
         fileDetailsView.isHidden = true
         audioMessageView.isHidden = true
         
+        lastReplyCallLinkView.isHidden = true
         lastReplyTextMessageView.isHidden = true
         lastReplyMediaMessageView.isHidden = true
         lastReplyFileDetailsView.isHidden = true

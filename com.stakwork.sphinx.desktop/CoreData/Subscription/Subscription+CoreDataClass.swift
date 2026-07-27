@@ -25,12 +25,14 @@ public class Subscription: NSManagedObject {
         return !self.ended && !self.paused
     }
     
+    @MainActor
     public static func getAll() -> [Subscription] {
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
         let subscriptions: [Subscription] = CoreDataManager.sharedManager.getAllOfType(entityName: "Subscription", sortDescriptors: sortDescriptors)
         return subscriptions
     }
     
+    @MainActor
     public static func getSubscriptionWith(id: Int) -> Subscription? {
         let predicate = NSPredicate(format: "id == %d", id)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
@@ -38,6 +40,7 @@ public class Subscription: NSManagedObject {
         return subscription
     }
     
+    @MainActor
     public static func getSubscriptionInstance(id: Int, managedContext: NSManagedObjectContext) -> Subscription {
         if let s = Subscription.getSubscriptionWith(id: id) {
             return s
@@ -46,6 +49,7 @@ public class Subscription: NSManagedObject {
         }
     }
 
+    @MainActor
     public static func insertSubscription(subscription: JSON) -> Subscription? {
         let id = subscription["id"].intValue
         var chat: Chat? = nil
@@ -90,6 +94,7 @@ public class Subscription: NSManagedObject {
         return subscription
     }
     
+    @MainActor
     public static func createObject(id: Int, chat: Chat?, contact: UserContact?, amount: NSDecimalNumber?, cron: String, count: Int, endNumber: Int?, endDate: Date?, createdAt: Date?, updatedAt: Date?, ended: Bool, paused: Bool) -> Subscription? {
         let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
         

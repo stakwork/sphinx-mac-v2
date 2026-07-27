@@ -364,6 +364,7 @@ class ProfileViewController: NSViewController {
     
     func updatePinSettings(){
         UserData.sharedInstance.setPINHours(hours: pinTimeoutView.getPinHours())
+        DataSyncManager.sharedInstance.savePinTimeout(value: "\(pinTimeoutView.getPinHours())")
     }
     
     func didUpdateProfile() -> Bool {
@@ -404,11 +405,11 @@ class ProfileViewController: NSViewController {
     }
     
     @IBAction func setupSignerButtonClicked(_ sender: Any) {
-        CrypterManager.sharedInstance.startSetup()
+//        CrypterManager.sharedInstance.startSetup()
     }
     
     @IBAction func disconnectMQTTButtonClicked(_ sender: Any) {
-        CrypterManager.sharedInstance.resetMQTTConnection()
+//        CrypterManager.sharedInstance.resetMQTTConnection()
     }
     
     @IBAction func setupPersonalGraphButtonClicked(_ sender: Any) {
@@ -419,6 +420,17 @@ class ProfileViewController: NSViewController {
             identifier: "setup-personal-graph-window",
             title: "Personal Graph Setup",
             height: 550
+        )
+    }
+
+    @IBAction func configureAIAgentButtonClicked(_ sender: Any) {
+        let setupAIAgentVC = SetupAIAgentViewController.instantiate()
+
+        advanceTo(
+            vc: setupAIAgentVC,
+            identifier: "setup-ai-agent-window",
+            title: "Configure AI Agent",
+            height: 490
         )
     }
     

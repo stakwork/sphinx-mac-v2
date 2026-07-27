@@ -138,129 +138,21 @@ class PinMessageDetailView: NSView, LoadableNib {
     func configureWith(
         messageContent: BubbleMessageLayoutState.MessageContent?
     ) {
-        let normalFont = NSFont(name: "Roboto-Light", size: 15.0)!
-        let highlightedFont = NSFont(name: "Roboto-Light", size: 15.0)!
-        let boldFont = NSFont(name: "Roboto-Black", size: 15.0)!
-        
-        if let messageContent = messageContent {
-            if messageContent.hasNoMarkdown {
-                messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
+        guard let messageContent = messageContent else { return }
 
-                messageLabel.stringValue = messageContent.text ?? ""
-                messageLabel.font = normalFont
-            } else {
-                let messageC = messageContent.text ?? ""
-                let attributedString = NSMutableAttributedString(string: messageC)
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.font: normalFont,
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
-                    ]
-                    , range: messageC.nsRange
-                )
-                
-                ///Highlighted text formatting
-                let highlightedNsRanges = messageContent.highlightedMatches.map {
-                    return $0.range
-                }
-                
-                for nsRange in highlightedNsRanges {
+        if messageContent.hasNoMarkdown {
+            messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
+            messageLabel.stringValue = messageContent.text ?? ""
+            messageLabel.font = NSFont(name: "Roboto-Light", size: 15.0)
+        } else {
+            let messageC = messageContent.text ?? ""
+            let attributedString = NSMutableAttributedString(
+                attributedString: ChatHelper.markdownRenderer.render(messageC)
+            )
+            ChatHelper.applySphinxLinkTransforms(to: attributedString)
 
-                    let adaptedRange = NSRange(
-                        location: nsRange.location,
-                        length: nsRange.length
-                    )
-                    
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
-                            NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: highlightedFont
-                        ],
-                        range: adaptedRange
-                    )
-                }
-                
-                ///Bold text formatting
-                let boldNsRanges = messageContent.boldMatches.map {
-                    return $0.range
-                }
-                
-                for nsRange in boldNsRanges {
-                    let adaptedRange = NSRange(
-                        location: nsRange.location,
-                        length: nsRange.length
-                    )
-                    
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.font: boldFont
-                        ],
-                        range: adaptedRange
-                    )
-                }
-
-                ///Links formatting
-                var nsRanges = messageContent.linkMatches.map {
-                    return $0.range
-                }
-                
-                nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-                for nsRange in nsRanges {
-                    
-                    if let text = messageContent.text, let range = Range(nsRange, in: text) {
-                        
-                        var substring = String(text[range])
-                        
-                        if substring.isPubKey {
-                            substring = substring.shareContactDeepLink
-                        } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                            substring = substring.callLinkDeepLink
-                        } else if !substring.isTribeJoinLink {
-                            substring = substring.withProtocol(protocolString: "http")
-                        }
-                         
-                        if let url = URL(string: substring)  {
-                            attributedString.addAttributes(
-                                [
-                                    NSAttributedString.Key.link: url,
-                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: normalFont
-                                ],
-                                range: nsRange
-                            )
-
-                        }
-                    }
-                }
-                
-                ///Markdown Links formatting
-                for (textCheckingResult, _, link, _) in messageContent.linkMarkdownMatches {
-                    
-                    let nsRange = textCheckingResult.range
-                    
-                    if let text = messageContent.text {
-                        
-                        if let url = URL(string: link)  {
-                            attributedString.addAttributes(
-                                [
-                                    NSAttributedString.Key.link: url,
-                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: NSFont.getMessageFont()
-                                ],
-                                range: nsRange
-                            )
-                        }
-                    }
-                }
-                
-                messageLabel.attributedStringValue = attributedString
-                messageLabel.isEnabled = true
-            }
+            messageLabel.attributedStringValue = attributedString
+            messageLabel.isEnabled = true
         }
     }
     

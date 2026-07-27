@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol MessageFieldDelegate: AnyObject {
+@MainActor protocol MessageFieldDelegate: AnyObject {
     func textDidChange(_ notification: Notification)
     func didTapUpArrow() -> Bool
     func didTapDownArrow() -> Bool

@@ -9,13 +9,13 @@
 import Foundation
 import AppKit
 
-class MediaDownloader {
+@MainActor class MediaDownloader {
     
     static func getFileName() -> String {
         return "sphinx.\(Date().getStringDate(format: "EEE.dd.MMM.hh.mm.ss"))".lowercased()
     }
     
-    static func shouldSaveFile(message: TransactionMessage, completion: @escaping (Bool, String) -> ()) {
+    static func shouldSaveFile(message: TransactionMessage, completion: @escaping @MainActor (Bool, String) -> ()) {
         func getErrorMessage(success: Bool, itemType: String) -> String {
             let successfulllySave = String(format: "item.successfully.saved".localized, itemType)
             let errorSaving = String(format: "error.saving.item".localized, itemType)
@@ -48,30 +48,30 @@ class MediaDownloader {
         }
     }
     
-    static func saveFile(message: TransactionMessage, fileName: String, completion: @escaping (Bool) -> ()) {
+    static func saveFile(message: TransactionMessage, fileName: String, completion: @escaping @MainActor (Bool) -> ()) {
         if let url = message.getMediaUrl() {
             if let data = MediaLoader.getMediaDataFromCachedUrl(url: url.absoluteString) {
                 message.saveFileSize(data.count)
                 let success = saveFile(data: data, name: fileName)
-                completion(success)
+                Task { @MainActor in completion(success) }
             } else {
-                NewMessageBubbleHelper().showLoadingWheel(text: "downloading.file".localized)
-                
+                Task { @MainActor in NewMessageBubbleHelper().showLoadingWheel(text: "downloading.file".localized) }
+
                 MediaLoader.loadFileData(url: url, message: message, completion: { (_, data) in
                     let success = saveFile(data: data, name: fileName)
                     completion(success)
-                    NewMessageBubbleHelper().hideLoadingWheel()
+                    Task { @MainActor in NewMessageBubbleHelper().hideLoadingWheel() }
                 }, errorCompletion: { _ in
                     completion(false)
-                    NewMessageBubbleHelper().hideLoadingWheel()
+                    Task { @MainActor in NewMessageBubbleHelper().hideLoadingWheel() }
                 })
             }
         } else {
-            completion(false)
+            Task { @MainActor in completion(false) }
         }
     }
     
-    static func saveVideo(message: TransactionMessage, fileName: String, completion: @escaping (Bool) -> ()) {
+    static func saveVideo(message: TransactionMessage, fileName: String, completion: @escaping @MainActor (Bool) -> ()) {
         if let url = message.getMediaUrl() {
             MediaLoader.loadVideo(url: url, message: message, completion: { (_, data, _) in
                 let success = saveFile(data: data, name: "\(fileName).mov")
@@ -80,11 +80,11 @@ class MediaDownloader {
                 completion(false)
             })
         } else {
-            completion(false)
+            Task { @MainActor in completion(false) }
         }
     }
     
-    static func saveImage(message: TransactionMessage, fileName: String, completion: @escaping (Bool) -> ()) {
+    static func saveImage(message: TransactionMessage, fileName: String, completion: @escaping @MainActor (Bool) -> ()) {
         if let url = message.getMediaUrl() {
             MediaLoader.loadImage(url: url, message: message, completion: { (_, image) in
                 if let tiffRepresentation = image.tiffRepresentation,
@@ -100,15 +100,15 @@ class MediaDownloader {
                 completion(false)
             })
         } else {
-            completion(false)
+            Task { @MainActor in completion(false) }
         }
     }
     
     static func saveImage(
         url:URL,
         message:TransactionMessage,
-        completion:@escaping ()->(),
-        errorCompletion:@escaping ()->()
+        completion:@escaping @MainActor ()->(),
+        errorCompletion:@escaping @MainActor ()->()
     ){
          let fileName = getFileName()
         
@@ -135,16 +135,16 @@ class MediaDownloader {
         return nil
     }
     
-    static func saveGif(message: TransactionMessage, fileName: String, completion: @escaping (Bool) -> ()) {
+    static func saveGif(message: TransactionMessage, fileName: String, completion: @escaping @MainActor (Bool) -> ()) {
         if let url = getGifUrlFrom(message: message) {
             if let gifData = MediaLoader.getMediaDataFromCachedUrl(url: url.absoluteString) {
                 let success = saveFile(data: gifData, name: "\(fileName).gif")
-                completion(success)
+                Task { @MainActor in completion(success) }
             } else {
-                completion(false)
+                Task { @MainActor in completion(false) }
             }
         } else {
-            completion(false)
+            Task { @MainActor in completion(false) }
         }
     }
     

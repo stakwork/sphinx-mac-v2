@@ -17,7 +17,6 @@
                 <outlet property="imageView" destination="PJe-X3-b7u" id="rUp-eK-Djd"/>
                 <outlet property="loadingWheel" destination="zFo-70-T0H" id="PXF-5Q-m3m"/>
                 <outlet property="loadingWheelContainer" destination="P4d-BF-byL" id="TgF-xf-WyL"/>
-                <outlet property="messageLabel" destination="bS9-9X-16j" id="NvA-Jl-3Bu"/>
                 <outlet property="nicknameLabel" destination="Wdf-Dp-39v" id="9eK-Qi-Oa1"/>
                 <outlet property="priceLabel" destination="DsZ-kX-y9x" id="zJJ-ZZ-wds"/>
             </connections>

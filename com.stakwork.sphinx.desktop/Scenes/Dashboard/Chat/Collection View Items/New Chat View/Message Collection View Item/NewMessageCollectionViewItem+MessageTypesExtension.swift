@@ -23,6 +23,16 @@ extension NewMessageCollectionViewItem {
         }
     }
     
+    func updateReplyViewHoverState(
+        isHovered: Bool,
+        additionalHeight: CGFloat,
+        bubble: BubbleMessageLayoutState.Bubble
+    ) {
+        replyViewHeightConstraint.constant = NewMessageReplyView.kViewHeight + additionalHeight
+        messageReplyView.updateHoverVisuals(isHovered: isHovered, bubble: bubble)
+        // No layoutSubtreeIfNeeded() — invalidateLayout() resizes from the outside
+    }
+
     func configureWith(
         directPayment: BubbleMessageLayoutState.DirectPayment?,
         and bubble: BubbleMessageLayoutState.Bubble
@@ -74,8 +84,8 @@ extension NewMessageCollectionViewItem {
             audioMessageView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldLoadAudioDataFor(
                         messageId: messageId,
                         and: self.rowIndex
@@ -100,8 +110,8 @@ extension NewMessageCollectionViewItem {
             podcastAudioView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldPodcastCommentDataFor(
                         messageId: messageId,
                         and: self.rowIndex
@@ -130,8 +140,8 @@ extension NewMessageCollectionViewItem {
                     )
                     mediaMessageView.isHidden = false
                 } else if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 100_000_000)
                         self.delegate?.shouldLoadLinkImageDataFor(
                             messageId: messageId,
                             and: self.rowIndex
@@ -148,8 +158,8 @@ extension NewMessageCollectionViewItem {
                 mediaMessageView.isHidden = false
                 
                 if let messageId = messageId, mediaData == nil {
-                    let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                    DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 100_000_000)
                         if messageMedia.isImage {
                             self.delegate?.shouldLoadImageDataFor(
                                 messageId: messageId,
@@ -191,8 +201,8 @@ extension NewMessageCollectionViewItem {
             fileDetailsView.isHidden = false
             
             if let messageId = messageId, mediaData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldLoadFileDataFor(
                         messageId: messageId,
                         and: self.rowIndex
@@ -221,142 +231,29 @@ extension NewMessageCollectionViewItem {
             )
             
             labelHeightConstraint.constant = labelHeight
-            textMessageView.superview?.layoutSubtreeIfNeeded()
-                        
-            if messageContent.hasNoMarkdown && searchingTerm == nil {
-                messageLabel.attributedStringValue = NSMutableAttributedString(string: "")
 
-                messageLabel.stringValue = messageContent.text ?? ""
-                messageLabel.font = NSFont.getMessageFont()
-            } else {
+            let rendered = NSMutableAttributedString(
+                attributedString: ChatHelper.markdownRenderer.render(messageContent.text ?? "")
+            )
+            ChatHelper.applySphinxLinkTransforms(to: rendered)
+
+            if let term = searchingTerm, !term.isEmpty {
                 let messageC = messageContent.text ?? ""
-
-                let attributedString = NSMutableAttributedString(string: messageC)
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.font: NSFont.getMessageFont(),
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
-                    ]
-                    , range: messageC.nsRange
+                let searchRange = (messageC.lowercased() as NSString).range(of: term.lowercased())
+                rendered.addAttributes(
+                    [.backgroundColor: NSColor.Sphinx.PrimaryGreen],
+                    range: searchRange
                 )
-                
-                ///Hightlighted text formatting
-                let highlightedNsRanges = messageContent.highlightedMatches.map {
-                    return $0.range
-                }
-                    
-                for nsRange in highlightedNsRanges {
-                    
-                    let adaptedRange = NSRange(
-                        location: nsRange.location,
-                        length: nsRange.length
-                    )
-                    
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
-                            NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                            NSAttributedString.Key.font: NSFont.getHighlightedMessageFont()
-                        ],
-                        range: adaptedRange
-                    )
-                }
-                
-                ///Bold text formatting
-                let boldNsRanges = messageContent.boldMatches.map {
-                    return $0.range
-                }
-                
-                for nsRange in boldNsRanges {
-
-                    let adaptedRange = NSRange(
-                        location: nsRange.location,
-                        length: nsRange.length
-                    )
-                    
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.font: NSFont.getMessageBoldFont()
-                        ],
-                        range: adaptedRange
-                    )
-                }
-                
-                ///Links formatting
-                var nsRanges = messageContent.linkMatches.map {
-                    return $0.range
-                }
-                
-                nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-                for nsRange in nsRanges {
-                    
-                    if let text = messageContent.text, let range = Range(nsRange, in: text) {
-                        
-                        var substring = String(text[range])
-                        
-                        if substring.isPubKey {
-                            substring = substring.shareContactDeepLink
-                        } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                            substring = substring.callLinkDeepLink
-                        } else if !substring.isTribeJoinLink {
-                            substring = substring.withProtocol(protocolString: "http")
-                        }
-                         
-                        if let url = URL(string: substring)  {
-                            attributedString.addAttributes(
-                                [
-                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: NSFont.getMessageFont(),
-                                    NSAttributedString.Key.link: url
-                                ],
-                                range: nsRange
-                            )
-
-                        }
-                    }
-                }
-                
-                ///Markdown Links formatting
-                for (textCheckingResult, _, link, _) in messageContent.linkMarkdownMatches {
-                    
-                    let nsRange = textCheckingResult.range
-                    
-                    if let _ = messageContent.text {
-                        if let url = URL(string: link)  {
-                            attributedString.addAttributes(
-                                [
-                                    NSAttributedString.Key.link: url,
-                                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                    NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                    NSAttributedString.Key.font: NSFont.getMessageFont()
-                                ],
-                                range: nsRange
-                            )
-                        }
-                    }
-                }
-                
-                ///Search term formatting
-                let term = searchingTerm ?? ""
-                let searchingTermRange = (messageC.lowercased() as NSString).range(of: term.lowercased())
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.PrimaryGreen
-                    ]
-                    , range: searchingTermRange
-                )
-
-                messageLabel.attributedStringValue = attributedString
-                messageLabel.isEnabled = true
             }
+            
+            messageLabel.attributedStringValue = rendered
+            messageLabel.isEnabled = true
             
             textMessageView.isHidden = false
             
             if let messageId = messageId, messageContent.shouldLoadPaidText {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldLoadTextDataFor(
                         messageId: messageId,
                         and: self.rowIndex
@@ -367,11 +264,22 @@ extension NewMessageCollectionViewItem {
     }
     
     func configureWith(
-        callLink: BubbleMessageLayoutState.CallLink?
+        callLink: BubbleMessageLayoutState.CallLink?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil
     ) {
         if let callLink = callLink {
             callLinkView.configureWith(callLink: callLink, and: self)
+            callLinkView.configureWith(participantsData: participantsData)
             callLinkView.isHidden = false
+            
+            // Always call on render — the data source deduplicates via polling timer guard.
+            if let messageId = messageId, let rowIndex = rowIndex {
+                let urlString = callLink.link
+                if let url = URL(string: urlString),
+                   let roomName = url.pathComponents.filter({ !$0.isEmpty && $0 != "/" }).last {
+                    delegate?.shouldLoadCallParticipantsFor(messageId: messageId, roomName: roomName, and: rowIndex)
+                }
+            }
         }
     }
     
@@ -398,8 +306,8 @@ extension NewMessageCollectionViewItem {
             linkPreviewView.isHidden = false
             
             if let messageId = messageId, linkData == nil {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldLoadLinkDataFor(
                         messageId: messageId,
                         and: self.rowIndex
@@ -429,8 +337,8 @@ extension NewMessageCollectionViewItem {
                 tribeLinkPreviewView.configureWith(tribeData: tribeData, and: bubble, delegate: self)
                 tribeLinkPreviewView.isHidden = false
             } else if let messageId = messageId {
-                let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-                DispatchQueue.global().asyncAfter(deadline: delayTime) {
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     self.delegate?.shouldLoadTribeInfoFor(
                         messageId: messageId,
                         and: self.rowIndex

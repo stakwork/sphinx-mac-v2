@@ -62,16 +62,18 @@ extension API {
 
     // Helper to convert sphinxRequest to async
     private func performSphinxRequest(_ request: URLRequest) async throws -> Any {
-        return try await withCheckedThrowingContinuation { continuation in
+        struct AnyBox: @unchecked Sendable { let value: Any }
+        let box = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<AnyBox, Error>) in
             sphinxRequest(request) { response in
                 switch response.result {
                 case .success(let data):
-                    continuation.resume(returning: data)
+                    continuation.resume(returning: AnyBox(value: data))
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 }
             }
         }
+        return box.value
     }
 
     // Custom errors

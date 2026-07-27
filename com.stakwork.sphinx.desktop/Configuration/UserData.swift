@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-class UserData {
+class UserData: @unchecked Sendable {
     
     class var sharedInstance : UserData {
         struct Static {
@@ -75,10 +75,12 @@ class UserData {
         return false
     }
     
+    @MainActor
     func getPINNeverOverride() -> Bool{
         return self.getPINHours() == Constants.kMaxPinTimeoutValue
     }
-    
+
+    @MainActor
     func getPINHours() -> Int {
         return UserDefaults.Keys.pinHours.get(defaultValue: Constants.kMaxPinTimeoutValue)
     }
@@ -241,6 +243,31 @@ class UserData {
         return nil
     }
     
+    func save(
+        aiAgentValue: String,
+        for key: KeychainManager.KeychainKeys
+    ) {
+        if let pin = getAppPin(),
+            let encryptedValue = SymmetricEncryptionManager.sharedInstance.encryptString(text: aiAgentValue, key: pin),
+            !encryptedValue.isEmpty
+        {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            let _ = keychainManager.save(value: encryptedValue, forComposedKey: composedKey)
+        }
+    }
+
+    func getAIAgentValue(
+        with key: KeychainManager.KeychainKeys
+    ) -> String? {
+        if let pin = getAppPin() {
+            let composedKey = "\(accountUUID).\(key.rawValue)"
+            if let encryptedValue = keychainManager.getValueFor(composedKey: composedKey), !encryptedValue.isEmpty {
+                return SymmetricEncryptionManager.sharedInstance.decryptString(text: encryptedValue, key: pin)
+            }
+        }
+        return nil
+    }
+
     func save(balance: UInt64) {
         let _ = keychainManager.save(
             value: String(balance),
@@ -258,6 +285,7 @@ class UserData {
         return nil
     }
     
+    @MainActor
     func clearData() {
         CoreDataManager.sharedManager.clearCoreDataStore()
         UserData.sharedInstance.resetSignup()

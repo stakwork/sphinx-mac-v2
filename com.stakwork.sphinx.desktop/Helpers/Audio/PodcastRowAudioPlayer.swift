@@ -9,14 +9,10 @@
 import Foundation
 import AVKit
 
+@MainActor
 class PodcastRowAudioPlayer : NSObject {
 
-    class var sharedInstance : PodcastRowAudioPlayer {
-        struct Static {
-            static let instance = PodcastRowAudioPlayer()
-        }
-        return Static.instance
-    }
+    nonisolated(unsafe) static let sharedInstance: PodcastRowAudioPlayer = MainActor.assumeIsolated { PodcastRowAudioPlayer() }
     
     var audioPlayer: AVPlayer?
     

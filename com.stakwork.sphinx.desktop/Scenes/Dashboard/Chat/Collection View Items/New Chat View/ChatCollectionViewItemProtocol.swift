@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol ChatCollectionViewItemProtocol: AnyObject {
     func configureWith(
         messageCellState: MessageTableCellState,
@@ -16,6 +17,7 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
+        participantsData: MessageTableCellState.ParticipantsData?,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
@@ -24,6 +26,7 @@ protocol ChatCollectionViewItemProtocol: AnyObject {
     )
 }
 
+@MainActor
 protocol ChatCollectionViewItemDelegate: AnyObject {
     //Loading content in background
     func shouldLoadTribeInfoFor(messageId: Int, and rowIndex: Int)
@@ -37,6 +40,7 @@ protocol ChatCollectionViewItemDelegate: AnyObject {
     func shouldLoadLinkDataFor(messageId: Int, and rowIndex: Int)
     func shouldLoadAudioDataFor(messageId: Int, and rowIndex: Int)
     func shouldPodcastCommentDataFor(messageId: Int, and rowIndex: Int)
+    func shouldLoadCallParticipantsFor(messageId: Int, roomName: String, and rowIndex: Int)
     
     //Actions handling
     ///Message reply

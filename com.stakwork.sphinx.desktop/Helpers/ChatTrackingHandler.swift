@@ -8,17 +8,15 @@
 
 import Foundation
 
+@MainActor 
 class ChatTrackingHandler {
     
-    class var shared : ChatTrackingHandler {
-        struct Static {
-            static let instance = ChatTrackingHandler()
-        }
-        return Static.instance
-    }
+    static let shared = ChatTrackingHandler()
     
     var replyableMessages: [Int: Int] = [:]
     var ongoingMessages : [String: String] = [:]
+    var draftTimestamps: [String: Date] = [:]
+    var ongoingAttachments: [String: [AttachmentPreview]] = [:]
     
     func deleteReplyableMessage(with chatId: Int?) {
         guard let chatId = chatId else { return }
@@ -52,6 +50,7 @@ class ChatTrackingHandler {
         guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
         
         ongoingMessages.removeValue(forKey: key)
+        draftTimestamps.removeValue(forKey: key)
     }
     
     func saveOngoingMessage(
@@ -62,6 +61,20 @@ class ChatTrackingHandler {
         guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
         
         ongoingMessages[key] = message
+        
+        if message.isEmpty {
+            draftTimestamps.removeValue(forKey: key)
+        } else {
+            draftTimestamps[key] = Date()
+        }
+    }
+    
+    func getDraftTimestampFor(
+        chatId: Int?,
+        threadUUID: String?
+    ) -> Date? {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return nil }
+        return draftTimestamps[key]
     }
     
     func getOngoingMessageFor(
@@ -77,6 +90,35 @@ class ChatTrackingHandler {
         return nil
     }
     
+    func saveOngoingAttachments(
+        _ attachments: [AttachmentPreview],
+        chatId: Int?,
+        threadUUID: String?
+    ) {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
+        if attachments.isEmpty {
+            ongoingAttachments.removeValue(forKey: key)
+        } else {
+            ongoingAttachments[key] = attachments
+        }
+    }
+
+    func getOngoingAttachmentsFor(
+        chatId: Int?,
+        threadUUID: String?
+    ) -> [AttachmentPreview]? {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return nil }
+        return ongoingAttachments[key]
+    }
+
+    func deleteOngoingAttachments(
+        with chatId: Int?,
+        threadUUID: String?
+    ) {
+        guard let key = getComposedKeyFor(chatId: chatId, threadUUID: threadUUID) else { return }
+        ongoingAttachments.removeValue(forKey: key)
+    }
+
     func getComposedKeyFor(
         chatId: Int?,
         threadUUID: String?

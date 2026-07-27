@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@objc protocol MessageOptionsDelegate: AnyObject {
+@MainActor @objc protocol MessageOptionsDelegate: AnyObject {
     @objc optional func shouldDeleteMessage(message: TransactionMessage)
     @objc optional func shouldReplyToMessage(message: TransactionMessage)
     @objc optional func shouldResendMessage(message:TransactionMessage)
@@ -20,16 +20,18 @@ import Cocoa
     @objc optional func willHideMenu()
 }
 
-class MessageOptionsHelper {
-    
+@MainActor class MessageOptionsHelper {
+
     weak var delegate: MessageOptionsDelegate?
-    
+
     class var sharedInstance : MessageOptionsHelper {
         struct Static {
-            static let instance = MessageOptionsHelper()
+            nonisolated(unsafe) static let instance = MessageOptionsHelper()
         }
         return Static.instance
     }
+
+    nonisolated init() {}
     
     var menuView: NSView? = nil
     var message: TransactionMessage? = nil
@@ -290,11 +292,11 @@ class MessageOptionsHelper {
         options.append(
             (ChatHeaderItem.Search.rawValue, nil, nil, "search".localized)
         )
-        if chat.isPublicGroup() {
-            options.append(
-                (ChatHeaderItem.Threads.rawValue, nil, nil, "threads".localized)
-            )
-        }
+//        if chat.isPublicGroup() {
+//            options.append(
+//                (ChatHeaderItem.Threads.rawValue, nil, nil, "threads".localized)
+//            )
+//        }
         if chat.hasWebApp() {
             options.append(
                 (ChatHeaderItem.WebApp.rawValue, nil, nil, "web.app".localized)

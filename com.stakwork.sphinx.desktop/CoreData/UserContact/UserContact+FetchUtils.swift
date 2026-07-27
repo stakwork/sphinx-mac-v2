@@ -89,7 +89,7 @@ extension UserContact {
 
     public enum SortDescriptors {
 
-        public static let nameAscending: NSSortDescriptor = NSSortDescriptor(
+        nonisolated(unsafe) public static let nameAscending: NSSortDescriptor = NSSortDescriptor(
             key: #keyPath(UserContact.nickname),
             ascending: true,
 
@@ -102,7 +102,7 @@ extension UserContact {
         )
 
 
-        public static let nameDescending: NSSortDescriptor = {
+        nonisolated(unsafe) public static let nameDescending: NSSortDescriptor = {
             guard let descriptor = nameAscending.reversedSortDescriptor as? NSSortDescriptor else {
                 preconditionFailure("Unable to make reversed sort descriptor")
             }
@@ -181,6 +181,13 @@ extension UserContact {
             request.predicate = Predicates.encryptedContactWith(id: id)
             request.sortDescriptors = []
 
+            return request
+        }
+
+        public static func agentContact() -> NSFetchRequest<UserContact> {
+            let request: NSFetchRequest<UserContact> = baseFetchRequest()
+            request.predicate = NSPredicate(format: "isAgent == %@", NSNumber(value: true))
+            request.fetchLimit = 1
             return request
         }
     }

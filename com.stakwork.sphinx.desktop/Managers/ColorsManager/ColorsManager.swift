@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ColorsManager : NSObject {
+class ColorsManager : NSObject, @unchecked Sendable {
     
     class var sharedInstance : ColorsManager {
         struct Static {

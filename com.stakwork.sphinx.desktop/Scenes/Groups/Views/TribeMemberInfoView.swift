@@ -8,7 +8,7 @@
 
 import Cocoa
 
-@objc protocol TribeMemberInfoDelegate : AnyObject {
+@MainActor @objc protocol TribeMemberInfoDelegate : AnyObject {
     func didUpdateUploadProgress(uploadString: String)
     @objc optional func didChangeName(newValue: String)
     @objc optional func didChangeImage()

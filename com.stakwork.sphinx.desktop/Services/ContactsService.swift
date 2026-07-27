@@ -10,14 +10,10 @@ import Foundation
 import SwiftyJSON
 import CoreData
 
+@MainActor
 class ContactsService: NSObject {
     
-    class var sharedInstance : ContactsService {
-        struct Static {
-            static let instance = ContactsService()
-        }
-        return Static.instance
-    }
+    @MainActor static let sharedInstance = ContactsService()
     
     var owner: UserContact!
 
@@ -247,7 +243,7 @@ class ContactsService: NSObject {
     }
 }
 
-extension ContactsService : NSFetchedResultsControllerDelegate {
+extension ContactsService : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference
@@ -403,7 +399,11 @@ extension ContactsService : NSFetchedResultsControllerDelegate {
         let orderedObjects = objects.sorted(by: {
             let contact1 = $0 as ChatListCommonObject
             let contact2 = $1 as ChatListCommonObject
-            
+
+            let isAgent1 = ($0.getContact()?.isAgent == true)
+            let isAgent2 = ($1.getContact()?.isAgent == true)
+            if isAgent1 != isAgent2 { return isAgent1 }
+
             if contact1.getInvite() != nil || contact2.getInvite() != nil {
                 return contact1.getInvite() != nil && $1.getInvite() == nil
             }
@@ -412,12 +412,26 @@ extension ContactsService : NSFetchedResultsControllerDelegate {
                 return $0.isPending() && !$1.isPending()
             }
 
-            if let contact1Date = contact1.getOrderDate() {
-                if let contact2Date = contact2.getOrderDate() {
+            func effectiveDate(for obj: ChatListCommonObject) -> Date? {
+                var date = obj.getOrderDate()
+                let chatId = obj.getChat()?.id
+                if let draftDate = MainActor.assumeIsolated({
+                    ChatTrackingHandler.shared.getDraftTimestampFor(
+                        chatId: chatId,
+                        threadUUID: nil
+                    )
+                }) {
+                    if draftDate > (date ?? .distantPast) { date = draftDate }
+                }
+                return date
+            }
+
+            if let contact1Date = effectiveDate(for: contact1) {
+                if let contact2Date = effectiveDate(for: contact2) {
                     return contact1Date > contact2Date
                 }
                 return true
-            } else if let _ = contact2.getOrderDate() {
+            } else if let _ = effectiveDate(for: contact2) {
                 return false
             }
 

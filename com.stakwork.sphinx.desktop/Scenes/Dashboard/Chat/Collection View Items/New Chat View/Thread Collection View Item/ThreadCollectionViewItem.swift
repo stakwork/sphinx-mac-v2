@@ -63,6 +63,7 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     @IBOutlet weak var threadLastMessageHeader: ThreadLastMessageHeader!
     
     ///Forth Container
+    @IBOutlet weak var lastReplyCallLinkView: JoinVideoCallView!
     @IBOutlet weak var lastReplyAudioMessageView: AudioMessageView!
     @IBOutlet weak var lastReplyMediaMessageView: MediaMessageView!
     @IBOutlet weak var lastReplyFileDetailsView: FileInfoView!
@@ -79,6 +80,11 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
     @IBOutlet weak var labelHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var lastReplyLabelHeightConstraint: NSLayoutConstraint!
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        chatAvatarView.resetView()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -92,6 +98,7 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
@@ -162,6 +169,10 @@ class ThreadCollectionViewItem: CommonNewMessageCollectionViewitem, ChatCollecti
         configureLastReplyWith(
             boosts: mutableMessageCellState.boosts,
             and: bubble
+        )
+        configureLastReplyWith(
+            callLink: mutableMessageCellState.callLink,
+            participantsData: participantsData
         )
         
         ///Thread

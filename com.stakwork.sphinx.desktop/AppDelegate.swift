@@ -10,9 +10,10 @@ import Cocoa
 import CoreData
 import SDWebImage
 import WebKit
+import SphinxErrorReporter
 
-@NSApplicationMain
- class AppDelegate: NSObject, NSApplicationDelegate {
+@main
+@MainActor class AppDelegate: NSObject, NSApplicationDelegate {
     
     let notificationsHelper = NotificationsHelper()
     var newMessageBubbleHelper = NewMessageBubbleHelper()
@@ -49,6 +50,8 @@ import WebKit
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        AppLogger.shared.start()
+        startErrorReporter()
         setAppSettings()
         clearWebkitCache()
         
@@ -70,20 +73,47 @@ import WebKit
 //        DataSyncManager.sharedInstance.deleteFile()
     }
     
-    func clearWebkitCache() {
-        URLCache.shared.removeAllCachedResponses()
+    private func startErrorReporter() {
+        // Hive base URL (same constant used across the app for Hive API calls)
+        guard let hiveURL = URL(string: API.kHiveBaseUrl) else { return }
 
-        if let cookies = HTTPCookieStorage.shared.cookies {
-            for cookie in cookies {
-                HTTPCookieStorage.shared.deleteCookie(cookie)
+        // Build version from bundle metadata
+        let release = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        let releaseString = [release, buildNumber].compactMap { $0 }.joined(separator: "+")
+
+        let config = SphinxErrorReporter.Config(
+            hiveBaseURL: hiveURL,
+            ingestKey: Config.sphinxErrorReporterApiKey,
+            mainRepo: "stakwork/sphinx-mac-v2",
+            environment: "production",
+            release: releaseString.isEmpty ? nil : releaseString,
+            commitSha: nil,
+            debug: false
+        )
+
+        // Called after AppLogger.start() so any early log entries are already captured.
+        // Chains with any previously-installed crash handlers (there are none currently
+        // on macOS, but the chaining is safe for future crash SDK additions).
+        SphinxErrorReporter.start(config)
+    }
+
+    func clearWebkitCache() {
+        DispatchQueue.global(qos: .utility).async {
+            URLCache.shared.removeAllCachedResponses()
+            if let cookies = HTTPCookieStorage.shared.cookies {
+                for cookie in cookies {
+                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                }
+            }
+            DispatchQueue.main.async {
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+                    modifiedSince: Date(timeIntervalSince1970: 0),
+                    completionHandler: {}
+                )
             }
         }
-        
-        WKWebsiteDataStore.default().removeData(
-            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
-            modifiedSince: Date(timeIntervalSince1970: 0),
-            completionHandler: {}
-        )
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -130,9 +160,9 @@ import WebKit
     }
      
     func connectMQTT() {
-        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
-            CrypterManager.sharedInstance.startMQTTSetup()
-        }
+//        if let phoneSignerSetup: Bool = UserDefaults.Keys.setupPhoneSigner.get(), phoneSignerSetup {
+//            CrypterManager.sharedInstance.startMQTTSetup()
+//        }
     }
 
     
@@ -293,6 +323,12 @@ import WebKit
                 createKeyWindowWith(vc: splashVC, windowState: windowState, closeOther: false, hideBar: true)
             }
         }
+
+        if UserData.sharedInstance.isUserLogged() {
+            Task { @MainActor in
+                AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
+            }
+        }
     }
     
     func createKeyWindowWith(vc: NSViewController, windowState: WindowState, closeOther: Bool = false, hideBar: Bool = false) {
@@ -394,11 +430,12 @@ import WebKit
             
             SphinxOnionManager.sharedInstance.isConnected = false
             
-            getDashboardVC()?.reconnectToServer()
+            getDashboardVC()?.reconnectToServer(force: true)
         }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
+        AppLogger.shared.flush()
         WindowsManager.sharedInstance.saveWindowState()
         CoreDataManager.sharedManager.saveContext()
         ContactsService.sharedInstance.saveSelectedChat()
@@ -482,18 +519,9 @@ import WebKit
     }
      
      func setBadge() {
-         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-         
-         backgroundContext.performSafely { [weak self] in
-             guard let self = self else {
-                 return
-             }
-             let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: backgroundContext)
-             
-             DispatchQueue.main.async {
-                 self.setBadge(count: receivedUnseenCount)
-             }
-         }
+         let viewContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+         let receivedUnseenCount = TransactionMessage.getReceivedUnseenMessagesCount(context: viewContext)
+         setBadge(count: receivedUnseenCount)
      }
     
     func setBadge(count: Int) {

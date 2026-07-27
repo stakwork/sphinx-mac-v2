@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol HealthCheckDelegate: AnyObject {
     func shouldShowBubbleWith(_ message: String)
 }
@@ -50,8 +51,10 @@ class HealthCheckView: NSView, LoadableNib {
             forName: .onConnectionStatusChanged,
             object: nil,
             queue: OperationQueue.main
-        ) { [weak self] (n: Notification) in
-            self?.updateConnectionSign()
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateConnectionSign()
+            }
         }
     }
     

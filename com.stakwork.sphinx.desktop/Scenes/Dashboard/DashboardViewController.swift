@@ -9,6 +9,8 @@
 import Cocoa
 import UserNotifications
 
+extension Notification: @unchecked Sendable {}
+
 class DashboardViewController: NSViewController {
     
     @IBOutlet weak var dashboardSplitView: NSSplitView!
@@ -64,7 +66,7 @@ class DashboardViewController: NSViewController {
     public static let kRightPanelMinWidth: CGFloat = 320
     
     var resizeTimer : Timer? = nil
-    var escapeMonitor: Any? = nil
+    nonisolated(unsafe) var escapeMonitor: Any? = nil
     
     internal lazy var feedDashboardViewController: FeedDashboardViewController = {
         FeedDashboardViewController.instantiate()
@@ -80,6 +82,13 @@ class DashboardViewController: NSViewController {
             isPersonalGraph: true
         )
     }()
+
+    /// The WebAppViewController currently shown inline in rightSplittedView.
+    var activeInlineWebAppVC: WebAppViewController? = nil
+    /// AutoLayout constraints pinning the overlay to rightSplittedView.
+    var activeInlineWebAppConstraints: [NSLayoutConstraint] = []
+    /// The chat ID the overlay belongs to.
+    var activeInlineWebAppChatId: Int? = nil
     
     static func instantiate() -> DashboardViewController {
         let viewController = StoryboardScene.Dashboard.dashboardViewController.instantiate()
@@ -132,56 +141,70 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.themeChangedNotification(notification: n)
+            Task { @MainActor [weak self] in
+                self?.themeChangedNotification(notification: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .connectedToInternet,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.didConnectToInternet()
+            Task { @MainActor [weak self] in
+                self?.didConnectToInternet()
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .disconnectedFromInternet,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.didDisconnectFromInternet()
+            Task { @MainActor [weak self] in
+                self?.didDisconnectFromInternet()
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .webViewImageClicked,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handleImageNotification(n)
+            Task { @MainActor [weak self] in
+                self?.handleImageNotification(n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .shouldUpdateDashboard,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.reloadData()
+            Task { @MainActor [weak self] in
+                self?.reloadData()
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .shouldReloadViews,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] _ in
-            self?.reloadView()
+            Task { @MainActor [weak self] in
+                self?.reloadView()
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .shouldReloadChatLists,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            if let chatIds = n.userInfo?["chat-ids"] as? [Int] {
-                self?.reloadChatListsFor(chatIds: chatIds)
+            Task { @MainActor [weak self] in
+                if let chatIds = n.userInfo?["chat-ids"] as? [Int] {
+                    self?.reloadChatListsFor(chatIds: chatIds)
+                }
             }
         }
         
@@ -198,20 +221,22 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
-                
-                if chat.isPublicGroup() {
-                    self?.contactsService.selectedTribeId = chat.getObjectId()
-                    self?.contactsService.selectedTab = .tribes
-                    self?.listViewController?.setActiveTab(.tribes)
-                } else {
-                    self?.contactsService.selectedFriendId = chat.getObjectId()
-                    self?.contactsService.selectedTab = .friends
-                    self?.listViewController?.setActiveTab(.friends)
+            Task { @MainActor [weak self] in
+                if let chatId = n.userInfo?["chat-id"] as? Int, let chat = Chat.getChatWith(id: chatId) {
+    
+                    if chat.isPublicGroup() {
+                        self?.contactsService.selectedTribeId = chat.getObjectId()
+                        self?.contactsService.selectedTab = .tribes
+                        self?.listViewController?.setActiveTab(.tribes)
+                    } else {
+                        self?.contactsService.selectedFriendId = chat.getObjectId()
+                        self?.contactsService.selectedTab = .friends
+                        self?.listViewController?.setActiveTab(.friends)
+                    }
+    
+                    self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
+                    self?.shouldGoToChat(chatId: chat.id)
                 }
-                
-                self?.listViewController?.dashboardNavigationTabs.updateButtonsOnIndexChange()
-                self?.shouldGoToChat(chatId: chat.id)
             }
         }
         
@@ -220,39 +245,49 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.showDashboardModalsVC(n: n)
+            Task { @MainActor [weak self] in
+                self?.showDashboardModalsVC(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .onPersonDeepLink,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.showDashboardModalsVC(n: n)
+            Task { @MainActor [weak self] in
+                self?.showDashboardModalsVC(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .onSaveProfileDeepLink,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.showDashboardModalsVC(n: n)
+            Task { @MainActor [weak self] in
+                self?.showDashboardModalsVC(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .onStakworkAuthDeepLink,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.showDashboardModalsVC(n: n)
+            Task { @MainActor [weak self] in
+                self?.showDashboardModalsVC(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .onRedeemSatsDeepLink,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.showDashboardModalsVC(n: n)
+            Task { @MainActor [weak self] in
+                self?.showDashboardModalsVC(n: n)
+            }
         }
         
 //        NotificationCenter.default.addObserver(
@@ -269,23 +304,39 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.processContentDeeplink(n: n)
+            Task { @MainActor [weak self] in
+                self?.processContentDeeplink(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .onShareContactDeeplink,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.processContactDeepLink(n: n)
+            Task { @MainActor [weak self] in
+                self?.processContactDeepLink(n: n)
+            }
         }
-        
+
         NotificationCenter.default.addObserver(
             forName: .shouldCloseRightPanel,
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.closeButtonTapped()
+            Task { @MainActor [weak self] in
+                self?.closeButtonTapped()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .onWebAppNavigationChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateWebAppNavButtonStates()
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -293,15 +344,17 @@ class DashboardViewController: NSViewController {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            if let presenter = self?.presenter {
-                if let bounds = self?.presenterContainerView?.bounds {
-                    presenter.view.frame = bounds
+            Task { @MainActor [weak self] in
+                if let presenter = self?.presenter {
+                    if let bounds = self?.presenterContainerView?.bounds {
+                        presenter.view.frame = bounds
+                    }
                 }
-            }
-            
-            if let detailVC = self?.dashboardDetailViewController {
-                if let bounds = self?.rightDetailSplittedView.bounds {
-                    detailVC.view.frame = bounds
+    
+                if let detailVC = self?.dashboardDetailViewController {
+                    if let bounds = self?.rightDetailSplittedView.bounds {
+                        detailVC.view.frame = bounds
+                    }
                 }
             }
         }
@@ -367,9 +420,10 @@ class DashboardViewController: NSViewController {
         )
     }
     
-    func reconnectToServer() {
+    func reconnectToServer(force: Bool = false) {
         SphinxOnionManager.sharedInstance.reconnectToServer(
-            hideRestoreViewCallback: self.hideRestoreViewCallback
+            hideRestoreViewCallback: self.hideRestoreViewCallback,
+            forceReconnect: force
         )
     }
     
@@ -392,7 +446,8 @@ class DashboardViewController: NSViewController {
             self.listViewController?.headerLoading = false
             
             self.shouldHideRetoreModal()
-            self.refreshUnreadStatus()  
+            self.refreshUnreadStatus()
+            AIAgentManager.sharedInstance.createAgentContactAndChatIfNeeded()
             
             if isRestore {
                 self.finishUserInfoSetup()
@@ -578,7 +633,7 @@ class DashboardViewController: NSViewController {
         if let query = n.userInfo?["query"] as? String,
            let feedID = query.getLinkValueFor(key: "feedID"),
            let itemID = query.getLinkValueFor(key: "itemID"){
-            print(query)
+
             
             if let feed = ContentFeed.getFeedById(feedId: feedID),
                let chat = feed.chat {
@@ -667,7 +722,7 @@ class DashboardViewController: NSViewController {
     }
     
     func reloadData() {
-        reconnectToMQTT()
+        reconnectToMQTT(force: true)
         
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         
@@ -685,7 +740,7 @@ class DashboardViewController: NSViewController {
         }
     }
     
-    func reconnectToMQTT() {
+    func reconnectToMQTT(force: Bool = false) {
         SphinxOnionManager.sharedInstance.reconnectToServer(
             connectingCallback: {
                 DispatchQueue.main.async {
@@ -696,7 +751,8 @@ class DashboardViewController: NSViewController {
                 DispatchQueue.main.async {
                     self.listViewController?.headerLoading = false
                 }
-            }
+            },
+            forceReconnect: force
         )
     }
     
@@ -749,14 +805,6 @@ extension DashboardViewController : NSSplitViewDelegate {
         if let _ = view.window {
             resizeSubviews()
 
-            resizeTimer?.invalidate()
-            resizeTimer = Timer.scheduledTimer(
-                timeInterval: 0.05,
-                target: self,
-                selector: #selector(resizeSubviews),
-                userInfo: nil,
-                repeats: false
-            )
         }
     }
 
@@ -765,12 +813,20 @@ extension DashboardViewController : NSSplitViewDelegate {
         feedDashboardViewController.resizeSubviews(frame: rightSplittedView.bounds)
         graphDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
         workspaceTasksDashboardViewController?.resizeSubviews(frame: rightSplittedView.bounds)
+        // activeInlineWebAppVC is pinned via AutoLayout — no manual resize needed.
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
         
         listViewController?.view.frame = leftSplittedView.bounds
         dashboardDetailViewController?.updateCurrentVCFrame()
+
+        // During panel open/close (not live resize), bypass the debounce in updateFrame()
+        // so the main chat re-renders immediately instead of waiting ~0.5s for the
+        // animation to settle. Live resize is already handled immediately by viewDidLayout().
+        if view.window?.inLiveResize != true {
+            newDetailViewController?.chatTableDataSource?.invalidateLayoutDebounced()
+        }
     }
 }
 
@@ -842,7 +898,85 @@ extension DashboardViewController : DashboardVCDelegate {
     func shouldReloadChatRowWith(chatId: Int) {
         listViewController?.shouldReloadChatRowWith(chatId: chatId)
     }
-    
+
+    func shouldShowInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
+        showInlineWebApp(chat: chat, isAppURL: isAppURL, cachedVC: cachedVC)
+    }
+
+    func shouldLoadURLInInlineWebApp(chat: Chat, url: String) {
+        if let existing = activeInlineWebAppVC, activeInlineWebAppChatId == chat.id {
+            if existing.webView?.isLoading == true {
+                // Tribe URL still in flight — defer so it commits a back-history entry first
+                existing.pendingDeepLinkURL = url
+            } else {
+                // Tribe URL already committed — navigate immediately, history intact
+                existing.loadURL(url)
+            }
+            existing.view.isHidden = false
+            newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        } else {
+            // No active overlay — create one with the tribe's main URL, then navigate to the deep link.
+            // Prefer the appURL slot; fall back to secondBrainUrl if appURL is not configured.
+            let useAppURL = chat.hasWebApp()
+            guard let freshVC = WebAppViewController.instantiate(chat: chat, isAppURL: useAppURL) else { return }
+            freshVC.pendingDeepLinkURL = url
+            if useAppURL {
+                newDetailViewController?.cachedWebAppVC = freshVC
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = freshVC
+            }
+            showInlineWebApp(chat: chat, isAppURL: useAppURL, cachedVC: freshVC)
+        }
+    }
+
+    func shouldRefreshInlineWebApp() {
+        activeInlineWebAppVC?.reloadFromScratch()
+    }
+
+    func shouldDismissInlineWebApp() {
+        dismissInlineWebApp()
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
+    }
+
+    func updateWebAppNavButtonStates() {
+        let canGoBack = activeInlineWebAppVC?.webView?.canGoBack ?? false
+        let canGoForward = activeInlineWebAppVC?.webView?.canGoForward ?? false
+        newDetailViewController?.chatTopView.chatHeaderView.updateWebAppNavButtons(
+            canGoBack: canGoBack,
+            canGoForward: canGoForward
+        )
+    }
+
+    func shouldOpenInlineWebAppInNewWindow() {
+        guard let vc = activeInlineWebAppVC,
+              let chat = vc.chat else { return }
+
+        let appURL = vc.appURL ?? ""
+        let isAppURL = chat.tribeInfo?.appUrl == appURL
+
+        // Detach from inline overlay
+        NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+        activeInlineWebAppConstraints = []
+        vc.view.removeFromSuperview()
+        vc.removeFromParent()
+
+        // Clear inline state and caches
+        activeInlineWebAppVC = nil
+        activeInlineWebAppChatId = nil
+        newDetailViewController?.cachedWebAppVC = nil
+        newDetailViewController?.cachedSecondBrainVC = nil
+
+        // Evict from session manager — VC is moving to its own window
+        WebAppSessionManager.sharedInstance.evict(chatId: chat.id, isAppURL: isAppURL)
+
+        // Hide webview action icons in header
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
+
+        // Move VC to its own window
+        let title = chat.name ?? ""
+        WindowsManager.sharedInstance.showWebAppWindow(vc: vc, title: title)
+    }
+
     func goToInviteCodeString(inviteCode: String) {
         if inviteCode == "" {
             return
@@ -884,30 +1018,146 @@ extension DashboardViewController : DashboardVCDelegate {
         
         newDetailViewController = newChatVCController
 
+        if let chat = chat,
+           WebAppSessionManager.sharedInstance.isVisible(chatId: chat.id),
+           let cachedVC = WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: true) ?? WebAppSessionManager.sharedInstance.retrieve(chatId: chat.id, isAppURL: false)
+        {
+            showInlineWebApp(chat: chat, isAppURL: true, cachedVC: cachedVC)
+        }
+
         deeplinkData = nil
         
         NotificationCenter.default.post(name: .onPodcastPlayerClosed, object: nil, userInfo: nil)
     }
     
     func resetDetailViewController() {
+        // Detach the overlay from the view hierarchy (no teardown here —
+        // resetVC() below will call teardown() on the cached web VC which is
+        // the same instance).
+        if let webAppVC = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            webAppVC.view.removeFromSuperview()
+            webAppVC.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
         if let detailViewController = newDetailViewController {
             detailViewController.resetVC()
-            
             self.removeChildVC(child: detailViewController)
-            
             newDetailViewController = nil
         }
-        
+
         self.removeChildVC(child: feedDashboardViewController)
-        
+
         if let graphDashboardViewController = graphDashboardViewController {
             self.removeChildVC(child: graphDashboardViewController)
         }
-        
+
         if let tasksVC = workspaceTasksDashboardViewController {
             self.removeChildVC(child: tasksVC)
             workspaceTasksDashboardViewController = nil
         }
+    }
+
+    // MARK: - Inline WebApp Overlay
+
+    /// Pin `webAppVC.view` over `rightSplittedView` using AutoLayout so the chat
+    /// VC underneath never needs to be removed from the hierarchy.
+    private func attachWebAppOverlay(_ webAppVC: WebAppViewController) {
+        guard webAppVC.view.superview == nil else { return }
+
+        addChild(webAppVC)
+        webAppVC.view.translatesAutoresizingMaskIntoConstraints = false
+        rightSplittedView.addSubview(webAppVC.view)
+
+        let constraints = [
+            webAppVC.view.topAnchor.constraint(equalTo: newDetailViewController!.chatTopView.bottomAnchor),
+            webAppVC.view.bottomAnchor.constraint(equalTo: rightSplittedView.bottomAnchor),
+            webAppVC.view.leadingAnchor.constraint(equalTo: rightSplittedView.leadingAnchor),
+            webAppVC.view.trailingAnchor.constraint(equalTo: rightSplittedView.trailingAnchor),
+        ]
+        NSLayoutConstraint.activate(constraints)
+        activeInlineWebAppConstraints = constraints
+    }
+
+    /// Show the WebApp as an overlay over the chat (chat VC stays alive underneath).
+    func showInlineWebApp(chat: Chat, isAppURL: Bool, cachedVC: WebAppViewController?) {
+        let chatId = chat.id
+
+        // If the same overlay is already showing (and cache is intact), just unhide it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId,
+           !existing.view.isHidden,
+           cachedVC != nil {
+            return
+        }
+
+        // If the same overlay was hidden (back-to-chat) and cache is intact, just reveal it.
+        if let existing = activeInlineWebAppVC,
+           activeInlineWebAppChatId == chatId,
+           cachedVC != nil {
+            existing.view.isHidden = false
+            newDetailViewController?.setWebAppHeaderActionsVisible(true)
+            return
+        }
+
+        // Different tribe / first open / post-open-in-window: remove old overlay without teardown
+        // (teardown happens when its owning chat VC is reset).
+        if let old = activeInlineWebAppVC {
+            NSLayoutConstraint.deactivate(activeInlineWebAppConstraints)
+            activeInlineWebAppConstraints = []
+            old.view.isHidden = true
+            old.view.removeFromSuperview()
+            old.removeFromParent()
+            activeInlineWebAppVC = nil
+            activeInlineWebAppChatId = nil
+        }
+
+        // Resolve or create the web VC.
+        let webAppVC: WebAppViewController
+        if let cached = cachedVC {
+            webAppVC = cached
+        } else if let managed = WebAppSessionManager.sharedInstance.retrieve(chatId: chatId, isAppURL: isAppURL) {
+            // Restore from manager — repopulate the NewChatVC's local cache
+            if isAppURL {
+                newDetailViewController?.cachedWebAppVC = managed
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = managed
+            }
+            webAppVC = managed
+        } else {
+            guard let fresh = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) else { return }
+            if isAppURL {
+                newDetailViewController?.cachedWebAppVC = fresh
+            } else {
+                newDetailViewController?.cachedSecondBrainVC = fresh
+            }
+            webAppVC = fresh
+        }
+        activeInlineWebAppVC = webAppVC
+        activeInlineWebAppChatId = chatId
+        WebAppSessionManager.sharedInstance.setVisible(true, chatId: chatId)
+
+        webAppVC.view.isHidden = false
+        attachWebAppOverlay(webAppVC)
+        webAppVC.addAndLoadWebView()
+        newDetailViewController?.setWebAppHeaderActionsVisible(true)
+        updateWebAppNavButtonStates()
+    }
+
+    /// Hide the overlay — chat VC stays alive, webview keeps its state.
+    func dismissInlineWebApp() {
+        guard let webAppVC = activeInlineWebAppVC else { return }
+        webAppVC.view.isHidden = true
+        if let chatId = activeInlineWebAppChatId {
+            WebAppSessionManager.sharedInstance.setVisible(false, chatId: chatId)
+        }
+        newDetailViewController?.setWebAppHeaderActionsVisible(false)
+        // Do NOT remove from hierarchy, do NOT call presentChatVCFor.
+        // activeInlineWebAppVC / activeInlineWebAppChatId are kept so re-opening
+        // the same tribe instantly unhides.
     }
     
     func presentFeedDashboard() {
@@ -1110,3 +1360,5 @@ extension DashboardViewController: DashboardDetailDismissDelegate {
         newDetailViewController?.chatBottomView.messageFieldView.updatePriceTagField()
     }
 }
+
+

@@ -69,6 +69,7 @@ extension NewChatTableDataSource {
             return
         }
        
+        let wasAtBottom = collectionView.getDistanceToBottom() < 10
         scrolledAtBottom = false
         
         let loadingMoreItems = self.dataSource.snapshot().numberOfItems < snapshot.numberOfItems
@@ -77,8 +78,19 @@ extension NewChatTableDataSource {
             if loadingMoreItems { self.saveSnapshotCurrentState() }
             
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                if loadingMoreItems { self.restoreScrollLastPosition() }
+                if loadingMoreItems {
+                    self.restoreScrollLastPosition()
+                } else if wasAtBottom {
+                    self.scrolledAtBottom = true
+                    self.delegate?.didScrollToBottom()
+                }
+                
+                let wasFirstLoad = self.isFirstLoad
                 self.isFirstLoad = false
+                
+                if wasFirstLoad && self.collectionViewScroll.documentYOffset <= 40 && !self.allItemsLoaded {
+                    self.didScrollToTop()
+                }
                 
                 DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
                     self.loadingMoreItems = false
@@ -137,6 +149,9 @@ extension NewChatTableDataSource {
         let linkData = (dataSourceItem.linkWeb?.link != nil) ? self.preloaderHelper.linksData[dataSourceItem.linkWeb!.link] : nil
         let uploadProgressData = (dataSourceItem.messageId != nil) ? self.uploadingProgress[dataSourceItem.messageId!] : nil
         let replyViewAdditionalHeight = (dataSourceItem.messageId != nil) ? self.replyViewAdditionalHeight[dataSourceItem.messageId!] : nil
+        let roomName = dataSourceItem.messageId.flatMap { self.messageIdToRoomName[$0] }
+        let participantsList = roomName.flatMap { self.callParticipantsStore[$0] } ?? []
+        let participantsData = participantsList.isEmpty ? nil : MessageTableCellState.ParticipantsData(participants: participantsList)
 
         cell?.configureWith(
             messageCellState: dataSourceItem,
@@ -145,6 +160,7 @@ extension NewChatTableDataSource {
             tribeData: tribeData,
             linkData: linkData,
             uploadProgressData: uploadProgressData,
+            participantsData: participantsData,
             delegate: self,
             searchingTerm: self.searchingTerm,
             indexPath: indexPath,
@@ -360,7 +376,7 @@ extension NewChatTableDataSource {
         processMessages(
             messages: messagesArray,
             UIUpdateIndex: self.UIUpdateIndex,
-            showLoadingMore: false
+            showLoadingMore: !allItemsLoaded && self.chat?.conversationContact?.isAgent != true
         )
     }
     
@@ -761,7 +777,7 @@ extension NewChatTableDataSource {
 
 
 
-extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
+extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDelegate {
     
     func startListeningToResultsController() {
         messagesResultsController?.delegate = self
@@ -851,6 +867,17 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     }
                     
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
+
+                    if let lastMessage = self.messagesArray.last, lastMessage.isCallLink() {
+                        if lastMessage.id != self.lastSeenCallMessageId {
+                            let wasFirstLoad = self.lastSeenCallMessageId == nil
+                            self.lastSeenCallMessageId = lastMessage.id
+                            if !wasFirstLoad {
+                                DispatchQueue.main.async { self.delegate?.newCallMessageReceived() }
+                            }
+                        }
+                    }
+
                     self.processTimezoneNotSentRecently()
                     
                     self.UIUpdateIndex += 1
@@ -860,7 +887,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                     self.processMessages(
                         messages: self.messagesArray,
                         UIUpdateIndex: self.UIUpdateIndex,
-                        showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                        showLoadingMore: !self.allItemsLoaded && self.chat?.conversationContact?.isAgent != true
                     )
                     self.configureSecondaryMessagesResultsController()
                     
@@ -876,7 +903,7 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
                 self.processMessages(
                     messages: self.messagesArray,
                     UIUpdateIndex: self.UIUpdateIndex,
-                    showLoadingMore: !self.allItemsLoaded && messages.count >= 100
+                    showLoadingMore: !self.allItemsLoaded && self.chat?.conversationContact?.isAgent != true
                 )
             }
             
@@ -890,32 +917,37 @@ extension NewChatTableDataSource : NSFetchedResultsControllerDelegate {
     
     func updateMessagesStatusesFrom(messages: [TransactionMessage]) {
         let dispatchQueue = DispatchQueue.global(qos: .utility)
+        let cellStateEmpty = messageTableCellStateArray.isEmpty
+        let loadingMore = loadingMoreItems
+        let lastTagRestored = lastMessageTagRestored
         dispatchQueue.async {
             if messages.isEmpty {
                 return
             }
-            
+
             let confirmedMessages = messages.filter({
                 return $0.senderId == UserData.sharedInstance.getUserId() &&
                        ($0.status == TransactionMessage.TransactionMessageStatus.confirmed.rawValue ||
                         $0.status == TransactionMessage.TransactionMessageStatus.pending.rawValue)
             })
             let tags = confirmedMessages.compactMap({ $0.tag })
-            
+
             if tags.isEmpty {
                 return
             }
-            
-            if !self.messageTableCellStateArray.isEmpty {
-                if !self.loadingMoreItems {
-                    if self.lastMessageTagRestored == tags.last ?? "" {
+
+            if !cellStateEmpty {
+                if !loadingMore {
+                    if lastTagRestored == tags.last ?? "" {
                         return
                     }
                 }
             }
-            
-            self.lastMessageTagRestored = tags.last ?? ""
-            
+
+            Task { @MainActor [weak self] in
+                self?.lastMessageTagRestored = tags.last ?? ""
+            }
+
             SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
         }
     }

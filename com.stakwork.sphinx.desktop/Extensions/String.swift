@@ -36,29 +36,38 @@ extension String {
     }
 
     func substring(fromIndex: Int) -> String {
-      return self[fromIndex ..< length]
+        let from = max(0, min(length, fromIndex))
+        return self[from ..< length]
     }
 
     func substring(toIndex: Int) -> String {
-      return self[0 ..< toIndex]
+        let to = max(0, min(length, toIndex))
+        return self[0 ..< to]
     }
-    
+
     func charAt(index: Int) -> Character {
+        guard index >= 0, index < length else { return "\0" }
         let i = String.Index(utf16Offset: index, in: self)
         return self[i]
     }
-    
+
     func substring(fromIndex: Int, toIndex: Int) -> String {
-      return self[fromIndex ..< toIndex]
+        let from = max(0, min(length, fromIndex))
+        let to = max(from, min(length, toIndex))
+        return self[from ..< to]
     }
 
     func substring(toIndexIncluded: Int) -> String {
-        let end = String.Index(utf16Offset: toIndexIncluded, in: self)
+        guard !isEmpty else { return "" }
+        let clamped = max(0, min(length - 1, toIndexIncluded))
+        let end = String.Index(utf16Offset: clamped, in: self)
         return String(self[...end])
     }
-    
+
     func substring(fromIndex: Int, toIndexIncluded: Int) -> String {
-      return self[fromIndex ..< toIndexIncluded]
+        let from = max(0, min(length, fromIndex))
+        let to = max(from, min(length, toIndexIncluded))
+        return self[from ..< to]
     }
     
     mutating func insert(string:String,ind:Int) {
@@ -793,6 +802,13 @@ extension String {
         }
     }
     
+    var hiveCallKey: String? {
+        get {
+            guard let components = URLComponents(string: self) else { return nil }
+            return components.queryItems?.first(where: { $0.name == "callKey" })?.value
+        }
+    }
+    
     var isCallLink: Bool {
         get {
             return self.lowerClean.starts(with: "http") && self.lowerClean.contains(TransactionMessage.kCallRoomName)
@@ -1286,6 +1302,26 @@ extension String {
     
     var isNotEmpty: Bool {
         return !isEmpty
+    }
+    
+    var containsMarkdownSyntax: Bool {
+        let lines = self.components(separatedBy: "\n")
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.hasPrefix("#") { return true }
+            if trimmed.hasPrefix("> ") || trimmed == ">" { return true }
+            if trimmed.hasPrefix("```") { return true }
+            for prefix in ["- ", "* ", "+ "] {
+                if trimmed.hasPrefix(prefix) { return true }
+            }
+            // Ordered list: starts with a number followed by ". "
+            if let dotRange = trimmed.range(of: ". "),
+               Int(String(trimmed[trimmed.startIndex..<dotRange.lowerBound])) != nil { return true }
+            // Horizontal rule
+            let stripped = trimmed.replacingOccurrences(of: " ", with: "")
+            if stripped == "---" || stripped == "***" || stripped == "___" { return true }
+        }
+        return false
     }
     
     func isNotEmptyString(with placeHolder: String) -> Bool {

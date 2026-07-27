@@ -9,6 +9,7 @@
 import Cocoa
 import WebKit
 
+@MainActor
 protocol NewChatTableDataSourceDelegate : AnyObject {
     ///New msgs indicator
     func configureNewMessagesIndicatorWith(newMsgCount: Int)
@@ -56,7 +57,12 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     func shouldCloseThread()
     
     ///Invoices
-    func shouldStartCallWith(link: String, audioOnly: Bool)
+    func shouldStartCallWith(link: String, audioOnly: Bool, isHost: Bool)
+
+    ///Live call banner
+    func roomFinished(roomName: String)
+    func shouldUpdateLiveCallBanner(roomName: String, participants: [BubbleMessageLayoutState.CallParticipantInfo])
+    func newCallMessageReceived()
     
     ///Empty chat placeholder
     func updateEmptyView()
@@ -65,6 +71,7 @@ protocol NewChatTableDataSourceDelegate : AnyObject {
     func shouldUpdateHeaderScheduleIcon(message: TransactionMessage?)
 }
 
+@MainActor
 class NewChatTableDataSource : NSObject {
     
     ///Delegate
@@ -103,6 +110,12 @@ class NewChatTableDataSource : NSObject {
     var messageTableCellStateArray: [MessageTableCellState] = []
     var messageIdToIndexMap: [Int: Int] = [:]  // O(1) lookup for message IDs
     var mediaCached: [Int: MessageTableCellState.MediaData] = [:]
+    var callParticipantsStore: [String: [BubbleMessageLayoutState.CallParticipantInfo]] = [:]
+    var subscribedRooms: Set<String> = []
+    var messageIdToRoomName: [Int: String] = [:]
+    var bannerRooms: Set<String> = []
+    var callParticipantsSocketManager: CallParticipantsSocketManager?
+    var lastSeenCallMessageId: Int? = nil
     var uploadingProgress: [Int: MessageTableCellState.UploadProgressData] = [:]
     var replyViewAdditionalHeight: [Int: CGFloat] = [:]
     var rowHeightCache: [String: CGFloat] = [:]  // Cache for row heights
@@ -191,14 +204,39 @@ class NewChatTableDataSource : NSObject {
         guard currentWidth != lastKnownWidth, currentWidth > 0 else { return }
         lastKnownWidth = currentWidth
 
-        // Debounce layout invalidation to prevent excessive recalculations
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(invalidateLayoutDebounced), object: nil)
-        perform(#selector(invalidateLayoutDebounced), with: nil, afterDelay: 0.1)
+
+        if collectionView.window?.inLiveResize == true {
+            // Window is being dragged — invalidate immediately for smooth continuous resize
+            invalidateLayoutDebounced()
+        } else {
+            // Podcast panel open/close or constraint-driven resize — debounce to let constraints settle
+            perform(#selector(invalidateLayoutDebounced), with: nil, afterDelay: 0.1)
+        }
     }
 
-    @objc private func invalidateLayoutDebounced() {
-        invalidateRowHeightCache()
-        collectionView.collectionViewLayout?.invalidateLayout()
+    @objc func invalidateLayoutDebounced() {
+        if isThread {
+            if let responderView = collectionView.window?.firstResponder as? NSView,
+               responderView.isDescendant(of: collectionView) {
+                return
+            }
+            
+            invalidateRowHeightCache()
+            collectionView.collectionViewLayout?.invalidateLayout()
+
+            let visibleStates = collectionView.indexPathsForVisibleItems()
+                .sorted()
+                .compactMap { getTableCellStateFor(rowIndex: $0.item) }
+            if !visibleStates.isEmpty {
+                var snapshot = dataSource.snapshot()
+                snapshot.reloadItems(visibleStates)
+                dataSource.apply(snapshot, animatingDifferences: false)
+            }
+        } else {
+            invalidateRowHeightCache()
+            collectionView.collectionViewLayout?.invalidateLayout()
+        }
     }
 
     /// Updates the messageId to index mapping for O(1) lookups
@@ -224,6 +262,7 @@ class NewChatTableDataSource : NSObject {
     }
     
     func releaseMemory() {
+        unsubscribeAllRooms()
         preloaderHelper.releaseMemory()
     }
     

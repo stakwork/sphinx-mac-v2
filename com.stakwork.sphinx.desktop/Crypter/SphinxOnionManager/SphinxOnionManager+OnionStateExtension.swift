@@ -31,10 +31,7 @@ extension SphinxOnionManager {
             mpDic[MessagePackValue(key)] = MessagePackValue(Data(value))
         }
         
-        let stateBytes = pack(
-            MessagePackValue(mpDic)
-        ).bytes
-        
+        let stateBytes = [UInt8](pack(MessagePackValue(mpDic)))
         return Data(stateBytes)
     }
     
@@ -55,13 +52,14 @@ extension SphinxOnionManager {
         var keys: [String] = []
         
         for  mut in muts {
-            if let key = mut.key.stringValue, let value = mut.value.dataValue?.bytes {
+            if let key = mut.key.stringValue, let data = mut.value.dataValue {
+                let value = [UInt8](data)
                 keys.append(key)
                 UserDefaults.standard.removeObject(forKey: key)
                 UserDefaults.standard.synchronize()
                 UserDefaults.standard.set(value, forKey: key)
                 UserDefaults.standard.synchronize()
-                
+
                 onionState[key] = value
             }
         }

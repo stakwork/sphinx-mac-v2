@@ -9,12 +9,14 @@
 import Foundation
 import AVFoundation
 
+@MainActor
 protocol AudioPlayerHelperDelegate: AnyObject {
     func progressCallback(messageId: Int?, rowIndex: Int?, duration: Double, currentTime: Double)
     func pauseCallback(messageId: Int?, rowIndex: Int?)
     func endCallback(messageId: Int?, rowIndex: Int?)
 }
 
+@MainActor
 class NewAudioPlayerHelper : NSObject {
     
     weak var delegate: AudioPlayerHelperDelegate?
@@ -85,11 +87,13 @@ class NewAudioPlayerHelper : NSObject {
     
     func pausePlayingAudio() {
         stopPlaying()
-        
-        delegate?.pauseCallback(
-            messageId: messageId,
-            rowIndex: rowIndex
-        )
+
+        let d = delegate
+        let mid = messageId
+        let ri = rowIndex
+        Task { @MainActor in
+            d?.pauseCallback(messageId: mid, rowIndex: ri)
+        }
     }
     
     func stopPlaying() {
@@ -107,12 +111,12 @@ class NewAudioPlayerHelper : NSObject {
             print("PLAYER CURRENT TIME \(audioPlayerCurrentTime)")
             
             if audioPlayerCurrentTime > 0 {
-                delegate?.progressCallback(
-                    messageId: messageId,
-                    rowIndex: rowIndex,
-                    duration: audioPlayerDuration,
-                    currentTime: audioPlayerCurrentTime
-                )
+                let d = delegate
+                let mid = messageId
+                let ri = rowIndex
+                Task { @MainActor in
+                    d?.progressCallback(messageId: mid, rowIndex: ri, duration: audioPlayerDuration, currentTime: audioPlayerCurrentTime)
+                }
             } else {
                 audioDidFinishPlaying()
             }
@@ -135,10 +139,12 @@ class NewAudioPlayerHelper : NSObject {
 extension NewAudioPlayerHelper  : CustomAudioPlayerDelegate {
     func audioDidFinishPlaying() {
         resetCurrentAudio()
-        
-        delegate?.endCallback(
-            messageId: messageId,
-            rowIndex: rowIndex
-        )
+
+        let d = delegate
+        let mid = messageId
+        let ri = rowIndex
+        Task { @MainActor in
+            d?.endCallback(messageId: mid, rowIndex: ri)
+        }
     }
 }

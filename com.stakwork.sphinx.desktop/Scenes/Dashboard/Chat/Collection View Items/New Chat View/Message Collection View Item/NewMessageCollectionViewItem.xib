@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -194,8 +194,8 @@
                                                     <constraints>
                                                         <constraint firstItem="okv-Ag-SIE" firstAttribute="leading" secondItem="4D1-XE-gCv" secondAttribute="leading" id="90f-L3-Gf9"/>
                                                         <constraint firstAttribute="trailing" secondItem="okv-Ag-SIE" secondAttribute="trailing" priority="750" id="LFh-fd-Unr"/>
-                                                        <constraint firstAttribute="height" constant="48" id="hJB-h5-cNj"/>
-                                                        <constraint firstItem="okv-Ag-SIE" firstAttribute="top" secondItem="4D1-XE-gCv" secondAttribute="top" priority="750" constant="16" id="mZ1-GE-TvO"/>
+                                                        <constraint firstAttribute="height" priority="999" constant="48" id="hJB-h5-cNj"/>
+                                                        <constraint firstItem="okv-Ag-SIE" firstAttribute="top" secondItem="4D1-XE-gCv" secondAttribute="top" priority="249" constant="16" id="mZ1-GE-TvO"/>
                                                     </constraints>
                                                 </customView>
                                                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="pkI-rw-Lfs" customClass="NewMessageBoostView" customModule="Sphinx" customModuleProvider="target">

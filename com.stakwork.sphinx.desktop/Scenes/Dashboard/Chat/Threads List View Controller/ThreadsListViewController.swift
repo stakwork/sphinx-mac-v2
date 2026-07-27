@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol ThreadsListViewControllerDelegate : AnyObject {
+@MainActor protocol ThreadsListViewControllerDelegate : AnyObject {
     func didSelectThreadWith(uuid: String)
 }
 

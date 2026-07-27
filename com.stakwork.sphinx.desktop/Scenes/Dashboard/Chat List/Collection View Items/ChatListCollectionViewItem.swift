@@ -9,7 +9,7 @@
 import Cocoa
 import SDWebImage
 
-protocol ChatListCollectionViewItemDelegate : NSObject {
+@MainActor protocol ChatListCollectionViewItemDelegate : NSObject {
     func didRightClickOn(item: NSCollectionViewItem)
 }
 
@@ -22,6 +22,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
     @IBOutlet weak var chatInitialsLabel: NSTextField!
     @IBOutlet weak var nameLabel: NSTextField!
     @IBOutlet weak var lockSignLabel: NSTextField!
+    @IBOutlet weak var agentIconView: NSImageView!
     @IBOutlet weak var scheduleIcon: NSTextField!
     @IBOutlet weak var inviteIconLabel: NSTextField!
     @IBOutlet weak var failedMessageIcon: NSTextField!
@@ -66,6 +67,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         dateLabel.stringValue = ""
         
         lockSignLabel.isHidden = true
+        agentIconView.isHidden = true
         muteImageView.isHidden = true
         inviteIconLabel.isHidden = true
         invitePriceContainer.isHidden = true
@@ -120,7 +122,15 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
             
             nameLabel.stringValue = chatListObject.getName()
             muteImageView.isHidden = (chatListObject.getChat()?.isMuted() ?? false) == false
-            lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+
+            let isAgent = chatListObject.getContact()?.isAgent == true
+            if isAgent {
+                lockSignLabel.isHidden = true
+                agentIconView.isHidden = false
+            } else {
+                lockSignLabel.isHidden = chatListObject.isEncrypted() == false
+                agentIconView.isHidden = true
+            }
         }
         
         renderLastMessage(
@@ -312,6 +322,7 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         willNotifyOnlyMentions: Bool
     ) {
         scheduleIcon.isHidden = true
+        messageLabel.stringValue = ""
         
         if let invite = chatListObject.getInvite(), chatListObject.isPending() {
             
@@ -343,6 +354,33 @@ class ChatListCollectionViewItem: NSCollectionViewItem {
         } else {
             inviteIconLabel.isHidden = true
             failedMessageIcon.isHidden = true
+            
+            let chatId = chatListObject.getChat()?.id
+            let lastMessageDate = chatListObject.lastMessage?.date ?? .distantPast
+            let draftDate = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chatId, threadUUID: nil)
+
+            if let draft = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chatId, threadUUID: nil),
+               !draft.isEmpty,
+               let draftDate = draftDate,
+               draftDate > lastMessageDate {
+                let attributed = NSMutableAttributedString()
+                let font = messageLabel.font ?? NSFont.systemFont(ofSize: 13)
+                attributed.append(NSAttributedString(
+                    string: "Draft: ",
+                    attributes: [.foregroundColor: NSColor.Sphinx.PrimaryGreen, .font: font]
+                ))
+                attributed.append(NSAttributedString(
+                    string: draft,
+                    attributes: [.foregroundColor: NSColor.Sphinx.SecondaryText, .font: font]
+                ))
+                messageLabel.attributedStringValue = attributed
+                messageLabel.superview?.isHidden = false
+                failedMessageIcon.isHidden = true
+                inviteIconLabel.isHidden = true
+                dateLabel.stringValue = draftDate.getLastMessageDateFormat()
+                dateLabel.isHidden = false
+                return
+            }
             
             if let lastMessage = chatListObject.lastMessage {
                 

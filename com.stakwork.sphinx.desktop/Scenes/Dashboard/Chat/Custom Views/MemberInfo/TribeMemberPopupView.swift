@@ -8,12 +8,13 @@
 
 import Cocoa
 
+@MainActor
 protocol TribeMemberPopupViewDelegate: AnyObject {
     func shouldGoToSendPayment()
     func shouldDismissTribeMemberPopup()
 }
 
-class TribeMemberPopupView: NSView, LoadableNib {
+class TribeMemberPopupView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate: TribeMemberPopupViewDelegate?
 

@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol FileInfoViewDelegate : AnyObject {
     func didTouchDownloadButton()
 }

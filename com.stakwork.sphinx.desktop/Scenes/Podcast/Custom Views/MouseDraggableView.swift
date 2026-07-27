@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol MouseDraggableViewDelegate: AnyObject {
     func mouseUpOn(x: CGFloat)
     func mouseDownOn(x: CGFloat)

@@ -119,7 +119,7 @@ class PaymentTransaction {
         return date ?? Date()
     }
     
-    func getUsers() -> String? {
+    @MainActor func getUsers() -> String? {
         var chat : Chat? = nil
         
         if let chatId = self.chatId, let foundChat = Chat.getChatWith(id: chatId) {

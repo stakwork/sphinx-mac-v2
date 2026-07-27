@@ -30,6 +30,8 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
             attachmentsPreviewContainer.isHidden = false
         }
         
+        ChatTrackingHandler.shared.saveOngoingAttachments(attachments, chatId: chat?.id, threadUUID: threadUUID)
+        
         let _ = updateBottomBarHeight(animated: true)
     }
     
@@ -49,6 +51,8 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
 
         attachmentsPreviewContainer.isHidden = false
         
+        ChatTrackingHandler.shared.saveOngoingAttachments(attachments, chatId: chat?.id, threadUUID: threadUUID)
+        
         let _ = updateBottomBarHeight(animated: true)
     }
     
@@ -57,7 +61,20 @@ extension ChatMessageFieldView : AttachmentPreviewDataSourceDelegate {
         toggleAttachmentsAdded()
         attachmentsPreviewDataSource?.updateAttachments(attachments: [])
         attachmentsPreviewContainer.isHidden = true
+        ChatTrackingHandler.shared.deleteOngoingAttachments(with: chat?.id, threadUUID: threadUUID)
         let _ = updateBottomBarHeight(animated: true)
+    }
+    
+    func setOngoingAttachments() {
+        guard let saved = ChatTrackingHandler.shared.getOngoingAttachmentsFor(
+            chatId: chat?.id, threadUUID: threadUUID
+        ), !saved.isEmpty else { return }
+        
+        attachments = saved
+        toggleAttachmentsAdded()
+        attachmentsPreviewDataSource?.updateAttachments(attachments: attachments)
+        attachmentsPreviewContainer.isHidden = false
+        let _ = updateBottomBarHeight(animated: false)
     }
     
     func didClickAddAttachment() {

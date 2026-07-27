@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 class CCSecureTextField: NSSecureTextField {
     
     var onFocusChange: (Bool) -> Void = { _ in }
@@ -17,7 +18,10 @@ class CCSecureTextField: NSSecureTextField {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        customizeCaretColor()
+        
+        DispatchQueue.main.async {
+            self.customizeCaretColor()
+        }
     }
     
     func setColor(color: NSColor) {

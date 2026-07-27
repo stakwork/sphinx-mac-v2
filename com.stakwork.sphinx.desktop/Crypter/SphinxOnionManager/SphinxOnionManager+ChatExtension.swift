@@ -275,11 +275,8 @@ extension SphinxOnionManager {
                 isTribe: isTribe
             )
             
-            let tag = handleRunReturn(
-                rr: rr,
-                isSendingMessage: true
-            )
-            
+            let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true)
+
             let sentMessage = processNewOutgoingMessage(
                 rr: rr,
                 chat: chat,
@@ -297,17 +294,22 @@ extension SphinxOnionManager {
                 owner: owner ?? UserContact.getOwner(),
                 context: context
             )
-            
+
 //            if let sentMessage = sentMessage {
 //                assignReceiverId(localMsg: sentMessage)
 //            }
-            
+
             if let _ = metaData {
                 chat.timezoneUpdated = false
             }
-            
+
             (context ?? chat.managedObjectContext)?.saveContext()
-            
+
+            let _ = handleRunReturn(
+                rr: rr,
+                isSendingMessage: true
+            )
+
             return (sentMessage, nil)
         } catch let error {
             print("error sending msg \(error.localizedDescription)")
@@ -581,10 +583,10 @@ extension SphinxOnionManager {
         }
         
         localMsg.senderId = owner?.id ?? UserData.sharedInstance.getUserId(context: backgroundContext)
-        
+
         return localMsg
     }
-    
+
 //    func assignReceiverId(localMsg: TransactionMessage) {
 //        var receiverId :Int = -1
 //        
@@ -1470,7 +1472,7 @@ extension SphinxOnionManager {
         newMessage.paymentHash = message.paymentHash
         newMessage.tag = message.tag
         
-        if let myAlias = chat.myAlias ?? owner?.nickname, chat.isPublicGroup() {
+        if let myAlias = chat.myAlias ?? owner?.nickname?.fixedAlias, chat.isPublicGroup() {
             newMessage.push = content?.contains("@\(myAlias) ") == true
         } else {
             newMessage.push = false
@@ -1745,10 +1747,7 @@ extension SphinxOnionManager {
         if let sentMessage = sentMessage {
             if (type == TransactionMessage.TransactionMessageType.attachment.rawValue) {
                 AttachmentsManager.sharedInstance.cacheImageAndMediaData(message: sentMessage, attachmentObject: attachmentObject)
-            } else if (type == TransactionMessage.TransactionMessageType.purchase.rawValue) {
-                print(sentMessage)
             }
-            
             return (sentMessage, nil)
         }
         
@@ -1795,10 +1794,12 @@ extension SphinxOnionManager {
                 )
                 completion(message)
             } else {
-                AlertHelper.showAlert(
-                    title: "Routing Error",
-                    message: "There was a routing error. Please try again."
-                )
+                Task { @MainActor in
+                    AlertHelper.showAlert(
+                        title: "Routing Error",
+                        message: "There was a routing error. Please try again."
+                    )
+                }
                 completion(nil)
             }
         }
@@ -2050,28 +2051,33 @@ extension SphinxOnionManager {
         let dispatchQueue = DispatchQueue.global(qos: .utility)
         dispatchQueue.async {
             let backgroundContext = self.backgroundContext
-            
+
+            var tagChunks: [[String]] = []
+
             backgroundContext.performSafely {
                 let messages = TransactionMessage.getAllNotConfirmed(context: backgroundContext)
-                
+
                 if messages.isEmpty {
                     return
                 }
-                
-                Task {
-                    for i in stride(from: 0, to: messages.count, by: 200) {
-                        let chunk = Array(messages[i..<min(i + 200, messages.count)])
-                        
-                        let tags = chunk.compactMap({ $0.tag })
-                        
-                        SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
-                        
-                        try? await Task.sleep(nanoseconds: 500_000_000)
+
+                for i in stride(from: 0, to: messages.count, by: 200) {
+                    let chunk = Array(messages[i..<min(i + 200, messages.count)])
+                    let tags = chunk.compactMap({ $0.tag })
+                    if !tags.isEmpty {
+                        tagChunks.append(tags)
                     }
                 }
             }
-            
-            backgroundContext.saveContext()
+
+            guard !tagChunks.isEmpty else { return }
+
+            Task {
+                for tags in tagChunks {
+                    SphinxOnionManager.sharedInstance.getMessagesStatusFor(tags: tags)
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+            }
         }
     }
     
@@ -2124,50 +2130,68 @@ extension SphinxOnionManager {
         return objects.last?.id
     }
     
+    func getFetchMinDate(
+        fetchRequest: NSFetchRequest<TransactionMessage>,
+        count: Int,
+        context: NSManagedObjectContext
+    ) -> Date? {
+        var objects: [TransactionMessage] = [TransactionMessage]()
+        
+        do {
+            try objects = context.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Error: " + error.localizedDescription)
+        }
+        
+        if objects.count < count {
+            return nil
+        }
+        
+        return objects.last?.date as Date?
+    }
+    
     func batchDeleteOldMessagesInBackground(
         forChat chat: Chat,
         keepingLatest count: Int = 100
     ) {
+        let chatId = chat.id
         DispatchQueue.global(qos: .utility).async {
             let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-            
+
             backgroundContext.performSafely {
+                guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else { return }
                 do {
                     let fetchRequest = self.getFetchRequestFor(
                         chat: chat,
                         with: count
                     )
-                    
-                    if let thresholdId = self.getFetchMinIndex(
+
+                    if let thresholdDate = self.getFetchMinDate(
                         fetchRequest: fetchRequest,
                         count: count,
                         context: backgroundContext
                     ) {
-                        print("🔍 Will delete messages with id < \(thresholdId) from chat \(chat.id)")
-                        
-                        // Step 2: Create fetch request for messages to delete
+                        print("🔍 Will delete messages with date < \(thresholdDate) from chat \(chatId)")
+
                         let deleteRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND id < %d", chat.id, thresholdId)
-                        
-                        // Step 3: Create batch delete request with the fetch request
+                        deleteRequest.predicate = NSPredicate(format: "chat.id == %d AND date < %@", chatId, thresholdDate as NSDate)
+
                         let batchDelete = NSBatchDeleteRequest(fetchRequest: deleteRequest as! NSFetchRequest<NSFetchRequestResult>)
-                        batchDelete.resultType = .resultTypeCount // Get count of deleted objects
-                        
+                        batchDelete.resultType = .resultTypeCount
+
                         let result = try backgroundContext.execute(batchDelete) as? NSBatchDeleteResult
                         let deletedCount = result?.result as? Int ?? 0
-                        
+
                         if deletedCount > 0 {
-                            print("✅ Successfully deleted \(deletedCount) old messages from chat \(chat.id) in background")
-                            
-                            // Step 4: Save the context - this will automatically merge to parent contexts
+                            print("✅ Successfully deleted \(deletedCount) old messages from chat \(chatId) in background")
                             try backgroundContext.save()
                             print("💾 Saved deletion changes to persistent store")
                         } else {
-                            print("ℹ️ No messages were deleted from chat \(chat.id)")
+                            print("ℹ️ No messages were deleted from chat \(chatId)")
                         }
                     }
                 } catch {
-                    print("❌ Background batch delete failed for chat \(chat.id): \(error)")
+                    print("❌ Background batch delete failed for chat \(chatId): \(error)")
                 }
             }
         }

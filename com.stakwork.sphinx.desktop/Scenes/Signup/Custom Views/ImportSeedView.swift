@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol ImportSeedViewDelegate : NSObject{
+@MainActor protocol ImportSeedViewDelegate : NSObject{
     func showImportSeedView(network: String, host: String, relay: String)//TODO: review this before shipping prod. May not need this anymore
     func showImportSeedView()
     func didTapCancelImportSeed()
@@ -77,6 +77,10 @@ class ImportSeedView: NSView, LoadableNib {
     
     func getMnemonicWords() -> String {
         return textView.string
+    }
+    
+    func populateWith(scannedString: String) {
+        textView.string = scannedString
     }
     
     @IBAction func cancelTapped(_ sender: Any) {

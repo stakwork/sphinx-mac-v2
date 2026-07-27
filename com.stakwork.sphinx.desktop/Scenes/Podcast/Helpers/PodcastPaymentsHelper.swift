@@ -19,7 +19,7 @@ class PodcastPaymentsHelper {
         return satsEarned
     }
     
-    func processPaymentsFor(
+    @MainActor func processPaymentsFor(
         podcastFeed: PodcastFeed?,
         boostAmount: Int? = nil,
         itemId: String,
@@ -60,7 +60,7 @@ class PodcastPaymentsHelper {
         }
     }
     
-    func getPodcastAmount(_ podcastFeed: PodcastFeed?) -> Int {
+    @MainActor func getPodcastAmount(_ podcastFeed: PodcastFeed?) -> Int {
         return podcastFeed?.satsPerMinute ?? podcastFeed?.model?.suggestedSats ?? 5
     }
     

@@ -284,7 +284,7 @@ struct MessageTableCellState {
         
         if let messageContent = message.bubbleMessageContentString, messageContent.isNotEmpty {
             return BubbleMessageLayoutState.MessageContent(
-                text: messageContent.removingMarkdownDelimiters,
+                text: messageContent,
                 linkMatches: messageContent.stringLinks + messageContent.pubKeyMatches + messageContent.mentionMatches,
                 highlightedMatches: messageContent.highlightedMatches,
                 boldMatches: messageContent.boldMatches,
@@ -481,7 +481,7 @@ struct MessageTableCellState {
         return BubbleMessageLayoutState.Audio(
             url: message.getMediaUrlFromMediaToken(),
             mediaKey: message.mediaKey,
-            bubbleWidth: CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth
+            bubbleWidth: 400
         )
     }()
     
@@ -543,7 +543,8 @@ struct MessageTableCellState {
             originalMessage: originalThreadMessage,
             firstReplySenderInfo: getSenderInfo(message: firstReplyMessage),
             secondReplySenderInfo: secondReplySenderInfo,
-            moreRepliesCount: threadMessages.count - 3
+            moreRepliesCount: threadMessages.count - 3,
+            mentionsCount: (threadOriginalMessage?.push == true ? 1 : 0) + threadMessages.filter({ $0.push }).count
         )
     }()
     
@@ -620,7 +621,7 @@ struct MessageTableCellState {
             return nil
         }
         
-        let bubbleWidth: CGFloat = CommonNewMessageCollectionViewitem.kMaximumLinksBubbleWidth
+        let bubbleWidth: CGFloat = 400
         
         return BubbleMessageLayoutState.ContactLink(
             pubkey: linkContact.pubkey,

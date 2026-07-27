@@ -8,8 +8,10 @@
 
 import Cocoa
 
+@MainActor
 protocol FeedListHeaderViewDelegate: AnyObject {
     func didClickRefreshButton(completion: @escaping () -> ())
+    func didClickNotificationsButton()
 }
 
 class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
@@ -20,6 +22,7 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     @IBOutlet weak var backgroundColorBox: NSBox!
     @IBOutlet weak var headerLabel: NSTextField!
     @IBOutlet weak var refreshButton: CustomButton!
+    @IBOutlet weak var notificationsButton: CustomButton!
     @IBOutlet weak var loadingWheel: NSProgressIndicator!
     
     var loading = false {
@@ -52,6 +55,8 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     
     func configureView() {
         refreshButton.cursor = .pointingHand
+        notificationsButton.cursor = .pointingHand
+        notificationsButton.isHidden = true
         
         backgroundColorBox.fillColor = NSColor.Sphinx.Body
     }
@@ -71,13 +76,19 @@ class FeedListHeaderView: NSView, NSCollectionViewElement, LoadableNib {
     func renderWith(
         title: String,
         showRefreshButton: Bool,
-        delegate: FeedListHeaderViewDelegate?
+        delegate: FeedListHeaderViewDelegate?,
+        showNotificationsButton: Bool = false
     ) {
         self.delegate = delegate
         
         headerLabel.stringValue = title
         
         refreshButton.isHidden = !showRefreshButton
+        notificationsButton.isHidden = !showNotificationsButton
+    }
+    
+    @IBAction func notificationsButtonClicked(_ sender: Any) {
+        delegate?.didClickNotificationsButton()
     }
     
     @IBAction func refreshButtonClicked(_ sender: Any) {

@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol PodcastAudioViewDelegate: AnyObject {
     func didTapClipPlayPauseButtonAt(time: Double)
     func shouldSeekTo(time: Double)

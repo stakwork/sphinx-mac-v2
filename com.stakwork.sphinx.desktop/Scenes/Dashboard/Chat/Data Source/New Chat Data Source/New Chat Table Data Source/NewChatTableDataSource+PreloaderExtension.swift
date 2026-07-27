@@ -130,13 +130,16 @@ extension NewChatTableDataSource {
                         scrollViewDidScroll()
                     }
                 }
+                shimmeringView.toggle(show: false)
+                collectionView.alphaValue = 1.0
                 return
             }
         }
         
         ///Scroll to bottom if it didn't scroll to spefici position
         let collectionViewContentSize = collectionView.collectionViewLayout?.collectionViewContentSize.height ?? 0
-        let offset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
+        let rawOffset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
+        let offset = max(0, rawOffset)
         scrollViewDesiredOffset = offset
         collectionViewScroll.documentYOffset = offset
 
@@ -145,6 +148,13 @@ extension NewChatTableDataSource {
         /// Always call delegate when scrolling to bottom on initial load to mark messages as seen
         delegate?.didScrollToBottom()
         scrollViewDidScroll()
+        
+        /// If content is smaller than scroll view (e.g. threads with few messages), documentYOffset
+        /// stays at 0 and the scroll notification never fires again, so shimmer must be dismissed directly.
+        if offset == 0 {
+            shimmeringView.toggle(show: false)
+            collectionView.alphaValue = 1.0
+        }
     }
     
     func saveScrollPosition() {

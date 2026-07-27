@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class InvoicePaymentView: NSView, LoadableNib {
+class InvoicePaymentView: NSView, @preconcurrency LoadableNib {
     
     @IBOutlet var contentView: NSView!
     

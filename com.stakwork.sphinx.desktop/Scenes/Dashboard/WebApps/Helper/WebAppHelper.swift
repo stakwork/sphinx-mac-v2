@@ -11,6 +11,7 @@ import WebKit
 import SwiftyJSON
 import ObjectMapper
 
+@MainActor
 protocol WebAppHelperDelegate : NSObject{
     func setBudget(budget:Int)
 }
@@ -48,7 +49,7 @@ struct LSatInProgress {
     }
 }
 
-class WebAppHelper : NSObject {
+@MainActor class WebAppHelper : NSObject {
     
     public let messageHandler = "sphinx"
     
@@ -58,6 +59,7 @@ class WebAppHelper : NSObject {
     
     var persistingValues: [String: AnyObject] = [:]
     weak var delegate : WebAppHelperDelegate? = nil
+    weak var logStore: WebAppLogStore? = nil
     
     var lsatList = [LSATObject]()
     
@@ -137,6 +139,7 @@ extension WebAppHelper : WKScriptMessageHandler {
                     defaultAction(dict)
                     break
                 }
+                logStore?.append(.init(timestamp: Date(), level: .info, source: .bridgeInbound, message: "[\(type)] \(dict)"))
             }
         }
     }
@@ -187,6 +190,7 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func sendMessage(dict: [String: AnyObject]) {
+        logStore?.append(.init(timestamp: Date(), level: .info, source: .bridgeOutbound, message: dict.description))
         if let string = jsonStringWithObject(obj: dict as AnyObject) {
             let javascript = "window.sphinxMessage('\(string)')"
             webView.evaluateJavaScript(javascript, completionHandler: nil)
@@ -217,11 +221,16 @@ extension WebAppHelper : WKScriptMessageHandler {
     }
     
     func sendAuthorizeMessage(amount: Int? = nil, signature: String? = nil, dict: [String: AnyObject], completion: @escaping () -> ()) {
-        if let pubKey = UserData.sharedInstance.getUserPubKey() {
+        if let owner = UserContact.getOwner(), let pubKey = owner.publicKey {
             var params: [String: AnyObject] = [:]
             setTypeApplicationAndPassword(params: &params, dict: dict)
             
             params["pubkey"] = pubKey as AnyObject
+            
+            if let routeHint = owner.routeHint {
+                params["routeHint"] = routeHint as AnyObject
+                saveValue(routeHint as AnyObject, for: "routeHint")
+            }
             
             saveValue(pubKey as AnyObject, for: "pubkey")
             
@@ -261,6 +270,10 @@ extension WebAppHelper : WKScriptMessageHandler {
         params["budget"] = budget as AnyObject
         params["pubkey"] = pubKey as AnyObject
         
+        if let routeHint: String? = getValue(withKey: "routeHint") {
+            params["routeHint"] = routeHint as AnyObject
+        }
+        
         setTypeApplicationAndPassword(params: &params, dict: dict)
         sendMessage(dict: params)
     }
@@ -298,9 +311,12 @@ extension WebAppHelper : WKScriptMessageHandler {
                 self.sendKeySendResponse(dict: dict, success: false)
                 return
             }
-            
+
+            let routeHint = dict["route_hint"] as? String
+
             SphinxOnionManager.sharedInstance.keysend(
                 pubkey: dest,
+                routeHint: routeHint,
                 amt: Double(amt)
             ) { success in
                 if success {
@@ -484,7 +500,9 @@ extension WebAppHelper : WKScriptMessageHandler {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.handlePaidInvoiceNotification(n: n)
+            Task { @MainActor [weak self] in
+                self?.handlePaidInvoiceNotification(n: n)
+            }
         }
         
         startLsatTimer()

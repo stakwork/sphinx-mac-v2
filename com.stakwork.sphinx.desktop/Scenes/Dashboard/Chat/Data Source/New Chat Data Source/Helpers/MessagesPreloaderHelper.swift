@@ -8,11 +8,11 @@
 
 import Foundation
 
-class MessagesPreloaderHelper {
-    
+class MessagesPreloaderHelper: @unchecked Sendable {
+
     class var sharedInstance : MessagesPreloaderHelper {
         struct Static {
-            static let instance = MessagesPreloaderHelper()
+            nonisolated(unsafe) static let instance = MessagesPreloaderHelper()
         }
         return Static.instance
     }

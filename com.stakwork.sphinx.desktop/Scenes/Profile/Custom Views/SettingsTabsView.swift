@@ -8,7 +8,7 @@
 
 import Cocoa
 
-protocol SettingsTabsDelegate: AnyObject {
+@MainActor protocol SettingsTabsDelegate: AnyObject {
     func didChangeSettingsTab(tag: Int)
 }
 

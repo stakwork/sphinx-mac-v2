@@ -34,6 +34,9 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
             with: replacementString ?? ""
         )
                 
+        if isAgentChat {
+            return true
+        }
         return delegate?.isMessageLengthValid(text: currentChangedString) ?? true
     }
     
@@ -60,6 +63,11 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func clearMessage() {
+        ChatTrackingHandler.shared.deleteOngoingMessage(
+            with: chat?.id,
+            threadUUID: threadUUID
+        )
+        ChatTrackingHandler.shared.deleteOngoingAttachments(with: chat?.id, threadUUID: threadUUID)
         messageTextView.string = ""
         priceTextField.stringValue = ""
         textDidChange(Notification(name: NSControl.textDidChangeNotification))
@@ -78,7 +86,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         let string = messageTextView.string
         let cursorPosition = messageTextView.cursorPosition ?? 0
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        Task { @MainActor in
             ChatTrackingHandler.shared.saveOngoingMessage(
                 with: string,
                 chatId: self.chat?.id,
@@ -89,7 +97,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                 text: string,
                 cursorPosition: cursorPosition
             )
-            
+
             self.processMacro(
                 text: string,
                 cursorPosition: cursorPosition
@@ -100,10 +108,20 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     }
     
     func togglePriceContainer() {
+        if isAgentChat {
+            priceContainer.isHidden = true
+            return
+        }
         priceContainer.isHidden = isThread || attachments.count > 1 || (attachments.isEmpty && messageTextView.string.isEmpty)
     }
     
     func toggleSendMicButton() {
+        if isAgentChat {
+            let hasText = !messageTextView.string.isEmpty
+            sendButton.isHidden = !hasText
+            micButton.isHidden = true
+            return
+        }
         sendButton.isHidden = messageTextView.string.isEmpty && priceTextField.stringValue.isEmpty && !isAttachmentAdded
         micButton.isHidden = !sendButton.isHidden
     }

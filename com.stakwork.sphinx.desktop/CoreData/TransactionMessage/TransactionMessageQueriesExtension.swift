@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-extension TransactionMessage {    
+extension TransactionMessage {
     static func getAll() -> [TransactionMessage] {
         let messages:[TransactionMessage] = CoreDataManager.sharedManager.getAllOfType(entityName: "TransactionMessage")
         return messages
@@ -295,15 +295,15 @@ extension TransactionMessage {
         
         var messages: [TransactionMessage] = []
         let context = context ?? CoreDataManager.sharedManager.persistentContainer.viewContext
-        
-        context.performSafely {
+
+        context.performAndWait {
             do {
-                try messages = context.fetch(fetchRequest)
+                messages = try context.fetch(fetchRequest)
             } catch let error as NSError {
                 print("Error: " + error.localizedDescription)
             }
         }
-        
+
         return messages
     }
     
@@ -838,6 +838,39 @@ extension TransactionMessage {
             print("Error fetching transaction messages for history: \(error)")
             return []
         }
+    }
+    
+    static func getMostRecentCallMessage(
+        for chatId: Int,
+        context: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    ) -> TransactionMessage? {
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        fetchRequest.predicate = NSPredicate(
+            format: "chat.id == %d AND type == %d",
+            chatId,
+            TransactionMessage.TransactionMessageType.call.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = 1
+        return try? context.fetch(fetchRequest).first
+    }
+
+    static func getRecentCallMessages(
+        for chatId: Int,
+        limit: Int? = nil,
+        context: NSManagedObjectContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+    ) -> [TransactionMessage] {
+        let fetchRequest: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
+        fetchRequest.predicate = NSPredicate(
+            format: "chat.id == %d AND type == %d",
+            chatId,
+            TransactionMessage.TransactionMessageType.call.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        if let limit = limit {
+            fetchRequest.fetchLimit = limit
+        }
+        return (try? context.fetch(fetchRequest)) ?? []
     }
     
     static func getTimezonesByAlias(

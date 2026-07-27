@@ -8,8 +8,9 @@
 
 import Cocoa
 
+@MainActor
 class LoadingWheelHelper {
-    
+
     public static func toggleLoadingWheel(loading: Bool,
                                           loadingWheel: NSProgressIndicator,
                                           color: NSColor,

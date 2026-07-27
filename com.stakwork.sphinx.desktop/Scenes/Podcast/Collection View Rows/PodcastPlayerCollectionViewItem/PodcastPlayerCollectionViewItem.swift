@@ -9,6 +9,7 @@
 import Cocoa
 import AVKit
 
+@MainActor
 protocol PodcastPlayerViewDelegate : AnyObject {
     func shouldReloadEpisodesTable()
     func shouldShareClip(comment: PodcastComment)

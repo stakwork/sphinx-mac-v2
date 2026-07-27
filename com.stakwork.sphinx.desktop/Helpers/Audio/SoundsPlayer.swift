@@ -17,7 +17,7 @@ class SoundsPlayer {
     static let VibrateSoundID: SystemSoundID = 4095
     static let MessageReceivedSoundID: SystemSoundID = 1002
     
-    public static func playKeySound() {
+    @MainActor public static func playKeySound() {
         NSSound.pop?.play()
     }
     

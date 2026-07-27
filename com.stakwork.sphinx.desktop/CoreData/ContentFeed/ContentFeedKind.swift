@@ -17,15 +17,15 @@ public struct FeedContentType {
     let id: Int16
     var description: String
     
-    static var podcast: Self = .init(
+    nonisolated(unsafe) static var podcast: Self = .init(
         id: FeedType.Podcast.rawValue,
         description: "Podcast"
     )
-    static var video: Self = .init(
+    nonisolated(unsafe) static var video: Self = .init(
         id: FeedType.Video.rawValue,
         description: "Video"
     )
-    static var newsletter: Self = .init(
+    nonisolated(unsafe) static var newsletter: Self = .init(
         id: FeedType.Newsletter.rawValue,
         description: "Newsletter"
     )

@@ -8,10 +8,12 @@
 
 import Cocoa
 
+@MainActor
 protocol NewContactChatDelegate: AnyObject {
     func shouldReloadContacts()
 }
 
+@MainActor
 protocol NewContactDismissDelegate: AnyObject {
     func shouldDismissView()
 }

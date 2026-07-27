@@ -9,11 +9,13 @@
 import Cocoa
 import SwiftUI
 
-class WindowsManager {
-    
+@MainActor class WindowsManager: @unchecked Sendable {
+
+    nonisolated init() {}
+
     class var sharedInstance : WindowsManager {
         struct Static {
-            static let instance = WindowsManager()
+            nonisolated(unsafe) static let instance = WindowsManager()
         }
         return Static.instance
     }
@@ -86,6 +88,15 @@ class WindowsManager {
             $0.isKind(of: TaggedWindow.self) &&
             ($0 as? TaggedWindow)?.windowIdentifier?.contains("rooms/sphinx.call") == true
         }).last as? TaggedWindow
+    }
+    
+    func closeActiveCallWindow() {
+        guard let callWindow = getLiveKitCallWindow(),
+              let identifier = callWindow.windowIdentifier else { return }
+        openedWindowIdentifiers.removeAll(where: { $0 == identifier })
+        hideCallControlWindow(forceClose: true)
+        closeIfExists(identifier: identifier)
+        NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
     }
     
     func getCenteredFrameFor(size: CGSize) -> CGRect {
@@ -276,6 +287,16 @@ class WindowsManager {
             hideDivider: false
         )
     }
+
+    func showNotificationPreferencesWindow() {
+        showOnCurrentWindow(
+            with: "Hive Notifications",
+            identifier: "notification-preferences-window",
+            contentVC: HiveNotificationPreferencesViewController.instantiate(),
+            hideDivider: false,
+            height: 750
+        )
+    }
     
     func showTransationsListWindow() {
         showOnCurrentWindow(
@@ -367,7 +388,7 @@ class WindowsManager {
         dashboardVC.rightDetailViewMaxWidth.constant = DashboardViewController.kRightPanelMaxWidth
         
         dashboardVC.rightDetailSplittedView.isHidden = false
-        
+
         if let detailVC = dashboardVC.dashboardDetailViewController {
             detailVC.displayVC(
                 contentVC,
@@ -467,6 +488,21 @@ class WindowsManager {
         }
     }
     
+    /// Move an already-loaded WebAppViewController into its own window without reloading.
+    func showWebAppWindow(vc: WebAppViewController, title: String) {
+        let screen = NSApplication.shared.keyWindow
+        let frame = screen?.frame ?? CGRect(x: 0, y: 0, width: 1024, height: 768)
+        let position = screen?.frame.origin ?? .zero
+        showNewWindow(
+            with: title,
+            size: CGSize(width: frame.width, height: frame.height),
+            minSize: CGSize(width: 350, height: 550),
+            position: position,
+            styleMask: [.titled, .resizable, .closable],
+            contentVC: vc
+        )
+    }
+
     func showWebAppWindow(chat: Chat?, view: NSView, isAppURL: Bool = true) {
         if let chat = chat, let tribeInfo = chat.tribeInfo, let appURL = isAppURL ? tribeInfo.appUrl : tribeInfo.secondBrainUrl, !appURL.isEmpty && appURL.isValidURL,
            let webAppVC = WebAppViewController.instantiate(chat: chat, isAppURL: isAppURL) {
@@ -517,17 +553,24 @@ class WindowsManager {
         link: String,
         audioOnly: Bool,
         shouldStartRecording: Bool = false,
-        tribeImage: String? = nil
+        tribeImage: String? = nil,
+        isHost: Bool = false
     ) {
         guard let owner = UserContact.getOwner() else {
             return
         }
         
-        if openedWindowIdentifiers.contains(link) {
-            return
+        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
+        
+        // Auto-leave any existing call when joining a different room
+        if let existingRoom = getLiveKitCallWindow()?.windowIdentifier?.liveKitRoomName,
+           existingRoom != linkUrl.liveKitRoomName {
+            closeActiveCallWindow()
         }
         
-        let linkUrl = VoIPRequestMessage.getFromString(link)?.link ?? link
+        if openedWindowIdentifiers.contains(linkUrl) {
+            return
+        }
         
         if linkUrl.isLiveKitCallLink, let room = linkUrl.liveKitRoomName {
             openedWindowIdentifiers.append(linkUrl)
@@ -536,7 +579,8 @@ class WindowsManager {
                 room: room,
                 alias: owner.nickname ?? "",
                 profilePicture: owner.avatarUrl,
-                hiveToken: linkUrl.liveKitHiveToken,
+                hiveCallKey: linkUrl.hiveCallKey,
+                isHost: isHost,
                 callback: { url, token in
                     DispatchQueue.main.async {
                         let appCtx = AppContext(store: sync)
@@ -547,25 +591,40 @@ class WindowsManager {
                         roomCtx.token = token
                         roomCtx.tribeImage = tribeImage
                         
+                        if isHost {
+                            roomCtx.isAdmin = true
+                            roomCtx.adminToken = token
+                        }
+                        
                         let roomContextView = RoomContextView(
                             audioOnly: audioOnly,
                             shouldStartRecording: shouldStartRecording,
                             onCallEnded: {
                                 Task { @MainActor in
-                                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
+                                    self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
                                     self.hideCallControlWindow(forceClose: true)
                                     self.closeIfExists(identifier: link)
+                                    NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
                                 }
                         }).environmentObject(appCtx).environmentObject(roomCtx)
                         
                         let hostingController = NSHostingController(rootView: roomContextView)
                         self.presentWindowForCallVC(vc: hostingController, link: link, delegate: roomCtx)
+                        NotificationCenter.default.post(name: .liveKitCallWindowDidChange, object: nil)
                     }
                 },
                 errorCallback: { error in
-                    self.openedWindowIdentifiers.removeAll(where: { $0 == link })
-                    AlertHelper.showAlert(title: "error.getting.token.title".localized, message: error)
+                    self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
+                    AlertHelper.showAlert(
+                        title: "error.getting.token.title".localized,
+                        message: error
+                    )
                 }
+            )
+        } else {
+            AlertHelper.showAlert(
+                title: "error.getting.token.title".localized,
+                message: "error.getting.token.description".localized
             )
         }
     }
@@ -574,7 +633,8 @@ class WindowsManager {
         link: String,
         audioOnly: Bool = false,
         shouldStartRecording: Bool = false,
-        tribeImage: String? = nil
+        tribeImage: String? = nil,
+        isHost: Bool = false
     ) {
         
         if link.isJitsiCallLink {
@@ -593,7 +653,8 @@ class WindowsManager {
                 link: link,
                 audioOnly: audioOnly || link.contains("startAudioOnly"),
                 shouldStartRecording: shouldStartRecording,
-                tribeImage: tribeImage
+                tribeImage: tribeImage,
+                isHost: isHost
             )
             return
         }
@@ -691,15 +752,15 @@ extension WindowsManager : RoomContextDelegate {
     func createControlsPanel() {
         if controlsPanel == nil {
             let mainScreen = NSScreen.main
-            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
+            let position = CGPoint(x: (mainScreen?.frame.size.width ?? 392) / 2 - 196, y: 15)
             
             controlsPanel = DraggablePanel(
-                contentRect: .init(origin: .zero, size: CGSize(width: 332, height: 100)),
+                contentRect: .init(origin: .zero, size: CGSize(width: 392, height: 100)),
                 styleMask: [.nonactivatingPanel, .borderless],
                 backing: .buffered,
                 defer: false
             )
-            controlsPanel?.setFrame(.init(origin: position, size: CGSize(width: 332, height: 100)), display: true)
+            controlsPanel?.setFrame(.init(origin: position, size: CGSize(width: 392, height: 100)), display: true)
         }
         
         if let controlsPanel = controlsPanel {
@@ -709,7 +770,7 @@ extension WindowsManager : RoomContextDelegate {
     
     func presentCallControlWindowWith(roomCtx: RoomContext) {
         let mainScreen = NSScreen.main
-        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 300) / 2 - 166, y: 15)
+        let position = CGPoint(x: (mainScreen?.frame.size.width ?? 392) / 2 - 196, y: 15)
         
         let shareControlView = CallControlView()
             .environmentObject(roomCtx)
@@ -719,8 +780,8 @@ extension WindowsManager : RoomContextDelegate {
         
         self.showControlsPanel(
             with: "",
-            size: CGSize(width: 332, height: 100),
-            minSize: CGSize(width: 332, height: 100),
+            size: CGSize(width: 392, height: 100),
+            minSize: CGSize(width: 392, height: 100),
             position: position,
             identifier: "share-panel",
             backgroundColor: NSColor.clear,

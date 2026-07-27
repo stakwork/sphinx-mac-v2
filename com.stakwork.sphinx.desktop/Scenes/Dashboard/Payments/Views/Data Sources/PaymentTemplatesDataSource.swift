@@ -8,10 +8,12 @@
 
 import Cocoa
 
+@MainActor
 protocol PaymentTemplatesDSDelegate: AnyObject {
     func didSelectImage(image: ImageTemplate?)
 }
 
+@MainActor
 class PaymentTemplatesDataSource : NSObject {
     
     weak var delegate: PaymentTemplatesDSDelegate?
@@ -38,7 +40,9 @@ class PaymentTemplatesDataSource : NSObject {
             object: self.collectionView.enclosingScrollView?.contentView,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            self?.scrollViewDidScroll()
+            Task { @MainActor [weak self] in
+                self?.scrollViewDidScroll()
+            }
         }
     }
     

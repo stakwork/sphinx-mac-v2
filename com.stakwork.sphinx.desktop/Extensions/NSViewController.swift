@@ -22,8 +22,8 @@ extension NSViewController {
         child: NSViewController
     ) {
         if let _ = child.parent {
-            child.removeFromParent()
             child.view.removeFromSuperview()
+            child.removeFromParent()
         }
     }
     

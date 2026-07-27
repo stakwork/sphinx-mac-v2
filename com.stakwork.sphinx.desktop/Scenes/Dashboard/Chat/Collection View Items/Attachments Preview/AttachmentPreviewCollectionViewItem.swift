@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol AttachmentPreviewItemDelegate: AnyObject {
     func closeButtonClicked(item: NSCollectionViewItem)
     func playVideoButtonClicked(item: NSCollectionViewItem)

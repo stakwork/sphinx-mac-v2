@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol GroupActionsViewDelegate: AnyObject {
     func didTapDeleteTribeButton()
     func didTapApproveRequestButton()

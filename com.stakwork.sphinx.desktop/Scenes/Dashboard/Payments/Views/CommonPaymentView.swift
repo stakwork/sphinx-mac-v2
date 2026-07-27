@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol CommonPaymentViewDelegate: AnyObject {
     func didUpdate(message: String)
     func didUpdate(amount: Int)

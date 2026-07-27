@@ -130,25 +130,32 @@ class PaymentViewModel : NSObject {
             return
         }
         
-        if let paymentAmount = currentPayment.amount,
-           let invoice = SphinxOnionManager.sharedInstance.createInvoice(
-                amountMsat: paymentAmount * 1000,
-                description: currentPayment.memo ?? ""
-           )
-        {
-            if let contact = currentPayment.contacts.first, let chat = currentPayment.chat {
-                SphinxOnionManager.sharedInstance.sendInvoiceMessage(
-                    contact: contact,
-                    chat: chat,
-                    invoiceString: invoice,
-                    memo: currentPayment.memo ?? ""
-                )
-                callback(nil)
-            } else {
-                callback(invoice)
-            }
-        } else {
+        guard let paymentAmount = currentPayment.amount else {
             errorCallback("generic.error.message".localized)
+            return
+        }
+
+        SphinxOnionManager.sharedInstance.createInvoice(
+            amountMsat: paymentAmount * 1000,
+            description: currentPayment.memo ?? ""
+        ) { [weak self] invoice in
+            guard let self = self else { return }
+            if let invoice = invoice {
+                if let contact = self.currentPayment.contacts.first,
+                   let chat = self.currentPayment.chat {
+                    SphinxOnionManager.sharedInstance.sendInvoiceMessage(
+                        contact: contact,
+                        chat: chat,
+                        invoiceString: invoice,
+                        memo: self.currentPayment.memo ?? ""
+                    )
+                    callback(nil)
+                } else {
+                    callback(invoice)
+                }
+            } else {
+                errorCallback("generic.error.message".localized)
+            }
         }
     }
     

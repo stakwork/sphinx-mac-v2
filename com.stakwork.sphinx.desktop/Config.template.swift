@@ -12,6 +12,7 @@
 
 enum Config {
     static let giphyApiKey = "YOUR_GIPHY_API_KEY_HERE"
+    static let sphinxErrorReporterApiKey = "YOUR_ERROR_REPORTED_API_KEY_HERE"
     static let workflowId = 0
     static let workflowToken = "YOUR_WORKFLOW_TOKEN_HERE"
 }

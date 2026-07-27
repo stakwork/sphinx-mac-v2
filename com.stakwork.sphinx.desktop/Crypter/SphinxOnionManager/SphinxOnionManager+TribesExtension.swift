@@ -160,8 +160,7 @@ extension SphinxOnionManager {
             return nil
         }
         
-        print("Host: \(host)")
-        print("Tribe Identifier: \(tribeIdentifier)")
+
         
         if let port = url.port {
             return ("\(host):\(port)", tribeIdentifier)

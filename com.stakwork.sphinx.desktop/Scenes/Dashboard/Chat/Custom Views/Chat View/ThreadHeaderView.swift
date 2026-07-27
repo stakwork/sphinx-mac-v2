@@ -25,7 +25,7 @@ import Cocoa
     func shouldShowOptionsFor(messageId: Int, from button: NSButton)
 }
 
-class ThreadHeaderView: NSView, LoadableNib {
+class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     
     weak var delegate : ThreadHeaderViewDelegate? = nil
     
@@ -87,6 +87,11 @@ class ThreadHeaderView: NSView, LoadableNib {
         
         newMessageLabel.textContainerInset = NSSize(width: 0, height: 0)
         newMessageLabel.textContainer?.lineFragmentPadding = 0
+        newMessageLabel.delegate = self
+        newMessageLabel.linkTextAttributes = [
+            .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+            .underlineStyle: NSUnderlineStyle.single.rawValue
+        ]
     }
     
     func hideAllViews() {
@@ -157,109 +162,10 @@ class ThreadHeaderView: NSView, LoadableNib {
         } else {
             let messageC = threadOriginalMessage.text
 
-            let attributedString = NSMutableAttributedString(string: messageC)
-            attributedString.addAttributes(
-                [
-                    NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
-                    NSAttributedString.Key.foregroundColor: NSColor.Sphinx.Text
-                ]
-                , range: messageC.nsRange
+            let attributedString = NSMutableAttributedString(
+                attributedString: ChatHelper.markdownRenderer.render(messageC)
             )
-            
-            ///Highlighted text formatting
-            let highlightedNsRanges = threadOriginalMessage.highlightedMatches.map {
-                return $0.range
-            }
-            
-            for nsRange in highlightedNsRanges {
-                
-                let adaptedRange = NSRange(
-                    location: nsRange.location,
-                    length: nsRange.length
-                )
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.HighlightedText,
-                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground,
-                        NSAttributedString.Key.font: NSFont.getThreadHeaderHightlightedFont()
-                    ],
-                    range: adaptedRange
-                )
-            }
-            
-            ///Bold text formatting
-            let boldNsRanges = threadOriginalMessage.boldMatches.map {
-                return $0.range
-            }
-            
-            for nsRange in boldNsRanges {
-                let adaptedRange = NSRange(
-                    location: nsRange.location,
-                    length: nsRange.length
-                )
-                
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.font: NSFont.getThreadHeaderBoldFont()
-                    ],
-                    range: adaptedRange
-                )
-            }
-            
-            ///Links formatting
-            var nsRanges = threadOriginalMessage.linkMatches.map {
-                return $0.range
-            }
-            
-            nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-            for nsRange in nsRanges {
-                
-                if let range = Range(nsRange, in: messageC) {
-                    
-                    var substring = String(messageC[range])
-                    
-                    if substring.isPubKey {
-                        substring = substring.shareContactDeepLink
-                    } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                        substring = substring.callLinkDeepLink
-                    } else if !substring.isTribeJoinLink {
-                        substring = substring.withProtocol(protocolString: "http")
-                    }
-                     
-                    if let url = URL(string: substring.withProtocol(protocolString: "http"))  {
-                        attributedString.addAttributes(
-                            [
-                                NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                                NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                                NSAttributedString.Key.font: NSFont.getThreadHeaderFont(),
-                                NSAttributedString.Key.link: url
-                            ],
-                            range: nsRange
-                        )
-
-                    }
-                }
-            }
-            
-            ///Markdown Links formatting
-            for (textCheckingResult, _, link, _) in threadOriginalMessage.linkMarkdownMatches {
-                
-                let nsRange = textCheckingResult.range
-                
-                if let url = URL(string: link)  {
-                    attributedString.addAttributes(
-                        [
-                            NSAttributedString.Key.link: url,
-                            NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                            NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                            NSAttributedString.Key.font: NSFont.getThreadHeaderFont()
-                        ],
-                        range: nsRange
-                    )
-                }
-            }
+            ChatHelper.applySphinxLinkTransforms(to: attributedString)
 
             messageLabel.attributedStringValue = attributedString
             messageLabel.isEnabled = true
@@ -317,26 +223,28 @@ class ThreadHeaderView: NSView, LoadableNib {
                 if let messageId = messageId, mediaData == nil {
                     let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                     DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                        if messageMedia.isImage {
-                            self.delegate?.shouldLoadImageDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isPdf {
-                            self.delegate?.shouldLoadPdfDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isVideo {
-                            self.delegate?.shouldLoadVideoDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
-                        } else if messageMedia.isGiphy {
-                            self.delegate?.shouldLoadGiphyDataFor?(
-                                messageId: messageId,
-                                and: NewChatTableDataSource.kThreadHeaderRowIndex
-                            )
+                        Task { @MainActor in
+                            if messageMedia.isImage {
+                                self.delegate?.shouldLoadImageDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isPdf {
+                                self.delegate?.shouldLoadPdfDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isVideo {
+                                self.delegate?.shouldLoadVideoDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            } else if messageMedia.isGiphy {
+                                self.delegate?.shouldLoadGiphyDataFor?(
+                                    messageId: messageId,
+                                    and: NewChatTableDataSource.kThreadHeaderRowIndex
+                                )
+                            }
                         }
                     }
                 }
@@ -360,10 +268,12 @@ class ThreadHeaderView: NSView, LoadableNib {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadFileDataFor?(
-                        messageId: messageId,
-                        and: NewChatTableDataSource.kThreadHeaderRowIndex
-                    )
+                    Task { @MainActor in
+                        self.delegate?.shouldLoadFileDataFor?(
+                            messageId: messageId,
+                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+                        )
+                    }
                 }
             }
         }
@@ -387,10 +297,12 @@ class ThreadHeaderView: NSView, LoadableNib {
             if let messageId = messageId, mediaData == nil {
                 let delayTime = DispatchTime.now() + Double(Int64(0.1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
                 DispatchQueue.global().asyncAfter(deadline: delayTime) {
-                    self.delegate?.shouldLoadAudioDataFor?(
-                        messageId: messageId,
-                        and: NewChatTableDataSource.kThreadHeaderRowIndex
-                    )
+                    Task { @MainActor in
+                        self.delegate?.shouldLoadAudioDataFor?(
+                            messageId: messageId,
+                            and: NewChatTableDataSource.kThreadHeaderRowIndex
+                        )
+                    }
                 }
             }
         }
@@ -417,7 +329,7 @@ class ThreadHeaderView: NSView, LoadableNib {
     }
 }
 
-extension ThreadHeaderView : MediaMessageViewDelegate {
+extension ThreadHeaderView : @preconcurrency MediaMessageViewDelegate {
     func didTapMediaButton() {
         if let messageId = messageId {
             delegate?.didTapMediaButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
@@ -425,7 +337,7 @@ extension ThreadHeaderView : MediaMessageViewDelegate {
     }
 }
 
-extension ThreadHeaderView : FileInfoViewDelegate {
+extension ThreadHeaderView : @preconcurrency FileInfoViewDelegate {
     func didTouchDownloadButton() {
         if let messageId = messageId {
             delegate?.didTapFileDownloadButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
@@ -433,10 +345,43 @@ extension ThreadHeaderView : FileInfoViewDelegate {
     }
 }
 
-extension ThreadHeaderView : AudioMessageViewDelegate {
+extension ThreadHeaderView : @preconcurrency AudioMessageViewDelegate {
     func didTapPlayPauseButton() {
         if let messageId = messageId {
             delegate?.didTapPlayPauseButtonFor(messageId: messageId, and: NewChatTableDataSource.kThreadHeaderRowIndex)
         }
+    }
+}
+
+extension ThreadHeaderView : @preconcurrency NSTextViewDelegate {
+    func textView(
+        _ textView: NSTextView,
+        clickedOnLink link: Any,
+        at charIndex: Int
+    ) -> Bool {
+        DispatchQueue.main.async {
+            self.window?.makeFirstResponder(nil)
+        }
+
+        var resolvedURL: URL?
+        if let url = link as? URL { resolvedURL = url }
+        else if let str = link as? String { resolvedURL = URL(string: str) }
+        guard let url = resolvedURL else { return false }
+
+        if url.scheme == "sphinx.chat" {
+            if url.getLinkAction() == "webapp" {
+                NotificationCenter.default.post(
+                    name: .onWebAppLinkTapped,
+                    object: nil,
+                    userInfo: ["link": url.absoluteString]
+                )
+            } else {
+                DeepLinksHandlerHelper.handleLinkQueryFrom(url: url)
+            }
+            return true
+        }
+
+        NSWorkspace.shared.open(url)
+        return true
     }
 }

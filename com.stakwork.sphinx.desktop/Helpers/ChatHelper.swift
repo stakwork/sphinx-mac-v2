@@ -15,6 +15,9 @@ struct DeeplinkData{
 }
 
 class ChatHelper {
+    
+    nonisolated(unsafe) static let markdownRenderer = MarkdownRenderer()
+    
     public static func getSenderColorFor(message: TransactionMessage) -> NSColor {
         var key:String? = nil
         
@@ -42,6 +45,53 @@ class ChatHelper {
         return NSColor.Sphinx.SecondaryText
     }
     
+    public static func applySphinxLinkTransforms(to attrStr: NSMutableAttributedString) {
+        let fullRange = NSRange(location: 0, length: attrStr.length)
+        let text = attrStr.string
+
+        // Pass 1 — video call links: existing .link attributes pointing to kVideoCallServer
+        // → replace the attribute URL with callLinkDeepLink (display text unchanged)
+        attrStr.enumerateAttribute(.link, in: fullRange) { value, range, _ in
+            guard let url = value as? URL,
+                  url.absoluteString.hasPrefix(API.sharedInstance.kVideoCallServer) else { return }
+            let deepLink = url.absoluteString.callLinkDeepLink
+            if let deepURL = URL(string: deepLink) {
+                attrStr.addAttribute(.link, value: deepURL, range: range)
+            }
+        }
+
+        // Pass 2 — bare pubkeys and virtual pubkeys (pubkey_mixerpubkey_channelid),
+        // with no existing link attribute → add blue/underline styling + .link pointing to shareContactDeepLink.
+        // Virtual pubkey pattern is matched first so the full compound string is linked as one unit.
+        let patterns = [
+            "[A-F0-9a-f]{66}_[A-F0-9a-f]{66}_[0-9]+",
+            "[A-F0-9a-f]{66}"
+        ]
+        // Track ranges already linked in this pass to avoid double-linking sub-segments.
+        var linkedRanges: [NSRange] = []
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            regex.enumerateMatches(in: text, range: NSRange(text.startIndex..., in: text)) { match, _, _ in
+                guard let range = match?.range else { return }
+                guard range.location != NSNotFound, NSMaxRange(range) <= attrStr.length else { return }
+                // Skip if already covered by a previously linked range (e.g. 66-char segment inside a virtual key).
+                let alreadyCovered = linkedRanges.contains {
+                    $0.location <= range.location && NSMaxRange($0) >= NSMaxRange(range)
+                }
+                guard !alreadyCovered else { return }
+                guard attrStr.attribute(.link, at: range.location, effectiveRange: nil) == nil else { return }
+                let pubkey = (text as NSString).substring(with: range)
+                guard let deepURL = URL(string: pubkey.shareContactDeepLink) else { return }
+                attrStr.addAttributes([
+                    .link: deepURL,
+                    .foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                    .underlineStyle: NSUnderlineStyle.single.rawValue
+                ], range: range)
+                linkedRanges.append(range)
+            }
+        }
+    }
+
     public static func removeDuplicatedContainedFrom(
         urlRanges: [NSRange]
     ) -> [NSRange] {
@@ -72,7 +122,7 @@ class ChatHelper {
         return ranges
     }
 
-    func getHeightToSubstract(message: TransactionMessage) -> CGFloat {
+    @MainActor func getHeightToSubstract(message: TransactionMessage) -> CGFloat {
         let shouldRemoveHeader = message.consecutiveMessages.previousMessage && !message.isFailedOrMediaExpired()
         return shouldRemoveHeader ? Constants.kRowHeaderHeight : 0
     }
@@ -195,7 +245,7 @@ class ChatHelper {
         }
     }
     
-    public static func getThreadListRowHeightFor(
+    @MainActor public static func getThreadListRowHeightFor(
         _ tableCellState: ThreadTableCellState
     ) -> CGFloat {
         ///No Bubble message views
@@ -238,11 +288,12 @@ class ChatHelper {
         return textHeight + viewsHeight + kTopMargin + kBottomMargin
     }
     
-    public static func getThreadRowHeightFor(
+    @MainActor public static func getThreadRowHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
         ///No Bubble message views
@@ -308,16 +359,40 @@ class ChatHelper {
         if let _ = mutableTableCellState.boosts {
             viewsHeight += NewMessageBoostView.kViewHeight
         }
+
+        if let link = mutableTableCellState.callLink {
+            let base = link.callMode == .Audio
+                ? JoinVideoCallView.kViewAudioOnlyHeight
+                : JoinVideoCallView.kViewHeight
+            let extra = participantsData?.participants.isEmpty == false
+                ? JoinVideoCallView.kParticipantsRowHeight : 0
+            viewsHeight += base + extra
+        }
         
         if let text = mutableTableCellState.messageContent?.text, text.isNotEmpty {
-            lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
-                text,
-                collectionViewWidth: collectionViewWidth,
-                highlightedMatches: mutableTableCellState.messageContent?.highlightedMatches,
-                boldMatches: mutableTableCellState.messageContent?.boldMatches,
-                linkMatches: mutableTableCellState.messageContent?.linkMatches,
-                linkMarkdownMatches: mutableTableCellState.messageContent?.linkMarkdownMatches
-            )
+            let messageContent = mutableTableCellState.messageContent
+            let usePlainText = (messageContent?.hasNoMarkdown ?? true) && !text.containsMarkdownSyntax
+            
+            if usePlainText {
+                let maxWidth = min(
+                    CommonNewMessageCollectionViewitem.kMaximumThreadBubbleWidth,
+                    collectionViewWidth - CommonNewMessageCollectionViewitem.kTextLabelMargins
+                )
+                lastReplyTextHeight = getTextHeightFor(
+                    text: text,
+                    width: maxWidth,
+                    useMarkdown: false
+                )
+            } else {
+                lastReplyTextHeight = getThreadOriginalTextMessageHeightFor(
+                    text,
+                    collectionViewWidth: collectionViewWidth,
+                    highlightedMatches: messageContent?.highlightedMatches,
+                    boldMatches: messageContent?.boldMatches,
+                    linkMatches: messageContent?.linkMatches,
+                    linkMarkdownMatches: messageContent?.linkMarkdownMatches
+                )
+            }
         }
         
         viewsHeight += ThreadLastMessageHeader.kViewHeight
@@ -326,11 +401,12 @@ class ChatHelper {
         
     }
     
-    public static func getRowHeightFor(
+    @MainActor public static func getRowHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         replyViewAdditionalHeight: CGFloat? = nil,
         collectionViewWidth: CGFloat
     ) -> CGFloat {
@@ -342,6 +418,7 @@ class ChatHelper {
                 linkData: linkData,
                 tribeData: tribeData,
                 mediaData: mediaData,
+                participantsData: participantsData,
                 collectionViewWidth: collectionViewWidth
             )
         }
@@ -388,6 +465,7 @@ class ChatHelper {
             linkData: linkData,
             tribeData: tribeData,
             mediaData: mediaData,
+            participantsData: participantsData,
             replyViewAdditionalHeight: replyViewAdditionalHeight
         )
         
@@ -408,7 +486,7 @@ class ChatHelper {
         return statusHeaderheight
     }
     
-    public static func getTextMessageHeightFor(
+    @MainActor public static func getTextMessageHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
@@ -496,7 +574,7 @@ class ChatHelper {
         return textHeight
     }
     
-    public static func getThreadOriginalTextMessageHeightFor(
+    @MainActor public static func getThreadOriginalTextMessageHeightFor(
         _ text: String?,
         collectionViewWidth: CGFloat,
         maxHeight: CGFloat? = nil,
@@ -513,13 +591,18 @@ class ChatHelper {
         )
         
         if let text = text, text.isNotEmpty {
+            // Use useMarkdown: false so height measurement matches the plain-text string
+            // assigned to messageLabel.stringValue in configureOriginalMessageTextWith.
+            // Markdown-rendered strings can be shorter than their plain-text equivalents,
+            // which would produce a labelHeightConstraint.constant that is too small.
             textHeight = ChatHelper.getTextHeightFor(
                 text: text,
                 width: maxWidth,
                 highlightedMatches: highlightedMatches,
                 boldMatches: boldMatches,
                 linkMatches: linkMatches,
-                linkMarkdownMatches: linkMarkdownMatches
+                linkMarkdownMatches: linkMarkdownMatches,
+                useMarkdown: false
             )
         }
         
@@ -542,18 +625,20 @@ class ChatHelper {
                 text: text,
                 width: width,
                 font: font,
-                labelVerticalMargins: 0
+                labelVerticalMargins: 0,
+                useMarkdown: false
             )
         }
         
         return min(textHeight, maxHeight)
     }
     
-    public static func getAdditionalViewsHeightFor(
+    @MainActor public static func getAdditionalViewsHeightFor(
         _ tableCellState: MessageTableCellState,
         linkData: MessageTableCellState.LinkData? = nil,
         tribeData: MessageTableCellState.TribeData? = nil,
         mediaData: MessageTableCellState.MediaData? = nil,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         replyViewAdditionalHeight: CGFloat? = nil
     ) -> CGFloat {
         
@@ -578,7 +663,8 @@ class ChatHelper {
             if let memo = invoice.memo, memo.isNotEmpty {
                 let textHeight = ChatHelper.getTextHeightFor(
                     text: memo,
-                    width: CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth
+                    width: CommonNewMessageCollectionViewitem.kMaximumPaidTextViewBubbleWidth,
+                    useMarkdown: false
                 ) - 16
                 
                 viewsHeight += textHeight
@@ -616,11 +702,13 @@ class ChatHelper {
         }
         
         if let link = mutableTableCellState.callLink {
-            if link.callMode == VideoCallHelper.CallMode.Audio {
-                viewsHeight += JoinVideoCallView.kViewAudioOnlyHeight
-            } else {
-                viewsHeight += JoinVideoCallView.kViewHeight
-            }
+            let base: CGFloat = link.callMode == .Audio
+                ? JoinVideoCallView.kViewAudioOnlyHeight
+                : JoinVideoCallView.kViewHeight
+            let extra: CGFloat = (participantsData != nil && !(participantsData!.participants.isEmpty))
+                ? JoinVideoCallView.kParticipantsRowHeight
+                : 0
+            viewsHeight += base + extra
         }
         
         if let _ = mutableTableCellState.podcastBoost {
@@ -667,64 +755,67 @@ class ChatHelper {
         linkMatches: [NSTextCheckingResult]? = [],
         linkMarkdownMatches: [(NSTextCheckingResult, String, String, Bool)]? = [],
         labelVerticalMargins: CGFloat? = nil,
-        labelHorizontalMargins: CGFloat? = nil
+        labelHorizontalMargins: CGFloat? = nil,
+        useMarkdown: Bool = true
     ) -> CGFloat {
-        let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
-        let attributedString = NSMutableAttributedString(string: text, attributes: attrs)
+        let attributedString: NSAttributedString
         
-        for match in (highlightedMatches ?? []) {
-            let adaptedRange = NSRange(
-                location: match.range.location,
-                length: match.range.length
-            )
+        if useMarkdown {
+            attributedString = ChatHelper.markdownRenderer.render(text)
+        } else {
+            let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
+            let mutable = NSMutableAttributedString(string: text, attributes: attrs)
             
-            attributedString.addAttributes(
-                [
-                    NSAttributedString.Key.font: Constants.kMessageHighlightedFont,
-                    NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground
-                ],
-                range: adaptedRange
-            )
+            for match in (highlightedMatches ?? []) {
+                let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+                mutable.addAttributes(
+                    [
+                        NSAttributedString.Key.font: Constants.kMessageHighlightedFont,
+                        NSAttributedString.Key.backgroundColor: NSColor.Sphinx.HighlightedTextBackground
+                    ],
+                    range: adaptedRange
+                )
+            }
             
-        }
-        
-        for match in (boldMatches ?? []) {
-            let adaptedRange = NSRange(
-                location: match.range.location,
-                length: match.range.length
-            )
+            for match in (boldMatches ?? []) {
+                let adaptedRange = NSRange(location: match.range.location, length: match.range.length)
+                mutable.addAttributes(
+                    [NSAttributedString.Key.font: Constants.kMessageBoldFont],
+                    range: adaptedRange
+                )
+            }
             
-            attributedString.addAttributes(
-                [
-                    NSAttributedString.Key.font: Constants.kMessageBoldFont
-                ],
-                range: adaptedRange
-            )
+            var nsRanges = linkMatches?.map { $0.range } ?? []
+            nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
             
-        }
-        
-        var nsRanges = linkMatches?.map {
-            return $0.range
-        } ?? []
-        
-        nsRanges = ChatHelper.removeDuplicatedContainedFrom(urlRanges: nsRanges)
-
-        for nsRange in nsRanges {
-            
-            if let range = Range(nsRange, in: text) {
-                
-                var substring = String(text[range])
-                
-                if substring.isPubKey {
-                    substring = substring.shareContactDeepLink
-                } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
-                    substring = substring.callLinkDeepLink
-                } else if !substring.isTribeJoinLink {
-                    substring = substring.withProtocol(protocolString: "http")
+            for nsRange in nsRanges {
+                if let range = Range(nsRange, in: text) {
+                    var substring = String(text[range])
+                    if substring.isPubKey {
+                        substring = substring.shareContactDeepLink
+                    } else if substring.starts(with: API.sharedInstance.kVideoCallServer) {
+                        substring = substring.callLinkDeepLink
+                    } else if !substring.isTribeJoinLink {
+                        substring = substring.withProtocol(protocolString: "http")
+                    }
+                    if let url = URL(string: substring) {
+                        mutable.addAttributes(
+                            [
+                                NSAttributedString.Key.link: url,
+                                NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
+                                NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
+                                NSAttributedString.Key.font: Constants.kMessageFont
+                            ],
+                            range: nsRange
+                        )
+                    }
                 }
-                 
-                if let url = URL(string: substring)  {
-                    attributedString.addAttributes(
+            }
+            
+            for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
+                let nsRange = textCheckingResult.range
+                if let url = URL(string: link) {
+                    mutable.addAttributes(
                         [
                             NSAttributedString.Key.link: url,
                             NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
@@ -733,26 +824,10 @@ class ChatHelper {
                         ],
                         range: nsRange
                     )
-
                 }
             }
-        }
-        
-        for (textCheckingResult, _, link, _) in linkMarkdownMatches ?? [] {
             
-            let nsRange = textCheckingResult.range
-            
-            if let url = URL(string: link)  {
-                attributedString.addAttributes(
-                    [
-                        NSAttributedString.Key.link: url,
-                        NSAttributedString.Key.foregroundColor: NSColor.Sphinx.PrimaryBlue,
-                        NSAttributedString.Key.underlineStyle: NSUnderlineStyle.single.rawValue,
-                        NSAttributedString.Key.font: Constants.kMessageFont
-                    ],
-                    range: nsRange
-                )
-            }
+            attributedString = mutable
         }
         
         let kLabelHorizontalMargins: CGFloat = labelHorizontalMargins ?? 32.0

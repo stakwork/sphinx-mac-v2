@@ -91,23 +91,54 @@ struct RoomContextView: View {
             .foregroundColor(Color.white)
             .onDisappear {
                 print("\(String(describing: type(of: self))) onDisappear")
+                // Clear the route monitor callback before disconnecting so that
+                // any late-firing device-removal event doesn't operate on a
+                // torn-down audio engine context.
+                appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
                 Task {
                     await roomCtx.disconnect()
                 }
             }
             .onAppear() {
+                appCtx.syncWithSystemAudioDefaults()
                 Task {
                     if !roomCtx.token.isEmpty {
-                        let room = try await roomCtx.connect(onConnected: {
-                            self.enableMic()
-                            
-                            if !self.audioOnly {
-                                self.enableCamera()
+                        do {
+                            let room = try await roomCtx.connect(
+                                onConnected: {
+                                    self.enableMic()
+                                    if !self.audioOnly {
+                                        self.enableCamera()
+                                    }
+                                },
+                                onCallEnded: {
+                                    self.onCallEnded?()
+                                }
+                            )
+                            appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                            // Wire the route monitor: if all audio output devices vanish
+                            // mid-call, end the call cleanly instead of crashing.
+                            appCtx.configureRouteMonitor {
+                                Task { @MainActor in
+                                    AlertHelper.showAlert(
+                                        title: "Audio Device Lost",
+                                        message: "All audio output devices were removed. The call has ended."
+                                    )
+                                    appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
+                                    await roomCtx.disconnect()
+                                    self.onCallEnded?()
+                                }
                             }
-                        }, onCallEnded: {
+                        } catch {
+                            print("LiveKit connect failed: \(error)")
+                            Task { @MainActor in
+                                AlertHelper.showAlert(
+                                    title: "error.joining.call.title".localized,
+                                    message: "Failed to connect to room"
+                                )
+                            }
                             self.onCallEnded?()
-                        })
-                        appCtx.connectionHistory.update(room: room, e2ee: false, e2eeKey: "")
+                        }
                     }
                 }
             }
@@ -139,17 +170,48 @@ struct RoomContextView: View {
                     roomCtx.isE2eeEnabled = e2ee
                     roomCtx.e2eeKey = e2eeKey
                     if !roomCtx.token.isEmpty {
-                        let room = try await roomCtx.connect()
-                        appCtx.connectionHistory.update(room: room, e2ee: e2ee, e2eeKey: e2eeKey)
+                        do {
+                            let room = try await roomCtx.connect()
+                            appCtx.connectionHistory.update(room: room, e2ee: e2ee, e2eeKey: e2eeKey)
+                        } catch {
+                            print("LiveKit connect failed: \(error)")
+                            AlertHelper.showAlert(
+                                title: "error.joining.call.title".localized,
+                                message: "Failed to connect to room"
+                            )
+                            self.onCallEnded?()
+                        }
                     }
                 }
             })
     }
     
     func enableMic() {
-        Task {
-            if AVCaptureDevice.default(for: .audio) != nil {
-                try await roomCtx.room.localParticipant.setMicrophone(enabled: true)
+        AudioRecorderHelper.requestMicrophonePermission { granted in
+            if granted {
+                Task {
+                    do {
+                        try await self.roomCtx.room.localParticipant.setMicrophone(enabled: true)
+                    } catch {
+                        await MainActor.run {
+                            AlertHelper.showAlert(
+                                title: "error.enabling.microphone.title".localized,
+                                message: "\(error.localizedDescription). You can try enabling it using the microphone button."
+                            )
+                        }
+                    }
+                }
+            } else {
+                Task { @MainActor in
+                    AlertHelper.showTwoOptionsAlert(
+                        title: "Microphone Access Required",
+                        message: "Please enable microphone access in System Settings → Privacy & Security → Microphone.",
+                        confirm: {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
+                        },
+                        confirmLabel: "Open Settings"
+                    )
+                }
             }
         }
     }

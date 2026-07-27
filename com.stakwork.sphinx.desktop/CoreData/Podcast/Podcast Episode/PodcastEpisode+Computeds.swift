@@ -13,7 +13,7 @@ import CoreData
 extension PodcastEpisode {
     
     var isAvailable: Bool {
-        get { ConnectivityHelper.isConnectedToInternet || isDownloaded }
+        get { (Thread.isMainThread ? ConnectivityHelper.isConnectedToInternet : false) || isDownloaded }
     }
     
     var isDownloaded: Bool {

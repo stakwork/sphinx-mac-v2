@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class AttachmentPriceView: NSView, LoadableNib {
+class AttachmentPriceView: NSView, @preconcurrency LoadableNib {
     
     @IBOutlet var contentView: NSView!
     

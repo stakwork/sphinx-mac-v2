@@ -19,8 +19,13 @@ import LiveKit
 import SwiftUI
 
 // This class contains the logic to control behavior of the whole app.
+@MainActor
 final class AppContext: ObservableObject {
     private let store: ValueStore<Preferences>
+
+    // Monitor that re-routes audio when the in-use device is removed or the active
+    // route changes mid-call (e.g. AirPods stem-press triggers a CoreAudio reroute).
+    private let routeMonitor: CallAudioRouteMonitor
 
     @Published var videoViewVisible: Bool = true {
         didSet { store.value.videoViewVisible = videoViewVisible }
@@ -50,7 +55,11 @@ final class AppContext: ObservableObject {
 
     @Published var outputDevice: AudioDevice = AudioManager.shared.defaultOutputDevice {
         didSet {
-            print("didSet outputDevice: \(String(describing: outputDevice))")
+            // Guard prevents a re-entrancy loop:
+            //   handleDeviceUpdate → applyOutputDevice writes appCtx.outputDevice
+            //   → didSet fires → would write AudioManager.shared.outputDevice again
+            //   → triggers another onDeviceUpdate callback → handleDeviceUpdate…
+            guard outputDevice.deviceId != AudioManager.shared.outputDevice.deviceId else { return }
             AudioManager.shared.outputDevice = outputDevice
             reloadAudioDevices()
         }
@@ -60,14 +69,14 @@ final class AppContext: ObservableObject {
     
     @Published var outputDeviceId: String = AudioManager.shared.defaultOutputDevice.deviceId {
         didSet {
-            print("didSet outputDevice: \(String(describing: outputDevice))")
             outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputDeviceId }) ?? AudioManager.shared.defaultOutputDevice
         }
     }
 
     @Published var inputDevice: AudioDevice = AudioManager.shared.defaultInputDevice {
         didSet {
-            print("didSet inputDevice: \(String(describing: inputDevice))")
+            // Same re-entrancy guard as outputDevice above.
+            guard inputDevice.deviceId != AudioManager.shared.inputDevice.deviceId else { return }
             AudioManager.shared.inputDevice = inputDevice
             reloadAudioDevices()
         }
@@ -77,7 +86,6 @@ final class AppContext: ObservableObject {
     
     @Published var inputDeviceId: String = AudioManager.shared.defaultInputDevice.deviceId {
         didSet {
-            print("didSet inputDevice: \(String(describing: inputDeviceId))")
             inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputDeviceId }) ?? AudioManager.shared.defaultInputDevice
         }
     }
@@ -87,8 +95,10 @@ final class AppContext: ObservableObject {
         }
     #endif
 
-    public init(store: ValueStore<Preferences>) {
+    public init(store: ValueStore<Preferences>,
+                audioManagerProvider: any AudioManagerInterface = AudioManager.shared) {
         self.store = store
+        self.routeMonitor = CallAudioRouteMonitor(audioManagerProvider: audioManagerProvider)
 
         videoViewVisible = store.value.videoViewVisible
         showInformationOverlay = store.value.showInformationOverlay
@@ -98,17 +108,52 @@ final class AppContext: ObservableObject {
         connectionHistory = store.value.connectionHistory
 
         AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
-            guard let self else { return }
-            print("devices did update")
-            // force UI update for outputDevice / inputDevice
-            Task.detached { @MainActor [weak self] in
+            // Capture stable value IDs across the actor boundary (AudioDevice is
+            // a value type so this is safe; we re-look up the live objects on the
+            // main actor so the monitor always sees the freshest state).
+            let outputId = audioManager.outputDevice.deviceId
+            let inputId  = audioManager.inputDevice.deviceId
+            Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.outputDevice = audioManager.outputDevice
-                self.inputDevice = audioManager.inputDevice
+                // Sync AppContext's published devices with what AudioManager reports
+                // *before* invoking the route monitor, so the monitor operates on
+                // up-to-date state.
+                if self.outputDevice.deviceId != outputId {
+                    self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
+                        ?? AudioManager.shared.defaultOutputDevice
+                }
+                if self.inputDevice.deviceId != inputId {
+                    self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
+                        ?? AudioManager.shared.defaultInputDevice
+                }
+                // Use AudioManager.shared directly rather than the closure parameter
+                // to avoid sending a non-Sendable value across the actor boundary.
+                self.routeMonitor.handleDeviceUpdate()
             }
         }
+
+        routeMonitor.appContext = self
+    }
+
+    /// Attach a callback for when no audio output device is available mid-call.
+    /// Pass `nil` to clear the callback (e.g., when the call is ending).
+    func configureRouteMonitor(onNoDeviceAvailable: (() -> Void)?) {
+        routeMonitor.onNoDeviceAvailable = onNoDeviceAvailable
     }
     
+    deinit {
+        AudioManager.shared.onDeviceUpdate = nil
+    }
+    
+    func syncWithSystemAudioDefaults() {
+        let systemOutput = AudioManager.shared.defaultOutputDevice
+        let systemInput = AudioManager.shared.defaultInputDevice
+
+        outputDevice = systemOutput
+        inputDevice = systemInput
+        reloadAudioDevices()
+    }
+
     func reloadAudioDevices() {
         //Audio Output device
         var defaultOutputDevice = outputDevice
@@ -117,7 +162,11 @@ final class AppContext: ObservableObject {
             defaultOutputDevice = firstDevice
         }
 
-        let realOutputDevice = AudioManager.shared.outputDevices.first(where: { $0.name == defaultOutputDevice.name && $0.deviceId != "default" }) ?? defaultOutputDevice
+        let realOutputDevice = AudioManager.shared.outputDevices.first(where: {
+            $0.deviceId == defaultOutputDevice.deviceId && $0.deviceId != "default"
+        }) ?? AudioManager.shared.outputDevices.first(where: {
+            $0.name == defaultOutputDevice.name && $0.deviceId != "default"
+        }) ?? defaultOutputDevice
 
         self.realOutputDevice = realOutputDevice
         
@@ -128,9 +177,16 @@ final class AppContext: ObservableObject {
             defaultInputDevice = firstDevice
         }
 
-        let realInputDevice = AudioManager.shared.inputDevices.first(where: { $0.name == defaultInputDevice.name && $0.deviceId != "default" }) ?? defaultInputDevice
+        let realInputDevice = AudioManager.shared.inputDevices.first(where: {
+            $0.deviceId == defaultInputDevice.deviceId && $0.deviceId != "default"
+        }) ?? AudioManager.shared.inputDevices.first(where: {
+            $0.name == defaultInputDevice.name && $0.deviceId != "default"
+        }) ?? defaultInputDevice
 
         self.realInputDevice = realInputDevice
     }
-
 }
+
+// MARK: - AppContext + AudioContextInterface
+
+extension AppContext: AudioContextInterface {}

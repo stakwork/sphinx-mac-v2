@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol SignupButtonViewDelegate: AnyObject {
     func didClickButton(tag: Int)
 }

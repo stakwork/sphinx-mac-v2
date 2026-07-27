@@ -8,6 +8,7 @@
 
 import Cocoa
 
+@MainActor
 protocol NewChatHeaderViewDelegate: AnyObject {
     func refreshTapped()
     func menuTapped(_ frame: CGRect)
@@ -116,17 +117,18 @@ class NewChatHeaderView: NSView, LoadableNib {
         menuButton.cursor = .pointingHand
         balanceButton.cursor = .pointingHand
         qrCodeButton.cursor = .pointingHand
-        
+
         profileImageView.wantsLayer = true
         profileImageView.rounded = true
         profileImageView.layer?.cornerRadius = profileImageView.frame.height / 2
     }
-    
+
+    // MARK: - IBActions
+
     @IBAction func refreshButtonTapped(_ sender: NSButton) {
         loading = true
         delegate?.refreshTapped()
         updateBalance()
-//        shouldCheckAppVersions()
     }
     
     @IBAction func menuButtonTapped(_ sender: NSButton) {
@@ -148,23 +150,8 @@ class NewChatHeaderView: NSView, LoadableNib {
     
     func hideAmount() {
         var hiddenAmount = ""
-        
-        "\(walletBalanceService.balance ?? 0)".forEach { char in
-            hiddenAmount += "*"
-        }
-        
+        "\(walletBalanceService.balance ?? 0)".forEach { _ in hiddenAmount += "*" }
         balanceLabel.stringValue = hiddenAmount
-    }
-    
-    func shouldCheckAppVersions() {
-//        API.sharedInstance.getAppVersions(callback: { v in
-//            self.loading = false
-//            let version = Int(v) ?? 0
-//            let appVersion = Int(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0") ?? 0
-
-//            self.upgradeButton.isHidden = version <= appVersion
-//            self.upgradeBox.isHidden = version <= appVersion
-//        })
     }
     
     func listenForNotifications() {
@@ -175,8 +162,10 @@ class NewChatHeaderView: NSView, LoadableNib {
             object: nil,
             queue: OperationQueue.main
         ) { [weak self] (n: Notification) in
-            DispatchQueue.main.async {
-                self?.updateBalance()
+            Task { @MainActor [weak self] in
+                DispatchQueue.main.async {
+                    self?.updateBalance()
+                }
             }
         }
     }
@@ -197,7 +186,7 @@ extension NewChatHeaderView : HealthCheckDelegate {
     }
 }
 
-extension NewChatHeaderView : NSFetchedResultsControllerDelegate {
+extension NewChatHeaderView : @preconcurrency NSFetchedResultsControllerDelegate {
     func controller(
         _ controller: NSFetchedResultsController<NSFetchRequestResult>,
         didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference

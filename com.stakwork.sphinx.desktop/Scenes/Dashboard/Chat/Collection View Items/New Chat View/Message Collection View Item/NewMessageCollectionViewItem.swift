@@ -76,6 +76,7 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         tribeData: MessageTableCellState.TribeData?,
         linkData: MessageTableCellState.LinkData?,
         uploadProgressData: MessageTableCellState.UploadProgressData?,
+        participantsData: MessageTableCellState.ParticipantsData? = nil,
         delegate: ChatCollectionViewItemDelegate?,
         searchingTerm: String?,
         indexPath: IndexPath,
@@ -98,7 +99,8 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         configureViewsWidthWith(
             messageCellState: messageCellState,
             linkData: linkData,
-            tribeData: tribeData
+            tribeData: tribeData,
+            collectionViewWidth: collectionViewWidth
         )
         
         ///Status Header
@@ -127,7 +129,7 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         configureWith(payment: mutableMessageCellState.payment, and: bubble)
         configureWith(invoice: mutableMessageCellState.invoice, and: bubble)
         configureWith(directPayment: mutableMessageCellState.directPayment, and: bubble)
-        configureWith(callLink: mutableMessageCellState.callLink)
+        configureWith(callLink: mutableMessageCellState.callLink, participantsData: participantsData)
         configureWith(podcastBoost: mutableMessageCellState.podcastBoost)
         configureWith(messageMedia: mutableMessageCellState.messageMedia, mediaData: mediaData, and: bubble)
         configureWith(genericFile: mutableMessageCellState.genericFile, mediaData: mediaData)
@@ -142,12 +144,14 @@ class NewMessageCollectionViewItem: CommonNewMessageCollectionViewitem, ChatColl
         
         ///Avatar
         configureWith(avatarImage: mutableMessageCellState.avatarImage)
-        
+
         ///Direction and grouping
         configureWith(bubble: bubble)
-        
+
         ///Invoice Lines
         configureWith(invoiceLines: mutableMessageCellState.invoicesLines)
+
+        view.layoutSubtreeIfNeeded()
     }
     
     @IBAction func messageMenuButtonClicked(_ sender: Any) {

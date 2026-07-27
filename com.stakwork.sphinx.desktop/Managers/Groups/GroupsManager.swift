@@ -9,11 +9,11 @@
 import Foundation
 import SwiftyJSON
 
-class GroupsManager {
+class GroupsManager: @unchecked Sendable {
 
     class var sharedInstance : GroupsManager {
         struct Static {
-            static let instance = GroupsManager()
+            nonisolated(unsafe) static let instance = GroupsManager()
         }
         return Static.instance
     }
@@ -545,10 +545,13 @@ class GroupsManager {
                 alias: UserContact.getOwner()?.nickname,
                 isPrivate: isPrivate,
                 errorCallback: { error in
-                    AlertHelper.showAlert(
-                        title: "generic.error.title".localized,
-                        message: error.localizedDescription
-                    )
+                    let msg = error.localizedDescription
+                    Task { @MainActor in
+                        AlertHelper.showAlert(
+                            title: "generic.error.title".localized,
+                            message: msg
+                        )
+                    }
                 }
             ) {
                 if let chat = Chat.insertChat(chat: chatJSON) {

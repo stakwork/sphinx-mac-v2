@@ -17,7 +17,9 @@ class CCTextField: NSTextField {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        customizeCaretColor()
+        DispatchQueue.main.async {
+            self.customizeCaretColor()
+        }
     }
     
     func setColor(color: NSColor) {

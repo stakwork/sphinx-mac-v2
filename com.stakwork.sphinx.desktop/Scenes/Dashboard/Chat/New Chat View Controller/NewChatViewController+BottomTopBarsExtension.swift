@@ -49,18 +49,13 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     }
     
     func didClickWebAppButton() {
-        WindowsManager.sharedInstance.showWebAppWindow(
-            chat: chat,
-            view: view
-        )
+        guard let chat = chat else { return }
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: true, cachedVC: cachedWebAppVC)
     }
     
     func didClickSecondBrainAppButton() {
-        WindowsManager.sharedInstance.showWebAppWindow(
-            chat: chat,
-            view: view,
-            isAppURL: false
-        )
+        guard let chat = chat else { return }
+        delegate?.shouldShowInlineWebApp(chat: chat, isAppURL: false, cachedVC: cachedSecondBrainVC)
     }
     
     func didClickMuteButton() {
@@ -97,7 +92,10 @@ extension NewChatViewController : ChatHeaderViewDelegate {
     }
     
     func didClickHeaderButton() {
-        if let contact = contact {
+        // Resolve contact — for agent chats opened via chatId, contact may not be set directly
+        let resolvedContact = contact ?? chat?.getConversationContact()
+
+        if let contact = resolvedContact {
             
             let contactVC = ContactDetailsViewController.instantiate(
                 contactId: contact.id,
@@ -133,6 +131,34 @@ extension NewChatViewController : ChatHeaderViewDelegate {
         if let contact = self.contact {
             SphinxOnionManager.sharedInstance.retryAddingContact(contact: contact)
         }
+    }
+
+    func didClickWebAppRefreshButton() {
+        delegate?.shouldRefreshInlineWebApp()
+    }
+
+    func didClickWebAppBackToChatButton() {
+        delegate?.shouldDismissInlineWebApp()
+    }
+
+    func didClickWebAppOpenInWindowButton() {
+        delegate?.shouldOpenInlineWebAppInNewWindow()
+    }
+
+    func didClickWebAppLogsButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.showLogsWindow()
+    }
+
+    func didClickWebAppBackButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.webView.goBack()
+    }
+
+    func didClickWebAppForwardButton() {
+        (cachedWebAppVC ?? cachedSecondBrainVC)?.webView.goForward()
+    }
+
+    func setWebAppHeaderActionsVisible(_ visible: Bool) {
+        chatTopView.showWebAppActions(visible)
     }
 }
 
@@ -229,8 +255,14 @@ extension NewChatViewController : ChatBottomViewDelegate {
         price: Int,
         completion: @escaping (Bool) -> ()
     ) {
+        if isAgentChat {
+            handleAgentMessage(text: text, completion: completion)
+            return
+        }
         chatBottomView.resetReplyView()
         ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
+        
+        let hadDraft = ChatTrackingHandler.shared.getDraftTimestampFor(chatId: chat?.id, threadUUID: nil) != nil
         
         if let text = giphyText(text: text), let data = draggingView.getMediaData() {
             
@@ -272,6 +304,10 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     completion(success)
                 }
             )
+        }
+        
+        if hadDraft, let chatId = chat?.id {
+            delegate?.shouldReloadChatRowWith(chatId: chatId)
         }
     }
     
@@ -494,8 +530,21 @@ extension NewChatViewController : ActionsDelegate {
     func didFailInvoiceOrPayment() {
         messageBubbleHelper.showGenericMessageView(text: "generic.error.message".localized, in: view)
     }
+
+    func shouldOpenWebAppLinkInBrowser(url: String) {
+        guard let openURL = URL(string: url) else { return }
+        NSWorkspace.shared.open(openURL)
+    }
+
+    func shouldOpenWebAppLinkInSphinx(url: String) {
+        guard let chat = chat else { return }
+        delegate?.shouldLoadURLInInlineWebApp(chat: chat, url: url)
+    }
     
     func shouldCreateCall(mode: VideoCallHelper.CallMode) {
+        chatBottomView.resetReplyView()
+        ChatTrackingHandler.shared.deleteReplyableMessage(with: chat?.id)
+
         let swarmName = VideoCallHelper.extractSwarmName(from: chat?.getAppUrl() ?? "")
             ?? VideoCallHelper.extractSwarmName(from: chat?.getSecondBrainUrl() ?? "")
 
@@ -504,8 +553,13 @@ extension NewChatViewController : ActionsDelegate {
                 swarmName: swarmName,
                 callback: { [weak self] link in
                     DispatchQueue.main.async {
+                        guard let self else { return }
                         let finalLink = mode == .Audio ? link + "&startAudioOnly=true" : link
-                        self?.newChatViewModel.sendCallMessage(link: finalLink)
+                        self.newChatViewModel.sendCallMessage(link: finalLink) { [weak self] success, errorMsg in
+                            if !success {
+                                self?.showCallLinkSendError(errorMsg: errorMsg)
+                            }
+                        }
                     }
                 },
                 errorCallback: { [weak self] in
@@ -516,7 +570,11 @@ extension NewChatViewController : ActionsDelegate {
                         appUrl: self.chat?.getAppUrl()
                     )
                     DispatchQueue.main.async {
-                        self.newChatViewModel.sendCallMessage(link: link)
+                        self.newChatViewModel.sendCallMessage(link: link) { [weak self] success, errorMsg in
+                            if !success {
+                                self?.showCallLinkSendError(errorMsg: errorMsg)
+                            }
+                        }
                     }
                 }
             )
@@ -526,8 +584,19 @@ extension NewChatViewController : ActionsDelegate {
                 secondBrainUrl: chat?.getSecondBrainUrl(),
                 appUrl: chat?.getAppUrl()
             )
-            newChatViewModel.sendCallMessage(link: link)
+            newChatViewModel.sendCallMessage(link: link) { [weak self] success, errorMsg in
+                if !success {
+                    self?.showCallLinkSendError(errorMsg: errorMsg)
+                }
+            }
         }
+    }
+
+    private func showCallLinkSendError(errorMsg: String? = nil) {
+        messageBubbleHelper.showGenericMessageView(
+            text: errorMsg ?? "generic.error.message".localized,
+            in: view
+        )
     }
     
     func shouldSendPaymentFor(

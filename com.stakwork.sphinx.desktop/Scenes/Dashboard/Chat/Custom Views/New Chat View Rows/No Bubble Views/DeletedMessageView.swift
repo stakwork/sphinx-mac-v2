@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class DeletedMessageView: NSView, LoadableNib {
+class DeletedMessageView: NSView, @preconcurrency LoadableNib {
     
     @IBOutlet var contentView: NSView!
 

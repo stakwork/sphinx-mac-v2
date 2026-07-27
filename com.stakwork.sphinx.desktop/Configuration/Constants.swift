@@ -14,6 +14,7 @@ public enum MessagesSize: Int {
     case Small
 }
 
+@MainActor
 class Constants {
     
     public static var kMaxPinTimeoutValue : Int = 25
@@ -21,23 +22,23 @@ class Constants {
     public static var kMargin: CGFloat = 16.0
     
     //Fonts
-    public static var kMessageFont = NSFont(name: "Roboto-Light", size: 16.0)!
-    public static var kMessageBoldFont = NSFont(name: "Roboto-Black", size: 16.0)!
-    public static var kMessageHighlightedFont = NSFont(name: "Roboto-Light", size: 16)!
-    public static var kEmojisFont = NSFont(name: "Roboto-Regular", size: 40.0)!
-    public static let kAmountFont = NSFont(name: "Roboto-Bold", size: 16.0)!
-    public static let kBoldSmallMessageFont = NSFont(name: "Roboto-Bold", size: 10.0)!
-    public static var kMessagePreviewFont = NSFont(name: "Roboto-Light", size: 14.0)!
-    public static var kMessageUnreadPreviewFont = NSFont(name: "Roboto-Bold", size: 14.0)!
-    public static var kNewMessagePreviewFont = NSFont(name: "Roboto-Bold", size: 14.0)!
-    public static var kChatNameFont = NSFont(name: "Roboto-Regular", size: 16.0)!
-    public static var kChatNameHighlightedFont = NSFont(name: "Roboto-Bold", size: 16.0)!
-    public static var kThreadHeaderFont = NSFont(name: "Roboto-Regular", size: 16.0)!
-    public static var kThreadHeaderHighlightedFont = NSFont(name: "Roboto-Light", size: 16.0)!
-    public static var kThreadHeaderBoldFont = NSFont(name: "Roboto-Black", size: 16.0)!
-    public static var kThreadListFont = NSFont(name: "Roboto-Regular", size: 17.0)!
-    public static var kThreadListHighlightedFont = NSFont(name: "Roboto-Light", size: 17.0)!
-    public static var kThreadListBoldFont = NSFont(name: "Roboto-Black", size: 17.0)!
+    nonisolated(unsafe) public static var kMessageFont = NSFont(name: "Roboto-Light", size: 16.0)!
+    nonisolated(unsafe) public static var kMessageBoldFont = NSFont(name: "Roboto-Black", size: 16.0)!
+    nonisolated(unsafe) public static var kMessageHighlightedFont = NSFont(name: "Roboto-Light", size: 16)!
+    nonisolated(unsafe) public static var kEmojisFont = NSFont(name: "Roboto-Regular", size: 40.0)!
+    nonisolated(unsafe) public static let kAmountFont = NSFont(name: "Roboto-Bold", size: 16.0)!
+    nonisolated(unsafe) public static let kBoldSmallMessageFont = NSFont(name: "Roboto-Bold", size: 10.0)!
+    nonisolated(unsafe) public static var kMessagePreviewFont = NSFont(name: "Roboto-Light", size: 14.0)!
+    nonisolated(unsafe) public static var kMessageUnreadPreviewFont = NSFont(name: "Roboto-Bold", size: 14.0)!
+    nonisolated(unsafe) public static var kNewMessagePreviewFont = NSFont(name: "Roboto-Bold", size: 14.0)!
+    nonisolated(unsafe) public static var kChatNameFont = NSFont(name: "Roboto-Regular", size: 16.0)!
+    nonisolated(unsafe) public static var kChatNameHighlightedFont = NSFont(name: "Roboto-Bold", size: 16.0)!
+    nonisolated(unsafe) public static var kThreadHeaderFont = NSFont(name: "Roboto-Regular", size: 16.0)!
+    nonisolated(unsafe) public static var kThreadHeaderHighlightedFont = NSFont(name: "Roboto-Light", size: 16.0)!
+    nonisolated(unsafe) public static var kThreadHeaderBoldFont = NSFont(name: "Roboto-Black", size: 16.0)!
+    nonisolated(unsafe) public static var kThreadListFont = NSFont(name: "Roboto-Regular", size: 17.0)!
+    nonisolated(unsafe) public static var kThreadListHighlightedFont = NSFont(name: "Roboto-Light", size: 17.0)!
+    nonisolated(unsafe) public static var kThreadListBoldFont = NSFont(name: "Roboto-Black", size: 17.0)!
     
     //Colors
     public static var kMessageLineHeight: CGFloat = 35

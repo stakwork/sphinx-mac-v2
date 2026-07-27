@@ -9,7 +9,7 @@
 import Cocoa
 import SwiftyJSON
 
-class PeopleTorActionsView: CommonModalView, LoadableNib {
+class PeopleTorActionsView: CommonModalView, @preconcurrency LoadableNib {
     
     @IBOutlet var contentView: NSView!
     @IBOutlet weak var viewTitleLabel: NSTextField!
