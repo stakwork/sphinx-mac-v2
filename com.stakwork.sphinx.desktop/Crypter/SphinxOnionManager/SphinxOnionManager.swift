@@ -41,6 +41,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     static let kMessageFetchTimeout: TimeInterval = 30.0
     
     var reconnectionTimer: Timer? = nil
+    private var mqttKeepAliveActivity: NSObjectProtocol? = nil
+    private var mqttReconnectActivity: NSObjectProtocol? = nil
     var messageFetchTimeoutTimer: Timer? = nil
     var sendTimeoutTimers: [String: Timer] = [:]
     var paymentTimeoutTimers: [String: Timer] = [:]
@@ -378,6 +380,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             return
         }
         mqttDisconnectCallback = callback
+        endReconnectionTimer()
+        endKeepAliveActivity()
+        endReconnectActivity()
         mqtt?.disconnect()
     }
     
@@ -497,6 +502,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.connectionTimeoutTimer?.invalidate()
             self.connectionTimeoutTimer = nil
             self.isConnected = true
+            self.beginKeepAliveActivity()
             self.connectionInProgress = false
             self.endReconnectionTimer()
             
@@ -535,6 +541,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.isConnected = false
             self.mqttDisconnectCallback?()
             if self.mqtt === disconnectingMqtt {
+                self.isConnected = false
+                self.endKeepAliveActivity()
                 self.mqtt = nil
                 self.startReconnectionTimer()
             }
@@ -544,13 +552,22 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     func endReconnectionTimer() {
         reconnectionTimer?.invalidate()
         reconnectionTimer = nil
+        endReconnectActivity()
     }
     
     func startReconnectionTimer(
         delay: Double = 0.5
     ) {
+        guard Thread.isMainThread else {
+            print("[MQTT] startReconnectionTimer called off main thread — re-dispatching")
+            reconnectionTimer?.invalidate()
+            DispatchQueue.main.async { [weak self] in
+                self?.startReconnectionTimer(delay: delay)
+            }
+            return
+        }
         reconnectionTimer?.invalidate()
-        
+        beginReconnectActivity()
         reconnectionTimer = Timer.scheduledTimer(
             timeInterval: delay,
             target: self,
@@ -558,6 +575,54 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             userInfo: nil,
             repeats: false
         )
+    }
+    
+    private func beginKeepAliveActivity() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.beginKeepAliveActivity() }
+            return
+        }
+        guard mqttKeepAliveActivity == nil else { return }
+        print("[MQTT] Beginning keepalive background activity")
+        mqttKeepAliveActivity = ProcessInfo.processInfo.beginActivity(
+            .userInitiated,
+            reason: "MQTT keepalive — prevent App Nap suppressing PINGREQ"
+        )
+    }
+    
+    private func endKeepAliveActivity() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.endKeepAliveActivity() }
+            return
+        }
+        guard let a = mqttKeepAliveActivity else { return }
+        print("[MQTT] Ending keepalive background activity")
+        ProcessInfo.processInfo.endActivity(a)
+        mqttKeepAliveActivity = nil
+    }
+    
+    private func beginReconnectActivity() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.beginReconnectActivity() }
+            return
+        }
+        guard mqttReconnectActivity == nil else { return }
+        print("[MQTT] Beginning reconnect background activity")
+        mqttReconnectActivity = ProcessInfo.processInfo.beginActivity(
+            .userInitiated,
+            reason: "MQTT reconnection — prevent App Nap throttling reconnect timer"
+        )
+    }
+    
+    private func endReconnectActivity() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in self?.endReconnectActivity() }
+            return
+        }
+        guard let a = mqttReconnectActivity else { return }
+        print("[MQTT] Ending reconnect background activity")
+        ProcessInfo.processInfo.endActivity(a)
+        mqttReconnectActivity = nil
     }
     
     @objc func reconnectionTimerFired() {
@@ -663,6 +728,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             }
             
             mqtt.didDisconnect = { _, error in
+                self.endKeepAliveActivity()
                 self.isConnected = false
                 self.mqttDisconnectCallback?()
                 self.mqtt = nil
