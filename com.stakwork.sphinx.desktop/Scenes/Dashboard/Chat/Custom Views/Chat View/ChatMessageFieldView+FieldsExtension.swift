@@ -42,23 +42,26 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     
     func shouldSendMessage() {
         if sendButton.isEnabled {
+            sendButton.isEnabled = false
             let text = messageTextView.string.trim()
             
             delegate?.shouldSendMessage(
                 text: text,
                 price: Int(priceTextField.stringValue) ?? 0,
                 completion: { success in
-                    if !success {
-                        AlertHelper.showAlert(
-                            title: "generic.error.title".localized,
-                            message: "generic.message.error".localized
-                        )
-                        self.messageTextView.string = text
+                    DispatchQueue.main.async {
+                        if success {
+                            self.clearMessage()
+                        } else {
+                            AlertHelper.showAlert(
+                                title: "generic.error.title".localized,
+                                message: "generic.message.error".localized
+                            )
+                            self.sendButton.isEnabled = true
+                        }
                     }
                 }
             )
-            
-            clearMessage()
         }
     }
     
