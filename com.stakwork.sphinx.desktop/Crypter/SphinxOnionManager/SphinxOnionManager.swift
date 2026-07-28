@@ -585,7 +585,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         guard mqttKeepAliveActivity == nil else { return }
         print("[MQTT] Beginning keepalive background activity")
         mqttKeepAliveActivity = ProcessInfo.processInfo.beginActivity(
-            .userInitiated,
+            options: .userInitiated,
             reason: "MQTT keepalive — prevent App Nap suppressing PINGREQ"
         )
     }
@@ -609,7 +609,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         guard mqttReconnectActivity == nil else { return }
         print("[MQTT] Beginning reconnect background activity")
         mqttReconnectActivity = ProcessInfo.processInfo.beginActivity(
-            .userInitiated,
+            options: .userInitiated,
             reason: "MQTT reconnection — prevent App Nap throttling reconnect timer"
         )
     }
