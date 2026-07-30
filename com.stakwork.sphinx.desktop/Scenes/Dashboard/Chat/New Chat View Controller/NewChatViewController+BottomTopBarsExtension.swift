@@ -268,12 +268,18 @@ extension NewChatViewController : ChatBottomViewDelegate {
             
             draggingView.setup()
             
+            if hadDraft, let chatId = chat?.id {
+                delegate?.shouldReloadChatRowWith(chatId: chatId)
+            }
+            
             newChatViewModel.shouldSendGiphyMessage(
                 text: text,
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
                 data: data,
                 completion: { (success, _) in
-                    completion(success)
+                    DispatchQueue.main.async {
+                        completion(success)
+                    }
                 }
             )
         } else if shouldUploadMedia() {
@@ -286,16 +292,32 @@ extension NewChatViewController : ChatBottomViewDelegate {
             if !attachmentObjects.isEmpty {
                 chatBottomView.resetAttachments()
                 
+                if hadDraft, let chatId = chat?.id {
+                    delegate?.shouldReloadChatRowWith(chatId: chatId)
+                }
+                
                 newChatViewModel.insertProvisionalAttachmentMessagesAndUpload(
                     attachmentObjects: attachmentObjects,
                     chat: chat
                 )
+                
+                completion(true)
             } else {
                 messageBubbleHelper.showGenericMessageView(
                     text: "generic.error.message".localized, in: view
                 )
+                
+                if hadDraft, let chatId = chat?.id {
+                    delegate?.shouldReloadChatRowWith(chatId: chatId)
+                }
+                
+                completion(false)
             }
         } else {
+            if hadDraft, let chatId = chat?.id {
+                delegate?.shouldReloadChatRowWith(chatId: chatId)
+            }
+            
             newChatViewModel.shouldSendMessage(
                 text: text,
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
@@ -304,10 +326,6 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     completion(success)
                 }
             )
-        }
-        
-        if hadDraft, let chatId = chat?.id {
-            delegate?.shouldReloadChatRowWith(chatId: chatId)
         }
     }
     
