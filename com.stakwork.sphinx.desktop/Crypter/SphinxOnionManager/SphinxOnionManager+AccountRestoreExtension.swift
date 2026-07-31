@@ -983,6 +983,13 @@ extension SphinxOnionManager {
         restoredContactInfoTracker = []
     }
     
+    // NOTE: This timer is independent of the Rust CHUNK_TIMEOUT_SECS buffer timeout.
+    // Extending CHUNK_TIMEOUT_SECS in sphinx-ffi/src/chunk.rs alone does not extend how
+    // long this client waits — the timer below still fires at kMessageFetchTimeout (30s)
+    // and clears all fetch callbacks regardless of the server-side buffer tolerance.
+    // To fully benefit from a longer Rust chunk timeout, kMessageFetchTimeout must also
+    // be scaled accordingly — that is a separate client-side change and an explicit
+    // fast-follow candidate.
     func startMessageFetchTimeoutTimer() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
