@@ -253,12 +253,14 @@ struct GenericIncomingMessage: Mappable {
                 self.fullContactInfo = innerContent.fullContactInfo
             }
             
-            if let timestamp = msg.timestamp {
+            if let timestamp = msg.timestamp, isTribeMessage == false {
                 self.timestamp = Int(timestamp)
             } else {
                 self.timestamp = innerContent.date
-                
-                print("⚠️ [GenericIncomingMessage] msg.timestamp is nil for \(isTribeMessage ? "tribe" : "DM") message — falling back to innerContent.date: \(String(describing: innerContent.date))")
+
+                if isTribeMessage == false {
+                    print("⚠️ [GenericIncomingMessage] msg.timestamp is nil for DM message — falling back to innerContent.date: \(String(describing: innerContent.date))")
+                }
             }
             
             if let metadataString = innerContent.metadata,

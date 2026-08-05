@@ -709,12 +709,13 @@ extension SphinxOnionManager {
                     let innerContent = messagesInnerContentMap[indexInt]
 
                     let tribe: Chat? = senderInfo?.pubkey.flatMap { tribesMap[$0] }
+                    let isTribe = (tribe != nil) || (senderInfo?.isTribeMessage() ?? false)
 
                     var genericIncomingMessage = GenericIncomingMessage(
                         msg: $0,
                         csr: senderInfo,
                         innerContent: innerContent,
-                        isTribeMessage: tribe != nil
+                        isTribeMessage: isTribe
                     )
 
                     if let fromMe = $0.fromMe, fromMe == true, let sentTo = $0.sentTo {
@@ -814,7 +815,8 @@ extension SphinxOnionManager {
                 restoreGenericPmt(
                     pmt: message,
                     innerContent: messagesInnerContentMap[indexInt],
-                    existingMessage: existingMessagesIdMap[indexInt]
+                    existingMessage: existingMessagesIdMap[indexInt],
+                    isTribeMessage: (tribesMap[senderInfo?.pubkey ?? ""] != nil) || (senderInfo?.isTribeMessage() ?? false)
                 )
                 continue
             } else {
@@ -945,7 +947,8 @@ extension SphinxOnionManager {
     func restoreGenericPmt(
         pmt: Msg,
         innerContent: MessageInnerContent?,
-        existingMessage: TransactionMessage?
+        existingMessage: TransactionMessage?,
+        isTribeMessage: Bool
     ) {
         guard let index = pmt.index,
               let indexInt = Int(index) else
@@ -965,8 +968,10 @@ extension SphinxOnionManager {
         newMessage.messageContent = innerContent?.content
         newMessage.paymentHash = pmt.paymentHash
         
-        if let timestamp = pmt.timestamp {
+        if let timestamp = pmt.timestamp, isTribeMessage == false {
             newMessage.date = timestampToDate(timestamp: timestamp)
+        } else if let innerDate = innerContent?.date {
+            newMessage.date = timestampToDate(timestamp: UInt64(innerDate))
         }
     }
     
