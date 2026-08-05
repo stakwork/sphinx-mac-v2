@@ -57,8 +57,8 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                                 title: "generic.error.title".localized,
                                 message: "generic.message.error".localized
                             )
-                            self.sendButton.isEnabled = true
                         }
+                        self.sendButton.isEnabled = true
                     }
                 }
             )
