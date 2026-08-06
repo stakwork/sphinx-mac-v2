@@ -130,7 +130,9 @@ class NewChatTableDataSource : NSObject {
     }
     
     ///Scroll and pagination
-    var messagesCount = 0
+    var messagesCountRequested = 0
+    var messagesCountFetched = 0
+    var fetchMinIndex = 0
     var loadingMoreItems = false
     var allItemsLoaded = false
     var scrolledAtBottom = false

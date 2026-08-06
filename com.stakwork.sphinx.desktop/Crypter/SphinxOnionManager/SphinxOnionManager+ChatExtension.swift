@@ -2142,26 +2142,6 @@ extension SphinxOnionManager {
         )
     }
     
-    func getFetchMinIndex(
-        fetchRequest: NSFetchRequest<TransactionMessage>,
-        count: Int,
-        context: NSManagedObjectContext
-    ) -> Int? {
-        var objects: [TransactionMessage] = [TransactionMessage]()
-        
-        do {
-            try objects = context.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Error: " + error.localizedDescription)
-        }
-        
-        if objects.count < count {
-            return nil
-        }
-        
-        return objects.last?.id
-    }
-    
     func getFetchMinDate(
         fetchRequest: NSFetchRequest<TransactionMessage>,
         count: Int,

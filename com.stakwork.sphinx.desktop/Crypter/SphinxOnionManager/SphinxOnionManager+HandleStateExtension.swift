@@ -510,8 +510,7 @@ extension SphinxOnionManager {
                 } else {
                     ///Callback to chat when restoring msgs for a specifc chat
                     if let restoringMsgsForPublicKey = self.restoringMsgsForPublicKey,
-                        let onMessagePerPublicKeyRestoredCallback = self.onMessagePerPublicKeyRestoredCallback,
-                        !messages.isEmpty
+                        let onMessagePerPublicKeyRestoredCallback = self.onMessagePerPublicKeyRestoredCallback
                     {
                         self.restoringMsgsForPublicKey = nil
                         self.onMessagePerPublicKeyRestoredCallback = nil
