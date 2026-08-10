@@ -32,6 +32,7 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     
     private var isExpanded: Bool = false
     private var showMoreButton: NSButton?
+    private var showMoreButtonContainer: NSView?
     private var needsCollapseEvaluation: Bool = false
     
     weak var delegate : ThreadHeaderViewDelegate? = nil
@@ -102,11 +103,24 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
         
         let btn = NSButton(title: "Show more", target: self, action: #selector(showMoreButtonTapped))
         btn.isBordered = false
-        btn.font = NSFont.getThreadHeaderFont()
+        btn.font = NSFont(name: "Roboto-Light", size: 13.0) ?? NSFont.systemFont(ofSize: 13.0, weight: .light)
         btn.contentTintColor = NSColor.Sphinx.PrimaryBlue
-        btn.isHidden = true
-        btn.alignment = .left
+        btn.alignment = .right
+        btn.translatesAutoresizingMaskIntoConstraints = false
         showMoreButton = btn
+
+        // Wrap in a container so the button sits in the bottom-right corner with margins,
+        // regardless of the leading-aligned parent NSStackView (YlO-at-1xE).
+        let container = NSView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.isHidden = true
+        container.addSubview(btn)
+        NSLayoutConstraint.activate([
+            btn.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            btn.topAnchor.constraint(equalTo: container.topAnchor, constant: 4),
+            btn.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -4),
+        ])
+        showMoreButtonContainer = container
         
         // Deactivate the storyboard placeholder height constraint (priority 750, constant 65 pt)
         // to prevent Auto Layout warnings once the header is driven by content height.
@@ -174,7 +188,7 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
         messageLabel.maximumHeight = 0
         messageLabel.invalidateIntrinsicContentSize()
         newMessageLabelScrollView.disabled = true
-        showMoreButton?.isHidden = true
+        showMoreButtonContainer?.isHidden = true
         needsCollapseEvaluation = false
         
         guard threadOriginalMessage.text.isNotEmpty else {
@@ -392,17 +406,23 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
         // Prevent the NSTextView from being scrolled past the clip boundary.
         newMessageLabelScrollView.disabled = shouldCap
         
-        // Insert the button after textContainer in its parent NSStackView (once only).
-        if let btn = showMoreButton, btn.superview == nil,
+        // Insert the container after textContainer in its parent NSStackView (once only).
+        if let container = showMoreButtonContainer, container.superview == nil,
            let stack = textContainer.superview as? NSStackView {
             if let idx = stack.arrangedSubviews.firstIndex(of: textContainer) {
-                stack.insertArrangedSubview(btn, at: idx + 1)
+                stack.insertArrangedSubview(container, at: idx + 1)
             } else {
-                stack.addArrangedSubview(btn)
+                stack.addArrangedSubview(container)
             }
+            // Pin container trailing to the stack's trailing edge so the button
+            // reaches the right margin regardless of the leading-aligned stack.
+            NSLayoutConstraint.activate([
+                container.trailingAnchor.constraint(equalTo: stack.trailingAnchor),
+                container.leadingAnchor.constraint(equalTo: stack.leadingAnchor),
+            ])
         }
         
-        showMoreButton?.isHidden = !needsCollapse
+        showMoreButtonContainer?.isHidden = !needsCollapse
         showMoreButton?.title = isExpanded ? "Show less" : "Show more"
     }
     
