@@ -27,6 +27,10 @@ import Cocoa
 
 class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     
+    // 240 pt ≈ 12 lines of Roboto-Regular 16 pt — matches iOS isLabelTruncated() cap exactly.
+    static let kMaxCollapsedTextHeight: CGFloat = 240.0
+    
+    
     weak var delegate : ThreadHeaderViewDelegate? = nil
     
     var messageId: Int?
@@ -92,6 +96,16 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             .foregroundColor: NSColor.Sphinx.PrimaryBlue,
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ]
+        
+        // Deactivate the storyboard placeholder height constraint (priority 750, constant 65 pt)
+        // to prevent Auto Layout warnings once the header is driven by content height.
+        if let placeholderHeight = constraints.first(where: {
+            $0.firstAttribute == .height &&
+            $0.priority == NSLayoutConstraint.Priority(750) &&
+            $0.secondItem == nil
+        }) {
+            placeholderHeight.isActive = false
+        }
     }
     
     func hideAllViews() {
@@ -144,6 +158,10 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             radius: 18.0
         )
         
+        messageLabel.maximumHeight = Self.kMaxCollapsedTextHeight - 16
+        messageLabel.invalidateIntrinsicContentSize()
+        newMessageLabelScrollView.disabled = false
+        
         guard threadOriginalMessage.text.isNotEmpty else {
             return
         }
@@ -172,6 +190,7 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             newMessageLabel.string = attributedString.string
             newMessageLabel.textStorage?.setAttributedString(attributedString)
         }
+        
     }
     
     func configureWith(
