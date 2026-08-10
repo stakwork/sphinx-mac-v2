@@ -30,9 +30,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
     // 240 pt ≈ 12 lines of Roboto-Regular 16 pt — matches iOS isLabelTruncated() cap exactly.
     static let kMaxCollapsedTextHeight: CGFloat = 240.0
     
-    private var isExpanded: Bool = false
-    private var showMoreButton: NSButton?
-    private var needsCollapseEvaluation: Bool = false
     
     weak var delegate : ThreadHeaderViewDelegate? = nil
     
@@ -100,14 +97,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ]
         
-        let btn = NSButton(title: "Show more", target: self, action: #selector(showMoreButtonTapped))
-        btn.isBordered = false
-        btn.font = NSFont.getThreadHeaderFont()
-        btn.contentTintColor = NSColor.Sphinx.PrimaryBlue
-        btn.isHidden = true
-        btn.alignment = .left
-        showMoreButton = btn
-        
         // Deactivate the storyboard placeholder height constraint (priority 750, constant 65 pt)
         // to prevent Auto Layout warnings once the header is driven by content height.
         if let placeholderHeight = constraints.first(where: {
@@ -169,13 +158,9 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             radius: 18.0
         )
         
-        // Full reset — clears any prior message's collapse/expand UI state unconditionally.
-        isExpanded = false
-        messageLabel.maximumHeight = 0
+        messageLabel.maximumHeight = Self.kMaxCollapsedTextHeight - 16
         messageLabel.invalidateIntrinsicContentSize()
-        newMessageLabelScrollView.disabled = true
-        showMoreButton?.isHidden = true
-        needsCollapseEvaluation = false
+        newMessageLabelScrollView.disabled = false
         
         guard threadOriginalMessage.text.isNotEmpty else {
             return
@@ -206,10 +191,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             newMessageLabel.textStorage?.setAttributedString(attributedString)
         }
         
-        // Schedule collapse evaluation on the next layout pass (after Auto Layout resolves
-        // the actual frame width, including any media-column deduction).
-        needsCollapseEvaluation = true
-        needsLayout = true
     }
     
     func configureWith(
@@ -354,62 +335,6 @@ class ThreadHeaderView: NSView, @preconcurrency LoadableNib {
             messageBoostView.configureWith(boosts: boosts, and: bubble, isThreadHeader: true)
             messageBoostViewContainer.isHidden = false
         }
-    }
-    
-    override func layout() {
-        super.layout()
-        guard needsCollapseEvaluation else { return }
-        needsCollapseEvaluation = false
-        evaluateCollapseNeeded()
-    }
-    
-    @MainActor
-    private func evaluateCollapseNeeded() {
-        // newMessageLabel.textContainer is the NSTextContainer of the NSTextView —
-        // distinct from the `textContainer` IBOutlet (NSView).
-        guard let lm = newMessageLabel.layoutManager,
-              let tc = newMessageLabel.textContainer else { return }
-        lm.ensureLayout(for: tc)       // defensive: ensures glyphs are laid out even if display hasn't run
-        let fullHeight = lm.usedRect(for: tc).height
-        // Compare against (kMaxCollapsedTextHeight − 16): the messageLabel cap, not the textContainer cap,
-        // because textContainer.height = messageLabel.height + 16 (XIB pin cX0-DG-YiD).
-        let needsCollapse = fullHeight > Self.kMaxCollapsedTextHeight - 16
-        updateCollapseState(needsCollapse: needsCollapse)
-        superview?.needsLayout = true  // let the parent NSStackView redistribute freed space asynchronously
-    }
-    
-    @MainActor
-    private func updateCollapseState(needsCollapse: Bool) {
-        let shouldCap = needsCollapse && !isExpanded
-        
-        // Drive textContainer height via the XIB bottom-pin (cX0-DG-YiD, priority 1000):
-        //   textContainer.height = messageLabel.height + 16
-        // Setting maximumHeight = 224 (= 240 − 16) caps textContainer at 240 pt.
-        // Setting 0 removes the cap entirely.
-        messageLabel.maximumHeight = shouldCap ? Self.kMaxCollapsedTextHeight - 16 : 0
-        messageLabel.invalidateIntrinsicContentSize()
-        
-        // Prevent the NSTextView from being scrolled past the clip boundary.
-        newMessageLabelScrollView.disabled = shouldCap
-        
-        // Insert the button after textContainer in its parent NSStackView (once only).
-        if let btn = showMoreButton, btn.superview == nil,
-           let stack = textContainer.superview as? NSStackView {
-            if let idx = stack.arrangedSubviews.firstIndex(of: textContainer) {
-                stack.insertArrangedSubview(btn, at: idx + 1)
-            } else {
-                stack.addArrangedSubview(btn)
-            }
-        }
-        
-        showMoreButton?.isHidden = !needsCollapse
-        showMoreButton?.title = isExpanded ? "Show less" : "Show more"
-    }
-    
-    @objc private func showMoreButtonTapped() {
-        isExpanded.toggle()
-        updateCollapseState(needsCollapse: true)  // button is only visible when message is long
-        superview?.layoutSubtreeIfNeeded()        // synchronous: gives immediate visual feedback on tap
     }
     
     @IBAction func optionsButtonClicked(_ sender: Any) {
