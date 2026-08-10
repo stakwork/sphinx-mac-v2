@@ -523,6 +523,8 @@ extension NewChatViewController : ChatBottomViewDelegate {
         }
         
         return messageLengthValid
+
+//        return true
     }
 }
 

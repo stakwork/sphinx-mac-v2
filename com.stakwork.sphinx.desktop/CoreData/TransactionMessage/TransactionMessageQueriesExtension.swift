@@ -369,6 +369,7 @@ extension TransactionMessage {
         chat: Chat,
         threadUUID: String?,
         typesToExclude: [Int],
+        minIndex: Int? = nil,
         pinnedMessageId: Int? = nil
     ) -> NSPredicate {
         if let tuid = threadUUID {
@@ -389,6 +390,14 @@ extension TransactionMessage {
                     typesToExclude,
                     TransactionMessageType.boost.rawValue
                 )
+            } else if let minIndex = minIndex {
+                return NSPredicate(
+                    format: "chat == %@ AND (NOT (type IN %@) || (type == %d && replyUUID = nil)) AND (id >= %d || id < 0)",
+                    chat,
+                    typesToExclude,
+                    TransactionMessageType.boost.rawValue,
+                    minIndex
+                )
             } else {
                 return NSPredicate(
                     format: "chat == %@ AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
@@ -404,6 +413,7 @@ extension TransactionMessage {
         for chat: Chat,
         threadUUID: String? = nil,
         with limit: Int? = nil,
+        and minIndex: Int? = nil,
         pinnedMessageId: Int? = nil,
         forceAllMsgs: Bool = false
     ) -> NSFetchRequest<TransactionMessage> {
@@ -424,6 +434,7 @@ extension TransactionMessage {
             chat: chat,
             threadUUID: threadUUID,
             typesToExclude: typesToExclude,
+            minIndex: minIndex,
             pinnedMessageId: pinnedMessageId
         )
         
@@ -436,7 +447,7 @@ extension TransactionMessage {
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
         
-        if let limit = limit, pinnedMessageId == nil {
+        if let limit = limit, pinnedMessageId == nil && minIndex == nil {
             fetchRequest.fetchLimit = limit
         }
         
@@ -448,7 +459,8 @@ extension TransactionMessage {
     ///Puchase items
     ///Member requests responses if you are the admin
     static func getSecondaryMessagesFetchRequestOn(
-        chat: Chat
+        chat: Chat,
+        minIndex: Int? = nil
     ) -> NSFetchRequest<TransactionMessage> {
         
         var types = [
@@ -469,11 +481,20 @@ extension TransactionMessage {
             ]
         }
         
-        let predicate = NSPredicate(
+        var predicate = NSPredicate(
             format: "chat == %@ AND type IN %@",
             chat,
             types
         )
+        
+        if let minIndex = minIndex {
+            predicate = NSPredicate(
+                format: "chat == %@ AND type IN %@ AND id >= %d",
+                chat,
+                types,
+                minIndex
+            )
+        }
         
         let sortDescriptors = [
             NSSortDescriptor(key: "date", ascending: false),

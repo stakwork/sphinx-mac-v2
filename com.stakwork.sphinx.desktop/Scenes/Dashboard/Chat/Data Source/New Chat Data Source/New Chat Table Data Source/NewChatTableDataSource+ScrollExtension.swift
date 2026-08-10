@@ -103,7 +103,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     
     func loadMoreItems(itemsCount: Int) {
         collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
-        configureResultsController(items: messagesCount + itemsCount)
+        configureResultsController(items: messagesCountRequested + itemsCount)
     }
     
     @objc func loadMoreItems() {
