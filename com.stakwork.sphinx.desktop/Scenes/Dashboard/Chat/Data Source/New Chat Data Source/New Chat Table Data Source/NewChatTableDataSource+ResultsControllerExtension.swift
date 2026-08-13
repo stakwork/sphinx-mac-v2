@@ -800,18 +800,62 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
         )
     }
     
+    func getFetchRequestFor(
+        chat: Chat,
+        with items: Int,
+        and minIndex: Int
+    ) -> NSFetchRequest<TransactionMessage> {
+        return TransactionMessage.getChatMessagesFetchRequest(
+            for: chat,
+            with: items,
+            and: minIndex,
+            pinnedMessageId: pinnedMessageId
+        )
+    }
+    
+    func getFetchMinIndex(
+        fetchRequest: NSFetchRequest<TransactionMessage>
+    ) -> Int? {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        var objects: [TransactionMessage] = [TransactionMessage]()
+        
+        do {
+            try objects = managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Error: " + error.localizedDescription)
+        }
+        
+        return objects.last?.id
+    }
+    
     func configureResultsController(items: Int) {
         guard let chat = chat else {
             return
         }
         
-        if messagesArray.count < messagesCount {
+        if messagesCountFetched < messagesCountRequested {
             return
         }
         
-        messagesCount = items
+        messagesCountRequested = items
         
-        let fetchRequest = getFetchRequestFor(chat: chat, with: items)
+        var fetchRequest = getFetchRequestFor(
+            chat: chat,
+            with: items
+        )
+        
+        let minIndexFetchRequest = fetchRequest
+        minIndexFetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        
+        if let minIndex = getFetchMinIndex(fetchRequest: minIndexFetchRequest), !isThread {
+            fetchMinIndex = minIndex
+            
+            fetchRequest = getFetchRequestFor(
+                chat: chat,
+                with: items,
+                and: minIndex
+            )
+        }
         
         messagesResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -836,7 +880,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
             return
         }
         
-        let fetchRequest = TransactionMessage.getSecondaryMessagesFetchRequestOn(chat: chat)
+        let fetchRequest = TransactionMessage.getSecondaryMessagesFetchRequestOn(chat: chat, minIndex: fetchMinIndex)
 
         additionMessagesResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -866,6 +910,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                         self.chat?.processAliasesFrom(messages: messages.reversed())
                     }
                     
+                    self.messagesCountFetched = messages.count
                     self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
 
                     if let lastMessage = self.messagesArray.last, lastMessage.isCallLink() {
