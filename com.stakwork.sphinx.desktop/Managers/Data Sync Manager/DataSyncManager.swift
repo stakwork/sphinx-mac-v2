@@ -9,6 +9,14 @@
 import Foundation
 import CoreData
 
+// MARK: - ServerFileResult
+
+private enum ServerFileResult {
+    case found(String)   // Decrypted file content
+    case notFound        // Server confirmed: file doesn't exist yet
+    case unavailable     // Auth failure, network error, or unexpected response
+}
+
 // MARK: - DataSyncManager
 
 class DataSyncManager: NSObject, @unchecked Sendable {
@@ -190,13 +198,29 @@ class DataSyncManager: NSObject, @unchecked Sendable {
                 }
             }
 
-            let serverDataString = await getFileFromServer()
-            let parsedResponse = parseFileText(text: serverDataString ?? "")
+            var parsedResponse: ItemsResponse? = nil
+            let serverResult = await getFileFromServer()
 
-            // CRITICAL: If we couldn't retrieve or parse server data, don't proceed with sync.
-            // Proceeding with an empty itemsResponse would overwrite server data and cause data loss.
-            guard serverDataString != nil || parsedResponse != nil else {
+            switch serverResult {
+            case .unavailable:
+                // Real error — abort to prevent data loss (existing behaviour)
+                #if DEBUG
+                print("DataSync: Could not retrieve server data, skipping sync to prevent data loss")
+                #endif
                 return
+            case .notFound:
+                // File doesn't exist yet — proceed with empty response to bootstrap it
+                break
+            case .found(let str):
+                guard let parsed = parseFileText(text: str) else {
+                    // Decryption succeeded but JSON is malformed — abort to prevent
+                    // overwriting the server file with an empty local response
+                    #if DEBUG
+                    print("DataSync: Server file is malformed, skipping sync to prevent data loss")
+                    #endif
+                    return
+                }
+                parsedResponse = parsed
             }
 
             var itemsResponse = parsedResponse ?? ItemsResponse(items: [])
@@ -625,33 +649,46 @@ class DataSyncManager: NSObject, @unchecked Sendable {
         }
     }
 
-    private func getFileFromServer() async -> String? {
+    private func getFileFromServer() async -> ServerFileResult {
         // Handle authentication if needed
         guard await authenticateWithServer() else {
-            return nil
+            return .unavailable
         }
 
         let attachmentsManager = AttachmentsManager.sharedInstance
         let isAuthenticated = attachmentsManager.isAuthenticated()
 
         guard let token = isAuthenticated.1 else {
-            return nil
+            return .unavailable
         }
 
         // Call the API with continuation
         return await withCheckedContinuation { continuation in
+            var resumed = false
+            func resumeOnce(_ result: ServerFileResult) {
+                guard !resumed else {
+                    assertionFailure("DataSyncManager: continuation resumed more than once")
+                    return
+                }
+                resumed = true
+                continuation.resume(returning: result)
+            }
+
             API.sharedInstance.getPersonalPreferencesFile(
                 token: token,
                 callback: { data in
                     if let string = String(data: data, encoding: .utf8),
                        let decrypted = self.decrypt(value: string) {
-                        continuation.resume(returning: decrypted)
+                        resumeOnce(.found(decrypted))
                     } else {
-                        continuation.resume(returning: nil)
+                        resumeOnce(.unavailable)
                     }
                 },
+                notFoundCallback: {
+                    resumeOnce(.notFound)
+                },
                 errorCallback: {
-                    continuation.resume(returning: nil)
+                    resumeOnce(.unavailable)
                 }
             )
         }
