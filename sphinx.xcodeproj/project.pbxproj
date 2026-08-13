@@ -750,6 +750,7 @@
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */; };
+		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1844,6 +1845,7 @@
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerSeedGenerationTests.swift; sourceTree = "<group>"; };
+		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2259,6 +2261,7 @@
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
 				TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */,
 				SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */,
+				SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -5126,6 +5129,7 @@
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
 				TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */,
 				SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */,
+				SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
