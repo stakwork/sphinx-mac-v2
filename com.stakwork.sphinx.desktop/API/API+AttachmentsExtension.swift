@@ -10,6 +10,8 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+private let kPreferencesNotFoundError = "Preferences not found"
+
 struct ImageTemplate {
     
     var width: Int? = nil
@@ -250,6 +252,7 @@ extension API {
     public func getPersonalPreferencesFile(
         token: String,
         callback: @escaping PreferencesCallback,
+        notFoundCallback: @escaping EmptyCallback,
         errorCallback: @escaping EmptyCallback
     ) {
         let url = "\(API.kAttachmentsServerUrl)/preferences"
@@ -265,12 +268,26 @@ extension API {
         ).responseData { response in
             switch response.result {
             case .success(let data):
-                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let success = json["success"] as? Bool,
-                   success == false
-                {
-                    errorCallback()
-                    return
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    let successValue: Bool
+                    if let b = json["success"] as? Bool {
+                        successValue = b
+                    } else if let i = json["success"] as? Int {
+                        successValue = i != 0
+                    } else {
+                        // Key absent or unrecognizable type — treat as genuine error
+                        errorCallback()
+                        return
+                    }
+
+                    if !successValue {
+                        if (json["error"] as? String) == kPreferencesNotFoundError {
+                            notFoundCallback()
+                        } else {
+                            errorCallback()
+                        }
+                        return
+                    }
                 }
                 callback(data)
             case .failure(_):
@@ -306,9 +323,21 @@ extension API {
         }).responseJSON { (response) in
             switch response.result {
             case .success(let data):
-                if let json = data as? NSDictionary, (json["success"] as? Bool) == true {
-                    callback(true, json)
-                    return
+                if let json = data as? NSDictionary {
+                    let successValue: Bool
+                    if let b = json["success"] as? Bool {
+                        successValue = b
+                    } else if let i = json["success"] as? Int {
+                        successValue = i != 0
+                    } else {
+                        // Key absent or unrecognizable type — treat as genuine error
+                        errorCallback("Generic error")
+                        return
+                    }
+                    if successValue {
+                        callback(true, json)
+                        return
+                    }
                 }
                 errorCallback("Generic error")
             case .failure(let error):
