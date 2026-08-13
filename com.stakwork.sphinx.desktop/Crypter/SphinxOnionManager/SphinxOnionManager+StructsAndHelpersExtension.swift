@@ -444,6 +444,7 @@ struct ParseInvoiceResult: Mappable {
 enum SphinxOnionManagerError: Error {
     case SOMNetworkError
     case SOMTimeoutError
+    case SOMSecureRandomFailed(OSStatus)
     
     var localizedDescription: String {
         switch self {
@@ -451,6 +452,8 @@ enum SphinxOnionManagerError: Error {
             return "Network Error"
         case .SOMTimeoutError:
             return "Timeout Error"
+        case .SOMSecureRandomFailed(let status):
+            return "Secure random generation failed with OSStatus: \(status)"
         }
     }
 }
@@ -500,5 +503,80 @@ extension SphinxOnionManager {
         } else {
             return nil // Return nil to indicate an error in generating a secure random value
         }
+    }
+    
+    /// Generates 16 bytes of hardened entropy by combining two randomness sources and
+    /// returns them as a lowercase hex string suitable for use with `Sphinx.mnemonicFromEntropy`.
+    ///
+    /// - Parameter secureRandomFn: Injectable RNG matching `SecRandomCopyBytes`'s pointer-based
+    ///   signature — defaults to a wrapper that calls `SecRandomCopyBytes(kSecRandomDefault, …)`.
+    ///   Exposed as a parameter so unit tests can inject a failing stub without relying on global
+    ///   state.
+    ///
+    /// - Throws: `SphinxOnionManagerError.SOMSecureRandomFailed(status)` if `secureRandomFn`
+    ///   returns anything other than `errSecSuccess`. Never proceeds with a zeroed/partial buffer.
+    ///
+    /// - Returns: A 32-character lowercase hex string encoding the 16 combined bytes.
+    ///
+    /// NOTE on independence: `SecRandomCopyBytes` and `SystemRandomNumberGenerator` are NOT
+    /// fully independent entropy sources on Apple platforms — both ultimately draw from the same
+    /// OS-level CSPRNG lineage (the kernel's CSRNG). The XOR mix guards against an implementation
+    /// bug or transient failure in either individual API call, but does NOT defend against a
+    /// compromise of the shared underlying kernel entropy pool. This is the intended and documented
+    /// scope of the "defense-in-depth" claim here.
+    ///
+    /// NOTE on zeroization: The returned hex `String` value, and any copy produced when it crosses
+    /// the Swift→Rust FFI boundary inside `Sphinx.mnemonicFromEntropy`, cannot be deterministically
+    /// zeroed from Swift. Keep the return value alive as briefly as possible before the FFI call.
+    func generateHardenedEntropyHex(
+        secureRandomFn: (Int, UnsafeMutableRawPointer) -> OSStatus = { count, pointer in
+            SecRandomCopyBytes(kSecRandomDefault, count, pointer)
+        }
+    ) throws -> String {
+        let byteCount = 16
+        
+        // --- Primary source: injected secure RNG (defaults to SecRandomCopyBytes) ---
+        var primaryBytes = [UInt8](repeating: 0, count: byteCount)
+        let status = primaryBytes.withUnsafeMutableBytes { ptr -> OSStatus in
+            secureRandomFn(byteCount, ptr.baseAddress!)
+        }
+        guard status == errSecSuccess else {
+            // Zero out the (potentially partial) primary buffer before throwing.
+            primaryBytes.withUnsafeMutableBytes { ptr in
+                _ = memset_s(ptr.baseAddress, ptr.count, 0, ptr.count)
+            }
+            throw SphinxOnionManagerError.SOMSecureRandomFailed(status)
+        }
+        
+        // --- Secondary source: Swift stdlib SystemRandomNumberGenerator ---
+        // Both sources share the same OS CSPRNG lineage; see the type-level NOTE above.
+        var rng = SystemRandomNumberGenerator()
+        var secondaryBytes = (0..<byteCount).map { _ in UInt8.random(in: 0...255, using: &rng) }
+        
+        // --- XOR-combine into the output buffer ---
+        var combined = (0..<byteCount).map { i in primaryBytes[i] ^ secondaryBytes[i] }
+        
+        // --- Optimizer-safe zeroization of sensitive intermediates ---
+        // A plain assignment loop (`for i in ... { buf[i] = 0 }`) is a dead-store-elimination
+        // candidate in optimized Release builds. `memset_s` is guaranteed not to be optimized
+        // away by the C standard (C11 §K.3.7.4.1).
+        primaryBytes.withUnsafeMutableBytes { ptr in
+            _ = memset_s(ptr.baseAddress, ptr.count, 0, ptr.count)
+        }
+        secondaryBytes.withUnsafeMutableBytes { ptr in
+            _ = memset_s(ptr.baseAddress, ptr.count, 0, ptr.count)
+        }
+        
+        // --- Hex-encode BEFORE zeroizing combined, so no lingering raw-entropy copy is left ---
+        // Converting `[UInt8]` via `Data` produces a separate `String` allocation; this is the
+        // copy that crosses the FFI boundary. Zeroing `combined` after encoding leaves only that
+        // `String` live (which cannot be deterministically zeroed from Swift — see type-level NOTE).
+        let hexString = Data(combined).hexString
+        
+        combined.withUnsafeMutableBytes { ptr in
+            _ = memset_s(ptr.baseAddress, ptr.count, 0, ptr.count)
+        }
+        
+        return hexString
     }
 }
