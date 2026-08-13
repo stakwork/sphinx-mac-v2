@@ -74,8 +74,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var mqtt: CocoaMQTT! = nil
     var vc: NSViewController! = nil
     var connectingStartTime: Date? = nil
-    private var connectionInProgress: Bool = false
+    var connectionInProgress: Bool = false
     private var connectionTimeoutTimer: Timer?
+    
+    /// Injectable hook invoked immediately after `doInitialInviteSetup()` fires.
+    /// Used in unit tests to assert exactly-once firing without a real MQTT broker.
+    internal var onInitialInviteSetupFired: (() -> Void)? = nil
     
     var isConnected : Bool = false{
         didSet{
@@ -391,6 +395,77 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }
     
+    // MARK: - Shared connection-completion handler
+    
+    /// Single shared handler called from every `didConnectAck` path (both
+    /// `createMyAccount` and `connectToServer`). Performs connect-success work
+    /// and then atomically checks/consumes `isV2InitialSetup`.
+    ///
+    /// - Parameter myPubkey: The owner pubkey to subscribe topics for.
+    /// - Parameter idx: Key index (always 0 for the primary key).
+    /// - Parameter inviteCode: Optional invite code forwarded from `createMyAccount`.
+    /// - Parameter hideRestoreViewCallback: Forwarded from `connectToServer`.
+    /// - Parameter triggeredBy: A label for the log line (e.g. "createMyAccount" or "connectToServer").
+    func handleDidConnectAck(
+        myPubkey: String,
+        idx: Int,
+        inviteCode: String? = nil,
+        hideRestoreViewCallback: ((Bool) -> ())? = nil,
+        triggeredBy: String = "connectToServer"
+    ) {
+        connectionTimeoutTimer?.invalidate()
+        connectionTimeoutTimer = nil
+        isConnected = true
+        beginKeepAliveActivity()
+        connectionInProgress = false
+        endReconnectionTimer()
+        
+        subscribeAndPublishMyTopics(pubkey: myPubkey, idx: idx, inviteCode: inviteCode)
+        
+        // Atomically consume isV2InitialSetup. Only fire doInitialInviteSetup()
+        // when we are certain a pending invite exists (stashedInviteCode is non-nil),
+        // guarding against restore-mode logins (isV2Restore = true) and stale flags.
+        if isV2InitialSetup && !isV2Restore && stashedInviteCode != nil {
+            isV2InitialSetup = false
+            print("[MQTT] doInitialInviteSetup firing — branch: \(triggeredBy) (shared didConnectAck handler)")
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.doInitialInviteSetup()
+                self.onInitialInviteSetupFired?()
+            }
+        } else if isV2InitialSetup {
+            // Flag set but no invite data or this is a restore — clear flag safely.
+            isV2InitialSetup = false
+        }
+        
+        if isV2Restore {
+            self.hideRestoreCallback = { [weak self] _ in
+                guard let self = self else { return }
+                self.isV2Restore = false
+                hideRestoreViewCallback?(true)
+            }
+            syncContactsAndMessages()
+        } else {
+            self.contactRestoreCallback = nil
+            self.messageRestoreCallback = nil
+            startNewMsgsSync()
+        }
+    }
+    
+    /// Immediately consumes `isV2InitialSetup` when the connection is confirmed live
+    /// (safe-immediate path, e.g. the "already connected" guard in `reconnectToServer`).
+    /// Must be called on the main thread.
+    func consumeInitialSetupIfPending(triggeredBy: String) {
+        guard isV2InitialSetup && !isV2Restore && stashedInviteCode != nil else {
+            if isV2InitialSetup { isV2InitialSetup = false }
+            return
+        }
+        isV2InitialSetup = false
+        print("[MQTT] doInitialInviteSetup firing — branch: \(triggeredBy) (safe-immediate, already connected)")
+        doInitialInviteSetup()
+        onInitialInviteSetupFired?()
+    }
+
     func reconnectToServer(
         connectingCallback: (() -> ())? = nil,
         hideRestoreViewCallback: ((Bool)->())? = nil,
@@ -398,12 +473,16 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     ) {
         if let mqtt = self.mqtt, !forceReconnect {
             if mqtt.connState == .connecting {
-                // Treat stale connecting attempts (>10s) as failed and retry
+                // Stale connecting attempts (<10s) — deferred-pending: leave isV2InitialSetup
+                // untouched so the in-flight didConnectAck (routed through handleDidConnectAck)
+                // consumes it once the connection is actually confirmed.
                 if let startTime = connectingStartTime, Date().timeIntervalSince(startTime) < 10.0 {
                     return
                 }
             } else if mqtt.connState == .connected && isConnected {
                 if !isV2Restore {
+                    // Safe-immediate: connection is confirmed live, consume the flag now.
+                    consumeInitialSetupIfPending(triggeredBy: "reconnectToServer/already-connected")
                     if !isFetchingContent() {
                         startNewMsgsSync()
                     }
@@ -452,7 +531,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         }
         
         guard !connectionInProgress else {
-            print("[MQTT] connectToServer skipped — connection already in progress")
+            // Deferred-pending: do NOT fire or clear isV2InitialSetup here.
+            // The in-flight connection's eventual didConnectAck (routed through
+            // handleDidConnectAck) will consume the flag once the connection is confirmed.
+            print("[MQTT] connectToServer skipped — connection already in progress (flag deferred to didConnectAck)")
             return
         }
         connectionInProgress = true
@@ -500,33 +582,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 return
             }
 
-            self.connectionTimeoutTimer?.invalidate()
-            self.connectionTimeoutTimer = nil
-            self.isConnected = true
-            self.beginKeepAliveActivity()
-            self.connectionInProgress = false
-            self.endReconnectionTimer()
-            
-            self.subscribeAndPublishMyTopics(pubkey: myPubkey, idx: 0)
-            
-            if self.isV2InitialSetup {
-                self.isV2InitialSetup = false
-                self.doInitialInviteSetup()
-            }
-             
-            if self.isV2Restore {
-                self.hideRestoreCallback = { _ in
-                    self.isV2Restore = false
-                    
-                    hideRestoreViewCallback?(true)
-                }
-                self.syncContactsAndMessages()
-            } else {
-                self.contactRestoreCallback = nil
-                self.messageRestoreCallback = nil
-
-                self.startNewMsgsSync()
-            }
+            self.handleDidConnectAck(
+                myPubkey: myPubkey,
+                idx: 0,
+                hideRestoreViewCallback: hideRestoreViewCallback,
+                triggeredBy: "connectToServer"
+            )
         }
         
         mqtt.didReceiveTrust = { _, _, completionHandler in
@@ -739,14 +800,14 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 completionHandler(true)
             }
             
-            //subscribe to relevant topics
-            mqtt.didConnectAck = { _, _ in
-                self.isConnected = true
-                
-                self.subscribeAndPublishMyTopics(
-                    pubkey: pubkey,
+            //subscribe to relevant topics and consume any pending initial-setup flag
+            mqtt.didConnectAck = { [weak self] _, _ in
+                guard let self = self else { return }
+                self.handleDidConnectAck(
+                    myPubkey: pubkey,
                     idx: idx,
-                    inviteCode: inviteCode
+                    inviteCode: inviteCode,
+                    triggeredBy: "createMyAccount"
                 )
             }
         }

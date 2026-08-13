@@ -109,7 +109,10 @@ extension SphinxOnionManager {//contacts related
             
             print("INITIATED KEY EXCHANGE WITH RR:\(rr)")
             
-        } catch {}
+        } catch let error {
+            let identifier = inviteCode ?? contactInfo
+            print("[MQTT] makeFriendRequest failed for contact '\(identifier)': \(error)")
+        }
     }
     
     func retryAddingContact(
