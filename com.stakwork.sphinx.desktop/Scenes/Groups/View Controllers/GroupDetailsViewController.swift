@@ -36,6 +36,7 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var adminNameLabel: NSTextField!
     @IBOutlet weak var adminRoleLabel: NSTextField!
     @IBOutlet weak var adminInfoContainerView: NSView!
+    @IBOutlet weak var adminInfoContainerHeight: NSLayoutConstraint!
     @IBOutlet weak var timezoneSharingView: TimezoneSharingView!
     @IBOutlet weak var tribeMemberInfoTopConstraint: NSLayoutConstraint!
     
@@ -175,22 +176,17 @@ class GroupDetailsViewController: NSViewController {
             adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
             adminRoleLabel.stringValue = "admin".localized
             
-            let placeHolderImage = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
-            adminAvatarImageView.image = placeHolderImage
-            
             adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
             
             adminInfoContainerView.isHidden = false
+            adminInfoContainerHeight.constant = 80
         } else {
+            // Collapse height to zero so no gap appears when we are the tribe admin
             adminInfoContainerView.isHidden = true
+            adminInfoContainerHeight.constant = 0
         }
         
-        if adminInfoContainerView.isHidden {
-            // Update the existing storyboard constraint instead of creating/deactivating
-            // conflicting ones on every admin/member toggle.
-            tribeMemberInfoTopConstraint.constant = 100
-            view.layoutSubtreeIfNeeded()
-        }
+        view.layoutSubtreeIfNeeded()
     }
     
     func updateTribePrices() {

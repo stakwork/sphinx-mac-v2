@@ -1585,7 +1585,7 @@
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="top" secondItem="A9B-67-txX" secondAttribute="bottom" constant="3" id="0te-h7-2Bi"/>
                                                 <constraint firstItem="uzk-cC-XJw" firstAttribute="leading" secondItem="Rm1-Wr-wv9" secondAttribute="leading" id="KW5-HY-JP6"/>
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="width" secondItem="A9B-67-txX" secondAttribute="width" id="KbZ-Vt-oWR"/>
-                                                <constraint firstAttribute="height" constant="80" id="Kz2-2P-qg9"/>
+                                                <constraint firstAttribute="height" constant="80" id="Kz2-2P-qg9" userLabel="adminInfoContainerHeight"/>
                                                 <constraint firstItem="A9B-67-txX" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="LjL-cK-9nh"/>
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="Vzw-kT-h6v"/>
                                                 <constraint firstItem="A9B-67-txX" firstAttribute="centerY" secondItem="Rm1-Wr-wv9" secondAttribute="centerY" constant="-10" id="YUz-1J-j71"/>
@@ -1756,6 +1756,7 @@
                     <connections>
                         <outlet property="adminAvatarImageView" destination="LmC-OR-LtH" id="wJC-oV-Uqc"/>
                         <outlet property="adminInfoContainerView" destination="Rm1-Wr-wv9" id="xDl-lq-oja"/>
+                        <outlet property="adminInfoContainerHeight" destination="Kz2-2P-qg9" id="aPx-9Q-bTf"/>
                         <outlet property="adminNameLabel" destination="A9B-67-txX" id="amQ-jQ-utA"/>
                         <outlet property="adminRoleLabel" destination="rS1-o8-4zh" id="Jun-gN-ipE"/>
                         <outlet property="groupDateLabel" destination="Vlo-3g-ZM4" id="xJE-dz-RuO"/>
