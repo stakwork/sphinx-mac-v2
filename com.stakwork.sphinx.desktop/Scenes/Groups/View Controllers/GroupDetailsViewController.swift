@@ -36,10 +36,13 @@ class GroupDetailsViewController: NSViewController {
     @IBOutlet weak var adminNameLabel: NSTextField!
     @IBOutlet weak var adminRoleLabel: NSTextField!
     @IBOutlet weak var adminInfoContainerView: NSView!
+    @IBOutlet weak var adminInfoContainerHeight: NSLayoutConstraint!
     @IBOutlet weak var timezoneSharingView: TimezoneSharingView!
+    @IBOutlet weak var tribeMemberInfoTopConstraint: NSLayoutConstraint!
     
     
     var chat: Chat! = nil
+    private var groupInfoSet = false
     
     let kGroupNameTop: CGFloat = 31
     let kGroupNameWithPricesTop: CGFloat = 18
@@ -75,7 +78,7 @@ class GroupDetailsViewController: NSViewController {
         
         groupImageView.wantsLayer = true
         groupImageView.rounded = true
-        groupImageView.layer?.cornerRadius = groupImageView.frame.height / 2
+        // Corner radius is set correctly in viewDidLayout() after layout has settled
         
         adminAvatarImageView.wantsLayer = true
         adminAvatarImageView.layer?.cornerRadius = adminAvatarImageView.frame.width / 2
@@ -135,7 +138,15 @@ class GroupDetailsViewController: NSViewController {
         )
     }
     
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        groupImageView.layer?.cornerRadius = groupImageView.frame.height / 2
+    }
+
     @objc func setGroupInfo() {
+        guard !groupInfoSet else { return }
+        groupInfoSet = true
+
         groupPinView.configureWith(view: view, chat: chat)
         
         let placeHolderImage = NSImage(named: chat.isPublicGroup() ? "tribePlaceHolder" : "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
@@ -165,24 +176,17 @@ class GroupDetailsViewController: NSViewController {
             adminNameLabel.stringValue = chat.tribeInfo?.ownerAlias ?? "Unknown".localized
             adminRoleLabel.stringValue = "admin".localized
             
-            let placeHolderImage = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
-            adminAvatarImageView.image = placeHolderImage
-            
             adminAvatarImageView.image = NSImage(named: "profileAvatar")?.image(withTintColor: NSColor.Sphinx.SecondaryText)
             
             adminInfoContainerView.isHidden = false
+            adminInfoContainerHeight.constant = 80
         } else {
+            // Collapse height to zero so no gap appears when we are the tribe admin
             adminInfoContainerView.isHidden = true
+            adminInfoContainerHeight.constant = 0
         }
         
-        if adminInfoContainerView.isHidden {
-            NSLayoutConstraint.deactivate(adminInfoContainerView.constraints)
-            
-            let topConstraint = NSLayoutConstraint(item: tribeMemberInfoContainer, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 100)
-            NSLayoutConstraint.activate([topConstraint])
-            
-            view.layoutSubtreeIfNeeded()
-        }
+        view.layoutSubtreeIfNeeded()
     }
     
     func updateTribePrices() {

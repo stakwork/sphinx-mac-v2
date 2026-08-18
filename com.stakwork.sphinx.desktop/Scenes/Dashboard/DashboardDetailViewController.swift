@@ -36,6 +36,7 @@ class DashboardDetailViewController: NSViewController {
     
     func resizeSubviews(frame: NSRect) {
         view.frame = frame
+        containerView.layoutSubtreeIfNeeded()   // settle bounds before reading
         
         guard let currentVC = addedVC.last else {
             return
@@ -86,6 +87,17 @@ class DashboardDetailViewController: NSViewController {
         }
         
         self.addChildVC(child: vc, container: containerView)
+        // Pin child to container so it resizes correctly when panel is dragged
+        if vc.view.translatesAutoresizingMaskIntoConstraints {
+            vc.view.autoresizingMask = [.width, .height]
+        } else {
+            NSLayoutConstraint.activate([
+                vc.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                vc.view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                vc.view.topAnchor.constraint(equalTo: containerView.topAnchor),
+                vc.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            ])
+        }
         guard let threadVC = vc as? NewChatViewController else { return }
         
         threadVC.chatBottomView.messageFieldView.setupForThread()

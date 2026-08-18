@@ -470,7 +470,7 @@ class ChildVCContainer: NSView, LoadableNib {
     func addChildVC(vc: NSViewController) {
         childVC = vc
         parentVC?.addChild(vc)
-        vc.view.frame = childVCContainer.frame
+        vc.view.frame = childVCContainer.bounds   // was .frame — non-zero origin caused off-origin layout
         childVCContainer.addSubview(vc.view)
         
         childVCContainer.isHidden = false

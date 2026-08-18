@@ -1585,7 +1585,7 @@
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="top" secondItem="A9B-67-txX" secondAttribute="bottom" constant="3" id="0te-h7-2Bi"/>
                                                 <constraint firstItem="uzk-cC-XJw" firstAttribute="leading" secondItem="Rm1-Wr-wv9" secondAttribute="leading" id="KW5-HY-JP6"/>
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="width" secondItem="A9B-67-txX" secondAttribute="width" id="KbZ-Vt-oWR"/>
-                                                <constraint firstAttribute="height" constant="80" id="Kz2-2P-qg9"/>
+                                                <constraint firstAttribute="height" constant="80" id="Kz2-2P-qg9" userLabel="adminInfoContainerHeight"/>
                                                 <constraint firstItem="A9B-67-txX" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="LjL-cK-9nh"/>
                                                 <constraint firstItem="rS1-o8-4zh" firstAttribute="leading" secondItem="uzk-cC-XJw" secondAttribute="trailing" id="Vzw-kT-h6v"/>
                                                 <constraint firstItem="A9B-67-txX" firstAttribute="centerY" secondItem="Rm1-Wr-wv9" secondAttribute="centerY" constant="-10" id="YUz-1J-j71"/>
@@ -1607,7 +1607,6 @@
                                             <constraints>
                                                 <constraint firstItem="tix-lT-SOU" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="top" id="0I8-wo-Hws"/>
                                                 <constraint firstAttribute="height" id="7Jz-hl-F0a"/>
-                                                <constraint firstAttribute="width" constant="414" id="Ulf-3q-h1R"/>
                                                 <constraint firstAttribute="trailing" secondItem="tix-lT-SOU" secondAttribute="trailing" constant="30" id="ctd-2f-quE"/>
                                                 <constraint firstItem="tix-lT-SOU" firstAttribute="leading" secondItem="BmW-hY-63S" secondAttribute="leading" constant="30" id="hqo-P8-blg"/>
                                             </constraints>
@@ -1757,6 +1756,7 @@
                     <connections>
                         <outlet property="adminAvatarImageView" destination="LmC-OR-LtH" id="wJC-oV-Uqc"/>
                         <outlet property="adminInfoContainerView" destination="Rm1-Wr-wv9" id="xDl-lq-oja"/>
+                        <outlet property="adminInfoContainerHeight" destination="Kz2-2P-qg9" id="aPx-9Q-bTf"/>
                         <outlet property="adminNameLabel" destination="A9B-67-txX" id="amQ-jQ-utA"/>
                         <outlet property="adminRoleLabel" destination="rS1-o8-4zh" id="Jun-gN-ipE"/>
                         <outlet property="groupDateLabel" destination="Vlo-3g-ZM4" id="xJE-dz-RuO"/>
@@ -1774,6 +1774,7 @@
                         <outlet property="timezoneSharingView" destination="VP9-dM-AUB" id="h5f-yR-TfL"/>
                         <outlet property="tribeMemberInfoContainer" destination="BmW-hY-63S" id="yla-sg-kWf"/>
                         <outlet property="tribeMemberInfoContainerHeight" destination="7Jz-hl-F0a" id="Y9B-MB-G1G"/>
+                        <outlet property="tribeMemberInfoTopConstraint" destination="NEW-ID" id="TmC-aP-g1X"/>
                         <outlet property="tribeMemberInfoView" destination="tix-lT-SOU" id="ZfE-Sv-bdq"/>
                         <outlet property="uploadLabel" destination="fhA-TS-JQN" id="2zY-yx-WD7"/>
                     </connections>
