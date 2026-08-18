@@ -1607,7 +1607,6 @@
                                             <constraints>
                                                 <constraint firstItem="tix-lT-SOU" firstAttribute="top" secondItem="BmW-hY-63S" secondAttribute="top" id="0I8-wo-Hws"/>
                                                 <constraint firstAttribute="height" id="7Jz-hl-F0a"/>
-                                                <constraint firstAttribute="width" constant="414" id="Ulf-3q-h1R"/>
                                                 <constraint firstAttribute="trailing" secondItem="tix-lT-SOU" secondAttribute="trailing" constant="30" id="ctd-2f-quE"/>
                                                 <constraint firstItem="tix-lT-SOU" firstAttribute="leading" secondItem="BmW-hY-63S" secondAttribute="leading" constant="30" id="hqo-P8-blg"/>
                                             </constraints>
@@ -1774,6 +1773,7 @@
                         <outlet property="timezoneSharingView" destination="VP9-dM-AUB" id="h5f-yR-TfL"/>
                         <outlet property="tribeMemberInfoContainer" destination="BmW-hY-63S" id="yla-sg-kWf"/>
                         <outlet property="tribeMemberInfoContainerHeight" destination="7Jz-hl-F0a" id="Y9B-MB-G1G"/>
+                        <outlet property="tribeMemberInfoTopConstraint" destination="NEW-ID" id="TmC-aP-g1X"/>
                         <outlet property="tribeMemberInfoView" destination="tix-lT-SOU" id="ZfE-Sv-bdq"/>
                         <outlet property="uploadLabel" destination="fhA-TS-JQN" id="2zY-yx-WD7"/>
                     </connections>
