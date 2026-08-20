@@ -746,7 +746,7 @@ class ChatHelper {
         return viewsHeight
     }
     
-    public static func getTextHeightFor(
+    @MainActor public static func getTextHeightFor(
         text: String,
         width: CGFloat,
         font: NSFont? = nil,
@@ -761,7 +761,19 @@ class ChatHelper {
         let attributedString: NSAttributedString
         
         if useMarkdown {
-            attributedString = ChatHelper.markdownRenderer.render(text)
+            let rendered = NSMutableAttributedString(
+                attributedString: ChatHelper.markdownRenderer.render(text)
+            )
+            // Strip .link so boundingRect applies the same slash-boundary word-breaking
+            // used by the displayed string. Intentionally uses bulk removeAttribute
+            // rather than MessageTextField.stripLinkAttributes — measurement only needs
+            // removal; .sphinxURL substitution is not needed here and coupling ChatHelper
+            // to MessageTextField for a 1-line operation adds unnecessary overhead.
+            // If stripLinkAttributes is ever changed (e.g. conditional skip logic or a
+            // different replacement attribute), audit this site to keep the two paths
+            // in sync.
+            rendered.removeAttribute(.link, range: NSRange(location: 0, length: rendered.length))
+            attributedString = rendered
         } else {
             let attrs = [NSAttributedString.Key.font: font ?? Constants.kMessageFont]
             let mutable = NSMutableAttributedString(string: text, attributes: attrs)
@@ -827,6 +839,10 @@ class ChatHelper {
                 }
             }
             
+            // Strip .link before boundingRect — the display path removes .link from URL
+            // runs, and leaving it here causes the same undercount as the useMarkdown: true
+            // path. See comment in the useMarkdown: true branch above for rationale.
+            mutable.removeAttribute(.link, range: NSRange(location: 0, length: mutable.length))
             attributedString = mutable
         }
         
