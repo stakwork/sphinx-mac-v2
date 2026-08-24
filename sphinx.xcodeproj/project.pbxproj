@@ -751,6 +751,7 @@
 		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
 		SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
+		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1846,6 +1847,7 @@
 		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
 		SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerSeedGenerationTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
+		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2262,6 +2264,7 @@
 				TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */,
 				SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */,
 				SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */,
+				SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -5130,6 +5133,7 @@
 				TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */,
 				SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */,
 				SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */,
+				SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
