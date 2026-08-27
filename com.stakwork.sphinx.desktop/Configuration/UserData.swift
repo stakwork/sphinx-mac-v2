@@ -217,7 +217,7 @@ class UserData: @unchecked Sendable {
     
     func getPersonalGraphUrl() -> String? {
         if let url = getPersonalGraphValue(with: KeychainManager.KeychainKeys.personalGraphUrl) {
-            return "\(url):8000/mindset"
+            return "\(url):3100"
         }
         return nil
     }

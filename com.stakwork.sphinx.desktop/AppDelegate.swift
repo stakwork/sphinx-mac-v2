@@ -340,6 +340,13 @@ import SphinxErrorReporter
     func createKeyWindowWith(vc: NSViewController, windowState: WindowState, closeOther: Bool = false, hideBar: Bool = false) {
         if closeOther {
             for window in NSApplication.shared.windows {
+                // NSApplication.shared.windows includes the status item's own
+                // NSStatusBarWindow. Closing it hides the tray icon from the menu bar,
+                // and addStatusBarItem() is idempotent so it never rebuilds it.
+                // Skip it, or the icon disappears on every window transition.
+                if window === statusBarItem?.button?.window {
+                    continue
+                }
                 window.close()
             }
         }

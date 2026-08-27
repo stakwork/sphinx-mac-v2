@@ -56,19 +56,7 @@ extension NewChatTableDataSource : ChatCollectionViewItemDelegate, @preconcurren
         )
         {
             self.saveSnapshotCurrentState()
-            var snapshot = self.dataSource.snapshot()
-
-            if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                // Use async instead of sync to avoid blocking main thread
-                dataSourceQueue.async { [weak self] in
-                    snapshot.reloadItems([tableCellState.1])
-
-                    DispatchQueue.main.async {
-                        // Disable animation for smoother scrolling
-                        self?.dataSource.apply(snapshot, animatingDifferences: false)
-                    }
-                }
-            }
+            reloadSnapshotItem(tableCellState.1)
         }
     }
     
@@ -706,18 +694,7 @@ extension NewChatTableDataSource {
             )
 
             self.saveSnapshotCurrentState()
-            var snapshot = self.dataSource.snapshot()
-
-            if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                // Use async instead of sync to avoid blocking main thread
-                dataSourceQueue.async { [weak self] in
-                    snapshot.reloadItems([tableCellState.1])
-
-                    DispatchQueue.main.async {
-                        self?.dataSource.apply(snapshot, animatingDifferences: false)
-                    }
-                }
-            }
+            reloadSnapshotItem(tableCellState.1)
         }
     }
 
@@ -733,17 +710,7 @@ extension NewChatTableDataSource {
             if updatedUploadProgressData.progress < 100 {
                 self.uploadingProgress[messageId] = updatedUploadProgressData
 
-                var snapshot = self.dataSource.snapshot()
-
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    // Use async instead of sync to avoid blocking main thread
-                    self.dataSourceQueue.async { [weak self] in
-                        snapshot.reloadItems([tableCellState.1])
-                        DispatchQueue.main.async {
-                            self?.dataSource.apply(snapshot, animatingDifferences: false)
-                        }
-                    }
-                }
+                reloadSnapshotItem(tableCellState.1)
             } else {
                 self.uploadingProgress.removeValue(forKey: messageId)
             }
@@ -771,17 +738,8 @@ extension NewChatTableDataSource {
                 if !(self.collectionView.indexPathsForVisibleItems().map { $0.item }).contains(rowIndex) {
                     return
                 }
-                var snapshot = self.dataSource.snapshot()
 
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    // Use async instead of sync to avoid blocking main thread
-                    self.dataSourceQueue.async { [weak self] in
-                        snapshot.reloadItems([tableCellState.1])
-                        DispatchQueue.main.async {
-                            self?.dataSource.apply(snapshot, animatingDifferences: false)
-                        }
-                    }
-                }
+                self.reloadSnapshotItem(tableCellState.1)
             }
         }
     }

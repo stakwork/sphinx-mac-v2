@@ -14,22 +14,26 @@ extension NSImageView {
             do {
                 let data = try Data(contentsOf: url)
                 
-                let imageLayer = CAShapeLayer()
-                imageLayer.contentsGravity = .resizeAspectFill
-                imageLayer.frame = self.bounds
-                
-                DispatchQueue.global(qos: .background).async {
+                let bounds = self.bounds
+
+                DispatchQueue.global(qos: .background).async { [weak self] in
                     if let animation = data.createGIFAnimation() {
                         DispatchQueue.main.async {
-                            imageLayer.contents = nil
+                            guard let self = self else {
+                                return
+                            }
+
+                            let imageLayer = CAShapeLayer()
+                            imageLayer.contentsGravity = .resizeAspectFill
+                            imageLayer.frame = bounds
                             imageLayer.add(animation, forKey: "contents")
+
+                            self.wantsLayer = true
+                            self.layer?.masksToBounds = false
+                            self.layer?.addSublayer(imageLayer)
                         }
                     }
                 }
-
-                self.wantsLayer = true
-                self.layer?.masksToBounds = false
-                self.layer?.addSublayer(imageLayer)
             } catch {
                 print("Error")
             }

@@ -134,6 +134,9 @@ class NewChatTableDataSource : NSObject {
     var messagesCountFetched = 0
     var fetchMinIndex = 0
     var loadingMoreItems = false
+    ///True from the moment a pagination fetch is requested until its snapshot is applied.
+    ///Only then the stored scroll position must be restored, since older items are inserted above
+    var isPaginating = false
     var allItemsLoaded = false
     var scrolledAtBottom = false
     var scrollViewDesiredOffset: CGFloat? = nil
@@ -160,7 +163,15 @@ class NewChatTableDataSource : NSObject {
             return false
         }
     }
-    
+
+    ///Key the stored scroll position is saved under. A chat and each of its open threads
+    ///are shown by separate data sources, so they must not share a single entry
+    var scrollStateKey: String {
+        get {
+            return "chat-\(chat?.id ?? -1)"
+        }
+    }
+
     init(
         chat: Chat?,
         contact: UserContact?,
@@ -239,6 +250,18 @@ class NewChatTableDataSource : NSObject {
             invalidateRowHeightCache()
             collectionView.collectionViewLayout?.invalidateLayout()
         }
+    }
+
+    ///Reloads a single item on the current snapshot if it's still present on it
+    func reloadSnapshotItem(_ item: MessageTableCellState) {
+        var snapshot = dataSource.snapshot()
+
+        guard snapshot.itemIdentifiers.contains(item) else {
+            return
+        }
+
+        snapshot.reloadItems([item])
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 
     /// Updates the messageId to index mapping for O(1) lookups

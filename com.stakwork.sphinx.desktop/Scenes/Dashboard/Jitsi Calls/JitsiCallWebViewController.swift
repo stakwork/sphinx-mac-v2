@@ -53,13 +53,13 @@ class JitsiCallWebViewController: NSViewController, WKUIDelegate, WKScriptMessag
         view.window?.delegate = self
     }
     
-    func requestMicrophoneAccess(completion: @escaping (Bool) -> Void) {
+    func requestMicrophoneAccess(completion: @escaping @MainActor (Bool) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized:
             completion(true)
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .audio) { granted in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     completion(granted)
                 }
             }

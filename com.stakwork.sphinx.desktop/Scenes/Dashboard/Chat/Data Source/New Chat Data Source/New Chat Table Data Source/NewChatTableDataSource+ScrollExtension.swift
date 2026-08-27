@@ -102,6 +102,7 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     }
     
     func loadMoreItems(itemsCount: Int) {
+        isPaginating = true
         collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
         configureResultsController(items: messagesCountRequested + itemsCount)
     }
