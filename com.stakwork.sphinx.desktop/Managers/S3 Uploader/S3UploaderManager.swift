@@ -69,9 +69,13 @@ class S3UploaderManager: @unchecked Sendable {
                 )
             }
         } catch {
+            // localizedDescription alone hides the AWS SDK's actual reason
+            // (endpoint unreachable, 403, bucket missing…), so dump the whole error.
             print("❌ Upload failed: \(error.localizedDescription)")
+            print("   full error: \(error)")
+            print("   file: \(fileURL.path)")
         }
-        
+
         return resultURL
     }
 }

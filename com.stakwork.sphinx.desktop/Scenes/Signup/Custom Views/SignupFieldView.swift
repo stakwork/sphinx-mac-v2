@@ -87,21 +87,27 @@ extension SignupFieldView {
         var cleaned = text.filter { char in
             String(char).rangeOfCharacter(from: allowedChars) != nil
         }
-        
+
         // Step 2: Remove port (anything like :8080, :3000, etc.)
         // But keep : in http:// and https://
+        //
+        // This is deliberate and load-bearing: the stored value is a portless base
+        // host. UserData derives four service URLs from it by appending fixed ports
+        // (:8000/mindset, :4566, :8444/api, :3333). A user-supplied port would
+        // produce "host:8080:8000/mindset". Do not relax this without reworking
+        // getPersonalGraph*Url() to carry a custom port.
         if cleaned.contains("://") {
             // Find where the protocol ends
             if let protocolRange = cleaned.range(of: "://") {
                 let scheme = String(cleaned[..<protocolRange.upperBound])  // "http://"
                 var rest = String(cleaned[protocolRange.upperBound...])     // "localhost:8080/path"
-                
+
                 // Remove port from the rest
                 // Port is : followed by digits
                 if let colonIndex = rest.firstIndex(of: ":") {
                     // Get everything after the colon
                     let afterColon = String(rest[rest.index(after: colonIndex)...])
-                    
+
                     // Find where digits end (either at / or end of string)
                     var portEnd = afterColon.startIndex
                     for char in afterColon {
@@ -111,7 +117,7 @@ extension SignupFieldView {
                             break
                         }
                     }
-                    
+
                     // If we found digits after colon, it's a port - remove it
                     if portEnd > afterColon.startIndex {
                         let beforeColon = String(rest[..<colonIndex])
@@ -119,11 +125,11 @@ extension SignupFieldView {
                         rest = beforeColon + afterPort
                     }
                 }
-                
+
                 cleaned = scheme + rest
             }
         }
-        
+
         return cleaned
     }
     

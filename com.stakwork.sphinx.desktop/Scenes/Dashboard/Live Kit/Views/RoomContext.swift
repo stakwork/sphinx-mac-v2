@@ -302,6 +302,7 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         weak var screenShareTrack: LocalTrackPublication?
 
         @available(macOS 12.3, *)
+        @MainActor
         func setScreenShareMacOS(isEnabled: Bool, screenShareSource: MacOSScreenCaptureSource? = nil) async throws {
             if isEnabled, let screenShareSource {
                 let windowsToExcludeIds = await WindowsManager.sharedInstance.getWindowsToExclude()

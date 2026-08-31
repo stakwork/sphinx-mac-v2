@@ -71,20 +71,26 @@ extension NewChatTableDataSource {
        
         let wasAtBottom = collectionView.getDistanceToBottom() < 10
         scrolledAtBottom = false
-        
-        let loadingMoreItems = self.dataSource.snapshot().numberOfItems < snapshot.numberOfItems
-        
+
+        ///The stored scroll position is only meaningful on the initial load and when paginating,
+        ///where older items are inserted above the current ones. A snapshot that grew because a
+        ///message was sent or received appends at the bottom instead, so the chat must stay pinned there
+        let shouldRestoreScrollPosition = isFirstLoad || isPaginating
+
         DispatchQueue.main.async {
-            if loadingMoreItems { self.saveSnapshotCurrentState() }
-            
+            if shouldRestoreScrollPosition { self.saveSnapshotCurrentState() }
+
             self.dataSource.apply(snapshot, animatingDifferences: animated) {
-                if loadingMoreItems {
+                if shouldRestoreScrollPosition {
                     self.restoreScrollLastPosition()
                 } else if wasAtBottom {
+                    self.scrollToBottomOffset()
                     self.scrolledAtBottom = true
                     self.delegate?.didScrollToBottom()
                 }
-                
+
+                self.isPaginating = false
+
                 let wasFirstLoad = self.isFirstLoad
                 self.isFirstLoad = false
                 
@@ -828,15 +834,34 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
         return objects.last?.id
     }
     
+    ///Oldest first, matching the order the rows are displayed on
+    func sortedByDate(
+        messages: [TransactionMessage]
+    ) -> [TransactionMessage] {
+        return messages.sorted(by: { firstMessage, secondMessage in
+            let firstDate = firstMessage.date ?? Date.distantPast
+            let secondDate = secondMessage.date ?? Date.distantPast
+
+            if firstDate == secondDate {
+                return firstMessage.id < secondMessage.id
+            }
+
+            return firstDate < secondDate
+        })
+    }
+
     func configureResultsController(items: Int) {
         guard let chat = chat else {
+            isPaginating = false
             return
         }
-        
+
         if messagesCountFetched < messagesCountRequested {
+            ///Fetch skipped, so no snapshot will follow to clear the flag
+            isPaginating = false
             return
         }
-        
+
         messagesCountRequested = items
         
         var fetchRequest = getFetchRequestFor(
@@ -911,7 +936,13 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
                     }
                     
                     self.messagesCountFetched = messages.count
-                    self.messagesArray = messages.filter({ !$0.isApprovedRequest() }).reversed()
+                    ///Sorted explicitly instead of just reversing the results controller order.
+                    ///A just inserted message is not positioned by date on the results controller,
+                    ///so a provisional message, which has a negative id, ends up on the first row
+                    ///until the real message replaces it
+                    self.messagesArray = self.sortedByDate(
+                        messages: messages.filter({ !$0.isApprovedRequest() })
+                    )
 
                     if let lastMessage = self.messagesArray.last, lastMessage.isCallLink() {
                         if lastMessage.id != self.lastSeenCallMessageId {

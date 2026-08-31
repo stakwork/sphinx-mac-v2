@@ -91,20 +91,20 @@ extension NewChatTableDataSource {
     }
     
     func deleteSnapshotCurrentState() {
-        guard let chatId = chat?.id else {
+        guard let _ = chat?.id else {
             return
         }
-        
+
         self.preloaderHelper.reset(
-            for: chatId
+            for: scrollStateKey
         )
     }
-    
+
     @objc func restoreScrollLastPosition() {
-        guard let chatId = chat?.id else { return }
+        guard let _ = chat?.id else { return }
 
         if let scrollState = self.preloaderHelper.getScrollState(
-            for: chatId,
+            for: scrollStateKey,
             pinnedMessageId: pinnedMessageId
         ), !scrollState.isAtBottom {
 
@@ -137,11 +137,8 @@ extension NewChatTableDataSource {
         }
         
         ///Scroll to bottom if it didn't scroll to spefici position
-        let collectionViewContentSize = collectionView.collectionViewLayout?.collectionViewContentSize.height ?? 0
-        let rawOffset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
-        let offset = max(0, rawOffset)
+        let offset = scrollToBottomOffset()
         scrollViewDesiredOffset = offset
-        collectionViewScroll.documentYOffset = offset
 
         scrolledAtBottom = true
 
@@ -157,14 +154,26 @@ extension NewChatTableDataSource {
         }
     }
     
+    ///Scrolls the collection view to the very bottom of its current content and returns the applied offset
+    @discardableResult
+    func scrollToBottomOffset() -> CGFloat {
+        let collectionViewContentSize = collectionView.collectionViewLayout?.collectionViewContentSize.height ?? 0
+        let rawOffset = collectionViewContentSize - collectionViewScroll.frame.height + collectionViewScroll.contentInsets.top
+        let offset = max(0, rawOffset)
+
+        collectionViewScroll.documentYOffset = offset
+
+        return offset
+    }
+
     func saveScrollPosition() {
         guard let _ = collectionView.enclosingScrollView else { return }
         if collectionView.alphaValue == 0 { return }
         
-        guard let chatId = chat?.id else {
+        guard let _ = chat?.id else {
             return
         }
-        
+
         let collectionViewOffsetY = collectionViewScroll.documentYOffset + collectionViewScroll.contentInsets.top
         
         ///Find first visible item
@@ -186,7 +195,7 @@ extension NewChatTableDataSource {
                     firstRowId: firstRowId,
                     difference: collectionViewOffsetY - firstVisibleRowY,
                     isAtBottom: collectionView.isAtBottom(),
-                    for: chatId
+                    for: scrollStateKey
                 )
             }
         }

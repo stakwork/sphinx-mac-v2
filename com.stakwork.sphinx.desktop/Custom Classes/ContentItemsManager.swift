@@ -122,6 +122,10 @@ class ContentItemsManager {
     }
     
     nonisolated private func processItemWithRetry(_ item: ContentItem, context: NSManagedObjectContext) async -> Bool {
+        ///Kept so a later "already exists" collision can report what actually went wrong
+        ///on the first attempt instead of the duplicate it caused.
+        var firstFailure: String? = nil
+
         for attempt in 1...ContentItemsManager.maxRetries {
             do {
                 var response: API.CheckNodeResponse? = nil
@@ -135,7 +139,10 @@ class ContentItemsManager {
                         return true
                     }
                 } else {
-                    response = try await API.sharedInstance.checkItemNodeExists(url: item.value)
+                    response = try await API.sharedInstance.checkItemNodeExists(
+                        url: item.value,
+                        contentType: API.graphContentType(for: item.type)
+                    )
                 }
                 
                 
@@ -154,9 +161,55 @@ class ContentItemsManager {
                 print("✓ Item \(item.uuid?.uuidString ?? "Empty UUID") processed (attempt \(attempt))")
                 return true
                 
+            } catch API.NodeError.alreadyExists(let nodeKey) {
+                ///Only benign on the FIRST attempt, where it means the content was
+                ///genuinely ingested earlier. On a later attempt it is our own doing:
+                ///the backend creates the Neo4j node before dispatching to Stakwork, so
+                ///a failed attempt leaves the node behind and every retry then collides
+                ///with it. Reporting that as success would hide the original failure.
+                if attempt == 1 {
+                    print("• Item \(item.uuid?.uuidString ?? "Empty UUID") is already in the graph (node_key: \(nodeKey ?? "unknown"))")
+
+                    await context.performSafely {
+                        item.status = Int16(ContentItem.ContentItemStatus.success.rawValue)
+                        item.errorMessage = nil
+                        item.lastProcessedAt = Date()
+                    }
+                    return true
+                }
+
+                print("✗ Item \(item.uuid?.uuidString ?? "Empty UUID") collided with the node its own attempt 1 left behind; reporting the original failure")
+
+                await context.performSafely {
+                    item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+                    item.errorMessage = firstFailure ?? "Node already exists in the graph"
+                }
+                return false
+
+            } catch let error as API.NodeError {
+                ///A structured {errorCode, message} rejection is a business error, not a
+                ///transient one — retrying cannot change the answer, and because node
+                ///creation is not idempotent it actively corrupts the diagnostic by
+                ///turning attempt 2 into a misleading "already exists". Stop here.
+                print("✗ processItem rejected for item \(item.uuid?.uuidString ?? "Empty UUID") (attempt \(attempt), not retrying)")
+                print("   value: \(item.value)")
+                print("   error: \(error)")
+
+                await context.performSafely {
+                    item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+                    item.errorMessage = error.localizedDescription
+                }
+                return false
+
             } catch {
-                print("✗ Attempt \(attempt) failed for item \(item.uuid?.uuidString ?? "Empty UUID"): \(error)")
-                
+                print("✗ processItem attempt \(attempt)/\(ContentItemsManager.maxRetries) failed for item \(item.uuid?.uuidString ?? "Empty UUID")")
+                print("   value: \(item.value)")
+                print("   error: \(error)")
+
+                if firstFailure == nil {
+                    firstFailure = error.localizedDescription
+                }
+
                 if attempt == ContentItemsManager.maxRetries {
                     await context.performSafely {
                         item.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
@@ -205,16 +258,21 @@ class ContentItemsManager {
                 
                 return true
             } catch {
+                print("✗ checkItem attempt \(attempt)/\(ContentItemsManager.maxRetries) failed for item \(item.uuid?.uuidString ?? "Empty UUID")")
+                print("   refId: \(referenceId), projectId: \(item.projectId ?? "none")")
+                print("   error: \(error)")
+
                 if attempt < ContentItemsManager.maxRetries {
                     try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
                 }
             }
         }
-        
+
         return false
     }
     
-    func add(value: String) {
+    ///Works entirely on a background Core Data context, so it stays off the main actor
+    nonisolated func add(value: String) {
         let context = CoreDataManager.sharedManager.persistentContainer.newBackgroundContext()
         context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         
@@ -245,15 +303,23 @@ class ContentItemsManager {
 
     nonisolated private func processAddedItem(_ contentitem: ContentItem, url: URL, context: NSManagedObjectContext) async {
         if contentitem.shouldBeUploaded() {
+            print("↑ Uploading dropped file to S3: \(url.path)")
+            print("   S3 endpoint: \(UserData.sharedInstance.getPersonalGraphS3Url() ?? "MISSING — no personal graph url set")")
+
             if let resultUrl = await S3UploaderManager.sharedInstance.uploadFileToS3(fileURL: url) {
+                print("↑ Upload succeeded: \(resultUrl)")
+
                 await context.performSafely {
                     contentitem.value = resultUrl
                     contentitem.status = Int16(ContentItem.ContentItemStatus.uploaded.rawValue)
                 }
                 let _ = await processItemWithRetry(contentitem, context: context)
             } else {
+                print("✗ Upload to S3 failed for \(url.path) — see S3Uploader logs above for the cause")
+
                 await context.performSafely {
                     contentitem.status = Int16(ContentItem.ContentItemStatus.error.rawValue)
+                    contentitem.errorMessage = "Upload to S3 failed"
                 }
             }
         } else {
@@ -271,7 +337,7 @@ class ContentItemsManager {
         }
     }
     
-    func createTextFile(content: String, fileName: String) -> URL? {
+    nonisolated func createTextFile(content: String, fileName: String) -> URL? {
         // Get documents directory
         guard let documentsDirectory = FileManager.default.urls(
             for: .documentDirectory,

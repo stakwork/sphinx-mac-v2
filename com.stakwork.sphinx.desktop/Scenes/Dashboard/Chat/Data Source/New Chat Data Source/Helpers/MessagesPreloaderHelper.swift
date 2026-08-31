@@ -53,7 +53,9 @@ class MessagesPreloaderHelper: @unchecked Sendable {
     }
     
     var chatMessages: [Int: PreloadedMessagesState] = [:]
-    var chatScrollState: [Int: ScrollState] = [:]
+    ///Keyed by data source, not just by chat, since a chat and its open threads
+    ///are displayed by different data sources with different scroll positions
+    var chatScrollState: [String: ScrollState] = [:]
     
     var tribesData: [String: MessageTableCellState.TribeData] = [:]
     var linksData: [String: MessageTableCellState.LinkData] = [:]
@@ -80,23 +82,23 @@ class MessagesPreloaderHelper: @unchecked Sendable {
         firstRowId: Int,
         difference: CGFloat,
         isAtBottom: Bool,
-        for chatId: Int
+        for scrollStateKey: String
     ) {
-        self.chatScrollState[chatId] = ScrollState(
+        self.chatScrollState[scrollStateKey] = ScrollState(
             firstRowId: firstRowId,
             difference: difference,
             isAtBottom: isAtBottom
         )
     }
-    
+
     func reset(
-        for chatId: Int
+        for scrollStateKey: String
     ) {
-        self.chatScrollState.removeValue(forKey: chatId)
+        self.chatScrollState.removeValue(forKey: scrollStateKey)
     }
-    
+
     func getScrollState(
-        for chatId: Int,
+        for scrollStateKey: String,
         pinnedMessageId: Int? = nil
     ) -> ScrollState? {
         if let pinnedMessageId = pinnedMessageId {
@@ -106,7 +108,7 @@ class MessagesPreloaderHelper: @unchecked Sendable {
                 isAtBottom: false
             )
         }
-        if let scrollState = chatScrollState[chatId] {
+        if let scrollState = chatScrollState[scrollStateKey] {
             return scrollState
         }
         return nil

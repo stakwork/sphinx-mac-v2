@@ -39,13 +39,14 @@ class AudioRecorderHelper : NSObject, @unchecked Sendable {
         self.delegate = delegate
     }
     
-    static func requestMicrophonePermission(completion: @escaping (Bool) -> Void) {
+    @MainActor
+    static func requestMicrophonePermission(completion: @escaping @MainActor (Bool) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized:
             completion(true)
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .audio) { granted in
-                DispatchQueue.main.async { completion(granted) }
+                Task { @MainActor in completion(granted) }
             }
         default:
             completion(false)

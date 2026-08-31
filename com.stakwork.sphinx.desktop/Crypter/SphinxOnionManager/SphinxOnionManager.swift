@@ -117,6 +117,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     public static let kFailedStatus = "FAILED"
     
     var onionState: [String: [UInt8]] = [:]
+    let onionStateQueue = DispatchQueue(label: "sphinx.onionState", qos: .userInitiated)
     
     var mutationKeys: [String] {
         get {

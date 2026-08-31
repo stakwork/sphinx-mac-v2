@@ -80,17 +80,7 @@ extension NewChatTableDataSource : AudioPlayerHelperDelegate {
                 if rowIndex == NewChatTableDataSource.kThreadHeaderRowIndex {
                     delegate?.shouldReloadThreadHeader()
                 } else {
-                    var snapshot = self.dataSource.snapshot()
-
-                    if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                        // Use async instead of sync to avoid blocking main thread
-                        dataSourceQueue.async { [weak self] in
-                            snapshot.reloadItems([tableCellState.1])
-                            DispatchQueue.main.async {
-                                self?.dataSource.apply(snapshot, animatingDifferences: false)
-                            }
-                        }
-                    }
+                    reloadSnapshotItem(tableCellState.1)
                 }
             }
         }
@@ -208,17 +198,7 @@ extension NewChatTableDataSource : PlayerDelegate {
                     )
                 )
 
-                var snapshot = self.dataSource.snapshot()
-
-                if snapshot.itemIdentifiers.contains(tableCellState.1) {
-                    // Use async instead of sync to avoid blocking main thread
-                    dataSourceQueue.async { [weak self] in
-                        snapshot.reloadItems([tableCellState.1])
-                        DispatchQueue.main.async {
-                            self?.dataSource.apply(snapshot, animatingDifferences: false)
-                        }
-                    }
-                }
+                reloadSnapshotItem(tableCellState.1)
             }
         }
     }

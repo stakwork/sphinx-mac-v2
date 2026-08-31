@@ -167,6 +167,12 @@ import SphinxErrorReporter
 
     
     func addStatusBarItem() {
+        // Create the status item exactly once for the app's lifetime.
+        // NSStatusItem is reassigned unconditionally on every window transition otherwise,
+        // which deallocates the prior item (ARC) and drops the tray icon from the menu bar.
+        // Do NOT reintroduce unconditional reassignment or nil this property on logout/re-lock.
+        guard statusBarItem == nil else { return }
+        
         let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(withLength: NSStatusItem.squareLength)
         statusBarItem.button?.image = NSImage(named: "extraIcon")
@@ -174,17 +180,17 @@ import SphinxErrorReporter
         statusBarItem.button?.action = #selector(activateApp)
         
         if let button = statusBarItem?.button {
-            if let buttonFrame = button.superview?.frame {
-                
-                dragDropView = StatusBarButton(frame: buttonFrame)
-                dragDropView?.onDrop = { [weak self] urls, text in
-                    self?.handleDrop(urls: urls, text: text)
-                }
-                
-                button.addSubview(dragDropView!)
-                dragDropView?.frame = button.bounds
-                dragDropView?.autoresizingMask = [.width, .height]
+            // Attach drag-and-drop unconditionally whenever button exists.
+            // The old guard on button.superview?.frame was never used (buttonFrame was discarded);
+            // it only prevented attachment if the superview wasn't laid out yet on the single
+            // creation invocation, which would permanently lose drag-and-drop under the new guard.
+            dragDropView = StatusBarButton(frame: button.bounds)
+            dragDropView?.onDrop = { [weak self] urls, text in
+                self?.handleDrop(urls: urls, text: text)
             }
+            button.addSubview(dragDropView!)
+            dragDropView?.frame = button.bounds
+            dragDropView?.autoresizingMask = [.width, .height]
         }
         
         setupMenu()
@@ -334,6 +340,13 @@ import SphinxErrorReporter
     func createKeyWindowWith(vc: NSViewController, windowState: WindowState, closeOther: Bool = false, hideBar: Bool = false) {
         if closeOther {
             for window in NSApplication.shared.windows {
+                // NSApplication.shared.windows includes the status item's own
+                // NSStatusBarWindow. Closing it hides the tray icon from the menu bar,
+                // and addStatusBarItem() is idempotent so it never rebuilds it.
+                // Skip it, or the icon disappears on every window transition.
+                if window === statusBarItem?.button?.window {
+                    continue
+                }
                 window.close()
             }
         }
@@ -525,7 +538,9 @@ import SphinxErrorReporter
      }
     
     func setBadge(count: Int) {
-        statusBarItem.button?.image = NSImage(named: count > 0 ? "extraIconBadge" : "extraIcon")
+        // Use optional chaining so an early badge update (before addStatusBarItem() runs)
+        // is a no-op instead of a crash via the force-unwrapped statusBarItem.
+        statusBarItem?.button?.image = NSImage(named: count > 0 ? "extraIconBadge" : "extraIcon")
         
         let title = count > 0 ? "\(count)" : ""
         NSApp.dockTile.badgeLabel = title

@@ -205,7 +205,7 @@ extension PodcastPlayerController {
             player?.pause()
             player?.automaticallyWaitsToMinimizeStalling = false
             
-            let addObserverToPlayerItem: () -> Void = { [weak self] in
+            let addObserverToPlayerItem: @MainActor () -> Void = { [weak self] in
                 guard let self = self else { return }
                 playerItem.addObserver(self, forKeyPath: "status", options: [.initial, .new], context: nil)
             }

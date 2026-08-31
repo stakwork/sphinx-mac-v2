@@ -186,6 +186,7 @@ struct RoomContextView: View {
             })
     }
     
+    @MainActor
     func enableMic() {
         AudioRecorderHelper.requestMicrophonePermission { granted in
             if granted {

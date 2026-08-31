@@ -19,7 +19,13 @@ class ThreadTableDataSource : NewChatTableDataSource {
             return true
         }
     }
-    
+
+    override var scrollStateKey: String {
+        get {
+            return "thread-\(chat?.id ?? -1)-\(threadUUID ?? "")"
+        }
+    }
+
     override var allItemsLoaded: Bool {
         get { return true }
         set { }
@@ -84,7 +90,7 @@ class ThreadTableDataSource : NewChatTableDataSource {
             guard let self else {
                 return nil
             }
-            
+
             return self.getCellFor(
                 dataSourceItem: dataSourceItem,
                 indexPath: indexPath
