@@ -15,34 +15,36 @@ extension SphinxOnionManager {
         let allDefaults = userDefaults.dictionaryRepresentation()
         let inMemoryMutationKeys = mutationKeys
 
-        for (key, value) in allDefaults {
-            if inMemoryMutationKeys.contains(key), let value = value as? [UInt8] {
-                onionState[key] = value
+        onionStateQueue.sync {
+            for (key, value) in allDefaults {
+                if inMemoryMutationKeys.contains(key), let value = value as? [UInt8] {
+                    onionState[key] = value
+                }
             }
         }
     }
-    
+
     func loadOnionStateAsData() -> Data {
         let state = loadOnionState()
-        
+
         var mpDic = [MessagePackValue:MessagePackValue]()
 
         for (key, value) in state {
             mpDic[MessagePackValue(key)] = MessagePackValue(Data(value))
         }
-        
+
         let stateBytes = [UInt8](pack(MessagePackValue(mpDic)))
         return Data(stateBytes)
     }
-    
+
 
     func storeOnionState(inc: [UInt8]) -> [NSNumber] {
         let muts = try? unpack(Data(inc))
-        
+
         guard let mutsDictionary = (muts?.value as? MessagePackValue)?.dictionaryValue else {
             return []
         }
-        
+
         persist_muts(muts: mutsDictionary)
 
         return []
@@ -50,7 +52,7 @@ extension SphinxOnionManager {
 
     private func persist_muts(muts: [MessagePackValue: MessagePackValue]) {
         var keys: [String] = []
-        
+
         for  mut in muts {
             if let key = mut.key.stringValue, let data = mut.value.dataValue {
                 let value = [UInt8](data)
@@ -60,24 +62,24 @@ extension SphinxOnionManager {
                 UserDefaults.standard.set(value, forKey: key)
                 UserDefaults.standard.synchronize()
 
-                onionState[key] = value
+                onionStateQueue.sync { onionState[key] = value }
             }
         }
-        
+
         keys.append(contentsOf: mutationKeys)
         mutationKeys = Array(Set(keys))
     }
-    
+
     func handleStateToDelete(stateToDelete:[String]){
         for key in stateToDelete {
             UserDefaults.standard.removeObject(forKey: key)
             UserDefaults.standard.synchronize()
-            
-            onionState.removeValue(forKey: key)
+
+            onionStateQueue.sync { onionState.removeValue(forKey: key) }
         }
     }
-    
+
     func loadOnionState() -> [String: [UInt8]] {
-        return onionState
+        return onionStateQueue.sync { onionState }
     }
 }
