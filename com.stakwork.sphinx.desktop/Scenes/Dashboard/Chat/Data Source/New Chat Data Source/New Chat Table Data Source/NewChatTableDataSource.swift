@@ -132,15 +132,39 @@ class NewChatTableDataSource : NSObject {
     ///Scroll and pagination
     var messagesCountRequested = 0
     var messagesCountFetched = 0
-    var fetchMinIndex = 0
-    var loadingMoreItems = false
-    ///True from the moment a pagination fetch is requested until its snapshot is applied.
-    ///Only then the stored scroll position must be restored, since older items are inserted above
-    var isPaginating = false
-    var allItemsLoaded = false
+    var pagination = ChatPaginationState()
+    var fetchMinIndex: Int {
+        get { pagination.fetchMinIndex }
+        set { pagination.fetchMinIndex = newValue }
+    }
+    var fetchOldestDate: Date? {
+        get { pagination.fetchOldestDate }
+        set { pagination.fetchOldestDate = newValue }
+    }
+    var pendingScrollRestore: Bool {
+        get { pagination.pendingScrollRestore }
+        set { pagination.pendingScrollRestore = newValue }
+    }
+    var didAutoPageOnFirstLoad: Bool {
+        get { pagination.didAutoPageOnFirstLoad }
+        set { pagination.didAutoPageOnFirstLoad = newValue }
+    }
+    var phase: PaginationPhase {
+        get { pagination.phase }
+        set { pagination.phase = newValue }
+    }
+    var loadingMoreItems: Bool { phase == .loading }
+    var allItemsLoaded: Bool { phase == .exhausted }
     var scrolledAtBottom = false
     var scrollViewDesiredOffset: CGFloat? = nil
     var isFirstLoad = true
+
+    func resetPaginationState() {
+        print("pagination: reset for chat switch")
+        pagination.resetForChatSwitch()
+        messagesCountRequested = 0
+        messagesCountFetched = 0
+    }
     
     ///Messages statuses restore
     var lastMessageTagRestored = ""
@@ -289,6 +313,7 @@ class NewChatTableDataSource : NSObject {
     func releaseMemory() {
         unsubscribeAllRooms()
         preloaderHelper.releaseMemory()
+        resetPaginationState()
     }
     
     func configureScrollView() {

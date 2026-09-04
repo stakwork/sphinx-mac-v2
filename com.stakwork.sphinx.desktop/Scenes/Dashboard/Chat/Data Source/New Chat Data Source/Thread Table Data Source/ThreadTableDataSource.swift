@@ -27,8 +27,7 @@ class ThreadTableDataSource : NewChatTableDataSource {
     }
 
     override var allItemsLoaded: Bool {
-        get { return true }
-        set { }
+        true
     }
     
     init(

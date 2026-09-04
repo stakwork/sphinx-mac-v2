@@ -370,7 +370,8 @@ extension TransactionMessage {
         threadUUID: String?,
         typesToExclude: [Int],
         minIndex: Int? = nil,
-        pinnedMessageId: Int? = nil
+        pinnedMessageId: Int? = nil,
+        oldestDate: Date? = nil
     ) -> NSPredicate {
         if let tuid = threadUUID {
             return NSPredicate(
@@ -382,30 +383,24 @@ extension TransactionMessage {
                 tuid
             )
         } else {
-            if let pinnedMessageId = pinnedMessageId {
-                return NSPredicate(
-                    format: "chat == %@ AND id >= %d AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
-                    chat,
-                    pinnedMessageId - 200,
-                    typesToExclude,
-                    TransactionMessageType.boost.rawValue
-                )
-            } else if let minIndex = minIndex {
-                return NSPredicate(
-                    format: "chat == %@ AND (NOT (type IN %@) || (type == %d && replyUUID = nil)) AND (id >= %d || id < 0)",
-                    chat,
-                    typesToExclude,
-                    TransactionMessageType.boost.rawValue,
-                    minIndex
-                )
-            } else {
-                return NSPredicate(
-                    format: "chat == %@ AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
-                    chat,
-                    typesToExclude,
-                    TransactionMessageType.boost.rawValue
+            let basePredicate = NSPredicate(
+                format: "chat == %@ AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
+                chat,
+                typesToExclude,
+                TransactionMessageType.boost.rawValue
+            )
+
+            if let extra = ChatPaginationPredicates.additionalIdPredicate(
+                minIndex: minIndex,
+                oldestDate: oldestDate,
+                pinnedMessageId: pinnedMessageId
+            ) {
+                return NSCompoundPredicate(
+                    andPredicateWithSubpredicates: [basePredicate, extra]
                 )
             }
+
+            return basePredicate
         }
     }
     
@@ -415,7 +410,8 @@ extension TransactionMessage {
         with limit: Int? = nil,
         and minIndex: Int? = nil,
         pinnedMessageId: Int? = nil,
-        forceAllMsgs: Bool = false
+        forceAllMsgs: Bool = false,
+        oldestDate: Date? = nil
     ) -> NSFetchRequest<TransactionMessage> {
         
         var typesToExclude = typesToExcludeFromChat
@@ -435,7 +431,8 @@ extension TransactionMessage {
             threadUUID: threadUUID,
             typesToExclude: typesToExclude,
             minIndex: minIndex,
-            pinnedMessageId: pinnedMessageId
+            pinnedMessageId: pinnedMessageId,
+            oldestDate: oldestDate
         )
         
         let sortDescriptors = [
@@ -447,10 +444,57 @@ extension TransactionMessage {
         fetchRequest.predicate = predicate
         fetchRequest.sortDescriptors = sortDescriptors
         
-        if let limit = limit, pinnedMessageId == nil && minIndex == nil {
+        if let limit = ChatPaginationPredicates.pageFetchLimit(
+            limit: limit,
+            pinnedMessageId: pinnedMessageId,
+            minIndex: minIndex
+        ) {
             fetchRequest.fetchLimit = limit
         }
         
+        return fetchRequest
+    }
+
+    /// Real-id probe for pagination. Fresh request (never an alias of the main fetch).
+    static func getPaginationProbeFetchRequest(
+        for chat: Chat,
+        items: Int
+    ) -> NSFetchRequest<TransactionMessage> {
+        var typesToExclude = typesToExcludeFromChat
+        typesToExclude.append(TransactionMessageType.boost.rawValue)
+
+        let fetchRequest = NSFetchRequest<TransactionMessage>(entityName: "TransactionMessage")
+        fetchRequest.predicate = NSPredicate(
+            format: "chat == %@ AND id >= 0 AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
+            chat,
+            typesToExclude,
+            TransactionMessageType.boost.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        fetchRequest.fetchLimit = ChatPaginationPredicates.paginationProbeFetchLimit(items: items)
+        return fetchRequest
+    }
+
+    /// Real-id probe for a pin jump. No fetchLimit — the window is the pin neighborhood.
+    static func getPinnedProbeFetchRequest(
+        for chat: Chat,
+        pinnedMessageId: Int
+    ) -> NSFetchRequest<TransactionMessage> {
+        var typesToExclude = typesToExcludeFromChat
+        typesToExclude.append(TransactionMessageType.boost.rawValue)
+        let lowerBound = ChatPaginationPredicates.pinnedProbeLowerBound(
+            pinnedMessageId: pinnedMessageId
+        )
+
+        let fetchRequest = NSFetchRequest<TransactionMessage>(entityName: "TransactionMessage")
+        fetchRequest.predicate = NSPredicate(
+            format: "chat == %@ AND id >= %d AND id >= 0 AND (NOT (type IN %@) OR (type == %d && replyUUID == nil))",
+            chat,
+            lowerBound,
+            typesToExclude,
+            TransactionMessageType.boost.rawValue
+        )
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
         return fetchRequest
     }
     
@@ -537,7 +581,7 @@ extension TransactionMessage {
         context: NSManagedObjectContext
     ) -> Int? {
         let request: NSFetchRequest<TransactionMessage> = TransactionMessage.fetchRequest()
-        request.predicate = NSPredicate(format: "chat == %@", chat)
+        request.predicate = ChatPaginationPredicates.minMessageIndexPredicate(chat: chat)
         request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
         request.fetchLimit = 2
         

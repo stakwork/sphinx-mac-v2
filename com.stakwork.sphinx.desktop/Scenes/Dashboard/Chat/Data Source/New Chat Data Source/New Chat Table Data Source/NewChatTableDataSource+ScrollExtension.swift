@@ -84,25 +84,35 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         if isSearching {
             return
         }
-        
-        if loadingMoreItems {
+
+        switch pagination.beginLoad(isThread: isThread, hasChat: chat != nil) {
+        case .skippedThread:
+            print("pagination: skip didScrollToTop — thread")
             return
-        }
-        
-        if allItemsLoaded {
+        case .skippedNotIdle:
+            print("pagination: skip didScrollToTop — phase=\(phase)")
             return
+        case .skippedNoChat:
+            print("pagination: skip didScrollToTop — no chat")
+            return
+        case .started:
+            print("pagination: idle→loading")
         }
-        
+
         collectionViewScroll.verticalScrollElasticity = .none
-        loadingMoreItems = true
-        
+        processMessages(
+            messages: messagesArray,
+            UIUpdateIndex: UIUpdateIndex,
+            showLoadingMore: contact?.isAgent != true
+        )
+
         DelayPerformedHelper.performAfterDelay(seconds: 1.0, completion: {
             self.fetchMoreItems()
         })
     }
     
     func loadMoreItems(itemsCount: Int) {
-        isPaginating = true
+        pendingScrollRestore = true
         collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
         configureResultsController(items: messagesCountRequested + itemsCount)
     }
@@ -110,79 +120,110 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
     @objc func loadMoreItems() {
         loadMoreItems(itemsCount: 50)
     }
+
+    func finishPagination(exhausted: Bool) {
+        print("pagination: loading→\(exhausted ? "exhausted" : "idle") pendingScrollRestore=true")
+        pagination.completePage(exhausted: exhausted)
+    }
     
     func fetchMoreItems() {
+        guard phase == .loading else {
+            print("pagination: skip fetchMoreItems — phase=\(phase)")
+            return
+        }
         if isThread {
+            print("pagination: skip fetchMoreItems — thread")
+            pagination.abortToIdle()
             return
         }
         if contact?.isAgent == true {
+            print("pagination: agent local-only loadMoreItems")
             loadMoreItems()
             return
         }
-        if let publicKey = contact?.publicKey ?? chat?.ownerPubkey {
-            if let chat = chat {
-                let chatId = chat.id
-                let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
-                let itemsPerPage = 100
+        guard let publicKey = contact?.publicKey ?? chat?.ownerPubkey else {
+            print("pagination: no pubkey — loading→idle")
+            pagination.abortToIdle()
+            processMessages(
+                messages: messagesArray,
+                UIUpdateIndex: UIUpdateIndex,
+                showLoadingMore: false
+            )
+            return
+        }
+        guard let chat = chat else {
+            print("pagination: no chat after pubkey — loading→idle")
+            pagination.abortToIdle()
+            processMessages(
+                messages: messagesArray,
+                UIUpdateIndex: UIUpdateIndex,
+                showLoadingMore: false
+            )
+            return
+        }
+        guard SphinxOnionManager.sharedInstance.getAccountSeed() != nil else {
+            print("pagination: nil seed — loading→idle")
+            pagination.abortToIdle()
+            processMessages(
+                messages: messagesArray,
+                UIUpdateIndex: UIUpdateIndex,
+                showLoadingMore: false
+            )
+            return
+        }
 
-                backgroundContext.performSafely {
-                    guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
-                        Task { @MainActor [weak self] in
-                            guard let self else { return }
-                            self.loadingMoreItems = false
-                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
-                        }
-                        return
+        let chatId = chat.id
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let itemsPerPage = 100
+
+        backgroundContext.performSafely {
+            guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    print("pagination: chat lookup failed — loading→idle")
+                    self.pagination.abortToIdle()
+                    self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                }
+                return
+            }
+            let minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+
+            if let minIndex = minIndex {
+                if (minIndex - 1) <= 0 {
+                    Task { @MainActor [weak self] in
+                        guard let self else { return }
+                        print("pagination: already at oldest minIndex=\(minIndex)")
+                        self.finishPagination(exhausted: true)
+                        self.loadMoreItems(itemsCount: 0)
                     }
-                    let minIndex = TransactionMessage.getMinMessageIndex(for: chat, context: backgroundContext)
+                    return
+                }
+                DispatchQueue.global(qos: .background).async {
+                    SphinxOnionManager.sharedInstance.startChatMsgBlockFetch(
+                        startIndex: minIndex - 1,
+                        itemsPerPage: itemsPerPage,
+                        stopIndex: 0,
+                        publicKey: publicKey
+                    ) { messagesCount in
+                        Task { @MainActor in
+                            SphinxOnionManager.sharedInstance.getMessagesStatusForPendingMessages()
+                            let exhausted = messagesCount < itemsPerPage
+                            print("pagination: network messagesCount=\(messagesCount) itemsPerPage=\(itemsPerPage) exhausted=\(exhausted)")
+                            self.finishPagination(exhausted: exhausted)
+                            self.loadMoreItems(itemsCount: max(messagesCount, 0))
 
-                    if let minIndex = minIndex {
-                        if (minIndex - 1) <= 0 {
-                            Task { @MainActor [weak self] in
-                                guard let self else { return }
-                                self.allItemsLoaded = true
-                                self.loadingMoreItems = false
-                                self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
+                            if self.isSearching {
+                                self.delegate?.shouldToggleSearchLoadingWheel(active: false)
                             }
-                            return
-                        }
-                        DispatchQueue.global(qos: .background).async {
-                            SphinxOnionManager.sharedInstance.startChatMsgBlockFetch(
-                                startIndex: minIndex - 1,
-                                itemsPerPage: itemsPerPage,
-                                stopIndex: 0,
-                                publicKey: publicKey
-                            ) { messagesCount in
-                                Task { @MainActor in
-                                    // Fetched messages arrive as unconfirmed — check their send status now
-                                    // rather than waiting for the next didChangeContentWith cycle.
-                                    SphinxOnionManager.sharedInstance.getMessagesStatusForPendingMessages()
-                                    if messagesCount < itemsPerPage {
-                                        self.allItemsLoaded = true
-
-                                        self.processMessages(
-                                            messages: self.messagesArray,
-                                            UIUpdateIndex: self.UIUpdateIndex,
-                                            showLoadingMore: false
-                                        )
-
-                                        if self.isSearching {
-                                            self.delegate?.shouldToggleSearchLoadingWheel(active: false)
-                                        }
-                                    } else {
-                                        self.loadMoreItems(itemsCount: messagesCount)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Task { @MainActor [weak self] in
-                            guard let self else { return }
-                            self.allItemsLoaded = true
-                            self.loadingMoreItems = false
-                            self.processMessages(messages: self.messagesArray, UIUpdateIndex: self.UIUpdateIndex, showLoadingMore: false)
                         }
                     }
+                }
+            } else {
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    print("pagination: nil minIndex — exhausted")
+                    self.finishPagination(exhausted: true)
+                    self.loadMoreItems(itemsCount: 0)
                 }
             }
         }
