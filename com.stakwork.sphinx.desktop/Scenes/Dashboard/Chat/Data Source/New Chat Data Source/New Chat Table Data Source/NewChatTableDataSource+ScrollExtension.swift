@@ -115,6 +115,27 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         pendingScrollRestore = true
         collectionViewScroll.contentView.animator().setBoundsOrigin(collectionViewScroll.contentView.bounds.origin)
         configureResultsController(items: messagesCountRequested + itemsCount)
+        processAfterResultsControllerFetch()
+    }
+
+    // Called immediately after configureResultsController to handle the race where the background
+    // context save propagates to the main context before the new NSFetchedResultsController sets
+    // its delegate, preventing didChangeContentWith from firing for the fetched objects.
+    private func processAfterResultsControllerFetch() {
+        guard pendingScrollRestore else { return }
+        guard let objects = messagesResultsController?.sections?.first?.objects as? [TransactionMessage] else { return }
+        let sorted = sortedByDate(messages: objects.filter { !$0.isApprovedRequest() })
+        guard sorted.count > messagesArray.count else { return }
+        print("pagination: explicit process after fetch (\(messagesArray.count)→\(sorted.count))")
+        messagesCountFetched = sorted.count
+        messagesArray = sorted
+        UIUpdateIndex += 1
+        updateMessagesStatusesFrom(messages: messagesArray)
+        processMessages(
+            messages: messagesArray,
+            UIUpdateIndex: UIUpdateIndex,
+            showLoadingMore: !allItemsLoaded && contact?.isAgent != true
+        )
     }
     
     @objc func loadMoreItems() {
@@ -175,6 +196,11 @@ extension NewChatTableDataSource: NSCollectionViewDelegate {
         let chatId = chat.id
         let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
         let itemsPerPage = 100
+
+        // Set before background work so the old NSFetchedResultsController's
+        // didChangeContentWith (fired by the merge notification before Task @MainActor runs)
+        // sees pendingScrollRestore=true and produces a dispatch with shouldRestoreScrollPosition=true.
+        pendingScrollRestore = true
 
         backgroundContext.performSafely {
             guard let chat = Chat.getChatWith(id: chatId, managedContext: backgroundContext) else {
