@@ -63,7 +63,7 @@ extension NewChatTableDataSource {
     ) {
         let snapshot = makeSnapshotForCurrentState()
         let isSearching = !(self.delegate?.isOnStandardMode() ?? true)
-        let animated = !isFirstLoad && !loadingMoreItems && !isSearching
+        let animated = !isFirstLoad && !loadingMoreItems && !pendingScrollRestore && !isSearching
         
         if UIUpdateIndex < self.UIUpdateIndex {
             return
@@ -75,7 +75,7 @@ extension NewChatTableDataSource {
         ///The stored scroll position is only meaningful on the initial load and when paginating,
         ///where older items are inserted above the current ones. A snapshot that grew because a
         ///message was sent or received appends at the bottom instead, so the chat must stay pinned there
-        let shouldRestoreScrollPosition = isFirstLoad || isPaginating
+        let shouldRestoreScrollPosition = isFirstLoad || pendingScrollRestore
 
         DispatchQueue.main.async {
             if shouldRestoreScrollPosition { self.saveSnapshotCurrentState() }
@@ -89,18 +89,18 @@ extension NewChatTableDataSource {
                     self.delegate?.didScrollToBottom()
                 }
 
-                self.isPaginating = false
-
                 let wasFirstLoad = self.isFirstLoad
                 self.isFirstLoad = false
-                
-                if wasFirstLoad && self.collectionViewScroll.documentYOffset <= 40 && !self.allItemsLoaded {
+
+                if self.pagination.consumeAutoFillIfNeeded(
+                    wasFirstLoad: wasFirstLoad,
+                    documentYOffset: Double(self.collectionViewScroll.documentYOffset)
+                ) {
+                    print("pagination: first-load auto-fill")
                     self.didScrollToTop()
                 }
-                
-                DelayPerformedHelper.performAfterDelay(seconds: 2.0, completion: {
-                    self.loadingMoreItems = false
-                })
+
+                self.pagination.consumePendingScrollRestore()
                 
                 completion?()
             }
@@ -802,7 +802,8 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
         return TransactionMessage.getChatMessagesFetchRequest(
             for: chat,
             with: items,
-            pinnedMessageId: pinnedMessageId
+            pinnedMessageId: pinnedMessageId,
+            oldestDate: fetchOldestDate
         )
     }
     
@@ -815,23 +816,30 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
             for: chat,
             with: items,
             and: minIndex,
-            pinnedMessageId: pinnedMessageId
+            pinnedMessageId: nil,
+            oldestDate: fetchOldestDate
         )
+    }
+
+    func fetchMessages(
+        fetchRequest: NSFetchRequest<TransactionMessage>
+    ) -> [TransactionMessage] {
+        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
+        do {
+            return try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Error: " + error.localizedDescription)
+            return []
+        }
     }
     
     func getFetchMinIndex(
         fetchRequest: NSFetchRequest<TransactionMessage>
-    ) -> Int? {
-        let managedContext = CoreDataManager.sharedManager.persistentContainer.viewContext
-        var objects: [TransactionMessage] = [TransactionMessage]()
-        
-        do {
-            try objects = managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Error: " + error.localizedDescription)
-        }
-        
-        return objects.last?.id
+    ) -> (minId: Int, oldestDate: Date)? {
+        let objects = fetchMessages(fetchRequest: fetchRequest)
+        return ChatPaginationProbe.minIdAndOldestDate(
+            from: objects.map { ($0.id, $0.date) }
+        )
     }
     
     ///Oldest first, matching the order the rows are displayed on
@@ -852,34 +860,84 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
 
     func configureResultsController(items: Int) {
         guard let chat = chat else {
-            isPaginating = false
-            return
-        }
-
-        if messagesCountFetched < messagesCountRequested {
-            ///Fetch skipped, so no snapshot will follow to clear the flag
-            isPaginating = false
+            print("pagination: configureResultsController skip — no chat")
+            if phase == .loading {
+                pagination.abortToIdle()
+            }
+            pendingScrollRestore = false
             return
         }
 
         messagesCountRequested = items
-        
-        var fetchRequest = getFetchRequestFor(
-            chat: chat,
-            with: items
-        )
-        
-        let minIndexFetchRequest = fetchRequest
-        minIndexFetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
-        
-        if let minIndex = getFetchMinIndex(fetchRequest: minIndexFetchRequest), !isThread {
-            fetchMinIndex = minIndex
-            
-            fetchRequest = getFetchRequestFor(
-                chat: chat,
-                with: items,
-                and: minIndex
+
+        var fetchRequest: NSFetchRequest<TransactionMessage>
+        var probeCount = 0
+        let isPaginationPage = pendingScrollRestore || phase == .loading
+
+        if let pinnedMessageId, !isThread, !isPaginationPage {
+            let probeRequest = TransactionMessage.getPinnedProbeFetchRequest(
+                for: chat,
+                pinnedMessageId: pinnedMessageId
             )
+            let probeObjects = fetchMessages(fetchRequest: probeRequest)
+            probeCount = probeObjects.count
+            if let result = ChatPaginationProbe.minIdAndOldestDate(
+                from: probeObjects.map { ($0.id, $0.date) }
+            ) {
+                fetchMinIndex = result.minId
+                fetchOldestDate = result.oldestDate
+                print("pagination: pinned probe minId=\(result.minId) oldestDate=\(result.oldestDate) count=\(probeCount)")
+            } else {
+                fetchOldestDate = Date.distantPast
+                print("pagination: pinned probe empty — oldestDate=distantPast")
+            }
+            fetchRequest = TransactionMessage.getChatMessagesFetchRequest(
+                for: chat,
+                with: items,
+                pinnedMessageId: pinnedMessageId,
+                oldestDate: fetchOldestDate
+            )
+        } else {
+            let probeRequest = TransactionMessage.getPaginationProbeFetchRequest(
+                for: chat,
+                items: items
+            )
+            let probeObjects = fetchMessages(fetchRequest: probeRequest)
+            probeCount = probeObjects.count
+            print("pagination: probe count=\(probeCount) items=\(items)")
+
+            if let result = ChatPaginationProbe.minIdAndOldestDate(
+                from: probeObjects.map { ($0.id, $0.date) }
+            ), !isThread {
+                fetchMinIndex = result.minId
+                fetchOldestDate = result.oldestDate
+                print("pagination: probe minId=\(result.minId) oldestDate=\(result.oldestDate)")
+            }
+
+            if isPaginationPage, !isThread {
+                fetchRequest = TransactionMessage.getChatMessagesFetchRequest(
+                    for: chat,
+                    with: items,
+                    and: fetchMinIndex > 0 ? fetchMinIndex : nil,
+                    pinnedMessageId: nil,
+                    oldestDate: fetchOldestDate
+                )
+            } else {
+                fetchRequest = getFetchRequestFor(
+                    chat: chat,
+                    with: items
+                )
+            }
+        }
+
+        if phase == .loading && contact?.isAgent == true {
+            let exhausted = ChatPaginationState.shouldExhaustAfterLocalProbe(
+                isAgent: true,
+                probeCount: probeCount,
+                requestedItems: items
+            )
+            print("pagination: agent local probe exhausted=\(exhausted)")
+            finishPagination(exhausted: exhausted)
         }
         
         messagesResultsController = NSFetchedResultsController(
@@ -1031,6 +1089,7 @@ extension NewChatTableDataSource : @preconcurrency NSFetchedResultsControllerDel
     func resetFetchedResultsControllers() {
         additionMessagesResultsController = nil
         messagesResultsController = nil
+        resetPaginationState()
     }
     
     func processTimezoneNotSentRecently() {

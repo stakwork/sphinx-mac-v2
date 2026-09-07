@@ -662,6 +662,8 @@
 		47FEE2022A66D3C400646C4E /* MessageTableCellState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2012A66D3C400646C4E /* MessageTableCellState.swift */; };
 		47FEE2042A66D3D700646C4E /* MessageTableCellState+DataTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2032A66D3D700646C4E /* MessageTableCellState+DataTypeExtension.swift */; };
 		47FEE2072A66DB1800646C4E /* NewChatTableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2062A66DB1800646C4E /* NewChatTableDataSource.swift */; };
+		CPAG00020000000001CPAG02 /* ChatPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = CPAG00010000000001CPAG01 /* ChatPagination.swift */; };
+		CPAGT0020000000001CPAGT02 /* ChatPaginationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */; };
 		47FEE2092A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE2082A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift */; };
 		47FEE20B2A66DB3E00646C4E /* NewChatTableDataSource+CellDelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE20A2A66DB3E00646C4E /* NewChatTableDataSource+CellDelegateExtension.swift */; };
 		47FEE20D2A66DB4E00646C4E /* NewChatTableDataSource+PreloaderExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE20C2A66DB4E00646C4E /* NewChatTableDataSource+PreloaderExtension.swift */; };
@@ -1717,6 +1719,8 @@
 		47FEE2012A66D3C400646C4E /* MessageTableCellState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTableCellState.swift; sourceTree = "<group>"; };
 		47FEE2032A66D3D700646C4E /* MessageTableCellState+DataTypeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageTableCellState+DataTypeExtension.swift"; sourceTree = "<group>"; };
 		47FEE2062A66DB1800646C4E /* NewChatTableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewChatTableDataSource.swift; sourceTree = "<group>"; };
+		CPAG00010000000001CPAG01 /* ChatPagination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPagination.swift; sourceTree = "<group>"; };
+		CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPaginationTests.swift; sourceTree = "<group>"; };
 		47FEE2082A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatTableDataSource+ResultsControllerExtension.swift"; sourceTree = "<group>"; };
 		47FEE20A2A66DB3E00646C4E /* NewChatTableDataSource+CellDelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatTableDataSource+CellDelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE20C2A66DB4E00646C4E /* NewChatTableDataSource+PreloaderExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatTableDataSource+PreloaderExtension.swift"; sourceTree = "<group>"; };
@@ -2258,6 +2262,7 @@
 			isa = PBXGroup;
 			children = (
 				4734D3AB2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift */,
+				CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */,
 				47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
@@ -4011,6 +4016,7 @@
 			isa = PBXGroup;
 			children = (
 				47FEE2062A66DB1800646C4E /* NewChatTableDataSource.swift */,
+				CPAG00010000000001CPAG01 /* ChatPagination.swift */,
 				47FEE2082A66DB2E00646C4E /* NewChatTableDataSource+ResultsControllerExtension.swift */,
 				47FEE20A2A66DB3E00646C4E /* NewChatTableDataSource+CellDelegateExtension.swift */,
 				47FEE20C2A66DB4E00646C4E /* NewChatTableDataSource+PreloaderExtension.swift */,
@@ -4676,6 +4682,7 @@
 				479B19392EC4EC0400A5B9E2 /* API+ContentItemsExtension.swift in Sources */,
 				479C793024EAD243009BA1CD /* SphinxOnionConnector.swift in Sources */,
 				47FEE2072A66DB1800646C4E /* NewChatTableDataSource.swift in Sources */,
+				CPAG00020000000001CPAG02 /* ChatPagination.swift in Sources */,
 				473437AF24DB12E000950F25 /* ContactViewController.swift in Sources */,
 				473829A62EB3F403007E045A /* ContentItem+CoreDataClass.swift in Sources */,
 				47E77141247326EE00C9CFEB /* NSCollectionView.swift in Sources */,
@@ -5127,6 +5134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4734D3AC2417E3D500D6957E /* com_stakwork_sphinx_desktopTests.swift in Sources */,
+				CPAGT0020000000001CPAGT02 /* ChatPaginationTests.swift in Sources */,
 				47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
