@@ -168,6 +168,25 @@ extension SphinxOnionManager {
         return getMessageTag(messages: rr.msgs, isSendingMessage: isSendingMessage)
     }
     
+    // MARK: - state_mp Persistence Requirement
+    //
+    // Any call that returns a RunReturn — including all fetch/chunk-bearing calls — MUST
+    // flow through handleRunReturn() (or at minimum updateStateMap()) before discarding
+    // the result. If it does not, the state_mp delta is silently dropped: any in-flight
+    // chunk buffer associated with that call will restart from scratch on the next
+    // fragment, with no error surfaced to the user.
+    //
+    // Fetch functions and their persistence status (as of 2026-07):
+    //   • fetch_msgs_batch         → exercised end-to-end via fetchMessageBlock
+    //                                (SphinxOnionManager+AccountRestoreExtension.swift)
+    //   • fetch_msgs_batch_per_contact → exercised end-to-end via fetchMessagePerContactBlock
+    //                                (SphinxOnionManager+AccountRestoreExtension.swift)
+    //   • fetchMsgs                → NO live call site in this app's business logic;
+    //                                persistence is only theoretically covered until a
+    //                                real caller is added and wired through handleRunReturn.
+    //   • fetchMsgsBatchOkkey      → NO live call site in this app's business logic;
+    //                                persistence is only theoretically covered until a
+    //                                real caller is added and wired through handleRunReturn.
     func updateStateMap(stateMap: Data?) {
         if let stateMap = stateMap {
             let _ = storeOnionState(inc: [UInt8](stateMap))
