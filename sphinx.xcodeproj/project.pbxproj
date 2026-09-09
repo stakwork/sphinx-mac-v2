@@ -755,8 +755,20 @@
 		SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		STRUT0020000000001STRUT2 /* StrutConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0010000000001STRUT1 /* StrutConnection.swift */; };
+		STRUT0040000000001STRUT4 /* StrutPCM.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0030000000001STRUT3 /* StrutPCM.swift */; };
+		STRUT0060000000001STRUT6 /* StrutAudioMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0050000000001STRUT5 /* StrutAudioMessages.swift */; };
+		STRUT0080000000001STRUT8 /* StrutTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0070000000001STRUT7 /* StrutTranscript.swift */; };
+		STRUT00A0000000001STRUTA /* StrutModelInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0090000000001STRUT9 /* StrutModelInstaller.swift */; };
+		STRUT00C0000000001STRUTC /* StrutStreamTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00B0000000001STRUTB /* StrutStreamTransport.swift */; };
+		STRUT00E0000000001STRUTE /* StrutAudioCapturer.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00D0000000001STRUTD /* StrutAudioCapturer.swift */; };
+		STRUT00G0000000001STRUTG /* StrutDictationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00F0000000001STRUTF /* StrutDictationClient.swift */; };
 		STRUTT00200000001STRUTT2 /* StrutConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */; };
 		STRUTP00200000001STRUTP2 /* StrutURLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */; };
+		STRUTT00400000001STRUTT4 /* StrutPCMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00300000001STRUTT3 /* StrutPCMTests.swift */; };
+		STRUTT00600000001STRUTT6 /* StrutAudioMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00500000001STRUTT5 /* StrutAudioMessagesTests.swift */; };
+		STRUTT00800000001STRUTT8 /* StrutTranscriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00700000001STRUTT7 /* StrutTranscriptTests.swift */; };
+		STRUTT00A00000001STRUTTA /* StrutModelInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00900000001STRUTT9 /* StrutModelInstallerTests.swift */; };
+		STRUTT00C00000001STRUTTC /* StrutDictationClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00B00000001STRUTTB /* StrutDictationClientTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1856,8 +1868,20 @@
 		SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerSeedGenerationTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		STRUT0010000000001STRUT1 /* StrutConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutConnection.swift; sourceTree = "<group>"; };
+		STRUT0030000000001STRUT3 /* StrutPCM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutPCM.swift; sourceTree = "<group>"; };
+		STRUT0050000000001STRUT5 /* StrutAudioMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutAudioMessages.swift; sourceTree = "<group>"; };
+		STRUT0070000000001STRUT7 /* StrutTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutTranscript.swift; sourceTree = "<group>"; };
+		STRUT0090000000001STRUT9 /* StrutModelInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutModelInstaller.swift; sourceTree = "<group>"; };
+		STRUT00B0000000001STRUTB /* StrutStreamTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutStreamTransport.swift; sourceTree = "<group>"; };
+		STRUT00D0000000001STRUTD /* StrutAudioCapturer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutAudioCapturer.swift; sourceTree = "<group>"; };
+		STRUT00F0000000001STRUTF /* StrutDictationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutDictationClient.swift; sourceTree = "<group>"; };
 		STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutConnectionTests.swift; sourceTree = "<group>"; };
 		STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutURLProtocolStub.swift; sourceTree = "<group>"; };
+		STRUTT00300000001STRUTT3 /* StrutPCMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutPCMTests.swift; sourceTree = "<group>"; };
+		STRUTT00500000001STRUTT5 /* StrutAudioMessagesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutAudioMessagesTests.swift; sourceTree = "<group>"; };
+		STRUTT00700000001STRUTT7 /* StrutTranscriptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutTranscriptTests.swift; sourceTree = "<group>"; };
+		STRUTT00900000001STRUTT9 /* StrutModelInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutModelInstallerTests.swift; sourceTree = "<group>"; };
+		STRUTT00B00000001STRUTTB /* StrutDictationClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutDictationClientTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2278,6 +2302,11 @@
 				SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */,
 				STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */,
 				STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */,
+				STRUTT00300000001STRUTT3 /* StrutPCMTests.swift */,
+				STRUTT00500000001STRUTT5 /* StrutAudioMessagesTests.swift */,
+				STRUTT00700000001STRUTT7 /* StrutTranscriptTests.swift */,
+				STRUTT00900000001STRUTT9 /* StrutModelInstallerTests.swift */,
+				STRUTT00B00000001STRUTTB /* StrutDictationClientTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -3641,6 +3670,13 @@
 			isa = PBXGroup;
 			children = (
 				STRUT0010000000001STRUT1 /* StrutConnection.swift */,
+				STRUT0030000000001STRUT3 /* StrutPCM.swift */,
+				STRUT0050000000001STRUT5 /* StrutAudioMessages.swift */,
+				STRUT0070000000001STRUT7 /* StrutTranscript.swift */,
+				STRUT0090000000001STRUT9 /* StrutModelInstaller.swift */,
+				STRUT00B0000000001STRUTB /* StrutStreamTransport.swift */,
+				STRUT00D0000000001STRUTD /* StrutAudioCapturer.swift */,
+				STRUT00F0000000001STRUTF /* StrutDictationClient.swift */,
 			);
 			path = Strut;
 			sourceTree = "<group>";
@@ -4887,6 +4923,13 @@
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
 				STRUT0020000000001STRUT2 /* StrutConnection.swift in Sources */,
+				STRUT0040000000001STRUT4 /* StrutPCM.swift in Sources */,
+				STRUT0060000000001STRUT6 /* StrutAudioMessages.swift in Sources */,
+				STRUT0080000000001STRUT8 /* StrutTranscript.swift in Sources */,
+				STRUT00A0000000001STRUTA /* StrutModelInstaller.swift in Sources */,
+				STRUT00C0000000001STRUTC /* StrutStreamTransport.swift in Sources */,
+				STRUT00E0000000001STRUTE /* StrutAudioCapturer.swift in Sources */,
+				STRUT00G0000000001STRUTG /* StrutDictationClient.swift in Sources */,
 				C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
 				4789E27724F42295003991BE /* SettingsTabsView.swift in Sources */,
@@ -5162,6 +5205,11 @@
 				SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */,
 				STRUTT00200000001STRUTT2 /* StrutConnectionTests.swift in Sources */,
 				STRUTP00200000001STRUTP2 /* StrutURLProtocolStub.swift in Sources */,
+				STRUTT00400000001STRUTT4 /* StrutPCMTests.swift in Sources */,
+				STRUTT00600000001STRUTT6 /* StrutAudioMessagesTests.swift in Sources */,
+				STRUTT00800000001STRUTT8 /* StrutTranscriptTests.swift in Sources */,
+				STRUTT00A00000001STRUTTA /* StrutModelInstallerTests.swift in Sources */,
+				STRUTT00C00000001STRUTTC /* StrutDictationClientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
