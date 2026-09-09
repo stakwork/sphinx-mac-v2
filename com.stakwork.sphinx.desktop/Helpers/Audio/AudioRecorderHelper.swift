@@ -18,6 +18,9 @@ import AVFoundation
 }
 
 class AudioRecorderHelper : NSObject, @unchecked Sendable {
+
+    /// Process-wide recorder used for mic exclusivity (dictation vs voice notes).
+    nonisolated(unsafe) static let shared = AudioRecorderHelper()
     
     weak var delegate: AudioHelperDelegate?
     

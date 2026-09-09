@@ -21,7 +21,7 @@ import Foundation
     var replyingTo: TransactionMessage? = nil
     var threadUUID: String? = nil
     
-    var audioRecorderHelper = AudioRecorderHelper()
+    var audioRecorderHelper = AudioRecorderHelper.shared
     
     init(
         chat: Chat?,
