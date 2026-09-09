@@ -2,8 +2,9 @@
 //  StrutURLProtocolStub.swift
 //  com.stakwork.sphinx.desktopTests
 //
-//  URLProtocol stub for StrutConnection health-check tests.
-//  Lives only on the test target — do not reuse SphinxErrorReporter's mock.
+//  URLProtocol stub for Strut tests. Path-aware map (method + path) with a
+//  global fallback so existing StrutConnectionTests keep working.
+//  SSE routes deliver ordered chunks via successive `didLoad` calls.
 //
 
 import Foundation
@@ -14,11 +15,17 @@ final class StrutURLProtocolStub: URLProtocol {
         var statusCode: Int?
         var error: Error?
         var body: Data = Data()
+        var headers: [String: String]? = nil
+        var sseChunks: [Data]? = nil
+        var redirectLocation: String? = nil
     }
 
     private static let lock = NSLock()
     private static var _response: Response?
+    private static var _routes: [String: Response] = [:]
     private static var _requests: [URLRequest] = []
+
+    private var cancelled = false
 
     static var response: Response? {
         get {
@@ -51,7 +58,59 @@ final class StrutURLProtocolStub: URLProtocol {
         lock.lock()
         defer { lock.unlock() }
         _response = nil
+        _routes = [:]
         _requests = []
+    }
+
+    /// Register a one-shot or SSE response for an exact method + path pair.
+    /// `path` may be with or without a leading `/`.
+    static func stub(method: String, path: String, response: Response) {
+        lock.lock()
+        defer { lock.unlock() }
+        _routes[routeKey(method: method, path: path)] = response
+    }
+
+    static func stubJSON(
+        method: String,
+        path: String,
+        statusCode: Int = 200,
+        object: Any
+    ) {
+        let body = (try? JSONSerialization.data(withJSONObject: object)) ?? Data()
+        stub(
+            method: method,
+            path: path,
+            response: Response(statusCode: statusCode, body: body)
+        )
+    }
+
+    static func stubSSE(
+        method: String,
+        path: String,
+        statusCode: Int = 200,
+        chunks: [Data]
+    ) {
+        stub(
+            method: method,
+            path: path,
+            response: Response(
+                statusCode: statusCode,
+                headers: ["Content-Type": "text/event-stream"],
+                sseChunks: chunks
+            )
+        )
+    }
+
+    static func authorizationValues() -> [String] {
+        requests.compactMap { $0.value(forHTTPHeaderField: "Authorization") }
+    }
+
+    static func recordedPaths() -> [String] {
+        requests.compactMap { $0.url?.path }
+    }
+
+    static func recordedMethods() -> [String] {
+        requests.compactMap { $0.httpMethod }
     }
 
     override class func canInit(with request: URLRequest) -> Bool {
@@ -65,7 +124,7 @@ final class StrutURLProtocolStub: URLProtocol {
     override func startLoading() {
         Self.lock.lock()
         Self._requests.append(request)
-        let stub = Self._response
+        let stub = Self.lookupLocked(request)
         Self.lock.unlock()
 
         if let error = stub?.error {
@@ -73,26 +132,106 @@ final class StrutURLProtocolStub: URLProtocol {
             return
         }
 
-        let statusCode = stub?.statusCode ?? 200
-        let body = stub?.body ?? Data()
-        guard let url = request.url,
-              let response = HTTPURLResponse(
-                url: url,
-                statusCode: statusCode,
-                httpVersion: "HTTP/1.1",
-                headerFields: nil
-              ) else {
+        guard let url = request.url else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+            return
+        }
+
+        var headers = stub?.headers ?? [:]
+        if let location = stub?.redirectLocation {
+            headers["Location"] = location
+        }
+
+        let statusCode = stub?.statusCode ?? (stub?.redirectLocation != nil ? 302 : 200)
+
+        guard let response = HTTPURLResponse(
+            url: url,
+            statusCode: statusCode,
+            httpVersion: "HTTP/1.1",
+            headerFields: headers.isEmpty ? nil : headers
+        ) else {
+            client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+            return
+        }
+
+        if let location = stub?.redirectLocation,
+           let redirectURL = URL(string: location) {
+            var redirected = URLRequest(url: redirectURL)
+            redirected.httpMethod = request.httpMethod
             client?.urlProtocol(
                 self,
-                didFailWithError: URLError(.badURL)
+                wasRedirectedTo: redirected,
+                redirectResponse: response
             )
+            if cancelled { return }
+            // Session did not cancel — complete with the 3xx so tests never hang.
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocolDidFinishLoading(self)
             return
         }
 
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: body)
+        if cancelled { return }
+
+        if let chunks = stub?.sseChunks {
+            for chunk in chunks {
+                if cancelled { return }
+                client?.urlProtocol(self, didLoad: chunk)
+            }
+        } else {
+            client?.urlProtocol(self, didLoad: stub?.body ?? Data())
+        }
+
+        if cancelled { return }
         client?.urlProtocolDidFinishLoading(self)
     }
 
-    override func stopLoading() {}
+    override func stopLoading() {
+        cancelled = true
+    }
+
+    private static func lookupLocked(_ request: URLRequest) -> Response? {
+        let method = request.httpMethod ?? "GET"
+        let path = request.url?.path ?? ""
+        if let routed = _routes[routeKey(method: method, path: path)] {
+            return routed
+        }
+        return _response
+    }
+
+    private static func routeKey(method: String, path: String) -> String {
+        let normalized: String
+        if path.isEmpty {
+            normalized = "/"
+        } else if path.hasPrefix("/") {
+            normalized = path
+        } else {
+            normalized = "/" + path
+        }
+        return "\(method.uppercased()) \(normalized)"
+    }
+}
+
+enum StrutSSEFixture {
+    static func event(_ name: String, json: String) -> Data {
+        Data("event: \(name)\ndata: \(json)\n\n".utf8)
+    }
+
+    static func progress(received: Int, total: Int, phase: String? = nil) -> Data {
+        var object: [String: Any] = ["received": received, "total": total]
+        if let phase {
+            object["phase"] = phase
+        }
+        let json = (try? JSONSerialization.data(withJSONObject: object))
+            .flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
+        return event("progress", json: json)
+    }
+
+    static func done() -> Data {
+        event("done", json: "{}")
+    }
+
+    static func error(_ message: String) -> Data {
+        event("error", json: "{\"error\":\"\(message)\"}")
+    }
 }
