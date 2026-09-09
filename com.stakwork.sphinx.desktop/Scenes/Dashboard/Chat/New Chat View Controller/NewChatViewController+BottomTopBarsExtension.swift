@@ -379,6 +379,10 @@ extension NewChatViewController : ChatBottomViewDelegate {
             shouldScrollToBottom()
         }
     }
+
+    func didClickDictationButton() {
+        // Session start/stop is wired in NewChatViewModel+DictationExtension.
+    }
     
     func didClickMicButton() {
         newChatViewModel.shouldStartRecordingWith(delegate: self)

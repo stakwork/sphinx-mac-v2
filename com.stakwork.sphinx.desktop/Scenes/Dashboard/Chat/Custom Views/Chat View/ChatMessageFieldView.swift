@@ -22,6 +22,7 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     @IBOutlet weak var micButton: CustomButton!
     @IBOutlet weak var emojiButton: CustomButton!
     @IBOutlet weak var giphyButton: CustomButton!
+    @IBOutlet weak var dictationButton: CustomButton!
     
     @IBOutlet weak var priceContainer: NSBox!
     @IBOutlet weak var priceTextField: CCTextField!
@@ -70,6 +71,8 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     
     var isAttachmentAdded = false
     var priceActive: Bool = false
+    private(set) var isDictating: Bool = false
+    private(set) var isApplyingDictationText: Bool = false
     var attachments : [AttachmentPreview] = [AttachmentPreview]()
     
     var attachmentsPreviewDataSource : AttachmentsPreviewDataSource? = nil
@@ -101,6 +104,8 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         attachmentsButton.alphaValue = 0.3
         giphyButton.isHidden = true
         emojiButton.isHidden = true
+        dictationButton.isHidden = true
+        dictationButton.superview?.isHidden = true
         priceContainer.isHidden = true
         // Hide both mic and send — they're shown/hidden via toggleSendMicButton
         micButton.isHidden = true
@@ -129,6 +134,7 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         micButton.cursor = .pointingHand
         emojiButton.cursor = .pointingHand
         giphyButton.cursor = .pointingHand
+        dictationButton.cursor = .pointingHand
     }
     
     func setupMessageField() {
@@ -289,6 +295,10 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
     }
     
     func setOngoingMessage() {
+        if isDictating {
+            return
+        }
+
         if let text = ChatTrackingHandler.shared.getOngoingMessageFor(chatId: chat?.id, threadUUID: threadUUID) {
             if text.isEmpty {
                 return
@@ -367,6 +377,37 @@ class ChatMessageFieldView: NSView, @preconcurrency LoadableNib {
         delegate?.didClickAttachmentsButton()
     }
     
+    func setDictationActive(_ active: Bool) {
+        isDictating = active
+
+        let plusIconColor = priceActive ?
+            NSColor.Sphinx.GreenBorder :
+            NSColor.Sphinx.SecondaryText
+        let iconsColor = priceActive ?
+            NSColor.Sphinx.GreenBorder :
+            NSColor.Sphinx.PlaceholderText
+
+        dictationButton.contentTintColor = active ?
+            NSColor.Sphinx.PrimaryBlue :
+            iconsColor
+
+        updateIconsColor(
+            plusIconColor: plusIconColor,
+            iconsColor: iconsColor
+        )
+    }
+
+    func setDictationText(_ text: String) {
+        isApplyingDictationText = true
+        messageTextView.string = text
+        textDidChange(Notification(name: NSControl.textDidChangeNotification))
+        isApplyingDictationText = false
+    }
+
+    @IBAction func dictationButtonClicked(_ sender: Any) {
+        delegate?.didClickDictationButton()
+    }
+
     @IBAction func giphyButtonClicked(_ sender: Any) {
         if isSendingMedia() {
             ///can't send Giphy and media at the same time

@@ -15,6 +15,7 @@
                 <outlet property="attachmentsPreviewContainer" destination="7uu-QO-mqZ" id="gfl-3G-gc0"/>
                 <outlet property="attachmentsPreviewScrollView" destination="8lZ-C0-G4N" id="FeE-Oi-uiK"/>
                 <outlet property="contentView" destination="c22-O7-iKe" id="rs1-s4-020"/>
+                <outlet property="dictationButton" destination="Dct-Bt-nMc" id="Dct-ol-btn"/>
                 <outlet property="emojiButton" destination="tlx-Yr-Pwz" id="bwb-a9-y5o"/>
                 <outlet property="giphyButton" destination="7ma-wQ-0Fe" id="h57-cj-lva"/>
                 <outlet property="intermitentAlphaView" destination="mkz-12-tB6" id="751-NE-BfM"/>
@@ -129,23 +130,23 @@
                                                                 </constraints>
                                                             </customView>
                                                             <box boxType="custom" borderType="none" titlePosition="noTitle" transparent="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cfV-Jc-PH8">
-                                                                <rect key="frame" x="40" y="0.0" width="1322" height="40"/>
+                                                                <rect key="frame" x="40" y="0.0" width="1290" height="40"/>
                                                                 <view key="contentView" id="UYg-oa-CXH">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="1322" height="40"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="1290" height="40"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="bZc-0Z-AYX">
-                                                                            <rect key="frame" x="0.0" y="11" width="1312" height="19"/>
+                                                                            <rect key="frame" x="0.0" y="11" width="1280" height="19"/>
                                                                             <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="yGR-VR-HVY">
-                                                                                <rect key="frame" x="0.0" y="0.0" width="1312" height="19"/>
+                                                                                <rect key="frame" x="0.0" y="0.0" width="1280" height="19"/>
                                                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                                 <subviews>
                                                                                     <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="zOY-KA-GOx" customClass="PlaceHolderTextView" customModule="Sphinx" customModuleProvider="target">
-                                                                                        <rect key="frame" x="0.0" y="0.0" width="1312" height="19"/>
+                                                                                        <rect key="frame" x="0.0" y="0.0" width="1280" height="19"/>
                                                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                         <color key="backgroundColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                                                                        <size key="minSize" width="1312" height="19"/>
+                                                                                        <size key="minSize" width="1280" height="19"/>
                                                                                         <size key="maxSize" width="3000" height="500"/>
                                                                                         <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                                         <userDefinedRuntimeAttributes>
@@ -173,6 +174,32 @@
                                                                 </view>
                                                                 <color key="fillColor" name="ReceivedMsgBG"/>
                                                             </box>
+                                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="Dct-Vw-cnt">
+                                                                <rect key="frame" x="1330" y="0.0" width="32" height="40"/>
+                                                                <subviews>
+                                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Dct-Bt-nMc" customClass="CustomButton" customModule="Sphinx" customModuleProvider="target">
+                                                                        <rect key="frame" x="2" y="6" width="28" height="28"/>
+                                                                        <buttonCell key="cell" type="bevel" bezelStyle="rounded" image="dictationMic" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="Dct-Cl-mic">
+                                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                            <font key="font" size="25" name="MaterialIcons-Regular"/>
+                                                                        </buttonCell>
+                                                                        <color key="contentTintColor" name="PlaceholderText"/>
+                                                                        <constraints>
+                                                                            <constraint firstAttribute="height" constant="28" id="Dct-ht-mic"/>
+                                                                            <constraint firstAttribute="width" constant="28" id="Dct-wd-mic"/>
+                                                                        </constraints>
+                                                                        <connections>
+                                                                            <action selector="dictationButtonClicked:" target="-2" id="Dct-ac-clk"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                </subviews>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="40" id="Dct-ht-cnt"/>
+                                                                    <constraint firstAttribute="width" constant="32" id="Dct-wd-cnt"/>
+                                                                    <constraint firstItem="Dct-Bt-nMc" firstAttribute="centerX" secondItem="Dct-Vw-cnt" secondAttribute="centerX" id="Dct-cx-btn"/>
+                                                                    <constraint firstItem="Dct-Bt-nMc" firstAttribute="centerY" secondItem="Dct-Vw-cnt" secondAttribute="centerY" id="Dct-cy-btn"/>
+                                                                </constraints>
+                                                            </customView>
                                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="pT8-t2-gyi">
                                                                 <rect key="frame" x="1362" y="0.0" width="60" height="40"/>
                                                                 <subviews>
@@ -231,8 +258,10 @@
                                                             <integer value="1000"/>
                                                             <integer value="1000"/>
                                                             <integer value="1000"/>
+                                                            <integer value="1000"/>
                                                         </visibilityPriorities>
                                                         <customSpacing>
+                                                            <real value="3.4028234663852886e+38"/>
                                                             <real value="3.4028234663852886e+38"/>
                                                             <real value="3.4028234663852886e+38"/>
                                                             <real value="3.4028234663852886e+38"/>
@@ -570,6 +599,7 @@
         </customView>
     </objects>
     <resources>
+        <image name="dictationMic" width="28" height="28"/>
         <image name="gifIcon" width="28" height="28"/>
         <image name="newEmojiIcon" width="28" height="28"/>
         <image name="newMic" width="24" height="24"/>
