@@ -290,6 +290,7 @@ class UserData: @unchecked Sendable {
         CoreDataManager.sharedManager.clearCoreDataStore()
         UserData.sharedInstance.resetSignup()
         let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue)
+        let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.strutApiKey.rawValue)
         UserDefaults.resetUserDefaults()
     }
 }
