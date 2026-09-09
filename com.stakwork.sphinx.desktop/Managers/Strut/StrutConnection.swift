@@ -55,7 +55,7 @@ struct StrutReadyConnection: Equatable, Sendable {
     let authorizationHeaderValue: String
 }
 
-enum StrutNotReady: Equatable, Sendable {
+enum StrutNotReady: Error, Equatable, Sendable {
     case unreachable(StrutHealthResult.Reason)
     case missingAPIKey
 }
