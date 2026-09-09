@@ -254,6 +254,28 @@ class StrutConnection: @unchecked Sendable {
         }
     }
 
+    // MARK: - Process-wide dictation occupancy
+
+    /// Guards against two `NewChatViewModel` instances (main chat + thread)
+    /// starting concurrent Strut dictation sessions. `@unchecked` static
+    /// mutable state is serialized by `occupancyLock`.
+    private static let occupancyLock = NSLock()
+    nonisolated(unsafe) private static var dictationOccupied = false
+
+    static func tryAcquireDictationOccupancy() -> Bool {
+        occupancyLock.lock()
+        defer { occupancyLock.unlock() }
+        if dictationOccupied { return false }
+        dictationOccupied = true
+        return true
+    }
+
+    static func releaseDictationOccupancy() {
+        occupancyLock.lock()
+        dictationOccupied = false
+        occupancyLock.unlock()
+    }
+
     // MARK: - Mapping / logging helpers
 
     private func mapHealthFailure(_ error: Error) -> StrutHealthResult.Reason {

@@ -126,10 +126,23 @@ final class StrutDictationClient: @unchecked Sendable {
     }
 
     func stop() {
+        Task {
+            await self.stopAndWait()
+        }
+    }
+
+    /// Awaits capturer release and the trailing-final window. Safe to call
+    /// concurrently: a second waiter joins the in-flight stop.
+    func stopAndWait() async {
         lock.lock()
         let currentPhase = phase
         if currentPhase == .idle {
             lock.unlock()
+            return
+        }
+        if currentPhase == .stopping {
+            lock.unlock()
+            await waitUntilIdle()
             return
         }
         if currentPhase == .starting || currentPhase == .restarting {
@@ -137,14 +150,22 @@ final class StrutDictationClient: @unchecked Sendable {
             phase = .idle
             lock.unlock()
             capturer.stop()
-            Task { await self.transport.close(code: 1000) }
+            await self.transport.close(code: 1000)
             return
         }
         phase = .stopping
         lock.unlock()
 
-        Task {
-            await self.finishStop(userInitiated: true)
+        await self.finishStop(userInitiated: true)
+    }
+
+    private func waitUntilIdle() async {
+        while true {
+            lock.lock()
+            let current = phase
+            lock.unlock()
+            if current == .idle { return }
+            try? await Task.sleep(nanoseconds: 50_000_000)
         }
     }
 

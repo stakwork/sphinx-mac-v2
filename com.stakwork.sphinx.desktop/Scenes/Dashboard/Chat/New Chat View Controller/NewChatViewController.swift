@@ -161,6 +161,7 @@ class NewChatViewController: DashboardSplittedViewController {
         
         chatTopView.checkRoute()
         
+        bindDictationCallbacks()
         setMessageFieldActive()
     }
     
@@ -237,6 +238,11 @@ class NewChatViewController: DashboardSplittedViewController {
     
     override func viewWillDisappear() {
         super.viewWillDisappear()
+
+        let viewModel = newChatViewModel
+        Task { @MainActor in
+            await viewModel.cancelDictationForLeave()
+        }
         
         chatTableDataSource?.deleteSnapshotCurrentState()
         chatTableDataSource?.releaseMemory()
@@ -328,6 +334,10 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func resetVC() {
+        let viewModel = newChatViewModel
+        Task { @MainActor in
+            await viewModel.cancelDictationForLeave()
+        }
         stopLiveCallBannerPolling()
         stopPlayingClip()
         resetFetchedResultsControllers()
@@ -433,7 +443,26 @@ class NewChatViewController: DashboardSplittedViewController {
             threadUUID: threadUUID,
             with: self,
             and: self
-        )        
+        )
+        bindDictationCallbacks()
+    }
+
+    func bindDictationCallbacks() {
+        newChatViewModel.dictationPrefixProvider = { [weak self] in
+            self?.chatBottomView.currentMessageText() ?? ""
+        }
+        newChatViewModel.onDictationTextChanged = { [weak self] text in
+            self?.chatBottomView.setDictationText(text)
+        }
+        newChatViewModel.onDictationActiveChanged = { [weak self] active in
+            self?.chatBottomView.setDictationActive(active)
+        }
+        newChatViewModel.onDictationFailed = { message in
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: message
+            )
+        }
     }
     
     func setupChatData() {
