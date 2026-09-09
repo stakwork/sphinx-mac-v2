@@ -22,6 +22,27 @@ import Foundation
     var threadUUID: String? = nil
     
     var audioRecorderHelper = AudioRecorderHelper.shared
+
+    // MARK: - Dictation (owned by NewChatViewModel+DictationExtension)
+
+    enum DictationPhase {
+        case idle
+        case connecting
+        case dictating
+        case stopping
+    }
+
+    var dictationPhase: DictationPhase = .idle
+    var dictationGeneration: Int = 0
+    var dictationClient: StrutDictationClient?
+    var dictationDisplay = ComposerDictationDisplay()
+    var dictationConnectingTask: Task<Void, Never>?
+    var holdsDictationOccupancy = false
+
+    var onDictationTextChanged: ((String) -> Void)?
+    var onDictationActiveChanged: ((Bool) -> Void)?
+    var onDictationFailed: ((String) -> Void)?
+    var dictationPrefixProvider: (() -> String)?
     
     init(
         chat: Chat?,

@@ -39,9 +39,11 @@ final class StrutConnectionTests: XCTestCase {
         defaults.removePersistentDomain(forName: suiteName)
         secretStore = InMemoryStrutSecretStore()
         StrutURLProtocolStub.reset()
+        StrutConnection.releaseDictationOccupancy()
     }
 
     override func tearDown() {
+        StrutConnection.releaseDictationOccupancy()
         if let suiteName {
             defaults?.removePersistentDomain(forName: suiteName)
         }
@@ -70,6 +72,31 @@ final class StrutConnectionTests: XCTestCase {
             secretStore: secretStore,
             urlSession: makeSession()
         )
+    }
+
+    // MARK: - Dictation occupancy
+
+    func testDictationOccupancy_SecondAcquireFailsUntilRelease() {
+        StrutConnection.releaseDictationOccupancy()
+        defer { StrutConnection.releaseDictationOccupancy() }
+
+        XCTAssertTrue(StrutConnection.tryAcquireDictationOccupancy())
+        XCTAssertFalse(
+            StrutConnection.tryAcquireDictationOccupancy(),
+            "A second VM must not occupy dictation while the first holds it"
+        )
+        StrutConnection.releaseDictationOccupancy()
+        XCTAssertTrue(
+            StrutConnection.tryAcquireDictationOccupancy(),
+            "Occupancy must be reusable after release"
+        )
+    }
+
+    func testDictationOccupancy_ReleaseWithoutAcquireIsSafe() {
+        StrutConnection.releaseDictationOccupancy()
+        StrutConnection.releaseDictationOccupancy()
+        XCTAssertTrue(StrutConnection.tryAcquireDictationOccupancy())
+        StrutConnection.releaseDictationOccupancy()
     }
 
     // MARK: - 1. Default / persisted base URL

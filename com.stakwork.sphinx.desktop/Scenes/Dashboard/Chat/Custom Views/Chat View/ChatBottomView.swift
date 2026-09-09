@@ -221,6 +221,10 @@ class ChatBottomView: NSView, LoadableNib {
     func setDictationText(_ text: String) {
         messageFieldView.setDictationText(text)
     }
+
+    func currentMessageText() -> String {
+        messageFieldView.messageTextView.string
+    }
     
     func recordingProgress(minutes: String, seconds: String) {
         messageFieldView.recordingProgress(minutes: minutes, seconds: seconds)

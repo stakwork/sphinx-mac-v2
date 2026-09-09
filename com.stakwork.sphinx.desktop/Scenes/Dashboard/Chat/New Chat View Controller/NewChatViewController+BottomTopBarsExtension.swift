@@ -255,6 +255,22 @@ extension NewChatViewController : ChatBottomViewDelegate {
         price: Int,
         completion: @escaping (Bool) -> ()
     ) {
+        Task { @MainActor in
+            await self.newChatViewModel.stopDictationBeforeSend()
+            let latest = self.chatBottomView.currentMessageText().trim()
+            self.performSendMessage(
+                text: latest.isEmpty ? text : latest,
+                price: price,
+                completion: completion
+            )
+        }
+    }
+
+    private func performSendMessage(
+        text: String,
+        price: Int,
+        completion: @escaping (Bool) -> ()
+    ) {
         if isAgentChat {
             handleAgentMessage(text: text, completion: completion)
             return
@@ -381,11 +397,14 @@ extension NewChatViewController : ChatBottomViewDelegate {
     }
 
     func didClickDictationButton() {
-        // Session start/stop is wired in NewChatViewModel+DictationExtension.
+        newChatViewModel.toggleDictation()
     }
     
     func didClickMicButton() {
-        newChatViewModel.shouldStartRecordingWith(delegate: self)
+        Task { @MainActor in
+            await self.newChatViewModel.stopDictationBeforeVoiceNote()
+            self.newChatViewModel.shouldStartRecordingWith(delegate: self)
+        }
     }
     
     func didClickConfirmRecordingButton() {
