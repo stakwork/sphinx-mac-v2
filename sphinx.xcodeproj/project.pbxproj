@@ -754,6 +754,9 @@
 		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
 		SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
+		STRUT0020000000001STRUT2 /* StrutConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0010000000001STRUT1 /* StrutConnection.swift */; };
+		STRUTT00200000001STRUTT2 /* StrutConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */; };
+		STRUTP00200000001STRUTP2 /* StrutURLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1852,6 +1855,9 @@
 		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
 		SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerSeedGenerationTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
+		STRUT0010000000001STRUT1 /* StrutConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutConnection.swift; sourceTree = "<group>"; };
+		STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutConnectionTests.swift; sourceTree = "<group>"; };
+		STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutURLProtocolStub.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2270,6 +2276,8 @@
 				SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */,
 				SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */,
 				SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */,
+				STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */,
+				STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -2339,6 +2347,7 @@
 				4744FAD8246B397700C5FD94 /* Windows */,
 				4744FA752469A7BA00C5FD94 /* Attachments */,
 				47D7D8E224620B450089C6EE /* Keychain */,
+				STRUTG010000000001STRUTG /* Strut */,
 				47393E4B2461A8F100E6F93E /* Encryption */,
 			);
 			path = Managers;
@@ -3628,6 +3637,14 @@
 			path = Keychain;
 			sourceTree = "<group>";
 		};
+		STRUTG010000000001STRUTG /* Strut */ = {
+			isa = PBXGroup;
+			children = (
+				STRUT0010000000001STRUT1 /* StrutConnection.swift */,
+			);
+			path = Strut;
+			sourceTree = "<group>";
+		};
 		47DE1BF12A68138B0029597B /* New Chat View Rows */ = {
 			isa = PBXGroup;
 			children = (
@@ -4869,6 +4886,7 @@
 				477CE03A2DC91656004110E8 /* FeedListHeaderView.swift in Sources */,
 				47DE1C082A6881F10029597B /* DateSeparatorView.swift in Sources */,
 				47D7D8E424620B520089C6EE /* KeychainManager.swift in Sources */,
+				STRUT0020000000001STRUT2 /* StrutConnection.swift in Sources */,
 				C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
 				4789E27724F42295003991BE /* SettingsTabsView.swift in Sources */,
@@ -5142,6 +5160,8 @@
 				SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */,
 				SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */,
 				SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */,
+				STRUTT00200000001STRUTT2 /* StrutConnectionTests.swift in Sources */,
+				STRUTP00200000001STRUTP2 /* StrutURLProtocolStub.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
