@@ -23,6 +23,9 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         replacementString: String?
     ) -> Bool {
         if let replacementString = replacementString, replacementString == "\n" {
+            if isDictating {
+                return false
+            }
             shouldSendMessage()
             return false
         }
@@ -88,6 +91,7 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
         
         let string = messageTextView.string
         let cursorPosition = messageTextView.cursorPosition ?? 0
+        let applyingDictationText = isApplyingDictationText
         
         Task { @MainActor in
             ChatTrackingHandler.shared.saveOngoingMessage(
@@ -95,16 +99,18 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
                 chatId: self.chat?.id,
                 threadUUID: self.threadUUID
             )
-            
-            self.processMention(
-                text: string,
-                cursorPosition: cursorPosition
-            )
 
-            self.processMacro(
-                text: string,
-                cursorPosition: cursorPosition
-            )
+            if !applyingDictationText {
+                self.processMention(
+                    text: string,
+                    cursorPosition: cursorPosition
+                )
+
+                self.processMacro(
+                    text: string,
+                    cursorPosition: cursorPosition
+                )
+            }
         }
         
         let _ = updateBottomBarHeight()
@@ -188,6 +194,9 @@ extension ChatMessageFieldView : NSTextViewDelegate, MessageFieldDelegate {
     ) {
         emojiButton.contentTintColor = iconsColor
         giphyButton.contentTintColor = iconsColor
+        if !isDictating {
+            dictationButton.contentTintColor = iconsColor
+        }
         priceTag.contentTintColor = iconsColor
         attachmentsButton.contentTintColor = plusIconColor
     }
@@ -253,6 +262,9 @@ extension ChatMessageFieldView : NSTextFieldDelegate {
         doCommandBy commandSelector: Selector
     ) -> Bool {
         if (commandSelector == #selector(NSResponder.insertNewline(_:))) {
+            if isDictating {
+                return true
+            }
             shouldSendMessage()
             return true
         }

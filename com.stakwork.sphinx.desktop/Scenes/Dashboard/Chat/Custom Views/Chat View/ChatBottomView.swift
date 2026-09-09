@@ -12,6 +12,7 @@ import Cocoa
     ///IBActions
     func didClickAttachmentsButton()
     func didClickGiphyButton()
+    func didClickDictationButton()
     func didClickMicButton()
     func didClickConfirmRecordingButton()
     func didClickCancelRecordingButton()
@@ -211,6 +212,14 @@ class ChatBottomView: NSView, LoadableNib {
     
     func toggleRecordButton(enable: Bool) {
         messageFieldView.toggleRecordButton(enable: enable)
+    }
+
+    func setDictationActive(_ active: Bool) {
+        messageFieldView.setDictationActive(active)
+    }
+
+    func setDictationText(_ text: String) {
+        messageFieldView.setDictationText(text)
     }
     
     func recordingProgress(minutes: String, seconds: String) {
