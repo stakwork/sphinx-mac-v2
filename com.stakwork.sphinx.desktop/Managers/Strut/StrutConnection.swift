@@ -65,7 +65,7 @@ enum StrutNotReady: Error, Equatable, Sendable {
 /// stored properties — the same pattern as `API` and `KeychainManager`.
 class StrutConnection: @unchecked Sendable {
 
-    static let defaultBaseURLString = "http://127.0.0.1:51234"
+    static let defaultBaseURLString = "http://127.0.0.1:59914"
 
     private static let baseURLDefaultsKey = "strutBaseURL"
     private static let healthTimeout: TimeInterval = 3

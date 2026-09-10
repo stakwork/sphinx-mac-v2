@@ -81,6 +81,19 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
     private var onSampleRateMismatch: (@Sendable (Int) -> Void)?
 
     func prepare() throws -> Int {
+        // On macOS the engine's I/O nodes are created lazily on first access.
+        // Touching `inputNode` before `prepare()` / `start()` builds the node
+        // graph; skipping it makes `-[AVAudioEngine prepare]` raise the
+        // uncatchable `required condition is false: inputNode != nullptr ||
+        // outputNode != nullptr` exception.
+        let inputNode = engine.inputNode
+        let inputFormat = inputNode.inputFormat(forBus: 0)
+        guard inputFormat.channelCount > 0, inputFormat.sampleRate > 0 else {
+            // No usable input device / mic access — surface as a catchable error
+            // instead of letting the engine assert.
+            throw StrutAudioCaptureError.engineFailed("no audio input device available")
+        }
+
         engine.prepare()
         do {
             try engine.start()
@@ -88,7 +101,7 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
             throw StrutAudioCaptureError.engineFailed(error.localizedDescription)
         }
 
-        let format = engine.inputNode.outputFormat(forBus: 0)
+        let format = inputNode.outputFormat(forBus: 0)
         let sampleRate = format.sampleRate
         guard sampleRate > 0 else {
             engine.stop()
