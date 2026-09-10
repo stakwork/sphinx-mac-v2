@@ -123,7 +123,11 @@ final class StrutURLProtocolStub: URLProtocol {
 
     override func startLoading() {
         Self.lock.lock()
-        Self._requests.append(request)
+        var recorded = request
+        if recorded.httpBody == nil, let body = Self.readBodyStream(request) {
+            recorded.httpBody = body
+        }
+        Self._requests.append(recorded)
         let stub = Self.lookupLocked(request)
         Self.lock.unlock()
 
@@ -158,6 +162,13 @@ final class StrutURLProtocolStub: URLProtocol {
            let redirectURL = URL(string: location) {
             var redirected = URLRequest(url: redirectURL)
             redirected.httpMethod = request.httpMethod
+            // Copy headers so session-delegate tests can assert Authorization
+            // is stripped on same-host follows (URLSession would copy them).
+            if let headers = request.allHTTPHeaderFields {
+                for (key, value) in headers {
+                    redirected.setValue(value, forHTTPHeaderField: key)
+                }
+            }
             client?.urlProtocol(
                 self,
                 wasRedirectedTo: redirected,
@@ -188,6 +199,24 @@ final class StrutURLProtocolStub: URLProtocol {
 
     override func stopLoading() {
         cancelled = true
+    }
+
+    /// URLSession often streams `httpBody` as `httpBodyStream`. Copy it so
+    /// tests can assert JSON without depending on that internal choice.
+    private static func readBodyStream(_ request: URLRequest) -> Data? {
+        guard let stream = request.httpBodyStream else { return nil }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        let bufferSize = 1024
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+        defer { buffer.deallocate() }
+        while stream.hasBytesAvailable {
+            let read = stream.read(buffer, maxLength: bufferSize)
+            if read <= 0 { break }
+            data.append(buffer, count: read)
+        }
+        return data.isEmpty ? nil : data
     }
 
     private static func lookupLocked(_ request: URLRequest) -> Response? {

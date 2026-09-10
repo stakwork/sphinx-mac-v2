@@ -21,6 +21,19 @@ enum StrutRedirectPolicy {
         }
         return originalHost == nextHost
     }
+
+    /// Same-host redirects are followed with `Authorization` stripped so a
+    /// 3xx cannot forward the Bearer token (or a JSON body's auth header)
+    /// to another host. Cross-host redirects return `nil` (refuse).
+    static func followRequestStrippingAuthorization(
+        originalURL: URL?,
+        newRequest: URLRequest
+    ) -> URLRequest? {
+        guard isSameHost(originalURL, newRequest.url) else { return nil }
+        var sanitized = newRequest
+        sanitized.setValue(nil, forHTTPHeaderField: "Authorization")
+        return sanitized
+    }
 }
 
 enum StrutURLSchemePolicy {
@@ -377,22 +390,22 @@ final class StrutModelInstaller: NSObject, @unchecked Sendable {
         completionHandler: @escaping (URLRequest?) -> Void
     ) {
         let original = task.originalRequest?.url
-        let next = newRequest.url
-        if !StrutRedirectPolicy.isSameHost(original, next) {
-            lock.lock()
-            let box = tasks[task.taskIdentifier]
-            lock.unlock()
-            box?.resumeOnce(.failure(.redirectRefused))
-            AppLogger.shared.log(
-                level: .error,
-                message: "[StrutModels] redirect refused host=\(original?.host ?? "") path=\(original?.path ?? "") status=\(response.statusCode)"
-            )
-            completionHandler(nil)
+        if let sanitized = StrutRedirectPolicy.followRequestStrippingAuthorization(
+            originalURL: original,
+            newRequest: newRequest
+        ) {
+            completionHandler(sanitized)
             return
         }
-        var sanitized = newRequest
-        sanitized.setValue(nil, forHTTPHeaderField: "Authorization")
-        completionHandler(sanitized)
+        lock.lock()
+        let box = tasks[task.taskIdentifier]
+        lock.unlock()
+        box?.resumeOnce(.failure(.redirectRefused))
+        AppLogger.shared.log(
+            level: .error,
+            message: "[StrutModels] redirect refused host=\(original?.host ?? "") path=\(original?.path ?? "") status=\(response.statusCode)"
+        )
+        completionHandler(nil)
     }
 
     fileprivate func handleComplete(task: URLSessionTask, error: Error?) {
