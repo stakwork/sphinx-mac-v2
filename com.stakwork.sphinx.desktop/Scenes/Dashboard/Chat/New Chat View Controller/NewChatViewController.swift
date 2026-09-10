@@ -241,7 +241,7 @@ class NewChatViewController: DashboardSplittedViewController {
 
         let viewModel = newChatViewModel
         Task { @MainActor in
-            await viewModel.cancelDictationForLeave()
+            await viewModel?.cancelDictationForLeave()
         }
         
         chatTableDataSource?.deleteSnapshotCurrentState()
@@ -336,7 +336,7 @@ class NewChatViewController: DashboardSplittedViewController {
     func resetVC() {
         let viewModel = newChatViewModel
         Task { @MainActor in
-            await viewModel.cancelDictationForLeave()
+            await viewModel?.cancelDictationForLeave()
         }
         stopLiveCallBannerPolling()
         stopPlayingClip()

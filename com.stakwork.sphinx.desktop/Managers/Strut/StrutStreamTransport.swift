@@ -106,7 +106,7 @@ final class URLSessionStrutStreamTransport: NSObject, StrutStreamTransport, @unc
     /// Retains transports through teardown so an in-flight write cannot race
     /// a released socket (mirrors `CallParticipantsSocketManager.disconnecting`).
     private static let disconnectingLock = NSLock()
-    private static var disconnecting: [URLSessionStrutStreamTransport] = []
+    nonisolated(unsafe) private static var disconnecting: [URLSessionStrutStreamTransport] = []
 
     static func makeLongLivedConfiguration() -> URLSessionConfiguration {
         let configuration = URLSessionConfiguration.ephemeral
@@ -198,17 +198,19 @@ final class URLSessionStrutStreamTransport: NSObject, StrutStreamTransport, @unc
 
     func close(code: Int) async {
         retainForDisconnect()
-        lock.lock()
-        if closed || task == nil {
-            closed = true
-            lock.unlock()
+        let socket: URLSessionWebSocketTask? = lock.withLock {
+            if closed || task == nil {
+                closed = true
+                return nil
+            }
+            return task
+        }
+        guard let socket else {
             releaseDisconnect()
             return
         }
-        let socket = task
         let closeCode = URLSessionWebSocketTask.CloseCode(rawValue: code) ?? .invalid
-        lock.unlock()
-        socket?.cancel(with: closeCode, reason: nil)
+        socket.cancel(with: closeCode, reason: nil)
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             lock.lock()

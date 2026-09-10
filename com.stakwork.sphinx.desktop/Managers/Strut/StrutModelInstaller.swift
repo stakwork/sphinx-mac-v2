@@ -400,7 +400,7 @@ final class StrutModelInstaller: NSObject, @unchecked Sendable {
         lock.lock()
         let box = tasks[task.taskIdentifier]
         lock.unlock()
-        box?.resumeOnce(.failure(.redirectRefused))
+        box?.resumeOnce(.failure(StrutModelInstallError.redirectRefused))
         AppLogger.shared.log(
             level: .error,
             message: "[StrutModels] redirect refused host=\(original?.host ?? "") path=\(original?.path ?? "") status=\(response.statusCode)"
@@ -415,10 +415,10 @@ final class StrutModelInstaller: NSObject, @unchecked Sendable {
         guard let box else { return }
         if let error {
             if (error as NSError).code == NSURLErrorCancelled {
-                box.resumeOnce(.failure(.transport))
+                box.resumeOnce(.failure(StrutModelInstallError.transport))
                 return
             }
-            box.resumeOnce(.failure(.transport))
+            box.resumeOnce(.failure(StrutModelInstallError.transport))
             return
         }
         if box.sse {
@@ -427,11 +427,11 @@ final class StrutModelInstaller: NSObject, @unchecked Sendable {
                 handleSSEEvent(event, payload: payload, box: box)
             }
             // Stream ended without a `done` event — stall, do not reconnect.
-            box.resumeOnce(.failure(.stalled))
+            box.resumeOnce(.failure(StrutModelInstallError.stalled))
             return
         }
         guard let response = box.response else {
-            box.resumeOnce(.failure(.invalidResponse))
+            box.resumeOnce(.failure(StrutModelInstallError.invalidResponse))
             return
         }
         box.resumeOnce(.success((box.body, response)))
@@ -446,11 +446,11 @@ final class StrutModelInstaller: NSObject, @unchecked Sendable {
             if let response = box.response {
                 box.resumeOnce(.success((Data(), response)))
             } else {
-                box.resumeOnce(.failure(.invalidResponse))
+                box.resumeOnce(.failure(StrutModelInstallError.invalidResponse))
             }
         case "error":
             let message = Self.parseErrorMessage(payload)
-            box.resumeOnce(.failure(.downloadFailed(message)))
+            box.resumeOnce(.failure(StrutModelInstallError.downloadFailed(message)))
         default:
             break
         }

@@ -56,7 +56,7 @@ final class StrutDictationClient: @unchecked Sendable {
     /// Start-frame hotwords; reused on device-change restart, never regenerated.
     private let hotwords: [String]
 
-    private let lock = NSLock()
+    private let lock = StrutAsyncLock()
     private var generation: Int = 0
     private var phase: Phase = .idle
     private var transcript = StrutTranscriptState()
@@ -69,7 +69,7 @@ final class StrutDictationClient: @unchecked Sendable {
     /// Keeps the client alive through teardown so an in-flight write cannot
     /// race a released transport (mirrors `CallParticipantsSocketManager.disconnecting`).
     private static let teardownLock = NSLock()
-    private static var disconnecting: [StrutDictationClient] = []
+    nonisolated(unsafe) private static var disconnecting: [StrutDictationClient] = []
 
     private enum Phase: Equatable {
         case idle
@@ -519,5 +519,22 @@ final class StrutDictationClient: @unchecked Sendable {
         Self.teardownLock.lock()
         Self.disconnecting.removeAll { $0 === self }
         Self.teardownLock.unlock()
+    }
+}
+
+/// `NSLock` wrapper whose `lock()` / `unlock()` are callable from `async`
+/// contexts. The dictation client always releases this lock before it suspends
+/// (every critical section is unlocked before an `await`), so the `noasync`
+/// guard on `NSLocking` is unnecessarily strict here.
+final class StrutAsyncLock: @unchecked Sendable {
+    private let underlying = NSLock()
+
+    func lock() { underlying.lock() }
+    func unlock() { underlying.unlock() }
+
+    func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        underlying.lock()
+        defer { underlying.unlock() }
+        return try body()
     }
 }
