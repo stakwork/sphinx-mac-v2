@@ -774,6 +774,8 @@
 		STRUTT00E00000001STRUTTE /* ComposerDictationDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00D00000001STRUTTD /* ComposerDictationDisplayTests.swift */; };
 		STRUT00N0000000001STRUTN /* StrutLearningClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00M0000000001STRUTM /* StrutLearningClient.swift */; };
 		STRUTT00G00000001STRUTTG /* StrutLearningClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00F00000001STRUTTF /* StrutLearningClientTests.swift */; };
+		STRUT00P0000000001STRUTP /* StrutCorrection.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00O0000000001STRUTO /* StrutCorrection.swift */; };
+		STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1892,6 +1894,8 @@
 		STRUTT00D00000001STRUTTD /* ComposerDictationDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposerDictationDisplayTests.swift; sourceTree = "<group>"; };
 		STRUT00M0000000001STRUTM /* StrutLearningClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutLearningClient.swift; sourceTree = "<group>"; };
 		STRUTT00F00000001STRUTTF /* StrutLearningClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutLearningClientTests.swift; sourceTree = "<group>"; };
+		STRUT00O0000000001STRUTO /* StrutCorrection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutCorrection.swift; sourceTree = "<group>"; };
+		STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutCorrectionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2319,6 +2323,7 @@
 				STRUTT00B00000001STRUTTB /* StrutDictationClientTests.swift */,
 				STRUTT00D00000001STRUTTD /* ComposerDictationDisplayTests.swift */,
 				STRUTT00F00000001STRUTTF /* StrutLearningClientTests.swift */,
+				STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -3691,6 +3696,7 @@
 				STRUT00F0000000001STRUTF /* StrutDictationClient.swift */,
 				STRUT00H0000000001STRUTH /* ComposerDictationDisplay.swift */,
 				STRUT00M0000000001STRUTM /* StrutLearningClient.swift */,
+				STRUT00O0000000001STRUTO /* StrutCorrection.swift */,
 			);
 			path = Strut;
 			sourceTree = "<group>";
@@ -4947,6 +4953,7 @@
 				STRUT00G0000000001STRUTG /* StrutDictationClient.swift in Sources */,
 				STRUT00I0000000001STRUTI /* ComposerDictationDisplay.swift in Sources */,
 				STRUT00N0000000001STRUTN /* StrutLearningClient.swift in Sources */,
+				STRUT00P0000000001STRUTP /* StrutCorrection.swift in Sources */,
 				STRUT00L0000000001STRUTL /* NewChatViewModel+DictationExtension.swift in Sources */,
 				C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
@@ -5230,6 +5237,7 @@
 				STRUTT00C00000001STRUTTC /* StrutDictationClientTests.swift in Sources */,
 				STRUTT00E00000001STRUTTE /* ComposerDictationDisplayTests.swift in Sources */,
 				STRUTT00G00000001STRUTTG /* StrutLearningClientTests.swift in Sources */,
+				STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
