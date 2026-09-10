@@ -123,6 +123,7 @@ extension NewChatViewModel {
             return
         }
         holdsDictationOccupancy = true
+        dictationSessionId = UUID().uuidString
 
         dictationConnectingTask = nil
 
@@ -134,15 +135,66 @@ extension NewChatViewModel {
         dictationDisplay.reset()
         dictationDisplay.setPrefix(dictationPrefixProvider?() ?? "")
 
+        // Extract plain strings on the MainActor before any Task hop —
+        // never pass NSManagedObject / UserContact across an actor boundary.
+        let contactNicknames = dictationContactNicknames()
+        let contactHotwords = StrutHotwordList.build(from: contactNicknames)
+        let startHotwords = StrutHotwordList.build(
+            from: contactNicknames + dictationChatAliases()
+        )
+
         clearClientHandlers()
-        let client = StrutDictationClient(ready: ready)
+        let client = StrutDictationClient(
+            ready: ready,
+            session: dictationSessionId,
+            hotwords: startHotwords
+        )
         bindClient(client, generation: generation)
         dictationClient = client
         client.start()
 
+        seedHotwordsIfNeeded(contactHotwords, ready: ready)
+
         setPhase(.dictating, generation: generation)
         onDictationActiveChanged?(true)
         onDictationTextChanged?(dictationDisplay.fieldText)
+    }
+
+    /// Confirmed, non-owner, non-agent, non-tribe nicknames. Pin-hidden
+    /// contacts (`pin != nil`) are excluded. `UserContact.chatList()` already
+    /// drops owner/fromGroup rows; the snapshot filter is the testable gate.
+    private func dictationContactNicknames() -> [String] {
+        let snapshots = UserContact.chatList().map { contact in
+            StrutHotwordList.Contact(
+                nickname: contact.nickname,
+                isConfirmed: contact.isConfirmed(),
+                isOwner: contact.isOwner,
+                isAgent: contact.isAgent,
+                fromGroup: contact.fromGroup,
+                pin: contact.pin
+            )
+        }
+        return StrutHotwordList.nicknames(from: snapshots)
+    }
+
+    private func dictationChatAliases() -> [String] {
+        (chat?.aliasesAndPics ?? []).map { $0.0 }
+    }
+
+    /// Process-once PUT of the contact list (no chat-scoped aliases).
+    /// Fire-and-forget after `client.start()` so it never delays the mic.
+    private func seedHotwordsIfNeeded(
+        _ words: [String],
+        ready: StrutReadyConnection
+    ) {
+        guard StrutConnection.tryMarkHotwordsSeeded() else { return }
+        Task {
+            await StrutLearningClient.shared.putHotwords(
+                name: "sphinx",
+                words: words,
+                ready: ready
+            )
+        }
     }
 
     // MARK: - Stop / fail / occupancy

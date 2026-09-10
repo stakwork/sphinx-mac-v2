@@ -40,10 +40,12 @@ final class StrutConnectionTests: XCTestCase {
         secretStore = InMemoryStrutSecretStore()
         StrutURLProtocolStub.reset()
         StrutConnection.releaseDictationOccupancy()
+        StrutConnection.resetHotwordsSeeded()
     }
 
     override func tearDown() {
         StrutConnection.releaseDictationOccupancy()
+        StrutConnection.resetHotwordsSeeded()
         if let suiteName {
             defaults?.removePersistentDomain(forName: suiteName)
         }
@@ -97,6 +99,18 @@ final class StrutConnectionTests: XCTestCase {
         StrutConnection.releaseDictationOccupancy()
         XCTAssertTrue(StrutConnection.tryAcquireDictationOccupancy())
         StrutConnection.releaseDictationOccupancy()
+    }
+
+    func testTryMarkHotwordsSeeded_ReturnsTrueExactlyOnce() {
+        StrutConnection.resetHotwordsSeeded()
+        defer { StrutConnection.resetHotwordsSeeded() }
+
+        XCTAssertTrue(StrutConnection.tryMarkHotwordsSeeded())
+        XCTAssertFalse(
+            StrutConnection.tryMarkHotwordsSeeded(),
+            "Hotword seed must be process-once"
+        )
+        XCTAssertFalse(StrutConnection.tryMarkHotwordsSeeded())
     }
 
     // MARK: - 1. Default / persisted base URL

@@ -276,6 +276,29 @@ class StrutConnection: @unchecked Sendable {
         occupancyLock.unlock()
     }
 
+    // MARK: - Process-once hotword seed
+
+    /// Sticky for the process lifetime: contacts added later are not re-seeded.
+    /// Serialized by `hotwordsLock`, same pattern as `dictationOccupied`.
+    private static let hotwordsLock = NSLock()
+    nonisolated(unsafe) private static var hotwordsSeeded = false
+
+    /// Returns `true` only the first time it is called successfully.
+    static func tryMarkHotwordsSeeded() -> Bool {
+        hotwordsLock.lock()
+        defer { hotwordsLock.unlock() }
+        if hotwordsSeeded { return false }
+        hotwordsSeeded = true
+        return true
+    }
+
+    /// Test hook — production never un-marks the process-once seed.
+    static func resetHotwordsSeeded() {
+        hotwordsLock.lock()
+        hotwordsSeeded = false
+        hotwordsLock.unlock()
+    }
+
     // MARK: - Mapping / logging helpers
 
     private func mapHealthFailure(_ error: Error) -> StrutHealthResult.Reason {

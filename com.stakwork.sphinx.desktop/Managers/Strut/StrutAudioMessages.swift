@@ -3,7 +3,8 @@
 //  com.stakwork.sphinx.desktop
 //
 //  JSON encode/decode helpers for the `/audio/stream` text protocol.
-//  Optional fields (model, partialModel, hotwords, session, endpoint) are omitted.
+//  `session` and `hotwords` are optional on the start frame. `model`,
+//  `partialModel`, and `endpoint` are always omitted.
 //
 
 import Foundation
@@ -17,13 +18,25 @@ enum StrutServerMessage: Equatable, Sendable {
 
 enum StrutAudioMessages {
 
-    /// Encodes `{"type":"start","sampleRate":<Int>}`.
-    /// Caller must pass `Int(format.sampleRate.rounded())` — never a raw `Double`.
-    static func encodeStart(sampleRate: Int) -> Data {
-        let payload: [String: Any] = [
+    /// Encodes `{"type":"start","sampleRate":<Int>}` plus optional `session`
+    /// and `hotwords`. `session` is included only when non-nil; `hotwords`
+    /// only when non-nil and non-empty. Caller must pass
+    /// `Int(format.sampleRate.rounded())` — never a raw `Double`.
+    static func encodeStart(
+        sampleRate: Int,
+        session: String? = nil,
+        hotwords: [String]? = nil
+    ) -> Data {
+        var payload: [String: Any] = [
             "type": "start",
             "sampleRate": sampleRate
         ]
+        if let session {
+            payload["session"] = session
+        }
+        if let hotwords, !hotwords.isEmpty {
+            payload["hotwords"] = hotwords
+        }
         return (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
     }
 
