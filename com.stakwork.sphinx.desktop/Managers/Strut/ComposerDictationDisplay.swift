@@ -34,6 +34,9 @@ struct ComposerDictationDisplay: Equatable, Sendable {
         glue(prefix, glue(transcript.committedText, transcript.liveText))
     }
 
+    /// Committed finals only — no prefix, no live partial. Correction baseline.
+    var committedText: String { transcript.committedText }
+
     /// Clears prefix and transcript state for a new dictation session.
     mutating func reset() {
         prefix = ""

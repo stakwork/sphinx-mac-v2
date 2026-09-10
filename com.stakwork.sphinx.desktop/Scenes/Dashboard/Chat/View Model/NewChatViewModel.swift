@@ -38,9 +38,10 @@ import Foundation
     var dictationDisplay = ComposerDictationDisplay()
     var dictationConnectingTask: Task<Void, Never>?
     var holdsDictationOccupancy = false
-    /// Occupancy-minted `UUID().uuidString`. Never read from composer text
-    /// or caller input. Replaced only on the next successful occupancy.
+    /// Occupancy-minted session id. Never read from composer text or callers.
     var dictationSessionId: String?
+    /// Survives idle until send success, leave, voice-note, or the next start.
+    var pendingCorrection: (session: String, prefix: String, committed: String)?
 
     var onDictationTextChanged: ((String) -> Void)?
     var onDictationActiveChanged: ((Bool) -> Void)?

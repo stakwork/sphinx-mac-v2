@@ -60,4 +60,16 @@ final class ComposerDictationDisplayTests: XCTestCase {
         XCTAssertEqual(display.fieldText, "Hello.")
         XCTAssertNotEqual(display.fieldText, "Hello .")
     }
+
+    func testCommittedTextExcludesPrefixAndLivePartial() {
+        var display = ComposerDictationDisplay()
+        display.setPrefix("Note")
+        display.apply(final: "hello")
+        display.apply(partial: "wor")
+
+        XCTAssertEqual(display.committedText, "hello")
+        XCTAssertEqual(display.fieldText, "Note hello wor")
+        XCTAssertFalse(display.committedText.contains("Note"))
+        XCTAssertFalse(display.committedText.contains("wor"))
+    }
 }

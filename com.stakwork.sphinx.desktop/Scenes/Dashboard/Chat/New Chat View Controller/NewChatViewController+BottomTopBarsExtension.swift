@@ -271,8 +271,15 @@ extension NewChatViewController : ChatBottomViewDelegate {
         price: Int,
         completion: @escaping (Bool) -> ()
     ) {
+        let sendCompletion: (Bool) -> () = { [weak self] success in
+            if success {
+                self?.newChatViewModel.maybePostDictationCorrection(sentText: text)
+            }
+            completion(success)
+        }
+
         if isAgentChat {
-            handleAgentMessage(text: text, completion: completion)
+            handleAgentMessage(text: text, completion: sendCompletion)
             return
         }
         chatBottomView.resetReplyView()
@@ -294,7 +301,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 data: data,
                 completion: { (success, _) in
                     DispatchQueue.main.async {
-                        completion(success)
+                        sendCompletion(success)
                     }
                 }
             )
@@ -317,7 +324,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     chat: chat
                 )
                 
-                completion(true)
+                sendCompletion(true)
             } else {
                 messageBubbleHelper.showGenericMessageView(
                     text: "generic.error.message".localized, in: view
@@ -327,7 +334,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                     delegate?.shouldReloadChatRowWith(chatId: chatId)
                 }
                 
-                completion(false)
+                sendCompletion(false)
             }
         } else {
             if hadDraft, let chatId = chat?.id {
@@ -339,7 +346,7 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
                 provisionalMessage: nil,
                 completion: { (success, _) in
-                    completion(success)
+                    sendCompletion(success)
                 }
             )
         }

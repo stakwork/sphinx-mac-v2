@@ -127,6 +127,11 @@ extension NewChatViewModel {
 
         dictationConnectingTask = nil
 
+        // Fresh occupancy replaces any leftover pending record — never POST
+        // a previous session just because a new dictation started.
+        pendingCorrection = nil
+        dictationSessionId = UUID().uuidString
+
         dictationDisplay.reset()
         dictationDisplay.setPrefix(dictationPrefixProvider?() ?? "")
 
@@ -197,6 +202,11 @@ extension NewChatViewModel {
     private func stopDictationSession(reason: String) async {
         let current = dictationPhase
         if current == .idle {
+            // Already snapshotted (user-toggle) or never started. Leave /
+            // voice-note still drop a leftover pending record; send keeps it.
+            if StrutCorrection.shouldDiscardPending(reason: reason) {
+                pendingCorrection = nil
+            }
             return
         }
 
@@ -212,6 +222,7 @@ extension NewChatViewModel {
                 level: .info,
                 message: "[StrutDictation] connecting cancel generation=\(generation) reason=\(reason)"
             )
+            applyPendingCorrectionLifecycle(reason: reason)
             releaseOccupancyIfHeld()
             clearClientHandlers()
             dictationClient = nil
@@ -232,6 +243,13 @@ extension NewChatViewModel {
 
         let client = dictationClient
         await client?.stopAndWait()
+        // Yield so a trailing `handleFinal` Task scheduled during the stop
+        // window can apply onto MainActor before we snapshot committed text.
+        await Task.yield()
+        // Snapshot after stopAndWait so a trailing final that landed on
+        // MainActor during the stop window is included. Read committed
+        // before any display reset.
+        applyPendingCorrectionLifecycle(reason: reason)
         clearClientHandlers()
         if !discardCallbacks {
             dictationGeneration += 1
@@ -239,6 +257,45 @@ extension NewChatViewModel {
         dictationClient = nil
         releaseOccupancyIfHeld()
         setPhase(.idle, generation: dictationGeneration)
+    }
+
+    /// Leave / voice-note drop the pending record. Send and user-toggle
+    /// snapshot committed text so a later edited send can POST. Empty
+    /// finals keep any leftover pending from a previous user-toggle stop.
+    private func applyPendingCorrectionLifecycle(reason: String) {
+        pendingCorrection = StrutCorrection.pendingRecordAfterStop(
+            reason: reason,
+            session: dictationSessionId,
+            prefix: dictationDisplay.prefix,
+            committed: dictationDisplay.committedText,
+            existing: pendingCorrection
+        )
+    }
+
+    /// Fire-and-forget correction POST on a *successful* send only.
+    /// Callers must not await this; a failed send must not call it so the
+    /// pending record survives for a retry. A successful send always
+    /// consumes the record (including send-as-is) so a later unrelated
+    /// message cannot POST against this session.
+    func maybePostDictationCorrection(sentText: String) {
+        guard let pending = pendingCorrection else { return }
+        let span = StrutCorrection.consumeOnSuccessfulSend(
+            pending: pending,
+            sent: sentText
+        )
+        pendingCorrection = nil
+        guard let span else { return }
+
+        let sessionId = pending.session
+        Task {
+            let result = await StrutConnection.shared.readyConnection()
+            guard case .success(let ready) = result else { return }
+            await StrutLearningClient.shared.postCorrection(
+                sessionId: sessionId,
+                text: span,
+                ready: ready
+            )
+        }
     }
 
     private func failToIdle(userMessage: String, generation: Int) {
