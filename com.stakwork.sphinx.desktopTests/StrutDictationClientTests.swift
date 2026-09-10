@@ -244,7 +244,9 @@ final class StrutDictationClientTests: XCTestCase {
         capturer: FakeStrutAudioCapturer,
         micBusy: Bool = false,
         stopTimeout: TimeInterval = 2.0,
-        restartBackoff: TimeInterval = 0.05
+        restartBackoff: TimeInterval = 0.05,
+        session: String? = nil,
+        hotwords: [String] = []
     ) -> StrutDictationClient {
         StrutDictationClient(
             ready: makeReady(),
@@ -252,7 +254,9 @@ final class StrutDictationClientTests: XCTestCase {
             capturer: capturer,
             micGate: FakeMicGate(busy: micBusy, granted: true),
             stopTimeout: stopTimeout,
-            restartBackoff: restartBackoff
+            restartBackoff: restartBackoff,
+            session: session,
+            hotwords: hotwords
         )
     }
 
@@ -295,6 +299,17 @@ final class StrutDictationClientTests: XCTestCase {
             return false
         }
         return object["type"] as? String == "start"
+    }
+
+    private func startPayload(_ text: String) -> [String: Any]? {
+        guard
+            let data = text.data(using: .utf8),
+            let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            object["type"] as? String == "start"
+        else {
+            return nil
+        }
+        return object
     }
 
     private func isEndFrame(_ text: String) -> Bool {
@@ -464,6 +479,41 @@ final class StrutDictationClientTests: XCTestCase {
         XCTAssertEqual(transport.texts.filter { isStartFrame($0) }.count, 2)
         XCTAssertEqual(transport.texts.filter { isEndFrame($0) }.count, 1)
         XCTAssertEqual(capturer.startTapCount, 2)
+    }
+
+    func testDeviceChangeRestartReusesSessionAndHotwords() {
+        let session = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+        let hotwords = ["Alice", "Sphinx", "Stakwork"]
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(
+            transport: transport,
+            capturer: capturer,
+            restartBackoff: 0.05,
+            session: session,
+            hotwords: hotwords
+        )
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        capturer.triggerConfigurationChange()
+
+        waitUntil(1.5) {
+            transport.texts.filter { self.isStartFrame($0) }.count == 2
+        }
+
+        let starts = transport.texts.compactMap { startPayload($0) }
+        XCTAssertEqual(starts.count, 2)
+        for payload in starts {
+            XCTAssertEqual(payload["session"] as? String, session)
+            let words: [String]?
+            if let strings = payload["hotwords"] as? [String] {
+                words = strings
+            } else {
+                words = (payload["hotwords"] as? [Any]) as? [String]
+            }
+            XCTAssertEqual(words, hotwords)
+            XCTAssertEqual(payload["sampleRate"] as? Int, 48_000)
+        }
     }
 
     // MARK: - Stale generation

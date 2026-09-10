@@ -32,6 +32,59 @@ final class StrutAudioMessagesTests: XCTestCase {
         XCTAssertEqual(object.count, 2)
     }
 
+    func testEncodeStart_IncludesSessionWhenNonNil() throws {
+        let object = try json(
+            StrutAudioMessages.encodeStart(sampleRate: 48000, session: "sess-1")
+        )
+        XCTAssertEqual(object["session"] as? String, "sess-1")
+        XCTAssertNil(object["hotwords"])
+        XCTAssertNil(object["model"])
+        XCTAssertNil(object["partialModel"])
+        XCTAssertNil(object["endpoint"])
+    }
+
+    func testEncodeStart_OmitsSessionWhenNil() throws {
+        let object = try json(
+            StrutAudioMessages.encodeStart(sampleRate: 48000, session: nil, hotwords: nil)
+        )
+        XCTAssertNil(object["session"])
+        XCTAssertNil(object["hotwords"])
+        XCTAssertEqual(object.count, 2)
+    }
+
+    func testEncodeStart_IncludesHotwordsWhenNonEmpty() throws {
+        let object = try json(
+            StrutAudioMessages.encodeStart(sampleRate: 48000, hotwords: ["Sphinx", "Alice"])
+        )
+        XCTAssertEqual(stringArray(object["hotwords"]), ["Sphinx", "Alice"])
+        XCTAssertNil(object["session"])
+    }
+
+    func testEncodeStart_OmitsHotwordsWhenEmpty() throws {
+        let object = try json(
+            StrutAudioMessages.encodeStart(sampleRate: 48000, hotwords: [])
+        )
+        XCTAssertNil(object["hotwords"])
+        XCTAssertEqual(object.count, 2)
+    }
+
+    func testEncodeStart_IncludesSessionAndHotwordsTogether() throws {
+        let object = try json(
+            StrutAudioMessages.encodeStart(
+                sampleRate: 16000,
+                session: "abc",
+                hotwords: ["Stakwork"]
+            )
+        )
+        XCTAssertEqual(object["type"] as? String, "start")
+        XCTAssertEqual(object["sampleRate"] as? Int, 16000)
+        XCTAssertEqual(object["session"] as? String, "abc")
+        XCTAssertEqual(stringArray(object["hotwords"]), ["Stakwork"])
+        XCTAssertNil(object["model"])
+        XCTAssertNil(object["partialModel"])
+        XCTAssertNil(object["endpoint"])
+    }
+
     func testEncodeEnd() throws {
         let object = try json(StrutAudioMessages.encodeEnd())
         XCTAssertEqual(object["type"] as? String, "end")
@@ -72,5 +125,10 @@ final class StrutAudioMessagesTests: XCTestCase {
     private func json(_ data: Data) throws -> [String: Any] {
         let object = try JSONSerialization.jsonObject(with: data)
         return try XCTUnwrap(object as? [String: Any])
+    }
+
+    private func stringArray(_ value: Any?) -> [String]? {
+        if let strings = value as? [String] { return strings }
+        return (value as? [Any]) as? [String]
     }
 }

@@ -51,6 +51,10 @@ final class StrutDictationClient: @unchecked Sendable {
     private let micGate: any StrutDictationMicGate
     private let stopTimeout: TimeInterval
     private let restartBackoff: TimeInterval
+    /// Minted by the view model after occupancy; reused on device-change restart.
+    private let session: String?
+    /// Start-frame hotwords; reused on device-change restart, never regenerated.
+    private let hotwords: [String]
 
     private let lock = NSLock()
     private var generation: Int = 0
@@ -81,7 +85,9 @@ final class StrutDictationClient: @unchecked Sendable {
         capturer: (any StrutAudioCapturer)? = nil,
         micGate: any StrutDictationMicGate = ProductionStrutDictationMicGate(),
         stopTimeout: TimeInterval = 2.0,
-        restartBackoff: TimeInterval = 0.3
+        restartBackoff: TimeInterval = 0.3,
+        session: String? = nil,
+        hotwords: [String] = []
     ) {
         self.ready = ready
         self.transport = transport ?? URLSessionStrutStreamTransport()
@@ -89,6 +95,8 @@ final class StrutDictationClient: @unchecked Sendable {
         self.micGate = micGate
         self.stopTimeout = stopTimeout
         self.restartBackoff = restartBackoff
+        self.session = session
+        self.hotwords = hotwords
 
         self.transport.setHandlers(
             onMessage: { [weak self] generation, message in
@@ -240,7 +248,13 @@ final class StrutDictationClient: @unchecked Sendable {
                 message: "[StrutDictation] start sampleRate=\(rate) host=\(logHost) path=/audio/stream"
             )
 
-            sendTextFrame(StrutAudioMessages.encodeStart(sampleRate: rate))
+            sendTextFrame(
+                StrutAudioMessages.encodeStart(
+                    sampleRate: rate,
+                    session: session,
+                    hotwords: hotwords
+                )
+            )
 
             lock.lock()
             if generation == gen {
