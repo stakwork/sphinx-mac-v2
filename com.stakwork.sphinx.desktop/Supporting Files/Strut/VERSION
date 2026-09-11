@@ -1,0 +1,6 @@
+strut: v0.1.1 (https://github.com/stakwork/strut/releases/download/v0.1.1/strut-darwin-arm64.tar.gz)
+node: v22.23.2 darwin-arm64 (https://nodejs.org/dist/v22.23.2/node-v22.23.2-darwin-arm64.tar.gz)
+sherpa-onnx-node / sherpa-onnx-darwin-arm64: 1.13.7
+entry: desktop.js
+ready-line timeout: 10s
+team: 8297M44YTW

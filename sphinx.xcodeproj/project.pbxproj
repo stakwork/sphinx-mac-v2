@@ -783,6 +783,7 @@
 		STRUT00V0000000001STRUTV /* StrutProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00U0000000001STRUTU /* StrutProcessController.swift */; };
 		STRUTT00O00000001STRUTTO /* StrutReadyLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */; };
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
+		STRUTH00200000001STRUTH2 /* Strut in Embed Strut Helper */ = {isa = PBXBuildFile; fileRef = STRUTH00100000001STRUTH1 /* Strut */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -828,6 +829,17 @@
 				4725DA7F2481DAB40099A00B /* Roboto-Medium.ttf in CopyFiles */,
 				4725DA802481DAB40099A00B /* Roboto-Regular.ttf in CopyFiles */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		STRUTH0100000001STRUTH0 /* Embed Strut Helper */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Helpers;
+			dstSubfolderSpec = 1;
+			files = (
+				STRUTH00200000001STRUTH2 /* Strut in Embed Strut Helper */,
+			);
+			name = "Embed Strut Helper";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -1910,6 +1922,8 @@
 		STRUT00U0000000001STRUTU /* StrutProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessController.swift; sourceTree = "<group>"; };
 		STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutReadyLineTests.swift; sourceTree = "<group>"; };
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
+		STRUTH00100000001STRUTH1 /* Strut */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Strut; sourceTree = "<group>"; };
+		STRUTH00300000001STRUTH3 /* StrutNode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StrutNode.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2189,6 +2203,7 @@
 		4726A42B24C628AF005A66B4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				STRUTH00100000001STRUTH1 /* Strut */,
 				47A93EF525DD76F00030DF14 /* Gifs */,
 				4726A42C24C628BB005A66B4 /* Sounds */,
 				479C793724EC3CCD009BA1CD /* test.html */,
@@ -2310,6 +2325,7 @@
 				4734D39C2417E3D500D6957E /* Assets.xcassets */,
 				4734D3A12417E3D500D6957E /* Info.plist */,
 				4734D3A22417E3D500D6957E /* com_stakwork_sphinx_desktop.entitlements */,
+				STRUTH00300000001STRUTH3 /* StrutNode.entitlements */,
 				47E19DE82BB716A600A0E596 /* PrivacyInfo.xcprivacy */,
 				4797E84424BCC14E00D13270 /* Localizable.strings */,
 			);
@@ -4307,6 +4323,8 @@
 				4734D3902417E3D400D6957E /* Resources */,
 				D1E991D217B4B052B9EB71DE /* [CP] Embed Pods Frameworks */,
 				4703F0622481C63C00282186 /* CopyFiles */,
+				STRUTH0100000001STRUTH0 /* Embed Strut Helper */,
+				STRUTH0200000001STRUTH2 /* Sign Strut Nested Code */,
 				479C793324EAD51E009BA1CD /* ShellScript */,
 			);
 			buildRules = (
@@ -4665,6 +4683,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		STRUTH0200000001STRUTH2 /* Sign Strut Nested Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/Strut/node",
+				"$(SRCROOT)/com.stakwork.sphinx.desktop/StrutNode.entitlements",
+			);
+			name = "Sign Strut Nested Code";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/sign-strut-nested.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -183,7 +183,7 @@ final class StrutProcessControllerTests: XCTestCase {
         }
         FileManager.default.createFile(atPath: url.path, contents: data)
         FileManager.default.createFile(
-            atPath: helperFolder.appendingPathComponent("strut.js").path,
+            atPath: helperFolder.appendingPathComponent("desktop.js").path,
             contents: Data()
         )
     }
@@ -276,7 +276,7 @@ final class StrutProcessControllerTests: XCTestCase {
         XCTAssertEqual(factory.lastExecutable, helperFolder.appendingPathComponent("node"))
         XCTAssertEqual(
             factory.lastArguments,
-            [helperFolder.appendingPathComponent("strut.js").path]
+            [helperFolder.appendingPathComponent("desktop.js").path]
         )
         XCTAssertEqual(factory.lastDirectory, helperFolder)
         XCTAssertEqual(factory.lastEnvironment["HOME"], writableFolder.path)

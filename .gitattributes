@@ -1,0 +1,7 @@
+# Vendored Strut helper Mach-O (arm64 Node + sherpa-onnx). See
+# com.stakwork.sphinx.desktop/Supporting Files/Strut/README.md.
+"com.stakwork.sphinx.desktop/Supporting Files/Strut/node" filter=lfs diff=lfs merge=lfs -text
+"com.stakwork.sphinx.desktop/Supporting Files/Strut/node_modules/sherpa-onnx-darwin-arm64/sherpa-onnx.node" filter=lfs diff=lfs merge=lfs -text
+"com.stakwork.sphinx.desktop/Supporting Files/Strut/node_modules/sherpa-onnx-darwin-arm64/libonnxruntime.dylib" filter=lfs diff=lfs merge=lfs -text
+"com.stakwork.sphinx.desktop/Supporting Files/Strut/node_modules/sherpa-onnx-darwin-arm64/libsherpa-onnx-c-api.dylib" filter=lfs diff=lfs merge=lfs -text
+"com.stakwork.sphinx.desktop/Supporting Files/Strut/node_modules/sherpa-onnx-darwin-arm64/libsherpa-onnx-cxx-api.dylib" filter=lfs diff=lfs merge=lfs -text

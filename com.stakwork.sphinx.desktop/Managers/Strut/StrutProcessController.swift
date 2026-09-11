@@ -259,10 +259,25 @@ enum StrutMachO {
 /// `StrutConnection`'s occupancyLock justification.
 final class StrutProcessController: @unchecked Sendable {
 
-    /// Frozen argv entry for the bundled helper (`Contents/Helpers/Strut/strut.js`).
-    /// Packaging spike (T3) may revise this filename if the vendor tree differs.
-    static let defaultEntryFileName = "strut.js"
+    /// Frozen argv entry for the bundled helper (`Contents/Helpers/Strut/desktop.js`).
+    ///
+    /// Packaging spike (T3 / cmtwz42og0005l1041ujkorf3): strut's desktop
+    /// launcher is `desktop.js` (`stakwork/strut` v0.1.1,
+    /// `plans/native-dictation-client.md` §0). A host spawns
+    /// `node <Helpers/Strut>/desktop.js` with `currentDirectoryURL` = that
+    /// folder so `sherpa-onnx-node` resolves `sherpa-onnx-darwin-arm64` via
+    /// `os.arch()`. Do not pass the `strut` shell wrapper; do not invent a
+    /// `strut.js` filename.
+    ///
+    /// Helper entitlements (`StrutNode.entitlements`): sandbox inherit +
+    /// `cs.allow-jit`. No `cs.disable-library-validation`. Do not add
+    /// `cs.allow-unsigned-executable-memory` unless a signed Apple Silicon
+    /// build dies in V8 isolate setup.
+    static let defaultEntryFileName = "desktop.js"
     static let defaultNodeBinaryName = "node"
+    /// 10s is enough for Node 22 + sherpa-onnx-node cold start on Apple
+    /// Silicon (typically 1–3s; recognizer ready is ~1s after listen).
+    /// Bump only if a signed spike measures a longer ready-line delay.
     static let defaultReadyLineTimeout: TimeInterval = 10
     static let defaultStopWaitTimeout: TimeInterval = 2
 
