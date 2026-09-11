@@ -448,6 +448,7 @@ class NewChatViewController: DashboardSplittedViewController {
     }
 
     func bindDictationCallbacks() {
+        guard let newChatViewModel else { return }
         newChatViewModel.dictationPrefixProvider = { [weak self] in
             self?.chatBottomView.currentMessageText() ?? ""
         }
