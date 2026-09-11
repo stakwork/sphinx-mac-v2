@@ -313,4 +313,69 @@ final class StrutConnectionTests: XCTestCase {
         let result = await connection.readyConnection()
         XCTAssertEqual(result, .failure(.unreachable(.httpStatus(500))))
     }
+
+    // MARK: - 7. Launch-scoped overlay
+
+    func testApplyLaunchSession_OverlayWinsOverPersistedStorage() {
+        let connection = makeConnection()
+        connection.baseURLString = "http://10.0.0.9:9"
+        connection.apiKey = "stale-secret"
+        XCTAssertEqual(secretStore.get(), "stale-secret")
+        XCTAssertEqual(defaults.string(forKey: "strutBaseURL"), "http://10.0.0.9:9")
+
+        connection.applyLaunchSession(
+            baseURLString: "http://127.0.0.1:51235",
+            apiKey: "launch-key"
+        )
+
+        XCTAssertEqual(connection.baseURLString, "http://127.0.0.1:51235")
+        XCTAssertEqual(connection.apiKey, "launch-key")
+        XCTAssertEqual(connection.authorizationHeaderValue, "Bearer launch-key")
+        XCTAssertEqual(secretStore.get(), "stale-secret")
+        XCTAssertEqual(defaults.string(forKey: "strutBaseURL"), "http://10.0.0.9:9")
+    }
+
+    func testClearLaunchSession_EmptyKeyWinsOverStaleSecretStore() {
+        let connection = makeConnection()
+        connection.baseURLString = "http://10.0.0.9:9"
+        connection.apiKey = "stale-secret"
+
+        connection.applyLaunchSession(
+            baseURLString: "http://127.0.0.1:51235",
+            apiKey: "launch-key"
+        )
+        connection.clearLaunchSession()
+
+        XCTAssertEqual(connection.apiKey, "")
+        XCTAssertNil(connection.authorizationHeaderValue)
+        XCTAssertEqual(connection.baseURLString, StrutConnection.defaultBaseURLString)
+        XCTAssertEqual(secretStore.get(), "stale-secret")
+        XCTAssertEqual(defaults.string(forKey: "strutBaseURL"), "http://10.0.0.9:9")
+    }
+
+    func testReadyConnection_EmptyOverlayKeyIsMissingAPIKeyDespiteStaleSecret() async {
+        StrutURLProtocolStub.response = .init(statusCode: 200)
+        let connection = makeConnection()
+        connection.apiKey = "stale-secret"
+        connection.clearLaunchSession()
+
+        let result = await connection.readyConnection()
+        XCTAssertEqual(result, .failure(.missingAPIKey))
+        XCTAssertEqual(secretStore.get(), "stale-secret")
+    }
+
+    func testApplyLaunchSession_EmptyOverlayKeyWinsWithoutClearingSecretStore() {
+        let connection = makeConnection()
+        connection.apiKey = "stale-secret"
+
+        connection.applyLaunchSession(
+            baseURLString: "http://127.0.0.1:51235",
+            apiKey: ""
+        )
+
+        XCTAssertEqual(connection.apiKey, "")
+        XCTAssertNil(connection.authorizationHeaderValue)
+        XCTAssertEqual(connection.baseURLString, "http://127.0.0.1:51235")
+        XCTAssertEqual(secretStore.get(), "stale-secret")
+    }
 }

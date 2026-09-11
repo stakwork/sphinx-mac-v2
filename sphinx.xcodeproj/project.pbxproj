@@ -778,6 +778,7 @@
 		STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */; };
 		STRUT00R0000000001STRUTR /* StrutHotwordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00Q0000000001STRUTQ /* StrutHotwordList.swift */; };
 		STRUTT00K00000001STRUTTK /* StrutHotwordListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */; };
+		STRUTT00M00000001STRUTTM /* KeychainManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1900,6 +1901,7 @@
 		STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutCorrectionTests.swift; sourceTree = "<group>"; };
 		STRUT00Q0000000001STRUTQ /* StrutHotwordList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutHotwordList.swift; sourceTree = "<group>"; };
 		STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutHotwordListTests.swift; sourceTree = "<group>"; };
+		STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2329,6 +2331,7 @@
 				STRUTT00F00000001STRUTTF /* StrutLearningClientTests.swift */,
 				STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */,
 				STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */,
+				STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -5246,6 +5249,7 @@
 				STRUTT00G00000001STRUTTG /* StrutLearningClientTests.swift in Sources */,
 				STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */,
 				STRUTT00K00000001STRUTTK /* StrutHotwordListTests.swift in Sources */,
+				STRUTT00M00000001STRUTTM /* KeychainManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

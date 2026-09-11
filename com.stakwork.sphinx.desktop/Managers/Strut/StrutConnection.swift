@@ -60,9 +60,10 @@ enum StrutNotReady: Error, Equatable, Sendable {
     case missingAPIKey
 }
 
-/// `@unchecked Sendable` because this is a process-wide singleton whose mutable
-/// state lives in UserDefaults, Keychain, and URLSession rather than in-memory
-/// stored properties — the same pattern as `API` and `KeychainManager`.
+/// `@unchecked Sendable` because this is a process-wide singleton whose
+/// persisted state lives in UserDefaults, Keychain, and URLSession, and whose
+/// in-memory overlay is serialized by `launchSessionLock` — the same
+/// `nonisolated(unsafe)` + lock pattern as `dictationOccupied`.
 class StrutConnection: @unchecked Sendable {
 
     static let defaultBaseURLString = "http://127.0.0.1:51234"
@@ -75,6 +76,14 @@ class StrutConnection: @unchecked Sendable {
     private let userDefaults: UserDefaults
     private let secretStore: any StrutSecretStore
     private let urlSession: URLSession
+
+    /// Launch-scoped overlay so a per-launch ready line can mask persisted
+    /// UserDefaults/keychain without writing them. Serialized by
+    /// `launchSessionLock`, same pattern as `occupancyLock`.
+    private let launchSessionLock = NSLock()
+    nonisolated(unsafe) private var launchSessionActive = false
+    nonisolated(unsafe) private var launchSessionBaseURLString = ""
+    nonisolated(unsafe) private var launchSessionAPIKey = ""
 
     init(
         userDefaults: UserDefaults = .standard,
@@ -99,6 +108,10 @@ class StrutConnection: @unchecked Sendable {
 
     var baseURLString: String {
         get {
+            if let overlay = overlayBaseURLStringIfActive() {
+                let trimmed = overlay.trimmingCharacters(in: .whitespacesAndNewlines)
+                return trimmed.isEmpty ? Self.defaultBaseURLString : trimmed
+            }
             let stored = (userDefaults.string(forKey: Self.baseURLDefaultsKey) ?? "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             return stored.isEmpty ? Self.defaultBaseURLString : stored
@@ -115,7 +128,10 @@ class StrutConnection: @unchecked Sendable {
 
     var apiKey: String {
         get {
-            secretStore.get() ?? ""
+            if let overlay = overlayAPIKeyIfActive() {
+                return overlay
+            }
+            return secretStore.get() ?? ""
         }
         set {
             let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -125,6 +141,41 @@ class StrutConnection: @unchecked Sendable {
                 secretStore.set(trimmed)
             }
         }
+    }
+
+    /// In-memory overlay for this launch. Not persisted. An empty overlay
+    /// `apiKey` still wins over the secret store so a cleared session cannot
+    /// leak a stale key into `readyConnection()`.
+    func applyLaunchSession(baseURLString: String, apiKey: String) {
+        launchSessionLock.lock()
+        launchSessionActive = true
+        launchSessionBaseURLString = baseURLString.trimmingCharacters(in: .whitespacesAndNewlines)
+        launchSessionAPIKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        launchSessionLock.unlock()
+    }
+
+    /// Keeps the launch session active with both overlay values empty so
+    /// getters never fall through to persisted storage.
+    func clearLaunchSession() {
+        launchSessionLock.lock()
+        launchSessionActive = true
+        launchSessionBaseURLString = ""
+        launchSessionAPIKey = ""
+        launchSessionLock.unlock()
+    }
+
+    private func overlayBaseURLStringIfActive() -> String? {
+        launchSessionLock.lock()
+        defer { launchSessionLock.unlock() }
+        guard launchSessionActive else { return nil }
+        return launchSessionBaseURLString
+    }
+
+    private func overlayAPIKeyIfActive() -> String? {
+        launchSessionLock.lock()
+        defer { launchSessionLock.unlock() }
+        guard launchSessionActive else { return nil }
+        return launchSessionAPIKey
     }
 
     var authorizationHeaderValue: String? {
