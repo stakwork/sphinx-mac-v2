@@ -778,6 +778,11 @@
 		STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */; };
 		STRUT00R0000000001STRUTR /* StrutHotwordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00Q0000000001STRUTQ /* StrutHotwordList.swift */; };
 		STRUTT00K00000001STRUTTK /* StrutHotwordListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */; };
+		STRUTT00M00000001STRUTTM /* KeychainManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */; };
+		STRUT00T0000000001STRUTT /* StrutReadyLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00S0000000001STRUTS /* StrutReadyLine.swift */; };
+		STRUT00V0000000001STRUTV /* StrutProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT00U0000000001STRUTU /* StrutProcessController.swift */; };
+		STRUTT00O00000001STRUTTO /* StrutReadyLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */; };
+		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1900,6 +1905,11 @@
 		STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutCorrectionTests.swift; sourceTree = "<group>"; };
 		STRUT00Q0000000001STRUTQ /* StrutHotwordList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutHotwordList.swift; sourceTree = "<group>"; };
 		STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutHotwordListTests.swift; sourceTree = "<group>"; };
+		STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManagerTests.swift; sourceTree = "<group>"; };
+		STRUT00S0000000001STRUTS /* StrutReadyLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutReadyLine.swift; sourceTree = "<group>"; };
+		STRUT00U0000000001STRUTU /* StrutProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessController.swift; sourceTree = "<group>"; };
+		STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutReadyLineTests.swift; sourceTree = "<group>"; };
+		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2329,6 +2339,9 @@
 				STRUTT00F00000001STRUTTF /* StrutLearningClientTests.swift */,
 				STRUTT00H00000001STRUTTH /* StrutCorrectionTests.swift */,
 				STRUTT00J00000001STRUTTJ /* StrutHotwordListTests.swift */,
+				STRUTT00L00000001STRUTTL /* KeychainManagerTests.swift */,
+				STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */,
+				STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */,
 				4734D3AD2417E3D500D6957E /* Info.plist */,
 			);
 			path = com.stakwork.sphinx.desktopTests;
@@ -3703,6 +3716,8 @@
 				STRUT00M0000000001STRUTM /* StrutLearningClient.swift */,
 				STRUT00O0000000001STRUTO /* StrutCorrection.swift */,
 				STRUT00Q0000000001STRUTQ /* StrutHotwordList.swift */,
+				STRUT00S0000000001STRUTS /* StrutReadyLine.swift */,
+				STRUT00U0000000001STRUTU /* StrutProcessController.swift */,
 			);
 			path = Strut;
 			sourceTree = "<group>";
@@ -4961,6 +4976,8 @@
 				STRUT00N0000000001STRUTN /* StrutLearningClient.swift in Sources */,
 				STRUT00P0000000001STRUTP /* StrutCorrection.swift in Sources */,
 				STRUT00R0000000001STRUTR /* StrutHotwordList.swift in Sources */,
+				STRUT00T0000000001STRUTT /* StrutReadyLine.swift in Sources */,
+				STRUT00V0000000001STRUTV /* StrutProcessController.swift in Sources */,
 				STRUT00L0000000001STRUTL /* NewChatViewModel+DictationExtension.swift in Sources */,
 				C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */,
 				4717B6682D9ECA4200E3681E /* ChaptersManager.swift in Sources */,
@@ -5246,6 +5263,9 @@
 				STRUTT00G00000001STRUTTG /* StrutLearningClientTests.swift in Sources */,
 				STRUTT00I00000001STRUTTI /* StrutCorrectionTests.swift in Sources */,
 				STRUTT00K00000001STRUTTK /* StrutHotwordListTests.swift in Sources */,
+				STRUTT00M00000001STRUTTM /* KeychainManagerTests.swift in Sources */,
+				STRUTT00O00000001STRUTTO /* StrutReadyLineTests.swift in Sources */,
+				STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

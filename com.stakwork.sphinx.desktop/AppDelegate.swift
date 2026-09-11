@@ -51,6 +51,9 @@ import SphinxErrorReporter
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         AppLogger.shared.start()
+        Task {
+            await StrutProcessController.shared.start()
+        }
         startErrorReporter()
         setAppSettings()
         clearWebkitCache()
@@ -447,7 +450,13 @@ import SphinxErrorReporter
         }
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        StrutProcessController.shared.stop()
+        return .terminateNow
+    }
+
     func applicationWillTerminate(_ aNotification: Notification) {
+        StrutProcessController.shared.stop()
         AppLogger.shared.flush()
         WindowsManager.sharedInstance.saveWindowState()
         CoreDataManager.sharedManager.saveContext()
