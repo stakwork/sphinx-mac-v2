@@ -1,6 +1,5 @@
 import { AiDeps } from "./prompts.js";
 export declare function buildTools(deps: AiDeps): {
-    web_search?: any;
     graph_query?: import("ai").Tool<{
         cypher: string;
         maxRows: number;

@@ -31,7 +31,7 @@ This repository uses ```develop``` branch as base branch for development. Master
 
 ## Strut helper (dictation)
 
-The app bundle ships a local Strut process at `Contents/Helpers/Strut` (arm64 Node `v22.23.2` + [strut v0.1.1](https://github.com/stakwork/strut/releases/tag/v0.1.1) + `sherpa-onnx-darwin-arm64`). `StrutProcessController` spawns:
+The app bundle ships a local Strut process at `Contents/Strut` (arm64 Node `v22.23.2` + [strut v0.1.1](https://github.com/stakwork/strut/releases/tag/v0.1.1) + `sherpa-onnx-node`; native Mach-O live in `Contents/Strut/native/`). `StrutProcessController` spawns:
 
 ```
 node  desktop.js
@@ -45,4 +45,4 @@ Layout / contract check (no spawn): `scripts/verify-strut-helper.sh`.
 
 ## Release / notarization
 
-There is no separate Strut notarization pipeline. Archive and notarize **Sphinx.app** as usual (Xcode Organizer or `notarytool`). Nested code under `Contents/Helpers/Strut` is already signed with `--options runtime` during the app build; notarization covers the whole bundle, including `node`, `sherpa-onnx.node`, and the sherpa dylibs. Confirm on Apple Silicon: no Gatekeeper prompt, ready JSON line within 10s, `GET /health` 2xx.
+There is no separate Strut notarization pipeline. Archive and notarize **Sphinx.app** as usual (Xcode Organizer or `notarytool`). Nested code under `Contents/Strut/native` is already signed with `--options runtime` during the app build; notarization covers the whole bundle, including `node`, `sherpa-onnx.node`, and `libonnxruntime.dylib`/`libsherpa-onnx-c-api.dylib`. Confirm on Apple Silicon: no Gatekeeper prompt, ready JSON line within 10s, `GET /health` 2xx.

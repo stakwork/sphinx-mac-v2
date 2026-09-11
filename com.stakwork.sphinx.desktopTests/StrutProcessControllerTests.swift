@@ -124,7 +124,7 @@ final class StrutProcessControllerTests: XCTestCase {
 
         let temp = FileManager.default.temporaryDirectory
             .appendingPathComponent("StrutProcessTests-\(UUID().uuidString)", isDirectory: true)
-        helperFolder = temp.appendingPathComponent("Helpers/Strut", isDirectory: true)
+        helperFolder = temp.appendingPathComponent("Strut", isDirectory: true)
         writableFolder = temp.appendingPathComponent("Writable", isDirectory: true)
         try? FileManager.default.createDirectory(
             at: helperFolder,
@@ -139,7 +139,7 @@ final class StrutProcessControllerTests: XCTestCase {
     override func tearDown() {
         if let helperFolder {
             try? FileManager.default.removeItem(
-                at: helperFolder.deletingLastPathComponent().deletingLastPathComponent()
+                at: helperFolder.deletingLastPathComponent()
             )
         }
         if let suiteName {
@@ -173,8 +173,16 @@ final class StrutProcessControllerTests: XCTestCase {
         )
     }
 
+    /// `node` lives in `native/`, isolated from every plain resource
+    /// (matches the packaged layout — see `StrutProcessController`'s
+    /// `defaultNativeDirName` doc comment).
     private func writeNodeBinary(arm64: Bool, fat: Bool = false) {
-        let url = helperFolder.appendingPathComponent("node")
+        let nativeFolder = helperFolder.appendingPathComponent("native", isDirectory: true)
+        try? FileManager.default.createDirectory(
+            at: nativeFolder,
+            withIntermediateDirectories: true
+        )
+        let url = nativeFolder.appendingPathComponent("node")
         let data: Data
         if fat {
             data = arm64 ? Self.fatARM64MachO : Self.fatX86MachO
@@ -273,7 +281,10 @@ final class StrutProcessControllerTests: XCTestCase {
         XCTAssertEqual(connection.apiKey, "launch-key")
         XCTAssertNil(secretStore.get(), "Ready-line key must not be persisted")
         XCTAssertEqual(factory.spawned.count, 1)
-        XCTAssertEqual(factory.lastExecutable, helperFolder.appendingPathComponent("node"))
+        XCTAssertEqual(
+            factory.lastExecutable,
+            helperFolder.appendingPathComponent("native").appendingPathComponent("node")
+        )
         XCTAssertEqual(
             factory.lastArguments,
             [helperFolder.appendingPathComponent("desktop.js").path]

@@ -58,7 +58,10 @@ export interface StrutOptions<TServices = unknown> {
     /** Max agent steps (tool-call iterations) per chat turn. Raise for longer
      *  autonomous "let it rip" loops. Defaults to `STRUT_CHAT_MAX_STEPS` or 100. */
     chatMaxSteps?: number;
-    /** Anthropic model id for the chat agent. Defaults to `STRUT_CHAT_MODEL` or
+    /** Default model for the chat agent — any aieo model name: an alias
+     *  (`sonnet`, `gpt`, `kimi`), a full id, or `provider/id` (OpenRouter as
+     *  `openrouter/org/model`). A per-chat pick (`POST /chat { model }`, the
+     *  flyout's picker) overrides it. Defaults to `STRUT_CHAT_MODEL` or
      *  `claude-sonnet-5`. */
     chatModel?: string;
     /** How long the chat agent's `run_workflow` tool waits before a still-

@@ -42,8 +42,12 @@ function describeField(name, s) {
     const kind = inner._def.type;
     if (kind === "enum")
         return { name, kind: "enum", required, default: defaultVal, enumValues: inner.options };
-    if (kind === "string")
-        return { name, kind: "string", required, default: defaultVal };
+    if (kind === "string") {
+        // `.meta()` registers on the schema it's called on — the outer wrapper
+        // (`z.string().optional().meta(…)`) or the inner (`z.string().meta(…).optional()`).
+        const suggest = s.meta?.()?.suggest ?? inner.meta?.()?.suggest;
+        return { name, kind: "string", required, default: defaultVal, ...(suggest ? { suggest } : {}) };
+    }
     if (kind === "number")
         return { name, kind: "number", required, default: defaultVal };
     if (kind === "boolean")

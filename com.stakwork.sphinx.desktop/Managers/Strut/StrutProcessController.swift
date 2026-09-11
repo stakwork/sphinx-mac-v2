@@ -259,15 +259,31 @@ enum StrutMachO {
 /// `StrutConnection`'s occupancyLock justification.
 final class StrutProcessController: @unchecked Sendable {
 
-    /// Frozen argv entry for the bundled helper (`Contents/Helpers/Strut/desktop.js`).
+    /// Frozen argv entry for the bundled helper (`Contents/Strut/desktop.js`).
     ///
     /// Packaging spike (T3 / cmtwz42og0005l1041ujkorf3): strut's desktop
     /// launcher is `desktop.js` (`stakwork/strut` v0.1.1,
     /// `plans/native-dictation-client.md` §0). A host spawns
-    /// `node <Helpers/Strut>/desktop.js` with `currentDirectoryURL` = that
-    /// folder so `sherpa-onnx-node` resolves `sherpa-onnx-darwin-arm64` via
+    /// `node <Strut>/desktop.js` with `currentDirectoryURL` = that folder.
+    /// `sherpa-onnx-node`'s addon loader is patched upstream
+    /// (`scripts/package-desktop.mjs`'s `relocateNative`) to `require` its
+    /// native addon from `<Strut>/native/sherpa-onnx.node` directly, rather
+    /// than resolving a `sherpa-onnx-<platform>` optional dependency via
     /// `os.arch()`. Do not pass the `strut` shell wrapper; do not invent a
     /// `strut.js` filename.
+    ///
+    /// `node` itself ships outside the strut tarball (fetched separately
+    /// from nodejs.org) and is placed in the same `native/` directory, so
+    /// every Mach-O the host code-signs lives in one binaries-only folder.
+    ///
+    /// The helper is embedded at `Contents/Strut`, deliberately NOT
+    /// `Contents/Helpers/Strut`: `Contents/Helpers/` is a reserved bundle
+    /// location (like Frameworks/PlugIns/XPCServices) where codesign
+    /// requires everything to be independently-signed nested code and
+    /// rejects any plain resource file outright — confirmed with a minimal
+    /// repro (a lone resource file under `Contents/Helpers/x/`, no Mach-O
+    /// involved, already fails to seal; the identical tree under
+    /// `Contents/Strut/` signs fine). Do not move this back under Helpers/.
     ///
     /// Helper entitlements (`StrutNode.entitlements`): sandbox inherit +
     /// `cs.allow-jit`. No `cs.disable-library-validation`. Do not add
@@ -275,6 +291,7 @@ final class StrutProcessController: @unchecked Sendable {
     /// build dies in V8 isolate setup.
     static let defaultEntryFileName = "desktop.js"
     static let defaultNodeBinaryName = "node"
+    static let defaultNativeDirName = "native"
     /// 10s is enough for Node 22 + sherpa-onnx-node cold start on Apple
     /// Silicon (typically 1–3s; recognizer ready is ~1s after listen).
     /// Bump only if a signed spike measures a longer ready-line delay.
@@ -289,12 +306,13 @@ final class StrutProcessController: @unchecked Sendable {
     private let writableDirectoryURL: @Sendable () -> URL
     private let entryFileName: String
     private let nodeBinaryName: String
+    private let nativeDirName: String
     private let readyLineTimeout: TimeInterval
     private let stopWaitTimeout: TimeInterval
     private let fileManager: FileManager
 
     private let overlayQueue = DispatchQueue(label: "com.sphinx.strutprocess.overlay")
-    private let stateLock = NSLock()
+    private let stateLock = StrutAsyncLock()
     nonisolated(unsafe) private var currentProcess: (any StrutProcessRunning)?
     nonisolated(unsafe) private var startGeneration: UInt64 = 0
 
@@ -304,7 +322,6 @@ final class StrutProcessController: @unchecked Sendable {
         helperFolderURL: @escaping @Sendable () -> URL = {
             Bundle.main.bundleURL
                 .appendingPathComponent("Contents", isDirectory: true)
-                .appendingPathComponent("Helpers", isDirectory: true)
                 .appendingPathComponent("Strut", isDirectory: true)
         },
         writableDirectoryURL: @escaping @Sendable () -> URL = {
@@ -318,6 +335,7 @@ final class StrutProcessController: @unchecked Sendable {
         },
         entryFileName: String = StrutProcessController.defaultEntryFileName,
         nodeBinaryName: String = StrutProcessController.defaultNodeBinaryName,
+        nativeDirName: String = StrutProcessController.defaultNativeDirName,
         readyLineTimeout: TimeInterval = StrutProcessController.defaultReadyLineTimeout,
         stopWaitTimeout: TimeInterval = StrutProcessController.defaultStopWaitTimeout,
         fileManager: FileManager = .default
@@ -328,6 +346,7 @@ final class StrutProcessController: @unchecked Sendable {
         self.writableDirectoryURL = writableDirectoryURL
         self.entryFileName = entryFileName
         self.nodeBinaryName = nodeBinaryName
+        self.nativeDirName = nativeDirName
         self.readyLineTimeout = readyLineTimeout
         self.stopWaitTimeout = stopWaitTimeout
         self.fileManager = fileManager
@@ -423,7 +442,9 @@ final class StrutProcessController: @unchecked Sendable {
             atPath: helperFolder.path,
             isDirectory: &isDirectory
         )
-        let nodeURL = helperFolder.appendingPathComponent(nodeBinaryName)
+        let nodeURL = helperFolder
+            .appendingPathComponent(nativeDirName, isDirectory: true)
+            .appendingPathComponent(nodeBinaryName)
         let entryURL = helperFolder.appendingPathComponent(entryFileName)
 
         guard helperExists, isDirectory.boolValue,

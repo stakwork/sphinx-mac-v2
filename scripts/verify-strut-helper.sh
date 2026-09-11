@@ -11,16 +11,29 @@ PARENT="${ROOT}/com.stakwork.sphinx.desktop/com_stakwork_sphinx_desktop.entitlem
 
 fail() { echo "error: $*" >&2; exit 1; }
 
+NATIVE="${HELPER}/native"
+
 [ -f "${HELPER}/desktop.js" ] || fail "missing desktop.js (frozen entry)"
-[ -f "${HELPER}/node" ] || fail "missing arm64 node"
-[ -f "${HELPER}/node_modules/sherpa-onnx-darwin-arm64/sherpa-onnx.node" ] || fail "missing sherpa-onnx.node"
-[ -f "${HELPER}/node_modules/sherpa-onnx-darwin-arm64/libonnxruntime.dylib" ] || fail "missing libonnxruntime.dylib"
-[ -f "${HELPER}/node_modules/sherpa-onnx-darwin-arm64/libsherpa-onnx-c-api.dylib" ] || fail "missing libsherpa-onnx-c-api.dylib"
-[ -f "${HELPER}/node_modules/sherpa-onnx-darwin-arm64/libsherpa-onnx-cxx-api.dylib" ] || fail "missing libsherpa-onnx-cxx-api.dylib"
+[ -f "${NATIVE}/node" ] || fail "missing arm64 node"
+[ -f "${NATIVE}/sherpa-onnx.node" ] || fail "missing sherpa-onnx.node"
+[ -f "${NATIVE}/libonnxruntime.dylib" ] || fail "missing libonnxruntime.dylib"
+[ -f "${NATIVE}/libsherpa-onnx-c-api.dylib" ] || fail "missing libsherpa-onnx-c-api.dylib"
 [ -f "${ENT}" ] || fail "missing StrutNode.entitlements"
 
+# native/ must hold ONLY Mach-O — codesign refuses to seal the outer app if
+# any OTHER top-level directory under Contents/ is named "Helpers" (see
+# scripts/sign-strut-nested.sh), and mixing a plain resource into native/
+# defeats the point of isolating strut's signable binaries in one place.
+for f in "${NATIVE}"/*; do
+  base="$(basename "${f}")"
+  case "${base}" in
+    node|sherpa-onnx.node|libonnxruntime.dylib|libsherpa-onnx-c-api.dylib) ;;
+    *) fail "unexpected file in native/: ${base}" ;;
+  esac
+done
+
 # Mach-O 64-bit little-endian, CPU_TYPE_ARM64 (0x0100000c)
-python3 - "${HELPER}/node" <<'PY'
+python3 - "${NATIVE}/node" <<'PY'
 import struct, sys
 path = sys.argv[1]
 with open(path, "rb") as f:
@@ -46,5 +59,5 @@ if grep -q "<key>com.apple.security.cs.disable-library-validation</key>" "${ENT}
 fi
 
 echo "Strut helper layout + entitlements OK"
-echo "Frozen argv: Contents/Helpers/Strut/node Contents/Helpers/Strut/desktop.js"
+echo "Frozen argv: Contents/Strut/native/node Contents/Strut/desktop.js"
 echo "Ready-line timeout: 10s (see StrutProcessController.defaultReadyLineTimeout)"

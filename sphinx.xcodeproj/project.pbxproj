@@ -834,7 +834,7 @@
 		STRUTH0100000001STRUTH0 /* Embed Strut Helper */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Helpers;
+			dstPath = Contents;
 			dstSubfolderSpec = 1;
 			files = (
 				STRUTH00200000001STRUTH2 /* Strut in Embed Strut Helper */,
@@ -4693,7 +4693,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/Strut/node",
+				"$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Strut/native/node",
 				"$(SRCROOT)/com.stakwork.sphinx.desktop/StrutNode.entitlements",
 			);
 			name = "Sign Strut Nested Code";

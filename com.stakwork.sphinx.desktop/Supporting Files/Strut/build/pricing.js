@@ -1,40 +1,14 @@
-// ── LLM token usage + cost ───────────────────────────────────────────────────
+// ── LLM token usage ──────────────────────────────────────────────────────────
 //
-// A tiny, provider-aware pricing helper shared by the LLM steps (the core
-// `agent` step, plus the lab's eval/reflect + gitsee/score-setup). It normalizes
-// the Vercel AI SDK's usage object into a flat { input, cacheRead, cacheWrite,
-// output } token count and turns that into a dollar cost.
+// Normalizes the Vercel AI SDK's usage object into a flat, addable
+// { input, cacheRead, cacheWrite, output } token count, shared by the LLM
+// steps (the core `agent` step, plus the lab's eval/reflect + gitsee steps).
 //
-// Pricing table copied from `mcp/src/aieo/src/provider.ts` ($ per 1M tokens).
-// Keep it in sync when that table changes.
-// $ per 1,000,000 tokens. Source of truth: mcp/src/aieo/src/provider.ts.
-export const TOKEN_PRICING = {
-    anthropic: {
-        inputTokenPrice: 3.0,
-        outputTokenPrice: 15.0,
-        cacheReadPrice: 0.3,
-        cacheWritePrice: 3.75,
-    },
-    google: {
-        inputTokenPrice: 1.25,
-        outputTokenPrice: 5.0,
-    },
-    openai: {
-        inputTokenPrice: 2.5,
-        outputTokenPrice: 10.0,
-    },
-    openrouter: {
-        inputTokenPrice: 0.6,
-        outputTokenPrice: 3.0,
-    },
-    // Grok has no cache-write charge — writes are billed as ordinary input,
-    // so no cacheWritePrice here.
-    xai: {
-        inputTokenPrice: 3.0,
-        outputTokenPrice: 15.0,
-        cacheReadPrice: 0.75,
-    },
-};
+// PRICING IS NOT HERE. aieo owns the price table and the per-provider output
+// cap (`getTokenPricing` / `computeSessionCost` in its provider.ts,
+// `maxOutputTokensFor` in its resolve.ts); `usageForCost` below is the shape
+// adapter into `computeSessionCost`. aieo stays lazy-loaded (it pulls every
+// provider SDK), so this module imports only a TYPE from it.
 export function emptyUsage() {
     return { inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
@@ -86,30 +60,14 @@ export function coerceUsage(usage) {
         totalTokens: num(u.totalTokens) || num(u.inputTokens) + num(u.cacheReadTokens) + num(u.cacheWriteTokens) + num(u.outputTokens),
     };
 }
-/** Dollar cost of a usage at a provider's rates. Unknown providers default to
- *  anthropic pricing; cache prices default to the input price when unset. */
-export function computeCost(provider, usage) {
-    const p = TOKEN_PRICING[provider] ?? TOKEN_PRICING.anthropic;
-    const M = 1_000_000;
-    return ((usage.inputTokens / M) * p.inputTokenPrice +
-        (usage.cacheReadTokens / M) * (p.cacheReadPrice ?? p.inputTokenPrice) +
-        (usage.cacheWriteTokens / M) * (p.cacheWritePrice ?? p.inputTokenPrice) +
-        (usage.outputTokens / M) * p.outputTokenPrice);
-}
-/**
- * Per-generation output-token cap for a provider — an INFRA constant, not a
- * step/workflow config (a workflow author never picks this; a wrong value is
- * only ever a bug). Mirrors mcp's `maxOutputTokensFor`: without an explicit
- * cap the AI SDK's providers default max_tokens to 4096, which truncates a
- * long draft or a large tool call MID-JSON (finish=length) and kills the
- * loop. Anthropic models take 128k; other providers reject max_tokens above
- * the model limit rather than clamping, so they keep a conservative 64k.
- * `STRUT_MAX_OUTPUT_TOKENS` overrides for all providers.
- */
-export function maxOutputTokensFor(provider) {
-    const env = Number(process.env["STRUT_MAX_OUTPUT_TOKENS"]);
-    if (env > 0)
-        return env;
-    return provider === "anthropic" ? 128_000 : 64_000;
+/** The shape aieo's `computeSessionCost(provider, usage, modelId?)` prices —
+ *  `computeSessionCost(provider, usageForCost(u))` is the whole cost calc. */
+export function usageForCost(u) {
+    return {
+        input: u.inputTokens,
+        cache_read: u.cacheReadTokens,
+        cache_write: u.cacheWriteTokens,
+        output: u.outputTokens,
+    };
 }
 //# sourceMappingURL=pricing.js.map

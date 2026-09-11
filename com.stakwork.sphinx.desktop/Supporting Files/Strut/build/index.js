@@ -23,8 +23,11 @@ export { buildRegistry, coreRegistry, createRegistry, } from "./steps/registry.j
 export { FileWorkspaceStore, WorkspaceManager, } from "./workspace.js";
 // Content-hash versioning (internal dedup) + sequential version labels
 export { contentHash, nextVersionLabel } from "./version.js";
-// LLM token usage + cost (shared by the agent + lab eval/score steps)
-export { TOKEN_PRICING, emptyUsage, addUsage, coerceUsage, usageFromResult, computeCost, } from "./pricing.js";
+// LLM token usage (shared by the agent + lab eval/score steps). Pricing and
+// cost live in aieo (`computeSessionCost`); `usageForCost` adapts the shape.
+export { emptyUsage, addUsage, coerceUsage, usageFromResult, usageForCost, } from "./pricing.js";
+// LLM model resolution — strut's glue over aieo (the chat, agent + llm steps).
+export { resolveModel, listModelOptions, canonicalModelName, } from "./llm.js";
 // Standard capabilities — the http + secrets + artifacts services adapter steps build on.
 export { standardServices, httpCapability, secretsCapability, fileArtifactsCapability, } from "./capabilities.js";
 // Speech-to-text (src/audio): the service behind /audio/*, the dictation

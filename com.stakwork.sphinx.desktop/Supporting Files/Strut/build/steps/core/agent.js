@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { resolveModel, createWebTools } from "../../llm.js";
 import { accessedNodesOf, defineStep, withAccessedNodes } from "../../core.js";
 import { isCancelledError } from "../../run-control.js";
-import { usageFromResult, computeCost, addUsage, emptyUsage, maxOutputTokensFor } from "../../pricing.js";
+import { usageFromResult, usageForCost, addUsage, emptyUsage } from "../../pricing.js";
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs";
 import { join, resolve, dirname, isAbsolute, sep } from "node:path";
 import os from "node:os";
@@ -22,7 +23,9 @@ import os from "node:os";
  *
  * Built-in tools: repo_overview, file_summary, fulltext_search, bash,
  * str_replace_based_edit_tool (view/create/str_replace/insert files, sandboxed
- * to cwd), and (anthropic only) web_search. `final_answer` is added
+ * to cwd), web_search and web_fetch (every provider, via aieo: native on
+ * anthropic; Exa-backed search — needs EXA_API_KEY — and a guarded HTTP
+ * fetch elsewhere). `final_answer` is added
  * automatically in finalAnswer mode and is always available regardless of
  * `toolFilter`.
  *
@@ -634,7 +637,7 @@ export function wrapToolsWithEmit(tools, ctx) {
 }
 export default defineStep({
     type: "agent",
-    description: "General tool-using agent (AI SDK ToolLoopAgent). Explores AND edits a working dir (cwd) with built-in tools (repo_overview, fulltext_search, bash, str_replace_based_edit_tool for viewing/creating/editing files, + anthropic web_search, + file_summary when the `stakgraph` AST CLI is on PATH) and returns either a final_answer (set `finalAnswer` to its tool description), a STRUCTURED object (set `schema` to a JSON Schema → Output.object), or the final text. Config: cwd, system, prompt, finalAnswer?, schema?, toolFilter? (subset of built-in tool names; empty = all), agentTools? (registry step TYPES exposed as extra tools — the 'tools are steps' model; each tool call emits a nested run event), secretsEnv? (secret NAMES injected as env vars into the bash subprocess only — the agent writes $NAME, values are masked out of all tool output; for narrow research sub-agents), model? (id, alias like 'sonnet'/'grok', or slash format like 'openrouter/moonshotai/kimi-k2' — the provider is inferred from it), provider? (anthropic|openai|google|openrouter|xai; usually omitted), maxSteps (default 40), returnMessages? (default false — the full session is huge + persisted per step). Needs the provider key in env + git/rg on PATH. Output: { result, object?, steps, usage, cost } (+ messages when returnMessages).",
+    description: "General tool-using agent (AI SDK ToolLoopAgent). Explores AND edits a working dir (cwd) with built-in tools (repo_overview, fulltext_search, bash, str_replace_based_edit_tool for viewing/creating/editing files, + web_search + web_fetch on any provider (native on anthropic; elsewhere an Exa-backed search — needs EXA_API_KEY — and a guarded HTTP fetch), + file_summary when the `stakgraph` AST CLI is on PATH) and returns either a final_answer (set `finalAnswer` to its tool description), a STRUCTURED object (set `schema` to a JSON Schema → Output.object), or the final text. Config: cwd, system, prompt, finalAnswer?, schema?, toolFilter? (subset of built-in tool names; empty = all), agentTools? (registry step TYPES exposed as extra tools — the 'tools are steps' model; each tool call emits a nested run event), secretsEnv? (secret NAMES injected as env vars into the bash subprocess only — the agent writes $NAME, values are masked out of all tool output; for narrow research sub-agents), model? (id, alias like 'sonnet'/'grok', or slash format like 'openrouter/moonshotai/kimi-k2' — the provider is inferred from it), provider? (anthropic|openai|google|openrouter|xai; usually omitted), maxSteps (default 40), returnMessages? (default false — the full session is huge + persisted per step). Needs the provider key (secret store or env) + git/rg on PATH. Output: { result, object?, steps, usage, cost } (+ messages when returnMessages).",
     input: z.object({
         cwd: z.string().describe("working directory the tools operate in"),
         system: z.string().describe("system prompt / agent persona"),
@@ -662,7 +665,11 @@ export default defineStep({
         model: z
             .string()
             .optional()
-            .describe("model id, aieo alias ('sonnet', 'gemini', 'grok', 'kimi'), or slash format ('openrouter/deepseek/deepseek-v3'); the provider is inferred from it when `provider` is omitted"),
+            .meta({
+            description: "model id, aieo alias ('sonnet', 'gemini', 'grok', 'kimi', 'glm'), or 'provider/id' ('openrouter/deepseek/deepseek-v3' — OpenRouter models as openrouter/org/model); the provider is inferred from it when `provider` is omitted",
+            // The step editor offers the deployment's model catalog (GET /llm/models).
+            suggest: "llm-models",
+        }),
         provider: z
             .string()
             .optional()
@@ -676,33 +683,29 @@ export default defineStep({
     output: z.any(),
     async run(cfg, ctx) {
         const { ToolLoopAgent, Output, tool, stepCountIs, hasToolCall, jsonSchema, streamText } = await import("ai");
-        // Model/provider resolution via aieo (shared with mcp): friendly aliases
-        // ("sonnet", "grok"), slash-format ids ("openrouter/moonshotai/kimi-k2"),
-        // per-provider env keys (ANTHROPIC_API_KEY, OPENROUTER_API_KEY, ...), LLM
-        // gateway routing, and a timeout-wrapped fetch all live there. When no
-        // provider is given it's INFERRED from the model name (unknown names
-        // default to anthropic), so `model: "openrouter/deepseek/deepseek-v3"`
-        // alone is enough to switch providers.
-        const { getModel, getProviderForModel, PROVIDERS } = await import("aieo");
+        // Model/provider resolution via aieo (shared with mcp) through strut's
+        // resolver (src/llm.ts): friendly aliases ("sonnet", "grok"), canonical
+        // ids ("openrouter/moonshotai/kimi-k2.6"), provider inference, keys via
+        // the secrets boundary (secret store → env), LLM gateway routing and a
+        // timeout-wrapped fetch. The PROVIDER is needed now (provider-specific
+        // tools below) and is keyless; the key + client are resolved LAST.
+        const { canonicalModelName, computeSessionCost } = await import("aieo");
         const modelName = cfg.model ?? process.env["STRUT_LLM_MODEL"];
-        const provider = cfg.provider ?? process.env["STRUT_LLM_PROVIDER"] ?? getProviderForModel(modelName);
-        if (!PROVIDERS.includes(provider)) {
-            throw new Error(`Unknown LLM provider: "${provider}". Supported: ${PROVIDERS.join(", ")}`);
-        }
-        // Anthropic-only extras: server-side web_search, the provider-defined text
+        const providerHint = cfg.provider ?? process.env["STRUT_LLM_PROVIDER"];
+        const { provider } = canonicalModelName(modelName, providerHint);
+        // Anthropic-only extras: the provider-defined text
         // editor (the model is specially trained on its schema; we supply the
         // execute that performs the edit inside cfg.cwd), and EPHEMERAL PROMPT
         // CACHING at the call level (the provider auto-inserts the cache
         // breakpoints across the static prefix — system + tool schemas — that the
         // loop resends every step). Big win for multi-step agents (and the future
         // fork: the shared prefix is a cache hit across all forks). Other
-        // providers fall back to the generic editor tool and no web search.
-        let webSearchTool;
+        // providers fall back to the generic editor tool. (Web search/fetch
+        // are NOT provider-gated — see the web tools after model resolution.)
         let textEditorTool;
         let providerOptions;
         if (provider === "anthropic") {
             const { anthropic } = await import("@ai-sdk/anthropic");
-            webSearchTool = anthropic.tools.webSearch_20260209({ maxUses: 3 });
             textEditorTool = anthropic.tools.textEditor_20250728({
                 execute: async (input) => textEdit(input, [cfg.cwd, os.tmpdir()]),
             });
@@ -804,8 +807,6 @@ export default defineStep({
                 },
             });
         }
-        if (webSearchTool)
-            allTools.web_search = webSearchTool;
         // File editing (str_replace_based_edit_tool): view/create/str_replace/insert,
         // sandboxed to cfg.cwd. For anthropic use the provider-defined tool (the
         // model is specially trained on it); other providers get an identical generic
@@ -865,14 +866,42 @@ export default defineStep({
         const stopWhen = !useSchema && cfg.finalAnswer
             ? [hasToolCall("final_answer"), stepCountIs(cfg.maxSteps)]
             : [stepCountIs(cfg.maxSteps)];
-        // Provider-derived infra constant (see pricing.ts) — NOT step config: a
-        // workflow author never picks this, and the SDK's 4096 default truncates
-        // large tool calls mid-JSON.
-        const maxOutputTokens = maxOutputTokensFor(provider);
-        // Resolved LAST (after all config validation): aieo's getModel resolves
-        // the provider API key eagerly and throws when it's absent — a config
-        // error should surface before a missing-key error.
-        const model = getModel(provider, modelName ? { modelName } : undefined);
+        // Resolved LAST (after all config validation): the key lookup throws when
+        // no key is configured — a config error should surface before a
+        // missing-key error. `maxOutputTokens` is a provider-derived infra
+        // constant (see pricing.ts) — NOT step config: a workflow author never
+        // picks this, and the SDK's 4096 default truncates large tool calls
+        // mid-JSON.
+        const resolved = await resolveModel({
+            model: modelName,
+            provider: providerHint,
+            secrets: ctx?.services?.secrets,
+        });
+        const model = resolved.model;
+        const maxOutputTokens = resolved.maxOutputTokens;
+        // Dollar cost at aieo's rates (per-model OpenRouter rates once
+        // loadModelPricing() has run; provider defaults otherwise).
+        const costOf = (u) => computeSessionCost(resolved.provider, usageForCost(u), resolved.modelId);
+        // Web tools — web_search + web_fetch on EVERY provider (aieo: native on
+        // anthropic; Exa search + guarded HTTP fetch elsewhere). Built here, not
+        // with the other built-ins, because the native ones need the resolved
+        // key. Subject to toolFilter like any built-in, and the shims get the
+        // same mask + emit wrapping so their calls show up as run events (the
+        // native ones have no execute and are skipped by both wrappers).
+        const web = await createWebTools({
+            provider: resolved.provider,
+            apiKey: resolved.apiKey,
+            secrets: ctx?.services?.secrets,
+            searchMaxUses: 3,
+        });
+        const webTools = {};
+        for (const [name, t] of Object.entries(web.tools)) {
+            if (!filter.length || filter.includes(name))
+                webTools[name] = t;
+        }
+        wrapToolsWithMask(webTools, secretValues);
+        wrapToolsWithEmit(webTools, ctx);
+        Object.assign(tools, webTools);
         // Steps that completed BEFORE a mid-stream failure are unreachable through
         // the stream's result promises — `steps`, `response`, `totalUsage` and
         // `text` all reject with the stream error — so the only way to keep that
@@ -1005,7 +1034,7 @@ export default defineStep({
         let usage = resumedFromStreamError
             ? bankedUsage
             : usageFromResult(res.totalUsage ?? res.usage);
-        let cost = computeCost(provider, usage);
+        let cost = costOf(usage);
         console.log(`[agent] tokens in:${usage.inputTokens} cacheRead:${usage.cacheReadTokens} cacheWrite:${usage.cacheWriteTokens} out:${usage.outputTokens} → $${cost.toFixed(4)}`);
         // Structured mode: return the typed object.
         if (useSchema) {
@@ -1058,7 +1087,7 @@ export default defineStep({
                     messages.push(...((await nudged.response)?.messages ?? []));
                     const nu = usageFromResult(await nudged.totalUsage);
                     usage = addUsage(usage, nu);
-                    cost += computeCost(provider, nu);
+                    cost += costOf(nu);
                     // The continuation may have done real work (a publish) before
                     // answering, so its object is the fresher one — keep it unless it
                     // is WORSE than what we already had.
@@ -1155,7 +1184,7 @@ export default defineStep({
                     final = extractFinal(nudgedSteps);
                     const nu = usageFromResult(await nudged.totalUsage);
                     usage = addUsage(usage, nu);
-                    cost += computeCost(provider, nu);
+                    cost += costOf(nu);
                 }
                 catch (e) {
                     console.warn("[agent] nudge continuation failed:", e.message);
@@ -1191,7 +1220,7 @@ export default defineStep({
                         final = ft;
                         const fu = usageFromResult(await forced.totalUsage);
                         usage = addUsage(usage, fu);
-                        cost += computeCost(provider, fu);
+                        cost += costOf(fu);
                     }
                 }
                 catch (e) {

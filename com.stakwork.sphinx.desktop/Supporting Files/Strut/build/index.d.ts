@@ -9,7 +9,8 @@ export { type ChatStore, type ChatMeta, type ChatEvent, type ChatEventType, type
 export { buildRegistry, coreRegistry, createRegistry, type StepSource, type StepSources, type RegistryBundle, } from "./steps/registry.js";
 export { type WorkspaceStore, FileWorkspaceStore, WorkspaceManager, type WorkflowMetadata, type WorkflowVersionInfo, type WorkflowListEntry, type StepDirMetadata, type StepInfo, type StepVersionInfo, type StepListEntry, type StepVersionsResult, type PublishByContentOptions, } from "./workspace.js";
 export { contentHash, nextVersionLabel } from "./version.js";
-export { TOKEN_PRICING, type LLMProvider, type TokenPricing, type TokenUsage, emptyUsage, addUsage, coerceUsage, usageFromResult, computeCost, } from "./pricing.js";
+export { type TokenUsage, emptyUsage, addUsage, coerceUsage, usageFromResult, usageForCost, } from "./pricing.js";
+export { resolveModel, listModelOptions, canonicalModelName, type ResolveModelOptions, type ResolvedModel, type ModelOption, type ModelCatalog, } from "./llm.js";
 export { standardServices, httpCapability, secretsCapability, fileArtifactsCapability, type ArtifactsCapability, type StrutCapabilities, type HttpCapability, type HttpRequestOptions, type HttpResponse, type SecretsCapability, type SecretReadable, type FetchLike, } from "./capabilities.js";
 export { createStt, loadSherpaEngine, SttUnavailableError, type SttService, type SttStream, type SttStreamOptions, type SttEvent, type SttWord, type TranscribeResult, type SttEngine, } from "./audio/stt.js";
 export { attachAudioWebSocket, createAudioUpgradeHandler, AUDIO_STREAM_PATH, type AttachOptions as AudioAttachOptions, type AudioUpgradeHandler, } from "./audio/ws.js";

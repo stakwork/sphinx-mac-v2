@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { tool } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
 import { runWorkflow } from "../runner.js";
 import { lsSteps, searchSteps, readStepSource } from "./stepHelpers.js";
 import { zodToFields } from "./schemaHelpers.js";
@@ -580,13 +579,10 @@ export function buildTools(deps) {
                 }),
             }
             : {}),
-        // Provider-executed web search (same tool the agent step ships) — for
-        // reading API docs while authoring adapters. Anthropic-only; the host
-        // opts in (the standard chat server does).
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any — provider
-        // tool's inferred generics don't satisfy ToolSet's index signature (same
-        // workaround as the agent step).
-        ...(deps.webSearch ? { web_search: anthropic.tools.webSearch_20260209({ maxUses: 5 }) } : {}),
+        // web_search + web_fetch (the same pair the agent step ships) — for
+        // reading API docs while authoring adapters. Built by the host per turn
+        // for the chat's provider (createWebTools); absent → not offered.
+        ...(deps.webTools ?? {}),
     };
 }
 //# sourceMappingURL=tools.js.map
