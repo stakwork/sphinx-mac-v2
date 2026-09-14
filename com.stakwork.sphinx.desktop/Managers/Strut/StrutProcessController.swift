@@ -437,6 +437,14 @@ final class StrutProcessController: @unchecked Sendable {
         let environment: [String: String]
     }
 
+    /// Builds a native Swift dictionary with `DYLD_*` keys stripped.
+    /// `filter` allocates a new dictionary; in-place `removeValue` on a
+    /// bridged `ProcessInfo.environment` mutates `__CocoaDictionary` during
+    /// enumeration and aborts.
+    static func sanitizedEnvironment(_ env: [String: String]) -> [String: String] {
+        env.filter { !$0.key.hasPrefix("DYLD_") }
+    }
+
     private func resolveSpawnPlan() -> SpawnPlan? {
         let helperFolder = helperFolderURL()
         var isDirectory: ObjCBool = false
@@ -472,10 +480,7 @@ final class StrutProcessController: @unchecked Sendable {
             return nil
         }
 
-        var environment = ProcessInfo.processInfo.environment
-        for key in environment.keys where key.hasPrefix("DYLD_") {
-            environment.removeValue(forKey: key)
-        }
+        var environment = Self.sanitizedEnvironment(ProcessInfo.processInfo.environment)
         environment["HOME"] = writable.path
         environment["TMPDIR"] = writable.path
 
