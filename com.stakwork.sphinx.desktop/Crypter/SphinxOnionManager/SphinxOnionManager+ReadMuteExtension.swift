@@ -26,7 +26,7 @@ extension SphinxOnionManager {
                     }
                 }
 
-                let lastReadMap = parse(jsonString: lastRead)
+                let lastReadMap = parse(jsonString: lastRead, source: "lastRead")
                 let pubKeys = lastReadMap.compactMap({ $0.key })
                 let tribes = Chat.getChatTribesFor(ownerPubkeys: pubKeys, context: context)
                 let contacts = UserContact.getContactsWith(pubkeys: pubKeys, context: context)
@@ -115,33 +115,16 @@ extension SphinxOnionManager {
 
 
     func extractLastReadIds(jsonString: String) -> [Int] {
-        let values = parse(jsonString: jsonString)
+        let values = parse(jsonString: jsonString, source: "lastRead")
         return values.values.compactMap({ $0 as? Int })
     }
 
     func extractMuteIds(jsonString: String) -> [String: Any] {
-        let values = parse(jsonString: jsonString)
+        let values = parse(jsonString: jsonString, source: "muteLevels")
         return values
     }
-    
-    func parse(jsonString: String) -> [String: Any] {
-        if let jsonData = jsonString.data(using: .utf8) {
-            do {
-                // Parse the JSON data into a dictionary
-                if let jsonDict = try JSONSerialization.jsonObject(
-                    with: jsonData,
-                    options: []
-                ) as? [String: Any] {
-                    // Collect all values
-                    return jsonDict
-                }
-            } catch {
-                print("Error parsing JSON: \(error)")
-            }
-        } else {
-            print("Error creating Data from jsonString")
-        }
 
-        return [:]
+    func parse(jsonString: String, source: String) -> [String: Any] {
+        JSONSerialization.dictionary(from: jsonString, source: source) ?? [:]
     }
 }

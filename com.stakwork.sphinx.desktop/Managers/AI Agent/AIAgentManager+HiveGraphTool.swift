@@ -240,7 +240,11 @@ extension AIAgentManager {
         var result: [String: CodableJSONValue] = [:]
         for (key, value) in dict {
             if let s = value as? String { result[key] = .string(s) }
-            else if let d = value as? [String: Any] { result[key] = .object(anyDictToCodableJSON(d)) }
+            else if value is NSDictionary {
+                let nsDict = value as! NSDictionary
+                let nested = JSONSerialization.nativeDictionary(from: nsDict)
+                result[key] = .object(anyDictToCodableJSON(nested))
+            }
             else if let n = value as? NSNumber {
                 // Distinguish JSON booleans (false→"0", true→"1" via stringValue — wrong)
                 // from actual booleans using CFGetTypeID.
@@ -314,7 +318,7 @@ extension AIAgentManager {
 
         // Attempt parse as JSON object
         func parseDict(from data: Data) -> [String: String]? {
-            guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+            guard let obj = JSONSerialization.dictionary(from: data, source: "hiveGraph.input") else { return nil }
             var result: [String: String] = [:]
             for (key, value) in obj {
                 if let str = value as? String {
@@ -330,12 +334,14 @@ extension AIAgentManager {
         }
 
         if let data = trimmed.data(using: .utf8) {
-            // Direct parse
+            // Double-encoded: raw JSON is a string wrapping an object (live Hive tool-call input).
+            if let raw = try? JSONSerialization.jsonObject(with: data, options: .allowFragments),
+               raw is NSString || raw is String {
+                guard let inner = raw as? String,
+                      let innerData = inner.data(using: .utf8) else { return nil }
+                return parseDict(from: innerData)
+            }
             if let dict = parseDict(from: data) { return dict }
-            // Handle double-encoded: the string is itself a JSON-encoded string wrapping an object
-            if let inner = try? JSONSerialization.jsonObject(with: data) as? String,
-               let innerData = inner.data(using: .utf8),
-               let dict = parseDict(from: innerData) { return dict }
         }
         return nil
     }
@@ -476,8 +482,7 @@ extension AIAgentManager {
                 // Parse raw output into CodableJSONValue dict (preserves nested objects)
                 var outputDict: [String: CodableJSONValue]? = {
                     guard !tc.outputStr.isEmpty,
-                          let data = tc.outputStr.data(using: .utf8),
-                          let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                          let obj = JSONSerialization.dictionary(from: tc.outputStr, source: "hiveGraph.output")
                     else { return nil }
                     let d = AIAgentManager.anyDictToCodableJSON(obj)
                     return d.isEmpty ? nil : d
@@ -496,8 +501,7 @@ extension AIAgentManager {
                     if !hasWorkspaceId {
                         if let companion = bridge.capturedToolCalls.first(where: { $0.name.isEmpty }),
                            !companion.outputStr.isEmpty,
-                           let compData = companion.outputStr.data(using: .utf8),
-                           let compObj = try? JSONSerialization.jsonObject(with: compData) as? [String: Any] {
+                           let compObj = JSONSerialization.dictionary(from: companion.outputStr, source: "hiveGraph.companion") {
                             // Merge companion's payload and meta into existing output
                             var enriched = outputDict ?? [:]
                             let comp = AIAgentManager.anyDictToCodableJSON(compObj)
