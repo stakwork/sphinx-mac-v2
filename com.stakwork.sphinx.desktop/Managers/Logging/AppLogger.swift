@@ -95,6 +95,13 @@ final class AppLogger: @unchecked Sendable {
         dup2(p.fileHandleForWriting.fileDescriptor, STDOUT_FILENO)
         dup2(p.fileHandleForWriting.fileDescriptor, STDERR_FILENO)
 
+        // stdio switches to full buffering when stdout is not a TTY, so `print`
+        // output would only reach the pipe every 4-8 KB. Entries would then be
+        // timestamped at flush time, minutes or hours after the event. Force
+        // line buffering so each line is stamped when it is printed.
+        setvbuf(stdout, nil, _IOLBF, 0)
+        setvbuf(stderr, nil, _IONBF, 0)
+
         p.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
             guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }

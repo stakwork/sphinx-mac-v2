@@ -331,10 +331,12 @@ final class StrutProcessController: @unchecked Sendable {
             stop()
         }
 
-        stateLock.lock()
-        startGeneration += 1
-        let generation = startGeneration
-        stateLock.unlock()
+        // NSLock.lock()/unlock() are unavailable in async contexts under Swift 6;
+        // withLock is the async-safe scoped equivalent.
+        let generation = stateLock.withLock {
+            startGeneration += 1
+            return startGeneration
+        }
 
         // Activate a cleared overlay and delete any persisted strut key so a
         // stale secret cannot leak through. Do not health-check yet: an empty
