@@ -15,3 +15,7 @@ com.stakwork.sphinx.desktop/Secrets.release.xcconfig
 
 LocalPackages/SphinxErrorReporter/.build/
 
+# Vendored Strut helper (keep even if a global gitignore excludes node_modules)
+!com.stakwork.sphinx.desktop/Supporting Files/Strut/
+!com.stakwork.sphinx.desktop/Supporting Files/Strut/**
+
