@@ -513,4 +513,45 @@ final class StrutProcessControllerTests: XCTestCase {
         XCTAssertEqual(connection.apiKey, "")
         XCTAssertEqual(factory.spawned.count, 0)
     }
+
+    // MARK: - Environment sanitization
+
+    func testSanitizedEnvironment_StripsDYLDKeysAndKeepsOthers() {
+        let env = [
+            "DYLD_LIBRARY_PATH": "/bad",
+            "DYLD_INSERT_LIBRARIES": "/also-bad",
+            "PATH": "/usr/bin",
+            "HOME": "/Users/sphinx",
+            "TMPDIR": "/tmp"
+        ]
+        let sanitized = StrutProcessController.sanitizedEnvironment(env)
+        XCTAssertNil(sanitized["DYLD_LIBRARY_PATH"])
+        XCTAssertNil(sanitized["DYLD_INSERT_LIBRARIES"])
+        XCTAssertEqual(sanitized["PATH"], "/usr/bin")
+        XCTAssertEqual(sanitized["HOME"], "/Users/sphinx")
+        XCTAssertEqual(sanitized["TMPDIR"], "/tmp")
+    }
+
+    func testSanitizedEnvironment_EmptyInputReturnsEmpty() {
+        let sanitized = StrutProcessController.sanitizedEnvironment([:])
+        XCTAssertTrue(sanitized.isEmpty)
+    }
+
+    func testSanitizedEnvironment_BridgedNSDictionaryDoesNotAbort() {
+        let cocoa = NSDictionary(dictionary: [
+            "DYLD_LIBRARY_PATH": "/bad",
+            "DYLD_INSERT_LIBRARIES": "/also-bad",
+            "PATH": "/usr/bin",
+            "HOME": "/Users/sphinx"
+        ])
+        guard let env = cocoa as? [String: String] else {
+            XCTFail("expected bridged [String: String]")
+            return
+        }
+        let sanitized = StrutProcessController.sanitizedEnvironment(env)
+        XCTAssertNil(sanitized["DYLD_LIBRARY_PATH"])
+        XCTAssertNil(sanitized["DYLD_INSERT_LIBRARIES"])
+        XCTAssertEqual(sanitized["PATH"], "/usr/bin")
+        XCTAssertEqual(sanitized["HOME"], "/Users/sphinx")
+    }
 }

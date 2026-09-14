@@ -105,9 +105,12 @@ extension UserDefaults {
     }
 
     class func deleteAllKeys() {
-        let defaults = UserDefaults.standard
-        let dictionary = defaults.dictionaryRepresentation()
-        dictionary.keys.forEach { key in
+        deleteAllKeys(in: .standard)
+    }
+
+    class func deleteAllKeys(in defaults: UserDefaults) {
+        let keys = Array(defaults.dictionaryRepresentation().keys)
+        for key in keys {
             defaults.removeObject(forKey: key)
         }
         defaults.synchronize()
