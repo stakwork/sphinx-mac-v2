@@ -592,6 +592,7 @@ extension SphinxOnionManager {
             )
             message.qos = .qos0
             
+            logPublish(topic: topic, bytes: byteArray.count, kind: "publish")
             self.mqtt?.publish(
                 message
             )
@@ -614,6 +615,7 @@ extension SphinxOnionManager {
             )
             message.qos = .qos0
             
+            logPublish(topic: topic, bytes: byteArray.count, kind: "register-topic publish")
             self.mqtt?.publish(
                 message
             )
@@ -633,6 +635,9 @@ extension SphinxOnionManager {
     }
     
     func handleTopicsToSubscribe(topics: [String]) {
+        if self.mqtt == nil {
+            mqttLog("handleTopicsToSubscribe called with mqtt == nil for \(topics.count) topic(s) — force unwrap below will crash", level: .error)
+        }
         for topic in topics {
             self.mqtt.subscribe([
                 (topic, CocoaMQTTQoS.qos0)

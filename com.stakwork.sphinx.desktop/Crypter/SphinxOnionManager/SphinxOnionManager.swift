@@ -83,9 +83,19 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     
     var isConnected : Bool = false{
         didSet{
+            if oldValue != isConnected {
+                mqttLog("isConnected \(oldValue) -> \(isConnected) (connState=\(mqttConnStateDescription))")
+            }
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
         }
     }
+    
+    // MARK: - MQTT diagnostics state (instrumentation only, no behavior change)
+    var mqttConnectAttemptCount: Int = 0
+    var mqttConnectedSince: Date? = nil
+    var mqttLastPingSentAt: Date? = nil
+    var mqttLastPongReceivedAt: Date? = nil
+    var mqttMissedPongCount: Int = 0
     
     var delayedRRObjects: [Int: RunReturn] = [:]
     var delayedRRTimers: [Int: Timer] = [:]
@@ -357,6 +367,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             mqtt.username = now
             mqtt.password = sig
             mqtt.keepAlive = SphinxOnionManager.kMqttKeepAlive
+            
+            mqttConnectAttemptCount += 1
+            mqttLog("connect attempt #\(mqttConnectAttemptCount) -> \(serverIP):\(serverPORT) ssl=\(isProductionEnv) keepAlive=\(SphinxOnionManager.kMqttKeepAlive)s clientID=\(xpub.prefix(12))… previousConnState=\(mqttConnStateDescription)")
+            attachMqttDiagnosticHooks(to: mqtt)
 
             if isProductionEnv {
                 mqtt.enableSSL = true
@@ -369,9 +383,14 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             
             let success = mqtt.connect()
             print("mqtt.connect success:\(success)")
-            if success { connectingStartTime = Date() }
+            if success {
+                connectingStartTime = Date()
+            } else {
+                mqttLog("socket connect() returned false — no reconnection is scheduled from this path", level: .warn)
+            }
             return success
         } catch {
+            mqttLog("connectToBroker threw before connecting: \(error)", level: .error)
             return false
         }
     }
@@ -386,6 +405,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             return
         }
         mqttDisconnectCallback = callback
+        mqttLog("disconnectMqtt() requested (connState=\(mqttConnStateDescription))")
         endReconnectionTimer()
         endKeepAliveActivity()
         endReconnectActivity()
@@ -416,6 +436,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     ) {
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = nil
+        let connectDuration = connectingStartTime.map { String(format: "%.2fs", Date().timeIntervalSince($0)) } ?? "n/a"
+        mqttLog("CONNACK handled via \(triggeredBy) after \(connectDuration) (connState=\(mqttConnStateDescription), isV2Restore=\(isV2Restore))")
+        mqttConnectedSince = Date()
+        mqttLastPingSentAt = nil
+        mqttLastPongReceivedAt = nil
+        mqttMissedPongCount = 0
         isConnected = true
         beginKeepAliveActivity()
         connectionInProgress = false
@@ -472,14 +498,17 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         hideRestoreViewCallback: ((Bool)->())? = nil,
         forceReconnect: Bool = false
     ) {
+        mqttLog("reconnectToServer(force=\(forceReconnect)) connState=\(mqttConnStateDescription) isConnected=\(isConnected) connectionInProgress=\(connectionInProgress)")
         if let mqtt = self.mqtt, !forceReconnect {
             if mqtt.connState == .connecting {
                 // Stale connecting attempts (<10s) — deferred-pending: leave isV2InitialSetup
                 // untouched so the in-flight didConnectAck (routed through handleDidConnectAck)
                 // consumes it once the connection is actually confirmed.
                 if let startTime = connectingStartTime, Date().timeIntervalSince(startTime) < 10.0 {
+                    mqttLog("reconnectToServer skipped — still connecting (\(String(format: "%.1f", Date().timeIntervalSince(startTime)))s elapsed)")
                     return
                 }
+                mqttLog("reconnectToServer: stale connecting attempt (>10s) — falling through to connectToServer", level: .warn)
             } else if mqtt.connState == .connected && isConnected {
                 if !isV2Restore {
                     // Safe-immediate: connection is confirmed live, consume the flag now.
@@ -489,8 +518,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                     }
                     hideRestoreViewCallback?(false)
                 }
+                mqttLog("reconnectToServer skipped — already connected")
                 return
             }
+        }
+        if let mqtt = self.mqtt, forceReconnect, mqtt.connState == .connected {
+            mqttLog("forceReconnect while connState=connected — existing CocoaMQTT instance will be replaced without disconnect (duplicate clientID likely)", level: .warn)
         }
         connectToServer(
             connectingCallback: connectingCallback,
@@ -527,6 +560,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
               let myPubkey = getAccountOnlyKeysendPubkey(seed: seed),
               let my_xpub = getAccountXpub(seed: seed) else
         {
+            mqttLog("connectToServer aborted — seed/pubkey/xpub unavailable", level: .error)
             hideRestoreViewCallback?(false)
             return
         }
@@ -551,6 +585,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         let success = connectToBroker(seed: seed, xpub: my_xpub)
 
         if (success == false) {
+            mqttLog("connectToServer: connectToBroker failed — giving up until next wake/reachability/app-active trigger", level: .warn)
             connectionInProgress = false
             hideRestoreViewCallback?(false)
             return
@@ -573,12 +608,14 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         }
 
         let connectingMqtt = mqtt
-        mqtt.didConnectAck = { [weak self] _, _ in
+        mqtt.didConnectAck = { [weak self] _, ack in
             guard let self = self else {
                 return
             }
+            self.logConnAck(ack, triggeredBy: "connectToServer")
             // If self.mqtt has been replaced by a newer connection, discard this stale ack
             guard self.mqtt === connectingMqtt else {
+                self.mqttLog("stale CONNACK from a replaced CocoaMQTT instance — disconnecting it", level: .warn)
                 connectingMqtt?.disconnect()
                 return
             }
@@ -596,8 +633,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         }
         
         let disconnectingMqtt = mqtt
-        mqtt.didDisconnect = { [weak self] _, _ in
+        mqtt.didDisconnect = { [weak self] mqttInstance, error in
             guard let self = self else { return }
+            self.logDisconnect(error: error, instance: mqttInstance, isCurrent: self.mqtt === disconnectingMqtt, path: "connectToServer")
             self.connectionTimeoutTimer?.invalidate()
             self.connectionTimeoutTimer = nil
             self.connectionInProgress = false
@@ -631,6 +669,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         }
         reconnectionTimer?.invalidate()
         beginReconnectActivity()
+        mqttLog("scheduling reconnect in \(delay)s")
         reconnectionTimer = Timer.scheduledTimer(
             timeInterval: delay,
             target: self,
@@ -689,6 +728,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     }
     
     @objc func reconnectionTimerFired() {
+        mqttLog("reconnect timer fired")
         connectToServer(
             contactRestoreCallback: self.contactRestoreCallback,
             messageRestoreCallback: self.messageRestoreCallback,
@@ -790,7 +830,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 self?.processMqttMessages(message: receivedMessage)
             }
             
-            mqtt.didDisconnect = { _, error in
+            mqtt.didDisconnect = { mqttInstance, error in
+                self.logDisconnect(error: error, instance: mqttInstance, isCurrent: self.mqtt === mqttInstance, path: "createMyAccount")
                 self.endKeepAliveActivity()
                 self.isConnected = false
                 self.mqttDisconnectCallback?()
@@ -802,8 +843,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             }
             
             //subscribe to relevant topics and consume any pending initial-setup flag
-            mqtt.didConnectAck = { [weak self] _, _ in
+            mqtt.didConnectAck = { [weak self] _, ack in
                 guard let self = self else { return }
+                self.logConnAck(ack, triggeredBy: "createMyAccount")
                 self.handleDidConnectAck(
                     myPubkey: pubkey,
                     idx: idx,
@@ -857,6 +899,108 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 backAlpha: 1.0
             )
         }
+    }
+}
+
+// MARK: - MQTT diagnostics (instrumentation only)
+
+// Note: CocoaMQTT's own logger already prints socket errors and protocol
+// warnings to stdout at its default (.warning) level, e.g.
+// "CocoaMQTT(error): socket connect error: ...", and AppLogger captures stdout.
+// Its only info-level lines are per-message receipts (already logged by the
+// app) and auto-reconnect notices (feature unused), so the level is left as is.
+
+extension SphinxOnionManager {
+    enum MqttLogLevel: String { case info = "INFO", warn = "WARN", error = "ERROR" }
+    
+    func mqttLog(_ message: String, level: MqttLogLevel = .info) {
+        print("[MQTT][\(level.rawValue)] \(message)")
+    }
+    
+    var mqttConnStateDescription: String {
+        guard let mqtt = mqtt else { return "nil" }
+        switch mqtt.connState {
+        case .connected: return "connected"
+        case .connecting: return "connecting"
+        case .disconnected: return "disconnected"
+        @unknown default: return "unknown"
+        }
+    }
+    
+    /// Ping/pong tracking. CocoaMQTT 2.1.6 never times out a missing PINGRESP,
+    /// so a half-open socket looks "connected" forever. This only records and logs.
+    func attachMqttDiagnosticHooks(to mqtt: CocoaMQTT) {
+        mqtt.didPing = { [weak self] _ in
+            guard let self = self else { return }
+            let now = Date()
+            if let lastPing = self.mqttLastPingSentAt {
+                let pongAfterLastPing = (self.mqttLastPongReceivedAt ?? .distantPast) >= lastPing
+                if !pongAfterLastPing {
+                    self.mqttMissedPongCount += 1
+                    let lastPongAgo = self.mqttLastPongReceivedAt.map { String(format: "%.0fs ago", now.timeIntervalSince($0)) } ?? "never"
+                    self.mqttLog("PINGREQ sent but no PINGRESP since previous ping (missed=\(self.mqttMissedPongCount), last pong \(lastPongAgo), isConnected=\(self.isConnected)) — possible half-open socket", level: .warn)
+                }
+            }
+            self.mqttLastPingSentAt = now
+        }
+        mqtt.didReceivePong = { [weak self] _ in
+            guard let self = self else { return }
+            self.mqttLastPongReceivedAt = Date()
+            if self.mqttMissedPongCount > 0 {
+                self.mqttLog("PINGRESP received again after \(self.mqttMissedPongCount) missed")
+                self.mqttMissedPongCount = 0
+            }
+        }
+        mqtt.didSubscribeTopics = { [weak self] _, success, failed in
+            guard let self = self else { return }
+            if !failed.isEmpty {
+                self.mqttLog("SUBACK failed for \(failed.count) topic(s): \(failed.map { "…" + $0.suffix(40) })", level: .warn)
+            } else {
+                self.mqttLog("SUBACK ok for \(success.count) topic(s): \(success.allKeys.compactMap { ($0 as? String).map { "…" + $0.suffix(40) } })")
+            }
+        }
+    }
+    
+    /// Logs every outgoing publish compactly (topic suffix identifies the request
+    /// type, e.g. .../getreads). When the socket is not yet connected the publish
+    /// reaches the server before CONNECT and the server closes the socket, so in
+    /// that case also log who triggered it.
+    func logPublish(topic: String, bytes: Int, kind: String) {
+        let suffix = "…" + topic.suffix(44)
+        let state = mqttConnStateDescription
+        if mqtt == nil || mqtt?.connState != .connected {
+            let frames = Thread.callStackSymbols.dropFirst(2).prefix(8)
+                .map { $0.split(separator: " ", omittingEmptySubsequences: true).dropFirst(3).joined(separator: " ") }
+                .map { String($0.prefix(90)) }
+            mqttLog("\(kind) while NOT connected (connState=\(state)) topic=\(suffix) bytes=\(bytes) — will poison a connecting socket or be lost", level: .warn)
+            mqttLog("  triggered from: \(frames.joined(separator: " <- "))", level: .warn)
+        } else {
+            mqttLog("\(kind) topic=\(suffix) bytes=\(bytes)")
+        }
+    }
+    
+    func logConnAck(_ ack: CocoaMQTTConnAck, triggeredBy: String) {
+        if ack == .accept {
+            mqttLog("CONNACK accept (\(triggeredBy))")
+        } else {
+            // CocoaMQTT invokes didConnectAck for rejections too, and the handlers below
+            // currently proceed as if connected. Logged loudly until that is fixed.
+            mqttLog("CONNACK REJECTED code=\(ack.rawValue) (\(ack)) via \(triggeredBy) — handler still runs the success path (known defect)", level: .error)
+        }
+    }
+    
+    func logDisconnect(error: Error?, instance: CocoaMQTT, isCurrent: Bool, path: String) {
+        let connectedFor = mqttConnectedSince.map { String(format: "%.0fs", Date().timeIntervalSince($0)) } ?? "never-acked"
+        let sinceLastPong = mqttLastPongReceivedAt.map { String(format: "%.0fs ago", Date().timeIntervalSince($0)) } ?? "n/a"
+        let errorText: String
+        if let error = error {
+            let ns = error as NSError
+            errorText = "\(ns.domain)#\(ns.code): \(ns.localizedDescription)"
+        } else {
+            errorText = "nil (clean close by peer or local disconnect)"
+        }
+        mqttLog("DISCONNECTED (\(path)) current=\(isCurrent) connectedFor=\(connectedFor) lastPong=\(sinceLastPong) missedPongs=\(mqttMissedPongCount) error=\(errorText)", level: .warn)
+        if isCurrent { mqttConnectedSince = nil }
     }
 }
 

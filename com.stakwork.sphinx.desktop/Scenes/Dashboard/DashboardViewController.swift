@@ -428,10 +428,12 @@ class DashboardViewController: NSViewController {
     }
     
     private func didConnectToInternet() {
+        print("[MQTT][trigger] NWPathMonitor: path satisfied — reconnectToServer")
         self.reconnectToServer()
     }
 
     private func didDisconnectFromInternet() {
+        print("[MQTT][trigger] NWPathMonitor: path unsatisfied — marking disconnected")
         SphinxOnionManager.sharedInstance.isConnected = false
     } 
     

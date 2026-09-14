@@ -439,6 +439,8 @@ import SphinxErrorReporter
             
             SDImageCache.shared.clearMemory()
             
+            print("[MQTT][trigger] wake notification \(aNotification.name.rawValue) — forcing reconnect")
+            
             NotificationCenter.default.post(
                 name: .onConnectionStatusChanged,
                 object: nil
@@ -479,6 +481,7 @@ import SphinxErrorReporter
             
             Chat.processTimezoneChanges()
             
+            print("[MQTT][trigger] applicationWillBecomeActive — reconnectToServer")
             getDashboardVC()?.reconnectToServer()
             
             feedsManager.fetchFeedItemsInBackground()
