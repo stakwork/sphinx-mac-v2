@@ -10,6 +10,7 @@
 "generic.success.title" = "Success";
 "generic.error.title" = "Error";
 "generic.error.message" = "There was an error. Please try again later.";
+"invoice.already.paid" = "This invoice has already been paid.";
 "generic.message.error" = "The message could not be sent. Please try again later";
 "generic.attachment.error" = "There was an problem uploading the file. Please try again later.";
 "boost.error.title" = "Boost error";

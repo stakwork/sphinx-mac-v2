@@ -430,6 +430,22 @@ struct ParseInvoiceResult: Mappable {
     var expiry: Int?
     
     init?(map: Map) {}
+    
+    init(
+        value: Int? = nil,
+        paymentHash: String? = nil,
+        pubkey: String? = nil,
+        hopHints: [String]? = nil,
+        description: String? = nil,
+        expiry: Int? = nil
+    ) {
+        self.value = value
+        self.paymentHash = paymentHash
+        self.pubkey = pubkey
+        self.hopHints = hopHints
+        self.description = description
+        self.expiry = expiry
+    }
 
     mutating func mapping(map: Map) {
         value          <- map["value"]
@@ -438,6 +454,57 @@ struct ParseInvoiceResult: Mappable {
         hopHints       <- map["hop_hints"]
         description    <- map["description"]
         expiry         <- map["expiry"]
+    }
+}
+
+extension RunReturn {
+    static func empty(
+        error: String? = nil,
+        newBalance: UInt64? = nil,
+        msgs: [Msg] = [],
+        sentStatus: String? = nil
+    ) -> RunReturn {
+        RunReturn(
+            msgs: msgs,
+            msgsTotal: nil,
+            msgsCounts: nil,
+            subscriptionTopics: [],
+            settleTopic: nil,
+            settlePayload: nil,
+            asyncpayTopic: nil,
+            asyncpayPayload: nil,
+            registerTopic: nil,
+            registerPayload: nil,
+            topics: [],
+            payloads: [],
+            stateMp: nil,
+            stateToDelete: [],
+            newBalance: newBalance,
+            myContactInfo: nil,
+            sentStatus: sentStatus,
+            settledStatus: nil,
+            registerResponse: nil,
+            asyncpayTag: nil,
+            error: error,
+            newTribe: nil,
+            tribeMembers: nil,
+            newInvite: nil,
+            inviterContactInfo: nil,
+            inviterAlias: nil,
+            initialTribe: nil,
+            lspHost: nil,
+            invoice: nil,
+            route: nil,
+            node: nil,
+            lastRead: nil,
+            muteLevels: nil,
+            payments: nil,
+            paymentsTotal: nil,
+            tags: nil,
+            deletedMsgs: nil,
+            newChildIdx: nil,
+            ping: nil
+        )
     }
 }
 

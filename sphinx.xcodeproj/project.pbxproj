@@ -752,6 +752,7 @@
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
 		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
+		IAPDT0020000000001IAPDT02 /* InvoiceAlreadyPaidTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = IAPDT0010000000001IAPDT01 /* InvoiceAlreadyPaidTests.swift */; };
 		SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */; };
 		STRUT0020000000001STRUT2 /* StrutConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0010000000001STRUT1 /* StrutConnection.swift */; };
 		STRUT0040000000001STRUT4 /* StrutPCM.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUT0030000000001STRUT3 /* StrutPCM.swift */; };
@@ -1891,6 +1892,7 @@
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
 		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
+		IAPDT0010000000001IAPDT01 /* InvoiceAlreadyPaidTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceAlreadyPaidTests.swift; sourceTree = "<group>"; };
 		SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerSeedGenerationTests.swift; sourceTree = "<group>"; };
 		STRUT0010000000001STRUT1 /* StrutConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutConnection.swift; sourceTree = "<group>"; };
 		STRUT0030000000001STRUT3 /* StrutPCM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutPCM.swift; sourceTree = "<group>"; };
@@ -2343,6 +2345,7 @@
 				TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */,
 				SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */,
 				SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */,
+				IAPDT0010000000001IAPDT01 /* InvoiceAlreadyPaidTests.swift */,
 				SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */,
 				STRUTT00100000001STRUTT1 /* StrutConnectionTests.swift */,
 				STRUTP00100000001STRUTP1 /* StrutURLProtocolStub.swift */,
@@ -5290,6 +5293,7 @@
 				TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */,
 				SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */,
 				SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */,
+				IAPDT0020000000001IAPDT02 /* InvoiceAlreadyPaidTests.swift in Sources */,
 				SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */,
 				STRUTT00200000001STRUTT2 /* StrutConnectionTests.swift in Sources */,
 				STRUTP00200000001STRUTP2 /* StrutURLProtocolStub.swift in Sources */,

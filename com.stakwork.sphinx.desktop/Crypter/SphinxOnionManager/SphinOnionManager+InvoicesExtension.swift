@@ -76,6 +76,11 @@ extension SphinxOnionManager{
         amtMsat: Int,
         callback: @escaping (Bool) -> ()
     ) {
+        routeFetchCallCount += 1
+        if let checkAndFetchRouteOverride = checkAndFetchRouteOverride {
+            checkAndFetchRouteOverride(callback)
+            return
+        }
         if requiresManualRouting(
             publicKey: publicKey,
             routeHint: routeHint
@@ -140,6 +145,9 @@ extension SphinxOnionManager{
     }
     
     func getInvoiceDetails(invoice: String) -> ParseInvoiceResult? {
+        if let invoiceDetailsProvider = invoiceDetailsProvider {
+            return invoiceDetailsProvider(invoice)
+        }
         let normalizedInvoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
         do {
             let rawInvoiceDetails = try parseInvoice(invoiceJson: normalizedInvoice)
@@ -150,14 +158,154 @@ extension SphinxOnionManager{
         }
     }
     
+    /// TODO: confirm against mixer/server duplicate-payment fix.
+    /// Matches only the confirmed mixer already-paid string. Empty until that
+    /// wording is known — do not guess phrases like "invoice settled".
+    func isInvoiceAlreadyPaidError(_ error: String?) -> Bool {
+        guard let error = error, !error.isEmpty else {
+            return false
+        }
+        return SphinxOnionManager.invoiceAlreadyPaidErrorMatchers.contains(where: { matcher in
+            !matcher.isEmpty && error.contains(matcher)
+        })
+    }
+    
+    func isInvoiceAlreadyPaidSphinxError(_ error: Error) -> Bool {
+        if case SphinxError.SendFailed(let r) = error {
+            return isInvoiceAlreadyPaidError(r)
+        }
+        return false
+    }
+    
+    var invoiceAlreadyPaidLocalizedMessage: String {
+        "invoice.already.paid".localized
+    }
+    
+    func insertInFlightPaymentHash(_ paymentHash: String) {
+        paymentHashLock.lock()
+        inFlightPaymentHashes.insert(paymentHash)
+        paymentHashLock.unlock()
+    }
+    
+    func removeInFlightPaymentHash(_ paymentHash: String?) {
+        guard let paymentHash = paymentHash, !paymentHash.isEmpty else {
+            return
+        }
+        paymentHashLock.lock()
+        inFlightPaymentHashes.remove(paymentHash)
+        paymentHashLock.unlock()
+    }
+    
+    func markPaymentHashPaid(_ paymentHash: String?) {
+        guard let paymentHash = paymentHash, !paymentHash.isEmpty else {
+            return
+        }
+        paymentHashLock.lock()
+        paidPaymentHashes.insert(paymentHash)
+        inFlightPaymentHashes.remove(paymentHash)
+        paymentHashLock.unlock()
+    }
+    
+    func isPaymentHashInFlight(_ paymentHash: String) -> Bool {
+        paymentHashLock.lock()
+        defer { paymentHashLock.unlock() }
+        return inFlightPaymentHashes.contains(paymentHash)
+    }
+    
+    func isPaymentHashPaid(_ paymentHash: String) -> Bool {
+        paymentHashLock.lock()
+        defer { paymentHashLock.unlock() }
+        return paidPaymentHashes.contains(paymentHash)
+    }
+    
+    func hasLocalAlreadyPaidRecord(forPaymentHash paymentHash: String) -> Bool {
+        if isPaymentHashInFlight(paymentHash) || isPaymentHashPaid(paymentHash) {
+            return true
+        }
+        if let hasSettledPaymentOverride = hasSettledPaymentOverride {
+            return hasSettledPaymentOverride(paymentHash)
+        }
+        return TransactionMessage.hasSettledPayment(forPaymentHash: paymentHash)
+    }
+    
+    func handleLocalAlreadyPaid(
+        paymentHash: String,
+        callback: ((Bool, String?) -> ())? = nil,
+        useAlert: Bool = false
+    ) {
+        print("Run return object error: already paid (local) payment_hash=\(paymentHash)")
+        if useAlert {
+            if let alreadyPaidAlertHandler = alreadyPaidAlertHandler {
+                alreadyPaidAlertHandler(invoiceAlreadyPaidLocalizedMessage)
+            } else {
+                DispatchQueue.main.async {
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: self.invoiceAlreadyPaidLocalizedMessage
+                    )
+                }
+            }
+        } else {
+            callback?(false, invoiceAlreadyPaidLocalizedMessage)
+        }
+    }
+    
+    func executeSimulatedOrRealPay(_ real: () throws -> RunReturn) throws -> RunReturn {
+        sphinxPayCallCount += 1
+        if let simulatedPayError = simulatedPayError {
+            throw simulatedPayError
+        }
+        if let simulatedPayRunReturn = simulatedPayRunReturn {
+            return simulatedPayRunReturn
+        }
+        return try real()
+    }
+    
+    func handleNetworkAlreadyPaid(
+        paymentHash: String?,
+        callback: ((Bool, String?) -> ())? = nil,
+        useAlert: Bool = false
+    ) {
+        if let paymentHash = paymentHash, !paymentHash.isEmpty {
+            print("Run return object error: already paid (network) payment_hash=\(paymentHash)")
+            markPaymentHashPaid(paymentHash)
+        } else {
+            print("Run return object error: already paid (network)")
+        }
+        if useAlert {
+            if let alreadyPaidAlertHandler = alreadyPaidAlertHandler {
+                alreadyPaidAlertHandler(invoiceAlreadyPaidLocalizedMessage)
+            } else {
+                DispatchQueue.main.async {
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: self.invoiceAlreadyPaidLocalizedMessage
+                    )
+                }
+            }
+        } else {
+            callback?(false, invoiceAlreadyPaidLocalizedMessage)
+        }
+    }
+    
     func payInvoice(
         invoice: String,
         overPayAmountMsat: UInt64? = nil,
         callback: ((Bool, String?) -> ())? = nil
     ){
         let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
-        guard let invoiceDict = getInvoiceDetails(invoice: invoice),
-              let pubkey = invoiceDict.pubkey,
+        guard let invoiceDict = getInvoiceDetails(invoice: invoice) else {
+            callback?(false, "Pubkey not found")
+            return
+        }
+        
+        let paymentHash = invoiceDict.paymentHash
+        if let paymentHash = paymentHash, hasLocalAlreadyPaidRecord(forPaymentHash: paymentHash) {
+            handleLocalAlreadyPaid(paymentHash: paymentHash, callback: callback)
+            return
+        }
+        
+        guard let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
             callback?(false, "Pubkey not found")
@@ -165,6 +313,10 @@ extension SphinxOnionManager{
         }
         
         let hasRouteHint = invoiceDict.hopHints?.last != nil
+        
+        if let paymentHash = paymentHash {
+            insertInFlightPaymentHash(paymentHash)
+        }
         
         checkAndFetchRouteTo(
             publicKey: pubkey,
@@ -176,6 +328,7 @@ extension SphinxOnionManager{
                     invoice: invoice,
                     hasRouteHint: hasRouteHint,
                     amount: overPayAmountMsat ?? UInt64(amount),
+                    paymentHash: paymentHash,
                     callback: callback
                 )
             } else {
@@ -183,11 +336,12 @@ extension SphinxOnionManager{
                     ///Standard invoice with no route hint
                     self.payInvoiceFromLSP(
                         invoice: invoice,
+                        paymentHash: paymentHash,
                         callback: callback
                     )
-                    callback?(true, nil)
                     return
                 }
+                self.removeInFlightPaymentHash(paymentHash)
                 ///error getting route info
                 callback?(false, "Could not find a route to the target. Please try again.")
             }
@@ -200,8 +354,18 @@ extension SphinxOnionManager{
         callback: ((Bool, String?) -> ())? = nil
     ){
         let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
-        guard let invoiceDict = getInvoiceDetails(invoice: invoice),
-              let pubkey = invoiceDict.pubkey,
+        guard let invoiceDict = getInvoiceDetails(invoice: invoice) else {
+            callback?(false, "Pubkey not found")
+            return
+        }
+        
+        let paymentHash = invoiceDict.paymentHash
+        if let paymentHash = paymentHash, hasLocalAlreadyPaidRecord(forPaymentHash: paymentHash) {
+            handleLocalAlreadyPaid(paymentHash: paymentHash, callback: callback)
+            return
+        }
+        
+        guard let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
             callback?(false, "Pubkey not found")
@@ -210,12 +374,16 @@ extension SphinxOnionManager{
         
         let hasRouteHint = invoiceDict.hopHints?.last != nil
         
+        if let paymentHash = paymentHash {
+            insertInFlightPaymentHash(paymentHash)
+        }
+        
         if !hasRouteHint {
             self.payInvoiceFromLSP(
                 invoice: invoice,
+                paymentHash: paymentHash,
                 callback: callback
             )
-            callback?(true, nil)
             return
         } else {
             checkAndFetchRouteTo(
@@ -228,9 +396,11 @@ extension SphinxOnionManager{
                         invoice: invoice,
                         hasRouteHint: hasRouteHint,
                         amount: overPayAmountMsat ?? UInt64(amount),
+                        paymentHash: paymentHash,
                         callback: callback
                     )
                 } else {
+                    self.removeInFlightPaymentHash(paymentHash)
                     callback?(false, "Could not find a route to the target. Please try again.")
                 }
             }
@@ -239,28 +409,55 @@ extension SphinxOnionManager{
     
     func payInvoiceFromLSP(
         invoice: String,
+        paymentHash: String? = nil,
         callback: ((Bool, String?) -> ())? = nil
     ) {
         let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
-        guard let seed = getAccountSeed() else{
+        let paymentHash = paymentHash ?? getInvoiceDetails(invoice: invoice)?.paymentHash
+        // Retry path: do not treat the current in-flight hash as already paid.
+        if let paymentHash = paymentHash,
+           isPaymentHashPaid(paymentHash) ||
+            (hasSettledPaymentOverride?(paymentHash) ?? TransactionMessage.hasSettledPayment(forPaymentHash: paymentHash))
+        {
+            handleLocalAlreadyPaid(paymentHash: paymentHash, callback: callback)
+            return
+        }
+        let seed = getAccountSeed()
+        if seed == nil && simulatedPayRunReturn == nil && simulatedPayError == nil {
+            removeInFlightPaymentHash(paymentHash)
             callback?(false, "Account seed not found")
             return
         }
         
         do {
-            let rr = try Sphinx.pay(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData(),
-                bolt11: invoice
-            )
+            let rr = try executeSimulatedOrRealPay {
+                try Sphinx.pay(
+                    seed: seed ?? "",
+                    uniqueTime: getTimeWithEntropy(),
+                    state: loadOnionStateAsData(),
+                    bolt11: invoice
+                )
+            }
             let _ = handleRunReturn(rr: rr)
             
-//            let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true)
+            if isInvoiceAlreadyPaidError(rr.error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, callback: callback)
+                return
+            }
             
+            removeInFlightPaymentHash(paymentHash)
             callback?(true, nil)
         } catch let error {
-            callback?(false, (error as? SphinxError).debugDescription)
+            if isInvoiceAlreadyPaidSphinxError(error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, callback: callback)
+                return
+            }
+            removeInFlightPaymentHash(paymentHash)
+            if case SphinxError.SendFailed(let r) = error {
+                callback?(false, r)
+            } else {
+                callback?(false, (error as? SphinxError).debugDescription)
+            }
         }
     }
     
@@ -268,29 +465,50 @@ extension SphinxOnionManager{
         invoice: String,
         hasRouteHint: Bool,
         amount: UInt64,
+        paymentHash: String? = nil,
         callback: ((Bool, String?) -> ())? = nil
     ) {
         let invoice = invoice.components(separatedBy: .whitespacesAndNewlines).joined()
-        guard let seed = getAccountSeed() else{
+        let paymentHash = paymentHash ?? getInvoiceDetails(invoice: invoice)?.paymentHash
+        let seed = getAccountSeed()
+        if seed == nil && simulatedPayRunReturn == nil && simulatedPayError == nil {
+            removeInFlightPaymentHash(paymentHash)
             callback?(false, "Account seed not found")
             return
         }
         do {
-            let rr = try Sphinx.payInvoice(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData(),
-                bolt11: invoice,
-                overpayMsat: amount
-            )
+            let rr = try executeSimulatedOrRealPay {
+                try Sphinx.payInvoice(
+                    seed: seed ?? "",
+                    uniqueTime: getTimeWithEntropy(),
+                    state: loadOnionStateAsData(),
+                    bolt11: invoice,
+                    overpayMsat: amount
+                )
+            }
             let _ = handleRunReturn(rr: rr)
+            
+            if isInvoiceAlreadyPaidError(rr.error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, callback: callback)
+                return
+            }
             
             if let tag = getMessageTag(messages: rr.msgs, isSendingMessage: true), !hasRouteHint {
                 setupInvoicePaymentTimerFor(invoice: invoice, tag: tag)
             }
+            removeInFlightPaymentHash(paymentHash)
             callback?(true, nil)
         } catch let error {
-            callback?(false, (error as? SphinxError).debugDescription)
+            if isInvoiceAlreadyPaidSphinxError(error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, callback: callback)
+                return
+            }
+            removeInFlightPaymentHash(paymentHash)
+            if case SphinxError.SendFailed(let r) = error {
+                callback?(false, r)
+            } else {
+                callback?(false, (error as? SphinxError).debugDescription)
+            }
         }
     }
     
@@ -318,7 +536,18 @@ extension SphinxOnionManager{
                         message: "Your payment has been successfully processed"
                     )
                 } else if let userInfo = timer.userInfo as? [String: String], let invoice = userInfo["invoice"] {
-                    self.payInvoiceFromLSP(invoice: invoice)
+                    self.payInvoiceFromLSP(
+                        invoice: invoice,
+                        callback: { [weak self] success, errorMsg in
+                            guard let self = self else { return }
+                            if !success, errorMsg == self.invoiceAlreadyPaidLocalizedMessage {
+                                AlertHelper.showAlert(
+                                    title: "generic.error.title".localized,
+                                    message: self.invoiceAlreadyPaidLocalizedMessage
+                                )
+                            }
+                        }
+                    )
                 }
                 self.resetInvoicePaymentTimerFor(tag: tag)
             }
@@ -341,13 +570,38 @@ extension SphinxOnionManager{
     func payInvoiceMessage(
         message: TransactionMessage
     ) {
-        guard let invoiceDict = getInvoiceDetails(invoice: message.invoice ?? ""),
-              let owner = UserContact.getOwner(),
+        payInvoiceMessage(
+            invoice: message.invoice,
+            paymentHash: message.paymentHash,
+            message: message
+        )
+    }
+    
+    func payInvoiceMessage(
+        invoice: String?,
+        paymentHash: String? = nil,
+        message: TransactionMessage? = nil
+    ) {
+        guard let invoiceDict = getInvoiceDetails(invoice: invoice ?? "") else {
+            return
+        }
+        
+        let paymentHash = invoiceDict.paymentHash ?? paymentHash
+        if let paymentHash = paymentHash, hasLocalAlreadyPaidRecord(forPaymentHash: paymentHash) {
+            handleLocalAlreadyPaid(paymentHash: paymentHash, useAlert: true)
+            return
+        }
+        
+        guard let owner = UserContact.getOwner(),
               let _ = owner.nickname,
               let pubkey = invoiceDict.pubkey,
               let amount = invoiceDict.value else
         {
             return
+        }
+        
+        if let paymentHash = paymentHash {
+            insertInFlightPaymentHash(paymentHash)
         }
         
         checkAndFetchRouteTo(
@@ -356,8 +610,13 @@ extension SphinxOnionManager{
             amtMsat: Int(UInt64(amount))
         ) { success in
             if success {
-                self.finalizePayInvoiceMessage(message: message)
+                if let message = message {
+                    self.finalizePayInvoiceMessage(message: message, paymentHash: paymentHash)
+                } else {
+                    self.removeInFlightPaymentHash(paymentHash)
+                }
             } else {
+                self.removeInFlightPaymentHash(paymentHash)
                 ///error getting route info
                 DispatchQueue.main.async {
                     AlertHelper.showAlert(
@@ -370,7 +629,8 @@ extension SphinxOnionManager{
     }
     
     func finalizePayInvoiceMessage(
-        message: TransactionMessage
+        message: TransactionMessage,
+        paymentHash: String? = nil
     ) {
         guard message.type == TransactionMessage.TransactionMessageType.invoice.rawValue,
               let rawInvoice = message.invoice,
@@ -378,23 +638,38 @@ extension SphinxOnionManager{
               let owner = UserContact.getOwner(),
               let nickname = owner.nickname else
         {
+            removeInFlightPaymentHash(paymentHash)
             return
         }
 
         let invoice = rawInvoice.components(separatedBy: .whitespacesAndNewlines).joined()
+        let paymentHash = paymentHash ?? getInvoiceDetails(invoice: invoice)?.paymentHash ?? message.paymentHash
 
         do {
-            let rr = try Sphinx.payContactInvoice(
-                seed: seed,
-                uniqueTime: getTimeWithEntropy(),
-                state: loadOnionStateAsData(),
-                bolt11: invoice,
-                myAlias: nickname,
-                myImg: owner.avatarUrl ?? "",
-                isTribe: false
-            )
+            let rr = try executeSimulatedOrRealPay {
+                try Sphinx.payContactInvoice(
+                    seed: seed,
+                    uniqueTime: getTimeWithEntropy(),
+                    state: loadOnionStateAsData(),
+                    bolt11: invoice,
+                    myAlias: nickname,
+                    myImg: owner.avatarUrl ?? "",
+                    isTribe: false
+                )
+            }
             let _ = handleRunReturn(rr: rr)
-        } catch {
+            
+            if isInvoiceAlreadyPaidError(rr.error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, useAlert: true)
+                return
+            }
+            removeInFlightPaymentHash(paymentHash)
+        } catch let error {
+            if isInvoiceAlreadyPaidSphinxError(error) {
+                handleNetworkAlreadyPaid(paymentHash: paymentHash, useAlert: true)
+                return
+            }
+            removeInFlightPaymentHash(paymentHash)
             return
         }
     }

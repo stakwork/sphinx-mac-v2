@@ -10,6 +10,7 @@
 "generic.success.title" = "成功";
 "generic.error.title" = "エラー";
 "generic.error.message" = "エラーが発生しました。後ほど再度お試しください。";
+"invoice.already.paid" = "このインボイスはすでに支払われています。";
 "generic.message.error" = "メッセージを送信できませんでした。後ほど再度お試しください";
 "generic.attachment.error" = "ファイルのアップロード中に問題が発生しました。後ほど再度お試しください。";
 "boost.error.title" = "Boost error";

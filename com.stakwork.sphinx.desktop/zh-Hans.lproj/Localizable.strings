@@ -10,6 +10,7 @@
 "generic.success.title" = "成功";
 "generic.error.title" = "错误";
 "generic.error.message" = "出现错误。请稍后再试。";
+"invoice.already.paid" = "此发票已经支付。";
 "generic.message.error" = "消息无法发送。请稍后再试";
 "generic.attachment.error" = "上传文件时出现问题。请稍后再试。";
 "boost.error.title" = "Boost error";
