@@ -975,7 +975,9 @@ extension SphinxOnionManager {
             mqttLog("\(kind) while NOT connected (connState=\(state)) topic=\(suffix) bytes=\(bytes) — will poison a connecting socket or be lost", level: .warn)
             mqttLog("  triggered from: \(frames.joined(separator: " <- "))", level: .warn)
         } else {
-            mqttLog("\(kind) topic=\(suffix) bytes=\(bytes)")
+            // Disabled: this fired on every successful MQTT publish, adding write volume to the
+            // persistent sphinx_logs.txt Diagnostics file with limited debugging value on the success path.
+            // mqttLog("\(kind) topic=\(suffix) bytes=\(bytes)")
         }
     }
     
