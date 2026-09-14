@@ -682,6 +682,7 @@
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
 		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
+		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
 		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
 		47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */; };
 		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
@@ -1782,6 +1783,7 @@
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
 		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
 		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
+		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
 		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
 		47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesViewController.swift; sourceTree = "<group>"; };
 		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
@@ -2343,6 +2345,7 @@
 				CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */,
 				47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */,
 				JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */,
+				HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */,
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
@@ -5292,6 +5295,7 @@
 				CPAGT0020000000001CPAGT02 /* ChatPaginationTests.swift in Sources */,
 				47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */,
 				JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */,
+				HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */,
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
