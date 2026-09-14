@@ -287,7 +287,7 @@ extension GraphChatSSEManager: URLSessionDataDelegate {
                   let _ = payload.data(using: .utf8) else { continue }
             DispatchQueue.main.async {
                 guard let data = payload.data(using: .utf8),
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+                      let json = JSONSerialization.dictionary(from: data, source: "hiveGraph.sse") else { return }
                 self.handleOrgSSEJson(json)
             }
         }

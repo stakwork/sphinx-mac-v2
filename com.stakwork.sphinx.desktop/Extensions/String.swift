@@ -8,6 +8,7 @@
 
 import Foundation
 import AppKit
+import SphinxErrorReporter
 
 extension String {
     
@@ -1375,6 +1376,59 @@ extension String {
         let parts = url.pathComponents
         guard parts.count == 5 else { return nil }
         return parts[4]
+    }
+}
+
+extension JSONSerialization {
+    /// Copy an NSDictionary into a native Swift dictionary using only NSDictionary key APIs.
+    /// Never Swift-iterate a bridged Dictionary — that re-enters `__CocoaDictionary.Iterator.nextKey()`.
+    static func nativeDictionary(from nsDict: NSDictionary) -> [String: Any] {
+        var result: [String: Any] = [:]
+        let keys = nsDict.allKeys
+        for key in keys {
+            if let k = key as? String, let value = nsDict.object(forKey: key) {
+                result[k] = value
+            }
+        }
+        return result
+    }
+
+    /// Parse JSON data into a native `[String: Any]`. Rejects strings (including
+    /// `NSTaggedPointerString`), arrays, numbers, and fragments without crashing.
+    static func dictionary(from data: Data, source: String) -> [String: Any]? {
+        let obj: Any
+        do {
+            obj = try JSONSerialization.jsonObject(with: data)
+        } catch {
+            print("Error parsing JSON: \(error)")
+            return nil
+        }
+
+        // Type-check the raw `Any` before any Swift Dictionary cast.
+        // `is NSDictionary` plus CFDictionary type ID — never `as? [String: Any]`.
+        let isDictionary = obj is NSDictionary
+            && CFGetTypeID(obj as CFTypeRef) == CFDictionaryGetTypeID()
+        guard isDictionary else {
+            let actualType = String(describing: type(of: obj))
+            print("Error parsing JSON: expected dictionary vs \(actualType) from \(source)")
+            SphinxErrorReporter.captureMessage(
+                "Expected dictionary vs \(actualType) from \(source)",
+                exceptionType: "InvalidJSONDictionary",
+                metadata: [
+                    "source": source,
+                    "actualType": actualType
+                ]
+            )
+            return nil
+        }
+
+        let nsDict = obj as! NSDictionary
+        return nativeDictionary(from: nsDict)
+    }
+
+    static func dictionary(from string: String, source: String) -> [String: Any]? {
+        guard let data = string.data(using: .utf8) else { return nil }
+        return dictionary(from: data, source: source)
     }
 }
 

@@ -239,8 +239,7 @@ extension SphinxOnionManager {
     
     func handleTribeMembers(tribeMembers: String?) {
         if let tribeMembersString = tribeMembers,
-           let jsonData = tribeMembersString.data(using: .utf8),
-           let jsonDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+           let jsonDict = JSONSerialization.dictionary(from: tribeMembersString, source: "tribeMembers")
         {
             var confirmedMembers: [TribeMembersRRObject] = []
             var pendingMembers: [TribeMembersRRObject] = []
