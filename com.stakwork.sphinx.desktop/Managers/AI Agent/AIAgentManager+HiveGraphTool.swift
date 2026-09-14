@@ -233,19 +233,47 @@ extension AIAgentManager {
 
     // MARK: - JSON Helpers
 
+    /// Copy a value into a native Swift `[String: Any]` only after confirming it is an
+    /// `NSDictionary` with `String` keys. Never Swift-iterate a bridged dictionary —
+    /// that re-enters `__CocoaDictionary.Iterator` and can message a non-dictionary
+    /// (including tagged-pointer `NSIndexPath`) with `countByEnumeratingWithState:`.
+    /// Empty `{}` is a valid dictionary and returns `[:]`. `nil` means "not a dictionary".
+    internal static func nsDictionaryAsStringKeyed(_ value: Any?) -> [String: Any]? {
+        guard let value = value else { return nil }
+        guard let ns = value as? NSDictionary else {
+            print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) type: \(type(of: value))")
+            return nil
+        }
+
+        var result: [String: Any] = [:]
+        var exceptionReason: NSString? = nil
+        // NSInvalidArgumentException cannot be caught in Swift; wrap only the Foundation copy.
+        let succeeded = NSExceptionCatcher.tryExecute({
+            ns.enumerateKeysAndObjects { key, object, _ in
+                if let k = key as? String {
+                    result[k] = object
+                }
+            }
+        }, exceptionReason: &exceptionReason)
+
+        if !succeeded {
+            let reason = (exceptionReason as String?) ?? "unknown exception"
+            print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) \(reason)")
+            return nil
+        }
+        return result
+    }
+
     /// Convert a [String: Any] dict (from JSONSerialization) into [String: CodableJSONValue],
     /// preserving nested dicts as .object cases. Booleans are stored as "true"/"false" strings
     /// to distinguish them from integers (CFGetTypeID check avoids NSNumber ambiguity).
     static func anyDictToCodableJSON(_ dict: [String: Any]) -> [String: CodableJSONValue] {
+        guard let safe = nsDictionaryAsStringKeyed(dict) else { return [:] }
         var result: [String: CodableJSONValue] = [:]
-        for (key, value) in dict {
-            if let s = value as? String { result[key] = .string(s) }
-            else if value is NSDictionary {
-                let nsDict = value as! NSDictionary
-                let nested = JSONSerialization.nativeDictionary(from: nsDict)
-                result[key] = .object(anyDictToCodableJSON(nested))
-            }
-            else if let n = value as? NSNumber {
+        for (key, value) in safe {
+            if let s = value as? String {
+                result[key] = .string(s)
+            } else if let n = value as? NSNumber {
                 // Distinguish JSON booleans (false→"0", true→"1" via stringValue — wrong)
                 // from actual booleans using CFGetTypeID.
                 if CFGetTypeID(n) == CFBooleanGetTypeID() {
@@ -253,6 +281,10 @@ extension AIAgentManager {
                 } else {
                     result[key] = .string(n.stringValue)
                 }
+            } else if let nested = nsDictionaryAsStringKeyed(value) {
+                result[key] = .object(anyDictToCodableJSON(nested))
+            } else {
+                print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) type: \(type(of: value))")
             }
         }
         return result
@@ -283,7 +315,8 @@ extension AIAgentManager {
             // Find the canvas (empty-toolName) sibling and its payload
             let canvasEntry = toolCalls.first(where: { ($0["toolName"] as? String) == "" })
             let canvasOutput = canvasEntry?["output"] as? [String: Any]
-            let canvasPayload = canvasOutput?["payload"] as? [String: Any]
+            // Copy via NSDictionary gate — do not `as? [String: Any]` before enumerating.
+            let canvasPayload = nsDictionaryAsStringKeyed(canvasOutput?["payload"])
 
             var changed = false
             toolCalls = toolCalls.map { tc in
@@ -294,7 +327,9 @@ extension AIAgentManager {
 
                 // Merge canvas payload into propose_* entries
                 if isProposalTool, let canvasPayload = canvasPayload {
-                    canvasPayload.forEach { payload[$0.key] = $0.value }
+                    for (key, value) in canvasPayload {
+                        payload[key] = value
+                    }
                     if let meta = canvasOutput?["meta"] { output["meta"] = meta }
                 }
 
@@ -318,7 +353,13 @@ extension AIAgentManager {
 
         // Attempt parse as JSON object
         func parseDict(from data: Data) -> [String: String]? {
-            guard let obj = JSONSerialization.dictionary(from: data, source: "hiveGraph.input") else { return nil }
+            let jsonObj: Any
+            do {
+                jsonObj = try JSONSerialization.jsonObject(with: data)
+            } catch {
+                return nil
+            }
+            guard let obj = nsDictionaryAsStringKeyed(jsonObj) else { return nil }
             var result: [String: String] = [:]
             for (key, value) in obj {
                 if let str = value as? String {
@@ -468,6 +509,16 @@ extension AIAgentManager {
             )
         }
 
+        // Snapshot SSE-captured tool calls on the main queue. Writes happen on main
+        // via parseOrgSSEEvent → onToolCall / onToolOutputAvailable; do not iterate
+        // the live array from this async task.
+        let capturedToolCalls: [(name: String, toolCallId: String, inputStr: String, outputStr: String)] =
+            await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    continuation.resume(returning: Array(bridge.capturedToolCalls))
+                }
+            }
+
         // Step 5: Append to canvas history
         canvasChatHistory.append(CanvasChatMessage(role: "user", content: question))
 
@@ -476,13 +527,15 @@ extension AIAgentManager {
         // synthesise an output dict from the input fields so the server's handleApproval can
         // locate the proposal by proposalId.
         let proposalPrefixSet = ["propose_feature", "propose_initiative", "propose_milestone"]
-        let toolCalls: [ToolCall]? = bridge.capturedToolCalls.isEmpty ? nil :
-            bridge.capturedToolCalls.map { tc in
+        let toolCalls: [ToolCall]? = capturedToolCalls.isEmpty ? nil :
+            capturedToolCalls.map { tc in
                 let inputDict = AIAgentManager.jsonStringToStringDict(tc.inputStr)
                 // Parse raw output into CodableJSONValue dict (preserves nested objects)
                 var outputDict: [String: CodableJSONValue]? = {
                     guard !tc.outputStr.isEmpty,
-                          let obj = JSONSerialization.dictionary(from: tc.outputStr, source: "hiveGraph.output")
+                          let data = tc.outputStr.data(using: .utf8),
+                          let jsonObj = try? JSONSerialization.jsonObject(with: data),
+                          let obj = AIAgentManager.nsDictionaryAsStringKeyed(jsonObj)
                     else { return nil }
                     let d = AIAgentManager.anyDictToCodableJSON(obj)
                     return d.isEmpty ? nil : d
@@ -499,9 +552,11 @@ extension AIAgentManager {
                         return p["workspaceId"] != nil
                     }()
                     if !hasWorkspaceId {
-                        if let companion = bridge.capturedToolCalls.first(where: { $0.name.isEmpty }),
+                        if let companion = capturedToolCalls.first(where: { $0.name.isEmpty }),
                            !companion.outputStr.isEmpty,
-                           let compObj = JSONSerialization.dictionary(from: companion.outputStr, source: "hiveGraph.companion") {
+                           let compData = companion.outputStr.data(using: .utf8),
+                           let compJson = try? JSONSerialization.jsonObject(with: compData),
+                           let compObj = AIAgentManager.nsDictionaryAsStringKeyed(compJson) {
                             // Merge companion's payload and meta into existing output
                             var enriched = outputDict ?? [:]
                             let comp = AIAgentManager.anyDictToCodableJSON(compObj)
@@ -536,7 +591,7 @@ extension AIAgentManager {
         print("AIAgent [HiveGraph] canvas history updated — \(canvasChatHistory.count) messages")
 
         // Log all captured tool calls for diagnostics
-        for tc in bridge.capturedToolCalls {
+        for tc in capturedToolCalls {
             print("AIAgent [HiveGraph] captured tool: \(tc.name) | inputStr: \(tc.inputStr.prefix(200)) | outputStr: \(tc.outputStr.prefix(200))")
         }
 
@@ -650,8 +705,9 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         print("AIAgent [HiveGraph] approve_proposal firing — proposalId: \(proposalId), turnId: \(turnId)")
 
         let workspaceSlugs = await AIAgentManager.fetchWorkspacesAsync().map { $0.compactMap { $0.slug } } ?? []
+        let historySnapshot = Array(canvasChatHistory)
         let messages = AIAgentManager.mergeCanvasPayloads(
-            into: (try? JSONEncoder().encode(canvasChatHistory)).flatMap {
+            into: (try? JSONEncoder().encode(historySnapshot)).flatMap {
                 try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]]
             } ?? []
         )
@@ -794,8 +850,9 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         print("AIAgent [HiveGraph] reject_proposal firing — proposalId: \(proposalId), turnId: \(turnId)")
 
         let workspaceSlugs = await AIAgentManager.fetchWorkspacesAsync().map { $0.compactMap { $0.slug } } ?? []
+        let historySnapshot = Array(canvasChatHistory)
         let messages = AIAgentManager.mergeCanvasPayloads(
-            into: (try? JSONEncoder().encode(canvasChatHistory)).flatMap {
+            into: (try? JSONEncoder().encode(historySnapshot)).flatMap {
                 try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]]
             } ?? []
         )
