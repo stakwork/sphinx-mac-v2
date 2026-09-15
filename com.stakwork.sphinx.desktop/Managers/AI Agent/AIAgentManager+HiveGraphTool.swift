@@ -238,42 +238,15 @@ extension AIAgentManager {
 
     // MARK: - JSON Helpers
 
-    /// Copy a value into a native Swift `[String: Any]` only after confirming it is an
-    /// `NSDictionary` with `String` keys. Never Swift-iterate a bridged dictionary —
-    /// that re-enters `__CocoaDictionary.Iterator` and can message a non-dictionary
-    /// (including tagged-pointer `NSIndexPath`) with `countByEnumeratingWithState:`.
-    /// Empty `{}` is a valid dictionary and returns `[:]`. `nil` means "not a dictionary".
-    internal static func nsDictionaryAsStringKeyed(_ value: Any?) -> [String: Any]? {
-        guard let value = value else { return nil }
-        guard let ns = value as? NSDictionary else {
-            print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) type: \(type(of: value))")
-            return nil
-        }
-
-        var result: [String: Any] = [:]
-        var exceptionReason: NSString? = nil
-        // NSInvalidArgumentException cannot be caught in Swift; wrap only the Foundation copy.
-        let succeeded = NSExceptionCatcher.tryExecute({
-            ns.enumerateKeysAndObjects { key, object, _ in
-                if let k = key as? String {
-                    result[k] = object
-                }
-            }
-        }, exceptionReason: &exceptionReason)
-
-        if !succeeded {
-            let reason = (exceptionReason as String?) ?? "unknown exception"
-            print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) \(reason)")
-            return nil
-        }
-        return result
-    }
-
     /// Convert a [String: Any] dict (from JSONSerialization) into [String: CodableJSONValue],
     /// preserving nested dicts as .object cases. Booleans are stored as "true"/"false" strings
     /// to distinguish them from integers (CFGetTypeID check avoids NSNumber ambiguity).
+    /// Uses `JSONSerialization.dictionary(from:source:)` (not a raw Swift iteration or
+    /// `as? [String: Any]`) at every dictionary boundary — see that helper's doc comment for
+    /// why: it never Swift-iterates a bridged dictionary, which can crash on Cocoa type
+    /// confusion (e.g. a tagged-pointer `NSIndexPath` masquerading as `NSDictionary`).
     static func anyDictToCodableJSON(_ dict: [String: Any]) -> [String: CodableJSONValue] {
-        guard let safe = nsDictionaryAsStringKeyed(dict) else { return [:] }
+        guard let safe = JSONSerialization.dictionary(from: dict, source: "hiveGraph.anyDict") else { return [:] }
         var result: [String: CodableJSONValue] = [:]
         for (key, value) in safe {
             if let s = value as? String {
@@ -286,7 +259,7 @@ extension AIAgentManager {
                 } else {
                     result[key] = .string(n.stringValue)
                 }
-            } else if let nested = nsDictionaryAsStringKeyed(value) {
+            } else if let nested = JSONSerialization.dictionary(from: value, source: "hiveGraph.anyDict.nested") {
                 result[key] = .object(anyDictToCodableJSON(nested))
             } else {
                 print("AIAgent [HiveGraph] skipped non-dictionary in \(#function) type: \(type(of: value))")
@@ -321,7 +294,7 @@ extension AIAgentManager {
             let canvasEntry = toolCalls.first(where: { ($0["toolName"] as? String) == "" })
             let canvasOutput = canvasEntry?["output"] as? [String: Any]
             // Copy via NSDictionary gate — do not `as? [String: Any]` before enumerating.
-            let canvasPayload = nsDictionaryAsStringKeyed(canvasOutput?["payload"])
+            let canvasPayload = JSONSerialization.dictionary(from: canvasOutput?["payload"], source: "hiveGraph.canvasPayload")
 
             var changed = false
             toolCalls = toolCalls.map { tc in
@@ -358,13 +331,7 @@ extension AIAgentManager {
 
         // Attempt parse as JSON object
         func parseDict(from data: Data) -> [String: String]? {
-            let jsonObj: Any
-            do {
-                jsonObj = try JSONSerialization.jsonObject(with: data)
-            } catch {
-                return nil
-            }
-            guard let obj = nsDictionaryAsStringKeyed(jsonObj) else { return nil }
+            guard let obj = JSONSerialization.dictionary(from: data, source: "hiveGraph.input") else { return nil }
             var result: [String: String] = [:]
             for (key, value) in obj {
                 if let str = value as? String {
@@ -538,9 +505,7 @@ extension AIAgentManager {
                 // Parse raw output into CodableJSONValue dict (preserves nested objects)
                 var outputDict: [String: CodableJSONValue]? = {
                     guard !tc.outputStr.isEmpty,
-                          let data = tc.outputStr.data(using: .utf8),
-                          let jsonObj = try? JSONSerialization.jsonObject(with: data),
-                          let obj = AIAgentManager.nsDictionaryAsStringKeyed(jsonObj)
+                          let obj = JSONSerialization.dictionary(from: tc.outputStr, source: "hiveGraph.output")
                     else { return nil }
                     let d = AIAgentManager.anyDictToCodableJSON(obj)
                     return d.isEmpty ? nil : d
@@ -559,9 +524,7 @@ extension AIAgentManager {
                     if !hasWorkspaceId {
                         if let companion = capturedToolCalls.first(where: { $0.name.isEmpty }),
                            !companion.outputStr.isEmpty,
-                           let compData = companion.outputStr.data(using: .utf8),
-                           let compJson = try? JSONSerialization.jsonObject(with: compData),
-                           let compObj = AIAgentManager.nsDictionaryAsStringKeyed(compJson) {
+                           let compObj = JSONSerialization.dictionary(from: companion.outputStr, source: "hiveGraph.companion") {
                             // Merge companion's payload and meta into existing output
                             var enriched = outputDict ?? [:]
                             let comp = AIAgentManager.anyDictToCodableJSON(compObj)

@@ -1380,36 +1380,52 @@ extension String {
 }
 
 extension JSONSerialization {
-    /// Copy an NSDictionary into a native Swift dictionary using only NSDictionary key APIs.
-    /// Never Swift-iterate a bridged Dictionary — that re-enters `__CocoaDictionary.Iterator.nextKey()`.
-    static func nativeDictionary(from nsDict: NSDictionary) -> [String: Any] {
+    /// Copy an NSDictionary into a native Swift dictionary using only NSDictionary key APIs,
+    /// wrapped in an Objective-C exception safety net. Never Swift-iterate a bridged
+    /// Dictionary directly — that re-enters `__CocoaDictionary.Iterator.nextKey()` and can
+    /// message a non-dictionary (including tagged-pointer `NSIndexPath`) with
+    /// `countByEnumeratingWithState:`. `NSInvalidArgumentException` cannot be caught in
+    /// Swift, so the actual copy runs inside `NSExceptionCatcher.tryExecute`.
+    static func nativeDictionary(from nsDict: NSDictionary, source: String) -> [String: Any]? {
         var result: [String: Any] = [:]
-        let keys = nsDict.allKeys
-        for key in keys {
-            if let k = key as? String, let value = nsDict.object(forKey: key) {
-                result[k] = value
+        var exceptionReason: NSString? = nil
+        let succeeded = NSExceptionCatcher.tryExecute({
+            nsDict.enumerateKeysAndObjects { key, object, _ in
+                if let k = key as? String {
+                    result[k] = object
+                }
             }
+        }, exceptionReason: &exceptionReason)
+
+        guard succeeded else {
+            let reason = (exceptionReason as String?) ?? "unknown exception"
+            print("Error parsing JSON: dictionary enumeration failed for \(source): \(reason)")
+            SphinxErrorReporter.captureMessage(
+                "Dictionary enumeration failed for \(source): \(reason)",
+                exceptionType: "InvalidJSONDictionary",
+                metadata: [
+                    "source": source,
+                    "exceptionReason": reason
+                ]
+            )
+            return nil
         }
         return result
     }
 
-    /// Parse JSON data into a native `[String: Any]`. Rejects strings (including
-    /// `NSTaggedPointerString`), arrays, numbers, and fragments without crashing.
-    static func dictionary(from data: Data, source: String) -> [String: Any]? {
-        let obj: Any
-        do {
-            obj = try JSONSerialization.jsonObject(with: data)
-        } catch {
-            print("Error parsing JSON: \(error)")
-            return nil
-        }
+    /// Copy a value into a native `[String: Any]` only after confirming it is a genuine
+    /// CFDictionary — `is NSDictionary` plus CFGetTypeID, never `as? [String: Any]` — then
+    /// safety-netting the copy itself (see `nativeDictionary(from:source:)`). Rejects strings
+    /// (including `NSTaggedPointerString`), arrays, numbers, and non-dictionary fragments
+    /// without crashing. Empty `{}` is a valid dictionary and returns `[:]`; `nil` (either
+    /// the input or the return value) means "not a dictionary".
+    static func dictionary(from value: Any?, source: String) -> [String: Any]? {
+        guard let value = value else { return nil }
 
-        // Type-check the raw `Any` before any Swift Dictionary cast.
-        // `is NSDictionary` plus CFDictionary type ID — never `as? [String: Any]`.
-        let isDictionary = obj is NSDictionary
-            && CFGetTypeID(obj as CFTypeRef) == CFDictionaryGetTypeID()
-        guard isDictionary else {
-            let actualType = String(describing: type(of: obj))
+        let isDictionary = value is NSDictionary
+            && CFGetTypeID(value as CFTypeRef) == CFDictionaryGetTypeID()
+        guard isDictionary, let nsDict = value as? NSDictionary else {
+            let actualType = String(describing: type(of: value))
             print("Error parsing JSON: expected dictionary vs \(actualType) from \(source)")
             SphinxErrorReporter.captureMessage(
                 "Expected dictionary vs \(actualType) from \(source)",
@@ -1422,8 +1438,20 @@ extension JSONSerialization {
             return nil
         }
 
-        let nsDict = obj as! NSDictionary
-        return nativeDictionary(from: nsDict)
+        return nativeDictionary(from: nsDict, source: source)
+    }
+
+    /// Parse JSON data into a native `[String: Any]`. Rejects strings (including
+    /// `NSTaggedPointerString`), arrays, numbers, and fragments without crashing.
+    static func dictionary(from data: Data, source: String) -> [String: Any]? {
+        let obj: Any
+        do {
+            obj = try JSONSerialization.jsonObject(with: data)
+        } catch {
+            print("Error parsing JSON: \(error)")
+            return nil
+        }
+        return dictionary(from: obj, source: source)
     }
 
     static func dictionary(from string: String, source: String) -> [String: Any]? {

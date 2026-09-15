@@ -4,7 +4,11 @@
 //
 //  Guards Hive graph dictionary iteration against Cocoa type confusion
 //  (NSIndexPath, JSON arrays/strings) so Swift never messages a
-//  non-dictionary with countByEnumeratingWithState:.
+//  non-dictionary with countByEnumeratingWithState:. Exercises
+//  JSONSerialization.dictionary(from:source:) — the single consolidated
+//  safe-dictionary helper (formerly duplicated as AIAgentManager's
+//  nsDictionaryAsStringKeyed, merged into JSONSerialization so every call
+//  site, including the Sentry telemetry, shares one implementation).
 //
 
 import XCTest
@@ -12,15 +16,15 @@ import XCTest
 
 final class AIAgentHiveGraphDictTests: XCTestCase {
 
-    // MARK: - nsDictionaryAsStringKeyed
+    // MARK: - JSONSerialization.dictionary(from:source:)
 
     func testHelper_nilReturnsNil() {
-        XCTAssertNil(AIAgentManager.nsDictionaryAsStringKeyed(nil))
+        XCTAssertNil(JSONSerialization.dictionary(from: nil, source: "test"))
     }
 
     func testHelper_jsonArrayReturnsNil() throws {
         let obj = try JSONSerialization.jsonObject(with: Data("[]".utf8))
-        XCTAssertNil(AIAgentManager.nsDictionaryAsStringKeyed(obj))
+        XCTAssertNil(JSONSerialization.dictionary(from: obj, source: "test"))
     }
 
     func testHelper_jsonStringReturnsNil() throws {
@@ -28,25 +32,25 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
             with: Data("\"hi\"".utf8),
             options: .allowFragments
         )
-        XCTAssertNil(AIAgentManager.nsDictionaryAsStringKeyed(obj))
+        XCTAssertNil(JSONSerialization.dictionary(from: obj, source: "test"))
     }
 
     func testHelper_emptyObjectReturnsEmptyDict() throws {
         let obj = try JSONSerialization.jsonObject(with: Data("{}".utf8))
-        let result = AIAgentManager.nsDictionaryAsStringKeyed(obj)
+        let result = JSONSerialization.dictionary(from: obj, source: "test")
         XCTAssertNotNil(result)
         XCTAssertTrue(result?.isEmpty ?? false)
     }
 
     func testHelper_nsIndexPathReturnsNilWithoutThrowing() {
         let path = NSIndexPath()
-        let result = AIAgentManager.nsDictionaryAsStringKeyed(path)
+        let result = JSONSerialization.dictionary(from: path, source: "test")
         XCTAssertNil(result)
     }
 
     func testHelper_taggedEmptyIndexPathReturnsNilWithoutThrowing() {
         let path = NSIndexPath(indexes: [], length: 0)
-        let result = AIAgentManager.nsDictionaryAsStringKeyed(path)
+        let result = JSONSerialization.dictionary(from: path, source: "test")
         XCTAssertNil(result)
     }
 
@@ -54,7 +58,7 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         let obj = try JSONSerialization.jsonObject(with: Data("{\"a\":1}".utf8))
         XCTAssertTrue(obj is NSDictionary)
 
-        guard let copied = AIAgentManager.nsDictionaryAsStringKeyed(obj) else {
+        guard let copied = JSONSerialization.dictionary(from: obj, source: "test") else {
             XCTFail("expected native dictionary")
             return
         }
@@ -71,7 +75,7 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         let ns = NSMutableDictionary()
         ns[NSNumber(value: 1)] = "num-key"
         ns["ok"] = "string-key"
-        let result = AIAgentManager.nsDictionaryAsStringKeyed(ns)
+        let result = JSONSerialization.dictionary(from: ns, source: "test")
         XCTAssertEqual(result?["ok"] as? String, "string-key")
         XCTAssertEqual(result?.count, 1)
     }
@@ -127,7 +131,7 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         let obj = try JSONSerialization.jsonObject(
             with: Data("{\"a\":\"1\",\"nested\":{\"b\":\"2\"}}".utf8)
         )
-        guard let copied = AIAgentManager.nsDictionaryAsStringKeyed(obj) else {
+        guard let copied = JSONSerialization.dictionary(from: obj, source: "test") else {
             XCTFail("expected dictionary")
             return
         }
