@@ -10,6 +10,7 @@
 "generic.success.title" = "Éxito";
 "generic.error.title" = "Error";
 "generic.error.message" = "Ha habido un problema. Por favor vuelva a intentarlo más tarde.";
+"invoice.already.paid" = "Esta factura ya ha sido pagada.";
 "generic.message.error" = "El mensaje no pudo ser encriptado correctamente por lo cual no puede ser enviado.";
 "generic.attachment.error" = "Ha habido un problema subiendo el archivo. Por favor vuelva a intentarlo más tarde.";
 "boost.error.title" = "Boost error";

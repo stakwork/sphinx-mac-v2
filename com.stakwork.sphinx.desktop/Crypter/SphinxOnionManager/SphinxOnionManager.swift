@@ -47,6 +47,53 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var sendTimeoutTimers: [String: Timer] = [:]
     var paymentTimeoutTimers: [String: Timer] = [:]
     
+    /// Process-local hashes currently being submitted. Prevents two rapid resubmits
+    /// from both passing the local already-paid check before either write is visible.
+    internal var inFlightPaymentHashes: Set<String> = []
+    /// Process-local hashes confirmed paid in this session.
+    internal var paidPaymentHashes: Set<String> = []
+    internal let paymentHashLock = NSLock()
+    
+    /// TODO: confirm against mixer/server duplicate-payment fix.
+    /// Empty until the mixer already-paid string is known. Do not add guessed
+    /// phrases such as "invoice settled" (too close to real settlement text).
+    static var invoiceAlreadyPaidErrorMatchers: Set<String> = []
+    
+    /// Test hooks. Nil in production.
+    internal var invoiceDetailsProvider: ((String) -> ParseInvoiceResult?)? = nil
+    internal var hasSettledPaymentOverride: ((String) -> Bool)? = nil
+    internal var checkAndFetchRouteOverride: ((@escaping (Bool) -> Void) -> Void)? = nil
+    internal var simulatedPayRunReturn: RunReturn? = nil
+    internal var simulatedPayError: Error? = nil
+    internal var alreadyPaidAlertHandler: ((String) -> Void)? = nil
+    internal var sphinxPayCallCount: Int = 0
+    internal var routeFetchCallCount: Int = 0
+    internal var handleBalanceUpdateCallCount: Int = 0
+    internal var processInvoicePaidCallCount: Int = 0
+    internal var handleInvoiceSentStatusCallCount: Int = 0
+    internal var handleMessageStatusByTagCallCount: Int = 0
+    internal var processGenericMessagesCallCount: Int = 0
+    
+    func resetPaymentAttemptTestState() {
+        sphinxPayCallCount = 0
+        routeFetchCallCount = 0
+        handleBalanceUpdateCallCount = 0
+        processInvoicePaidCallCount = 0
+        handleInvoiceSentStatusCallCount = 0
+        handleMessageStatusByTagCallCount = 0
+        processGenericMessagesCallCount = 0
+        simulatedPayRunReturn = nil
+        simulatedPayError = nil
+        alreadyPaidAlertHandler = nil
+        checkAndFetchRouteOverride = nil
+        invoiceDetailsProvider = nil
+        hasSettledPaymentOverride = nil
+        paymentHashLock.lock()
+        inFlightPaymentHashes.removeAll()
+        paidPaymentHashes.removeAll()
+        paymentHashLock.unlock()
+    }
+    
     var chatsFetchParams : ChatsFetchParams? = nil
     var messageFetchParams : MessageFetchParams? = nil
     var messagePerContactFetchParams : MessagePerContactFetchParams? = nil
