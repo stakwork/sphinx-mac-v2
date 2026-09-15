@@ -159,7 +159,12 @@ extension AIAgentManager {
 // MARK: - HiveGraphBridge
 
 /// Bridges GraphChatSSEManager delegate callbacks to a CheckedContinuation.
-private class HiveGraphBridge: GraphChatSSEDelegate {
+/// `@unchecked Sendable` because every mutation arrives via `GraphChatSSEManager`
+/// delegate callbacks, which it always dispatches on `DispatchQueue.main`
+/// (see `parseOrgSSEEvent`/`handleOrgSSEJson`), and `executeQueryHiveGraph`
+/// only ever reads `capturedToolCalls` from inside its own `DispatchQueue.main.async`
+/// hop — so all access to this instance is serialized on the main queue.
+private class HiveGraphBridge: GraphChatSSEDelegate, @unchecked Sendable {
 
     var continuation: CheckedContinuation<String, Never>?
     var sseManager: GraphChatSSEManager?
