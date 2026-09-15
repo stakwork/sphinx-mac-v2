@@ -13,6 +13,7 @@
 //  5. Changed-but-present input device triggers a reroute.
 //  6. Removed input device with no fallback → no crash, no onNoDeviceAvailable.
 //  7. Devices already on the correct active route → no reroute performed.
+//  8. Hopping handleDeviceUpdate onto a later main-actor turn still coalesces.
 //
 
 import XCTest
@@ -278,6 +279,39 @@ final class CallAudioRouteMonitorTests: XCTestCase {
         // Anything higher would indicate engine-thrashing recursion.
         XCTAssertLessThanOrEqual(ctx.reloadCallCount, 2,
                                  "Rapid callbacks must be coalesced into at most 2 reload passes")
+        XCTAssertEqual(ctx.outputDevice.deviceId, builtInOut.deviceId,
+                       "Final output device should be the fallback built-in")
+    }
+
+    // MARK: - 8. Main-actor hop (AppContext onDeviceUpdate) does not change coalescing
+
+    /// `AppContext` hops `onDeviceUpdate` onto a later main-actor turn before
+    /// `handleDeviceUpdate()`. That hop must not change coalescing: a burst of
+    /// hopped updates still collapses into at most two reload passes.
+    func test_hoppedDeviceUpdates_stillCoalesceIntoSingleReconfigurationPass() async {
+        let mgr = MockAudioManager()
+        mgr.outputDevices       = [builtInOut]
+        mgr.outputDevice        = builtInOut
+        mgr.defaultOutputDevice = builtInOut
+        mgr.inputDevices        = [builtInIn]
+        mgr.inputDevice         = builtInIn
+
+        let ctx = MockAudioContext()
+        ctx.outputDevice = airPodsOut
+        ctx.inputDevice  = builtInIn
+
+        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr)
+        monitor.appContext = ctx
+
+        // Mirror AppContext: hop off the current turn before handleDeviceUpdate.
+        await Task { @MainActor in
+            monitor.handleDeviceUpdate()
+            monitor.handleDeviceUpdate()
+            monitor.handleDeviceUpdate()
+        }.value
+
+        XCTAssertLessThanOrEqual(ctx.reloadCallCount, 2,
+                                 "Hopped callbacks must still coalesce into at most 2 reload passes")
         XCTAssertEqual(ctx.outputDevice.deviceId, builtInOut.deviceId,
                        "Final output device should be the fallback built-in")
     }

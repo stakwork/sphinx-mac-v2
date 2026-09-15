@@ -108,6 +108,9 @@ final class AppContext: ObservableObject {
         connectionHistory = store.value.connectionHistory
 
         AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
+            // Hop off the AVFAudio I/O-unit property-listener stack before any
+            // LiveKit device write. `handleDeviceUpdate` must never run
+            // synchronously inside this callback.
             // Capture stable value IDs across the actor boundary (AudioDevice is
             // a value type so this is safe; we re-look up the live objects on the
             // main actor so the monitor always sees the freshest state).

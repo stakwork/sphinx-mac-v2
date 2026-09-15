@@ -93,6 +93,13 @@ import SwiftUI
     func closeActiveCallWindow() {
         guard let callWindow = getLiveKitCallWindow(),
               let identifier = callWindow.windowIdentifier else { return }
+        if let roomCtx = callWindow.delegate as? RoomContext {
+            // Retain immediately (before any suspension) so hiding/closing the
+            // window cannot free LiveKit's AVAudioEngine mid-listener. Do not
+            // await the 500ms drain — UX stays snappy.
+            roomCtx.retainForDisconnect()
+            Task { await roomCtx.disconnect() }
+        }
         openedWindowIdentifiers.removeAll(where: { $0 == identifier })
         hideCallControlWindow(forceClose: true)
         closeIfExists(identifier: identifier)

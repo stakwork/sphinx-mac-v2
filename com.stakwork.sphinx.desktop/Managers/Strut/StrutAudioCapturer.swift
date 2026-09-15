@@ -67,7 +67,14 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
     /// Never `sampleRate / 10`.
     private static let tapBufferSize: AVAudioFrameCount = 1024
 
-    private let engine = AVAudioEngine()
+    /// Keeps retired `AVAudioEngine` instances alive until AVFAudio's async
+    /// IOUnit property listener has drained. Mirrors
+    /// `CallParticipantsSocketManager.disconnecting`. The delayed release
+    /// captures only the engine identity, never `self`.
+    private static let drainLock = NSLock()
+    nonisolated(unsafe) private static var draining: [AVAudioEngine] = []
+
+    private var engine = AVAudioEngine()
     private let sendQueue = DispatchQueue(label: "com.sphinx.strut.dictation.send")
     private let lock = NSLock()
 
@@ -80,7 +87,18 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
     private var onConfigurationChange: (@Sendable () -> Void)?
     private var onSampleRateMismatch: (@Sendable (Int) -> Void)?
 
+    deinit {
+        // Must return immediately: an unstructured delayed Task capturing `self`
+        // here would use a destroyed object. Retire the engine without `self`.
+        teardownCurrentEngine(replaceWithFresh: false)
+    }
+
     func prepare() throws -> Int {
+        // Never reuse a draining instance — retire the current engine (if any)
+        // then allocate a fresh one so this start cannot touch the drain list.
+        teardownCurrentEngine(replaceWithFresh: false)
+        engine = AVAudioEngine()
+
         // On macOS the engine's I/O nodes are created lazily on first access.
         // Touching `inputNode` before `prepare()` / `start()` builds the node
         // graph; skipping it makes `-[AVAudioEngine prepare]` raise the
@@ -104,7 +122,8 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
         let format = inputNode.outputFormat(forBus: 0)
         let sampleRate = format.sampleRate
         guard sampleRate > 0 else {
-            engine.stop()
+            // Leave the engine running so `stop()` can drain it; do not
+            // `engine.stop()` here (that would skip the drain list).
             throw StrutAudioCaptureError.invalidSampleRate
         }
 
@@ -141,6 +160,19 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
     }
 
     func stop() {
+        teardownCurrentEngine(replaceWithFresh: true)
+    }
+
+    /// Synchronous teardown. Observer is removed first so a configuration-change
+    /// posted during stop cannot reach a stopping engine. The retired engine is
+    /// then moved onto the static drain list and replaced so `prepare()` cannot
+    /// touch it.
+    private func teardownCurrentEngine(replaceWithFresh: Bool) {
+        if let observer = configObserver {
+            NotificationCenter.default.removeObserver(observer)
+            configObserver = nil
+        }
+
         lock.lock()
         let wasInstalled = tapInstalled
         tapInstalled = false
@@ -150,15 +182,46 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
         accumulator.reset()
         lock.unlock()
 
+        let wasRunning = engine.isRunning
         if wasInstalled {
             engine.inputNode.removeTap(onBus: 0)
         }
-        if engine.isRunning {
+        if wasRunning {
             engine.stop()
         }
-        if let observer = configObserver {
-            NotificationCenter.default.removeObserver(observer)
-            configObserver = nil
+
+        // Only drain engines that actually ran I/O — unused placeholders have
+        // no IOUnit listener and can deallocate immediately.
+        if wasInstalled || wasRunning {
+            let retired = engine
+            Self.drainLock.lock()
+            let alreadyDraining = Self.draining.contains(where: { $0 === retired })
+            if !alreadyDraining {
+                Self.draining.append(retired)
+            }
+            Self.drainLock.unlock()
+
+            if !alreadyDraining {
+                AppLogger.shared.log(
+                    level: .info,
+                    message: "[StrutDictation] engine retained for drain"
+                )
+                // Identity only — the static list retains `retired`. Never capture `self`.
+                let retiredID = ObjectIdentifier(retired)
+                DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(500)) {
+                    Self.drainLock.lock()
+                    Self.draining.removeAll { ObjectIdentifier($0) == retiredID }
+                    Self.drainLock.unlock()
+                    AppLogger.shared.log(
+                        level: .info,
+                        message: "[StrutDictation] engine released"
+                    )
+                }
+            }
+        }
+
+        if replaceWithFresh {
+            engine = AVAudioEngine()
         }
     }
 
