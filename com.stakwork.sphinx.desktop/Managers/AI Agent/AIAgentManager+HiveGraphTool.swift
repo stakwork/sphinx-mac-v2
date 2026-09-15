@@ -290,16 +290,28 @@ extension AIAgentManager {
         return messages.map { msg in
             guard var toolCalls = msg["toolCalls"] as? [[String: Any]] else { return msg }
 
-            // Find the canvas (empty-toolName) sibling and its payload
-            let canvasEntry = toolCalls.first(where: { ($0["toolName"] as? String) == "" })
-            let canvasOutput = canvasEntry?["output"] as? [String: Any]
+            // Find the canvas (empty-toolName) sibling and its payload.
             // Copy via NSDictionary gate — do not `as? [String: Any]` before enumerating.
-            let canvasPayload = JSONSerialization.dictionary(from: canvasOutput?["payload"], source: "hiveGraph.canvasPayload")
+            let canvasEntry = toolCalls.first(where: { ($0["toolName"] as? String) == "" })
+            let canvasOutput = JSONSerialization.dictionary(
+                from: canvasEntry?["output"],
+                source: "hiveGraph.canvasOutput"
+            )
+            let canvasPayload = JSONSerialization.dictionary(
+                from: canvasOutput?["payload"],
+                source: "hiveGraph.canvasPayload"
+            )
 
             var changed = false
             toolCalls = toolCalls.map { tc in
-                guard var output = tc["output"] as? [String: Any] else { return tc }
-                var payload = output["payload"] as? [String: Any] ?? [:]
+                guard var output = JSONSerialization.dictionary(
+                    from: tc["output"],
+                    source: "hiveGraph.toolOutput"
+                ) else { return tc }
+                var payload = JSONSerialization.dictionary(
+                    from: output["payload"],
+                    source: "hiveGraph.toolPayload"
+                ) ?? [:]
                 let tn = tc["toolName"] as? String ?? ""
                 let isProposalTool = proposalPrefixes.contains(where: { tn.hasPrefix($0) })
 
@@ -321,6 +333,28 @@ extension AIAgentManager {
             if !changed { return msg }
             var m = msg; m["toolCalls"] = toolCalls; return m
         }
+    }
+
+    /// Extract `workspaceSlug` from the canvas (empty-toolName) entry's `output.meta`.
+    /// Copies through `JSONSerialization.dictionary(from:source:)` so a Cocoa-bridged
+    /// output/meta dict cannot abort Swift iteration. Returns nil (and skips that
+    /// entry) when a copy fails.
+    static func workspaceSlugFromCanvasMessages(_ messages: [[String: Any]]) -> String? {
+        messages.lazy.compactMap { msg -> String? in
+            guard let toolCalls = msg["toolCalls"] as? [[String: Any]],
+                  let canvas = toolCalls.first(where: { ($0["toolName"] as? String) == "" }),
+                  let output = JSONSerialization.dictionary(
+                    from: canvas["output"],
+                    source: "hiveGraph.approveOutput"
+                  ),
+                  let meta = JSONSerialization.dictionary(
+                    from: output["meta"],
+                    source: "hiveGraph.approveMeta"
+                  ) else {
+                return nil
+            }
+            return meta["workspaceSlug"] as? String
+        }.first
     }
 
     /// Parse a JSON string (possibly double-encoded) into a flat [String: String] dict.
@@ -681,13 +715,7 @@ To reject it, call reject_proposal with proposalId "\(pid)".
         )
 
         // Extract workspaceSlug from the canvas entry's meta (features only)
-        let proposalWorkspaceSlug: String? = messages.lazy.compactMap { msg -> String? in
-            guard let toolCalls = msg["toolCalls"] as? [[String: Any]],
-                  let canvas = toolCalls.first(where: { ($0["toolName"] as? String) == "" }),
-                  let output = canvas["output"] as? [String: Any],
-                  let meta = output["meta"] as? [String: Any] else { return nil }
-            return meta["workspaceSlug"] as? String
-        }.first
+        let proposalWorkspaceSlug = AIAgentManager.workspaceSlugFromCanvasMessages(messages)
 
         let orgGithubLogin: String = UserDefaults.Keys.hiveGithubLogin.get() ?? ""
 

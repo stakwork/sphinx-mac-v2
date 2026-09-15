@@ -1410,7 +1410,7 @@ extension API {
             let status = http?.statusCode ?? 0
             guard (200..<300).contains(status) else {
                 let serverMsg = data.flatMap { d in
-                    (try? JSONSerialization.jsonObject(with: d) as? [String: Any])
+                    JSONSerialization.dictionary(from: d, source: "hive.approvalError")
                         .flatMap { $0["error"] as? String ?? $0["message"] as? String }
                 }
                 let errorMsg = serverMsg ?? "Server error (\(status))."
@@ -1441,7 +1441,7 @@ extension API {
                 for line in bodyStr.components(separatedBy: "\n") {
                     guard line.hasPrefix("data: "),
                           let lineData = line.dropFirst(6).data(using: .utf8),
-                          let json = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
+                          let json = JSONSerialization.dictionary(from: lineData, source: "hive.approvalSSE"),
                           json["type"] as? String == "text-delta",
                           let delta = json["delta"] as? String else { continue }
                     summaryText += delta
@@ -1509,7 +1509,7 @@ extension API {
                 completion(true, nil)
             } else {
                 let serverMsg = data.flatMap { d in
-                    (try? JSONSerialization.jsonObject(with: d) as? [String: Any])
+                    JSONSerialization.dictionary(from: d, source: "hive.rejectionError")
                         .flatMap { $0["error"] as? String ?? $0["message"] as? String }
                 }
                 let status = http?.statusCode
