@@ -258,7 +258,9 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         let payload = output?["payload"] as? [String: Any]
         XCTAssertEqual(payload?["proposalId"] as? String, "p1")
         XCTAssertEqual(payload?["workspaceId"] as? String, "ws-1")
-        XCTAssertNil(payload?[7 as NSNumber])
+        // The non-string NSNumber(7) key from canvasPayload/toolPayload must not survive
+        // the copy — `payload` is a native [String: Any], so it can't even hold an
+        // NSNumber key; the count + iteratedKeys checks below confirm it was dropped.
         XCTAssertEqual(payload?.count, 2)
 
         var iteratedKeys: [String] = []
