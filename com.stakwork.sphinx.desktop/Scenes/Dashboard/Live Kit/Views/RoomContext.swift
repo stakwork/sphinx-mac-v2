@@ -114,9 +114,11 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     /// `CallParticipantsSocketManager.disconnecting`.
     /// Wrapper so `lock()` is callable from `async` (NSLocking is `noasync`).
     private final class TeardownLock: @unchecked Sendable {
-        private let lock = NSLock()
-        func lock() { lock.lock() }
-        func unlock() { lock.unlock() }
+        // Named `underlying`, not `lock` — a stored property and a method of the
+        // same name in the same type does not compile ("invalid redeclaration").
+        private let underlying = NSLock()
+        func lock() { underlying.lock() }
+        func unlock() { underlying.unlock() }
     }
     private static let teardownLock = TeardownLock()
     nonisolated(unsafe) private static var disconnecting: [RoomContext] = []
@@ -300,7 +302,10 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         }
 
         // Keep Room alive independently of `self.room` across the drain sleep.
-        let retainedRoom = room
+        // Explicit type: `room` is `Room!`, and a plain `let` binding of an IUO
+        // infers `Room?` (the "implicit" unwrap only applies at the use site of
+        // the original property, not when copying it into a new binding).
+        let retainedRoom: Room = room
 
         if retainedRoom.connectionState == .connected {
             try? await retainedRoom.localParticipant.setMicrophone(enabled: false)
