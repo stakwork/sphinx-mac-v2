@@ -27,6 +27,7 @@ final class FakeStrutStreamTransport: StrutStreamTransport, @unchecked Sendable 
     private(set) var closeCount = 0
     private(set) var lastOpenGeneration = 0
     var failWith: StrutStreamTransportError?
+    var openSleepNanoseconds: UInt64 = 0
 
     func setHandlers(
         onMessage: @escaping @Sendable (Int, StrutServerMessage) -> Void,
@@ -48,8 +49,12 @@ final class FakeStrutStreamTransport: StrutStreamTransport, @unchecked Sendable 
         openCount += 1
         lastOpenGeneration = generation
         let fail = failWith
+        let sleepNs = openSleepNanoseconds
         lock.unlock()
 
+        if sleepNs > 0 {
+            try? await Task.sleep(nanoseconds: sleepNs)
+        }
         if let fail {
             return .failure(fail)
         }
@@ -90,6 +95,14 @@ final class FakeStrutStreamTransport: StrutStreamTransport, @unchecked Sendable 
         handler?(gen, code)
     }
 
+    func deliverFailure(_ error: StrutStreamTransportError, generation: Int? = nil) {
+        lock.lock()
+        let gen = generation ?? lastOpenGeneration
+        let handler = onFailure
+        lock.unlock()
+        handler?(gen, error)
+    }
+
     var texts: [String] {
         lock.lock()
         defer { lock.unlock() }
@@ -127,6 +140,10 @@ final class FakeStrutAudioCapturer: StrutAudioCapturer, @unchecked Sendable {
     private(set) var prepareCount = 0
     private(set) var startTapCount = 0
     private(set) var stopCount = 0
+    /// Fake analog of `AVAudioEngine` identity: incremented on each `prepare()`.
+    private(set) var engineSessionID = 0
+    private(set) var lastPreparedSessionID: Int?
+    private(set) var lastStoppedSessionID: Int?
     var prepareError: StrutAudioCaptureError?
 
     func prepare() throws -> Int {
@@ -134,6 +151,8 @@ final class FakeStrutAudioCapturer: StrutAudioCapturer, @unchecked Sendable {
         defer { lock.unlock() }
         if let prepareError { throw prepareError }
         prepareCount += 1
+        engineSessionID += 1
+        lastPreparedSessionID = engineSessionID
         accumulator = StrutPCMFrameAccumulator(declaredRate: declaredRate)
         return declaredRate
     }
@@ -151,9 +170,12 @@ final class FakeStrutAudioCapturer: StrutAudioCapturer, @unchecked Sendable {
         lock.unlock()
     }
 
+    /// Synchronous, no drain delay — production 500ms lives only in
+    /// `AVAudioEngineStrutCapturer`.
     func stop() {
         lock.lock()
         stopCount += 1
+        lastStoppedSessionID = engineSessionID
         onPCM = nil
         onConfigurationChange = nil
         onSampleRateMismatch = nil
@@ -285,9 +307,17 @@ final class StrutDictationClientTests: XCTestCase {
         transport: FakeStrutStreamTransport,
         capturer: FakeStrutAudioCapturer
     ) {
+        // Snapshot so a second start after stop/restart cannot succeed on stale
+        // counts from the previous session (`startTapCount` / start frames are
+        // never reset on the fake transport/capturer).
+        let tapsBefore = capturer.startTapCount
+        let preparesBefore = capturer.prepareCount
+        let startsBefore = transport.texts.filter { isStartFrame($0) }.count
         client.start()
         waitUntil {
-            capturer.startTapCount >= 1 && transport.texts.contains { $0.contains("\"start\"") }
+            capturer.prepareCount > preparesBefore
+                && capturer.startTapCount > tapsBefore
+                && transport.texts.filter { self.isStartFrame($0) }.count > startsBefore
         }
     }
 
@@ -632,5 +662,145 @@ final class StrutDictationClientTests: XCTestCase {
         XCTAssertEqual(capturer.prepareCount, 0)
         XCTAssertEqual(capturer.startTapCount, 0)
         XCTAssertEqual(transport.openCount, 0)
+    }
+
+    // MARK: - Capturer stop coverage (all production teardown sites)
+
+    func testFailStartInvokesCapturerStop() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = StrutDictationClient(
+            ready: nil,
+            transport: transport,
+            capturer: capturer,
+            micGate: FakeMicGate()
+        )
+
+        let log = CallbackLog()
+        client.onError = { log.addError($0) }
+
+        client.start()
+        waitUntil { log.errorValues.contains { $0.lowercased().contains("ready") } }
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+        XCTAssertEqual(capturer.prepareCount, 0)
+    }
+
+    func testFailStartOnPrepareErrorInvokesCapturerStop() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        capturer.prepareError = .invalidSampleRate
+        let client = makeClient(transport: transport, capturer: capturer)
+
+        let log = CallbackLog()
+        client.onError = { log.addError($0) }
+
+        client.start()
+        waitUntil { log.errorValues.contains { $0.contains("failed to start audio capture") } }
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+    }
+
+    func testStopWhileStartingInvokesCapturerStop() {
+        let transport = FakeStrutStreamTransport()
+        // Hold `open()` long enough that stopAndWait is guaranteed to observe
+        // `.starting` rather than racing into `.streaming` (which would wait
+        // out `stopTimeout` inside `finishStop`).
+        transport.openSleepNanoseconds = 400_000_000
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(
+            transport: transport,
+            capturer: capturer,
+            stopTimeout: 0.3
+        )
+
+        client.start()
+        waitUntil { transport.openCount >= 1 }
+
+        let exp = expectation(description: "stopAndWait starting branch")
+        Task {
+            await client.stopAndWait()
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.5)
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+    }
+
+    func testServerErrorInvokesCapturerStop() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(transport: transport, capturer: capturer)
+
+        let log = CallbackLog()
+        client.onError = { log.addError($0) }
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        transport.deliver(.error(message: "engine failed"))
+        waitUntil { log.errorValues.contains("engine failed") }
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+    }
+
+    func testTransportFailureInvokesCapturerStop() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(transport: transport, capturer: capturer)
+
+        let log = CallbackLog()
+        client.onError = { log.addError($0) }
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        transport.deliverFailure(.upgradeFailed(code: 500))
+        waitUntil { log.errorValues.contains { $0.contains("500") } }
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+    }
+
+    func testDeviceChangeRestartInvokesCapturerStopThenNewEngineSession() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(
+            transport: transport,
+            capturer: capturer,
+            restartBackoff: 0.05
+        )
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        let firstSession = capturer.lastPreparedSessionID
+        XCTAssertEqual(firstSession, 1)
+
+        capturer.triggerConfigurationChange()
+        waitUntil(1.5) {
+            capturer.prepareCount == 2 && capturer.startTapCount == 2
+        }
+
+        XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+        XCTAssertEqual(capturer.lastStoppedSessionID, firstSession)
+        XCTAssertEqual(capturer.lastPreparedSessionID, 2)
+        XCTAssertNotEqual(capturer.lastPreparedSessionID, capturer.lastStoppedSessionID)
+    }
+
+    func testPrepareAfterStopUsesDistinctEngineSession() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(
+            transport: transport,
+            capturer: capturer,
+            stopTimeout: 0.4
+        )
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        let firstSession = capturer.lastPreparedSessionID
+
+        client.stop()
+        waitUntil { capturer.stopCount >= 1 }
+        XCTAssertEqual(capturer.lastStoppedSessionID, firstSession)
+
+        waitUntil { transport.closeCount >= 1 }
+        startAndWait(client, transport: transport, capturer: capturer)
+
+        XCTAssertEqual(capturer.lastPreparedSessionID, 2)
+        XCTAssertNotEqual(capturer.lastPreparedSessionID, firstSession)
     }
 }

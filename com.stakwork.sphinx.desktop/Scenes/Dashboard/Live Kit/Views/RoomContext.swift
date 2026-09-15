@@ -108,6 +108,22 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     @Published private var timer: Timer?
 
     var _connectTask: Task<Void, Error>?
+
+    /// Keeps `RoomContext`/`Room` (and LiveKit's hidden `AVAudioEngine`) alive
+    /// until AVFAudio's async IOUnit property listener has drained. Mirrors
+    /// `CallParticipantsSocketManager.disconnecting`.
+    /// Wrapper so `lock()` is callable from `async` (NSLocking is `noasync`).
+    private final class TeardownLock: @unchecked Sendable {
+        private let lock = NSLock()
+        func lock() { lock.lock() }
+        func unlock() { lock.unlock() }
+    }
+    private static let teardownLock = TeardownLock()
+    nonisolated(unsafe) private static var disconnecting: [RoomContext] = []
+    /// `true` while this instance owns the in-flight mic-off → disconnect → drain.
+    /// Distinct from list membership so a synchronous retain (window close) does
+    /// not make a later `disconnect()` treat teardown as already finished.
+    private var teardownStarted = false
     
     var colors: [String: Color] = [:]
     
@@ -251,17 +267,71 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         return room
     }
 
-    func disconnect() async {
-        if room.connectionState == .connected {
-            try? await room.localParticipant.setMicrophone(enabled: false)
+    /// Retains `self` immediately (no suspension) so window-close paths can hide
+    /// the call UI without waiting for the 500ms AVFAudio drain.
+    func retainForDisconnect() {
+        Self.teardownLock.lock()
+        let alreadyHeld = Self.disconnecting.contains(where: { $0 === self })
+        if !alreadyHeld {
+            Self.disconnecting.append(self)
         }
-        await room.disconnect()
+        Self.teardownLock.unlock()
+        if !alreadyHeld {
+            AppLogger.shared.log(
+                level: .info,
+                message: "[LiveKit] disconnect retained"
+            )
+        }
+    }
+
+    func disconnect() async {
+        retainForDisconnect()
+
+        Self.teardownLock.lock()
+        let alreadyDraining = teardownStarted
+        if !alreadyDraining {
+            teardownStarted = true
+        }
+        Self.teardownLock.unlock()
+
+        if alreadyDraining {
+            await waitUntilDisconnectReleased()
+            return
+        }
+
+        // Keep Room alive independently of `self.room` across the drain sleep.
+        let retainedRoom = room
+
+        if retainedRoom.connectionState == .connected {
+            try? await retainedRoom.localParticipant.setMicrophone(enabled: false)
+        }
+        await retainedRoom.disconnect()
         // Hold a strong reference to Room for a moment after disconnect so that
         // LiveKit's background audio threads (AVAudioEngine, AUVoiceProcessor)
         // can finish tearing down before Room is deallocated. Without this, the
         // AUVoiceProcessor property-change callback fires concurrently with
         // AVAudioEngine.dealloc, causing a SIGSEGV on the audio dispatch queue.
         try? await Task.sleep(for: .milliseconds(500))
+
+        Self.teardownLock.lock()
+        Self.disconnecting.removeAll { $0 === self }
+        teardownStarted = false
+        Self.teardownLock.unlock()
+
+        AppLogger.shared.log(
+            level: .info,
+            message: "[LiveKit] disconnect released"
+        )
+    }
+
+    private func waitUntilDisconnectReleased() async {
+        while true {
+            Self.teardownLock.lock()
+            let stillHeld = Self.disconnecting.contains(where: { $0 === self })
+            Self.teardownLock.unlock()
+            if !stillHeld { return }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
     }
 
     func sendMessage() {
@@ -494,5 +564,12 @@ extension RoomContext: NSWindowDelegate {
                 self.delegate?.presentCallControlWindowWith(roomCtx: self)
             }
         }
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        // AppKit-guaranteed close path. Retain synchronously so the 500ms drain
+        // outlives NSWindow.close(); SwiftUI onDisappear is not guaranteed.
+        retainForDisconnect()
+        Task { await self.disconnect() }
     }
 }

@@ -106,6 +106,8 @@ final class CallAudioRouteMonitor {
 
     /// Call from `AppContext.onDeviceUpdate` whenever the device list changes.
     /// Checks both output and input devices and performs controlled reroutes as needed.
+    /// Must be invoked on a later main-actor turn — never synchronously on the
+    /// AVFAudio I/O-unit property-listener stack.
     func handleDeviceUpdate() {
         guard !isReconfiguring else {
             // Coalesce: record that another pass is needed but do not re-enter.
