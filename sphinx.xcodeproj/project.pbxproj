@@ -681,9 +681,6 @@
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
 		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
-		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
-		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
-		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
 		47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */; };
 		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
@@ -752,6 +749,8 @@
 		CPAGT0020000000001CPAGT02 /* ChatPaginationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
+		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
+		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
 		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
@@ -787,6 +786,7 @@
 		STRUTT00O00000001STRUTTO /* StrutReadyLineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */; };
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
+		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1782,9 +1782,6 @@
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
 		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
-		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
-		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
-		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
 		47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesViewController.swift; sourceTree = "<group>"; };
 		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
@@ -1894,6 +1891,8 @@
 		CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPaginationTests.swift; sourceTree = "<group>"; };
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
+		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
+		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
 		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
@@ -1930,6 +1929,7 @@
 		STRUTT00N00000001STRUTTN /* StrutReadyLineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutReadyLineTests.swift; sourceTree = "<group>"; };
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
+		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6094,7 +6094,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 315;
+				CURRENT_PROJECT_VERSION = 316;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -6131,7 +6131,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 315;
+				CURRENT_PROJECT_VERSION = 316;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
