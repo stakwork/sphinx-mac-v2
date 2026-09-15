@@ -222,4 +222,80 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         XCTAssertEqual(payload?["proposalId"] as? String, "p1")
         XCTAssertNil(payload?["workspaceId"])
     }
+
+    func testMergeCanvasPayloads_cocoaBackedOutputAndPayloadMergesWithoutAborting() {
+        let canvasPayload = NSMutableDictionary()
+        canvasPayload["workspaceId"] = "ws-1"
+        canvasPayload[NSNumber(value: 7)] = "dropped-canvas"
+
+        let canvasOutput = NSMutableDictionary()
+        canvasOutput["payload"] = canvasPayload
+        canvasOutput["meta"] = ["workspaceSlug": "alpha"]
+
+        let toolPayload = NSMutableDictionary()
+        toolPayload["proposalId"] = "p1"
+        toolPayload[NSNumber(value: 2)] = "dropped-tool"
+
+        let toolOutput = NSMutableDictionary()
+        toolOutput["payload"] = toolPayload
+
+        let messages: [[String: Any]] = [[
+            "toolCalls": [
+                [
+                    "toolName": "",
+                    "output": canvasOutput
+                ],
+                [
+                    "toolName": "propose_feature",
+                    "output": toolOutput
+                ]
+            ]
+        ]]
+        let merged = AIAgentManager.mergeCanvasPayloads(into: messages)
+        let toolCalls = merged[0]["toolCalls"] as? [[String: Any]]
+        let propose = toolCalls?.first(where: { ($0["toolName"] as? String) == "propose_feature" })
+        let output = propose?["output"] as? [String: Any]
+        let payload = output?["payload"] as? [String: Any]
+        XCTAssertEqual(payload?["proposalId"] as? String, "p1")
+        XCTAssertEqual(payload?["workspaceId"] as? String, "ws-1")
+        // The non-string NSNumber(7) key from canvasPayload/toolPayload must not survive
+        // the copy — `payload` is a native [String: Any], so it can't even hold an
+        // NSNumber key; the count + iteratedKeys checks below confirm it was dropped.
+        XCTAssertEqual(payload?.count, 2)
+
+        var iteratedKeys: [String] = []
+        for (key, _) in payload ?? [:] {
+            iteratedKeys.append(key)
+        }
+        XCTAssertEqual(Set(iteratedKeys), ["proposalId", "workspaceId"])
+    }
+
+    // MARK: - workspaceSlugFromCanvasMessages
+
+    func testWorkspaceSlugFromCanvasMessages_bridgedMetaReturnsSlug() {
+        let meta = NSMutableDictionary()
+        meta["workspaceSlug"] = "alpha"
+        meta[NSNumber(value: 1)] = "dropped"
+
+        let output = NSMutableDictionary()
+        output["meta"] = meta
+
+        let messages: [[String: Any]] = [[
+            "toolCalls": [[
+                "toolName": "",
+                "output": output
+            ]]
+        ]]
+        XCTAssertEqual(AIAgentManager.workspaceSlugFromCanvasMessages(messages), "alpha")
+    }
+
+    func testWorkspaceSlugFromCanvasMessages_nonDictMetaReturnsNilWithoutThrowing() {
+        let messages: [[String: Any]] = [[
+            "toolCalls": [[
+                "toolName": "",
+                "output": ["meta": NSIndexPath()]
+            ]]
+        ]]
+        XCTAssertNil(AIAgentManager.workspaceSlugFromCanvasMessages(messages))
+    }
 }

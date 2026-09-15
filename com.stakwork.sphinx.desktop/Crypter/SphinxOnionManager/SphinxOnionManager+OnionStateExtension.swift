@@ -12,11 +12,10 @@ import MessagePack
 extension SphinxOnionManager {
     func storeOnionStateInMemory() {
         let userDefaults = UserDefaults.standard
-        let allDefaults = userDefaults.dictionaryRepresentation().reduce(
-            into: [String: Any]()
-        ) { result, pair in
-            result[pair.key] = pair.value
-        }
+        guard let allDefaults = JSONSerialization.dictionary(
+            from: userDefaults.dictionaryRepresentation(),
+            source: "onion.defaults"
+        ) else { return }
         let inMemoryMutationKeys = mutationKeys
 
         onionStateQueue.sync {

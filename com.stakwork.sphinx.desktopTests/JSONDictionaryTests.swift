@@ -71,6 +71,27 @@ final class JSONDictionaryTests: XCTestCase {
         XCTAssertEqual(mapped["pk2"], 9)
     }
 
+    func testHelper_dictionaryRepresentationShapedCopiesUnderCatcher() {
+        let ns = NSMutableDictionary()
+        ns["AppleLanguages"] = ["en"]
+        ns["some-color"] = "#fff"
+        ns[NSNumber(value: 42)] = "non-string-key"
+
+        guard let copied = JSONSerialization.dictionary(from: ns, source: "colors.defaults") else {
+            XCTFail("expected native dictionary")
+            return
+        }
+        XCTAssertEqual(copied["some-color"] as? String, "#fff")
+        XCTAssertEqual(copied["AppleLanguages"] as? [String], ["en"])
+        XCTAssertEqual(copied.count, 2)
+
+        var iteratedKeys: [String] = []
+        for (key, _) in copied {
+            iteratedKeys.append(key)
+        }
+        XCTAssertEqual(Set(iteratedKeys), ["AppleLanguages", "some-color"])
+    }
+
     // MARK: - SphinxOnionManager.parse(jsonString:source:)
 
     func testParse_stringFragmentReturnsEmptyDict() {
