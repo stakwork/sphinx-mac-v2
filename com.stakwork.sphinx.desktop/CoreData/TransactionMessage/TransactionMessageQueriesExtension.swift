@@ -603,6 +603,39 @@ extension TransactionMessage {
         return invoice
     }
     
+    /// Matches a settled/confirmed row for `paymentHash` regardless of message type
+    /// (QR/scanner/LSP/web/LSAT flows may not write `type == payment`). Failed and
+    /// pending rows are excluded so legitimate retries still go through.
+    static func settledPaymentPredicate(forPaymentHash paymentHash: String) -> NSPredicate {
+        NSPredicate(
+            format: "paymentHash == %@ AND (status == %d OR status == %d)",
+            paymentHash,
+            TransactionMessageStatus.confirmed.rawValue,
+            TransactionMessageStatus.received.rawValue
+        )
+    }
+    
+    static func hasSettledPayment(
+        forPaymentHash paymentHash: String,
+        context: NSManagedObjectContext? = nil
+    ) -> Bool {
+        guard !paymentHash.isEmpty else {
+            return false
+        }
+        
+        let managedContext = context ?? SphinxOnionManager.sharedInstance.backgroundContext
+        let predicate = settledPaymentPredicate(forPaymentHash: paymentHash)
+        let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]
+        let message: TransactionMessage? = CoreDataManager.sharedManager.getObjectOfTypeWith(
+            predicate: predicate,
+            sortDescriptors: sortDescriptors,
+            entityName: "TransactionMessage",
+            managedContext: managedContext
+        )
+        
+        return message != nil
+    }
+    
     static func getInvoiceWith(paymentHash: String) -> TransactionMessage? {
         let predicate = NSPredicate(format: "type == %d AND paymentHash == %@", TransactionMessageType.invoice.rawValue, paymentHash)
         let sortDescriptors = [NSSortDescriptor(key: "id", ascending: false)]

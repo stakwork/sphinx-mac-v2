@@ -642,6 +642,7 @@ extension SphinxOnionManager {
     }
     
     func processInvoicePaid(rr: RunReturn) {
+        processInvoicePaidCallCount += 1
         if let _ = rr.settleTopic, let _ = rr.settlePayload {
             let paymentHashes = rr.msgs.compactMap({ $0.paymentHash })
             for paymentHash in paymentHashes {
@@ -659,6 +660,7 @@ extension SphinxOnionManager {
         topic: String?,
         rr: RunReturn
     ) {
+        processGenericMessagesCallCount += 1
         if rr.msgs.isEmpty {
             return
         }

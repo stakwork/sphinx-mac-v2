@@ -28,6 +28,17 @@ extension SphinxOnionManager {
             print("V2 Received topic: \(topic)")
         }
 
+        let skipAlreadyPaidSideEffects = isInvoiceAlreadyPaidError(rr.error)
+        if skipAlreadyPaidSideEffects {
+            let paymentHash = rr.msgs.compactMap({ $0.paymentHash }).first(where: { !$0.isEmpty })
+            if let paymentHash = paymentHash {
+                print("Run return object error: already paid (network) payment_hash=\(paymentHash)")
+                markPaymentHashPaid(paymentHash)
+            } else {
+                print("Run return object error: already paid (network)")
+            }
+        }
+
         ///If re-processing delayed RR Object then all inside this IF has been run already. Then skip
         if !skipSettleTopic && !skipAsyncTopic {
             ///Update state mape
@@ -40,7 +51,9 @@ extension SphinxOnionManager {
             handleOwnerContact(myContactInfo: rr.myContactInfo)
             
             ///Handling balance update
-            handleBalanceUpdate(newBalance: rr.newBalance)
+            if !skipAlreadyPaidSideEffects {
+                handleBalanceUpdate(newBalance: rr.newBalance)
+            }
             
             ///Handling messages totals
             handleMessagesCount(msgsCounts: rr.msgsCounts)
@@ -66,7 +79,9 @@ extension SphinxOnionManager {
                     self.processKeyExchangeMessages(rr: rr)
                     
                     ///Handling generic msgs restore
-                    self.processGenericMessages(topic: topic, rr: rr)
+                    if !skipAlreadyPaidSideEffects {
+                        self.processGenericMessages(topic: topic, rr: rr)
+                    }
                     
                     context.saveContext()
                     
@@ -76,13 +91,17 @@ extension SphinxOnionManager {
             }
             
             ///Handling invoice paid
-            processInvoicePaid(rr: rr)
+            if !skipAlreadyPaidSideEffects {
+                processInvoicePaid(rr: rr)
+            }
             
             ///Handling messages statused
             handleMessagesStatus(tags: rr.tags)
             
             ///Handling incoming tags
-            handleMessageStatusByTag(rr: rr)
+            if !skipAlreadyPaidSideEffects {
+                handleMessageStatusByTag(rr: rr)
+            }
             
             ///Handling read status
             handleReadStatus(rr: rr)
@@ -103,7 +122,9 @@ extension SphinxOnionManager {
             handlePingDone(msgs: rr.msgs)
             
             ///Handling invoice paid status
-            handleInvoiceSentStatus(sentStatus: rr.sentStatus)
+            if !skipAlreadyPaidSideEffects {
+                handleInvoiceSentStatus(sentStatus: rr.sentStatus)
+            }
             
             ///Handling error
             handleError(error: rr.error)
@@ -220,6 +241,7 @@ extension SphinxOnionManager {
     }
     
     func handleBalanceUpdate(newBalance: UInt64?) {
+        handleBalanceUpdateCallCount += 1
         if let newBalance = newBalance {
             Task { @MainActor in
                 self.walletBalanceService.balance = newBalance
@@ -276,6 +298,7 @@ extension SphinxOnionManager {
     }
 
     func handleInvoiceSentStatus(sentStatus: String?) {
+        handleInvoiceSentStatusCallCount += 1
         if let sentStatus = sentStatus {
             if let data = sentStatus.data(using: .utf8) {
                 do {
@@ -284,6 +307,7 @@ extension SphinxOnionManager {
                            let preimage = dictionary["preimage"] as? String,
                            !preimage.isEmpty
                         {
+                            self.markPaymentHashPaid(paymentHash)
                             NotificationCenter.default.post(
                                 name: .invoiceIPaidSettled,
                                 object: nil,
@@ -527,6 +551,7 @@ extension SphinxOnionManager {
     }
     
     func handleMessageStatusByTag(rr: RunReturn) {
+        handleMessageStatusByTagCallCount += 1
         if let sentStatusJSON = rr.sentStatus,
            let sentStatus = SentStatus(JSONString: sentStatusJSON),
            let tag = sentStatus.tag
@@ -539,6 +564,7 @@ extension SphinxOnionManager {
                 if let cachedMessage = TransactionMessage.getMessageWith(tag: tag, context: self.backgroundContext) {
                     if (sentStatus.status == SphinxOnionManager.kCompleteStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+                        self.markPaymentHashPaid(cachedMessage.paymentHash ?? sentStatus.paymentHash)
                     } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                     }
