@@ -262,7 +262,7 @@ final class StrutDictationClient: @unchecked Sendable {
             }
             lock.unlock()
 
-            capturer.startTap(
+            try capturer.startTap(
                 onPCM: { [weak self] data in
                     self?.handlePCM(data, generation: gen)
                 },
