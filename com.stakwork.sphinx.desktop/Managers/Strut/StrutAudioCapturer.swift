@@ -53,7 +53,7 @@ protocol StrutAudioCapturer: AnyObject, Sendable {
         onPCM: @escaping @Sendable (Data) -> Void,
         onConfigurationChange: @escaping @Sendable () -> Void,
         onSampleRateMismatch: @escaping @Sendable (Int) -> Void
-    )
+    ) throws
 
     func stop()
 }
@@ -81,6 +81,9 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
     private var declaredRate: Int = 0
     private var accumulator = StrutPCMFrameAccumulator(declaredRate: 1)
     private var tapInstalled = false
+    /// Set when an ObjC exception is caught from AVFAudio. Teardown must not
+    /// call `isRunning` / `removeTap` / `stop()` on a half-built graph.
+    private var isEngineUnusable = false
     private var configObserver: NSObjectProtocol?
 
     private var onPCM: (@Sendable (Data) -> Void)?
@@ -104,27 +107,38 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
         // graph; skipping it makes `-[AVAudioEngine prepare]` raise the
         // uncatchable `required condition is false: inputNode != nullptr ||
         // outputNode != nullptr` exception.
-        let inputNode = engine.inputNode
-        let inputFormat = inputNode.inputFormat(forBus: 0)
-        guard inputFormat.channelCount > 0, inputFormat.sampleRate > 0 else {
-            // No usable input device / mic access — surface as a catchable error
-            // instead of letting the engine assert.
-            throw StrutAudioCaptureError.engineFailed("no audio input device available")
+        let inputNode = try runAVFAudioSafely(op: "inputNode") { () -> AVAudioInputNode in
+            let inputNode = engine.inputNode
+            let inputFormat = inputNode.inputFormat(forBus: 0)
+            guard inputFormat.channelCount > 0, inputFormat.sampleRate > 0 else {
+                // No usable input device / mic access — surface as a catchable error
+                // instead of letting the engine assert.
+                throw StrutAudioCaptureError.engineFailed("no audio input device available")
+            }
+            return inputNode
         }
 
-        engine.prepare()
-        do {
-            try engine.start()
-        } catch {
-            throw StrutAudioCaptureError.engineFailed(error.localizedDescription)
+        try runAVFAudioSafely(op: "prepare") {
+            engine.prepare()
         }
 
-        let format = inputNode.outputFormat(forBus: 0)
-        let sampleRate = format.sampleRate
-        guard sampleRate > 0 else {
-            // Leave the engine running so `stop()` can drain it; do not
-            // `engine.stop()` here (that would skip the drain list).
-            throw StrutAudioCaptureError.invalidSampleRate
+        try runAVFAudioSafely(op: "start") {
+            do {
+                try engine.start()
+            } catch {
+                throw StrutAudioCaptureError.engineFailed(error.localizedDescription)
+            }
+        }
+
+        let sampleRate = try runAVFAudioSafely(op: "outputFormat") { () -> Double in
+            let format = inputNode.outputFormat(forBus: 0)
+            let sampleRate = format.sampleRate
+            guard sampleRate > 0 else {
+                // Leave the engine running so `stop()` can drain it; do not
+                // `engine.stop()` here (that would skip the drain list).
+                throw StrutAudioCaptureError.invalidSampleRate
+            }
+            return sampleRate
         }
 
         let declared = Int(sampleRate.rounded())
@@ -141,26 +155,89 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
         onPCM: @escaping @Sendable (Data) -> Void,
         onConfigurationChange: @escaping @Sendable () -> Void,
         onSampleRateMismatch: @escaping @Sendable (Int) -> Void
-    ) {
+    ) throws {
         lock.lock()
         self.onPCM = onPCM
         self.onConfigurationChange = onConfigurationChange
         self.onSampleRateMismatch = onSampleRateMismatch
-        let format = engine.inputNode.outputFormat(forBus: 0)
-        tapInstalled = true
         lock.unlock()
 
-        engine.inputNode.installTap(
-            onBus: 0,
-            bufferSize: Self.tapBufferSize,
-            format: format
-        ) { [weak self] buffer, _ in
-            self?.handleTap(buffer)
+        try runAVFAudioSafely(op: "startTap", markUnusableOnException: false) {
+            let format = engine.inputNode.outputFormat(forBus: 0)
+            engine.inputNode.installTap(
+                onBus: 0,
+                bufferSize: Self.tapBufferSize,
+                format: format
+            ) { [weak self] buffer, _ in
+                self?.handleTap(buffer)
+            }
         }
+
+        lock.lock()
+        tapInstalled = true
+        lock.unlock()
     }
 
     func stop() {
         teardownCurrentEngine(replaceWithFresh: true)
+    }
+
+    /// Converts AVFAudio Objective-C `NSException`s into `StrutAudioCaptureError`
+    /// so Swift `do/catch` can fail the session instead of terminating.
+    ///
+    /// Uses the same mechanics as `CoreDataManager.performSafely`
+    /// (`withoutActuallyEscaping` + `autoreleasepool` + `NSExceptionCatcher`)
+    /// so the ObjC block wrapper does not SIGTRAP. Unlike `performSafely`,
+    /// inner Swift errors are rethrown rather than swallowed.
+    private func runAVFAudioSafely<T>(
+        op: String,
+        markUnusableOnException: Bool = true,
+        _ body: () throws -> T
+    ) throws -> T {
+        var result: T?
+        var swiftError: NSError?
+        var exceptionReason: NSString?
+        var caughtException = false
+
+        // withoutActuallyEscaping is safe here because NSExceptionCatcher.tryExecute
+        // calls the block synchronously and never stores it beyond the call.
+        // The autoreleasepool forces the ObjC block wrapper to be released before
+        // withoutActuallyEscaping checks the refcount — without it, ObjC ARC
+        // autoreleases the block parameter, leaving a dangling retain that causes
+        // "non-escaping closure has escaped" SIGTRAP.
+        withoutActuallyEscaping(body) { escapableBlock in
+            let succeeded = autoreleasepool {
+                NSExceptionCatcher.tryExecute({
+                    do {
+                        result = try escapableBlock()
+                    } catch {
+                        swiftError = error as NSError
+                    }
+                }, exceptionReason: &exceptionReason)
+            }
+            if !succeeded {
+                caughtException = true
+            }
+        }
+
+        if let error = swiftError {
+            throw error
+        }
+        if caughtException {
+            let reason = (exceptionReason as String?) ?? "unknown"
+            if markUnusableOnException {
+                isEngineUnusable = true
+            }
+            AppLogger.shared.log(
+                level: .error,
+                message: "[StrutDictation] engine \(op) exception reason=\(reason)"
+            )
+            throw StrutAudioCaptureError.engineFailed(reason)
+        }
+        guard let result else {
+            throw StrutAudioCaptureError.engineFailed("\(op) returned no result")
+        }
+        return result
     }
 
     /// Synchronous teardown. Observer is removed first so a configuration-change
@@ -181,6 +258,16 @@ final class AVAudioEngineStrutCapturer: StrutAudioCapturer, @unchecked Sendable 
         onSampleRateMismatch = nil
         accumulator.reset()
         lock.unlock()
+
+        // A graph that raised an ObjC exception never ran real I/O — skip
+        // `isRunning` / `removeTap` / `stop()` and do not drain it.
+        if isEngineUnusable {
+            isEngineUnusable = false
+            if replaceWithFresh {
+                engine = AVAudioEngine()
+            }
+            return
+        }
 
         let wasRunning = engine.isRunning
         if wasInstalled {

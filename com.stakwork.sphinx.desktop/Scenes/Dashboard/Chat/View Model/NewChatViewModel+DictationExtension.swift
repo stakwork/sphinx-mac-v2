@@ -17,6 +17,8 @@ extension NewChatViewModel {
             "The microphone is in use. Stop the voice note, call, or other dictation session and try again."
         static let sttUnavailable =
             "Speech-to-text is unavailable. Check that Strut is running and try again."
+        static let captureFailed =
+            "Audio capture could not start. Check the microphone and try again."
     }
 
     func toggleDictation() {
@@ -397,6 +399,9 @@ extension NewChatViewModel {
         }
         if lowered.contains("in use") || lowered.contains("busy") {
             return DictationUserMessage.microphoneInUse
+        }
+        if lowered.contains("audio capture") {
+            return DictationUserMessage.captureFailed
         }
         return DictationUserMessage.sttUnavailable
     }

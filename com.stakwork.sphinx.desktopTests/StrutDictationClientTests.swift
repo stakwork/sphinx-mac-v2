@@ -161,7 +161,7 @@ final class FakeStrutAudioCapturer: StrutAudioCapturer, @unchecked Sendable {
         onPCM: @escaping @Sendable (Data) -> Void,
         onConfigurationChange: @escaping @Sendable () -> Void,
         onSampleRateMismatch: @escaping @Sendable (Int) -> Void
-    ) {
+    ) throws {
         lock.lock()
         startTapCount += 1
         self.onPCM = onPCM
@@ -689,7 +689,7 @@ final class StrutDictationClientTests: XCTestCase {
     func testFailStartOnPrepareErrorInvokesCapturerStop() {
         let transport = FakeStrutStreamTransport()
         let capturer = FakeStrutAudioCapturer()
-        capturer.prepareError = .invalidSampleRate
+        capturer.prepareError = .engineFailed("no audio input device available")
         let client = makeClient(transport: transport, capturer: capturer)
 
         let log = CallbackLog()
@@ -698,7 +698,38 @@ final class StrutDictationClientTests: XCTestCase {
         client.start()
         waitUntil { log.errorValues.contains { $0.contains("failed to start audio capture") } }
 
+        XCTAssertTrue(log.errorValues.contains { $0.contains("failed to start audio capture") })
         XCTAssertGreaterThanOrEqual(capturer.stopCount, 1)
+        XCTAssertEqual(capturer.startTapCount, 0)
+    }
+
+    func testDeviceChangeRestartPrepareErrorFailsCaptureCleanly() {
+        let transport = FakeStrutStreamTransport()
+        let capturer = FakeStrutAudioCapturer()
+        let client = makeClient(
+            transport: transport,
+            capturer: capturer,
+            restartBackoff: 0.05
+        )
+
+        let log = CallbackLog()
+        client.onError = { log.addError($0) }
+
+        startAndWait(client, transport: transport, capturer: capturer)
+        let tapsAfterStart = capturer.startTapCount
+        let stopsAfterStart = capturer.stopCount
+        XCTAssertEqual(tapsAfterStart, 1)
+
+        capturer.prepareError = .engineFailed("no audio input device available")
+        capturer.triggerConfigurationChange()
+
+        waitUntil(1.5) {
+            log.errorValues.contains { $0.contains("failed to start audio capture") }
+        }
+
+        XCTAssertTrue(log.errorValues.contains { $0.contains("failed to start audio capture") })
+        XCTAssertEqual(capturer.startTapCount, tapsAfterStart)
+        XCTAssertGreaterThan(capturer.stopCount, stopsAfterStart)
     }
 
     func testStopWhileStartingInvokesCapturerStop() {
@@ -802,5 +833,22 @@ final class StrutDictationClientTests: XCTestCase {
 
         XCTAssertEqual(capturer.lastPreparedSessionID, 2)
         XCTAssertNotEqual(capturer.lastPreparedSessionID, firstSession)
+    }
+
+    @MainActor
+    func testMapDictationFailureAudioCaptureMapsToCaptureFailed() {
+        let vm = NewChatViewModel(chat: nil, contact: nil)
+        XCTAssertEqual(
+            vm.mapDictationFailure("failed to start audio capture"),
+            NewChatViewModel.DictationUserMessage.captureFailed
+        )
+        XCTAssertEqual(
+            vm.mapDictationFailure("microphone permission denied"),
+            NewChatViewModel.DictationUserMessage.permissionDenied
+        )
+        XCTAssertEqual(
+            vm.mapDictationFailure("microphone is in use"),
+            NewChatViewModel.DictationUserMessage.microphoneInUse
+        )
     }
 }
