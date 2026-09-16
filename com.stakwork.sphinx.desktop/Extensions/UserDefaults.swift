@@ -109,8 +109,11 @@ extension UserDefaults {
     }
 
     class func deleteAllKeys(in defaults: UserDefaults) {
-        let keys = Array(defaults.dictionaryRepresentation().keys)
-        for key in keys {
+        guard let snapshot = JSONSerialization.dictionary(
+            from: defaults.dictionaryRepresentation(),
+            source: "userDefaults.deleteAllKeys"
+        ) else { return }
+        for key in snapshot.keys {
             defaults.removeObject(forKey: key)
         }
         defaults.synchronize()
