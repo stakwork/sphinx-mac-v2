@@ -298,4 +298,85 @@ final class AIAgentHiveGraphDictTests: XCTestCase {
         ]]
         XCTAssertNil(AIAgentManager.workspaceSlugFromCanvasMessages(messages))
     }
+
+    // MARK: - Approve/reject history parse
+
+    /// Mirrors the inline compactMap in `executeApproveProposal` / `executeRejectProposal`
+    /// without invoking those methods (they require a Hive token/network).
+    private func nativeHistory(
+        from json: String,
+        source: String,
+        allowFragments: Bool = false
+    ) throws -> [[String: Any]] {
+        let options: JSONSerialization.ReadingOptions = allowFragments ? .allowFragments : []
+        let obj = try JSONSerialization.jsonObject(with: Data(json.utf8), options: options)
+        let historyJSON = obj as? [Any] ?? []
+        return historyJSON.compactMap {
+            JSONSerialization.dictionary(from: $0, source: source)
+        }
+    }
+
+    func testApproveHistoryParse_stringTopLevelCompactMapsToEmpty() throws {
+        let nativeHistory = try nativeHistory(
+            from: "\"hi\"",
+            source: "hiveGraph.approveHistory",
+            allowFragments: true
+        )
+        XCTAssertTrue(nativeHistory.isEmpty)
+        let merged = AIAgentManager.mergeCanvasPayloads(into: nativeHistory)
+        XCTAssertTrue(merged.isEmpty)
+    }
+
+    func testRejectHistoryParse_singleObjectTopLevelCompactMapsToEmpty() throws {
+        let nativeHistory = try nativeHistory(
+            from: "{\"role\":\"assistant\",\"content\":\"x\"}",
+            source: "hiveGraph.rejectHistory"
+        )
+        XCTAssertTrue(nativeHistory.isEmpty)
+        let merged = AIAgentManager.mergeCanvasPayloads(into: nativeHistory)
+        XCTAssertTrue(merged.isEmpty)
+    }
+
+    func testApproveHistoryParse_arrayOfObjectsCompactMapsAndMergesWithoutTrapping() throws {
+        let json = """
+        [
+          {
+            "role": "assistant",
+            "content": "",
+            "toolCalls": [
+              {
+                "toolName": "",
+                "output": {
+                  "payload": {"workspaceId": "ws-1"},
+                  "meta": {"workspaceSlug": "alpha"}
+                }
+              },
+              {
+                "toolName": "propose_feature",
+                "output": {"payload": {"proposalId": "p1"}}
+              }
+            ]
+          }
+        ]
+        """
+        let nativeHistory = try nativeHistory(
+            from: json,
+            source: "hiveGraph.approveHistory"
+        )
+        XCTAssertEqual(nativeHistory.count, 1)
+
+        var iteratedKeys: [String] = []
+        for (key, _) in nativeHistory[0] {
+            iteratedKeys.append(key)
+        }
+        XCTAssertTrue(Set(iteratedKeys).isSuperset(of: ["role", "toolCalls"]))
+
+        let merged = AIAgentManager.mergeCanvasPayloads(into: nativeHistory)
+        let toolCalls = merged[0]["toolCalls"] as? [[String: Any]]
+        let propose = toolCalls?.first(where: { ($0["toolName"] as? String) == "propose_feature" })
+        let output = propose?["output"] as? [String: Any]
+        let payload = output?["payload"] as? [String: Any]
+        XCTAssertEqual(payload?["proposalId"] as? String, "p1")
+        XCTAssertEqual(payload?["workspaceId"] as? String, "ws-1")
+    }
 }

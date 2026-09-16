@@ -6176,7 +6176,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sphinx.app/Contents/MacOS/sphinx";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sphinx.app/Contents/MacOS/Sphinx";
 			};
 			name = Debug;
 		};
@@ -6200,7 +6200,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/sphinx.app/Contents/MacOS/sphinx";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sphinx.app/Contents/MacOS/Sphinx";
 			};
 			name = Release;
 		};

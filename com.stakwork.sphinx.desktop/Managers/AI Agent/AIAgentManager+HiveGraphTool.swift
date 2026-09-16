@@ -708,10 +708,13 @@ To reject it, call reject_proposal with proposalId "\(pid)".
 
         let workspaceSlugs = await AIAgentManager.fetchWorkspacesAsync().map { $0.compactMap { $0.slug } } ?? []
         let historySnapshot = Array(canvasChatHistory)
+        let historyJSON = (try? JSONEncoder().encode(historySnapshot)).flatMap {
+            try? JSONSerialization.jsonObject(with: $0) as? [Any]
+        } ?? []
         let messages = AIAgentManager.mergeCanvasPayloads(
-            into: (try? JSONEncoder().encode(historySnapshot)).flatMap {
-                try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]]
-            } ?? []
+            into: historyJSON.compactMap {
+                JSONSerialization.dictionary(from: $0, source: "hiveGraph.approveHistory")
+            }
         )
 
         // Extract workspaceSlug from the canvas entry's meta (features only)
@@ -847,10 +850,13 @@ To reject it, call reject_proposal with proposalId "\(pid)".
 
         let workspaceSlugs = await AIAgentManager.fetchWorkspacesAsync().map { $0.compactMap { $0.slug } } ?? []
         let historySnapshot = Array(canvasChatHistory)
+        let historyJSON = (try? JSONEncoder().encode(historySnapshot)).flatMap {
+            try? JSONSerialization.jsonObject(with: $0) as? [Any]
+        } ?? []
         let messages = AIAgentManager.mergeCanvasPayloads(
-            into: (try? JSONEncoder().encode(historySnapshot)).flatMap {
-                try? JSONSerialization.jsonObject(with: $0) as? [[String: Any]]
-            } ?? []
+            into: historyJSON.compactMap {
+                JSONSerialization.dictionary(from: $0, source: "hiveGraph.rejectHistory")
+            }
         )
 
         return await withCheckedContinuation { cont in

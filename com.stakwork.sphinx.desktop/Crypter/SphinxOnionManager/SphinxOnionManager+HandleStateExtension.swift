@@ -277,22 +277,19 @@ extension SphinxOnionManager {
 
     func handleInvoiceSentStatus(sentStatus: String?) {
         if let sentStatus = sentStatus {
-            if let data = sentStatus.data(using: .utf8) {
-                do {
-                    if let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any?] {
-                        if let paymentHash = dictionary["payment_hash"] as? String, !paymentHash.isEmpty,
-                           let preimage = dictionary["preimage"] as? String,
-                           !preimage.isEmpty
-                        {
-                            NotificationCenter.default.post(
-                                name: .invoiceIPaidSettled,
-                                object: nil,
-                                userInfo: dictionary as [AnyHashable: Any]
-                            )
-                        }
-                    }
-                } catch {
-                    print("Error decoding JSON: \(error)")
+            if let dictionary = JSONSerialization.dictionary(
+                from: sentStatus,
+                source: "onion.sentStatus"
+            ) {
+                if let paymentHash = dictionary["payment_hash"] as? String, !paymentHash.isEmpty,
+                   let preimage = dictionary["preimage"] as? String,
+                   !preimage.isEmpty
+                {
+                    NotificationCenter.default.post(
+                        name: .invoiceIPaidSettled,
+                        object: nil,
+                        userInfo: dictionary as [AnyHashable: Any]
+                    )
                 }
             }
             
