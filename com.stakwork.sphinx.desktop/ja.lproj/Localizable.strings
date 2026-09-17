@@ -10,6 +10,12 @@
 "generic.success.title" = "成功";
 "generic.error.title" = "エラー";
 "generic.error.message" = "エラーが発生しました。後ほど再度お試しください。";
+"server.health.banner.degraded" = "Lightningノードが低下しています。メッセージや支払いが失敗する可能性があります。";
+"server.health.banner.unknown" = "ノードの状態が不明です。メッセージや支払いが失敗する可能性があります。";
+"mixer.error.cln.unavailable" = "Lightningノードが利用できません。後ほど再度お試しください。";
+"mixer.error.cln.timeout" = "リクエストがタイムアウトしました。再度お試しください。";
+"mixer.error.insufficient.balance" = "残高が不足しています。";
+"mixer.error.unknown" = "エラーが発生しました。後ほど再度お試しください。";
 "generic.message.error" = "メッセージを送信できませんでした。後ほど再度お試しください";
 "generic.attachment.error" = "ファイルのアップロード中に問題が発生しました。後ほど再度お試しください。";
 "boost.error.title" = "Boost error";

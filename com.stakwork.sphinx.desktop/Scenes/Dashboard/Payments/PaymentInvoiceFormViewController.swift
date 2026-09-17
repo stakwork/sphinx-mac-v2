@@ -30,8 +30,11 @@ class PaymentInvoiceFormViewController: NSViewController {
     }
     
     func didFailWith(message: String?) {
-        if let errorMessage = message {
-            AlertHelper.showAlert(title: "generic.error.title".localized, message: errorMessage)
+        if let errorMessage = message, !errorMessage.isEmpty {
+            AlertHelper.showAlert(
+                title: "generic.error.title".localized,
+                message: errorMessage
+            )
         } else {
             shouldDismissOnFail()
         }

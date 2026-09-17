@@ -110,9 +110,11 @@ class PaymentViewModel : NSObject {
             muid: currentPayment.muid,
             content: currentPayment.message,
             chat: chat,
-            completion: { success, _ in
+            completion: { success, message in
                 if (success){
                     callback()
+                } else if let mapped = message?.errorMessage, !mapped.isEmpty {
+                    errorCallback(mapped)
                 } else {
                     errorCallback("generic.error.message".localized)
                 }

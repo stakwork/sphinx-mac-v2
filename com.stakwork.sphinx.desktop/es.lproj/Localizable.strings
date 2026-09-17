@@ -10,6 +10,12 @@
 "generic.success.title" = "Éxito";
 "generic.error.title" = "Error";
 "generic.error.message" = "Ha habido un problema. Por favor vuelva a intentarlo más tarde.";
+"server.health.banner.degraded" = "El nodo Lightning está degradado. Los mensajes y pagos pueden fallar.";
+"server.health.banner.unknown" = "Estado del nodo desconocido. Los mensajes y pagos pueden fallar.";
+"mixer.error.cln.unavailable" = "Nodo Lightning no disponible. Inténtelo de nuevo más tarde.";
+"mixer.error.cln.timeout" = "La solicitud ha caducado. Inténtelo de nuevo.";
+"mixer.error.insufficient.balance" = "Saldo insuficiente.";
+"mixer.error.unknown" = "Ha habido un problema. Por favor vuelva a intentarlo más tarde.";
 "generic.message.error" = "El mensaje no pudo ser encriptado correctamente por lo cual no puede ser enviado.";
 "generic.attachment.error" = "Ha habido un problema subiendo el archivo. Por favor vuelva a intentarlo más tarde.";
 "boost.error.title" = "Boost error";
