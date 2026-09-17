@@ -74,6 +74,16 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
     func didFailSendingMessage(
         provisionalMessage: TransactionMessage?
     ) {
+        didFailSendingMessage(
+            provisionalMessage: provisionalMessage,
+            errorMessage: nil
+        )
+    }
+
+    func didFailSendingMessage(
+        provisionalMessage: TransactionMessage?,
+        errorMessage: String?
+    ) {
         if let provisionalMessage = provisionalMessage {
             let chat = provisionalMessage.chat
             let isLastMessage = chat?.lastMessage?.id == provisionalMessage.id
@@ -85,7 +95,13 @@ extension NewChatViewModel: AttachmentsManagerDelegate {
                 chat.managedObjectContext?.saveContext()
             }
 
-            AlertHelper.showAlert(title: "generic.error.title".localized, message: "generic.error.message".localized)
+            let mapped: String
+            if let errorMessage, !errorMessage.isEmpty {
+                mapped = errorMessage
+            } else {
+                mapped = "generic.error.message".localized
+            }
+            AlertHelper.showAlert(title: "generic.error.title".localized, message: mapped)
         }
     }
     

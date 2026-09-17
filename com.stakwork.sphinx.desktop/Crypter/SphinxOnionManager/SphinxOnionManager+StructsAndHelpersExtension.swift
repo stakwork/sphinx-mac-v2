@@ -336,6 +336,7 @@ class SentStatus: Mappable, @unchecked Sendable {
     var status: String?
     var preimage: String?
     var paymentHash: String?
+    var code: String?
 
     required init?(map: Map) {
     }
@@ -345,6 +346,7 @@ class SentStatus: Mappable, @unchecked Sendable {
         status      <- map["status"]
         preimage    <- map["preimage"]
         paymentHash <- map["payment_hash"]
+        code        <- map["code"]
     }
 }
 

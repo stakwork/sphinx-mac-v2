@@ -24,6 +24,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     }
 
     static func resetSharedInstance() {
+        _sharedInstance?.stopServerHealthStalenessTimer()
         _sharedInstance = nil
     }
     
@@ -89,6 +90,18 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
         }
     }
+
+    /// Mixer Lightning-node health. Starts `unknown` — MQTT up is not node-ok.
+    var lastServerStatus: ServerStatus? = nil
+    var lastServerStatusSeenMs: UInt64 = 0
+    var currentServerHealth: ServerHealth = .unknown
+    var serverHealthStalenessTimer: Timer? = nil
+    /// Test hook: override local clock used for health evaluation.
+    var serverHealthNowMsOverride: UInt64? = nil
+    /// Test hook: staleness timer interval (defaults to mixer heartbeat interval).
+    var serverHealthStalenessInterval: TimeInterval = TimeInterval(SphinxrsHealth.defaultIntervalMs) / 1000.0
+    /// Test hook invoked immediately before onion `handle()` — not for the status topic.
+    var onOnionHandleInvoked: ((String) -> Void)? = nil
     
     // MARK: - MQTT diagnostics state (instrumentation only, no behavior change)
     var mqttConnectAttemptCount: Int = 0
@@ -409,6 +422,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         endReconnectionTimer()
         endKeepAliveActivity()
         endReconnectActivity()
+        stopServerHealthStalenessTimer()
         mqtt?.disconnect()
     }
     
@@ -773,6 +787,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.mqtt.subscribe([
                 (tribeMgmtTopic, CocoaMQTTQoS.qos0)
             ])
+            self.subscribeToServerStatusTopic()
+            self.startServerHealthStalenessTimer()
         } catch {}
     }
     
@@ -858,10 +874,17 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     }
     
     func processMqttMessages(message: CocoaMQTTMessage) {
-        guard let seed = getAccountSeed() else{
+        if !readyForPing && message.topic.contains("ping") {
             return
         }
-        if !readyForPing && message.topic.contains("ping") {
+
+        if consumeServerStatusMessage(topic: message.topic, payload: Data(message.payload)) {
+            return
+        }
+
+        onOnionHandleInvoked?(message.topic)
+
+        guard let seed = getAccountSeed() else{
             return
         }
         

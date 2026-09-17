@@ -10,6 +10,12 @@
 "generic.success.title" = "成功";
 "generic.error.title" = "錯誤";
 "generic.error.message" = "出現錯誤。請稍後再試。";
+"server.health.banner.degraded" = "Lightning 節點已降級。訊息和支付可能失敗。";
+"server.health.banner.unknown" = "節點狀態未知。訊息和支付可能失敗。";
+"mixer.error.cln.unavailable" = "Lightning 節點無法使用。請稍後再試。";
+"mixer.error.cln.timeout" = "請求逾時。請重試。";
+"mixer.error.insufficient.balance" = "餘額不足。";
+"mixer.error.unknown" = "出現錯誤。請稍後再試。";
 "generic.message.error" = "訊息無法發送。請稍後再試。";
 "generic.attachment.error" = "上傳檔案時出現問題。請稍後再試。";
 "boost.error.title" = "Boost error";
