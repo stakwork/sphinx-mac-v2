@@ -122,7 +122,7 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
         XCTAssertTrue(manager.isConnected)
     }
 
-    func test_staleRetainedTs_doesNotFlashOk() {
+    func test_staleTs_doesNotFlashOk() {
         let now: UInt64 = 10_000_000
         manager.serverHealthNowMsOverride = now
         // Payload ts far in the past relative to now, even though cln_ok is true.

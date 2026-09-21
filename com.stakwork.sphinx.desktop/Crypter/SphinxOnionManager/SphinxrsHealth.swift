@@ -38,7 +38,7 @@ enum SphinxrsHealth {
     /// Missed-interval threshold N = 3 (~90s) → unknown.
     static let defaultMaxMissed: UInt32 = 3
 
-    /// Global retained mixer status topic (same family as `blockheight`).
+    /// Global mixer status topic (same family as `blockheight`); the mixer publishes periodically, there is no broker-side retained delivery on subscribe.
     /// Single constant — update here when `sphinx/src/topics.rs` is finalized.
     static func serverStatusTopic() -> String {
         "server_status"
@@ -100,7 +100,7 @@ enum SphinxrsHealth {
             return .unknown
         }
 
-        // Stale retained last-good, or unusable/future payload timestamp.
+        // Stale last-good payload, or unusable/future payload timestamp.
         if last.ts == 0 || last.ts > nowMs || nowMs &- last.ts > maxAge {
             return .unknown
         }
