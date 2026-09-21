@@ -38,6 +38,15 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     
     static let kMqttKeepAlive: UInt16 = 15
     static let kConnectionTimeoutInterval: TimeInterval = 15.0
+    // Client-side fetch watchdog — independent of Rust CHUNK_TIMEOUT_SECS
+    //
+    // This timeout drives startMessageFetchTimeoutTimer(), which calls clearFetchCallbacks()
+    // and abandons an in-flight fetch/restore after 30 seconds. It is entirely independent
+    // of the Rust-side CHUNK_TIMEOUT_SECS buffer timeout in sphinx-ffi/src/chunk.rs.
+    // Increasing CHUNK_TIMEOUT_SECS on the server/FFI side (e.g. to 300s) does NOT make
+    // this client wait longer — this watchdog will still fire at 30s and clear callbacks,
+    // preventing the app from benefiting from the extended Rust buffer tolerance.
+    // Scaling kMessageFetchTimeout to match is a separate, out-of-scope follow-up change.
     static let kMessageFetchTimeout: TimeInterval = 30.0
     
     var reconnectionTimer: Timer? = nil
