@@ -196,15 +196,13 @@ extension NSColor {
         } else {
             let newColor = NSColor.random()
             UserDefaults.standard.set(newColor.toHexString(), forKey: key)
-            UserDefaults.standard.synchronize()
             ColorsManager.sharedInstance.saveColorFor(colorHex: newColor.toHexString(), key: key)
             return newColor
         }
     }
-    
+
     static func removeColorFor(key: String) {
         ColorsManager.sharedInstance.removeColorFor(key: key)
         UserDefaults.standard.removeObject(forKey: key)
-        UserDefaults.standard.synchronize()
     }
 }

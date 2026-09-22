@@ -72,6 +72,14 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var restoredContactInfoTracker = [String]()
     
     var mqtt: CocoaMQTT! = nil
+    /// How long to keep a torn-down `CocoaMQTT` alive after `disconnect()` so
+    /// GCDAsyncSocket/CFStream workers can finish. Injectable so tests do not wait 1s.
+    internal var mqttTeardownDrainInterval: TimeInterval = 1.0
+    /// Identity bag of MQTT clients whose sockets are still draining.
+    /// Membership and removal use `===` only — not `Hashable`.
+    private var drainingMqtt: [CocoaMQTT] = []
+    /// Test hook: number of clients currently held in the drain bag.
+    internal var drainingMqttCount: Int { drainingMqtt.count }
     var vc: NSViewController! = nil
     var connectingStartTime: Date? = nil
     var connectionInProgress: Bool = false
@@ -357,7 +365,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 time: now,
                 network: network
             )
-            
+
+            if let existing = self.mqtt {
+                mqttLog("Force-closing existing connection (state: \(existing.connState)) before opening new one")
+                forceTeardownMqtt(existing)
+            }
+
             mqtt = CocoaMQTT(
                 clientID: xpub,
                 host: serverIP,
@@ -411,7 +424,51 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         endReconnectActivity()
         mqtt?.disconnect()
     }
-    
+
+    /// Holds `instance` alive for `mqttTeardownDrainInterval` after `disconnect()`
+    /// so GCDAsyncSocket/CFStream workers cannot UAF the client. Called only from
+    /// contexts that already run on the same (effectively main-confined) queue as
+    /// the rest of this class's `mqtt`-mutating code — no queue hop here, so
+    /// `instance` (non-Sendable) never needs to cross an isolation boundary.
+    /// Overlapping teardown of the same pointer keeps the original drain window
+    /// (no second append / release timer).
+    private func retainMqttForDrain(_ instance: CocoaMQTT) {
+        if drainingMqtt.contains(where: { $0 === instance }) {
+            return
+        }
+        drainingMqtt.append(instance)
+        let instanceID = ObjectIdentifier(instance)
+        mqttLog("Teardown retain \(instanceID) state: \(instance.connState)")
+        let interval = mqttTeardownDrainInterval
+        // Capture only the (Sendable) identifier, never `instance` itself —
+        // CocoaMQTT isn't Sendable, and this closure crosses the async-after
+        // queue-hop boundary. `drainingMqtt` already holds the real strong
+        // reference; removal only needs identity comparison.
+        DispatchQueue.main.asyncAfter(deadline: .now() + interval) { [weak self] in
+            guard let self else { return }
+            self.drainingMqtt.removeAll { ObjectIdentifier($0) == instanceID }
+            self.mqttLog("Released draining client \(instanceID)")
+        }
+    }
+
+    /// No-op callbacks first, then disconnect, then drain-retain, then nil the
+    /// live slot. Do not wait for didDisconnect — CFStream close work continues
+    /// after that callback, which is why release is time-based.
+    func forceTeardownMqtt(_ instance: CocoaMQTT?) {
+        guard let instance = instance else { return }
+        instance.didReceiveMessage = { _, _, _ in }
+        instance.didDisconnect = { _, _ in }
+        instance.didConnectAck = { _, _ in }
+        instance.didReceiveTrust = { _, _, completionHandler in
+            completionHandler(true)
+        }
+        instance.disconnect()
+        retainMqttForDrain(instance)
+        if mqtt === instance {
+            mqtt = nil
+        }
+    }
+
     func isFetchingContent() -> Bool {
         return onMessageRestoredCallback != nil || firstSCIDMsgsCallback != nil || totalMsgsCountCallback != nil
     }
@@ -596,13 +653,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.connectionTimeoutTimer?.invalidate()
             self.connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: SphinxOnionManager.kConnectionTimeoutInterval, repeats: false) { [weak self] _ in
                 guard let self = self, self.connectionInProgress else { return }
-                print("[MQTT] Connection timed out after \(Int(SphinxOnionManager.kConnectionTimeoutInterval))s — force-closing and retrying")
+                self.mqttLog("Connection timed out after \(Int(SphinxOnionManager.kConnectionTimeoutInterval))s — force-closing and retrying")
                 self.connectionInProgress = false
-                let dead = self.mqtt
-                self.mqtt = nil
-                dead?.didDisconnect = { _, _ in }
-                dead?.didConnectAck = { _, _ in }
-                dead?.disconnect()
+                self.forceTeardownMqtt(self.mqtt)
                 self.startReconnectionTimer(delay: 2.0)
             }
         }
@@ -641,6 +694,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.connectionInProgress = false
             self.isConnected = false
             self.mqttDisconnectCallback?()
+            self.retainMqttForDrain(mqttInstance)
             if self.mqtt === disconnectingMqtt {
                 self.isConnected = false
                 self.endKeepAliveActivity()
@@ -835,7 +889,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 self.endKeepAliveActivity()
                 self.isConnected = false
                 self.mqttDisconnectCallback?()
-                self.mqtt = nil
+                self.retainMqttForDrain(mqttInstance)
+                if self.mqtt === mqttInstance {
+                    self.mqtt = nil
+                }
             }
             
             mqtt.didReceiveTrust = { _, _, completionHandler in

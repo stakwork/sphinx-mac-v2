@@ -655,14 +655,23 @@ extension SphinxOnionManager {
     }
     
     private func saveUpdatedOnionState(state: [String: [UInt8]]) {
+        let previousKeys = Set(mutationKeys).union(Set(loadOnionState().keys))
+        let newKeys = Set(state.keys)
+
         for key in state.keys {
             if let value = state[key] {
                 UserDefaults.standard.set(value, forKey: key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: key)
             }
         }
-        UserDefaults.standard.synchronize()
+
+        for key in previousKeys.subtracting(newKeys) {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+
+        onionStateQueue.sync {
+            onionState = state
+        }
+
         updateMutationKeys(with: state.keys.sorted())
     }
 

@@ -67,6 +67,7 @@ extension UserDefaults {
         public static let lssNonce = DefaultKey<String>("lssNonce")
         public static let signerKeys = DefaultKey<String>("signerKeys")
         public static let onionState = DefaultKey<String>("onionState")
+        public static let chatColorKeys = DefaultKey<[String]>("chatColorKeys")
         public static let sequence = DefaultKey<String>("sequence")
         public static let selectedChat = DefaultKey<String>("selectedChat")
         public static let deletedTribesPubKeys = DefaultKey<[String]>("deletedTribesPubKeys")
@@ -100,8 +101,6 @@ extension UserDefaults {
         if let inviteCode = inviteCode {
             UserDefaults.Keys.inviteCode.set(inviteCode)
         }
-
-        UserDefaults.standard.synchronize()
     }
 
     class func deleteAllKeys() {
@@ -109,14 +108,8 @@ extension UserDefaults {
     }
 
     class func deleteAllKeys(in defaults: UserDefaults) {
-        guard let snapshot = JSONSerialization.dictionary(
-            from: defaults.dictionaryRepresentation(),
-            source: "userDefaults.deleteAllKeys"
-        ) else { return }
-        for key in snapshot.keys {
-            defaults.removeObject(forKey: key)
-        }
-        defaults.synchronize()
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
+        defaults.removePersistentDomain(forName: bundleIdentifier)
     }
 
     func object<T: Codable>(_ type: T.Type, with key: String, usingDecoder decoder: JSONDecoder = JSONDecoder()) -> T? {
@@ -153,7 +146,6 @@ public class DefaultKey<S>: @unchecked Sendable {
     func set<T>(_ value: T?) {
         if let value = value {
             UserDefaults.standard.setValue(value, forKey: name)
-            UserDefaults.standard.synchronize()
         } else {
             removeValue()
         }
@@ -162,7 +154,6 @@ public class DefaultKey<S>: @unchecked Sendable {
     func setObject<T: Codable>(_ object: T?) {
         if let object = object {
             UserDefaults.standard.set(object: object, forKey: name)
-            UserDefaults.standard.synchronize()
         } else {
             removeValue()
         }
@@ -170,6 +161,5 @@ public class DefaultKey<S>: @unchecked Sendable {
 
     public func removeValue() {
         UserDefaults.standard.removeObject(forKey: name)
-        UserDefaults.standard.synchronize()
     }
 }
