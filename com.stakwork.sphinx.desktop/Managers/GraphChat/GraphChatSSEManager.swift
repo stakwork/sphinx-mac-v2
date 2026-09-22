@@ -33,6 +33,7 @@ class GraphChatSSEManager: NSObject, EventHandler, @unchecked Sendable {
 
     // MARK: - Org Stream state (URLSession-based)
     private var orgDataTask: URLSessionDataTask?
+    private var orgSession: URLSession?
     private var orgSSEBuffer = ""
     private var orgConversationIdFired = false
     private var onConversationId: ((String) -> Void)?
@@ -128,7 +129,8 @@ class GraphChatSSEManager: NSObject, EventHandler, @unchecked Sendable {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpBody = bodyData
 
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: .main)
+        orgSession = session
         orgDataTask = session.dataTask(with: request)
         orgDataTask?.resume()
     }
@@ -136,6 +138,8 @@ class GraphChatSSEManager: NSObject, EventHandler, @unchecked Sendable {
     func stopOrgStream() {
         orgDataTask?.cancel()
         orgDataTask = nil
+        orgSession?.invalidateAndCancel()
+        orgSession = nil
         onConversationId = nil
     }
 }

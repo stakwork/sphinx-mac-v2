@@ -342,7 +342,9 @@ class MediaFullScreenView: NSView, LoadableNib {
     }
     
     func showVideo(data: Data, autoPlay: Bool = true) {
-        let playerItem = CachingPlayerItem(data: data, mimeType: "video/mp4", fileExtension: "mp4")
+        guard let playerItem = CachingPlayerItem(data: data, mimeType: "video/mp4", fileExtension: "mp4") else {
+            return
+        }
         playerItem.delegate = self
         let player = AVPlayer(playerItem: playerItem)
         videoPlayerView.player = player

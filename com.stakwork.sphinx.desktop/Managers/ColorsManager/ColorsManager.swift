@@ -20,32 +20,32 @@ class ColorsManager : NSObject, @unchecked Sendable {
     var colors: [String: String] = [:]
     
     func storeColorsInMemory() {
-        let userDefaults = UserDefaults.standard
-        guard let allDefaults = JSONSerialization.dictionary(
-            from: userDefaults.dictionaryRepresentation(),
-            source: "colors.defaults"
-        ) else { return }
+        let keys = UserDefaults.Keys.chatColorKeys.get(defaultValue: [String]())
+        guard !keys.isEmpty else { return }
 
-        for (key, value) in allDefaults {
-            if key.contains("-color"), let value = value as? String {
+        let userDefaults = UserDefaults.standard
+        for key in keys {
+            if let value = userDefaults.string(forKey: key) {
                 colors[key] = value
             }
         }
     }
-    
+
     func getColorFor(key: String) -> String? {
         if colors.keys.contains(key) {
             return colors[key]
         }
         return nil
     }
-    
+
     func saveColorFor(colorHex: String, key: String) {
         colors[key] = colorHex
+        rememberColorKey(key)
     }
-    
+
     func removeColorFor(key: String) {
         colors.removeValue(forKey: key)
+        forgetColorKey(key)
     }
 
     func getAllColors() -> [String: String] {
@@ -55,6 +55,22 @@ class ColorsManager : NSObject, @unchecked Sendable {
     func setColorFor(colorHex: String, key: String) {
         colors[key] = colorHex
         UserDefaults.standard.set(colorHex, forKey: key)
-        UserDefaults.standard.synchronize()
+        rememberColorKey(key)
+    }
+
+    private func rememberColorKey(_ key: String) {
+        var keys = UserDefaults.Keys.chatColorKeys.get(defaultValue: [String]())
+        if !keys.contains(key) {
+            keys.append(key)
+            UserDefaults.Keys.chatColorKeys.set(keys)
+        }
+    }
+
+    private func forgetColorKey(_ key: String) {
+        var keys = UserDefaults.Keys.chatColorKeys.get(defaultValue: [String]())
+        if let index = keys.firstIndex(of: key) {
+            keys.remove(at: index)
+            UserDefaults.Keys.chatColorKeys.set(keys)
+        }
     }
 }
