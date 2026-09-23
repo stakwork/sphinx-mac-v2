@@ -47,6 +47,23 @@ extension SphinxOnionManager {
     }
 
     func applyServerStatusPayload(_ payload: Data) {
+        let apply: () -> Void = { [weak self] in
+            guard let self else { return }
+            // Any consumed payload, including parse failure, ends the launch hold.
+            // Flag and one-shot stay on main, the thread that scheduled the timer.
+            self.markServerStatusReceived()
+            self.applyParsedServerStatusPayload(payload)
+        }
+
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
+        }
+    }
+
+    /// Caller is already on the main thread.
+    private func applyParsedServerStatusPayload(_ payload: Data) {
         let json = String(data: payload, encoding: .utf8)
         var parseFailed = false
         var status: ServerStatus?
@@ -65,7 +82,11 @@ extension SphinxOnionManager {
         if parseFailed {
             lastServerStatus = nil
             lastServerStatusSeenMs = 0
+            let healthUnchanged = currentServerHealth == .unknown
             setServerHealth(.unknown, parseFailed: true)
+            if healthUnchanged {
+                NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
+            }
             return
         }
 
@@ -79,7 +100,16 @@ extension SphinxOnionManager {
             intervalMs: ServerHealthPresentation.defaultIntervalMs,
             maxMissed: ServerHealthPresentation.defaultMaxMissed
         )
+        let healthUnchanged = currentServerHealth == health
         setServerHealth(health, parseFailed: false)
+        if healthUnchanged {
+            NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
+        }
+    }
+
+    private func markServerStatusReceived() {
+        hasReceivedServerStatus = true
+        invalidateServerHealthLaunchGraceTimer()
     }
 
     func reevaluateServerHealth(nowMs: UInt64? = nil) {
@@ -97,6 +127,9 @@ extension SphinxOnionManager {
     func startServerHealthStalenessTimer() {
         let start: () -> Void = { [weak self] in
             guard let self else { return }
+            // Arm before the staleness early-return. Repeat onion responses must
+            // not reset an already-open window, and must not skip the first arm.
+            self.armServerHealthLaunchGraceIfNeeded()
             if self.serverHealthStalenessTimer != nil { return }
             let timer = Timer.scheduledTimer(withTimeInterval: self.serverHealthStalenessInterval, repeats: true) { [weak self] _ in
                 self?.reevaluateServerHealth()
@@ -114,8 +147,10 @@ extension SphinxOnionManager {
 
     func stopServerHealthStalenessTimer() {
         let stop: () -> Void = { [weak self] in
-            self?.serverHealthStalenessTimer?.invalidate()
-            self?.serverHealthStalenessTimer = nil
+            guard let self else { return }
+            self.serverHealthStalenessTimer?.invalidate()
+            self.serverHealthStalenessTimer = nil
+            self.clearServerHealthLaunchGrace()
         }
 
         if Thread.isMainThread {
@@ -123,6 +158,40 @@ extension SphinxOnionManager {
         } else {
             DispatchQueue.main.async(execute: stop)
         }
+    }
+
+    /// Idempotent. Only a nil `serverHealthTrackingStartedAtMs` opens the window.
+    func armServerHealthLaunchGraceIfNeeded() {
+        if serverHealthTrackingStartedAtMs != nil { return }
+        serverHealthTrackingStartedAtMs = currentServerHealthNowMs()
+        invalidateServerHealthLaunchGraceTimer()
+        let timer = Timer.scheduledTimer(
+            withTimeInterval: TimeInterval(ServerHealthPresentation.launchGraceMs) / 1000.0,
+            repeats: false
+        ) { [weak self] _ in
+            self?.handleServerHealthLaunchGraceElapsed()
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        serverHealthLaunchGraceTimer = timer
+        NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
+    }
+
+    /// Re-reads the gate via observers. Does not compute a second show/hide decision.
+    func handleServerHealthLaunchGraceElapsed() {
+        invalidateServerHealthLaunchGraceTimer()
+        NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
+    }
+
+    private func clearServerHealthLaunchGrace() {
+        hasReceivedServerStatus = false
+        serverHealthTrackingStartedAtMs = nil
+        invalidateServerHealthLaunchGraceTimer()
+        NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
+    }
+
+    private func invalidateServerHealthLaunchGraceTimer() {
+        serverHealthLaunchGraceTimer?.invalidate()
+        serverHealthLaunchGraceTimer = nil
     }
 
     func setServerHealth(_ health: ServerHealth, parseFailed: Bool) {
@@ -179,5 +248,14 @@ extension SphinxOnionManager {
         }
         let ms = Date().timeIntervalSince1970 * 1000.0
         return ms > 0 ? UInt64(ms) : 0
+    }
+
+    var isServerHealthBannerVisible: Bool {
+        ServerHealthPresentation.shouldShowBanner(
+            health: currentServerHealth,
+            hasReceivedServerStatus: hasReceivedServerStatus,
+            trackingStartedAtMs: serverHealthTrackingStartedAtMs,
+            nowMs: currentServerHealthNowMs()
+        )
     }
 }

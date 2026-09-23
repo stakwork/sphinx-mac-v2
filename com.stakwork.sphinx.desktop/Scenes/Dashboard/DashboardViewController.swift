@@ -419,7 +419,12 @@ class DashboardViewController: NSViewController {
 
     func updateServerHealthBanner() {
         guard let banner = serverHealthBannerView else { return }
-        banner.apply(health: SphinxOnionManager.sharedInstance.currentServerHealth)
+        let manager = SphinxOnionManager.sharedInstance
+        guard manager.isServerHealthBannerVisible else {
+            banner.isHidden = true
+            return
+        }
+        banner.apply(health: manager.currentServerHealth)
         banner.superview?.addSubview(banner, positioned: .above, relativeTo: nil)
     }
 

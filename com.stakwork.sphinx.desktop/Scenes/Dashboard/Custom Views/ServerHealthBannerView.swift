@@ -11,10 +11,10 @@ import Cocoa
 @MainActor
 final class ServerHealthBannerView: NSView {
 
-    static let kHeight: CGFloat = 32
+    static let kHeight: CGFloat = 48
 
     private let messageLabel: NSTextField = {
-        let label = NSTextField(labelWithString: "")
+        let label = NSTextField(wrappingLabelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = NSFont(name: "Roboto-Medium", size: 12) ?? NSFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .white
@@ -23,7 +23,11 @@ final class ServerHealthBannerView: NSView {
         label.isSelectable = false
         label.isBordered = false
         label.drawsBackground = false
-        label.lineBreakMode = .byTruncatingTail
+        label.usesSingleLineMode = false
+        label.maximumNumberOfLines = 2
+        label.lineBreakMode = .byWordWrapping
+        label.cell?.wraps = true
+        label.cell?.truncatesLastVisibleLine = true
         return label
     }()
 
@@ -47,17 +51,19 @@ final class ServerHealthBannerView: NSView {
         NSLayoutConstraint.activate([
             messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
-            messageLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+            messageLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6)
         ])
     }
 
     func apply(health: ServerHealth) {
-        if let copy = ServerHealthPresentation.localizedBannerCopy(for: health) {
-            messageLabel.stringValue = copy
-            isHidden = false
-        } else {
+        guard SphinxOnionManager.sharedInstance.isServerHealthBannerVisible,
+              let copy = ServerHealthPresentation.localizedBannerCopy(for: health) else {
             isHidden = true
+            return
         }
+        messageLabel.stringValue = copy
+        isHidden = false
     }
 
     override var intrinsicContentSize: NSSize {
