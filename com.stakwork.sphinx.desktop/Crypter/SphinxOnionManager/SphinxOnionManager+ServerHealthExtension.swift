@@ -16,13 +16,13 @@ extension SphinxOnionManager {
 
     /// Exact-topic match only. Substring must never intercept.
     func shouldInterceptServerStatus(topic: String) -> Bool {
-        topic == SphinxrsHealth.serverStatusTopic()
+        topic == serverStatusTopic()
     }
 
     func subscribeToServerStatusTopic() {
         guard mqtt != nil else { return }
         mqtt.subscribe([
-            (SphinxrsHealth.serverStatusTopic(), CocoaMQTTQoS.qos0)
+            (serverStatusTopic(), CocoaMQTTQoS.qos0)
         ])
     }
 
@@ -53,7 +53,7 @@ extension SphinxOnionManager {
 
         if let json {
             do {
-                status = try SphinxrsHealth.parseServerStatus(payload: json)
+                status = try parseServerStatus(payload: json)
             } catch {
                 parseFailed = true
                 status = nil
@@ -72,20 +72,24 @@ extension SphinxOnionManager {
         let nowMs = currentServerHealthNowMs()
         lastServerStatus = status
         lastServerStatusSeenMs = nowMs
-        let health = SphinxrsHealth.evaluateServerHealth(
+        let health = evaluateServerHealth(
             last: status,
             lastSeenMs: nowMs,
-            nowMs: nowMs
+            nowMs: nowMs,
+            intervalMs: ServerHealthPresentation.defaultIntervalMs,
+            maxMissed: ServerHealthPresentation.defaultMaxMissed
         )
         setServerHealth(health, parseFailed: false)
     }
 
     func reevaluateServerHealth(nowMs: UInt64? = nil) {
         let now = nowMs ?? currentServerHealthNowMs()
-        let health = SphinxrsHealth.evaluateServerHealth(
+        let health = evaluateServerHealth(
             last: lastServerStatus,
             lastSeenMs: lastServerStatusSeenMs,
-            nowMs: now
+            nowMs: now,
+            intervalMs: ServerHealthPresentation.defaultIntervalMs,
+            maxMissed: ServerHealthPresentation.defaultMaxMissed
         )
         setServerHealth(health, parseFailed: false)
     }
@@ -122,8 +126,12 @@ extension SphinxOnionManager {
     }
 
     func setServerHealth(_ health: ServerHealth, parseFailed: Bool) {
+        // Generated `ServerHealth` is Equatable/Hashable only — not Sendable — so the
+        // main-queue hop must not capture it. Rebuild the case from a Sendable raw tag.
+        let healthTag = Self.serverHealthTag(health)
         let apply: () -> Void = { [weak self] in
             guard let self else { return }
+            let health = Self.serverHealth(fromTag: healthTag)
             if parseFailed {
                 self.mqttLog("server health parse-failure=true")
             }
@@ -138,6 +146,22 @@ extension SphinxOnionManager {
             apply()
         } else {
             DispatchQueue.main.async(execute: apply)
+        }
+    }
+
+    private static func serverHealthTag(_ health: ServerHealth) -> UInt8 {
+        switch health {
+        case .ok: return 1
+        case .degraded: return 2
+        case .unknown: return 3
+        }
+    }
+
+    private static func serverHealth(fromTag tag: UInt8) -> ServerHealth {
+        switch tag {
+        case 1: return .ok
+        case 2: return .degraded
+        default: return .unknown
         }
     }
 
