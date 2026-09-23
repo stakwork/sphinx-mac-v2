@@ -418,7 +418,7 @@ extension SphinxOnionManager {
     
     func handleError(error: String?) {
         if let error = error {
-            let mappedCode = SphinxrsHealth.parseMixerErrorCode(raw: error)
+            let mappedCode = parseMixerErrorCode(raw: error)
             if mappedCode != .unknown {
                 // Known mixer code: keep structured mapping only; never surface raw error text.
                 return

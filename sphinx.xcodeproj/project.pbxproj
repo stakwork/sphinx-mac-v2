@@ -754,7 +754,6 @@
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
 		SOMCT0020000000001SOMCT02 /* SphinxOnionManagerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */; };
-		SHLTH0020000000001SHLTH2 /* SphinxrsHealth.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0010000000001SHLTH1 /* SphinxrsHealth.swift */; };
 		SHLTH0040000000001SHLTH4 /* SphinxOnionManager+ServerHealthExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */; };
 		SHLTH0060000000001SHLTH6 /* ServerHealthBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0050000000001SHLTH5 /* ServerHealthBannerView.swift */; };
 		SHLTHT00200000001SHLTHT2 /* SphinxOnionManagerServerHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTHT00100000001SHLTHT1 /* SphinxOnionManagerServerHealthTests.swift */; };
@@ -1900,7 +1899,6 @@
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
 		SOMCT0010000000001SOMCT01 /* SphinxOnionManagerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerConnectionTests.swift; sourceTree = "<group>"; };
-		SHLTH0010000000001SHLTH1 /* SphinxrsHealth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxrsHealth.swift; sourceTree = "<group>"; };
 		SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ServerHealthExtension.swift"; sourceTree = "<group>"; };
 		SHLTH0050000000001SHLTH5 /* ServerHealthBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHealthBannerView.swift; sourceTree = "<group>"; };
 		SHLTHT00100000001SHLTHT1 /* SphinxOnionManagerServerHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerServerHealthTests.swift; sourceTree = "<group>"; };
@@ -3875,7 +3873,6 @@
 			isa = PBXGroup;
 			children = (
 				47E19DD62BB1FE0100A0E596 /* SphinxOnionManager.swift */,
-				SHLTH0010000000001SHLTH1 /* SphinxrsHealth.swift */,
 				SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */,
 				47E19DD82BB1FE0C00A0E596 /* SphinOnionManager+InvoicesExtension.swift */,
 				47E19DDA2BB1FE1300A0E596 /* SphinxOnionManager+ChatExtension.swift */,
@@ -4886,7 +4883,6 @@
 				4741EBE72BFE71FC00EFF49E /* SphinxOnionManager+StructsAndHelpersExtension.swift in Sources */,
 				47FEE2042A66D3D700646C4E /* MessageTableCellState+DataTypeExtension.swift in Sources */,
 				47E19DD72BB1FE0100A0E596 /* SphinxOnionManager.swift in Sources */,
-				SHLTH0020000000001SHLTH2 /* SphinxrsHealth.swift in Sources */,
 				SHLTH0040000000001SHLTH4 /* SphinxOnionManager+ServerHealthExtension.swift in Sources */,
 				SHLTH0060000000001SHLTH6 /* ServerHealthBannerView.swift in Sources */,
 				4708C2172A5885CB00274AD4 /* ChatTopView.swift in Sources */,

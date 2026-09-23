@@ -34,7 +34,7 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
 
         let payload = Data(#"{"cln_ok":true,"degraded":false,"reason":null,"ts":1}"#.utf8)
         let intercepted = manager.consumeServerStatusMessage(
-            topic: SphinxrsHealth.serverStatusTopic(),
+            topic: serverStatusTopic(),
             payload: payload
         )
 
@@ -43,16 +43,16 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
     }
 
     func test_substringTopic_isNotIntercepted() {
-        let substring = "prefix/\(SphinxrsHealth.serverStatusTopic())/suffix"
+        let substring = "prefix/\(serverStatusTopic())/suffix"
         XCTAssertFalse(manager.shouldInterceptServerStatus(topic: substring))
         XCTAssertFalse(
             manager.shouldInterceptServerStatus(
-                topic: "not_\(SphinxrsHealth.serverStatusTopic())"
+                topic: "not_\(serverStatusTopic())"
             )
         )
         XCTAssertTrue(
             manager.shouldInterceptServerStatus(
-                topic: SphinxrsHealth.serverStatusTopic()
+                topic: serverStatusTopic()
             )
         )
 
@@ -88,7 +88,7 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
         let healthy = Data(#"{"cln_ok":true,"degraded":false,"reason":null,"ts":1001000}"#.utf8)
         manager.applyServerStatusPayload(healthy)
         XCTAssertEqual(manager.currentServerHealth, .ok)
-        XCTAssertNil(SphinxrsHealth.localizedBannerCopy(for: .ok))
+        XCTAssertNil(ServerHealthCopy.localizedBannerCopy(for: .ok))
     }
 
     func test_invalidPayload_mapsToUnknown() {
@@ -135,27 +135,27 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
 
     func test_mappedErrorCopy_forKnownAndUnknownCodes() {
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: "CLN_UNAVAILABLE"),
+            parseMixerErrorCode(raw: "CLN_UNAVAILABLE"),
             .clnUnavailable
         )
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: #"{"code":"CLN_TIMEOUT"}"#),
+            parseMixerErrorCode(raw: #"{"code":"CLN_TIMEOUT"}"#),
             .clnTimeout
         )
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: "INSUFFICIENT_BALANCE"),
+            parseMixerErrorCode(raw: "INSUFFICIENT_BALANCE"),
             .insufficientBalance
         )
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: #"{"code":"INSUFFICIENT_BALANCE"}"#),
+            parseMixerErrorCode(raw: #"{"code":"INSUFFICIENT_BALANCE"}"#),
             .insufficientBalance
         )
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: "SOMETHING_ELSE"),
+            parseMixerErrorCode(raw: "SOMETHING_ELSE"),
             .unknown
         )
         XCTAssertEqual(
-            SphinxrsHealth.parseMixerErrorCode(raw: ""),
+            parseMixerErrorCode(raw: ""),
             .unknown
         )
 
@@ -182,7 +182,7 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
     }
 
     func test_parseServerStatus_happyAndDegraded() throws {
-        let ok = try SphinxrsHealth.parseServerStatus(
+        let ok = try parseServerStatus(
             payload: #"{"cln_ok":true,"degraded":false,"reason":null,"ts":42}"#
         )
         XCTAssertTrue(ok.clnOk)
@@ -190,7 +190,7 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
         XCTAssertNil(ok.reason)
         XCTAssertEqual(ok.ts, 42)
 
-        let degraded = try SphinxrsHealth.parseServerStatus(
+        let degraded = try parseServerStatus(
             payload: #"{"cln_ok":false,"degraded":true,"reason":"cln down","ts":99}"#
         )
         XCTAssertFalse(degraded.clnOk)
@@ -200,13 +200,13 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
 
     func test_bannerCopy_neverRendersReason() {
         XCTAssertEqual(
-            SphinxrsHealth.localizedBannerCopy(for: .degraded),
+            ServerHealthCopy.localizedBannerCopy(for: .degraded),
             "server.health.banner.degraded".localized
         )
         XCTAssertEqual(
-            SphinxrsHealth.localizedBannerCopy(for: .unknown),
+            ServerHealthCopy.localizedBannerCopy(for: .unknown),
             "server.health.banner.unknown".localized
         )
-        XCTAssertNil(SphinxrsHealth.localizedBannerCopy(for: .ok))
+        XCTAssertNil(ServerHealthCopy.localizedBannerCopy(for: .ok))
     }
 }
