@@ -418,7 +418,7 @@ extension SphinxOnionManager {
     
     func handleError(error: String?) {
         if let error = error {
-            let mappedCode = SphinxrsHealth.parseMixerErrorCode(raw: error)
+            let mappedCode = parseMixerErrorCode(raw: error)
             if mappedCode != .unknown {
                 // Known mixer code: keep structured mapping only; never surface raw error text.
                 return
@@ -544,7 +544,7 @@ extension SphinxOnionManager {
                     } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
                         if let code = sentStatus.code, !code.isEmpty {
-                            let mapped = SphinxrsHealth.localizedMessage(forCode: code)
+                            let mapped = ServerHealthPresentation.localizedMessage(forCode: code)
                             cachedMessage.errorMessage = mapped
                             DispatchQueue.main.async {
                                 AlertHelper.showAlert(

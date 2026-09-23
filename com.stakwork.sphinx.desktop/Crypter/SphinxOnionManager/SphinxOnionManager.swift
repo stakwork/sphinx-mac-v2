@@ -107,7 +107,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     /// Test hook: override local clock used for health evaluation.
     var serverHealthNowMsOverride: UInt64? = nil
     /// Test hook: staleness timer interval (defaults to mixer heartbeat interval).
-    var serverHealthStalenessInterval: TimeInterval = TimeInterval(SphinxrsHealth.defaultIntervalMs) / 1000.0
+    var serverHealthStalenessInterval: TimeInterval = TimeInterval(ServerHealthPresentation.defaultIntervalMs) / 1000.0
     /// Test hook invoked immediately before onion `handle()` — not for the status topic.
     var onOnionHandleInvoked: ((String) -> Void)? = nil
     

@@ -52,7 +52,7 @@ final class ServerHealthBannerView: NSView {
     }
 
     func apply(health: ServerHealth) {
-        if let copy = SphinxrsHealth.localizedBannerCopy(for: health) {
+        if let copy = ServerHealthPresentation.localizedBannerCopy(for: health) {
             messageLabel.stringValue = copy
             isHidden = false
         } else {
