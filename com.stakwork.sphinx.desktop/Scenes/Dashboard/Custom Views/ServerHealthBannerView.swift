@@ -13,6 +13,11 @@ final class ServerHealthBannerView: NSView {
 
     static let kHeight: CGFloat = 48
 
+    /// Tracked so `viewDidChangeEffectiveAppearance()` (dark/light mode
+    /// switch) can reapply the color for the currently-shown state, instead
+    /// of always resetting to orange.
+    private var currentHealth: ServerHealth = .unknown
+
     private let messageLabel: NSTextField = {
         let label = NSTextField(wrappingLabelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -44,7 +49,7 @@ final class ServerHealthBannerView: NSView {
     private func setupViews() {
         translatesAutoresizingMaskIntoConstraints = false
         wantsLayer = true
-        layer?.backgroundColor = NSColor.Sphinx.SphinxOrange.cgColor
+        layer?.backgroundColor = Self.backgroundColor(for: currentHealth).cgColor
         isHidden = true
 
         addSubview(messageLabel)
@@ -68,6 +73,8 @@ final class ServerHealthBannerView: NSView {
             isHidden = true
             return
         }
+        currentHealth = health
+        layer?.backgroundColor = Self.backgroundColor(for: health).cgColor
         messageLabel.stringValue = copy
         isHidden = false
     }
@@ -78,6 +85,18 @@ final class ServerHealthBannerView: NSView {
 
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
-        layer?.backgroundColor = NSColor.Sphinx.SphinxOrange.cgColor
+        layer?.backgroundColor = Self.backgroundColor(for: currentHealth).cgColor
+    }
+
+    /// `.degraded` (node reachable but unhealthy) gets the red treatment;
+    /// `.unknown` (can't tell) keeps the original orange. `.ok` never
+    /// reaches here — the banner is hidden for that state.
+    private static func backgroundColor(for health: ServerHealth) -> NSColor {
+        switch health {
+        case .degraded:
+            return NSColor.Sphinx.PrimaryRed
+        case .unknown, .ok:
+            return NSColor.Sphinx.SphinxOrange
+        }
     }
 }
