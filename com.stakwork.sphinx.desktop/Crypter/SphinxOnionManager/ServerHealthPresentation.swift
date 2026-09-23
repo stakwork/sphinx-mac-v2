@@ -13,6 +13,8 @@ enum ServerHealthPresentation {
     static let defaultIntervalMs: UInt64 = 30_000
     /// Missed-interval threshold N = 3 (~90s) → unknown.
     static let defaultMaxMissed: UInt32 = 3
+    /// Hold the opening unknown banner until the first status, or this long.
+    static let launchGraceMs: UInt64 = 15_000
 
     /// Localized client copy for a mixer `code`. Missing code → generic fallback.
     /// Never returns raw mixer `reason` / JSON, and never echoes an unrecognized code.
@@ -32,6 +34,34 @@ enum ServerHealthPresentation {
             return "mixer.error.insufficient.balance".localized
         case .unknown:
             return "mixer.error.unknown".localized
+        }
+    }
+
+    /// Visibility gate. Does not change how health is evaluated.
+    /// Unknown with no status yet stays hidden until tracking has been running
+    /// for `launchGraceMs`. Degraded, and unknown after any status, show at once.
+    static func shouldShowBanner(
+        health: ServerHealth,
+        hasReceivedServerStatus: Bool,
+        trackingStartedAtMs: UInt64?,
+        nowMs: UInt64
+    ) -> Bool {
+        switch health {
+        case .ok:
+            return false
+        case .degraded:
+            return true
+        case .unknown:
+            if hasReceivedServerStatus {
+                return true
+            }
+            guard let startedAt = trackingStartedAtMs else {
+                return false
+            }
+            guard nowMs >= startedAt else {
+                return false
+            }
+            return nowMs - startedAt >= launchGraceMs
         }
     }
 

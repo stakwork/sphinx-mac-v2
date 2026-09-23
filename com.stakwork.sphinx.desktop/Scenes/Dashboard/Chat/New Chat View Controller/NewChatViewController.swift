@@ -501,7 +501,10 @@ class NewChatViewController: DashboardSplittedViewController {
     }
     
     func resizeSubviews(frame: NSRect) {
-        if abs(frame.width - view.frame.width) < 3 {
+        // Compare the full frame, not just width — a height/origin-only
+        // change (e.g. the server-health banner pushing content down) must
+        // still update the frame. Exact-equality still skips true no-ops.
+        if frame == view.frame {
             return
         }
         view.frame = frame

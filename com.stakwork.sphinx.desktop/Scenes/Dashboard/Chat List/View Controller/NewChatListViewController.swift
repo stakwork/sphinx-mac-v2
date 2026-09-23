@@ -70,12 +70,32 @@ class NewChatListViewController: NSViewController {
         updateSnapshot()
     }
 
+    private var lastKnownBoundsSize: NSSize = .zero
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         loadChatsList()
     }
-    
+
+    /// The container this VC's view sits in (`chatListVCContainer`) is
+    /// resized manually — not via Auto Layout — as part of
+    /// `DashboardViewController`'s resize cascade (window resize, divider
+    /// drag, and the server-health banner pushing content down/up).
+    /// `viewDidLayout()` fires reliably whenever that happens, regardless of
+    /// what triggered it, so invalidate the flow layout here rather than
+    /// depending on each caller to remember to do it — a stale layout was
+    /// leaving the collection view's content size/scroll position out of
+    /// sync with its actual bounds (visible as a gap at the top of the list).
+    override func viewDidLayout() {
+        super.viewDidLayout()
+
+        guard view.bounds.size != lastKnownBoundsSize else { return }
+        lastKnownBoundsSize = view.bounds.size
+
+        chatsCollectionView.collectionViewLayout?.invalidateLayout()
+    }
+
     func loadChatsList() {
         registerViews()
         configureCollectionView()

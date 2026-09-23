@@ -11,10 +11,15 @@ import Cocoa
 @MainActor
 final class ServerHealthBannerView: NSView {
 
-    static let kHeight: CGFloat = 32
+    static let kHeight: CGFloat = 48
+
+    /// Tracked so `viewDidChangeEffectiveAppearance()` (dark/light mode
+    /// switch) can reapply the color for the currently-shown state, instead
+    /// of always resetting to orange.
+    private var currentHealth: ServerHealth = .unknown
 
     private let messageLabel: NSTextField = {
-        let label = NSTextField(labelWithString: "")
+        let label = NSTextField(wrappingLabelWithString: "")
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = NSFont(name: "Roboto-Medium", size: 12) ?? NSFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .white
@@ -23,7 +28,11 @@ final class ServerHealthBannerView: NSView {
         label.isSelectable = false
         label.isBordered = false
         label.drawsBackground = false
-        label.lineBreakMode = .byTruncatingTail
+        label.usesSingleLineMode = false
+        label.maximumNumberOfLines = 2
+        label.lineBreakMode = .byWordWrapping
+        label.cell?.wraps = true
+        label.cell?.truncatesLastVisibleLine = true
         return label
     }()
 
@@ -40,24 +49,34 @@ final class ServerHealthBannerView: NSView {
     private func setupViews() {
         translatesAutoresizingMaskIntoConstraints = false
         wantsLayer = true
-        layer?.backgroundColor = NSColor.Sphinx.SphinxOrange.cgColor
+        layer?.backgroundColor = Self.backgroundColor(for: currentHealth).cgColor
         isHidden = true
 
         addSubview(messageLabel)
         NSLayoutConstraint.activate([
             messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
-            messageLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+            // Center vertically instead of pinning both top and bottom —
+            // NSTextField (unlike UILabel) has no vertical-alignment property,
+            // so stretching its frame to fill the banner's height left the
+            // text top-aligned. `>=`/`<=` keep a minimum 6pt margin as a
+            // safety net if the text wraps to its max 2 lines.
+            messageLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            messageLabel.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: 6),
+            messageLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -6)
         ])
     }
 
     func apply(health: ServerHealth) {
-        if let copy = ServerHealthPresentation.localizedBannerCopy(for: health) {
-            messageLabel.stringValue = copy
-            isHidden = false
-        } else {
+        guard SphinxOnionManager.sharedInstance.isServerHealthBannerVisible,
+              let copy = ServerHealthPresentation.localizedBannerCopy(for: health) else {
             isHidden = true
+            return
         }
+        currentHealth = health
+        layer?.backgroundColor = Self.backgroundColor(for: health).cgColor
+        messageLabel.stringValue = copy
+        isHidden = false
     }
 
     override var intrinsicContentSize: NSSize {
@@ -66,6 +85,18 @@ final class ServerHealthBannerView: NSView {
 
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
-        layer?.backgroundColor = NSColor.Sphinx.SphinxOrange.cgColor
+        layer?.backgroundColor = Self.backgroundColor(for: currentHealth).cgColor
+    }
+
+    /// `.degraded` (node reachable but unhealthy) gets the red treatment;
+    /// `.unknown` (can't tell) keeps the original orange. `.ok` never
+    /// reaches here — the banner is hidden for that state.
+    private static func backgroundColor(for health: ServerHealth) -> NSColor {
+        switch health {
+        case .degraded:
+            return NSColor.Sphinx.PrimaryRed
+        case .unknown, .ok:
+            return NSColor.Sphinx.SphinxOrange
+        }
     }
 }

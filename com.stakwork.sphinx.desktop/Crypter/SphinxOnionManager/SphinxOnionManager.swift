@@ -104,6 +104,12 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var lastServerStatusSeenMs: UInt64 = 0
     var currentServerHealth: ServerHealth = .unknown
     var serverHealthStalenessTimer: Timer? = nil
+    /// One-shot that reveals a still-unknown banner when launch grace ends.
+    var serverHealthLaunchGraceTimer: Timer? = nil
+    /// Optional: nil means tracking has not started. Do not use 0 (epoch looks expired).
+    var serverHealthTrackingStartedAtMs: UInt64? = nil
+    /// Sticky for the current tracking session. Set on any consumed status, including parse failure.
+    var hasReceivedServerStatus: Bool = false
     /// Test hook: override local clock used for health evaluation.
     var serverHealthNowMsOverride: UInt64? = nil
     /// Test hook: staleness timer interval (defaults to mixer heartbeat interval).
