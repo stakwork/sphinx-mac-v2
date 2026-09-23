@@ -51,8 +51,14 @@ final class ServerHealthBannerView: NSView {
         NSLayoutConstraint.activate([
             messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
-            messageLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6)
+            // Center vertically instead of pinning both top and bottom —
+            // NSTextField (unlike UILabel) has no vertical-alignment property,
+            // so stretching its frame to fill the banner's height left the
+            // text top-aligned. `>=`/`<=` keep a minimum 6pt margin as a
+            // safety net if the text wraps to its max 2 lines.
+            messageLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            messageLabel.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: 6),
+            messageLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -6)
         ])
     }
 

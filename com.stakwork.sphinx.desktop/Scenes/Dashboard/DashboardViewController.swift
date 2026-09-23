@@ -43,6 +43,10 @@ class DashboardViewController: NSViewController {
     
     var mediaFullScreenView: MediaFullScreenView? = nil
     private var serverHealthBannerView: ServerHealthBannerView?
+    /// The storyboard-defined constraint pinning `dashboardSplitView.top` to
+    /// `view.top`. Its constant is animated to reserve space for the banner
+    /// instead of letting the banner float over the split view's content.
+    private var dashboardContentTopConstraint: NSLayoutConstraint?
     
     var chatListViewModel: ChatListViewModel! = nil
     var deeplinkData: DeeplinkData? = nil
@@ -414,18 +418,60 @@ class DashboardViewController: NSViewController {
             banner.heightAnchor.constraint(equalToConstant: ServerHealthBannerView.kHeight)
         ])
         serverHealthBannerView = banner
+
+        // `dashboardSplitView.top == view.top` is defined in the storyboard.
+        // Reuse that same constraint (rather than adding a competing one) so
+        // its constant can be animated to push the split view down below the
+        // banner instead of the banner floating over it.
+        dashboardContentTopConstraint = view.constraints.first {
+            ($0.firstItem as? NSView) === dashboardSplitView && $0.firstAttribute == .top
+        }
+
         updateServerHealthBanner()
     }
 
     func updateServerHealthBanner() {
         guard let banner = serverHealthBannerView else { return }
         let manager = SphinxOnionManager.sharedInstance
-        guard manager.isServerHealthBannerVisible else {
+
+        let isVisible: Bool
+        if !manager.isServerHealthBannerVisible {
             banner.isHidden = true
-            return
+            isVisible = false
+        } else {
+            banner.apply(health: manager.currentServerHealth)
+            banner.superview?.addSubview(banner, positioned: .above, relativeTo: nil)
+            isVisible = !banner.isHidden
         }
-        banner.apply(health: manager.currentServerHealth)
-        banner.superview?.addSubview(banner, positioned: .above, relativeTo: nil)
+
+        updateDashboardContentInset(visible: isVisible)
+    }
+
+    /// Pushes `dashboardSplitView` down below the banner while it's visible,
+    /// and back up to the window's top edge once it's dismissed. Applied
+    /// instantly (no animation) — the panels nested inside the split view
+    /// sync their frames manually rather than via Auto Layout (see
+    /// `resizeSubviews()`), and animating that mixed manual/Auto-Layout
+    /// cascade in step produced visibly inconsistent motion.
+    private func updateDashboardContentInset(visible: Bool) {
+        guard let constraint = dashboardContentTopConstraint else { return }
+        let target: CGFloat = visible ? ServerHealthBannerView.kHeight : 0
+        guard constraint.constant != target else { return }
+
+        constraint.constant = target
+        view.layoutSubtreeIfNeeded()
+
+        // `dashboardSplitView`'s own frame is now Auto-Layout-final, but the
+        // chat/feed/graph/workspace/detail panels nested inside it sync
+        // their frames manually (not via Auto Layout) through
+        // `resizeSubviews()` — normally only triggered by the split view's
+        // own resize notification on a window/divider resize. Drive it
+        // explicitly here instead of relying on that notification's
+        // uncertain timing, which was leaving the chat panel (whose own
+        // resize guard also only checked width, fixed above) stuck under
+        // the banner, and the left list's collection view reflowing against
+        // stale/mistimed bounds.
+        resizeSubviews()
     }
 
     func addFloatingPlayer() {
@@ -856,8 +902,15 @@ extension DashboardViewController : NSSplitViewDelegate {
         dashboardDetailViewController?.resizeSubviews(frame: rightDetailSplittedView.bounds)
         
         listViewController?.menuListView.menuDataSource?.updateFrame()
-        
+
         listViewController?.view.frame = leftSplittedView.bounds
+        // Settle bounds before ChatListViewController's own Auto-Layout
+        // subtree (chatListVCContainer, pinned below the tabs bar) reads
+        // them — same pattern as DashboardDetailViewController.resizeSubviews.
+        // Without this, chatListVCContainer could still reflect its old,
+        // shorter height for one more layout pass, leaving a gap above the
+        // embedded contacts/tribes list.
+        listViewController?.view.layoutSubtreeIfNeeded()
         dashboardDetailViewController?.updateCurrentVCFrame()
 
         // During panel open/close (not live resize), bypass the debounce in updateFrame()
