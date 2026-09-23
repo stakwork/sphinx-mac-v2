@@ -42,6 +42,7 @@ class DashboardViewController: NSViewController {
     var dashboardDetailViewController: DashboardDetailViewController?
     
     var mediaFullScreenView: MediaFullScreenView? = nil
+    private var serverHealthBannerView: ServerHealthBannerView?
     
     var chatListViewModel: ChatListViewModel! = nil
     var deeplinkData: DeeplinkData? = nil
@@ -114,6 +115,7 @@ class DashboardViewController: NSViewController {
         setupObservers()
         addEscapeMonitor()
         addFloatingPlayer()
+        addServerHealthBanner()
     }
     
     override func viewWillAppear() {
@@ -340,6 +342,16 @@ class DashboardViewController: NSViewController {
         }
         
         NotificationCenter.default.addObserver(
+            forName: .onServerHealthChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateServerHealthBanner()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification,
             object: nil,
             queue: OperationQueue.main
@@ -384,6 +396,7 @@ class DashboardViewController: NSViewController {
         NotificationCenter.default.removeObserver(self, name: .onShareContentDeeplink, object: nil)
         NotificationCenter.default.removeObserver(self, name: .onShareContactDeeplink, object: nil)
         NotificationCenter.default.removeObserver(self, name: .shouldCloseRightPanel, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .onServerHealthChanged, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSWindow.didResizeNotification, object: nil)
         
         if let escapeMonitor = escapeMonitor {
@@ -391,6 +404,25 @@ class DashboardViewController: NSViewController {
         }
     }
     
+    func addServerHealthBanner() {
+        let banner = ServerHealthBannerView()
+        view.addSubview(banner)
+        NSLayoutConstraint.activate([
+            banner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            banner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            banner.topAnchor.constraint(equalTo: view.topAnchor),
+            banner.heightAnchor.constraint(equalToConstant: ServerHealthBannerView.kHeight)
+        ])
+        serverHealthBannerView = banner
+        updateServerHealthBanner()
+    }
+
+    func updateServerHealthBanner() {
+        guard let banner = serverHealthBannerView else { return }
+        banner.apply(health: SphinxOnionManager.sharedInstance.currentServerHealth)
+        banner.superview?.addSubview(banner, positioned: .above, relativeTo: nil)
+    }
+
     func addFloatingPlayer() {
         let floatingView = FloatingAudioPlayer(frame: NSRect(x: 15, y: 10, width: 320, height: 192))
         floatingView.wantsLayer = true

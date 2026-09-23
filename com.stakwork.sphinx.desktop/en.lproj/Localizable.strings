@@ -10,6 +10,12 @@
 "generic.success.title" = "Success";
 "generic.error.title" = "Error";
 "generic.error.message" = "There was an error. Please try again later.";
+"server.health.banner.degraded" = "Lightning node is degraded. Messages and payments may fail.";
+"server.health.banner.unknown" = "Node status unknown. Messages and payments may fail.";
+"mixer.error.cln.unavailable" = "Lightning node unavailable. Please try again later.";
+"mixer.error.cln.timeout" = "Request timed out. Please try again.";
+"mixer.error.insufficient.balance" = "Insufficient balance.";
+"mixer.error.unknown" = "There was an error. Please try again later.";
 "generic.message.error" = "The message could not be sent. Please try again later";
 "generic.attachment.error" = "There was an problem uploading the file. Please try again later.";
 "boost.error.title" = "Boost error";

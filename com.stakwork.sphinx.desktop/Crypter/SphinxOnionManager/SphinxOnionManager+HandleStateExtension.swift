@@ -418,6 +418,11 @@ extension SphinxOnionManager {
     
     func handleError(error: String?) {
         if let error = error {
+            let mappedCode = SphinxrsHealth.parseMixerErrorCode(raw: error)
+            if mappedCode != .unknown {
+                // Known mixer code: keep structured mapping only; never surface raw error text.
+                return
+            }
             print("Run return object error: \(error)")
             
             if error.contains("async pay not found") {
@@ -538,6 +543,16 @@ extension SphinxOnionManager {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.received.rawValue
                     } else if (sentStatus.status == SphinxOnionManager.kFailedStatus) {
                         cachedMessage.status = TransactionMessage.TransactionMessageStatus.failed.rawValue
+                        if let code = sentStatus.code, !code.isEmpty {
+                            let mapped = SphinxrsHealth.localizedMessage(forCode: code)
+                            cachedMessage.errorMessage = mapped
+                            DispatchQueue.main.async {
+                                AlertHelper.showAlert(
+                                    title: "generic.error.title".localized,
+                                    message: mapped
+                                )
+                            }
+                        }
                     }
                     
                     //                    if let uuid = cachedMessage.uuid {
@@ -550,7 +565,8 @@ extension SphinxOnionManager {
                 } else {
                     self.onPaymentStatusReceivedFor(
                         tag: tag,
-                        status: sentStatus.status ?? SphinxOnionManager.kFailedStatus
+                        status: sentStatus.status ?? SphinxOnionManager.kFailedStatus,
+                        code: sentStatus.code
                     )
                 }
                 context.saveContext()
@@ -639,6 +655,8 @@ extension SphinxOnionManager {
                 (topic, CocoaMQTTQoS.qos0)
             ])
         }
+        subscribeToServerStatusTopic()
+        startServerHealthStalenessTimer()
     }
     
     func deleteContactFromState(pubkey: String) {

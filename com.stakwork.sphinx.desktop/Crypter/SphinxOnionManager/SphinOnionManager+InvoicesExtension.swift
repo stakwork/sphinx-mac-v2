@@ -308,7 +308,8 @@ extension SphinxOnionManager{
     
     func onPaymentStatusReceivedFor(
         tag: String,
-        status: String
+        status: String,
+        code: String? = nil
     ) {
         DispatchQueue.main.async {
             if let timer = self.paymentTimeoutTimers[tag] {
@@ -316,6 +317,11 @@ extension SphinxOnionManager{
                     AlertHelper.showAlert(
                         title: "Success",
                         message: "Your payment has been successfully processed"
+                    )
+                } else if status == SphinxOnionManager.kFailedStatus, let code, !code.isEmpty {
+                    AlertHelper.showAlert(
+                        title: "generic.error.title".localized,
+                        message: SphinxrsHealth.localizedMessage(forCode: code)
                     )
                 } else if let userInfo = timer.userInfo as? [String: String], let invoice = userInfo["invoice"] {
                     self.payInvoiceFromLSP(invoice: invoice)

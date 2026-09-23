@@ -10,6 +10,12 @@
 "generic.success.title"  = "Tagumpay";
 "generic.error.title"  = "Mali";
 "generic.error.message"  = "May mali. Paki ulit sa ilang saglit.";
+"server.health.banner.degraded" = "Degraded ang Lightning node. Maaaring mabigo ang mga mensahe at bayad.";
+"server.health.banner.unknown" = "Hindi alam ang status ng node. Maaaring mabigo ang mga mensahe at bayad.";
+"mixer.error.cln.unavailable" = "Hindi available ang Lightning node. Subukan ulit mamaya.";
+"mixer.error.cln.timeout" = "Nag-timeout ang request. Subukan ulit.";
+"mixer.error.insufficient.balance" = "Hindi sapat ang balanse.";
+"mixer.error.unknown" = "May mali. Paki ulit sa ilang saglit.";
 "generic.message.error" = "Hindi maipadala ang mensahe dahil sa isang error sa pag-encrypt.";
 "generic.attachment.error" = "There was an problem uploading the file. Please try again later.";
 "boost.error.title" = "Boost error";
