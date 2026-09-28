@@ -126,7 +126,15 @@ struct RoomContextView: View {
                                     )
                                     appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
                                     await roomCtx.disconnect()
-                                    self.onCallEnded?()
+                                    // Route through `roomCtx.fireCallEndedIfNeeded()` rather
+                                    // than calling `self.onCallEnded?()` directly. `disconnect()`
+                                    // drives the room to `.disconnected`, which fires `onCallEnded`
+                                    // via the `RoomDelegate` path (path A) *through this same
+                                    // gate* — so whichever of path A / path B reaches the gate
+                                    // first wins and the other becomes a silent no-op, ensuring
+                                    // `onCallEnded` (and thus this view's callback) fires exactly
+                                    // once per call session.
+                                    roomCtx.fireCallEndedIfNeeded()
                                 }
                             }
                         } catch {

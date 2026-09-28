@@ -38,6 +38,13 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     private var onConnected: OnConnected? = nil
     private var onCallEnded: OnCallEnded? = nil
 
+    /// Guards `onCallEnded` so it fires at most once per call session, regardless
+    /// of whether it is triggered by the `RoomDelegate` `.disconnected` state
+    /// transition (path A) or the explicit call in `RoomContextView`'s route
+    /// monitor closure (path B). Reset alongside `teardownStarted` so a reused
+    /// `RoomContext` instance starts clean for its next call session.
+    private var callEndedFired = false
+
     private let store: ValueStore<Preferences>
 
 
@@ -205,6 +212,22 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         _connectTask?.cancel()
     }
 
+    /// Invokes `onCallEnded` at most once per call session. Safe to call from
+    /// either teardown path:
+    ///   • Path A — the `RoomDelegate` `.disconnected` state transition.
+    ///   • Path B — `RoomContextView`'s explicit call after a
+    ///     route-monitor-triggered disconnect (belt-and-suspenders fallback for
+    ///     the case where `disconnect()` is called when the room is already in
+    ///     a non-connected state and no new `.disconnected` transition fires).
+    /// Whichever path reaches this first "wins"; any subsequent call is a
+    /// silent no-op.
+    @MainActor
+    func fireCallEndedIfNeeded() {
+        guard !callEndedFired else { return }
+        callEndedFired = true
+        onCallEnded?()
+    }
+
     @MainActor
     func connect(
         entry: ConnectionHistory? = nil,
@@ -214,6 +237,9 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         
         self.onConnected = onConnected
         self.onCallEnded = onCallEnded
+        // Reset the idempotency flag so a reused `RoomContext` instance starts
+        // clean for this new call session.
+        self.callEndedFired = false
         
         if let entry {
             url = entry.url
@@ -426,9 +452,25 @@ extension RoomContext: RoomDelegate {
     func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
         print("Did update connectionState \(oldValue) -> \(connectionState)")
 
+        // `RoomDelegate` is a plain (non-`@MainActor`) protocol requirement, so
+        // this method itself cannot be annotated `@MainActor` directly without
+        // breaking conformance. Instead, guarantee main-actor execution for the
+        // UI-touching `onCallEnded` callback by hopping explicitly here. This is
+        // the primary teardown path ("path A"); `fireCallEndedIfNeeded()` gates
+        // against the redundant explicit call in `RoomContextView` ("path B") so
+        // `onCallEnded` fires at most once per call session.
         if case .disconnected = connectionState {
-            onCallEnded?()
+            Task { @MainActor [weak self] in
+                self?.fireCallEndedIfNeeded()
+            }
         }
+        
+        // NOTE: `fireCallEndedIfNeeded()` (defined below) is the single choke
+        // point for `onCallEnded`. `RoomContextView`'s route-monitor closure
+        // ("path B") also calls it — via `roomCtx.fireCallEndedIfNeeded()` —
+        // instead of invoking its own callback directly, so `callEndedFired`
+        // actually dedupes across both paths rather than only within this
+        // delegate method.
         
         if case .connected = connectionState, case .reconnecting = oldValue {
             // skip onConnected on reconnect — mic is already published

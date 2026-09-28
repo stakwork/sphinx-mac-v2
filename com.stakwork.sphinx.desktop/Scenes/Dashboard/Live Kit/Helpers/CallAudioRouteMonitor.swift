@@ -52,6 +52,20 @@ public protocol AudioContextInterface: AnyObject {
     func reloadAudioDevices()
 }
 
+// MARK: - CallAudioRouteMonitoring
+
+/// Narrow interface over `CallAudioRouteMonitor` consumed by `AppContext`.
+/// Provides an injection seam so `AppContextTests` can supply a mock/spy that
+/// counts `handleDeviceUpdate()` invocations to validate the Task-level
+/// debounce in `AppContext.onDeviceUpdate` without touching real CoreAudio
+/// hardware or the monitor's own (already independently-tested) internals.
+@MainActor
+public protocol CallAudioRouteMonitoring: AnyObject {
+    var appContext: (any AudioContextInterface)? { get set }
+    var onNoDeviceAvailable: (() -> Void)? { get set }
+    func handleDeviceUpdate()
+}
+
 // MARK: - CallAudioRouteMonitor
 
 /// Monitors audio device availability during an active LiveKit call.
@@ -68,7 +82,7 @@ public protocol AudioContextInterface: AnyObject {
 ///   reconfiguration pass — the second update is deferred and run exactly once
 ///   after the in-flight pass completes.
 @MainActor
-final class CallAudioRouteMonitor {
+final class CallAudioRouteMonitor: CallAudioRouteMonitoring {
 
     // MARK: - Dependencies (injection seam)
 
@@ -96,10 +110,34 @@ final class CallAudioRouteMonitor {
     /// After the current pass finishes, exactly one follow-up pass is run.
     private var pendingReconfiguration = false
 
+    /// How long to wait, after no fallback output device is found, before
+    /// re-verifying and (if still absent) invoking `onNoDeviceAvailable`.
+    /// Bluetooth A2DP→SCO/HFP profile negotiation can leave the device briefly
+    /// absent from `outputDevices` (up to ~500ms) even though it is still
+    /// connected — this window tolerates that gap instead of ending the call.
+    /// Defaults to 300ms in production; tests can pass `.zero` to avoid async
+    /// overhead.
+    private let noDeviceVerifyDelay: Duration
+
+    /// Pending re-verification task scheduled when no output fallback is found.
+    /// Cancelled/rescheduled on every subsequent device-update pass so only the
+    /// most recent "no device" observation is ever acted upon.
+    /// `nonisolated(unsafe)` because it must also be cancellable from `deinit`,
+    /// which is `nonisolated` on this `@MainActor` type in Swift 6.
+    nonisolated(unsafe) private var noDeviceVerifyTask: Task<Void, Never>?
+
     // MARK: - Init
 
-    init(audioManagerProvider: any AudioManagerInterface = AudioManager.shared) {
+    init(
+        audioManagerProvider: any AudioManagerInterface = AudioManager.shared,
+        noDeviceVerifyDelay: Duration = .milliseconds(300)
+    ) {
         self.audioManagerProvider = audioManagerProvider
+        self.noDeviceVerifyDelay = noDeviceVerifyDelay
+    }
+
+    deinit {
+        noDeviceVerifyTask?.cancel()
     }
 
     // MARK: - Public entry point
@@ -172,13 +210,39 @@ final class CallAudioRouteMonitor {
         )
 
         guard let fallback = resolveOutputFallback(audioManager) else {
+            // No fallback right now — but Bluetooth SCO profile negotiation can
+            // leave the device transiently absent from `outputDevices` for up to
+            // ~500ms even though it is still connected. Defer the decision and
+            // re-verify rather than ending the call immediately.
             AppLogger.shared.log(
-                level: .error,
-                message: "[CallAudioRouteMonitor] No output device available — ending call"
+                level: .warning,
+                message: "[CallAudioRouteMonitor] No output device available — deferring \(noDeviceVerifyDelay) to re-verify before ending call"
             )
-            onNoDeviceAvailable?()
+            noDeviceVerifyTask?.cancel()
+            noDeviceVerifyTask = Task { [weak self] in
+                try? await Task.sleep(for: self?.noDeviceVerifyDelay ?? .milliseconds(300))
+                guard let self, !Task.isCancelled else { return }
+                await MainActor.run {
+                    guard self.resolveOutputFallback(self.audioManagerProvider) == nil else {
+                        AppLogger.shared.log(
+                            level: .info,
+                            message: "[CallAudioRouteMonitor] Output device reappeared during re-verify window — not ending call"
+                        )
+                        return
+                    }
+                    AppLogger.shared.log(
+                        level: .error,
+                        message: "[CallAudioRouteMonitor] No output device available after re-verify — ending call"
+                    )
+                    self.onNoDeviceAvailable?()
+                }
+            }
             return
         }
+
+        // Device found — cancel any pending no-device verification.
+        noDeviceVerifyTask?.cancel()
+        noDeviceVerifyTask = nil
 
         AppLogger.shared.log(
             level: .info,

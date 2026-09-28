@@ -9,7 +9,9 @@
 //  1. Changed-but-present output device triggers exactly one coalesced reroute.
 //  2. A re-entrant handleDeviceUpdate() call is coalesced, not recursed.
 //  3. Removed output device with valid fallback → reroutes correctly.
-//  4. Removed output device with no fallback → onNoDeviceAvailable fires.
+//  4. Removed output device with no fallback → onNoDeviceAvailable fires after
+//     the (test-injected, near-zero) re-verify window — asserted via
+//     XCTestExpectation since the call is now deferred, not synchronous.
 //  5. Changed-but-present input device triggers a reroute.
 //  6. Removed input device with no fallback → no crash, no onNoDeviceAvailable.
 //  7. Devices already on the correct active route → no reroute performed.
@@ -148,8 +150,14 @@ final class CallAudioRouteMonitorTests: XCTestCase {
     }
 
     // MARK: - 3. Removed output device with no fallback → onNoDeviceAvailable
-
-    func test_removedOutputDevice_noFallback_firesOnNoDeviceAvailable() {
+    //
+    // `onNoDeviceAvailable` is now deferred behind a re-verify window (Change 2:
+    // tolerating transient Bluetooth SCO device-list absence) rather than firing
+    // synchronously. This test injects `noDeviceVerifyDelay: .zero` so the
+    // re-verify still runs asynchronously (avoiding real 300ms waits in CI) but
+    // settles almost immediately, and awaits an `XCTestExpectation` rather than
+    // asserting synchronously after `handleDeviceUpdate()` returns.
+    func test_removedOutputDevice_noFallback_firesOnNoDeviceAvailable() async {
         let mgr = MockAudioManager()
         mgr.outputDevices       = []    // Nothing available
         mgr.outputDevice        = makeDevice(id: "gone", name: "Gone")
@@ -161,14 +169,14 @@ final class CallAudioRouteMonitorTests: XCTestCase {
         ctx.outputDevice = makeDevice(id: "gone", name: "Gone")
         ctx.inputDevice  = builtInIn
 
-        var noDeviceFired = false
-        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr)
+        let expectation = XCTestExpectation(description: "onNoDeviceAvailable fires after re-verify window")
+        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr, noDeviceVerifyDelay: .zero)
         monitor.appContext = ctx
-        monitor.onNoDeviceAvailable = { noDeviceFired = true }
+        monitor.onNoDeviceAvailable = { expectation.fulfill() }
 
         monitor.handleDeviceUpdate()
 
-        XCTAssertTrue(noDeviceFired, "onNoDeviceAvailable must fire when no output device remains")
+        await fulfillment(of: [expectation], timeout: 0.4)
     }
 
     // MARK: - 4. Devices already on correct active route → no reroute
