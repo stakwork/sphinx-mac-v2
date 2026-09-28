@@ -445,18 +445,26 @@ extension RoomContext: RoomDelegate {
         print("Did update e2eeState = [\(String(describing: e2eeState))] for publication \(publication.sid)")
     }
 
-    @MainActor
+    // `RoomDelegate` is a nonisolated `Sendable` protocol, so this method must
+    // not be `@MainActor` — that made the whole conformance cross into
+    // main-actor-isolated code. Hop inside the body instead (same pattern as
+    // the sibling delegate methods below); `ConnectionState` is `Sendable`, so
+    // both state values cross the boundary safely.
     func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
         print("Did update connectionState \(oldValue) -> \(connectionState)")
 
-        if case .disconnected = connectionState {
-            fireCallEndedOnce()
-        }
-        
-        if case .connected = connectionState, case .reconnecting = oldValue {
-            // skip onConnected on reconnect — mic is already published
-        } else if case .connected = connectionState {
-            onConnected?()
+        Task.detached { @MainActor [weak self] in
+            guard let self else { return }
+
+            if case .disconnected = connectionState {
+                self.fireCallEndedOnce()
+            }
+
+            if case .connected = connectionState, case .reconnecting = oldValue {
+                // skip onConnected on reconnect — mic is already published
+            } else if case .connected = connectionState {
+                self.onConnected?()
+            }
         }
     }
 
