@@ -727,6 +727,7 @@
 		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
 		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */; };
+		APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPCT01100000001APPCT011 /* AppContextTests.swift */; };
 		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -1839,6 +1840,7 @@
 		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
 		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitorTests.swift; sourceTree = "<group>"; };
+		APPCT01100000001APPCT011 /* AppContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextTests.swift; sourceTree = "<group>"; };
 		CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentProcessingBarView.swift; sourceTree = "<group>"; };
 		CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDetailSelectionVC.swift; sourceTree = "<group>"; };
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
@@ -2356,6 +2358,7 @@
 				HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */,
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
+				APPCT01100000001APPCT011 /* AppContextTests.swift */,
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
 				TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */,
 				SOMSG0010000000001SOMSG01 /* SphinxOnionManagerSeedGenerationTests.swift */,
@@ -5313,6 +5316,7 @@
 				HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */,
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
+				APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */,
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
 				TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */,
 				SOMSG0020000000001SOMSG02 /* SphinxOnionManagerSeedGenerationTests.swift in Sources */,

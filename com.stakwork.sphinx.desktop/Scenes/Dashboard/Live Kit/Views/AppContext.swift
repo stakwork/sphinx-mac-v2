@@ -25,7 +25,29 @@ final class AppContext: ObservableObject {
 
     // Monitor that re-routes audio when the in-use device is removed or the active
     // route changes mid-call (e.g. AirPods stem-press triggers a CoreAudio reroute).
-    private let routeMonitor: CallAudioRouteMonitor
+    // Typed as the narrow `CallAudioRouteMonitoring` protocol so tests can inject a
+    // spy/mock and assert on `handleDeviceUpdate()` call counts without needing a
+    // full `CallAudioRouteMonitor` + `AudioManagerInterface` stack.
+    private let routeMonitor: any CallAudioRouteMonitoring
+
+    // Debounces the burst of CoreAudio `onDeviceUpdate` callbacks fired during a
+    // Bluetooth A2DP → SCO/HFP profile switch (5–15 callbacks within ~100–200ms).
+    // Each callback previously spawned its own `Task { @MainActor }` that
+    // independently called `handleDeviceUpdate()`; `CallAudioRouteMonitor`'s
+    // `isReconfiguring` guard only coalesces *synchronous* re-entrancy, so it could
+    // not stop multiple independently-queued Tasks from each reconfiguring the
+    // audio engine (and re-triggering LiveKit's "call ended" cue). Cancelling and
+    // rescheduling this Task handle on every callback collapses the whole burst
+    // into a single `handleDeviceUpdate()` pass ~150ms after the last callback.
+    //
+    // `nonisolated(unsafe)` is required because:
+    //  (a) `AppContext` is `@MainActor` but `deinit` is nonisolated in Swift 6, so
+    //      an actor-isolated stored property cannot be touched from `deinit`; and
+    //  (b) CoreAudio delivers `onDeviceUpdate` on a background thread, so the
+    //      cancel/reschedule below also happens off the main actor.
+    // The cancel + reschedule is a last-writer-wins operation on a Task handle,
+    // which is safe without additional locking. Mirrors `RoomContext.disconnecting`.
+    nonisolated(unsafe) private var deviceUpdateDebounceTask: Task<Void, Never>?
 
     @Published var videoViewVisible: Bool = true {
         didSet { store.value.videoViewVisible = videoViewVisible }
@@ -96,9 +118,10 @@ final class AppContext: ObservableObject {
     #endif
 
     public init(store: ValueStore<Preferences>,
-                audioManagerProvider: any AudioManagerInterface = AudioManager.shared) {
+                audioManagerProvider: any AudioManagerInterface = AudioManager.shared,
+                routeMonitorProvider: (any CallAudioRouteMonitoring)? = nil) {
         self.store = store
-        self.routeMonitor = CallAudioRouteMonitor(audioManagerProvider: audioManagerProvider)
+        self.routeMonitor = routeMonitorProvider ?? CallAudioRouteMonitor(audioManagerProvider: audioManagerProvider)
 
         videoViewVisible = store.value.videoViewVisible
         showInformationOverlay = store.value.showInformationOverlay
@@ -107,30 +130,22 @@ final class AppContext: ObservableObject {
         videoViewMirrored = store.value.videoViewMirrored
         connectionHistory = store.value.connectionHistory
 
-        AudioManager.shared.onDeviceUpdate = { [weak self] audioManager in
-            // Hop off the AVFAudio I/O-unit property-listener stack before any
-            // LiveKit device write. `handleDeviceUpdate` must never run
-            // synchronously inside this callback.
-            // Capture stable value IDs across the actor boundary (AudioDevice is
-            // a value type so this is safe; we re-look up the live objects on the
-            // main actor so the monitor always sees the freshest state).
-            let outputId = audioManager.outputDevice.deviceId
-            let inputId  = audioManager.inputDevice.deviceId
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                // Sync AppContext's published devices with what AudioManager reports
-                // *before* invoking the route monitor, so the monitor operates on
-                // up-to-date state.
-                if self.outputDevice.deviceId != outputId {
-                    self.outputDevice = AudioManager.shared.outputDevices.first(where: { $0.deviceId == outputId })
-                        ?? AudioManager.shared.defaultOutputDevice
-                }
-                if self.inputDevice.deviceId != inputId {
-                    self.inputDevice = AudioManager.shared.inputDevices.first(where: { $0.deviceId == inputId })
-                        ?? AudioManager.shared.defaultInputDevice
-                }
-                // Use AudioManager.shared directly rather than the closure parameter
-                // to avoid sending a non-Sendable value across the actor boundary.
+        AudioManager.shared.onDeviceUpdate = { [weak self] _ in
+            // Cancel-and-reschedule debounce: collapses the whole Bluetooth SCO
+            // callback burst into a single `handleDeviceUpdate()` pass, run
+            // ~150ms after the last callback in the burst.
+            //
+            // Intentionally does NOT pre-sync `self.outputDevice`/`self.inputDevice`
+            // to `AudioManager.shared`'s current values before calling
+            // `handleDeviceUpdate()`. Doing so makes `handleOutputChange` always
+            // observe `currentId == activeRouteId` (Case 1: no-op), silently
+            // bypassing Case 2 (AirPods controlled reroute) and Case 3
+            // (`onNoDeviceAvailable`). The route monitor reads live `AudioManager`
+            // state itself, so no pre-sync is needed here.
+            self?.deviceUpdateDebounceTask?.cancel()
+            self?.deviceUpdateDebounceTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(150))
+                guard let self, !Task.isCancelled else { return }
                 self.routeMonitor.handleDeviceUpdate()
             }
         }
@@ -145,6 +160,7 @@ final class AppContext: ObservableObject {
     }
     
     deinit {
+        deviceUpdateDebounceTask?.cancel()
         AudioManager.shared.onDeviceUpdate = nil
     }
     

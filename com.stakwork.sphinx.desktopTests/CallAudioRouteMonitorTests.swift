@@ -148,8 +148,15 @@ final class CallAudioRouteMonitorTests: XCTestCase {
     }
 
     // MARK: - 3. Removed output device with no fallback → onNoDeviceAvailable
+    //
+    // `onNoDeviceAvailable` is now deferred behind a re-verify window (Change 2:
+    // tolerates the brief device-list-absence gap during a Bluetooth A2DP → SCO/HFP
+    // profile switch). Passing `noDeviceVerifyDelay: .zero` collapses that window
+    // to (effectively) nothing for the test, while still exercising the deferred
+    // Task-based code path — a short `Task.sleep` after `handleDeviceUpdate()` lets
+    // it run to completion.
 
-    func test_removedOutputDevice_noFallback_firesOnNoDeviceAvailable() {
+    func test_removedOutputDevice_noFallback_firesOnNoDeviceAvailable() async {
         let mgr = MockAudioManager()
         mgr.outputDevices       = []    // Nothing available
         mgr.outputDevice        = makeDevice(id: "gone", name: "Gone")
@@ -162,13 +169,47 @@ final class CallAudioRouteMonitorTests: XCTestCase {
         ctx.inputDevice  = builtInIn
 
         var noDeviceFired = false
-        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr)
+        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr, noDeviceVerifyDelay: .zero)
         monitor.appContext = ctx
         monitor.onNoDeviceAvailable = { noDeviceFired = true }
 
         monitor.handleDeviceUpdate()
 
+        // Allow the deferred re-verify Task to run to completion.
+        try? await Task.sleep(for: .milliseconds(50))
+
         XCTAssertTrue(noDeviceFired, "onNoDeviceAvailable must fire when no output device remains")
+    }
+
+    /// Same scenario as above but exercising the production 300ms re-verify delay,
+    /// and confirming a device reappearing within the window suppresses the fire
+    /// (the Bluetooth profile-switch tolerance this change was built for).
+    func test_removedOutputDevice_noFallback_deviceReappearsWithinWindow_suppressesNoDeviceAvailable() async {
+        let mgr = MockAudioManager()
+        mgr.outputDevices       = []    // Nothing available yet (mid profile-switch)
+        mgr.outputDevice        = makeDevice(id: "gone", name: "Gone")
+        mgr.defaultOutputDevice = builtInOut
+        mgr.inputDevices        = [builtInIn]
+        mgr.inputDevice         = builtInIn
+
+        let ctx = MockAudioContext()
+        ctx.outputDevice = makeDevice(id: "gone", name: "Gone")
+        ctx.inputDevice  = builtInIn
+
+        var noDeviceFired = false
+        let monitor = CallAudioRouteMonitor(audioManagerProvider: mgr, noDeviceVerifyDelay: .milliseconds(100))
+        monitor.appContext = ctx
+        monitor.onNoDeviceAvailable = { noDeviceFired = true }
+
+        monitor.handleDeviceUpdate()
+
+        // Device reappears (Bluetooth SCO negotiation completes) before the
+        // re-verify window elapses.
+        mgr.outputDevices = [builtInOut]
+
+        try? await Task.sleep(for: .milliseconds(200))
+
+        XCTAssertFalse(noDeviceFired, "onNoDeviceAvailable must not fire if a device reappears within the re-verify window")
     }
 
     // MARK: - 4. Devices already on correct active route → no reroute
