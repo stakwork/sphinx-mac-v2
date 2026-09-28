@@ -38,6 +38,24 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
     private var onConnected: OnConnected? = nil
     private var onCallEnded: OnCallEnded? = nil
 
+    /// Ensures `onCallEnded` fires at most once per call session. Without this,
+    /// the route monitor's `onNoDeviceAvailable` path (which explicitly calls
+    /// `onCallEnded?()` in `RoomContextView`) and the `RoomDelegate`
+    /// `.disconnected` state transition (below) can both fire it for the same
+    /// teardown. Reset alongside `teardownStarted` so a reused `RoomContext`
+    /// starts clean for its next call session.
+    private var callEndedFired = false
+
+    /// Fires `onCallEnded` exactly once per call session, regardless of which
+    /// teardown path (RoomDelegate `.disconnected`, or the route monitor's
+    /// explicit call in `RoomContextView`) reaches it first.
+    @MainActor
+    func fireCallEndedOnce() {
+        guard !callEndedFired else { return }
+        callEndedFired = true
+        onCallEnded?()
+    }
+
     private let store: ValueStore<Preferences>
 
 
@@ -323,6 +341,10 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
         teardownStarted = false
         Self.teardownLock.unlock()
 
+        // Reset alongside `teardownStarted` so a reused `RoomContext` instance
+        // starts clean — able to fire `onCallEnded` again for its next session.
+        callEndedFired = false
+
         AppLogger.shared.log(
             level: .info,
             message: "[LiveKit] disconnect released"
@@ -423,17 +445,26 @@ extension RoomContext: RoomDelegate {
         print("Did update e2eeState = [\(String(describing: e2eeState))] for publication \(publication.sid)")
     }
 
+    // `RoomDelegate` is a nonisolated `Sendable` protocol, so this method must
+    // not be `@MainActor` — that made the whole conformance cross into
+    // main-actor-isolated code. Hop inside the body instead (same pattern as
+    // the sibling delegate methods below); `ConnectionState` is `Sendable`, so
+    // both state values cross the boundary safely.
     func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
         print("Did update connectionState \(oldValue) -> \(connectionState)")
 
-        if case .disconnected = connectionState {
-            onCallEnded?()
-        }
-        
-        if case .connected = connectionState, case .reconnecting = oldValue {
-            // skip onConnected on reconnect — mic is already published
-        } else if case .connected = connectionState {
-            onConnected?()
+        Task.detached { @MainActor [weak self] in
+            guard let self else { return }
+
+            if case .disconnected = connectionState {
+                self.fireCallEndedOnce()
+            }
+
+            if case .connected = connectionState, case .reconnecting = oldValue {
+                // skip onConnected on reconnect — mic is already published
+            } else if case .connected = connectionState {
+                self.onConnected?()
+            }
         }
     }
 

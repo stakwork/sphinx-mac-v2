@@ -126,7 +126,14 @@ struct RoomContextView: View {
                                     )
                                     appCtx.configureRouteMonitor(onNoDeviceAvailable: nil)
                                     await roomCtx.disconnect()
-                                    self.onCallEnded?()
+                                    // Route through RoomContext's idempotency guard rather than
+                                    // calling `self.onCallEnded?()` directly: `disconnect()` above
+                                    // may have already driven the room to `.disconnected`, firing
+                                    // `onCallEnded` via the RoomDelegate path. `fireCallEndedOnce()`
+                                    // ensures this fallback fire is a no-op in that case, and still
+                                    // drives teardown if the delegate callback never fired (e.g. a
+                                    // race with `onDisappear`'s own disconnect call).
+                                    roomCtx.fireCallEndedOnce()
                                 }
                             }
                         } catch {
