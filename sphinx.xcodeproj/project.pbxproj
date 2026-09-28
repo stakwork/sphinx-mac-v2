@@ -721,13 +721,13 @@
 		AA0002002EF431AE00CFDB02 /* DiagnosticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */; };
 		AA1B2C3D4E5F6A7B8C9D0E1F /* QRCodeScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */; };
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
+		APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPCT01100000001APPCT011 /* AppContextTests.swift */; };
 		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
 		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
 		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
 		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
 		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
 		CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */; };
-		APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPCT01100000001APPCT011 /* AppContextTests.swift */; };
 		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -1835,12 +1835,12 @@
 		AA0002001AB00CFDB01AA002 /* DiagnosticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViewController.swift; sourceTree = "<group>"; };
 		AA1B2C3D4E5F6A7B8C9D0001 /* QRCodeScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeScannerViewController.swift; sourceTree = "<group>"; };
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
+		APPCT01100000001APPCT011 /* AppContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextTests.swift; sourceTree = "<group>"; };
 		B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantBoxView.swift; sourceTree = "<group>"; };
 		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
 		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
 		CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketManager.swift; sourceTree = "<group>"; };
 		CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallAudioRouteMonitorTests.swift; sourceTree = "<group>"; };
-		APPCT01100000001APPCT011 /* AppContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextTests.swift; sourceTree = "<group>"; };
 		CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentProcessingBarView.swift; sourceTree = "<group>"; };
 		CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDetailSelectionVC.swift; sourceTree = "<group>"; };
 		CE1FA8F72A0199C20014360C /* LSATObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSATObject.swift; sourceTree = "<group>"; };
@@ -6114,7 +6114,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 319;
+				CURRENT_PROJECT_VERSION = 320;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -6151,7 +6151,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 319;
+				CURRENT_PROJECT_VERSION = 320;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
