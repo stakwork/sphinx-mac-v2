@@ -127,6 +127,55 @@ extension AIAgentManager {
         return answered
     }
 
+    /// True when `msg` carries a PLAN `ask_clarifying_questions` artifact.
+    static func isPlanQuestionMessage(_ msg: JSON) -> Bool {
+        (msg["artifacts"].array ?? []).contains { clarifyingQuestions($0) != nil }
+    }
+
+    // MARK: - answer_planner_form message resolution
+
+    enum PlannerMessageResolution: Equatable {
+        /// The message to reply to, and whether it is already answered.
+        case target(id: String)
+        case alreadyAnswered(id: String)
+        /// No PLAN clarifying-questions message is currently open.
+        case noOpenQuestions
+        /// `plannerMessageId` was given but is not an open-able PLAN question message
+        /// in this feature's own chat history (missing, wrong feature, or wrong type).
+        case invalidMessageId
+    }
+
+    /// Pure. Resolves the target planner message for `answer_planner_form`:
+    /// - an explicit `plannerMessageId` must belong to `messages` and carry a PLAN
+    ///   `ask_clarifying_questions` artifact, else `.invalidMessageId` (Hive never called);
+    /// - otherwise defaults to the LATEST open PLAN question message, else `.noOpenQuestions`.
+    /// "Open" / "Answered" both use `answeredMessageIds` (a later message's `replyId` match).
+    static func resolvePlannerMessage(
+        messages: [JSON],
+        plannerMessageId: String?
+    ) -> PlannerMessageResolution {
+        let answeredIds = answeredMessageIds(messages)
+
+        if let targetId = plannerMessageId {
+            guard let msg = messages.first(where: { $0["id"].string == targetId }),
+                  isPlanQuestionMessage(msg) else {
+                return .invalidMessageId
+            }
+            if answeredIds.contains(targetId) {
+                return .alreadyAnswered(id: targetId)
+            }
+            return .target(id: targetId)
+        }
+
+        for msg in messages.reversed() {
+            guard let id = msg["id"].string, isPlanQuestionMessage(msg) else { continue }
+            if !answeredIds.contains(id) {
+                return .target(id: id)
+            }
+        }
+        return .noOpenQuestions
+    }
+
     /// Pure. `messageId` / `answered` describe the owning planner message (used for clarifying questions).
     static func summariseArtifact(_ artifact: JSON, messageId: String? = nil, answered: Bool = false) -> String {
         let type = artifact["type"].string ?? "UNKNOWN"
