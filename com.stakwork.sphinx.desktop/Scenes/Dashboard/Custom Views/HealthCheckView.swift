@@ -59,7 +59,8 @@ class HealthCheckView: NSView, LoadableNib {
     }
     
     func updateConnectionSign() {
-        let connected = SphinxOnionManager.sharedInstance.isConnected
+        let som = SphinxOnionManager.sharedInstance
+        let connected = som.isConnected && som.isDeviceOnline
         
         if #available(OSX 10.14, *) {
             healthCheckButton.contentTintColor = connected ? HealthCheckView.kConnectedColor : HealthCheckView.kNotConnectedColor

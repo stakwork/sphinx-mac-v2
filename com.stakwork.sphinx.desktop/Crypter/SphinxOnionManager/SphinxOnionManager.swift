@@ -25,7 +25,18 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
 
     static func resetSharedInstance() {
         _sharedInstance?.stopServerHealthStalenessTimer()
+        _sharedInstance?.removeReachabilityObservers()
+        _sharedInstance?.deviceOnlineProvider = nil
         _sharedInstance = nil
+    }
+
+    override init() {
+        super.init()
+        registerReachabilityObservers()
+    }
+
+    deinit {
+        removeReachabilityObservers()
     }
     
     let walletBalanceService = WalletBalanceService()
@@ -116,6 +127,15 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var serverHealthStalenessInterval: TimeInterval = TimeInterval(ServerHealthPresentation.defaultIntervalMs) / 1000.0
     /// Test hook invoked immediately before onion `handle()` — not for the status topic.
     var onOnionHandleInvoked: ((String) -> Void)? = nil
+    /// Test hook: override device reachability used by the banner/bolt gates.
+    /// When nil, `isDeviceOnline` falls back to `NetworkMonitor.shared.isReachableOrUnknown`.
+    var deviceOnlineProvider: (() -> Bool)? = nil
+    /// De-dupes reachability transitions (Mac's `NetworkMonitor` posts on every
+    /// path callback, not just changes) so `.onServerHealthChanged` only fires once per flip.
+    var lastReportedDeviceOnline: Bool? = nil
+    /// Tokens for the `.connectedToInternet` / `.disconnectedFromInternet` observers
+    /// registered in `init()`. Removed in `deinit` / `resetSharedInstance()`.
+    var reachabilityObserverTokens: [NSObjectProtocol] = []
     
     // MARK: - MQTT diagnostics state (instrumentation only, no behavior change)
     var mqttConnectAttemptCount: Int = 0

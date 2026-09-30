@@ -132,7 +132,11 @@ extension SphinxOnionManager {
             self.armServerHealthLaunchGraceIfNeeded()
             if self.serverHealthStalenessTimer != nil { return }
             let timer = Timer.scheduledTimer(withTimeInterval: self.serverHealthStalenessInterval, repeats: true) { [weak self] _ in
-                self?.reevaluateServerHealth()
+                // While the device itself is offline, don't let the staleness
+                // window flip health to `.unknown` — that reads as a real server
+                // outage even though nothing is wrong with the server.
+                guard let self, self.isDeviceOnline else { return }
+                self.reevaluateServerHealth()
             }
             RunLoop.main.add(timer, forMode: .common)
             self.serverHealthStalenessTimer = timer
@@ -255,7 +259,76 @@ extension SphinxOnionManager {
             health: currentServerHealth,
             hasReceivedServerStatus: hasReceivedServerStatus,
             trackingStartedAtMs: serverHealthTrackingStartedAtMs,
-            nowMs: currentServerHealthNowMs()
+            nowMs: currentServerHealthNowMs(),
+            isDeviceOnline: isDeviceOnline
         )
+    }
+
+    // MARK: - Device reachability (banner suppression + bolt gate)
+
+    /// UI-facing device reachability. The test provider seam takes priority
+    /// over the real `NetworkMonitor` so unit tests never depend on the real
+    /// `NWPathMonitor`.
+    var isDeviceOnline: Bool {
+        if let deviceOnlineProvider {
+            return deviceOnlineProvider()
+        }
+        return NetworkMonitor.shared.isReachableOrUnknown
+    }
+
+    /// Registers the block observers that drive `handleDeviceReachabilityChange()`.
+    /// Called once from `init()`. Mac's `NetworkMonitor` posts `.connectedToInternet` /
+    /// `.disconnectedFromInternet` on every path callback (not just changes), off the
+    /// `NWMonitor` background queue, so these use `queue: .main` and the handler dedupes.
+    func registerReachabilityObservers() {
+        let connected = NotificationCenter.default.addObserver(
+            forName: .connectedToInternet,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleDeviceReachabilityChange()
+        }
+
+        let disconnected = NotificationCenter.default.addObserver(
+            forName: .disconnectedFromInternet,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleDeviceReachabilityChange()
+        }
+
+        reachabilityObserverTokens.append(contentsOf: [connected, disconnected])
+    }
+
+    func removeReachabilityObservers() {
+        for token in reachabilityObserverTokens {
+            NotificationCenter.default.removeObserver(token)
+        }
+        reachabilityObserverTokens.removeAll()
+    }
+
+    /// Main-thread only. De-dupes Mac's per-callback reachability posts so
+    /// `.onServerHealthChanged` only fires once per real transition.
+    func handleDeviceReachabilityChange() {
+        let online = isDeviceOnline
+        if lastReportedDeviceOnline == online { return }
+
+        let wasOnline = lastReportedDeviceOnline
+        lastReportedDeviceOnline = online
+
+        if online {
+            mqttLog("device online — server-health banner re-evaluated")
+            // Give the server a full staleness window to send a heartbeat
+            // before the staleness timer can mark health `.unknown` again —
+            // otherwise the banner would show "server status unknown" the
+            // instant the device reconnects, which looks like a real outage.
+            if wasOnline == false && hasReceivedServerStatus {
+                lastServerStatusSeenMs = currentServerHealthNowMs()
+            }
+        } else {
+            mqttLog("device offline — server-health banner suppressed")
+        }
+
+        NotificationCenter.default.post(name: .onServerHealthChanged, object: nil)
     }
 }
