@@ -4,7 +4,8 @@
 //
 //  Hive planner tools: get_feature_plan, get_feature_plan_chat, send_to_planner.
 //  Feature ids come only from the caller's own workspace/feature list via resolveFeature.
-//  answer_planner_form is intentionally NOT implemented (Hive FORM contract unverified).
+//  Answering clarifying questions through a dedicated route is intentionally NOT implemented here
+//  (separate task); replies go through send_to_planner with reply_to_message_id.
 //  Copyright © 2026 Sphinx. All rights reserved.
 //
 

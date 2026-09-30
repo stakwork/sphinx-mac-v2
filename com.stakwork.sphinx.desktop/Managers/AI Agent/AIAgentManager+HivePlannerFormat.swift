@@ -3,8 +3,10 @@
 //  Sphinx
 //
 //  Pure formatting / resolution helpers for the Hive planner tools.
-//  NOTE: FORM / PLAN artifact shapes are UNCONFIRMED; summariseArtifact only
-//  emits the artifact type plus a truncated raw-content excerpt.
+//  Confirmed Hive contract: userStories are objects {id,title,order,completed,...};
+//  clarifying questions are PLAN artifacts whose content is
+//  {tool_use:"ask_clarifying_questions", content:[{question,type,options?}]}; a question
+//  message is answered once a later message has replyId == its id.
 //  Copyright © 2026 Sphinx. All rights reserved.
 //
 
@@ -47,8 +49,6 @@ extension AIAgentManager {
         if let priority = detail["priority"].string { lines.append("Priority: \(priority)") }
         if let desc = detail["description"].string, !desc.isEmpty { lines.append("Description: \(desc)") }
         lines.append("Workflow Status: \(nonEmpty(detail["workflowStatus"].string) ?? "none")")
-        lines.append("Deployment Status: \(nonEmpty(detail["deploymentStatus"].string) ?? "none")")
-        if let url = nonEmpty(detail["deploymentUrl"].string) { lines.append("Deployment URL: \(url)") }
         if let created = detail["createdAt"].string { lines.append("Created: \(created)") }
         if let updated = detail["updatedAt"].string { lines.append("Updated: \(updated)") }
         if let tc = detail["taskCount"].int ?? detail["tasks"].array?.count { lines.append("Tasks: \(tc)") }
@@ -62,6 +62,26 @@ extension AIAgentManager {
 
     // MARK: - Plan
 
+    /// Stories sorted by `order` ascending (stable; missing order sorts last), rendered as
+    /// `- [x] title` / `- [ ] title`. Plain strings are tolerated as `- [ ] text`.
+    static func formatUserStories(_ items: [JSON]) -> String? {
+        var entries: [(order: Double, index: Int, line: String)] = []
+        for (index, item) in items.enumerated() {
+            if let text = item.string {
+                if text.isEmpty { continue }
+                entries.append((Double.greatestFiniteMagnitude, index, "- [ ] \(text)"))
+                continue
+            }
+            guard let title = item["title"].string, !title.isEmpty else { continue }
+            let done = item["completed"].bool == true
+            let order = item["order"].double ?? Double.greatestFiniteMagnitude
+            entries.append((order, index, "- [\(done ? "x" : " ")] \(title)"))
+        }
+        if entries.isEmpty { return nil }
+        let sorted = entries.sorted { $0.order != $1.order ? $0.order < $1.order : $0.index < $1.index }
+        return sorted.map { $0.line }.joined(separator: "\n")
+    }
+
     static func formatPlan(json: JSON?, fallbackTitle: String) -> String {
         guard let json = json, let detail = hiveUnwrap(json) else {
             return "Failed to fetch plan for feature '\(fallbackTitle)'."
@@ -70,12 +90,7 @@ extension AIAgentManager {
             let trimmed = body?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             return "\(title):\n" + (trimmed.isEmpty ? "(not written yet)" : trimmed)
         }
-        let stories: [String] = (detail["userStories"].array ?? []).compactMap { item in
-            if let s = item.string { return s.isEmpty ? nil : s }
-            if let t = item["title"].string { return t.isEmpty ? nil : t }
-            return nil
-        }
-        let storiesBody = stories.isEmpty ? nil : stories.map { "- \($0)" }.joined(separator: "\n")
+        let storiesBody = formatUserStories(detail["userStories"].array ?? [])
 
         var parts: [String] = []
         parts.append("Plan for feature: \(detail["title"].string ?? fallbackTitle)")
@@ -89,9 +104,44 @@ extension AIAgentManager {
 
     // MARK: - Chat
 
-    /// Type + truncated raw content excerpt only. Shapes of FORM/PLAN artifacts are unconfirmed.
-    static func summariseArtifact(_ artifact: JSON) -> String {
+    // MARK: Clarifying questions
+
+    static let clarifyingQuestionsTool = "ask_clarifying_questions"
+
+    /// Returns the question objects when the artifact is a PLAN clarifying-questions artifact, else nil.
+    static func clarifyingQuestions(_ artifact: JSON) -> [JSON]? {
+        guard artifact["type"].string == "PLAN" else { return nil }
+        let content = artifact["content"]
+        guard content["tool_use"].string == clarifyingQuestionsTool else { return nil }
+        return content["content"].array ?? content["questions"].array ?? []
+    }
+
+    /// Message ids that are answered: a LATER message has `replyId` equal to that id.
+    static func answeredMessageIds(_ messages: [JSON]) -> Set<String> {
+        var answered = Set<String>()
+        var laterReplyIds = Set<String>()
+        for msg in messages.reversed() {
+            if let id = msg["id"].string, laterReplyIds.contains(id) { answered.insert(id) }
+            if let reply = msg["replyId"].string, !reply.isEmpty { laterReplyIds.insert(reply) }
+        }
+        return answered
+    }
+
+    /// Pure. `messageId` / `answered` describe the owning planner message (used for clarifying questions).
+    static func summariseArtifact(_ artifact: JSON, messageId: String? = nil, answered: Bool = false) -> String {
         let type = artifact["type"].string ?? "UNKNOWN"
+        if let questions = clarifyingQuestions(artifact) {
+            var lines = ["[artifact PLAN: clarifying questions] message id: \(messageId ?? "unknown") — \(answered ? "Answered" : "Open")"]
+            for (i, q) in questions.enumerated() {
+                let text = q["question"].string ?? q.string ?? ""
+                var line = "\(i + 1). \(text)"
+                if let kind = q["type"].string, !kind.isEmpty { line += " (\(kind))" }
+                lines.append(line)
+                let options = (q["options"].array ?? []).compactMap { $0.string ?? $0["label"].string }
+                if !options.isEmpty { lines.append("   Options: \(options.joined(separator: ", "))") }
+            }
+            return lines.joined(separator: "\n")
+        }
         let content = artifact["content"]
         var raw = ""
         if content.exists() && content.type != .null {
@@ -101,15 +151,34 @@ extension AIAgentManager {
         return "[artifact \(type)] \(excerpt(raw))"
     }
 
+    /// Shows the last 30 messages as `[role] text`, plus every OPEN clarifying-question message
+    /// from the FULL history (even if older than the window) listed first with its message id.
     static func formatChat(messages: [JSON]) -> String {
         if messages.isEmpty { return "No planner messages yet" }
+        let answeredIds = answeredMessageIds(messages)
+
+        var openBlocks: [String] = []
+        for msg in messages {
+            guard let id = msg["id"].string, !answeredIds.contains(id) else { continue }
+            for artifact in msg["artifacts"].array ?? [] where clarifyingQuestions(artifact) != nil {
+                openBlocks.append(summariseArtifact(artifact, messageId: id, answered: false))
+            }
+        }
+
         var lines: [String] = []
+        if !openBlocks.isEmpty {
+            lines.append("Open clarifying questions (reply with send_to_planner using reply_to_message_id = the message id):")
+            lines.append(contentsOf: openBlocks)
+            lines.append("Recent messages:")
+        }
         for msg in messages.suffix(30) {
             let role = (msg["role"].string ?? "unknown").lowercased()
             let text = msg["message"].string ?? msg["content"].string ?? ""
+            let id = msg["id"].string
             if !text.isEmpty { lines.append("[\(role)] \(text)") }
             for artifact in msg["artifacts"].array ?? [] {
-                lines.append("[\(role)] \(summariseArtifact(artifact))")
+                let isAnswered = id.map { answeredIds.contains($0) } ?? false
+                lines.append("[\(role)] \(summariseArtifact(artifact, messageId: id, answered: isAnswered))")
             }
             if text.isEmpty && (msg["artifacts"].array ?? []).isEmpty {
                 lines.append("[\(role)] ")

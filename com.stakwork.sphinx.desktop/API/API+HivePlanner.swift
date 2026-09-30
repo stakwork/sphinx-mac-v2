@@ -22,8 +22,26 @@ enum HiveWriteResult: Equatable {
     case unknownOutcome
     case failed(String?)
 
+    /// Default 2xx predicate: any body without a non-null `error` field counts as success.
+    static func noErrorField(_ json: JSON) -> Bool {
+        let errorField = json["error"]
+        return !(errorField.exists() && errorField.type != .null)
+    }
+
+    /// Predicate for POST /features/:id/chat (HTTP 201 `{success, message, workflow}`):
+    /// `success == true` and no `error`.
+    static func sendChatSucceeded(_ json: JSON) -> Bool {
+        return json["success"].bool == true && noErrorField(json)
+    }
+
     /// Pure classification of an HTTP outcome. Never inspects `response.result`.
-    static func from(statusCode: Int?, json: JSON?, transportError: Error?) -> HiveWriteResult {
+    /// Any 2xx is a *candidate* success; the endpoint-specific `successPredicate` decides.
+    static func from(
+        statusCode: Int?,
+        json: JSON?,
+        transportError: Error?,
+        successPredicate: (JSON) -> Bool = HiveWriteResult.noErrorField
+    ) -> HiveWriteResult {
         guard let status = statusCode else {
             // No HTTP response at all: we can't know whether the server processed the request.
             return .unknownOutcome
@@ -36,7 +54,7 @@ enum HiveWriteResult: Equatable {
             if errorField.exists() && errorField.type != .null {
                 return .failed(errorField.string ?? "Request failed")
             }
-            if json["success"].bool != true {
+            if !successPredicate(json) {
                 return .failed(json["message"].string ?? "Request was not successful")
             }
             return .success(json)
@@ -77,11 +95,12 @@ extension API {
         build: @escaping (String) -> URLRequest?,
         reauth: @escaping (@escaping (String?) -> Void) -> Void,
         send: @escaping HiveWriteRequestFn,
+        successPredicate: @escaping (JSON) -> Bool = HiveWriteResult.noErrorField,
         completion: @escaping (HiveWriteResult) -> Void
     ) {
         func classify(_ status: Int?, _ data: Data?, _ error: Error?) -> HiveWriteResult {
             let json: JSON? = data.map { JSON($0) }
-            return HiveWriteResult.from(statusCode: status, json: json, transportError: error)
+            return HiveWriteResult.from(statusCode: status, json: json, transportError: error, successPredicate: successPredicate)
         }
 
         guard let firstRequest = build(token) else {
@@ -173,11 +192,11 @@ extension API {
         }
 
         if let stored: String = UserDefaults.Keys.hiveToken.get() {
-            API.performHiveWrite(token: stored, build: build, reauth: reauth, send: send, completion: finish)
+            API.performHiveWrite(token: stored, build: build, reauth: reauth, send: send, successPredicate: HiveWriteResult.sendChatSucceeded, completion: finish)
         } else {
             reauth { token in
                 guard let token = token else { finish(.unauthorized); return }
-                API.performHiveWrite(token: token, build: build, reauth: reauth, send: send, completion: finish)
+                API.performHiveWrite(token: token, build: build, reauth: reauth, send: send, successPredicate: HiveWriteResult.sendChatSucceeded, completion: finish)
             }
         }
     }

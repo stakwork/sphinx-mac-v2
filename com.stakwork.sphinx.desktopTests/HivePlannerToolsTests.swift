@@ -2,9 +2,13 @@
 //  HivePlannerToolsTests.swift
 //  com.stakwork.sphinx.desktopTests
 //
-//  NOTE: All JSON fixtures in this file are PROVISIONAL (hand-written); they
-//  have not been verified against real Hive responses. FORM / PLAN artifact
-//  shapes in particular are unconfirmed.
+//  Fixtures follow the CONFIRMED Hive contract:
+//   - POST /features/:id/chat -> 201 {success, message, workflow}; 409 {error:"A planning workflow is already running for this feature"}
+//   - userStories are objects {id,title,order,completed,...}
+//   - clarifying questions are PLAN artifacts:
+//     {type:"PLAN", content:{tool_use:"ask_clarifying_questions", content:[{question,type,options?}]}};
+//     a question message is Answered when a LATER message has replyId == its id
+//   - feature detail has no deployment fields
 //
 //  No test here touches Alamofire (AF) or API.sharedInstance.
 //
@@ -25,7 +29,7 @@ final class HivePlannerToolsTests: XCTestCase {
 
     func testFormatPlan_full() {
         let json = j("""
-        {"data":{"title":"Login","brief":"Let users log in","userStories":[{"title":"As a user I log in"},{"title":"As admin I reset"}],
+        {"data":{"title":"Login","brief":"Let users log in","userStories":[{"id":"s1","title":"As a user I log in","order":0,"completed":true},{"id":"s2","title":"As admin I reset","order":1,"completed":false}],
         "requirements":"Must use OAuth","architecture":"Service X","workflowStatus":"COMPLETED"}}
         """)
         let out = Mgr.formatPlan(json: json, fallbackTitle: "fb")
@@ -47,13 +51,30 @@ final class HivePlannerToolsTests: XCTestCase {
 
     func testFormatPlan_userStoriesAsStrings() {
         let out = Mgr.formatPlan(json: j(#"{"data":{"userStories":["story one","story two"]}}"#), fallbackTitle: "fb")
-        XCTAssertTrue(out.contains("- story one"))
-        XCTAssertTrue(out.contains("- story two"))
+        XCTAssertTrue(out.contains("- [ ] story one"))
+        XCTAssertTrue(out.contains("- [ ] story two"))
     }
 
-    func testFormatPlan_userStoriesAsObjects() {
-        let out = Mgr.formatPlan(json: j(#"{"data":{"userStories":[{"title":"obj story"}]}}"#), fallbackTitle: "fb")
-        XCTAssertTrue(out.contains("- obj story"))
+    func testFormatPlan_userStoriesSortedByOrderWithCheckboxes() {
+        let out = Mgr.formatPlan(json: j("""
+        {"data":{"userStories":[
+        {"id":"c","title":"third","order":2,"completed":false},
+        {"id":"a","title":"first","order":0,"completed":true},
+        {"id":"b","title":"second","order":1,"completed":false}]}}
+        """), fallbackTitle: "fb")
+        let first = out.range(of: "- [x] first")
+        let second = out.range(of: "- [ ] second")
+        let third = out.range(of: "- [ ] third")
+        XCTAssertNotNil(first); XCTAssertNotNil(second); XCTAssertNotNil(third)
+        XCTAssertTrue(first!.lowerBound < second!.lowerBound)
+        XCTAssertTrue(second!.lowerBound < third!.lowerBound)
+    }
+
+    func testFormatPlan_userStoriesStableOnEqualOrder() {
+        let out = Mgr.formatPlan(json: j("""
+        {"data":{"userStories":[{"title":"alpha","order":1,"completed":false},{"title":"beta","order":1,"completed":false}]}}
+        """), fallbackTitle: "fb")
+        XCTAssertTrue(out.range(of: "alpha")!.lowerBound < out.range(of: "beta")!.lowerBound)
     }
 
     func testFormatPlan_failure() {
@@ -74,12 +95,11 @@ final class HivePlannerToolsTests: XCTestCase {
         XCTAssertTrue(out.contains("[user] hi"))
     }
 
-    func testSummariseArtifact_planFormAndUnknown() {
+    func testSummariseArtifact_otherPlanAndUnknown() {
         let plan = Mgr.summariseArtifact(j(#"{"type":"PLAN","content":{"brief":"b"}}"#))
         XCTAssertTrue(plan.contains("PLAN"))
         XCTAssertTrue(plan.contains("brief"))
-        let form = Mgr.summariseArtifact(j(#"{"type":"FORM","content":{"fields":["a"]}}"#))
-        XCTAssertTrue(form.contains("FORM"))
+        XCTAssertFalse(plan.contains("clarifying"))
         let unknown = Mgr.summariseArtifact(j(#"{"content":"x"}"#))
         XCTAssertTrue(unknown.contains("UNKNOWN"))
     }
@@ -92,9 +112,10 @@ final class HivePlannerToolsTests: XCTestCase {
     }
 
     func testFormatChat_artifactLines() {
-        let out = Mgr.formatChat(messages: [j(#"{"role":"ASSISTANT","message":"see","artifacts":[{"type":"FORM","content":"c"}]}"#)])
+        let out = Mgr.formatChat(messages: [j(#"{"role":"ASSISTANT","message":"see","artifacts":[{"type":"DIAGRAM","content":"c"}]}"#)])
         XCTAssertTrue(out.contains("[assistant] see"))
-        XCTAssertTrue(out.contains("[artifact FORM]"))
+        XCTAssertTrue(out.contains("[artifact DIAGRAM]"))
+        XCTAssertFalse(out.contains("FORM"))
     }
 
     func testFormatChat_last30Window() {
@@ -106,12 +127,71 @@ final class HivePlannerToolsTests: XCTestCase {
         XCTAssertEqual(out.components(separatedBy: "\n").count, 30)
     }
 
+    // MARK: - Clarifying questions
+
+    private let questionsArtifact = """
+    {"type":"PLAN","content":{"tool_use":"ask_clarifying_questions","content":[
+    {"question":"Which auth provider?","type":"single_choice","options":["Google","GitHub"]},
+    {"question":"Any deadline?","type":"text"}]}}
+    """
+
+    private func questionMessage(id: String) -> JSON {
+        j("""
+        {"id":"\(id)","role":"ASSISTANT","message":"I have questions","artifacts":[\(questionsArtifact)]}
+        """)
+    }
+
+    func testSummariseArtifact_clarifyingQuestionsOpen() {
+        let out = Mgr.summariseArtifact(j(questionsArtifact), messageId: "m1", answered: false)
+        XCTAssertTrue(out.contains("m1"))
+        XCTAssertTrue(out.contains("Open"))
+        XCTAssertFalse(out.contains("Answered"))
+        XCTAssertTrue(out.contains("1. Which auth provider?"))
+        XCTAssertTrue(out.contains("Google, GitHub"))
+        XCTAssertTrue(out.contains("2. Any deadline?"))
+    }
+
+    func testSummariseArtifact_clarifyingQuestionsAnswered() {
+        let out = Mgr.summariseArtifact(j(questionsArtifact), messageId: "m1", answered: true)
+        XCTAssertTrue(out.contains("Answered"))
+        XCTAssertFalse(out.contains("Open"))
+    }
+
+    func testFormatChat_answeredViaLaterReplyId() {
+        let msgs = [questionMessage(id: "q1"), j(#"{"id":"u1","role":"USER","message":"Google","replyId":"q1"}"#)]
+        let out = Mgr.formatChat(messages: msgs)
+        XCTAssertTrue(out.contains("Answered"))
+        XCTAssertFalse(out.contains("Open"))
+    }
+
+    func testFormatChat_replyIdBeforeQuestionDoesNotAnswer() {
+        let msgs = [j(#"{"id":"u1","role":"USER","message":"early","replyId":"q1"}"#), questionMessage(id: "q1")]
+        let out = Mgr.formatChat(messages: msgs)
+        XCTAssertTrue(out.contains("Open"))
+    }
+
+    func testFormatChat_openQuestionOlderThanWindowStillListed() {
+        var msgs: [JSON] = [questionMessage(id: "old-q")]
+        msgs += (0..<40).map { j(#"{"id":"u\#($0)","role":"USER","message":"filler\#($0)x"}"#) }
+        let out = Mgr.formatChat(messages: msgs)
+        XCTAssertTrue(out.contains("old-q"))
+        XCTAssertTrue(out.contains("Open"))
+        XCTAssertTrue(out.contains("Which auth provider?"))
+        XCTAssertFalse(out.contains("filler9x"))
+        XCTAssertTrue(out.contains("filler39x"))
+    }
+
+    func testFormatChat_noFormOutput() {
+        let out = Mgr.formatChat(messages: [questionMessage(id: "q1")])
+        XCTAssertFalse(out.uppercased().contains("FORM"))
+    }
+
     // MARK: - formatFeatureDetail
 
     func testFormatFeatureDetail_dataWrapper() {
         let json = j("""
         {"success":true,"data":{"title":"Feat","status":"IN_PROGRESS","priority":"HIGH","description":"desc",
-        "workflowStatus":"COMPLETED","deploymentStatus":"PRODUCTION","deploymentUrl":"https://x.dev",
+        "workflowStatus":"COMPLETED",
         "createdAt":"c","updatedAt":"u","tasks":[{},{}]}}
         """)
         let out = Mgr.formatFeatureDetail(json: json, featureId: "id1", fallbackTitle: "fb")
@@ -120,8 +200,7 @@ final class HivePlannerToolsTests: XCTestCase {
         XCTAssertTrue(out.contains("Priority: HIGH"))
         XCTAssertTrue(out.contains("Description: desc"))
         XCTAssertTrue(out.contains("Workflow Status: COMPLETED"))
-        XCTAssertTrue(out.contains("Deployment Status: PRODUCTION"))
-        XCTAssertTrue(out.contains("Deployment URL: https://x.dev"))
+        XCTAssertFalse(out.contains("Deployment"))
         XCTAssertTrue(out.contains("Created: c"))
         XCTAssertTrue(out.contains("Updated: u"))
         XCTAssertTrue(out.contains("Tasks: 2"))
@@ -136,14 +215,13 @@ final class HivePlannerToolsTests: XCTestCase {
     func testFormatFeatureDetail_none() {
         let out = Mgr.formatFeatureDetail(json: j(#"{"data":{"title":"T"}}"#), featureId: "id1", fallbackTitle: "fb")
         XCTAssertTrue(out.contains("Workflow Status: none"))
-        XCTAssertTrue(out.contains("Deployment Status: none"))
+        XCTAssertFalse(out.contains("Deployment"))
     }
 
-    func testFormatFeatureDetail_urlOnlyIfPresent() {
-        let without = Mgr.formatFeatureDetail(json: j(#"{"data":{"title":"T"}}"#), featureId: "id1", fallbackTitle: "fb")
-        XCTAssertFalse(without.contains("Deployment URL"))
-        let empty = Mgr.formatFeatureDetail(json: j(#"{"data":{"title":"T","deploymentUrl":""}}"#), featureId: "id1", fallbackTitle: "fb")
-        XCTAssertFalse(empty.contains("Deployment URL"))
+    func testFormatFeatureDetail_noDeploymentLines() {
+        let out = Mgr.formatFeatureDetail(json: j(#"{"data":{"title":"T","deploymentStatus":"X","deploymentUrl":"https://x.dev"}}"#), featureId: "id1", fallbackTitle: "fb")
+        XCTAssertFalse(out.contains("Deployment"))
+        XCTAssertFalse(out.contains("https://x.dev"))
     }
 
     func testFormatFeatureDetail_failures() {
@@ -154,26 +232,63 @@ final class HivePlannerToolsTests: XCTestCase {
 
     // MARK: - HiveWriteResult.from
 
-    func testWriteResult_success() {
-        let r = HiveWriteResult.from(statusCode: 200, json: j(#"{"success":true}"#), transportError: nil)
+    private let sendCreatedBody = #"{"success":true,"message":{"id":"m1","role":"USER","message":"hi","replyId":null},"workflow":{"id":"w1","status":"IN_PROGRESS"}}"#
+
+    private func fromSend(_ status: Int?, _ body: String?) -> HiveWriteResult {
+        HiveWriteResult.from(
+            statusCode: status,
+            json: body.map { j($0) },
+            transportError: nil,
+            successPredicate: HiveWriteResult.sendChatSucceeded
+        )
+    }
+
+    func testWriteResult_201SendAcceptedAsSuccess() {
+        let r = fromSend(201, sendCreatedBody)
         if case .success = r {} else { XCTFail("expected success, got \(r)") }
     }
 
-    func testWriteResult_200SuccessFalse() {
-        let r = HiveWriteResult.from(statusCode: 200, json: j(#"{"success":false}"#), transportError: nil)
+    func testWriteResult_200SuccessTrueStillSuccess() {
+        let r = fromSend(200, #"{"success":true}"#)
+        if case .success = r {} else { XCTFail("expected success, got \(r)") }
+    }
+
+    func testWriteResult_sendSuccessFalseFails() {
+        let r = fromSend(201, #"{"success":false}"#)
         if case .failed = r {} else { XCTFail("expected failed, got \(r)") }
     }
 
-    func testWriteResult_200ErrorField() {
-        let r = HiveWriteResult.from(statusCode: 200, json: j(#"{"success":true,"error":"boom"}"#), transportError: nil)
-        XCTAssertEqual(r, .failed("boom"))
+    func testWriteResult_200WithErrorFails() {
+        XCTAssertEqual(fromSend(200, #"{"success":true,"error":"boom"}"#), .failed("boom"))
+    }
+
+    func testWriteResult_defaultPredicateDoesNotRequireSuccessField() {
+        let r = HiveWriteResult.from(statusCode: 201, json: j(#"{"id":"x"}"#), transportError: nil)
+        if case .success = r {} else { XCTFail("expected success, got \(r)") }
+        let e = HiveWriteResult.from(statusCode: 200, json: j(#"{"error":"bad"}"#), transportError: nil)
+        XCTAssertEqual(e, .failed("bad"))
+    }
+
+    func testWriteResult_conflictReadsErrorFirst() {
+        let body = #"{"error":"A planning workflow is already running for this feature","message":"ignored"}"#
+        XCTAssertEqual(
+            HiveWriteResult.from(statusCode: 409, json: j(body), transportError: nil),
+            .conflict("A planning workflow is already running for this feature")
+        )
+    }
+
+    func testWriteResult_conflictFallsBackToMessage() {
+        XCTAssertEqual(
+            HiveWriteResult.from(statusCode: 409, json: j(#"{"message":"fallback"}"#), transportError: nil),
+            .conflict("fallback")
+        )
     }
 
     func testWriteResult_statusMapping() {
         XCTAssertEqual(HiveWriteResult.from(statusCode: 401, json: nil, transportError: nil), .unauthorized)
         XCTAssertEqual(HiveWriteResult.from(statusCode: 403, json: nil, transportError: nil), .forbidden)
         XCTAssertEqual(HiveWriteResult.from(statusCode: 404, json: nil, transportError: nil), .notFound)
-        XCTAssertEqual(HiveWriteResult.from(statusCode: 409, json: j(#"{"error":"busy"}"#), transportError: nil), .conflict("busy"))
+        XCTAssertEqual(HiveWriteResult.from(statusCode: 409, json: j(#"{"error":"A planning workflow is already running for this feature"}"#), transportError: nil), .conflict("A planning workflow is already running for this feature"))
         XCTAssertEqual(HiveWriteResult.from(statusCode: 409, json: nil, transportError: nil), .conflict(""))
         XCTAssertEqual(HiveWriteResult.from(statusCode: 500, json: nil, transportError: nil), .failed("HTTP 500"))
     }
@@ -211,15 +326,16 @@ final class HivePlannerToolsTests: XCTestCase {
                 let r = responses[idx]
                 done(r.0, r.1, r.2)
             },
+            successPredicate: HiveWriteResult.sendChatSucceeded,
             completion: { result = $0 }
         )
         return (result ?? .failed("no completion"), c)
     }
 
-    private let okData = Data(#"{"success":true}"#.utf8)
+    private let okData = Data(#"{"success":true,"message":{"id":"m1"},"workflow":{"id":"w1"}}"#.utf8)
 
     func testPerformWrite_401ThenSuccess_reauthsOnceRetriesOnce() {
-        let (r, c) = runWrite(responses: [(401, nil, nil), (200, okData, nil)])
+        let (r, c) = runWrite(responses: [(401, nil, nil), (201, okData, nil)])
         if case .success = r {} else { XCTFail("got \(r)") }
         XCTAssertEqual(c.sends, 2)
         XCTAssertEqual(c.reauths, 1)
@@ -234,8 +350,9 @@ final class HivePlannerToolsTests: XCTestCase {
     }
 
     func testPerformWrite_409_noRetry() {
-        let (r, c) = runWrite(responses: [(409, Data(#"{"error":"busy"}"#.utf8), nil)])
-        XCTAssertEqual(r, .conflict("busy"))
+        let body = #"{"error":"A planning workflow is already running for this feature"}"#
+        let (r, c) = runWrite(responses: [(409, Data(body.utf8), nil)])
+        XCTAssertEqual(r, .conflict("A planning workflow is already running for this feature"))
         XCTAssertEqual(c.sends, 1)
         XCTAssertEqual(c.reauths, 0)
     }
@@ -291,7 +408,7 @@ final class HivePlannerToolsTests: XCTestCase {
         init(_ result: HiveWriteResult) { self.result = result }
     }
 
-    private func runSend(detail: JSON?, result: HiveWriteResult = .success(JSON(["success": true]))) async -> (String, SendSpy) {
+    private func runSend(detail: JSON?, result: HiveWriteResult = .success(JSON(parseJSON: #"{"success":true,"message":{"id":"m1"},"workflow":{"id":"w1"}}"#))) async -> (String, SendSpy) {
         let spy = SendSpy(result)
         let out = await Mgr.sendToPlanner(
             featureId: "f1",

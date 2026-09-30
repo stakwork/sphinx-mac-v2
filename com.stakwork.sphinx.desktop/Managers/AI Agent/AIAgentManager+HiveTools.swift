@@ -414,7 +414,7 @@ extension AIAgentManager {
 
     func buildGetFeatureDetailTool() -> TypedTool<HiveFeatureNameInput, JSONValue> {
         tool(
-            description: "Get detailed information about a specific Hive feature by name within a workspace: status, priority, description, workflow status, deployment status, deployment URL (if deployed), timestamps and task count.",
+            description: "Get detailed information about a specific Hive feature by name within a workspace: status, priority, description, workflow status, timestamps and task count.",
             execute: { (input: HiveFeatureNameInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard let workspaces = await AIAgentManager.fetchWorkspacesAsync() else {
                     return .value(.string("Failed to fetch Hive workspaces."))

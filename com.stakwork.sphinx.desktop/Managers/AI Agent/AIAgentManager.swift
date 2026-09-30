@@ -125,9 +125,9 @@ final class AIAgentManager: @unchecked Sendable {
     - get_workspace_detail: Get full details about a workspace (description, members list) by workspace name.
     - search_workspace: Search within a workspace for tasks, features, or content matching a query string.
     - list_features: List all features in a workspace. Includes feature title, status, and ID. Shows a hint if more exist.
-    - get_feature_detail: Get detailed info about a specific feature (title, status, priority, description, workflow status, deployment status, deployment URL, task count) by name.
+    - get_feature_detail: Get detailed info about a specific feature (title, status, priority, description, workflow status, task count) by name.
     - get_feature_plan: Get a feature's plan (brief, user stories, requirements, architecture, workflow status) by workspace_name and feature_name.
-    - get_feature_plan_chat: Get the last 30 planner chat messages (and artifact summaries) for a feature.
+    - get_feature_plan_chat: Get the last 30 planner chat messages (and artifact summaries) for a feature, plus any open clarifying questions (with message id, usable as reply_to_message_id).
     - list_tasks: List tasks in a workspace. Optionally pass include_archived=true to include archived tasks. Shows up to 50 with a hint if more exist.
     - get_task_detail: Get full details about a specific task (status, priority, assignee, feature, workflow status, repo, timestamps) by name.
     - get_task_messages: Get the last 20 chat messages for a specific task, formatted as [role]: message.
