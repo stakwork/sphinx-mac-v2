@@ -404,6 +404,7 @@ final class HivePlannerToolsTests: XCTestCase {
     private final class SendSpy: @unchecked Sendable {
         // Test-only: used from a single async test context.
         var sends = 0
+        var lastReplyId: String?
         var result: HiveWriteResult
         init(_ result: HiveWriteResult) { self.result = result }
     }
@@ -483,5 +484,203 @@ final class HivePlannerToolsTests: XCTestCase {
         }
         XCTAssertEqual(calls, 3)
         XCTAssertEqual(res, .message("No feature found matching 'zzzzzzzzzz' (not found in 3 page(s))."))
+    }
+
+    // MARK: - HiveSendToPlannerInput no longer has reply_to_message_id
+
+    func testSendToPlannerInput_hasNoReplyField() {
+        let json = """
+        {"workspace_name":"w","feature_name":"f","message":"m"}
+        """
+        let data = json.data(using: .utf8)!
+        XCTAssertNoThrow(try JSONDecoder().decode(Mgr.HiveSendToPlannerInput.self, from: data))
+    }
+
+    func testSendToPlanner_neverSetsReplyId() async {
+        var capturedReplyId: String?? = .some(nil)
+        _ = await Mgr.sendToPlanner(
+            featureId: "f1",
+            message: "hello",
+            replyId: nil,
+            fetchDetail: { _ in self.j(#"{"data":{"workflowStatus":"COMPLETED"}}"#) },
+            send: { _, _, replyId in
+                capturedReplyId = replyId
+                return .success(self.j(#"{"success":true,"message":{"id":"m1"}}"#))
+            }
+        )
+        XCTAssertEqual(capturedReplyId, .some(nil))
+    }
+
+    // MARK: - resolvePlannerMessage
+
+    func testResolvePlannerMessage_defaultsToLatestOpen() {
+        let msgs = [
+            questionMessage(id: "q1"),
+            j(#"{"id":"u1","role":"USER","message":"Google","replyId":"q1"}"#),
+            questionMessage(id: "q2")
+        ]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: nil)
+        XCTAssertEqual(res, .target(id: "q2"))
+    }
+
+    func testResolvePlannerMessage_skipsAlreadyAnsweredWhenDefaulting() {
+        let msgs = [
+            questionMessage(id: "q1"),
+            j(#"{"id":"u1","role":"USER","message":"Google","replyId":"q1"}"#)
+        ]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: nil)
+        XCTAssertEqual(res, .noOpenQuestions)
+    }
+
+    func testResolvePlannerMessage_noOpenQuestions() {
+        let msgs = [j(#"{"id":"u1","role":"USER","message":"hi"}"#)]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: nil)
+        XCTAssertEqual(res, .noOpenQuestions)
+    }
+
+    func testResolvePlannerMessage_explicitIdNotPlanMessage_rejected() {
+        let msgs = [j(#"{"id":"u1","role":"USER","message":"hi"}"#)]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: "u1")
+        XCTAssertEqual(res, .invalidMessageId)
+    }
+
+    func testResolvePlannerMessage_explicitIdFromDifferentFeature_rejected() {
+        let msgs = [questionMessage(id: "q1")]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: "not-in-this-chat")
+        XCTAssertEqual(res, .invalidMessageId)
+    }
+
+    func testResolvePlannerMessage_explicitIdAlreadyAnswered() {
+        let msgs = [
+            questionMessage(id: "q1"),
+            j(#"{"id":"u1","role":"USER","message":"Google","replyId":"q1"}"#)
+        ]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: "q1")
+        XCTAssertEqual(res, .alreadyAnswered(id: "q1"))
+    }
+
+    func testResolvePlannerMessage_explicitIdOpen() {
+        let msgs = [questionMessage(id: "q1")]
+        let res = Mgr.resolvePlannerMessage(messages: msgs, plannerMessageId: "q1")
+        XCTAssertEqual(res, .target(id: "q1"))
+    }
+
+    // MARK: - answerPlannerForm
+
+    private func runAnswer(
+        detail: JSON? = nil,
+        chat: JSON? = nil,
+        plannerMessageId: String? = nil,
+        result: HiveWriteResult = .success(JSON(parseJSON: #"{"success":true,"message":{"id":"m1"},"workflow":{"id":"w1"}}"#))
+    ) async -> (String, SendSpy) {
+        let spy = SendSpy(result)
+        let detailJson = detail ?? j(#"{"data":{"workflowStatus":"COMPLETED"}}"#)
+        let chatJson = chat ?? j("""
+        {"data":[{"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]}]}
+        """)
+        let out = await Mgr.answerPlannerForm(
+            featureId: "f1",
+            answer: "answer text",
+            plannerMessageId: plannerMessageId,
+            fetchDetail: { _ in detailJson },
+            fetchChat: { _ in chatJson },
+            send: { _, _, replyId in spy.sends += 1; spy.lastReplyId = replyId; return spy.result }
+        )
+        return (out, spy)
+    }
+
+    func testAnswerPlannerForm_defaultsToLatestOpen() async {
+        let chat = j("""
+        {"data":[
+        {"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]},
+        {"id":"u1","role":"USER","message":"Google","replyId":"q1"},
+        {"id":"q2","role":"ASSISTANT","message":"q2","artifacts":[\(questionsArtifact)]}
+        ]}
+        """)
+        let (out, spy) = await runAnswer(chat: chat)
+        XCTAssertEqual(out, "Answer submitted to the planner.")
+        XCTAssertEqual(spy.sends, 1)
+        XCTAssertEqual(spy.lastReplyId, "q2")
+    }
+
+    func testAnswerPlannerForm_explicitIdFromOtherFeature_rejected_neverCallsHive() async {
+        let chat = j(#"{"data":[{"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[]}]}"#)
+        let (out, spy) = await runAnswer(chat: chat, plannerMessageId: "does-not-exist")
+        XCTAssertTrue(out.lowercased().contains("open clarifying"))
+        XCTAssertEqual(spy.sends, 0)
+    }
+
+    func testAnswerPlannerForm_explicitIdNotPlanMessage_rejected_neverCallsHive() async {
+        let chat = j(#"{"data":[{"id":"u1","role":"USER","message":"hi","artifacts":[]}]}"#)
+        let (out, spy) = await runAnswer(chat: chat, plannerMessageId: "u1")
+        XCTAssertTrue(out.lowercased().contains("open clarifying"))
+        XCTAssertEqual(spy.sends, 0)
+    }
+
+    func testAnswerPlannerForm_noOpenQuestions_neverCallsHive() async {
+        let chat = j(#"{"data":[]}"#)
+        let (out, spy) = await runAnswer(chat: chat)
+        XCTAssertEqual(out, "No open clarifying questions for this feature.")
+        XCTAssertEqual(spy.sends, 0)
+    }
+
+    func testAnswerPlannerForm_alreadyAnswered_noPost() async {
+        let chat = j("""
+        {"data":[
+        {"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]},
+        {"id":"u1","role":"USER","message":"Google","replyId":"q1"}
+        ]}
+        """)
+        let (out, spy) = await runAnswer(chat: chat, plannerMessageId: "q1")
+        XCTAssertEqual(out, "Those questions were already answered.")
+        XCTAssertEqual(spy.sends, 0)
+    }
+
+    func testAnswerPlannerForm_requestUsesReplyIdAndAnswerText() async {
+        let chat = j("""
+        {"data":[{"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]}]}
+        """)
+        let (_, spy) = await runAnswer(chat: chat, plannerMessageId: "q1")
+        XCTAssertEqual(spy.sends, 1)
+        XCTAssertEqual(spy.lastReplyId, "q1")
+    }
+
+    func testAnswerPlannerForm_conflictIsBusy() async {
+        let chat = j("""
+        {"data":[{"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]}]}
+        """)
+        let (out, spy) = await runAnswer(chat: chat, plannerMessageId: "q1", result: .conflict("x"))
+        XCTAssertEqual(out, Mgr.plannerBusyMessage)
+        XCTAssertEqual(spy.sends, 1)
+    }
+
+    func testAnswerPlannerForm_forbiddenAndNotFound() async {
+        let chat = j("""
+        {"data":[{"id":"q1","role":"ASSISTANT","message":"q1","artifacts":[\(questionsArtifact)]}]}
+        """)
+        let (out1, _) = await runAnswer(chat: chat, plannerMessageId: "q1", result: .forbidden)
+        XCTAssertTrue(out1.contains("don't have access"))
+        let (out2, _) = await runAnswer(chat: chat, plannerMessageId: "q1", result: .notFound)
+        XCTAssertTrue(out2.contains("not found"))
+    }
+
+    func testAnswerPlannerForm_inProgressNeverPosts() async {
+        let (out, spy) = await runAnswer(detail: j(#"{"data":{"workflowStatus":"IN_PROGRESS"}}"#))
+        XCTAssertEqual(out, Mgr.plannerBusyMessage)
+        XCTAssertEqual(spy.sends, 0)
+    }
+
+    func testAnswerPlannerForm_nilDetailNeverPosts() async {
+        let spy = SendSpy(.success(j(#"{"success":true}"#)))
+        let out = await Mgr.answerPlannerForm(
+            featureId: "f1",
+            answer: "a",
+            plannerMessageId: nil,
+            fetchDetail: { _ in nil },
+            fetchChat: { _ in self.j(#"{"data":[]}"#) },
+            send: { _, _, _ in spy.sends += 1; return spy.result }
+        )
+        XCTAssertTrue(out.contains("Nothing was sent"))
+        XCTAssertEqual(spy.sends, 0)
     }
 }

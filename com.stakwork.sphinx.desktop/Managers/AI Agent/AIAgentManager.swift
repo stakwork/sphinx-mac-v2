@@ -111,7 +111,8 @@ final class AIAgentManager: @unchecked Sendable {
     - "Show details for feature X" → get_feature_detail
     - "What's the plan for feature X?" → get_feature_plan
     - "Catch me up on planning" / "What has the planner said?" → get_feature_plan_chat
-    - "Tell the planner ..." → send_to_planner (with confirmation; call at most once per user request, never retry after busy/unknown)
+    - "Tell the planner ..." (free-form instruction, no specific question being answered) → send_to_planner (with confirmation; call at most once per user request, never retry after busy/unknown)
+    - "Answer the planner's questions ..." / "Pick option B for Q1" (answering open PLAN clarifying questions) → answer_planner_form (with confirmation; call at most once per user request, never retry after busy/unknown)
     - "Create feature X" → create_feature (with confirmation)
     - "Update task X to DONE" → update_task_status (with confirmation)
 
@@ -127,13 +128,14 @@ final class AIAgentManager: @unchecked Sendable {
     - list_features: List all features in a workspace. Includes feature title, status, and ID. Shows a hint if more exist.
     - get_feature_detail: Get detailed info about a specific feature (title, status, priority, description, workflow status, task count) by name.
     - get_feature_plan: Get a feature's plan (brief, user stories, requirements, architecture, workflow status) by workspace_name and feature_name.
-    - get_feature_plan_chat: Get the last 30 planner chat messages (and artifact summaries) for a feature, plus any open clarifying questions (with message id, usable as reply_to_message_id).
+    - get_feature_plan_chat: Get the last 30 planner chat messages (and artifact summaries) for a feature, plus any open clarifying questions (with message id, usable as planner_message_id for answer_planner_form).
     - list_tasks: List tasks in a workspace. Optionally pass include_archived=true to include archived tasks. Shows up to 50 with a hint if more exist.
     - get_task_detail: Get full details about a specific task (status, priority, assignee, feature, workflow status, repo, timestamps) by name.
     - get_task_messages: Get the last 20 chat messages for a specific task, formatted as [role]: message.
 
     ### Write Tools (ALL require explicit user confirmation before invocation)
-    - send_to_planner: Send a message to a feature's planner. Requires workspace_name, feature_name, message, and optional reply_to_message_id. Call at most once per user request; never retry after a busy or unknown result.
+    - send_to_planner: Send a free-form message to a feature's planner (no reply target). Requires workspace_name, feature_name, message. Call at most once per user request; never retry after a busy or unknown result.
+    - answer_planner_form: Answer a feature's open PLAN clarifying questions. Requires workspace_name, feature_name, answer (all questions' answers combined, one block per question in order, separated by a blank line), and optional planner_message_id (defaults to the latest open clarifying-questions message). Call at most once per user request; never retry after a busy or unknown result.
     - create_feature: Create a new feature in a workspace. Requires workspace_name, title, and optional description.
     - update_feature: Update an existing feature's title or description. Requires workspace_name and feature_name.
     - trigger_task_generation: Trigger automatic AI task generation for a feature. Requires workspace_name and feature_name.
@@ -414,6 +416,7 @@ final class AIAgentManager: @unchecked Sendable {
             "get_feature_plan":        buildGetFeaturePlanTool().eraseToTool(),
             "get_feature_plan_chat":   buildGetFeaturePlanChatTool().eraseToTool(),
             "send_to_planner":         buildSendToPlannerTool().eraseToTool(),
+            "answer_planner_form":     buildAnswerPlannerFormTool().eraseToTool(),
             "create_feature":          buildCreateFeatureTool().eraseToTool(),
             "update_feature":          buildUpdateFeatureTool().eraseToTool(),
             "trigger_task_generation": buildTriggerTaskGenerationTool().eraseToTool(),
