@@ -13,8 +13,42 @@ class NetworkMonitor: @unchecked Sendable {
     nonisolated(unsafe) static let shared = NetworkMonitor()
     private var nwMonitor: NWPathMonitor?
     private var isNwMonitoring = false
-    
-    private(set) var isConnected: Bool = false
+
+    /// Guards `isConnected` / `hasReceivedPath`. Written from the `NWMonitor`
+    /// background queue and read from the main thread (bolt icon, banner gate).
+    private let stateLock = NSLock()
+
+    private var _isConnected: Bool = false
+    private(set) var isConnected: Bool {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            return _isConnected
+        }
+        set {
+            stateLock.lock()
+            _isConnected = newValue
+            stateLock.unlock()
+        }
+    }
+
+    /// True once at least one real `NWPath` update has been delivered since
+    /// the monitor last started (including the seeded first callback on iOS
+    /// parity paths). Reset on `stopMonitoring()`.
+    private var _hasReceivedPath: Bool = false
+    private var hasReceivedPath: Bool {
+        get {
+            stateLock.lock()
+            defer { stateLock.unlock() }
+            return _hasReceivedPath
+        }
+        set {
+            stateLock.lock()
+            _hasReceivedPath = newValue
+            stateLock.unlock()
+        }
+    }
+
     var connectionType: NWInterface.InterfaceType?
     
     private init() {}
@@ -42,11 +76,13 @@ class NetworkMonitor: @unchecked Sendable {
             self.nwMonitor = nil
             isNwMonitoring = false
         }
+        hasReceivedPath = false
     }
 
     // Use SCNetworkReachability to determine the actual network state
     private func updateConnectionStatus(path: NWPath) {
         isConnected = path.status == .satisfied
+        hasReceivedPath = true
         
         // Determine the connection type
         if path.usesInterfaceType(.wifi) {
@@ -71,5 +107,12 @@ class NetworkMonitor: @unchecked Sendable {
         guard let _ = nwMonitor else { return false }
         return isConnected
     }
-}
 
+    /// UI-facing reachability reading. Fails **open** (treats "no path update
+    /// yet" as reachable) so the bolt/banner don't flash orange/hidden during
+    /// the brief window before the monitor's first callback. Once a real path
+    /// update has landed, this mirrors `isConnected` exactly.
+    var isReachableOrUnknown: Bool {
+        !hasReceivedPath || isConnected
+    }
+}

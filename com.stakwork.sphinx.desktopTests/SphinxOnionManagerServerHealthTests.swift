@@ -18,11 +18,15 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
         manager = SphinxOnionManager.sharedInstance
         // Staleness timer is real; keep it from firing during grace assertions.
         manager.serverHealthStalenessInterval = 3_600
+        // Deterministic device-reachability seam. Existing (unrelated) assertions
+        // exercise the "online" path unless a test overrides this explicitly.
+        manager.deviceOnlineProvider = { true }
     }
 
     override func tearDown() {
         manager.onOnionHandleInvoked = nil
         manager.serverHealthNowMsOverride = nil
+        manager.deviceOnlineProvider = nil
         manager.stopServerHealthStalenessTimer()
         SphinxOnionManager.resetSharedInstance()
         super.tearDown()
@@ -375,5 +379,187 @@ final class SphinxOnionManagerServerHealthTests: XCTestCase {
             "server.health.banner.unknown".localized
         )
         XCTAssertNil(ServerHealthPresentation.localizedBannerCopy(for: .ok))
+    }
+
+    // MARK: - Device reachability: banner hidden when offline
+
+    func test_shouldShowBanner_offline_hidesAllHealthStates() {
+        let now: UInt64 = 20_000_000
+
+        // .ok is always hidden regardless, but assert it explicitly for completeness.
+        XCTAssertFalse(ServerHealthPresentation.shouldShowBanner(
+            health: .ok,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: false
+        ))
+
+        // .degraded would normally show immediately — offline suppresses it.
+        XCTAssertFalse(ServerHealthPresentation.shouldShowBanner(
+            health: .degraded,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: false
+        ))
+
+        // .unknown after grace elapsed would normally show — offline suppresses it.
+        XCTAssertFalse(ServerHealthPresentation.shouldShowBanner(
+            health: .unknown,
+            hasReceivedServerStatus: false,
+            trackingStartedAtMs: now,
+            nowMs: now + ServerHealthPresentation.launchGraceMs,
+            isDeviceOnline: false
+        ))
+
+        // .unknown after a real status (staleness path) would normally show — offline suppresses it.
+        XCTAssertFalse(ServerHealthPresentation.shouldShowBanner(
+            health: .unknown,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: false
+        ))
+    }
+
+    func test_shouldShowBanner_online_matchesPreviousBehavior() {
+        let now: UInt64 = 21_000_000
+
+        XCTAssertFalse(ServerHealthPresentation.shouldShowBanner(
+            health: .ok,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: true
+        ))
+        XCTAssertTrue(ServerHealthPresentation.shouldShowBanner(
+            health: .degraded,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: true
+        ))
+        XCTAssertTrue(ServerHealthPresentation.shouldShowBanner(
+            health: .unknown,
+            hasReceivedServerStatus: false,
+            trackingStartedAtMs: now,
+            nowMs: now + ServerHealthPresentation.launchGraceMs,
+            isDeviceOnline: true
+        ))
+        XCTAssertTrue(ServerHealthPresentation.shouldShowBanner(
+            health: .unknown,
+            hasReceivedServerStatus: true,
+            trackingStartedAtMs: now,
+            nowMs: now,
+            isDeviceOnline: true
+        ))
+    }
+
+    func test_isServerHealthBannerVisible_hiddenWhenDeviceOffline() {
+        let start: UInt64 = 13_000_000
+        manager.serverHealthNowMsOverride = start
+        manager.startServerHealthStalenessTimer()
+
+        let degraded = Data(#"{"cln_ok":false,"degraded":true,"reason":null,"ts":13000000}"#.utf8)
+        manager.applyServerStatusPayload(degraded)
+        XCTAssertTrue(manager.isServerHealthBannerVisible, "sanity: visible while online")
+
+        manager.deviceOnlineProvider = { false }
+        XCTAssertFalse(manager.isServerHealthBannerVisible)
+    }
+
+    // MARK: - handleDeviceReachabilityChange transitions
+
+    func test_handleDeviceReachabilityChange_postsOnFlip_notOnRepeat() {
+        manager.deviceOnlineProvider = { true }
+        manager.handleDeviceReachabilityChange()
+
+        manager.deviceOnlineProvider = { false }
+
+        let posted = expectation(description: "offline flip posts onServerHealthChanged")
+        let token = NotificationCenter.default.addObserver(
+            forName: .onServerHealthChanged,
+            object: nil,
+            queue: nil
+        ) { _ in
+            posted.fulfill()
+        }
+        manager.handleDeviceReachabilityChange()
+        wait(for: [posted], timeout: 1)
+        NotificationCenter.default.removeObserver(token)
+
+        let notExpected = expectation(description: "repeat call must not post again")
+        notExpected.isInverted = true
+        let repeatToken = NotificationCenter.default.addObserver(
+            forName: .onServerHealthChanged,
+            object: nil,
+            queue: nil
+        ) { _ in
+            notExpected.fulfill()
+        }
+        manager.handleDeviceReachabilityChange()
+        wait(for: [notExpected], timeout: 0.3)
+        NotificationCenter.default.removeObserver(repeatToken)
+    }
+
+    func test_handleDeviceReachabilityChange_visibilityFlipsWithProvider() {
+        let start: UInt64 = 14_000_000
+        manager.serverHealthNowMsOverride = start
+        manager.startServerHealthStalenessTimer()
+        let degraded = Data(#"{"cln_ok":false,"degraded":true,"reason":null,"ts":14000000}"#.utf8)
+        manager.applyServerStatusPayload(degraded)
+
+        manager.deviceOnlineProvider = { false }
+        manager.handleDeviceReachabilityChange()
+        XCTAssertFalse(manager.isServerHealthBannerVisible)
+
+        manager.deviceOnlineProvider = { true }
+        manager.handleDeviceReachabilityChange()
+        XCTAssertTrue(manager.isServerHealthBannerVisible)
+    }
+
+    // MARK: - Mac staleness timer guarded by device reachability
+
+    func test_stalenessTimer_doesNotMarkUnknown_whileDeviceOffline() {
+        let interval = ServerHealthPresentation.defaultIntervalMs
+        let n = UInt64(ServerHealthPresentation.defaultMaxMissed)
+        let now: UInt64 = 15_000_000
+
+        manager.serverHealthNowMsOverride = now
+        let healthy = Data(#"{"cln_ok":true,"degraded":false,"reason":null,"ts":15000000}"#.utf8)
+        manager.applyServerStatusPayload(healthy)
+        XCTAssertEqual(manager.currentServerHealth, .ok)
+
+        // Device goes offline; last status is well past the staleness window, and
+        // the repeating timer fires quickly so its guard is actually exercised.
+        manager.deviceOnlineProvider = { false }
+        manager.serverHealthStalenessInterval = 0.05
+        manager.startServerHealthStalenessTimer()
+        manager.serverHealthNowMsOverride = now + interval * n + 1
+
+        let notExpected = expectation(description: "timer must not reevaluate while offline")
+        notExpected.isInverted = true
+        let token = NotificationCenter.default.addObserver(
+            forName: .onServerHealthChanged,
+            object: nil,
+            queue: nil
+        ) { _ in
+            notExpected.fulfill()
+        }
+        wait(for: [notExpected], timeout: 0.3)
+        NotificationCenter.default.removeObserver(token)
+        XCTAssertEqual(
+            manager.currentServerHealth, .ok,
+            "guard must prevent the staleness timer from reevaluating while offline"
+        )
+
+        // Now flip back online; the reachability handler resets the staleness
+        // baseline to "now" so `.unknown` can't appear the instant it reconnects.
+        manager.deviceOnlineProvider = { true }
+        manager.handleDeviceReachabilityChange()
+
+        manager.reevaluateServerHealth(nowMs: manager.serverHealthNowMsOverride)
+        XCTAssertNotEqual(manager.currentServerHealth, .unknown)
     }
 }

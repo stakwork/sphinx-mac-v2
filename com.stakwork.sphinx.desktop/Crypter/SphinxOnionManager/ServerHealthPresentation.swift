@@ -44,8 +44,11 @@ enum ServerHealthPresentation {
         health: ServerHealth,
         hasReceivedServerStatus: Bool,
         trackingStartedAtMs: UInt64?,
-        nowMs: UInt64
+        nowMs: UInt64,
+        isDeviceOnline: Bool
     ) -> Bool {
+        guard isDeviceOnline else { return false }
+
         switch health {
         case .ok:
             return false
