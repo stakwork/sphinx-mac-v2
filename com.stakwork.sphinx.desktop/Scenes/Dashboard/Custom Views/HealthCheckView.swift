@@ -56,6 +56,20 @@ class HealthCheckView: NSView, LoadableNib {
                 self?.updateConnectionSign()
             }
         }
+
+        // Device-reachability transitions (handled in SphinxOnionManager+ServerHealthExtension)
+        // post this independently of MQTT's own `isConnected` — without this observer the
+        // bolt only catches up once MQTT itself times out or reconnects, instead of flipping
+        // instantly alongside the server-health banner.
+        NotificationCenter.default.addObserver(
+            forName: .onServerHealthChanged,
+            object: nil,
+            queue: OperationQueue.main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateConnectionSign()
+            }
+        }
     }
     
     func updateConnectionSign() {
