@@ -682,13 +682,14 @@
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
 		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
 		47HIVENVC012F190000000003 /* HiveNotificationPreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */; };
-		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
-		47HP00320EF431AE00CFDA01 /* AIAgentManager+HivePlannerTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */; };
+		47HP00120EF431AE00CFDA01 /* API+HivePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00110EF431AB00CFDA01 /* API+HivePlanner.swift */; };
 		47HP00220EF431AE00CFDA01 /* AIAgentManager+HivePlannerFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00210EF431AB00CFDA01 /* AIAgentManager+HivePlannerFormat.swift */; };
+		47HP00320EF431AE00CFDA01 /* AIAgentManager+HivePlannerTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */; };
+		47HP00420EF431AE00CFDA01 /* HivePlannerToolsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */; };
+		47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */; };
 		47MEDIA012F19000000000001 /* MediaPreloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47MEDIA002F19000000000000 /* MediaPreloadManager.swift */; };
 		47SER0003A2B3C4D00000003 /* SphinxErrorReporter in Frameworks */ = {isa = PBXBuildFile; productRef = 47SER0002A2B3C4D00000002 /* SphinxErrorReporter */; };
 		47WORK012F19000000000001 /* API+HiveExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK002F19000000000001 /* API+HiveExtension.swift */; };
-		47HP00120EF431AE00CFDA01 /* API+HivePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00110EF431AB00CFDA01 /* API+HivePlanner.swift */; };
 		47WORK032F19000000000003 /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK022F19000000000002 /* Workspace.swift */; };
 		47WORK052F19000000000005 /* WorkspacesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK042F19000000000004 /* WorkspacesListViewController.swift */; };
 		47WORK072F19000000000007 /* WorkspacesListCollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */; };
@@ -755,7 +756,6 @@
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
-		47HP00420EF431AE00CFDA01 /* HivePlannerToolsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */; };
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
 		SHLTH0040000000001SHLTH4 /* SphinxOnionManager+ServerHealthExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */; };
@@ -1792,12 +1792,13 @@
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
 		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
 		47HIVENVC002F190000000003 /* HiveNotificationPreferencesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesViewController.swift; sourceTree = "<group>"; };
-		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
-		47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HivePlannerTools.swift"; sourceTree = "<group>"; };
+		47HP00110EF431AB00CFDA01 /* API+HivePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HivePlanner.swift"; sourceTree = "<group>"; };
 		47HP00210EF431AB00CFDA01 /* AIAgentManager+HivePlannerFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HivePlannerFormat.swift"; sourceTree = "<group>"; };
+		47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HivePlannerTools.swift"; sourceTree = "<group>"; };
+		47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HivePlannerToolsTests.swift; sourceTree = "<group>"; };
+		47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveTools.swift"; sourceTree = "<group>"; };
 		47MEDIA002F19000000000000 /* MediaPreloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreloadManager.swift; sourceTree = "<group>"; };
 		47WORK002F19000000000001 /* API+HiveExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HiveExtension.swift"; sourceTree = "<group>"; };
-		47HP00110EF431AB00CFDA01 /* API+HivePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+HivePlanner.swift"; sourceTree = "<group>"; };
 		47WORK022F19000000000002 /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
 		47WORK042F19000000000004 /* WorkspacesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListViewController.swift; sourceTree = "<group>"; };
 		47WORK062F19000000000006 /* WorkspacesListCollectionViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacesListCollectionViewItem.swift; sourceTree = "<group>"; };
@@ -1906,7 +1907,6 @@
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
 		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
-		47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HivePlannerToolsTests.swift; sourceTree = "<group>"; };
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
 		SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ServerHealthExtension.swift"; sourceTree = "<group>"; };
@@ -6130,7 +6130,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 320;
+				CURRENT_PROJECT_VERSION = 321;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -6167,7 +6167,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 320;
+				CURRENT_PROJECT_VERSION = 321;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
