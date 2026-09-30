@@ -697,10 +697,13 @@ extension API {
     func fetchFeatures(
         workspaceId: String,
         authToken: String,
+        page: Int? = nil,
         callback: @escaping (JSON) -> Void,
         errorCallback: @escaping EmptyCallback
     ) {
-        guard let request = createRequest("\(API.kHiveBaseUrl)/features?workspaceId=\(workspaceId)", params: nil, method: "GET", token: authToken) else {
+        var url = "\(API.kHiveBaseUrl)/features?workspaceId=\(workspaceId)"
+        if let page = page { url += "&page=\(page)" }
+        guard let request = createRequest(url, params: nil, method: "GET", token: authToken) else {
             errorCallback(); return
         }
         AF.request(request).responseData { response in
@@ -714,26 +717,28 @@ extension API {
     
     func fetchFeaturesWithAuth(
         workspaceId: String,
+        page: Int? = nil,
         callback: @escaping (JSON) -> Void,
         errorCallback: @escaping EmptyCallback
     ) {
         if let token: String = UserDefaults.Keys.hiveToken.get() {
-            fetchFeatures(workspaceId: workspaceId, authToken: token, callback: callback,
-                          errorCallback: { [weak self] in self?.authenticateAndFetchFeatures(workspaceId: workspaceId, callback: callback, errorCallback: errorCallback) })
+            fetchFeatures(workspaceId: workspaceId, authToken: token, page: page, callback: callback,
+                          errorCallback: { [weak self] in self?.authenticateAndFetchFeatures(workspaceId: workspaceId, page: page, callback: callback, errorCallback: errorCallback) })
         } else {
-            authenticateAndFetchFeatures(workspaceId: workspaceId, callback: callback, errorCallback: errorCallback)
+            authenticateAndFetchFeatures(workspaceId: workspaceId, page: page, callback: callback, errorCallback: errorCallback)
         }
     }
     
     private func authenticateAndFetchFeatures(
         workspaceId: String,
+        page: Int? = nil,
         callback: @escaping (JSON) -> Void,
         errorCallback: @escaping EmptyCallback
     ) {
         authenticateWithHive(callback: { [weak self] token in
             guard let token = token else { errorCallback(); return }
             UserDefaults.Keys.hiveToken.set(token)
-            self?.fetchFeatures(workspaceId: workspaceId, authToken: token, callback: callback, errorCallback: errorCallback)
+            self?.fetchFeatures(workspaceId: workspaceId, authToken: token, page: page, callback: callback, errorCallback: errorCallback)
         }, errorCallback: errorCallback)
     }
     

@@ -414,7 +414,7 @@ extension AIAgentManager {
 
     func buildGetFeatureDetailTool() -> TypedTool<HiveFeatureNameInput, JSONValue> {
         tool(
-            description: "Get detailed information about a specific Hive feature by name within a workspace.",
+            description: "Get detailed information about a specific Hive feature by name within a workspace: status, priority, description, workflow status, deployment status, deployment URL (if deployed), timestamps and task count.",
             execute: { (input: HiveFeatureNameInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard let workspaces = await AIAgentManager.fetchWorkspacesAsync() else {
                     return .value(.string("Failed to fetch Hive workspaces."))
@@ -451,27 +451,9 @@ extension AIAgentManager {
                     return .value(.string("No feature found matching '\(input.feature_name)'. Available: \(featureCandidates.joined(separator: ", "))."))
                 }
 
-                let detailJson: JSON? = await withCheckedContinuation { continuation in
-                    API.sharedInstance.fetchFeatureDetailWithAuth(
-                        featureId: featureId,
-                        callback: { continuation.resume(returning: $0) },
-                        errorCallback: { continuation.resume(returning: nil) }
-                    )
-                }
-
-                let detail = detailJson ?? featureJson
-                var lines: [String] = []
-                lines.append("Feature: \(detail["title"].string ?? input.feature_name)")
-                lines.append("ID: \(featureId)")
-                if let status = detail["status"].string      { lines.append("Status: \(status)") }
-                if let priority = detail["priority"].string  { lines.append("Priority: \(priority)") }
-                if let desc = detail["description"].string, !desc.isEmpty { lines.append("Description: \(desc)") }
-                if let created = detail["createdAt"].string  { lines.append("Created: \(created)") }
-                if let updated = detail["updatedAt"].string  { lines.append("Updated: \(updated)") }
-                let taskCount = detail["taskCount"].int ?? detail["tasks"].array?.count
-                if let tc = taskCount { lines.append("Tasks: \(tc)") }
-
-                return .value(.string(lines.joined(separator: "\n")))
+                let detailJson = await AIAgentManager.fetchFeatureDetailAsync(featureId: featureId)
+                let title = featureJson["title"].string ?? input.feature_name
+                return .value(.string(AIAgentManager.formatFeatureDetail(json: detailJson, featureId: featureId, fallbackTitle: title)))
             }
         )
     }
