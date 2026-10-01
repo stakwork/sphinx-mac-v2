@@ -440,9 +440,21 @@ extension AIAgentManager {
         let question: String
     }
 
-    func buildQueryHiveGraphTool() -> TypedTool<QueryHiveGraphInput, JSONValue> {
-        tool(
-            description: "Query the Hive org knowledge graph via Jamie (the Hive AI agent). DEFAULT tool for any Hive question that is analytical, open-ended, or requires org-wide context — features, tasks, workspaces, codebase, architecture, team activity, or project status. Call this proactively WITHOUT waiting for the user to mention 'Jamie'. No workspace name needed. Only skip in favour of specific Hive CRUD tools when the user explicitly requests a targeted operation (list, detail, create, update, archive).",
+    /// `ownerNickname` is resolved fresh per-turn by the caller (`chat(_:)`) — same
+    /// pattern as `read_app_logs`'s injected "Current device time" — so Jamie always
+    /// gets the owner's current Sphinx nickname baked directly into the tool
+    /// description. Without this, the LLM has no identity to attach to questions like
+    /// "what have I worked on", and sends Jamie a vague "the user" reference that
+    /// Jamie — which only knows real names/logins from the org's own data — can't resolve.
+    func buildQueryHiveGraphTool(ownerNickname: String?) -> TypedTool<QueryHiveGraphInput, JSONValue> {
+        let identityNote: String
+        if let name = ownerNickname, !name.isEmpty {
+            identityNote = " The user's own Sphinx nickname is '\(name)'. When they ask about themselves (\"what have I worked on\", \"my tasks\", \"catch me up on my work\"), phrase the question to Jamie using '\(name)' as the actual name — never send a vague reference like \"the user\" or \"I\", since Jamie has no notion of who that is."
+        } else {
+            identityNote = " If the user asks about themselves (\"I\", \"me\", \"my work\") and their name isn't known, ask them for their name first rather than sending Jamie a vague \"the user\" reference it can't resolve."
+        }
+        return tool(
+            description: "Query the Hive org knowledge graph via Jamie (the Hive AI agent). DEFAULT tool for any Hive question that is analytical, open-ended, or requires org-wide context — features, tasks, workspaces, codebase, architecture, team activity, or project status. Call this proactively WITHOUT waiting for the user to mention 'Jamie'. No workspace name needed. Only skip in favour of specific Hive CRUD tools when the user explicitly requests a targeted operation (list, detail, create, update, archive)." + identityNote,
             execute: { [weak self] (input: QueryHiveGraphInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard let self = self else { return .value(.string("Agent unavailable.")) }
                 let result = await self.executeQueryHiveGraph(question: input.question)

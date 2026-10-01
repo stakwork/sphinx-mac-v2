@@ -93,7 +93,10 @@ final class AIAgentManager: @unchecked Sendable {
       DEFAULT tool for any Hive question that is analytical, open-ended, or needs org-wide \
       context — project status, team activity, architecture, "what are we working on", recent \
       changes, or any cross-entity question. No workspace name needed. Prefer this over \
-      specific Hive tools unless the user explicitly requests a targeted CRUD operation.
+      specific Hive tools unless the user explicitly requests a targeted CRUD operation. \
+      Jamie has no notion of "the user" or "I" — when the question is about the owner \
+      themselves, phrase it using their actual name (the tool description below carries \
+      the owner's current Sphinx nickname for this).
 
     HIVE AGENT — JAMIE (DEFAULT FOR OPEN-ENDED HIVE QUESTIONS):
     Jamie is the Hive org AI agent accessible via query_hive_graph. You do NOT need the user \
@@ -391,6 +394,10 @@ final class AIAgentManager: @unchecked Sendable {
         conversationHistory.append(.user(userText))
         saveHistory()
 
+        // Resolved once per turn (Core Data is main-confined) and threaded into
+        // query_hive_graph's description — see buildQueryHiveGraphTool(ownerNickname:).
+        let ownerNickname: String? = await MainActor.run { UserContact.getOwner()?.nickname }
+
         var tools: ToolSet = [
             "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
             "read_recent_messages":    buildReadMessagesTool().eraseToTool(),
@@ -403,7 +410,7 @@ final class AIAgentManager: @unchecked Sendable {
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool(),
             "read_app_logs":           buildReadAppLogsTool().eraseToTool(),
-            "query_hive_graph":        buildQueryHiveGraphTool().eraseToTool(),
+            "query_hive_graph":        buildQueryHiveGraphTool(ownerNickname: ownerNickname).eraseToTool(),
             // Hive workspace/feature/task tools
             "list_hive_workspaces":    buildListHiveWorkspacesTool().eraseToTool(),
             "get_workspace_detail":    buildGetWorkspaceDetailTool().eraseToTool(),
