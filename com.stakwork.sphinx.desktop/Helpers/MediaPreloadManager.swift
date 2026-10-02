@@ -281,7 +281,7 @@ class MediaPreloadManager: @unchecked Sendable {
                     url: urlString
                 )
 
-                MediaLoader.getThumbnailImageFromVideoData(data: data, videoUrl: urlString) { [weak self] thumbnail in
+                MediaLoader.getThumbnailImageFromVideoData(data: decryptedData, videoUrl: urlString) { [weak self] thumbnail in
                     self?.notifyVideoSuccess(for: urlString, data: decryptedData, image: thumbnail)
                 }
                 return
