@@ -13,7 +13,7 @@ import SwiftAISDK
 
 /// Minimal recursive Codable value supporting strings and nested dicts.
 /// Used for ToolCall.output so `payload` / `meta` can be nested objects.
-enum CodableJSONValue: Codable {
+enum CodableJSONValue: Codable, Sendable {
     case string(String)
     case object([String: CodableJSONValue])
 
@@ -42,14 +42,14 @@ extension Dictionary where Key == String, Value == CodableJSONValue {
 
 extension AIAgentManager {
 
-    struct CanvasChatMessage: Codable {
+    struct CanvasChatMessage: Codable, Sendable {
         let role: String           // "user" or "assistant"
         let content: String
         var toolCalls: [ToolCall]?
         var approvalResult: ApprovalResult?
     }
 
-    struct ToolCall: Codable {
+    struct ToolCall: Codable, Sendable {
         let id: String?            // toolCallId from SSE (e.g. "toulu_01RZ8...")
         let toolName: String
         let status: String?        // "output-available" once output is known
@@ -83,7 +83,7 @@ extension AIAgentManager {
         let proposalId: String
     }
 
-    struct ApprovalResult: Codable {
+    struct ApprovalResult: Codable, Sendable {
         let approved: Bool            // synthesized: true on decode (server success), false for rejection
         let proposalId: String
         let kind: String?
@@ -136,7 +136,7 @@ extension AIAgentManager {
         }
     }
 
-    struct PendingProposal: Codable {
+    struct PendingProposal: Codable, Sendable {
         let proposalId: String
         let kind: String
         let title: String
