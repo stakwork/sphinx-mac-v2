@@ -136,6 +136,31 @@ final class AIAgentHiveMultiOrgTests: XCTestCase {
         }
     }
 
+    func testResolveOrg_matchesByFuzzyName() {
+        // "Stakwrok" is a one-transposition typo of "Stakwork" — Levenshtein distance 2
+        // (standard edit distance has no transposition special-case), within the
+        // threshold (max(1, len/4) = 2 for an 8-char name) and not a substring either
+        // way, so this only resolves via the Levenshtein pass, not exact/contains.
+        let orgs = [org("1", login: "stakwork", name: "Stakwork")]
+        let result = AIAgentManager.resolveOrg("Stakwrok", in: orgs)
+        switch result {
+        case .success(let o): XCTAssertEqual(o.id, "1")
+        default: XCTFail("expected fuzzy success")
+        }
+    }
+
+    func testResolveOrg_fuzzyNameAmbiguousWhenClose() {
+        // "Keta" is Levenshtein distance 1 from both "Beta" and "Zeta" — an exact tie,
+        // not "clearly closer" (needs dist+2 <= next), so this must stay ambiguous
+        // rather than silently picking one.
+        let orgs = [org("1", login: "beta", name: "Beta"), org("2", login: "zeta", name: "Zeta")]
+        let result = AIAgentManager.resolveOrg("Keta", in: orgs)
+        switch result {
+        case .failure(.ambiguous(let candidates)): XCTAssertEqual(candidates.count, 2)
+        default: XCTFail("expected ambiguous")
+        }
+    }
+
     func testResolveOrg_unknownRef() {
         let orgs = [org("1", login: "acme", name: "Acme")]
         let result = AIAgentManager.resolveOrg("does-not-exist", in: orgs)

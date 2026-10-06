@@ -1077,7 +1077,7 @@ extension AIAgentManager {
         var cachedAt: Double
     }
 
-    enum OrgResolutionError: Equatable {
+    enum OrgResolutionError: Error, Equatable {
         case ambiguous([HiveOrg])
         case unknown
         case noOrgs
@@ -1117,10 +1117,18 @@ extension AIAgentManager {
     }
 
     /// Pure resolution of a model-supplied org reference against the cached org list.
-    /// Trims `ref`, then matches exact login → id → name (case-insensitive). More than
-    /// one match at any step is `.ambiguous` (never pick the first). A nil/empty `ref`
-    /// resolves to the only org, `.ambiguous(all)` when there are several, or `.noOrgs`
-    /// when there are none. The returned value is always an element of `orgs`.
+    /// Trims `ref`, then matches exact login → exact id → fuzzy name (case-insensitive).
+    /// Login/id are structured identifiers so they stay exact match; name is free text a
+    /// user or model may type loosely, so it goes through the same 3-pass fuzzy match
+    /// (exact → contains → Levenshtein) as `resolveWorkspace`/`resolveHiveItem`, using
+    /// the same `hiveNormalizeName`/`hiveLevenshtein` helpers — kept inline rather than
+    /// calling `resolveHiveItem` directly so `.ambiguous` can keep carrying full `HiveOrg`
+    /// objects (that generic helper returns `[String]` display names, and changing that
+    /// would ripple through its ~10 other call sites for no benefit here).
+    /// More than one match at any step is `.ambiguous` (never pick the first). A
+    /// nil/empty `ref` resolves to the only org, `.ambiguous(all)` when there are
+    /// several, or `.noOrgs` when there are none. The returned value is always an
+    /// element of `orgs`.
     static func resolveOrg(_ ref: String?, in orgs: [HiveOrg]) -> Result<HiveOrg, OrgResolutionError> {
         let trimmed = (ref ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -1139,9 +1147,37 @@ extension AIAgentManager {
         if idMatches.count > 1 { return .failure(.ambiguous(idMatches)) }
         if let match = idMatches.first { return .success(match) }
 
-        let nameMatches = orgs.filter { $0.name.lowercased() == lower }
-        if nameMatches.count > 1 { return .failure(.ambiguous(nameMatches)) }
-        if let match = nameMatches.first { return .success(match) }
+        // Name: 3-pass fuzzy match (exact → contains → Levenshtein). Exact uses
+        // filter + count-check, not `.first(where:)` — a tie must stay `.ambiguous`,
+        // never silently pick one (see testResolveOrg_duplicateNamesAreAmbiguous).
+        let normalizedQuery = hiveNormalizeName(trimmed)
+
+        let exactNameMatches = orgs.filter { hiveNormalizeName($0.name) == normalizedQuery }
+        if exactNameMatches.count > 1 { return .failure(.ambiguous(exactNameMatches)) }
+        if let match = exactNameMatches.first { return .success(match) }
+
+        let containsMatches = orgs.filter { org in
+            let n = hiveNormalizeName(org.name)
+            return n.contains(normalizedQuery) || normalizedQuery.contains(n)
+        }
+        if containsMatches.count == 1 { return .success(containsMatches[0]) }
+        if containsMatches.count > 1  { return .failure(.ambiguous(containsMatches)) }
+
+        let threshold = max(1, normalizedQuery.count / 4)
+        let fuzzyMatches = orgs
+            .map { org -> (org: HiveOrg, dist: Int) in
+                (org, hiveLevenshtein(hiveNormalizeName(org.name), normalizedQuery))
+            }
+            .filter { $0.dist <= threshold }
+            .sorted { $0.dist < $1.dist }
+
+        if fuzzyMatches.count == 1 { return .success(fuzzyMatches[0].org) }
+        if fuzzyMatches.count > 1 {
+            if fuzzyMatches[0].dist + 2 <= fuzzyMatches[1].dist {
+                return .success(fuzzyMatches[0].org)
+            }
+            return .failure(.ambiguous(fuzzyMatches.map { $0.org }))
+        }
 
         return .failure(.unknown)
     }

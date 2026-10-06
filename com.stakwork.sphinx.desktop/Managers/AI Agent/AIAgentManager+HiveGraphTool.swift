@@ -150,7 +150,7 @@ extension AIAgentManager {
         var orgGithubLogin: String? = nil
     }
 
-    enum ProposalOrgError: Equatable {
+    enum ProposalOrgError: Error, Equatable {
         case notFound
     }
 
