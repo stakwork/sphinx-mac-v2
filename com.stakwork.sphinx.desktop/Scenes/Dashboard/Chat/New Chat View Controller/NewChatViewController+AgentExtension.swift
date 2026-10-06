@@ -60,11 +60,18 @@ extension NewChatViewController {
         // Restore from UserDefaults if the in-memory proposal was lost on app restart
         AIAgentManager.sharedInstance.loadPersistedPendingProposal()
         guard let pending = AIAgentManager.sharedInstance.pendingProposal else { return }
-        // Check if already actioned in history
-        guard let orgId: String = UserDefaults.Keys.hiveOrgId.get(), !orgId.isEmpty else { return }
-        AIAgentManager.sharedInstance.loadCanvasHistory(orgId: orgId)
+
+        // Resolve which org owns this proposal; if no single org can be determined,
+        // don't restore the card. Uses the pure canvasHistory(orgId:) reader so this
+        // can't swap shared state under an in-flight query.
+        guard case .success(let org) = AIAgentManager.resolveProposalOrg(proposalId: pending.proposalId) else {
+            print("[AIAgent] restoreProposalCardIfNeeded: couldn't determine org — not restoring card")
+            return
+        }
+
         let proposalNames: Set<String> = ["propose_feature", "propose_initiative", "propose_milestone"]
-        let alreadyActioned = AIAgentManager.sharedInstance.canvasChatHistory.contains(where: {
+        let history = AIAgentManager.canvasHistory(orgId: org.id)
+        let alreadyActioned = history.contains(where: {
             guard let toolCalls = $0.toolCalls else { return false }
             return toolCalls.contains(where: {
                 proposalNames.contains($0.toolName) &&

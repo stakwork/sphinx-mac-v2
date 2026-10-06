@@ -306,10 +306,15 @@ final class AIAgentManager: @unchecked Sendable {
             reset()
         }
 
-        // Pre-cache Hive org info in the background
+        // Pre-cache Hive org info in the background. Load the full org list; only
+        // when the user belongs to exactly one org do we also prefetch its slugs here.
+        // Multi-org users' slugs load lazily on that org's first query_hive_graph call
+        // (no N-way fan-out at startup).
         Task {
-            await AIAgentManager.fetchAndCacheHiveOrg()
-            await AIAgentManager.fetchAndCacheOrgSlugs()
+            await AIAgentManager.fetchAndCacheHiveOrgs()
+            if let only = AIAgentManager.defaultOrg {
+                await AIAgentManager.fetchAndCacheOrgSlugs(org: only)
+            }
         }
 
         // Create agent contact + chat if not already present
@@ -395,8 +400,10 @@ final class AIAgentManager: @unchecked Sendable {
         saveHistory()
 
         // Resolved once per turn (Core Data is main-confined) and threaded into
-        // query_hive_graph's description — see buildQueryHiveGraphTool(ownerNickname:).
+        // query_hive_graph's description — see buildQueryHiveGraphTool(ownerNickname:orgs:).
         let ownerNickname: String? = await MainActor.run { UserContact.getOwner()?.nickname }
+        // Read fresh each turn so the agent always has an up-to-date org list.
+        let hiveOrgs = AIAgentManager.cachedHiveOrgs()
 
         var tools: ToolSet = [
             "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
@@ -410,7 +417,7 @@ final class AIAgentManager: @unchecked Sendable {
             "connect_with_user":       buildConnectWithUserTool().eraseToTool(),
             "create_tribe":            buildCreateTribeTool().eraseToTool(),
             "read_app_logs":           buildReadAppLogsTool().eraseToTool(),
-            "query_hive_graph":        buildQueryHiveGraphTool(ownerNickname: ownerNickname).eraseToTool(),
+            "query_hive_graph":        buildQueryHiveGraphTool(ownerNickname: ownerNickname, orgs: hiveOrgs).eraseToTool(),
             // Hive workspace/feature/task tools
             "list_hive_workspaces":    buildListHiveWorkspacesTool().eraseToTool(),
             "get_workspace_detail":    buildGetWorkspaceDetailTool().eraseToTool(),

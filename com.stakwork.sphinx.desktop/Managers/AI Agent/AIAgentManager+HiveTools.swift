@@ -1049,74 +1049,246 @@ extension AIAgentManager {
         )
     }
 
-    // MARK: - Org Cache Helpers
+    // MARK: - Org Cache Helpers (Multi-Org)
 
-    /// Fetches org info from GET /api/orgs and caches hiveOrgId + hiveGithubLogin.
-    static func fetchAndCacheHiveOrg() async {
-        let org: HiveOrg? = await withCheckedContinuation { continuation in
+    /// TTL used both for the org-slug cache and for re-checking the org list.
+    static let hiveOrgCacheTTL: TimeInterval = 86400
+
+    /// One private serial queue used to serialize every decode→mutate→encode→set
+    /// cycle against `hiveOrgs`, `hiveOrgSlugsByOrg`, `hiveConversationIdByOrg`,
+    /// `hiveCanvasChatHistoryByOrg` and `hivePendingProposal`. `sync` is used so
+    /// callers get a synchronous, serialized read/write — do NOT call `hiveCacheSync`
+    /// recursively from within a `hiveCacheSync` block (DispatchQueue.sync is not
+    /// reentrant and will deadlock).
+    private static let hiveCacheQueue = DispatchQueue(label: "com.sphinx.aiagent.hiveCache")
+
+    @discardableResult
+    static func hiveCacheSync<T>(_ body: () -> T) -> T {
+        hiveCacheQueue.sync(execute: body)
+    }
+
+    struct HiveOrgsCacheData: Codable {
+        var orgs: [HiveOrg]
+        var cachedAt: Double
+    }
+
+    struct OrgSlugsEntry: Codable {
+        var slugs: [String]
+        var cachedAt: Double
+    }
+
+    enum OrgResolutionError: Equatable {
+        case ambiguous([HiveOrg])
+        case unknown
+        case noOrgs
+    }
+
+    /// Returns the full cached org list (empty if nothing cached yet).
+    static func cachedHiveOrgs() -> [HiveOrg] {
+        hiveCacheSync {
+            guard let data: Data = UserDefaults.Keys.hiveOrgs.get(),
+                  let cache = try? JSONDecoder().decode(HiveOrgsCacheData.self, from: data) else { return [] }
+            return cache.orgs
+        }
+    }
+
+    /// Returns when the org list cache was last written, if present.
+    static func cachedHiveOrgsCachedAt() -> Double? {
+        hiveCacheSync {
+            guard let data: Data = UserDefaults.Keys.hiveOrgs.get(),
+                  let cache = try? JSONDecoder().decode(HiveOrgsCacheData.self, from: data) else { return nil }
+            return cache.cachedAt
+        }
+    }
+
+    static func cacheHiveOrgs(_ orgs: [HiveOrg]) {
+        hiveCacheSync {
+            let cache = HiveOrgsCacheData(orgs: orgs, cachedAt: Date().timeIntervalSince1970)
+            guard let encoded = try? JSONEncoder().encode(cache) else { return }
+            UserDefaults.Keys.hiveOrgs.set(encoded)
+        }
+    }
+
+    /// The single cached org when exactly one is known, else nil. Never falls back
+    /// to "first org" for multi-org users.
+    static var defaultOrg: HiveOrg? {
+        let orgs = cachedHiveOrgs()
+        return orgs.count == 1 ? orgs.first : nil
+    }
+
+    /// Pure resolution of a model-supplied org reference against the cached org list.
+    /// Trims `ref`, then matches exact login → id → name (case-insensitive). More than
+    /// one match at any step is `.ambiguous` (never pick the first). A nil/empty `ref`
+    /// resolves to the only org, `.ambiguous(all)` when there are several, or `.noOrgs`
+    /// when there are none. The returned value is always an element of `orgs`.
+    static func resolveOrg(_ ref: String?, in orgs: [HiveOrg]) -> Result<HiveOrg, OrgResolutionError> {
+        let trimmed = (ref ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            if orgs.count == 1 { return .success(orgs[0]) }
+            if orgs.isEmpty { return .failure(.noOrgs) }
+            return .failure(.ambiguous(orgs))
+        }
+
+        let lower = trimmed.lowercased()
+
+        let loginMatches = orgs.filter { $0.githubLogin.lowercased() == lower }
+        if loginMatches.count > 1 { return .failure(.ambiguous(loginMatches)) }
+        if let match = loginMatches.first { return .success(match) }
+
+        let idMatches = orgs.filter { $0.id.lowercased() == lower }
+        if idMatches.count > 1 { return .failure(.ambiguous(idMatches)) }
+        if let match = idMatches.first { return .success(match) }
+
+        let nameMatches = orgs.filter { $0.name.lowercased() == lower }
+        if nameMatches.count > 1 { return .failure(.ambiguous(nameMatches)) }
+        if let match = nameMatches.first { return .success(match) }
+
+        return .failure(.unknown)
+    }
+
+    /// Removes per-org slugs/conversation-id/canvas-history entries, and any pending
+    /// proposal, that belong to an org no longer present in `validOrgIds`.
+    /// Must only be called from inside `hiveCacheSync` (it does not take the lock
+    /// itself) or directly when the caller already holds it.
+    @discardableResult
+    private static func pruneOrgScopedCachesLocked(validOrgIds: Set<String>) -> Int {
+        var prunedCount = 0
+
+        if let data: Data = UserDefaults.Keys.hiveOrgSlugsByOrg.get(),
+           let existing = try? JSONDecoder().decode([String: OrgSlugsEntry].self, from: data) {
+            let filtered = existing.filter { validOrgIds.contains($0.key) }
+            if filtered.count != existing.count {
+                prunedCount += existing.count - filtered.count
+                if let encoded = try? JSONEncoder().encode(filtered) {
+                    UserDefaults.Keys.hiveOrgSlugsByOrg.set(encoded)
+                }
+            }
+        }
+
+        if let data: Data = UserDefaults.Keys.hiveConversationIdByOrg.get(),
+           let existing = try? JSONDecoder().decode([String: String].self, from: data) {
+            let filtered = existing.filter { validOrgIds.contains($0.key) }
+            if filtered.count != existing.count {
+                prunedCount += existing.count - filtered.count
+                if let encoded = try? JSONEncoder().encode(filtered) {
+                    UserDefaults.Keys.hiveConversationIdByOrg.set(encoded)
+                }
+            }
+        }
+
+        if let data: Data = UserDefaults.Keys.hiveCanvasChatHistoryByOrg.get(),
+           let existing = try? JSONDecoder().decode([String: [CanvasChatMessage]].self, from: data) {
+            let filtered = existing.filter { validOrgIds.contains($0.key) }
+            if filtered.count != existing.count {
+                prunedCount += existing.count - filtered.count
+                if let encoded = try? JSONEncoder().encode(filtered) {
+                    UserDefaults.Keys.hiveCanvasChatHistoryByOrg.set(encoded)
+                }
+            }
+        }
+
+        if let data: Data = UserDefaults.Keys.hivePendingProposal.get(),
+           let proposal = try? JSONDecoder().decode(PendingProposal.self, from: data),
+           let proposalOrgId = proposal.orgId,
+           !validOrgIds.contains(proposalOrgId) {
+            UserDefaults.Keys.hivePendingProposal.removeValue()
+            prunedCount += 1
+        }
+
+        return prunedCount
+    }
+
+    /// Fetches the full org list from GET /api/orgs and caches it. An empty list is a
+    /// valid success result (zero orgs) and is cached as such — it must never reach
+    /// errorCallback or trigger re-authentication. On failure, the previous cache is
+    /// left untouched. Prunes per-org slugs/conversation id/canvas history and any
+    /// pending proposal whose org is no longer present.
+    static func fetchAndCacheHiveOrgs() async {
+        let orgs: [HiveOrg]? = await withCheckedContinuation { continuation in
             API.sharedInstance.fetchOrgsWithAuth(
                 callback: { continuation.resume(returning: $0) },
                 errorCallback: { continuation.resume(returning: nil) }
             )
         }
-        guard let org = org else {
-            print("[AIAgent] fetchAndCacheHiveOrg: failed to fetch org")
+        guard let orgs = orgs else {
+            print("[AIAgent] fetchAndCacheHiveOrgs: failed to fetch orgs — keeping previous cache")
             return
         }
-        UserDefaults.Keys.hiveOrgId.set(org.id)
-        UserDefaults.Keys.hiveGithubLogin.set(org.githubLogin)
-        print("[AIAgent] fetchAndCacheHiveOrg: cached org '\(org.name)' id=\(org.id) login=\(org.githubLogin)")
+
+        let previousCount = cachedHiveOrgs().count
+        let prunedCount: Int = hiveCacheSync {
+            let cache = HiveOrgsCacheData(orgs: orgs, cachedAt: Date().timeIntervalSince1970)
+            if let encoded = try? JSONEncoder().encode(cache) {
+                UserDefaults.Keys.hiveOrgs.set(encoded)
+            }
+            return pruneOrgScopedCachesLocked(validOrgIds: Set(orgs.map { $0.id }))
+        }
+        print("[AIAgent] fetchAndCacheHiveOrgs: cached \(orgs.count) org(s) (was \(previousCount)), pruned \(prunedCount) stale entrie(s)")
     }
 
-    /// Fetches workspace slugs for the cached org and stores them with a timestamp.
-    /// Clears conversationId cache if slugs changed.
-    static func fetchAndCacheOrgSlugs() async {
-        // Ensure we have githubLogin
-        if UserDefaults.Keys.hiveGithubLogin.get() == nil {
-            await fetchAndCacheHiveOrg()
-        }
-        guard let githubLogin: String = UserDefaults.Keys.hiveGithubLogin.get(), !githubLogin.isEmpty else {
-            print("[AIAgent] fetchAndCacheOrgSlugs: no githubLogin available")
-            return
-        }
-
+    /// Fetches workspace slugs for `org` and stores them (per-org) with a timestamp.
+    /// If the slug set changed from what was cached, clears only that org's
+    /// conversation id — unless the currently pending proposal belongs to this org,
+    /// in which case the conversation id is kept until the proposal is actioned.
+    static func fetchAndCacheOrgSlugs(org: HiveOrg) async {
         let slugs: [String]? = await withCheckedContinuation { continuation in
             API.sharedInstance.fetchOrgWorkspacesWithAuth(
-                githubLogin: githubLogin,
+                githubLogin: org.githubLogin,
                 callback: { continuation.resume(returning: $0) },
                 errorCallback: { continuation.resume(returning: nil) }
             )
         }
         guard let slugs = slugs else {
-            print("[AIAgent] fetchAndCacheOrgSlugs: failed to fetch slugs")
+            print("[AIAgent] fetchAndCacheOrgSlugs: failed to fetch slugs — orgId: \(org.id)")
             return
         }
 
-        // Check if slugs changed — if so, clear conversationId cache
-        if let existingData: Data = UserDefaults.Keys.hiveOrgSlugs.get(),
-           let existingSlugs = try? JSONDecoder().decode([String].self, from: existingData) {
-            let oldSet = Set(existingSlugs)
-            let newSet = Set(slugs)
-            if oldSet != newSet {
-                print("[AIAgent] fetchAndCacheOrgSlugs: slug set changed, clearing conversationId cache")
-                UserDefaults.Keys.hiveConversationIdByOrg.set(nil as Data?)
+        hiveCacheSync {
+            var slugsDict: [String: OrgSlugsEntry] = [:]
+            if let data: Data = UserDefaults.Keys.hiveOrgSlugsByOrg.get(),
+               let existing = try? JSONDecoder().decode([String: OrgSlugsEntry].self, from: data) {
+                slugsDict = existing
+            }
+
+            if let existingEntry = slugsDict[org.id], Set(existingEntry.slugs) != Set(slugs) {
+                let pendingBelongsToOrg: Bool = {
+                    guard let data: Data = UserDefaults.Keys.hivePendingProposal.get(),
+                          let proposal = try? JSONDecoder().decode(PendingProposal.self, from: data) else { return false }
+                    return proposal.orgId == org.id
+                }()
+
+                if pendingBelongsToOrg {
+                    print("[AIAgent] fetchAndCacheOrgSlugs: slug set changed — orgId: \(org.id), keeping conversationId (pending proposal belongs to this org)")
+                } else {
+                    if let data: Data = UserDefaults.Keys.hiveConversationIdByOrg.get(),
+                       var convDict = try? JSONDecoder().decode([String: String].self, from: data) {
+                        convDict.removeValue(forKey: org.id)
+                        if let encoded = try? JSONEncoder().encode(convDict) {
+                            UserDefaults.Keys.hiveConversationIdByOrg.set(encoded)
+                        }
+                    }
+                    print("[AIAgent] fetchAndCacheOrgSlugs: slug set changed — orgId: \(org.id), cleared conversationId")
+                }
+            }
+
+            slugsDict[org.id] = OrgSlugsEntry(slugs: slugs, cachedAt: Date().timeIntervalSince1970)
+            if let encoded = try? JSONEncoder().encode(slugsDict) {
+                UserDefaults.Keys.hiveOrgSlugsByOrg.set(encoded)
             }
         }
-
-        if let encoded = try? JSONEncoder().encode(slugs) {
-            UserDefaults.Keys.hiveOrgSlugs.set(encoded)
-        }
-        UserDefaults.Keys.hiveOrgSlugsCacheDate.set(Date().timeIntervalSince1970)
-        print("[AIAgent] fetchAndCacheOrgSlugs: cached \(slugs.count) slug(s)")
+        print("[AIAgent] fetchAndCacheOrgSlugs: cached \(slugs.count) slug(s) — orgId: \(org.id)")
     }
 
-    /// Returns cached org slugs if the cache is less than 24 hours old, else nil.
-    static func cachedOrgSlugs() -> [String]? {
-        guard let cacheDate: Double = UserDefaults.Keys.hiveOrgSlugsCacheDate.get() else { return nil }
-        let age = Date().timeIntervalSince1970 - cacheDate
-        guard age < 86400 else { return nil }
-        guard let data: Data = UserDefaults.Keys.hiveOrgSlugs.get(),
-              let slugs = try? JSONDecoder().decode([String].self, from: data) else { return nil }
-        return slugs
+    /// Returns cached slugs for `orgId` if the per-org cache is less than
+    /// `hiveOrgCacheTTL` old, else nil.
+    static func cachedOrgSlugs(orgId: String) -> [String]? {
+        hiveCacheSync {
+            guard let data: Data = UserDefaults.Keys.hiveOrgSlugsByOrg.get(),
+                  let dict = try? JSONDecoder().decode([String: OrgSlugsEntry].self, from: data),
+                  let entry = dict[orgId] else { return nil }
+            let age = Date().timeIntervalSince1970 - entry.cachedAt
+            guard age < hiveOrgCacheTTL else { return nil }
+            return entry.slugs
+        }
     }
 }

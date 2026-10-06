@@ -755,6 +755,7 @@
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
+		AHMOT0020000000001AHMOT2 /* AIAgentHiveMultiOrgTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
@@ -1906,6 +1907,7 @@
 		ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppLogsViewController.swift; sourceTree = "<group>"; };
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
+		AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveMultiOrgTests.swift; sourceTree = "<group>"; };
 		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
@@ -2365,6 +2367,7 @@
 				JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */,
 				47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */,
 				HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */,
+				AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */,
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				APPCT01100000001APPCT011 /* AppContextTests.swift */,
@@ -5330,6 +5333,7 @@
 				JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */,
 				47HP00420EF431AE00CFDA01 /* HivePlannerToolsTests.swift in Sources */,
 				HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */,
+				AHMOT0020000000001AHMOT2 /* AIAgentHiveMultiOrgTests.swift in Sources */,
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */,

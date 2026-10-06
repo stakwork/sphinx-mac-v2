@@ -12,14 +12,14 @@ import SwiftyJSON
 
 // MARK: - HiveOrg Model
 
-struct HiveOrg {
+struct HiveOrg: Codable, Equatable {
     let id: String
     let githubLogin: String
     let name: String
 }
 
 typealias HiveAuthTokenCallback = ((String?) -> ())
-typealias HiveOrgsCallback = ((HiveOrg) -> ())
+typealias HiveOrgsCallback = (([HiveOrg]) -> ())
 typealias HiveOrgSlugsCallback = (([String]) -> ())
 typealias HiveWorkspacesCallback = (([Workspace]) -> ())
 typealias HiveTasksCallback = (([WorkspaceTask]) -> ())
@@ -214,17 +214,23 @@ extension API {
             switch response.result {
             case .success(let data):
                 let json = JSON(data)
-                guard let orgsArray = json.array, let firstOrg = orgsArray.first,
-                      let id = firstOrg["id"].string,
-                      let githubLogin = firstOrg["githubLogin"].string,
-                      let name = firstOrg["name"].string else {
-                    print("[Hive] fetchOrgs: no orgs found or parse failed")
+                guard let orgsArray = json.array else {
+                    print("[Hive] fetchOrgs: parse failed — response was not an array")
                     errorCallback()
                     return
                 }
-                let org = HiveOrg(id: id, githubLogin: githubLogin, name: name)
-                print("[Hive] fetchOrgs: found org '\(name)' id=\(id)")
-                callback(org)
+                // Parse every valid entry; skip invalid ones. An empty array is a
+                // valid success result (user has zero orgs) — never routed to errorCallback.
+                let orgs: [HiveOrg] = orgsArray.compactMap { entry in
+                    guard let id = entry["id"].string,
+                          let githubLogin = entry["githubLogin"].string,
+                          let name = entry["name"].string else {
+                        return nil
+                    }
+                    return HiveOrg(id: id, githubLogin: githubLogin, name: name)
+                }
+                print("[Hive] fetchOrgs: found \(orgs.count) org(s)")
+                callback(orgs)
             case .failure(let error):
                 print("[Hive] fetchOrgs failed — status: \(response.response?.statusCode ?? -1), error: \(error.localizedDescription)")
                 errorCallback()
@@ -1355,17 +1361,18 @@ extension API {
         workspaceSlug: String?
     ) -> String {
         let base = "https://hive.sphinx.chat"
+        let encodedLogin = orgGithubLogin.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? orgGithubLogin
         switch result.kind?.lowercased() {
         case "feature":
             if let slug = workspaceSlug, !slug.isEmpty, let entityId = result.createdEntityId, !entityId.isEmpty {
                 return "\(base)/w/\(slug)/plan/\(entityId)"
             }
-            return "\(base)/org/\(orgGithubLogin)"
+            return "\(base)/org/\(encodedLogin)"
         case "milestone":
             let canvas = (result.landedOn.flatMap { $0.isEmpty ? nil : $0 }).map { "?canvas=\($0)" } ?? ""
-            return "\(base)/org/\(orgGithubLogin)\(canvas)"
+            return "\(base)/org/\(encodedLogin)\(canvas)"
         default: // "initiative" and unknown
-            return "\(base)/org/\(orgGithubLogin)"
+            return "\(base)/org/\(encodedLogin)"
         }
     }
 
