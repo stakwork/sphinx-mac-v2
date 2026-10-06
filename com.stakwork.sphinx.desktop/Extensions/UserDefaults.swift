@@ -25,10 +25,16 @@ extension UserDefaults {
         public static let attachmentsToken = DefaultKey<String>("attachmentsToken")
         public static let attachmentsTokenExpDate = DefaultKey<Date>("attachmentsTokenExpDate")
         public static let hiveToken = DefaultKey<String>("hiveToken")
+        // Legacy single-org keys. No longer read or written (multi-org support);
+        // left in place only so nothing else drifts if a stale value still exists on disk.
         public static let hiveOrgId               = DefaultKey<String>("hiveOrgId")
         public static let hiveGithubLogin         = DefaultKey<String>("hiveGithubLogin")
         public static let hiveOrgSlugs            = DefaultKey<Data>("hiveOrgSlugs")
         public static let hiveOrgSlugsCacheDate   = DefaultKey<Double>("hiveOrgSlugsCacheDate")
+        // Multi-org cache: JSON { orgs: [HiveOrg], cachedAt: Double }
+        public static let hiveOrgs                = DefaultKey<Data>("hiveOrgs")
+        // Multi-org slug cache: JSON [orgId: { slugs: [String], cachedAt: Double }]
+        public static let hiveOrgSlugsByOrg       = DefaultKey<Data>("hiveOrgSlugsByOrg")
         public static let hiveConversationIdByOrg = DefaultKey<Data>("hiveConversationIdByOrg")
         public static let hiveCanvasChatHistoryByOrg = DefaultKey<Data>("hiveCanvasChatHistoryByOrg")
         public static let hivePendingProposal         = DefaultKey<Data>("hivePendingProposal")
