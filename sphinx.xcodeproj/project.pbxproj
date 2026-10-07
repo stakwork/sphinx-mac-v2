@@ -798,6 +798,8 @@
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
+		ATHR0020000000001ATHR02 /* AIAgentThreadingRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */; };
+		ATHRT0020000000001ATHRT2 /* AIAgentThreadingRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1952,6 +1954,8 @@
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
+		ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRules.swift; sourceTree = "<group>"; };
+		ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRulesTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2370,6 +2374,7 @@
 				47HP00410EF431AB00CFDA01 /* HivePlannerToolsTests.swift */,
 				HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */,
 				AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */,
+				ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */,
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				APPCT01100000001APPCT011 /* AppContextTests.swift */,
@@ -3575,6 +3580,7 @@
 				47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */,
 				47HP00210EF431AB00CFDA01 /* AIAgentManager+HivePlannerFormat.swift */,
 				B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */,
+				ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";
@@ -5041,6 +5047,7 @@
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
 				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
 				D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */,
+				ATHR0020000000001ATHR02 /* AIAgentThreadingRules.swift in Sources */,
 				47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */,
 				47HP00320EF431AE00CFDA01 /* AIAgentManager+HivePlannerTools.swift in Sources */,
 				47HP00220EF431AE00CFDA01 /* AIAgentManager+HivePlannerFormat.swift in Sources */,
@@ -5338,6 +5345,7 @@
 				47HP00420EF431AE00CFDA01 /* HivePlannerToolsTests.swift in Sources */,
 				HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */,
 				AHMOT0020000000001AHMOT2 /* AIAgentHiveMultiOrgTests.swift in Sources */,
+				ATHRT0020000000001ATHRT2 /* AIAgentThreadingRulesTests.swift in Sources */,
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */,

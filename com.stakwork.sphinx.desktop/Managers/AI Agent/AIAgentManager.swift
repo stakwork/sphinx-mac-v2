@@ -58,16 +58,25 @@ final class AIAgentManager: @unchecked Sendable {
 
     - send_sphinx_message: Send a message to one of the user's Sphinx contacts or tribes by name. \
     IMPORTANT: It's not needed to confirm with the user before sending the message unless it's unclear the message content \
-    or the destination of the message. 
+    or the destination of the message. Optional threadUuid (a thread root's uuid) posts the message into that tribe \
+    thread. Optional replyToUuid (any message's uuid) sends it as a reply, quoting that message. Only use uuids you \
+    actually read from read_recent_messages, read_unseen_messages, or read_threads — never invent one.
 
     - read_recent_messages: Read recent messages from a conversation with a specific contact or tribe. \
-    Use this to look up what was said in a chat.
+    Use this to look up what was said in a chat. Each line includes the message's uuid and, when present, \
+    its thread/reply links, plus THREAD ROOT and IN THREAD markers in tribes — see the tool description \
+    for the exact format.
 
     - web_search: Search the internet for current events, facts, or any topic requiring \
     up-to-date information. Use this whenever the user asks about recent news, prices, \
     people, or anything you may not know. Present results clearly with titles and URLs.
 
-    - read_unseen_messages: Read only unread messages from a contact or tribe by name. Use this to check what new messages haven't been seen yet.
+    - read_unseen_messages: Read only unread messages from a contact or tribe by name. Use this to check what new messages haven't been seen yet. \
+    Same line format as read_recent_messages (uuid, thread/reply links, markers).
+
+    - read_threads: List threads in a tribe, most recently active first, with each thread's root uuid, starter, \
+    reply count, and last activity. Use this to find "the thread about Y" or "the last thread" — it finds threads \
+    even when the root message is older than read_recent_messages' window.
 
     - get_contacts_and_tribes: List all contacts and tribes with their names and public keys. Use this to discover who the user knows.
 
@@ -166,9 +175,12 @@ final class AIAgentManager: @unchecked Sendable {
     - Write tools must never be called until the user has explicitly confirmed the action.
 
     CRITICAL TOOL RESULT RULES:
-    // - Tool results that start with "Message sent successfully" mean the message was delivered. \
-    //   Always report this as a success. Do NOT say there was an error or that you're unsure.
-    // - Tool results that start with "Send failed" or "No contact" or "No tribe" mean genuine failure.
+    - Tool results that start with "Message sent successfully" mean the message was delivered. \
+    Always report this as a success. Do NOT say there was an error or that you're unsure.
+    - Tool results that start with "Send failed" or "No contact" or "No tribe" mean genuine failure — explain the specific reason given.
+    - Tool results starting with "Read threads failed:" mean the read_threads call failed — explain the specific reason given.
+    - Tool results starting with "Threads in '" mean threads were found — present them clearly (root uuid, starter, reply count, last activity).
+    - Tool results starting with "No threads found in '" are a successful empty result, not a failure — tell the user no threads were found.
     - When read_recent_messages returns a list of messages, present them clearly to the user. \
     Do NOT say there was a format issue or that you couldn't read them.
     - Never assume failure unless the tool result explicitly contains the word "failed" or "error".
@@ -205,6 +217,21 @@ final class AIAgentManager: @unchecked Sendable {
     - Results starting with "Task '" and containing "archived" mean the task was archived — report success.
     - Results starting with "Multiple features match" or "Multiple tasks match" mean the name was ambiguous — list the candidates and ask the user to clarify before retrying with the exact name.
     - Results starting with "No feature found" or "No task found" mean the item was not found — tell the user and list the available options.
+
+    THREADS & REPLIES:
+    - A thread id is the root message's uuid — the same uuid shown on a "THREAD ROOT" line or as the \
+    root_uuid of a read_threads entry.
+    - Always read before you pick a uuid (read_recent_messages, read_unseen_messages, or read_threads). \
+    Never invent a uuid.
+    - "Last message from X" means the most recent line whose sender is X. In a 1:1 chat the sender is \
+    the contact's own name. In a tribe it is their alias.
+    - In a tribe, prefer lines without "[IN THREAD]" for "the last message" unless the user explicitly \
+    refers to a thread. Replying to an "[IN THREAD]" message posts the reply into that same thread.
+    - "The last thread" means the first result returned by read_threads.
+    - Only take a threadUuid value from a read_threads result or a "THREAD ROOT" line — never from a \
+    plain message line's own uuid.
+    - If more than one thread could match what the user means (e.g. two threads both "about Y"), ask \
+    the user which one they mean instead of guessing.
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
 
@@ -421,6 +448,7 @@ final class AIAgentManager: @unchecked Sendable {
         var tools: ToolSet = [
             "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
             "read_recent_messages":    buildReadMessagesTool().eraseToTool(),
+            "read_threads":            buildReadThreadsTool().eraseToTool(),
             "read_unseen_messages":    buildReadUnseenMessagesTool().eraseToTool(),
             "get_contacts_and_tribes": buildGetContactsAndTribesTool().eraseToTool(),
             "get_owner_profile":       buildGetOwnerProfileTool().eraseToTool(),
@@ -508,22 +536,35 @@ final class AIAgentManager: @unchecked Sendable {
 
         // Safety net for read_recent_messages: if the tool returned messages but the LLM
         // says there was a format/reading issue, show the raw tool output instead.
-        outer2: for step in result.steps {
-            for toolResult in step.toolResults {
-                guard toolResult.toolName == "read_recent_messages" else { continue }
-                guard case .string(let toolOutput) = toolResult.output else { continue }
-                guard toolOutput.hasPrefix("Messages in") || toolOutput.hasPrefix("No messages") ||
-                      toolOutput.hasPrefix("Found") || toolOutput.hasPrefix("No contact") else { continue }
-                print("AIAgent: read_recent_messages tool output: \(toolOutput.prefix(200))")
-                print("AIAgent: LLM responseText: \(responseText.prefix(200))")
-                let lower = responseText.lowercased()
-                let impliesError = lower.contains("format") || lower.contains("couldn't") ||
-                    lower.contains("couldn") || lower.contains("unable") ||
-                    lower.contains("error") || lower.contains("sorry")
-                if impliesError || responseText == "Done." {
-                    responseText = toolOutput
+        //
+        // Restricted to turns whose LAST tool call was a read, and where no
+        // send_sphinx_message ran in this turn — otherwise a genuine
+        // "Send failed: …" explanation (which can legitimately contain words
+        // like "error"/"unable") would get replaced by a dump of uuids.
+        let allToolNames: [String] = result.steps.flatMap { step in
+            step.toolResults.map { $0.toolName }
+        }
+        let sentInThisTurn = allToolNames.contains("send_sphinx_message")
+        let lastToolWasRead = allToolNames.last == "read_recent_messages"
+
+        if !sentInThisTurn && lastToolWasRead {
+            outer2: for step in result.steps {
+                for toolResult in step.toolResults {
+                    guard toolResult.toolName == "read_recent_messages" else { continue }
+                    guard case .string(let toolOutput) = toolResult.output else { continue }
+                    guard toolOutput.hasPrefix("Messages in") || toolOutput.hasPrefix("No messages") ||
+                          toolOutput.hasPrefix("Found") || toolOutput.hasPrefix("No contact") else { continue }
+                    print("AIAgent: read_recent_messages tool output: \(toolOutput.prefix(200))")
+                    print("AIAgent: LLM responseText: \(responseText.prefix(200))")
+                    let lower = responseText.lowercased()
+                    let impliesError = lower.contains("format") || lower.contains("couldn't") ||
+                        lower.contains("couldn") || lower.contains("unable") ||
+                        lower.contains("error") || lower.contains("sorry")
+                    if impliesError || responseText == "Done." {
+                        responseText = toolOutput
+                    }
+                    break outer2
                 }
-                break outer2
             }
         }
 
@@ -599,11 +640,14 @@ final class AIAgentManager: @unchecked Sendable {
     }
 
     @MainActor
-    private static func resolveContactOrTribe(query: String) -> NameResolutionResult {
+    private static func resolveContactOrTribe(
+        query: String,
+        tribesOnly: Bool = false
+    ) -> NameResolutionResult {
         let normalizedQuery = normalizeName(query)
         let strippedQuery   = stripSpaces(normalizedQuery)
 
-        let contacts = UserContact.getAll().filter { !$0.isOwner && !$0.isAgent }
+        let contacts = tribesOnly ? [] : UserContact.getAll().filter { !$0.isOwner && !$0.isAgent }
         let tribes   = Chat.getAllTribes()
 
         // Helper closures
@@ -687,39 +731,166 @@ final class AIAgentManager: @unchecked Sendable {
 
     @MainActor
     private static func recentMessagesOutput(chat: Chat, chatName: String, limit: Int) -> String {
-        let messages = TransactionMessage.getAllMessagesFor(chat: chat, limit: limit)
-        guard !messages.isEmpty else { return "No messages found in '\(chatName)'." }
+        // getAllMessagesFor sorts `date DESC, id DESC` (newest first); reverse
+        // so the output genuinely is "most recent last".
+        let messagesNewestFirst = TransactionMessage.getAllMessagesFor(chat: chat, limit: limit)
+        guard !messagesNewestFirst.isEmpty else { return "No messages found in '\(chatName)'." }
+        let messages = messagesNewestFirst.reversed()
+
         guard let owner = UserContact.getOwner() else { return "Could not determine owner." }
         let contact = chat.getContact()
-        let isoFormatter = ISO8601DateFormatter()
+        let resolvedContactName = contact?.nickname ?? chatName
+        let isTribe = chat.isPublicGroup()
+
+        // Threads are tribe-only. Only in tribes, batch-fetch reply counts
+        // over the union of this page's uuids + threadUUIDs so THREAD
+        // ROOT / IN THREAD markers match what the app's own Threads list
+        // would show.
+        var rootUUIDs: Set<String> = []
+        var replyCounts: [String: Int] = [:]
+        if isTribe {
+            var uuidSet = Set<String>()
+            for msg in messages {
+                if let uuid = msg.uuid { uuidSet.insert(uuid) }
+                if let threadUUID = msg.threadUUID { uuidSet.insert(threadUUID) }
+            }
+            let threadReplies = TransactionMessage.getThreadMessagesFor(Array(uuidSet), on: chat)
+            let rows = threadReplies.compactMap { reply -> AgentThreadRow? in
+                guard let date = reply.date else { return nil }
+                return AgentThreadRow(uuid: reply.uuid, threadUUID: reply.threadUUID, date: date)
+            }
+            rootUUIDs = AIAgentThreadingRules.threadRootUUIDs(replies: rows, isTribe: isTribe)
+            for row in rows {
+                guard let threadUUID = row.threadUUID else { continue }
+                replyCounts[threadUUID, default: 0] += 1
+            }
+        }
+
         let lines: [String] = messages.map { msg in
             let content = msg.getMessageContentPreview(owner: owner, contact: contact, includeSender: false)
             let isMe = msg.senderId == owner.id
-            let sender = isMe ? "Me" : (msg.senderAlias ?? chatName)
-            let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
-            return "[\(sender)] \(dateStr): \(content)"
+            let date = msg.date ?? Date()
+            let isThreadRoot = isTribe && (msg.uuid.map { rootUUIDs.contains($0) } ?? false)
+            let isInThread = isTribe && !isThreadRoot &&
+                (msg.threadUUID.map { rootUUIDs.contains($0) } ?? false)
+            return AIAgentThreadingRules.formatLine(
+                isOwner: isMe,
+                isTribe: isTribe,
+                senderAlias: msg.senderAlias,
+                resolvedContactName: resolvedContactName,
+                date: date,
+                uuid: msg.uuid,
+                threadUUID: msg.threadUUID,
+                replyUUID: msg.replyUUID,
+                isThreadRoot: isThreadRoot,
+                threadReplyCount: msg.uuid.flatMap { replyCounts[$0] } ?? 0,
+                isInThread: isInThread,
+                content: content
+            )
         }
         return "Messages in '\(chatName)' (most recent last):\n" + lines.joined(separator: "\n")
     }
 
+    /// Snapshot of a message used by `unseenMessagesOutput` so nothing
+    /// managed crosses between the background context it is fetched on and
+    /// the main actor the formatted output is returned to.
+    private struct UnseenMessageSnapshot {
+        let id: Int
+        let ref: AgentMessageRef
+        let isOwner: Bool
+        let senderAlias: String?
+        let date: Date
+        let content: String
+    }
+
     @MainActor
     private static func unseenMessagesOutput(chat: Chat, chatName: String) -> String {
-        let context = CoreDataManager.sharedManager.getBackgroundContext()
-        let messages = chat.getReceivedUnseenMessages(context: context)
-        guard !messages.isEmpty else {
-            return "No unseen messages in '\(chatName)'."
-        }
+        let backgroundContext = CoreDataManager.sharedManager.getBackgroundContext()
+        let isTribe = chat.isPublicGroup()
+        let chatId = chat.id
+
         guard let owner = UserContact.getOwner() else {
             return "Could not determine owner."
         }
+        let ownerId = owner.id
         let contact = chat.getContact()
-        let isoFormatter = ISO8601DateFormatter()
-        let lines: [String] = messages.map { msg in
-            let content = msg.getMessageContentPreview(owner: owner, contact: contact, includeSender: false)
-            let isMe = msg.senderId == owner.id
-            let sender = isMe ? "Me" : (msg.senderAlias ?? chatName)
-            let dateStr = msg.date.map { isoFormatter.string(from: $0) } ?? "unknown date"
-            return "[\(sender)] \(dateStr): \(content)"
+        let resolvedContactName = contact?.nickname ?? chatName
+
+        var snapshots: [UnseenMessageSnapshot] = []
+        var rootUUIDs: Set<String> = []
+        var replyCounts: [String: Int] = [:]
+
+        backgroundContext.performAndWait {
+            let messages = chat.getReceivedUnseenMessages(context: backgroundContext)
+            guard !messages.isEmpty else { return }
+
+            if isTribe {
+                var uuidSet = Set<String>()
+                for msg in messages {
+                    if let uuid = msg.uuid { uuidSet.insert(uuid) }
+                    if let threadUUID = msg.threadUUID { uuidSet.insert(threadUUID) }
+                }
+                let threadReplies = TransactionMessage.getThreadMessagesFor(
+                    Array(uuidSet), on: chat, context: backgroundContext
+                )
+                let rows = threadReplies.compactMap { reply -> AgentThreadRow? in
+                    guard let date = reply.date else { return nil }
+                    return AgentThreadRow(uuid: reply.uuid, threadUUID: reply.threadUUID, date: date)
+                }
+                rootUUIDs = AIAgentThreadingRules.threadRootUUIDs(replies: rows, isTribe: isTribe)
+                for row in rows {
+                    guard let threadUUID = row.threadUUID else { continue }
+                    replyCounts[threadUUID, default: 0] += 1
+                }
+            }
+
+            snapshots = messages.map { msg in
+                UnseenMessageSnapshot(
+                    id: msg.id,
+                    ref: AgentMessageRef(
+                        uuid: msg.uuid,
+                        threadUUID: msg.threadUUID,
+                        replyUUID: msg.replyUUID,
+                        chatId: chatId,
+                        isDeleted: msg.isDeleted()
+                    ),
+                    isOwner: msg.senderId == ownerId,
+                    senderAlias: msg.senderAlias,
+                    date: msg.date ?? Date(),
+                    content: msg.getMessageContentPreview(owner: owner, contact: contact, includeSender: false)
+                )
+            }
+        }
+
+        guard !snapshots.isEmpty else {
+            return "No unseen messages in '\(chatName)'."
+        }
+
+        // getReceivedUnseenMessages uses sortDescriptors: [], so sort
+        // ourselves (oldest first) before formatting to make the label true.
+        snapshots.sort { lhs, rhs in
+            if lhs.date != rhs.date { return lhs.date < rhs.date }
+            return lhs.id < rhs.id
+        }
+
+        let lines: [String] = snapshots.map { snap in
+            let isThreadRoot = isTribe && (snap.ref.uuid.map { rootUUIDs.contains($0) } ?? false)
+            let isInThread = isTribe && !isThreadRoot &&
+                (snap.ref.threadUUID.map { rootUUIDs.contains($0) } ?? false)
+            return AIAgentThreadingRules.formatLine(
+                isOwner: snap.isOwner,
+                isTribe: isTribe,
+                senderAlias: snap.senderAlias,
+                resolvedContactName: resolvedContactName,
+                date: snap.date,
+                uuid: snap.ref.uuid,
+                threadUUID: snap.ref.threadUUID,
+                replyUUID: snap.ref.replyUUID,
+                isThreadRoot: isThreadRoot,
+                threadReplyCount: snap.ref.uuid.flatMap { replyCounts[$0] } ?? 0,
+                isInThread: isInThread,
+                content: snap.content
+            )
         }
         return "Unseen messages in '\(chatName)' (oldest first):\n" + lines.joined(separator: "\n")
     }
@@ -729,6 +900,28 @@ final class AIAgentManager: @unchecked Sendable {
      private struct SendMessageInput: Codable, Sendable {
          let contactName: String
          let messageText: String
+         let threadUuid: String?
+         let replyToUuid: String?
+
+         init(
+             contactName: String,
+             messageText: String,
+             threadUuid: String? = nil,
+             replyToUuid: String? = nil
+         ) {
+             self.contactName = contactName
+             self.messageText = messageText
+             self.threadUuid = threadUuid
+             self.replyToUuid = replyToUuid
+         }
+
+         init(from decoder: Decoder) throws {
+             let container = try decoder.container(keyedBy: CodingKeys.self)
+             contactName = try container.decode(String.self, forKey: .contactName)
+             messageText = try container.decode(String.self, forKey: .messageText)
+             threadUuid = try container.decodeIfPresent(String.self, forKey: .threadUuid)
+             replyToUuid = try container.decodeIfPresent(String.self, forKey: .replyToUuid)
+         }
      }
 
     private struct ReadUnseenInput: Codable, Sendable {
@@ -757,43 +950,122 @@ final class AIAgentManager: @unchecked Sendable {
 
      private func buildSendMessageTool() -> TypedTool<SendMessageInput, JSONValue> {
          tool(
-             description: "Send a Sphinx message to a contact or tribe by name. No need to confirm with the user before calling this tool.",
+             description: """
+                 Send a Sphinx message to a contact or tribe by name. No need to confirm with the \
+                 user before calling this tool unless the message content or destination is unclear. \
+                 Optional threadUuid: the root message's uuid (from read_threads or a THREAD ROOT \
+                 line) to post into that tribe thread. Optional replyToUuid: a message's uuid (from \
+                 read_recent_messages / read_unseen_messages / read_threads) to reply to it, quoting \
+                 it like a swipe-to-reply in the app. Only use uuids you've actually read — never \
+                 invent one. Combine both to reply to a specific message inside a specific thread.
+                 """,
              execute: { (input: SendMessageInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                  let result = await AIAgentManager.executeSendMessage(
                      contactName: input.contactName,
-                     messageText: input.messageText
+                     messageText: input.messageText,
+                     threadUuid: input.threadUuid,
+                     replyToUuid: input.replyToUuid
                  )
                  return .value(.string(result))
              }
          )
      }
 
-     private static func executeSendMessage(contactName: String, messageText: String) async -> String {
+     private static func executeSendMessage(
+        contactName: String,
+        messageText: String,
+        threadUuid: String? = nil,
+        replyToUuid: String? = nil
+     ) async -> String {
          return await MainActor.run {
+             print("AIAgent send_sphinx_message: contactName=\(contactName) threadUuid=\(threadUuid ?? "nil") replyToUuid=\(replyToUuid ?? "nil")")
+
              switch resolveContactOrTribe(query: contactName) {
              case .exactContact(let contact):
                  guard let chat = contact.getConversation() else {
                      return "Send failed: chat not found for contact '\(contactName)'."
                  }
+                 let isTribe = chat.isPublicGroup()
+
+                 let (replyRef, replyValidation) = resolveAndValidateReplyTarget(
+                     replyToUuid: replyToUuid, chatId: chat.id
+                 )
+                 if let reason = replyValidation?.reason {
+                     print("AIAgent send_sphinx_message: refused — \(reason)")
+                     return "Send failed: \(reason)"
+                 }
+
+                 let threadValidation = validateThread(
+                     threadUuid: threadUuid, chat: chat, isTribe: isTribe
+                 )
+                 if let reason = threadValidation?.reason {
+                     print("AIAgent send_sphinx_message: refused — \(reason)")
+                     return "Send failed: \(reason)"
+                 }
+
+                 if let threadUuid = threadUuid, let replyRef = replyRef {
+                     let consistency = AIAgentThreadingRules.validateThreadReplyConsistency(
+                         threadUUID: threadUuid, replyTo: replyRef
+                     )
+                     if let reason = consistency.reason {
+                         print("AIAgent send_sphinx_message: refused — \(reason)")
+                         return "Send failed: \(reason)"
+                     }
+                 }
+
+                 let wire = AIAgentThreadingRules.wireValues(threadUUID: threadUuid, replyTo: replyRef)
+                 print("AIAgent send_sphinx_message: resolved wire thread=\(wire.thread ?? "nil") reply=\(wire.reply ?? "nil")")
+
                  let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                      to: contact,
                      content: messageText,
                      chat: chat,
                      provisionalMessage: nil,
-                     threadUUID: nil,
-                     replyUUID: nil
+                     threadUUID: wire.thread,
+                     replyUUID: wire.reply
                  )
                  if let error = error { return "Send failed: \(error)" }
                  return "Message sent successfully to \(contact.nickname ?? contactName)."
     
              case .exactTribe(let tribe):
+                 let isTribe = tribe.isPublicGroup()
+
+                 let (replyRef, replyValidation) = resolveAndValidateReplyTarget(
+                     replyToUuid: replyToUuid, chatId: tribe.id
+                 )
+                 if let reason = replyValidation?.reason {
+                     print("AIAgent send_sphinx_message: refused — \(reason)")
+                     return "Send failed: \(reason)"
+                 }
+
+                 let threadValidation = validateThread(
+                     threadUuid: threadUuid, chat: tribe, isTribe: isTribe
+                 )
+                 if let reason = threadValidation?.reason {
+                     print("AIAgent send_sphinx_message: refused — \(reason)")
+                     return "Send failed: \(reason)"
+                 }
+
+                 if let threadUuid = threadUuid, let replyRef = replyRef {
+                     let consistency = AIAgentThreadingRules.validateThreadReplyConsistency(
+                         threadUUID: threadUuid, replyTo: replyRef
+                     )
+                     if let reason = consistency.reason {
+                         print("AIAgent send_sphinx_message: refused — \(reason)")
+                         return "Send failed: \(reason)"
+                     }
+                 }
+
+                 let wire = AIAgentThreadingRules.wireValues(threadUUID: threadUuid, replyTo: replyRef)
+                 print("AIAgent send_sphinx_message: resolved wire thread=\(wire.thread ?? "nil") reply=\(wire.reply ?? "nil")")
+
                  let (_, error) = SphinxOnionManager.sharedInstance.sendMessage(
                      to: nil,
                      content: messageText,
                      chat: tribe,
                      provisionalMessage: nil,
-                     threadUUID: nil,
-                     replyUUID: nil
+                     threadUUID: wire.thread,
+                     replyUUID: wire.reply
                  )
                  if let error = error { return "Send failed: \(error)" }
                  return "Message sent successfully to tribe '\(tribe.name ?? contactName)'."
@@ -807,12 +1079,65 @@ final class AIAgentManager: @unchecked Sendable {
          }
      }
 
+     /// Looks up `replyToUuid` (if given) and validates it as a reply target.
+     /// Never trusts the caller-supplied uuid: the lookup is not chat-scoped,
+     /// so validation re-checks chatId/isDeleted before any send proceeds.
+     @MainActor
+     private static func resolveAndValidateReplyTarget(
+        replyToUuid: String?,
+        chatId: Int
+     ) -> (AgentMessageRef?, ValidationResult?) {
+         guard let replyToUuid = replyToUuid else { return (nil, nil) }
+         let message = TransactionMessage.getMessageWith(uuid: replyToUuid)
+         let ref = message.map {
+             AgentMessageRef(
+                 uuid: $0.uuid,
+                 threadUUID: $0.threadUUID,
+                 replyUUID: $0.replyUUID,
+                 chatId: $0.chat?.id,
+                 isDeleted: $0.isDeleted()
+             )
+         }
+         let validation = AIAgentThreadingRules.validateReplyTarget(ref, chatId: chatId)
+         return (ref, validation.isOK ? nil : validation)
+     }
+
+     /// Looks up `threadUuid` (if given) and validates it as a thread root.
+     /// Never trusts the caller-supplied uuid: re-checks chatId/isDeleted/
+     /// isTribe before any send proceeds.
+     @MainActor
+     private static func validateThread(
+        threadUuid: String?,
+        chat: Chat,
+        isTribe: Bool
+     ) -> ValidationResult? {
+         guard let threadUuid = threadUuid else { return nil }
+         let message = TransactionMessage.getMessageWith(uuid: threadUuid)
+         let ref = message.map {
+             AgentMessageRef(
+                 uuid: $0.uuid,
+                 threadUUID: $0.threadUUID,
+                 replyUUID: $0.replyUUID,
+                 chatId: $0.chat?.id,
+                 isDeleted: $0.isDeleted()
+             )
+         }
+         let validation = AIAgentThreadingRules.validateThreadRoot(ref, chatId: chat.id, isTribe: isTribe)
+         return validation.isOK ? nil : validation
+     }
+
     // MARK: - Tool: read_unseen_messages
 
     private func buildReadUnseenMessagesTool() -> TypedTool<ReadUnseenInput, JSONValue> {
         tool(
-            description: "Read only unread (unseen) messages from a conversation with a specific Sphinx contact or tribe.",
+            description: """
+                Read only unread (unseen) messages from a conversation with a specific Sphinx contact \
+                or tribe. Same line format as read_recent_messages: \
+                "[sender] date (uuid=… thread=… reply=… [THREAD ROOT, n replies] [IN THREAD]): content". \
+                Read before you pick a uuid — never invent one.
+                """,
             execute: { (input: ReadUnseenInput, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                print("AIAgent read_unseen_messages: contactName=\(input.contactName)")
                 let output: String = await MainActor.run {
                     switch AIAgentManager.resolveContactOrTribe(query: input.contactName) {
                     case .ambiguous(let candidates):
@@ -829,6 +1154,7 @@ final class AIAgentManager: @unchecked Sendable {
                         return AIAgentManager.unseenMessagesOutput(chat: tribe, chatName: input.contactName)
                     }
                 }
+                print("AIAgent read_unseen_messages: returning \(output.count) chars")
                 return .value(.string(output))
             }
         )
@@ -1163,7 +1489,17 @@ final class AIAgentManager: @unchecked Sendable {
             ]))
         )
         return tool(
-            description: "Read recent messages from a conversation with a specific Sphinx contact or tribe.",
+            description: """
+                Read recent messages from a conversation with a specific Sphinx contact or tribe. \
+                Each line is formatted as \
+                "[sender] date (uuid=… thread=… reply=… [THREAD ROOT, n replies] [IN THREAD]): content". \
+                uuid=pending means the message isn't confirmed yet and has no uuid to reply to or \
+                thread from. thread=/reply= appear only when the message has those links. \
+                THREAD ROOT marks a message that is the root of a tribe thread with 2+ replies — its \
+                uuid is a valid threadUuid for send_sphinx_message. IN THREAD marks a tribe message \
+                that belongs to such a thread (the app hides these from the main chat view). Read \
+                before you pick a uuid — never invent one.
+                """,
             inputSchema: inputSchema,
             execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
                 guard case .object(let dict) = input,
@@ -1195,5 +1531,137 @@ final class AIAgentManager: @unchecked Sendable {
                 return .value(.string(output))
             }
         )
+    }
+
+    // MARK: - Tool: read_threads
+
+    private func buildReadThreadsTool() -> TypedTool<JSONValue, JSONValue> {
+        let inputSchema = FlexibleSchema<JSONValue>(
+            jsonSchema(.object([
+                "type": .string("object"),
+                "properties": .object([
+                    "contact_name": .object(["type": .string("string")]),
+                    "limit": .object(["type": .string("integer")])
+                ]),
+                "required": .array([.string("contact_name")])
+            ]))
+        )
+        return tool(
+            description: """
+                List threads in a tribe, most recently active first. Finds threads even when the \
+                root message is older than what read_recent_messages' window would show. Each line \
+                shows the thread's root uuid (usable as threadUuid for send_sphinx_message), who \
+                started it, the reply count, and when it was last active. Takes contact_name (a \
+                tribe name — threads only exist in tribes) and an optional limit (default 10, max 50).
+                """,
+            inputSchema: inputSchema,
+            execute: { (input: JSONValue, _: ToolCallOptions) async throws -> ToolExecutionResult<JSONValue> in
+                guard case .object(let dict) = input,
+                      case .string(let contactName) = dict["contact_name"] else {
+                    return .value(.string("Error: missing contact_name parameter."))
+                }
+                var limit = 10
+                if case .number(let n) = dict["limit"] { limit = Int(n) }
+                limit = max(1, min(limit, 50))
+
+                print("AIAgent read_threads: contactName=\(contactName) limit=\(limit)")
+
+                let output: String = await MainActor.run {
+                    switch AIAgentManager.resolveContactOrTribe(query: contactName, tribesOnly: true) {
+                    case .ambiguous(let candidates):
+                        return "Multiple matches found: \(candidates.joined(separator: ", ")). Please clarify which one you mean."
+                    case .noMatch:
+                        return "Read threads failed: no tribe named '\(contactName)' found."
+                    case .exactContact:
+                        // tribesOnly resolution never returns a contact, but handle defensively.
+                        return "Read threads failed: no tribe named '\(contactName)' found."
+                    case .exactTribe(let tribe):
+                        return AIAgentManager.readThreadsOutput(tribe: tribe, chatName: contactName, limit: limit)
+                    }
+                }
+
+                print("AIAgent read_threads: returning \(output.count) chars")
+                return .value(.string(output))
+            }
+        )
+    }
+
+    @MainActor
+    private static func readThreadsOutput(tribe: Chat, chatName: String, limit: Int) -> String {
+        guard tribe.isPublicGroup() else {
+            return "Read threads failed: '\(chatName)' is a 1:1 chat; threads are only available in tribes."
+        }
+
+        let fetchRequest = TransactionMessage.getThreadsFetchRequestOn(chat: tribe)
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["uuid", "threadUUID", "date"]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+        fetchRequest.fetchLimit = 5000
+
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+        var rawRows: [[String: Any]] = []
+        context.performAndWait {
+            do {
+                if let results = try context.fetch(fetchRequest) as? [[String: Any]] {
+                    rawRows = results
+                }
+            } catch let error as NSError {
+                print("AIAgent read_threads: fetch error \(error.localizedDescription)")
+            }
+        }
+        let hitCap = rawRows.count >= 5000
+
+        let rows: [AgentThreadRow] = rawRows.compactMap { dict in
+            guard let date = dict["date"] as? Date else { return nil }
+            return AgentThreadRow(
+                uuid: dict["uuid"] as? String,
+                threadUUID: dict["threadUUID"] as? String,
+                date: date
+            )
+        }
+
+        let grouped = AIAgentThreadingRules.groupThreads(rows: rows)
+        guard !grouped.isEmpty else {
+            print("AIAgent read_threads: chat=\(chatName) limit=\(limit) found=0 skipped=0 capHit=\(hitCap)")
+            return "No threads found in '\(chatName)'."
+        }
+
+        let limited = Array(grouped.prefix(limit))
+        let rootUUIDs = limited.map { $0.rootUUID }
+        let roots = TransactionMessage.getOriginalMessagesFor(rootUUIDs, on: tribe)
+        let rootsByUUID = Dictionary(uniqueKeysWithValues: roots.compactMap { root -> (String, TransactionMessage)? in
+            guard let uuid = root.uuid else { return nil }
+            return (uuid, root)
+        })
+
+        guard let owner = UserContact.getOwner() else { return "Could not determine owner." }
+        let isoFormatter = ISO8601DateFormatter()
+        var skipped = 0
+
+        var lines: [String] = []
+        for entry in limited {
+            guard let root = rootsByUUID[entry.rootUUID] else {
+                skipped += 1
+                continue
+            }
+            let isMe = root.senderId == owner.id
+            let sender = isMe ? "Me" : (root.senderAlias ?? "Unknown")
+            let preview = root.getMessageContentPreview(owner: owner, contact: nil, includeSender: false)
+            let lastActivityStr = isoFormatter.string(from: entry.lastActivity)
+            lines.append(
+                "[\(sender)] root_uuid=\(entry.rootUUID) replies=\(entry.replyCount) last_active=\(lastActivityStr): \(preview)"
+            )
+        }
+
+        print("AIAgent read_threads: chat=\(chatName) limit=\(limit) found=\(grouped.count) skipped=\(skipped) capHit=\(hitCap)")
+
+        var output = "Threads in '\(chatName)' (most recently active first):\n" + lines.joined(separator: "\n")
+        if skipped > 0 {
+            output += "\n\(skipped) more thread\(skipped == 1 ? "" : "s") were skipped because their first message isn't on this device."
+        }
+        if hitCap {
+            output += "\n(only the most recent 5000 threaded messages were scanned)"
+        }
+        return output
     }
 }
