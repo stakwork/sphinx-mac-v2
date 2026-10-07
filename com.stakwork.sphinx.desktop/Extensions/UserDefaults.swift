@@ -38,6 +38,10 @@ extension UserDefaults {
         public static let hiveConversationIdByOrg = DefaultKey<Data>("hiveConversationIdByOrg")
         public static let hiveCanvasChatHistoryByOrg = DefaultKey<Data>("hiveCanvasChatHistoryByOrg")
         public static let hivePendingProposal         = DefaultKey<Data>("hivePendingProposal")
+        // Per-org last-query timestamp: JSON [orgId: epochSeconds]. Used by the Jamie
+        // conversation idle backstop (AIAgentManager+HiveConversation.swift) to decide
+        // whether a new Hive conversation should start after a period of inactivity.
+        public static let hiveLastQueryAtByOrg    = DefaultKey<Data>("hiveLastQueryAtByOrg")
         public static let inviterNickname = DefaultKey<String>("inviterNickname")
         public static let inviterPubkey = DefaultKey<String>("inviterPubkey")
         public static let inviterRouteHint = DefaultKey<String>("inviterRouteHint")
