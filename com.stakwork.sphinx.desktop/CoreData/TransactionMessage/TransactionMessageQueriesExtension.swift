@@ -765,7 +765,8 @@ extension TransactionMessage {
     
     static func getThreadMessagesFor(
         _ messages: [String],
-        on chat: Chat
+        on chat: Chat,
+        context: NSManagedObjectContext? = nil
     ) -> [TransactionMessage] {
         let boostType = TransactionMessageType.boost.rawValue
         
@@ -784,7 +785,8 @@ extension TransactionMessage {
         let threadMessages: [TransactionMessage] = CoreDataManager.sharedManager.getObjectsOfTypeWith(
             predicate: predicate,
             sortDescriptors: sortDescriptors,
-            entityName: "TransactionMessage"
+            entityName: "TransactionMessage",
+            managedContext: context
         )
         
         return threadMessages
