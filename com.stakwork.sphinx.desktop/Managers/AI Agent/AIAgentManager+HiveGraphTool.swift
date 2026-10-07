@@ -666,8 +666,8 @@ Pass `org` (the login) when the conversation makes it clear which org is meant. 
         // (from `QueryHiveGraphInput`'s `Codable` conformance) exposes the new
         // `new_conversation` field under its snake_case wire name, so it is spelled
         // out here, keeping the existing `question`/`org` fields unchanged.
-        let inputSchema = FlexibleSchema<JSONValue>(
-            jsonSchema(.object([
+        let inputSchema = FlexibleSchema<QueryHiveGraphInput>.jsonSchema(
+            .object([
                 "type": .string("object"),
                 "properties": .object([
                     "question":        .object(["type": .string("string")]),
@@ -675,7 +675,7 @@ Pass `org` (the login) when the conversation makes it clear which org is meant. 
                     "new_conversation": .object(["type": .string("boolean")])
                 ]),
                 "required": .array([.string("question")])
-            ]))
+            ])
         )
 
         return tool(
