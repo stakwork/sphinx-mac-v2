@@ -678,7 +678,6 @@
 		47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */; };
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
-		D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */; };
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
 		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
@@ -728,6 +727,8 @@
 		AA1C7BC427657C4800A5B959 /* SignupCommonSecureFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */; };
 		AHMOT0020000000001AHMOT2 /* AIAgentHiveMultiOrgTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */; };
 		APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPCT01100000001APPCT011 /* AppContextTests.swift */; };
+		ATHR0020000000001ATHR02 /* AIAgentThreadingRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */; };
+		ATHRT0020000000001ATHRT2 /* AIAgentThreadingRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */; };
 		B5CC94DA155B4E28974205B6 /* WebAppLogsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7729C0D181466B887365AD /* WebAppLogsViewController.swift */; };
 		B5EB79DF690049F78F4ED40B /* ActiveCallBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0775BAB485544928B7E0B624 /* ActiveCallBannerView.swift */; };
 		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
@@ -755,6 +756,7 @@
 		CPAG00020000000001CPAG02 /* ChatPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = CPAG00010000000001CPAG01 /* ChatPagination.swift */; };
 		CPAGT0020000000001CPAGT02 /* ChatPaginationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CPAGT0010000000001CPAGT01 /* ChatPaginationTests.swift */; };
 		D33CD03E7923439A9624A989 /* NewChatViewController+AgentExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */; };
+		D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
@@ -798,8 +800,6 @@
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
-		ATHR0020000000001ATHR02 /* AIAgentThreadingRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */; };
-		ATHRT0020000000001ATHRT2 /* AIAgentThreadingRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1792,7 +1792,6 @@
 		47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
-		B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveConversation.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
 		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
@@ -1850,6 +1849,9 @@
 		AA1C7BC327657C4800A5B959 /* SignupCommonSecureFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupCommonSecureFieldView.swift; sourceTree = "<group>"; };
 		AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveMultiOrgTests.swift; sourceTree = "<group>"; };
 		APPCT01100000001APPCT011 /* AppContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContextTests.swift; sourceTree = "<group>"; };
+		ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRules.swift; sourceTree = "<group>"; };
+		ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRulesTests.swift; sourceTree = "<group>"; };
+		B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveConversation.swift"; sourceTree = "<group>"; };
 		B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantBoxView.swift; sourceTree = "<group>"; };
 		C81C2D1237D94CD8A2AE627F /* NewChatViewController+AgentExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+AgentExtension.swift"; sourceTree = "<group>"; };
 		CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallParticipantsSocketDelegate.swift; sourceTree = "<group>"; };
@@ -1954,8 +1956,6 @@
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
-		ATHR0010000000001ATHR01 /* AIAgentThreadingRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRules.swift; sourceTree = "<group>"; };
-		ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentThreadingRulesTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6146,7 +6146,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 324;
+				CURRENT_PROJECT_VERSION = 325;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -6183,7 +6183,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 324;
+				CURRENT_PROJECT_VERSION = 325;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				ENABLE_HARDENED_RUNTIME = YES;
