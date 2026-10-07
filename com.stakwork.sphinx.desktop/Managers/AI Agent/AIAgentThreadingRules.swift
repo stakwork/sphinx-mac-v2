@@ -270,5 +270,5 @@ enum AIAgentThreadingRules {
         return "[\(sender)] \(dateStr) (\(meta)): \(content)"
     }
 
-    static let isoFormatter = ISO8601DateFormatter()
+    nonisolated(unsafe) static let isoFormatter = ISO8601DateFormatter()
 }
