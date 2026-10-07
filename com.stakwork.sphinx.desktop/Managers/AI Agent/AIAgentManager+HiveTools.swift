@@ -1231,6 +1231,17 @@ extension AIAgentManager {
             prunedCount += 1
         }
 
+        if let data: Data = UserDefaults.Keys.hiveLastQueryAtByOrg.get(),
+           let existing = try? JSONDecoder().decode([String: Double].self, from: data) {
+            let filtered = existing.filter { validOrgIds.contains($0.key) }
+            if filtered.count != existing.count {
+                prunedCount += existing.count - filtered.count
+                if let encoded = try? JSONEncoder().encode(filtered) {
+                    UserDefaults.Keys.hiveLastQueryAtByOrg.set(encoded)
+                }
+            }
+        }
+
         return prunedCount
     }
 
@@ -1287,11 +1298,10 @@ extension AIAgentManager {
             }
 
             if let existingEntry = slugsDict[org.id], Set(existingEntry.slugs) != Set(slugs) {
-                let pendingBelongsToOrg: Bool = {
-                    guard let data: Data = UserDefaults.Keys.hivePendingProposal.get(),
-                          let proposal = try? JSONDecoder().decode(PendingProposal.self, from: data) else { return false }
-                    return proposal.orgId == org.id
-                }()
+                // Reuse the same unactioned-proposal check the conversation-reset
+                // guard uses (pending slot OR an unactioned card in this org's own
+                // canvas history), rather than only checking the pending slot.
+                let pendingBelongsToOrg = hasUnactionedProposalLocked(orgId: org.id)
 
                 if pendingBelongsToOrg {
                     print("[AIAgent] fetchAndCacheOrgSlugs: slug set changed — orgId: \(org.id), keeping conversationId (pending proposal belongs to this org)")

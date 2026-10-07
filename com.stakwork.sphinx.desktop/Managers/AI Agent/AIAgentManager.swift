@@ -122,6 +122,19 @@ final class AIAgentManager: @unchecked Sendable {
     When in doubt, prefer query_hive_graph. Never ask the user which tool to use. \
     Do NOT ask for a workspace name before calling query_hive_graph.
 
+    JAMIE CONVERSATION RESET (new_conversation):
+    query_hive_graph accepts an optional `new_conversation: true` flag that starts a \
+    brand-new Jamie conversation for that org, discarding earlier context. Decide per call:
+    - Omit the flag (continue) for follow-ups, clarifications, pronouns like "it" or \
+      "that feature", or any refinement of the same subject as earlier Jamie questions \
+      in this chat.
+    - Set `new_conversation: true` only when the question is about a clearly different \
+      feature, workspace, or question type than earlier Jamie questions in this chat.
+    - When in doubt, do NOT set the flag — continue the existing conversation.
+    - If the tool result contains "[Kept the existing conversation: a proposal in this \
+      org is awaiting approval.]", the reset was held back by a pending proposal — \
+      mention that pending proposal to the user if it's relevant to their question.
+
     ## Hive Workspace / Feature / Task Tools
 
     ### Read Tools (no confirmation required)

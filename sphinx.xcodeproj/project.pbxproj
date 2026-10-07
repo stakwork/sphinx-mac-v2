@@ -678,6 +678,7 @@
 		47FEE22B2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */; };
 		47FEE22E2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
+		D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */; };
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
 		47HIVENT012F190000000002 /* HiveNotificationPreferencesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */; };
@@ -1789,6 +1790,7 @@
 		47FEE22A2A66F76E00646C4E /* NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewOnlyTextMessageCollectionViewitem+DelegateExtension.swift"; sourceTree = "<group>"; };
 		47FEE22D2A6710F500646C4E /* NewChatViewController+CollectionViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NewChatViewController+CollectionViewExtension.swift"; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
+		B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveConversation.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
 		47HIVENT002F190000000002 /* HiveNotificationPreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationPreferencesTests.swift; sourceTree = "<group>"; };
@@ -3572,6 +3574,7 @@
 				47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */,
 				47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */,
 				47HP00210EF431AB00CFDA01 /* AIAgentManager+HivePlannerFormat.swift */,
+				B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */,
 			);
 			path = "AI Agent";
 			sourceTree = "<group>";
@@ -5037,6 +5040,7 @@
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
 				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
+				D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */,
 				47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */,
 				47HP00320EF431AE00CFDA01 /* AIAgentManager+HivePlannerTools.swift in Sources */,
 				47HP00220EF431AE00CFDA01 /* AIAgentManager+HivePlannerFormat.swift in Sources */,
