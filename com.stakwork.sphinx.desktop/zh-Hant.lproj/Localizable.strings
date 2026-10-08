@@ -436,6 +436,7 @@
 "unmute" = "取消靜音";
 "call" = "稱呼";
 "error.getting.token.title" = "取得令牌時發生錯誤";
+"livekit.connecting.to.server" = "正在與 LiveKit 伺服器通訊，請稍候...";
 "error.getting.token.description" = "取得加入通話的令牌時發生錯誤。請稍後重試";
 "error.enabling.microphone.title" = "啟用麥克風時發生錯誤";
 "error.joining.call.title" = "加入通話時發生錯誤";

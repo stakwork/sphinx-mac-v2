@@ -582,6 +582,15 @@ import SwiftUI
         if linkUrl.isLiveKitCallLink, let room = linkUrl.liveKitRoomName {
             openedWindowIdentifiers.append(linkUrl)
             
+            // The call server may be hibernating, in which case the connection-details
+            // request can take 10+ seconds. Show a non-blocking loading wheel so the
+            // user knows the call is being set up but can keep using the app meanwhile.
+            let bubbleHelper = NewMessageBubbleHelper()
+            bubbleHelper.showLoadingWheel(
+                text: "livekit.connecting.to.server".localized,
+                ignoresMouseEvents: true
+            )
+            
             API.sharedInstance.getLiveKitToken(
                 room: room,
                 alias: owner.nickname ?? "",
@@ -590,6 +599,8 @@ import SwiftUI
                 isHost: isHost,
                 callback: { url, token in
                     DispatchQueue.main.async {
+                        bubbleHelper.hideLoadingWheel()
+                        
                         let appCtx = AppContext(store: sync)
                         let roomCtx = RoomContext(store: sync, delegate: self)
                         
@@ -621,11 +632,15 @@ import SwiftUI
                     }
                 },
                 errorCallback: { error in
-                    self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
-                    AlertHelper.showAlert(
-                        title: "error.getting.token.title".localized,
-                        message: error
-                    )
+                    DispatchQueue.main.async {
+                        bubbleHelper.hideLoadingWheel()
+                        
+                        self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
+                        AlertHelper.showAlert(
+                            title: "error.getting.token.title".localized,
+                            message: error
+                        )
+                    }
                 }
             )
         } else {
