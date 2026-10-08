@@ -412,6 +412,7 @@
 "unmute" = "Unmute";
 "call" = "Call";
 "error.getting.token.title" = "Error getting token";
+"livekit.connecting.to.server" = "Communicating with the LiveKit server, please wait...";
 "error.getting.token.description" = "There was an error getting a token to join the call. Please try again later";
 "error.enabling.microphone.title" = "Error enabling microphone";
 "error.joining.call.title" = "Error joining call";
