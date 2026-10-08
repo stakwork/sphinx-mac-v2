@@ -186,7 +186,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/LadybugDB/swift-ladybug/",
       "state" : {
-        "branch" : "main",
         "revision" : "c071a7ca931241651c4d1bbc19c8780401f58c3f"
       }
     },
