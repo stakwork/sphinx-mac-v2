@@ -1,5 +1,5 @@
 {
-  "originHash" : "dfa64bae13d8f537d1756b28cfc8a8ad7cb7a8bca750e683b9cca99bda711e21",
+  "originHash" : "3dc1380cd63d8f3c668e2fcdc643591a379e74c688c2075d29346c21b3dc8493",
   "pins" : [
     {
       "identity" : "aws-crt-swift",
@@ -179,6 +179,15 @@
       "state" : {
         "revision" : "45eb0224913ea070ec4fba17291b9e7ecf4749ca",
         "version" : "1.5.1"
+      }
+    },
+    {
+      "identity" : "swift-ladybug",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LadybugDB/swift-ladybug/",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c071a7ca931241651c4d1bbc19c8780401f58c3f"
       }
     },
     {

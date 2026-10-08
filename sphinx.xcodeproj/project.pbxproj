@@ -187,6 +187,7 @@
 		474274A728EC7289000C3D51 /* TribeTagsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474274A628EC7289000C3D51 /* TribeTagsView.xib */; };
 		474274A928EC77A5000C3D51 /* TribeTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474274A828EC77A5000C3D51 /* TribeTagView.swift */; };
 		474274AB28EC77AE000C3D51 /* TribeTagView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 474274AA28EC77AE000C3D51 /* TribeTagView.xib */; };
+		4744B04D3077CBD20016321B /* Ladybug in Frameworks */ = {isa = PBXBuildFile; productRef = 4744B04C3077CBD20016321B /* Ladybug */; };
 		4744FA5324698FEC00C5FD94 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4744FA5224698FEC00C5FD94 /* UserData.swift */; };
 		4744FA552469900800C5FD94 /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4744FA542469900800C5FD94 /* UserDefaults.swift */; };
 		4744FA582469905100C5FD94 /* SignupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4744FA572469905100C5FD94 /* SignupHelper.swift */; };
@@ -1970,6 +1971,7 @@
 				4730EF5E2CDBCF8C0014581F /* SFSafeSymbols in Frameworks */,
 				47D03DE7250FC8B90077A968 /* PDFKit.framework in Frameworks */,
 				1AD578FF09B63C227165D4DA /* Pods_Sphinx.framework in Frameworks */,
+				4744B04D3077CBD20016321B /* Ladybug in Frameworks */,
 				479B19312EC369B800A5B9E2 /* AWSS3 in Frameworks */,
 				47088CF32F76E7B200DFA990 /* AnthropicProvider in Frameworks */,
 				47088CF72F76E7B200DFA990 /* SwiftAISDK in Frameworks */,
@@ -4366,6 +4368,7 @@
 			buildConfigurationList = 4734D3BB2417E3D600D6957E /* Build configuration list for PBXNativeTarget "Sphinx" */;
 			buildPhases = (
 				79D01615633138DB27132C48 /* [CP] Check Pods Manifest.lock */,
+				E29214825A7A3A58F8214CF2 /* Download liblbug (swift-ladybug) */,
 				4734D38E2417E3D400D6957E /* Sources */,
 				4734D38F2417E3D400D6957E /* Frameworks */,
 				4734D3902417E3D400D6957E /* Resources */,
@@ -4389,6 +4392,7 @@
 				47088CF42F76E7B200DFA990 /* OpenAIProvider */,
 				47088CF62F76E7B200DFA990 /* SwiftAISDK */,
 				47SER0002A2B3C4D00000002 /* SphinxErrorReporter */,
+				4744B04C3077CBD20016321B /* Ladybug */,
 			);
 			productName = com.stakwork.sphinx.desktop;
 			productReference = 4734D3922417E3D400D6957E /* Sphinx.app */;
@@ -4475,7 +4479,8 @@
 				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
-				47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */,
+				47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */,
+				4744B04B3077CBD20016321B /* XCRemoteSwiftPackageReference "swift-ladybug" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
 			projectDirPath = "";
@@ -4687,8 +4692,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "\n";
 		};
 		79D01615633138DB27132C48 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4731,6 +4735,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E29214825A7A3A58F8214CF2 /* Download liblbug (swift-ladybug) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Download liblbug (swift-ladybug)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n# swift-ladybug's Package.swift defaults to linking a prebuilt liblbug\n# binary (LBUG_USE_PREBUILT != \"0\") rather than compiling its C++ engine\n# from source. SwiftPM resolves the package but never runs this download\n# step itself, so without this phase the link step fails fresh on any\n# machine/CI run with: ld: library 'lbug' not found.\nDERIVED_DATA_ROOT=\"$(cd \"${BUILD_DIR}/../..\" && pwd)\"\nLADYBUG_DIR=\"${DERIVED_DATA_ROOT}/SourcePackages/checkouts/swift-ladybug\"\nif [ -x \"${LADYBUG_DIR}/scripts/download-liblbug.sh\" ]; then\n  \"${LADYBUG_DIR}/scripts/download-liblbug.sh\"\nelse\n  echo \"warning: swift-ladybug checkout not found at ${LADYBUG_DIR} -- resolve Swift Package dependencies first, then rebuild\"\nfi\n\n# --- Vendor + resign OpenSSL deps so liblbug passes Library Validation ---\n# The prebuilt liblbug dylib dynamically links Homebrew's libssl/libcrypto\n# by absolute path. Those are signed (or unsigned) under a different Team\n# ID than this app, so the sandboxed app refuses to load them at launch:\n# \"Library not loaded ... different Team IDs\". Relying on a specific\n# Homebrew path/version isn't portable across machines either, so instead\n# we vendor local copies next to liblbug, repoint liblbug's load commands\n# at them via @loader_path, and sign everything with this build's identity.\nLIB_DIR=\"${LADYBUG_DIR}/lib\"\nLIBLBUG=\"$(ls \"${LIB_DIR}\"/liblbug.*.*.dylib 2>/dev/null | head -n1)\"\nif [ -n \"$LIBLBUG\" ] && [ -f \"$LIBLBUG\" ]; then\n  NEEDED_ARCHS=\"$(lipo -archs \"$LIBLBUG\" 2>/dev/null || true)\"\n\n  # Returns 0 (and prints nothing) if $1/lib/libssl.3.dylib exists and its\n  # architectures are a superset of liblbug's. On Apple Silicon, an\n  # Intel-only Homebrew install (/usr/local via Rosetta) can legitimately\n  # be the one `brew --prefix` resolves to depending on which brew is first\n  # on PATH in this build's (non-interactive) environment -- Xcode's Run\n  # Script PATH isn't guaranteed to match an interactive shell's -- so every\n  # candidate is architecture-checked rather than trusted on sight.\n  archs_match() {\n    local candidate=\"$1/lib/libssl.3.dylib\"\n    [ -f \"$candidate\" ] || return 1\n    local candidate_archs\n    candidate_archs=\"$(lipo -archs \"$candidate\" 2>/dev/null || true)\"\n    for arch in $NEEDED_ARCHS; do\n      case \" $candidate_archs \" in\n        *\" $arch \"*) ;;\n        *) return 1 ;;\n      esac\n    done\n    return 0\n  }\n\n  OPENSSL_PREFIX=\"\"\n  for candidate in /opt/homebrew/opt/openssl@3 /usr/local/opt/openssl@3 \"$(command -v brew >/dev/null 2>&1 && brew --prefix openssl@3 2>/dev/null || true)\"; do\n    [ -n \"$candidate\" ] || continue\n    if archs_match \"$candidate\"; then\n      OPENSSL_PREFIX=\"$candidate\"\n      break\n    fi\n  done\n\n  NEED_VENDOR=1\n  if [ -f \"${LIB_DIR}/libssl.3.dylib\" ]; then\n    EXISTING_ARCHS=\"$(lipo -archs \"${LIB_DIR}/libssl.3.dylib\" 2>/dev/null || true)\"\n    MATCH=1\n    for arch in $NEEDED_ARCHS; do\n      case \" $EXISTING_ARCHS \" in\n        *\" $arch \"*) ;;\n        *) MATCH=0 ;;\n      esac\n    done\n    [ \"$MATCH\" = \"1\" ] && NEED_VENDOR=0\n  fi\n\n  if [ \"$NEED_VENDOR\" = \"1\" ]; then\n    if [ -n \"$OPENSSL_PREFIX\" ]; then\n      cp \"$OPENSSL_PREFIX/lib/libssl.3.dylib\" \"${LIB_DIR}/libssl.3.dylib\"\n      cp \"$OPENSSL_PREFIX/lib/libcrypto.3.dylib\" \"${LIB_DIR}/libcrypto.3.dylib\"\n      chmod u+w \"${LIB_DIR}/libssl.3.dylib\" \"${LIB_DIR}/libcrypto.3.dylib\"\n\n      OLD_SSL_REF=\"$(otool -L \"$LIBLBUG\" | awk '/libssl\\.3\\.dylib/{print $1; exit}')\"\n      OLD_CRYPTO_REF=\"$(otool -L \"$LIBLBUG\" | awk '/libcrypto\\.3\\.dylib/{print $1; exit}')\"\n      [ -n \"$OLD_SSL_REF\" ] && install_name_tool -change \"$OLD_SSL_REF\" \"@loader_path/libssl.3.dylib\" \"$LIBLBUG\"\n      [ -n \"$OLD_CRYPTO_REF\" ] && install_name_tool -change \"$OLD_CRYPTO_REF\" \"@loader_path/libcrypto.3.dylib\" \"$LIBLBUG\"\n\n      OLD_SSL_CRYPTO_REF=\"$(otool -L \"${LIB_DIR}/libssl.3.dylib\" | awk '/libcrypto\\.3\\.dylib/{print $1; exit}')\"\n      [ -n \"$OLD_SSL_CRYPTO_REF\" ] && install_name_tool -change \"$OLD_SSL_CRYPTO_REF\" \"@loader_path/libcrypto.3.dylib\" \"${LIB_DIR}/libssl.3.dylib\"\n      install_name_tool -id \"@loader_path/libssl.3.dylib\" \"${LIB_DIR}/libssl.3.dylib\"\n      install_name_tool -id \"@loader_path/libcrypto.3.dylib\" \"${LIB_DIR}/libcrypto.3.dylib\"\n    else\n      echo \"warning: no Homebrew openssl@3 matching liblbug's architecture ($NEEDED_ARCHS) found (checked /opt/homebrew/opt/openssl@3, /usr/local/opt/openssl@3, 'brew --prefix openssl@3') -- liblbug needs a matching libssl/libcrypto at runtime; install the matching build and rebuild\"\n    fi\n  fi\nfi\n\n# Re-sign liblbug + its vendored deps with this build's own identity --\n# needed whenever any of these files' load commands/content changed above,\n# and harmless to repeat on every build otherwise.\nif [ -d \"$LIB_DIR\" ]; then\n  for f in \"$LIB_DIR\"/*.dylib; do\n    [ -e \"$f\" ] || continue\n    codesign --force --sign \"${CODE_SIGN_IDENTITY:-Apple Development}\" --timestamp=none \"$f\" 2>&1 || true\n  done\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		STRUTH0200000001STRUTH2 /* Sign Strut Nested Code */ = {
@@ -6161,7 +6184,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gl.sphinx.v2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6197,7 +6220,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gl.sphinx.v2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6224,7 +6247,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 6.0;
@@ -6248,7 +6271,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.stakwork.com-stakwork-sphinx-desktopTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 6.0;
@@ -6343,7 +6366,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */ = {
+		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = LocalPackages/SphinxErrorReporter;
 		};
@@ -6372,6 +6395,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.3.0;
+			};
+		};
+		4744B04B3077CBD20016321B /* XCRemoteSwiftPackageReference "swift-ladybug" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LadybugDB/swift-ladybug/";
+			requirement = {
+				branch = main;
+				kind = branch;
 			};
 		};
 		479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */ = {
@@ -6418,6 +6449,11 @@
 			package = 4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */;
 			productName = SFSafeSymbols;
 		};
+		4744B04C3077CBD20016321B /* Ladybug */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4744B04B3077CBD20016321B /* XCRemoteSwiftPackageReference "swift-ladybug" */;
+			productName = Ladybug;
+		};
 		479B19302EC369B800A5B9E2 /* AWSS3 */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
@@ -6430,7 +6466,7 @@
 		};
 		47SER0002A2B3C4D00000002 /* SphinxErrorReporter */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */;
+			package = 47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */;
 			productName = SphinxErrorReporter;
 		};
 /* End XCSwiftPackageProductDependency section */
