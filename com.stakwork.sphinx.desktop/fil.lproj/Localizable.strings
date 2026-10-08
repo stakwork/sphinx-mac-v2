@@ -432,6 +432,7 @@
 "unmute" = "Unmute";
 "call" = "Tumawag";
 "error.getting.token.title" = "Error sa pagkuha ng token";
+"livekit.connecting.to.server" = "Nakikipag-ugnayan sa LiveKit server, mangyaring maghintay...";
 "error.getting.token.description" = "Nagkaroon ng error sa pagkuha ng token para sumali sa tawag. Pakisubukang muli mamaya";
 "error.enabling.microphone.title" = "Error sa pag-enable ng mikropono";
 "error.joining.call.title" = "Error sa pagsali sa tawag";

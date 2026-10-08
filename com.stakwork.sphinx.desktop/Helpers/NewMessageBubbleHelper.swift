@@ -58,11 +58,19 @@ class NewMessageBubbleHelper {
     }
 
     @MainActor
+    /// - Parameters:
+    ///   - centerVertically: When true (default) the bubble is centered in the window.
+    ///     When false it is placed at `position` (top/bottom) like generic messages,
+    ///     leaving the main content area free.
+    ///   - ignoresMouseEvents: When true the bubble is purely informational and does
+    ///     not intercept clicks, so the user can keep interacting with the UI beneath it.
     func showLoadingWheel(text: String? = nil,
                           position: VerticalPosition = .Bottom,
                           textColor: NSColor = NSColor.Sphinx.Body,
                           backColor: NSColor = NSColor.Sphinx.Text,
-                          in view: NSView? = nil) {
+                          in view: NSView? = nil,
+                          centerVertically: Bool = true,
+                          ignoresMouseEvents: Bool = false) {
 
         if GroupsPinManager.sharedInstance.shouldAskForPin() {
             return
@@ -74,7 +82,15 @@ class NewMessageBubbleHelper {
             label = getGenericMessageLabel(text: text, textColor: textColor)
             label?.frame.origin.y = labelMargin
         }
-        let view = getGenericMessageBubbleView(label: label, centeredIn: view, position: position, backColor: backColor, hasWheel: true)
+        let view = getGenericMessageBubbleView(
+            label: label,
+            centeredIn: view,
+            position: position,
+            backColor: backColor,
+            hasWheel: true,
+            centerVertically: centerVertically
+        )
+        view.ignoresMouseEvents = ignoresMouseEvents
 
         if let label = label {
             view.addSubview(label)
@@ -187,7 +203,8 @@ class NewMessageBubbleHelper {
                                      position: VerticalPosition = .Bottom,
                                      backColor: NSColor = NSColor.Sphinx.Text,
                                      hasWheel: Bool = false,
-                                     backAlpha: CGFloat = 0.7) -> NSViewWithTag {
+                                     backAlpha: CGFloat = 0.7,
+                                     centerVertically: Bool = true) -> NSViewWithTag {
 
         let windowSize = NSApplication.shared.keyWindow?.frame.size
         let containerSize = view?.frame.size ?? (windowSize ?? CGSize(width: 1100, height: 850))
@@ -208,7 +225,7 @@ class NewMessageBubbleHelper {
 
         let viewY = (position == .Top) ? containerSize.height - genericMessageY : genericMessageY
         let x = ((containerSize.width - viewWidth) / 2) + viewAbsolutePosition.origin.x
-        let y = hasWheel ? (containerSize.height - viewHeight) / 2 : viewY
+        let y = (hasWheel && centerVertically) ? (containerSize.height - viewHeight) / 2 : viewY
 
         viewWidth = (viewWidth > containerSize.width) ? (containerSize.width) : viewWidth
 
