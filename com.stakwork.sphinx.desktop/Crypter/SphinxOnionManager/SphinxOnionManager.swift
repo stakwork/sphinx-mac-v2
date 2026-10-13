@@ -106,6 +106,11 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             if oldValue != isConnected {
                 mqttLog("isConnected \(oldValue) -> \(isConnected) (connState=\(mqttConnStateDescription))")
             }
+            if !isConnected {
+                // Force a real re-subscribe next time we come back up — see
+                // hasSubscribedServerStatusTopic below.
+                hasSubscribedServerStatusTopic = false
+            }
             NotificationCenter.default.post(name: .onConnectionStatusChanged, object: nil)
         }
     }
@@ -121,6 +126,14 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var serverHealthTrackingStartedAtMs: UInt64? = nil
     /// Sticky for the current tracking session. Set on any consumed status, including parse failure.
     var hasReceivedServerStatus: Bool = false
+    /// Guards `subscribeToServerStatusTopic()` so it re-sends the MQTT SUBSCRIBE
+    /// once per connection instead of once per processed message — it used to be
+    /// called unconditionally from `handleTopicsToSubscribe(topics:)`, which fires
+    /// on every incoming message (the mixer pushes a `blockheight` heartbeat every
+    /// ~30s alone), causing a steady drip of redundant subscribe round-trips for
+    /// the whole time the app stayed connected. Reset to false whenever
+    /// `isConnected` flips to false so a real reconnect still re-subscribes.
+    var hasSubscribedServerStatusTopic: Bool = false
     /// Test hook: override local clock used for health evaluation.
     var serverHealthNowMsOverride: UInt64? = nil
     /// Test hook: staleness timer interval (defaults to mixer heartbeat interval).
