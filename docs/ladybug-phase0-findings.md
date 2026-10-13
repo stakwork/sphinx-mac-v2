@@ -60,17 +60,18 @@ cached — this caused real `dyld`/"different Team IDs" launch crashes.
 Fixed to loop over every distinct reference across all architecture slices,
 unconditionally.
 
-**Found, not yet fixed — the actual "weakest point"**: in that same build
-phase, when no Homebrew `openssl@3` is found anywhere (`/opt/homebrew`,
-`/usr/local`, `brew --prefix`), the script prints a `warning:` to stderr and
-**returns success** (no `exit 1`). The downstream "Embed liblbug" phase then
-finds nothing to copy and **also** just warns and returns success. Net
-effect: a CI runner or dev machine without Homebrew's `openssl@3` gets
-`BUILD SUCCEEDED`, and the resulting `Sphinx.app` crashes on launch with a
-dyld error that gives no hint the real cause is a missing Homebrew package.
-**Not yet fixed** — turning those two warnings into hard failures (or
-better, a clear upfront check with an actionable message) is a small,
-separate follow-up.
+**Found and fixed (`3f84cd52`) — the actual "weakest point"**: in that same
+build phase, when no Homebrew `openssl@3` is found anywhere (`/opt/homebrew`,
+`/usr/local`, `brew --prefix`), the script printed a `warning:` to stderr and
+**returned success** (no `exit 1`). The downstream "Embed liblbug" phase then
+found nothing to copy and **also** just warned and returned success. Net
+effect: a CI runner or dev machine without Homebrew's `openssl@3` got
+`BUILD SUCCEEDED`, and the resulting `Sphinx.app` crashed on launch with a
+dyld error that gave no hint the real cause was a missing Homebrew package.
+Both now `exit 1` with an actionable message instead. Verified the happy
+path (Homebrew present) still builds, embeds and launches unchanged; the
+failure path itself was reviewed rather than executed, to avoid altering
+this machine's real Homebrew install just to exercise it.
 
 iOS has no equivalent risk: the engine compiles straight into the app's own
 binary (no separate dylib to embed or sign at all).
@@ -158,7 +159,8 @@ calling code must do this kind of work off the main thread.
 
 ## Open follow-ups
 
-1. Fix the Mac "no Homebrew openssl@3" silent-success gap (§3).
+1. ~~Fix the Mac "no Homebrew openssl@3" silent-success gap (§3).~~ Done,
+   `3f84cd52`.
 2. Check whether Mac has the same "many checkpoints before a hard kill"
    exposure iOS showed (§6) — run Mac's crash test at a comparable
    checkpoint count.
