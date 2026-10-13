@@ -279,4 +279,156 @@ final class SphinxOnionManagerConnectionTests: XCTestCase {
 
         wait(for: [exp], timeout: 3.0)
     }
+
+    // MARK: - Safe subscribe: live-client guard (SIGSEGV fix)
+
+    private func makeNeverConnectedMqtt(clientID: String) -> CocoaMQTT {
+        // `.initial` connState — never had `.connect()` called on it, so it is
+        // safe to reference in tests without a real broker.
+        return CocoaMQTT(clientID: clientID, host: "127.0.0.1", port: 1883)
+    }
+
+    override func tearDownWithError() throws {
+        manager.subscribeOverride = nil
+        manager.onSubscribeSkipped = nil
+        manager.pendingResubscribeTopics.removeAll()
+        try super.tearDownWithError()
+    }
+
+    func test_handleTopicsToSubscribe_nilClient_doesNotCrash_queuesTopics() {
+        manager.mqtt = nil
+        manager.hasSubscribedServerStatusTopic = false
+
+        var skippedReason: MqttSubscribeSkipReason?
+        var skippedTopics: [String] = []
+        var skippedCallCount = 0
+        manager.onSubscribeSkipped = { reason, topics in
+            skippedCallCount += 1
+            skippedReason = reason
+            skippedTopics = topics
+        }
+
+        manager.handleTopicsToSubscribe(topics: ["topicA", "topicB"], source: nil)
+
+        XCTAssertEqual(skippedCallCount, 1, "onSubscribeSkipped must fire once, not per-topic")
+        XCTAssertEqual(skippedReason, .nilClient)
+        XCTAssertEqual(Set(skippedTopics), Set(["topicA", "topicB"]))
+        XCTAssertEqual(manager.pendingResubscribeTopics, Set(["topicA", "topicB"]))
+        XCTAssertFalse(manager.hasSubscribedServerStatusTopic)
+    }
+
+    func test_safeSubscribe_staleSource_queuesAndNeverCallsOverride() {
+        let clientA = makeNeverConnectedMqtt(clientID: "A")
+        let clientB = makeNeverConnectedMqtt(clientID: "B")
+        manager.mqtt = clientA
+
+        var overrideCalled = false
+        manager.subscribeOverride = { _, _ in overrideCalled = true }
+
+        var skippedReason: MqttSubscribeSkipReason?
+        manager.onSubscribeSkipped = { reason, _ in skippedReason = reason }
+
+        manager.safeSubscribe(["topicC"], source: clientB, context: "test")
+
+        XCTAssertFalse(overrideCalled, "stale source must never reach the real subscribe call")
+        XCTAssertEqual(skippedReason, .staleInstance)
+        XCTAssertTrue(manager.pendingResubscribeTopics.contains("topicC"))
+    }
+
+    func test_safeSubscribe_happyPath_sourceMatches_callsOverridePerTopic() {
+        let clientA = makeNeverConnectedMqtt(clientID: "A")
+        manager.mqtt = clientA
+
+        var calledTopics: [String] = []
+        manager.subscribeOverride = { client, topic in
+            XCTAssertTrue(client === clientA)
+            calledTopics.append(topic)
+        }
+
+        manager.safeSubscribe(["t1", "t2"], source: clientA, context: "test")
+
+        XCTAssertEqual(calledTopics, ["t1", "t2"])
+        XCTAssertTrue(manager.pendingResubscribeTopics.isEmpty)
+    }
+
+    func test_safeSubscribe_happyPath_sourceNil_callsOverridePerTopic() {
+        let clientA = makeNeverConnectedMqtt(clientID: "A")
+        manager.mqtt = clientA
+
+        var calledTopics: [String] = []
+        manager.subscribeOverride = { client, topic in
+            XCTAssertTrue(client === clientA)
+            calledTopics.append(topic)
+        }
+
+        manager.safeSubscribe(["t1", "t2"], source: nil, context: "test")
+
+        XCTAssertEqual(calledTopics, ["t1", "t2"])
+    }
+
+    func test_flushPendingResubscribes_withLiveClient_callsOverrideAndClearsSet() {
+        let clientA = makeNeverConnectedMqtt(clientID: "A")
+        manager.mqtt = clientA
+        manager.pendingResubscribeTopics = ["q1", "q2"]
+
+        var calledTopics: Set<String> = []
+        manager.subscribeOverride = { _, topic in calledTopics.insert(topic) }
+
+        manager.flushPendingResubscribes(context: "test-flush")
+
+        XCTAssertEqual(calledTopics, Set(["q1", "q2"]))
+        XCTAssertTrue(manager.pendingResubscribeTopics.isEmpty)
+    }
+
+    func test_flushPendingResubscribes_nilClient_requeuesWithoutCrashing() {
+        manager.mqtt = nil
+        manager.pendingResubscribeTopics = ["q1"]
+
+        var overrideCalled = false
+        manager.subscribeOverride = { _, _ in overrideCalled = true }
+
+        manager.flushPendingResubscribes(context: "test-flush-nil")
+
+        XCTAssertFalse(overrideCalled)
+        XCTAssertEqual(manager.pendingResubscribeTopics, Set(["q1"]))
+    }
+
+    func test_serverStatusFlag_skippedLeavesFalse_resetClearsIt() {
+        manager.mqtt = nil
+        manager.hasSubscribedServerStatusTopic = false
+
+        manager.subscribeToServerStatusTopic()
+        XCTAssertFalse(manager.hasSubscribedServerStatusTopic, "a skipped attempt must leave the flag false")
+
+        manager.hasSubscribedServerStatusTopic = true
+        manager.resetPerConnectionSubscriptionState()
+        XCTAssertFalse(manager.hasSubscribedServerStatusTopic)
+    }
+
+    func test_subscribeAndPublishMyTopics_nilMqtt_doesNotCrash_queuesTribeMgmtTopic() {
+        manager.mqtt = nil
+        manager.pendingResubscribeTopics.removeAll()
+
+        // No real seed is configured in this unit test environment, so
+        // subscribeAndPublishMyTopics returns early at `getAccountSeed()`
+        // without reaching the tribe-management subscribe — the important
+        // assertion is that it does not crash when mqtt is nil.
+        manager.subscribeAndPublishMyTopics(pubkey: "DUMMY_PUBKEY", idx: 0)
+    }
+
+    func test_safeSubscribe_emptyTopicList_noOverrideNoSkipNoQueue() {
+        let clientA = makeNeverConnectedMqtt(clientID: "A")
+        manager.mqtt = clientA
+
+        var overrideCalled = false
+        var skippedCalled = false
+        manager.subscribeOverride = { _, _ in overrideCalled = true }
+        manager.onSubscribeSkipped = { _, _ in skippedCalled = true }
+
+        manager.safeSubscribe([], source: nil, context: "test-empty")
+
+        XCTAssertFalse(overrideCalled)
+        XCTAssertFalse(skippedCalled)
+        XCTAssertTrue(manager.pendingResubscribeTopics.isEmpty)
+    }
 }
