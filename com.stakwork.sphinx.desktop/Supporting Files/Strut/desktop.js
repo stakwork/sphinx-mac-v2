@@ -67,6 +67,23 @@ env["STRUT_READY_KEY"] = "1"; // put the key on the ready line for the host
 
 await mkdir(env["STRUT_WORKSPACE"], { recursive: true });
 
+// Parent-death watchdog. The native host (Sphinx.app) normally kills this
+// process itself on quit, but if the host ever exits *ungracefully* --
+// crash, force-quit, a forced system restart mid-session, anything that
+// skips its own termination handler -- this process gets reparented
+// (ppid becomes launchd's) instead of killed, and just keeps running
+// forever. The host can't clean this up after the fact on a later launch
+// either: macOS App Sandbox only allows a process to signal processes it
+// directly spawned, and once reparented this one no longer is. Detecting
+// our own orphaning and exiting is the only side of this fence we have.
+const parentPidAtLaunch = process.ppid;
+setInterval(() => {
+  if (process.ppid !== parentPidAtLaunch) {
+    console.error(`strut: parent ${parentPidAtLaunch} gone (now ${process.ppid}), exiting`);
+    process.exit(0);
+  }
+}, 5000).unref();
+
 const { startServer } = await import("./build/server.js");
 const port = await startServer();
 const url = `http://${env["STRUT_HOST"]}:${port}/?key=${env["STRUT_API_KEY"]}`;
