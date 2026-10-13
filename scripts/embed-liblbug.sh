@@ -54,8 +54,17 @@ if [ -z "${LIBLBUG_SRC}" ] || [ ! -f "${LIBLBUG_SRC}" ]; then
   exit 0
 fi
 if [ ! -f "${LADYBUG_LIB_DIR}/libssl.3.dylib" ] || [ ! -f "${LADYBUG_LIB_DIR}/libcrypto.3.dylib" ]; then
-  echo "warning: vendored libssl/libcrypto not found under ${LADYBUG_LIB_DIR} -- skipping embed" >&2
-  exit 0
+  # A silent "skip this phase, exit 0" here used to let the build report
+  # BUILD SUCCEEDED while producing a Sphinx.app that crashes on launch
+  # with a dyld "Library not loaded" error pointing nowhere near the real
+  # cause: the "Download liblbug" phase upstream couldn't find Homebrew's
+  # openssl@3 to vendor, warned about it, and also didn't fail. Fail loudly
+  # here instead, at the point closest to where the missing files would
+  # actually be used, so the build itself tells you what's wrong.
+  echo "error: vendored libssl/libcrypto not found under ${LADYBUG_LIB_DIR}." >&2
+  echo "error: liblbug cannot pass Library Validation without them -- the app would crash on launch." >&2
+  echo "error: install Homebrew's openssl@3 (checked: /opt/homebrew/opt/openssl@3, /usr/local/opt/openssl@3, 'brew --prefix openssl@3') and rebuild." >&2
+  exit 1
 fi
 
 mkdir -p "${DEST}"
