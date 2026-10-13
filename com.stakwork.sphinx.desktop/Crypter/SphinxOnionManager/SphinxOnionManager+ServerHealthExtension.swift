@@ -19,8 +19,13 @@ extension SphinxOnionManager {
         topic == serverStatusTopic()
     }
 
+    /// Idempotent per connection — see `hasSubscribedServerStatusTopic`. Callers
+    /// (including the once-per-message `handleTopicsToSubscribe`) can call this
+    /// freely without re-issuing the MQTT SUBSCRIBE on every call.
     func subscribeToServerStatusTopic() {
         guard mqtt != nil else { return }
+        guard !hasSubscribedServerStatusTopic else { return }
+        hasSubscribedServerStatusTopic = true
         mqtt.subscribe([
             (serverStatusTopic(), CocoaMQTTQoS.qos0)
         ])
