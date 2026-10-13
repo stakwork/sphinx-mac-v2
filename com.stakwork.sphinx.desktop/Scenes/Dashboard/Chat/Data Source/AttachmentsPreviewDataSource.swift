@@ -27,6 +27,8 @@ class AttachmentsPreviewDataSource : NSObject {
     let kCellHeight : CGFloat = 155.0
     let kAddCellWidth : CGFloat = 72.0
     
+    private var pendingScrollWorkItem: DispatchWorkItem?
+    
     init(
         collectionView: NSCollectionView,
         scrollView: NSScrollView,
@@ -53,8 +55,12 @@ class AttachmentsPreviewDataSource : NSObject {
     }
     
     func updateAttachments(attachments: [AttachmentPreview]) {
+        pendingScrollWorkItem?.cancel()
+        pendingScrollWorkItem = nil
+        
         if attachments.isEmpty {
             self.attachments = []
+            self.attachmentsCollectionView.reloadData()
             self.scrollView.isHidden = true
             return
         }
@@ -65,18 +71,21 @@ class AttachmentsPreviewDataSource : NSObject {
         attachmentsCollectionView.collectionViewLayout?.invalidateLayout()
         attachmentsCollectionView.reloadData()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-            let ctx = NSAnimationContext.current
-            ctx.duration = 0.15
-            ctx.allowsImplicitAnimation = true
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
             
             let numberOfItems = self.attachmentsCollectionView.numberOfItems(inSection: 0)
             
-            self.attachmentsCollectionView.animator().scrollToItems(
-                at: [IndexPath(item: numberOfItems - 1, section: 0)],
-                scrollPosition: .right
+            self.attachmentsCollectionView.safeScrollToItem(
+                IndexPath(item: numberOfItems - 1, section: 0),
+                position: .right,
+                animated: true,
+                duration: 0.15
             )
-        })
+        }
+        
+        pendingScrollWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: workItem)
     }
     
     func isTableVisible() -> Bool {

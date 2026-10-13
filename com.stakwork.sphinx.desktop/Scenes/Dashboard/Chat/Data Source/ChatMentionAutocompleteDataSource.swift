@@ -26,6 +26,8 @@ class ChatMentionAutocompleteDataSource : NSObject {
     var mentionCellHeight :CGFloat = 44.0
     var selectedRow : Int = 0
     
+    var pendingScrollWorkItem: DispatchWorkItem?
+    
     init(
         tableView: NSCollectionView,
         scrollView: NSScrollView,
@@ -57,8 +59,12 @@ class ChatMentionAutocompleteDataSource : NSObject {
     }
     
     func updateMentionSuggestions(suggestions: [MentionOrMacroItem]) {
+        pendingScrollWorkItem?.cancel()
+        pendingScrollWorkItem = nil
+        
         if suggestions.isEmpty == true {
             self.suggestions = []
+            self.tableView.reloadData()
             self.scrollView.isHidden = true
             return
         }
@@ -70,18 +76,18 @@ class ChatMentionAutocompleteDataSource : NSObject {
         updateMentionTableHeight()
         tableView.reloadData()
         
-        if suggestions.isEmpty {
-            return
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            
+            self.tableView.safeScrollToItem(
+                IndexPath(item: self.selectedRow, section: 0),
+                position: .bottom,
+                animated: true
+            )
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
-            if self.tableView.numberOfItems(inSection: 0) > self.selectedRow {
-                self.tableView.animator().scrollToItems(
-                    at: [IndexPath(item: self.selectedRow, section: 0)],
-                    scrollPosition: .bottom
-                )
-            }
-        })
+        pendingScrollWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: workItem)
     }
     
     func isTableVisible() -> Bool {
@@ -126,7 +132,11 @@ class ChatMentionAutocompleteDataSource : NSObject {
         if (selectedRow < suggestions.count - 1) {
             selectedRow += 1
             tableView.reloadData()
-            tableView.animator().scrollToItems(at: [IndexPath(item: selectedRow, section: 0)], scrollPosition: .bottom)
+            tableView.safeScrollToItem(
+                IndexPath(item: selectedRow, section: 0),
+                position: .bottom,
+                animated: true
+            )
         }
     }
     
@@ -134,7 +144,11 @@ class ChatMentionAutocompleteDataSource : NSObject {
         if (selectedRow > 0) {
             selectedRow -= 1
             tableView.reloadData()
-            tableView.animator().scrollToItems(at: [IndexPath(item: selectedRow, section: 0)], scrollPosition: .top)
+            tableView.safeScrollToItem(
+                IndexPath(item: selectedRow, section: 0),
+                position: .top,
+                animated: true
+            )
         }
     }
     
