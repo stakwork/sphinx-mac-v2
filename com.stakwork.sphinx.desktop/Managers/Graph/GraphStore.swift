@@ -47,6 +47,17 @@ protocol GraphStore: AnyObject, Sendable {
     /// Deleting a node removes its edges.
     func perform(_ mutations: [GraphMutation]) throws
     func snapshot() throws -> GraphStoreSnapshot
+
+    // MARK: Read API (recall). Same threading rules as above; none of these write.
+
+    /// Nodes whose normalized name or alias equals the normalized `query` (exact matches first),
+    /// then those containing it. Normalization is `GraphIdentifiers.normalize`. At most `limit`.
+    func findNodes(query: String, limit: Int) throws -> [GraphNodeRecord]
+    /// Nodes and edges within `hops` (clamped to 1...2) of `node`, both edge directions,
+    /// each node and edge reported once. Unknown node -> empty.
+    func neighbors(of node: UUID, hops: Int) throws -> GraphNeighborhood
+    /// Every node with its degree and relations: degree desc, then name, then id.
+    func rankedNodes() throws -> [GraphRankedNode]
 }
 
 extension GraphStore {

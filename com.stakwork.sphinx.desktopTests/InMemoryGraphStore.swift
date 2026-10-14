@@ -79,4 +79,26 @@ final class InMemoryGraphStore: GraphStore, @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         return state
     }
+
+    private(set) var readCalls = 0
+    var failReads = false
+
+    private func readableState() throws -> GraphStoreSnapshot {
+        lock.lock(); defer { lock.unlock() }
+        readCalls += 1
+        if failReads || !isOpen { throw GraphJournalError.storeNotOpen }
+        return state
+    }
+
+    func findNodes(query: String, limit: Int) throws -> [GraphNodeRecord] {
+        GraphReadQueries.findNodes(in: try readableState(), query: query, limit: limit)
+    }
+
+    func neighbors(of node: UUID, hops: Int) throws -> GraphNeighborhood {
+        GraphReadQueries.neighbors(in: try readableState(), of: node, hops: hops)
+    }
+
+    func rankedNodes() throws -> [GraphRankedNode] {
+        GraphReadQueries.rankedNodes(in: try readableState())
+    }
 }

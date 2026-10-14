@@ -444,6 +444,9 @@ final class AIAgentManager: @unchecked Sendable {
         let ownerNickname: String? = await MainActor.run { UserContact.getOwner()?.nickname }
         // Read fresh each turn so the agent always has an up-to-date org list.
         let hiveOrgs = AIAgentManager.cachedHiveOrgs()
+        // Per-turn system prompt: the constant systemPrompt stays FIRST and unchanged, the graph
+        // summary is appended after it ("" if the graph is empty/unavailable/slow; never fails the turn).
+        let turnSystemPrompt = systemPrompt + (await graphSummarySection())
 
         var tools: ToolSet = [
             "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
@@ -480,7 +483,8 @@ final class AIAgentManager: @unchecked Sendable {
             "retry_task_workflow":     buildRetryTaskWorkflowTool().eraseToTool(),
             "archive_task":            buildArchiveTaskTool().eraseToTool(),
             "approve_proposal":        buildApproveProposalTool().eraseToTool(),
-            "reject_proposal":         buildRejectProposalTool().eraseToTool()
+            "reject_proposal":         buildRejectProposalTool().eraseToTool(),
+            "recall_personal_knowledge": buildRecallPersonalKnowledgeTool().eraseToTool()
         ]
         switch activeProvider {
         case .anthropic:
@@ -496,7 +500,7 @@ final class AIAgentManager: @unchecked Sendable {
             result = try await generateText(
                 model: model,
                 tools: tools,
-                system: systemPrompt,
+                system: turnSystemPrompt,
                 messages: conversationHistory,
                 stopWhen: [stepCountIs(10)]
             )
