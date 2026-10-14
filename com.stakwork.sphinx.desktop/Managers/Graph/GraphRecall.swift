@@ -61,30 +61,59 @@ enum GraphRecall {
 
     // MARK: Summary
 
+    /// Lets exactly one of two racing, independent tasks resume a continuation; the second
+    /// caller's attempt is silently dropped rather than crashing on a double resume.
+    private final class ResumeOnce: @unchecked Sendable {
+        private let lock = NSLock()
+        private var fired = false
+        /// Returns true iff this call was the one that ran `action` (first caller wins).
+        @discardableResult
+        func fireOnce(_ action: () -> Void) -> Bool {
+            lock.lock(); defer { lock.unlock() }
+            guard !fired else { return false }
+            fired = true
+            action()
+            return true
+        }
+    }
+
     /// The section appended AFTER the constant system prompt, or nil when there is nothing to add.
     /// Starts with a blank line so it can be concatenated directly.
+    ///
+    /// NOTE: this is deliberately NOT a `withTaskGroup` race. Structured concurrency implicitly
+    /// waits for every child task to finish before the group returns -- including a cancelled one
+    /// that never polls `Task.isCancelled` -- and the real read (GraphJournalService's
+    /// serial-queue dispatch, wrapped in a plain continuation) never does. A `withTaskGroup`-based
+    /// race would still block for the read's full duration on a slow graph, not the timeout,
+    /// silently defeating the whole point of this function. Racing via two independent
+    /// `Task.detached` closures that resume a single continuation is not a structured child of
+    /// anything this function awaits, so it returns the instant whichever one wins fires,
+    /// regardless of how long the loser takes.
     static func summarySection(from source: GraphRecallSource?, timeoutSeconds: Double = summaryTimeoutSeconds) async -> String? {
         guard let source = source else { return nil }
 
-        let collected: [String]? = await withTaskGroup(of: [String]?.self) { group in
-            group.addTask {
+        let collected: [String]? = await withCheckedContinuation { (continuation: CheckedContinuation<[String]?, Never>) in
+            let resumeOnce = ResumeOnce()
+
+            Task.detached {
+                let facts: [String]?
                 do {
                     let ranked = try await source.rankedNodes(limit: maxFacts)
-                    return GraphRecall.facts(from: ranked)
+                    facts = GraphRecall.facts(from: ranked)
                 } catch {
                     print("GraphRecall: summary read failed – \(error)")
-                    return nil
+                    facts = nil
+                }
+                resumeOnce.fireOnce { continuation.resume(returning: facts) }
+            }
+
+            Task.detached {
+                try? await Task.sleep(nanoseconds: UInt64(max(timeoutSeconds, 0) * 1_000_000_000))
+                let firedNow = resumeOnce.fireOnce { continuation.resume(returning: nil) }
+                if firedNow {
+                    print("GraphRecall: summary timed out after \(timeoutSeconds)s, continuing without it")
                 }
             }
-            group.addTask {
-                try? await Task.sleep(nanoseconds: UInt64(max(timeoutSeconds, 0) * 1_000_000_000))
-                print("GraphRecall: summary timed out after \(timeoutSeconds)s, continuing without it")
-                return nil
-            }
-            // First finisher wins: either the facts or the timeout (nil).
-            let first = await group.next() ?? nil
-            group.cancelAll()
-            return first
         }
 
         guard let collected = collected, !collected.isEmpty else { return nil }

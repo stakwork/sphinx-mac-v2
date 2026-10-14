@@ -22,7 +22,20 @@ private struct FakeSource: GraphRecallSource {
     var delayNanoseconds: UInt64 = 0
 
     func rankedNodes(limit: Int) async throws -> [GraphRankedNode] {
-        if delayNanoseconds > 0 { try await Task.sleep(nanoseconds: delayNanoseconds) }
+        if delayNanoseconds > 0 {
+            // Deliberately NOT Task.sleep: Task.sleep is itself cancellation-aware, so it
+            // would throw early if the caller's race cancels this task -- masking exactly
+            // the bug this delay exists to catch (GraphRecall.summarySection's real read
+            // path, a serial-queue dispatch wrapped in a continuation, ignores cancellation
+            // entirely). This waits the full delay regardless, like the real thing.
+            await withCheckedContinuation { continuation in
+                DispatchQueue.global().asyncAfter(
+                    deadline: .now() + .nanoseconds(Int(delayNanoseconds))
+                ) {
+                    continuation.resume()
+                }
+            }
+        }
         if fail { throw GraphJournalError.storeNotOpen }
         return Array(ranked.prefix(limit))
     }
@@ -263,7 +276,14 @@ final class GraphRecallTests: XCTestCase {
 
     func testSlowGraphTimesOutWithNoContext() async {
         let source = FakeSource(ranked: [ranked("Alice", degree: 1)], delayNanoseconds: 2_000_000_000)
+        let start = Date()
         let section = await GraphRecall.summarySection(from: source, timeoutSeconds: 0.05)
+        // The actual point of the timeout: this call must return close to timeoutSeconds,
+        // not block for the read's full (non-cancellable) duration. A race built on
+        // withTaskGroup looks correct by the XCTAssertNil below alone -- structured
+        // concurrency silently waits for the slow task to finish before the group
+        // returns -- so the bound itself has to be asserted, not just the value.
+        XCTAssertLessThan(Date().timeIntervalSince(start), 1.0)
         XCTAssertNil(section)
     }
 
