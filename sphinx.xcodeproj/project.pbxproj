@@ -801,6 +801,15 @@
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
+		47GJ0000000000000000B00 /* GraphJournalEntry+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0000000000000000F00 /* GraphJournalEntry+CoreDataClass.swift */; };
+		47GJ0100000000000000B01 /* GraphJournalEntry+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0100000000000000F01 /* GraphJournalEntry+CoreDataProperties.swift */; };
+		47GJ0200000000000000B02 /* GraphOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0200000000000000F02 /* GraphOperation.swift */; };
+		47GJ0300000000000000B03 /* GraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0300000000000000F03 /* GraphStore.swift */; };
+		47GJ0400000000000000B04 /* LadybugGraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0400000000000000F04 /* LadybugGraphStore.swift */; };
+		47GJ0500000000000000B05 /* GraphClientIdProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0500000000000000F05 /* GraphClientIdProvider.swift */; };
+		47GJ0600000000000000B06 /* GraphJournalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0600000000000000F06 /* GraphJournalService.swift */; };
+		47GT0000000000000000B00 /* GraphJournalServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0000000000000000F00 /* GraphJournalServiceTests.swift */; };
+		47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0100000000000000F01 /* InMemoryGraphStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1818,6 +1827,7 @@
 		4D774492DD11495E83000BD4 /* ProposalApprovalCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalApprovalCardView.swift; sourceTree = "<group>"; };
 		5EA81AB599AD947A8862A100 /* Pods-Sphinx.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sphinx.debug.xcconfig"; path = "Target Support Files/Pods-Sphinx/Pods-Sphinx.debug.xcconfig"; sourceTree = "<group>"; };
 		662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebAppSessionManager.swift; sourceTree = "<group>"; };
+		GRJ0M0000000000000000014 /* com_stakwork_sphinx_desktop 14.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 14.xcdatamodel"; sourceTree = "<group>"; };
 		66AE46CC91994BA3BFF11DA3 /* com_stakwork_sphinx_desktop 13.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 13.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEB92D7F3FCD008B2BB7 /* com_stakwork_sphinx_desktop 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 4.xcdatamodel"; sourceTree = "<group>"; };
 		77CFCEC02D809241008B2BB7 /* TimezoneSharingView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TimezoneSharingView.xib; sourceTree = "<group>"; };
@@ -1957,6 +1967,15 @@
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
+		47GJ0000000000000000F00 /* GraphJournalEntry+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GraphJournalEntry+CoreDataClass.swift"; sourceTree = "<group>"; };
+		47GJ0100000000000000F01 /* GraphJournalEntry+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GraphJournalEntry+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		47GJ0200000000000000F02 /* GraphOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphOperation.swift; sourceTree = "<group>"; };
+		47GJ0300000000000000F03 /* GraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStore.swift; sourceTree = "<group>"; };
+		47GJ0400000000000000F04 /* LadybugGraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LadybugGraphStore.swift; sourceTree = "<group>"; };
+		47GJ0500000000000000F05 /* GraphClientIdProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphClientIdProvider.swift; sourceTree = "<group>"; };
+		47GJ0600000000000000F06 /* GraphJournalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalService.swift; sourceTree = "<group>"; };
+		47GT0000000000000000F00 /* GraphJournalServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalServiceTests.swift; sourceTree = "<group>"; };
+		47GT0100000000000000F01 /* InMemoryGraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryGraphStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2378,6 +2397,8 @@
 				AHMOT0010000000001AHMOT1 /* AIAgentHiveMultiOrgTests.swift */,
 				ATHRT0010000000001ATHRT1 /* AIAgentThreadingRulesTests.swift */,
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
+				47GT0000000000000000F00 /* GraphJournalServiceTests.swift */,
+				47GT0100000000000000F01 /* InMemoryGraphStore.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				APPCT01100000001APPCT011 /* AppContextTests.swift */,
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
@@ -2470,6 +2491,7 @@
 				4744FA752469A7BA00C5FD94 /* Attachments */,
 				47D7D8E224620B450089C6EE /* Keychain */,
 				STRUTG010000000001STRUTG /* Strut */,
+				47GJ99000000000000000G02 /* Graph */,
 				47393E4B2461A8F100E6F93E /* Encryption */,
 			);
 			path = Managers;
@@ -2667,6 +2689,7 @@
 			isa = PBXGroup;
 			children = (
 				471ABEB12EF447A500CFD81F /* DataSync */,
+				47GJ99000000000000000G01 /* GraphJournalEntry */,
 				473829A22EB3F3E8007E045A /* ContentItem */,
 				47DF91512C4AA32900E8128A /* LSat */,
 				475B72172BB1CC19003AD969 /* Server */,
@@ -4360,6 +4383,27 @@
 			path = Strut;
 			sourceTree = "<group>";
 		};
+		47GJ99000000000000000G01 /* GraphJournalEntry */ = {
+			isa = PBXGroup;
+			children = (
+				47GJ0000000000000000F00 /* GraphJournalEntry+CoreDataClass.swift */,
+				47GJ0100000000000000F01 /* GraphJournalEntry+CoreDataProperties.swift */,
+			);
+			path = GraphJournalEntry;
+			sourceTree = "<group>";
+		};
+		47GJ99000000000000000G02 /* Graph */ = {
+			isa = PBXGroup;
+			children = (
+				47GJ0200000000000000F02 /* GraphOperation.swift */,
+				47GJ0300000000000000F03 /* GraphStore.swift */,
+				47GJ0400000000000000F04 /* LadybugGraphStore.swift */,
+				47GJ0500000000000000F05 /* GraphClientIdProvider.swift */,
+				47GJ0600000000000000F06 /* GraphJournalService.swift */,
+			);
+			path = Graph;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -5030,6 +5074,13 @@
 				478ED5FA25DC624300940132 /* ChangePinView.swift in Sources */,
 				47B6F52C258BCF0A00D64A41 /* PodcastLiveHeaderCollectionViewItem.swift in Sources */,
 				471ABEB32EF447B800CFD81F /* DataSync+CoreDataProperties.swift in Sources */,
+				47GJ0000000000000000B00 /* GraphJournalEntry+CoreDataClass.swift in Sources */,
+				47GJ0100000000000000B01 /* GraphJournalEntry+CoreDataProperties.swift in Sources */,
+				47GJ0200000000000000B02 /* GraphOperation.swift in Sources */,
+				47GJ0300000000000000B03 /* GraphStore.swift in Sources */,
+				47GJ0400000000000000B04 /* LadybugGraphStore.swift in Sources */,
+				47GJ0500000000000000B05 /* GraphClientIdProvider.swift in Sources */,
+				47GJ0600000000000000B06 /* GraphJournalService.swift in Sources */,
 				473633DF2554464C007405F2 /* Asn1Parser.swift in Sources */,
 				4797E74C24B8B40F00D13270 /* VideoCallHelper.swift in Sources */,
 				4730EF6D2CDBD0EE0014581F /* ParticipantView.swift in Sources */,
@@ -5390,6 +5441,8 @@
 				AHMOT0020000000001AHMOT2 /* AIAgentHiveMultiOrgTests.swift in Sources */,
 				ATHRT0020000000001ATHRT2 /* AIAgentThreadingRulesTests.swift in Sources */,
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
+				47GT0000000000000000B00 /* GraphJournalServiceTests.swift in Sources */,
+				47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */,
 				CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */,
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
@@ -6495,6 +6548,7 @@
 		4734D3992417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				GRJ0M0000000000000000014 /* com_stakwork_sphinx_desktop 14.xcdatamodel */,
 				66AE46CC91994BA3BFF11DA3 /* com_stakwork_sphinx_desktop 13.xcdatamodel */,
 				47B9CBF72F3D2242007527B4 /* com_stakwork_sphinx_desktop 12.xcdatamodel */,
 				471ABEB02EF4476400CFD81F /* com_stakwork_sphinx_desktop 11.xcdatamodel */,
@@ -6509,7 +6563,7 @@
 				47DF91502C4AA27E00E8128A /* com_stakwork_sphinx_desktop 2.xcdatamodel */,
 				4734D39A2417E3D400D6957E /* com_stakwork_sphinx_desktop.xcdatamodel */,
 			);
-			currentVersion = 66AE46CC91994BA3BFF11DA3 /* com_stakwork_sphinx_desktop 13.xcdatamodel */;
+			currentVersion = GRJ0M0000000000000000014 /* com_stakwork_sphinx_desktop 14.xcdatamodel */;
 			path = com_stakwork_sphinx_desktop.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
