@@ -6,7 +6,7 @@
 //  atomic batches, idempotent upserts, node delete removes incident edges.
 //
 import Foundation
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 final class InMemoryGraphStore: GraphStore, @unchecked Sendable {
 

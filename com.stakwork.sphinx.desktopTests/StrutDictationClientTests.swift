@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 // MARK: - Fakes
 
@@ -45,12 +45,13 @@ final class FakeStrutStreamTransport: StrutStreamTransport, @unchecked Sendable 
         ready: StrutReadyConnection,
         generation: Int
     ) async -> Result<Void, StrutStreamTransportError> {
-        lock.lock()
-        openCount += 1
-        lastOpenGeneration = generation
-        let fail = failWith
-        let sleepNs = openSleepNanoseconds
-        lock.unlock()
+        // lock()/unlock() are unavailable from async contexts (noasync) --
+        // withLock is the async-safe scoped-locking replacement.
+        let (fail, sleepNs) = lock.withLock {
+            openCount += 1
+            lastOpenGeneration = generation
+            return (failWith, openSleepNanoseconds)
+        }
 
         if sleepNs > 0 {
             try? await Task.sleep(nanoseconds: sleepNs)
@@ -74,9 +75,11 @@ final class FakeStrutStreamTransport: StrutStreamTransport, @unchecked Sendable 
     }
 
     func close(code: Int) async {
-        lock.lock()
-        closeCount += 1
-        lock.unlock()
+        // lock()/unlock() are unavailable from async contexts (noasync) --
+        // withLock is the async-safe scoped-locking replacement.
+        lock.withLock {
+            closeCount += 1
+        }
     }
 
     func deliver(_ message: StrutServerMessage, generation: Int? = nil) {

@@ -28,4 +28,14 @@ target 'Sphinx' do
    pod 'CocoaMQTT'
    pod 'MessagePack.swift', '~> 4.0'
    pod 'LDSwiftEventSource', '~> 3.3'
+
+   # sphinxTests is app-hosted (TEST_HOST = Sphinx.app) and @testable imports
+   # Sphinx, so it needs the same pods on its search paths to resolve the
+   # transitive module dependencies -- it has never had its own Pods xcconfig,
+   # which is the actual reason `xcodebuild test` fails with "missing required
+   # modules: 'Alamofire', 'CocoaMQTT', ...". inherit! :search_paths (not a
+   # duplicate pod list) is CocoaPods' standard pattern for a unit-test target.
+   target 'sphinxTests' do
+     inherit! :search_paths
+   end
 end

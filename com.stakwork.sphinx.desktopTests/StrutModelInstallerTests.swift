@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 final class StrutModelInstallerTests: XCTestCase {
 
@@ -20,6 +20,38 @@ final class StrutModelInstallerTests: XCTestCase {
     override func tearDown() {
         StrutURLProtocolStub.reset()
         super.tearDown()
+    }
+
+    // MARK: - Result assertions
+    //
+    // Result<Void, StrutModelInstallError> is not Equatable -- Void itself
+    // does not conform to Equatable, so `XCTAssertEqual(result, .success(()))`
+    // never actually compiles. These helpers compare install() results
+    // without relying on Result's conditional Equatable conformance.
+
+    private func assertSuccess(
+        _ result: Result<Void, StrutModelInstallError>,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        if case .failure(let error) = result {
+            XCTFail("Expected success but got failure(\(error))", file: file, line: line)
+        }
+    }
+
+    private func assertFailure(
+        _ result: Result<Void, StrutModelInstallError>,
+        _ expected: StrutModelInstallError,
+        _ message: String = "",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        switch result {
+        case .success:
+            XCTFail("Expected failure(\(expected)) but got success \(message)", file: file, line: line)
+        case .failure(let error):
+            XCTAssertEqual(error, expected, message, file: file, line: line)
+        }
     }
 
     // MARK: - Helpers
@@ -107,7 +139,7 @@ final class StrutModelInstallerTests: XCTestCase {
         stubDownloadDone(id: "partial-id")
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .success(()))
+        assertSuccess(result)
         XCTAssertEqual(StrutURLProtocolStub.requestCount, 3)
         assertExactAuthorization()
     }
@@ -126,7 +158,7 @@ final class StrutModelInstallerTests: XCTestCase {
         stubDownloadDone(id: "primary-id")
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .failure(.httpStatus(401)))
+        assertFailure(result, .httpStatus(401))
         XCTAssertEqual(StrutURLProtocolStub.recordedMethods(), ["GET"])
         XCTAssertEqual(StrutURLProtocolStub.recordedPaths(), ["/audio/models"])
         assertExactAuthorization()
@@ -138,7 +170,7 @@ final class StrutModelInstallerTests: XCTestCase {
         stubDownloadDone(id: "partial-id")
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .failure(.sttUnavailable))
+        assertFailure(result, .sttUnavailable)
         XCTAssertEqual(StrutURLProtocolStub.recordedMethods(), ["GET"])
         XCTAssertFalse(StrutURLProtocolStub.recordedMethods().contains("POST"))
     }
@@ -151,7 +183,7 @@ final class StrutModelInstallerTests: XCTestCase {
         stubDownloadDone(id: "partial-id")
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .success(()))
+        assertSuccess(result)
         XCTAssertEqual(StrutURLProtocolStub.recordedMethods(), ["GET"])
         XCTAssertFalse(StrutURLProtocolStub.recordedMethods().contains("POST"))
     }
@@ -164,7 +196,7 @@ final class StrutModelInstallerTests: XCTestCase {
         stubDownloadDone(id: "primary-id")
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .success(()))
+        assertSuccess(result)
         XCTAssertEqual(StrutURLProtocolStub.recordedMethods(), ["GET", "POST"])
         XCTAssertEqual(
             StrutURLProtocolStub.recordedPaths(),
@@ -182,7 +214,7 @@ final class StrutModelInstallerTests: XCTestCase {
             stubDownloadDone(id: id)
 
             let result = await makeInstaller().install()
-            XCTAssertEqual(result, .failure(.invalidModelId(id)), "id \(id)")
+            assertFailure(result, .invalidModelId(id), "id \(id)")
             XCTAssertFalse(
                 StrutURLProtocolStub.recordedMethods().contains("POST"),
                 "id \(id) must never POST"
@@ -213,7 +245,7 @@ final class StrutModelInstallerTests: XCTestCase {
         let localhost = await makeInstaller(
             ready: makeReady(url: "http://localhost:51234")
         ).install()
-        XCTAssertEqual(localhost, .success(()))
+        assertSuccess(localhost)
 
         StrutURLProtocolStub.reset()
         stubModels(defaultModelsJSON())
@@ -222,7 +254,7 @@ final class StrutModelInstallerTests: XCTestCase {
         let loopback = await makeInstaller(
             ready: makeReady(url: "http://127.0.0.1:51234")
         ).install()
-        XCTAssertEqual(loopback, .success(()))
+        assertSuccess(loopback)
     }
 
     func testHTTP_RejectedForNonLoopback() async {
@@ -230,9 +262,9 @@ final class StrutModelInstallerTests: XCTestCase {
         let result = await makeInstaller(
             ready: makeReady(url: "http://example.com")
         ).install()
-        XCTAssertEqual(
+        assertFailure(
             result,
-            .failure(.disallowedScheme(scheme: "http", host: "example.com"))
+            .disallowedScheme(scheme: "http", host: "example.com")
         )
         XCTAssertEqual(StrutURLProtocolStub.requestCount, 0)
     }
@@ -244,7 +276,7 @@ final class StrutModelInstallerTests: XCTestCase {
         let result = await makeInstaller(
             ready: makeReady(url: "https://strut.example")
         ).install()
-        XCTAssertEqual(result, .success(()))
+        assertSuccess(result)
     }
 
     // MARK: - Redirect
@@ -307,7 +339,7 @@ final class StrutModelInstallerTests: XCTestCase {
         let result = await makeInstaller().install { phase, received, total in
             recorder.add(phase, received, total)
         }
-        XCTAssertEqual(result, .success(()))
+        assertSuccess(result)
         XCTAssertEqual(recorder.events.count, 2)
         XCTAssertEqual(recorder.events[0].0, "fetch")
         XCTAssertEqual(recorder.events[0].1, 5)
@@ -330,7 +362,7 @@ final class StrutModelInstallerTests: XCTestCase {
         )
 
         let result = await makeInstaller().install()
-        XCTAssertEqual(result, .failure(.downloadFailed("disk full")))
+        assertFailure(result, .downloadFailed("disk full"))
     }
 
     func testInstallerDoesNotUseEphemeralHealthSession() {
