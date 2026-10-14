@@ -51,6 +51,8 @@ import SphinxErrorReporter
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         AppLogger.shared.start()
+        GraphExtractionSettings.registerDefaults()
+        PersonalGraph.startInBackground()
         Task {
             await StrutProcessController.shared.start()
         }

@@ -63,7 +63,7 @@ constraint would rely on the merge policy to resolve violations; a fetch index o
 
 ## Not wired
 
-Nothing instantiates `GraphJournalService` in the app yet; the caller must run `start()` once off the main
+Wired in job 2 (see `graph-extraction.md`: `PersonalGraph`). The caller must run `start()` once off the main
 thread and keep a single instance (Ladybug takes a file lock).
 
 ## Known limitation

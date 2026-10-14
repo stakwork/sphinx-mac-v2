@@ -124,6 +124,8 @@ class ProfileViewController: NSViewController {
         trackActionsSwitchContainer.layer?.cornerRadius = trackActionsSwitchContainer.frame.size.height / 2
         trackActionsSwitchCircle.layer?.cornerRadius = trackActionsSwitchCircle.frame.size.height / 2
         
+        configureGraphExtractionRow()
+        
         sharePhotoSwitchButton.cursor = .pointingHand
         trackActionsSwitchButton.cursor = .pointingHand
         exportKeysButton.cursor = .pointingHand
@@ -421,6 +423,49 @@ class ProfileViewController: NSViewController {
             title: "Personal Graph Setup",
             height: 550
         )
+    }
+
+    /// Privacy switch for the personal knowledge graph (default ON). Built in code, placed in
+    /// the slot of the hidden `setupSignerBox`, i.e. right below "Configure AI Agent".
+    /// Applies immediately (it does not go through the Save button).
+    private func configureGraphExtractionRow() {
+        guard let container = setupSignerBox.superview else { return }
+
+        let box = NSBox()
+        box.boxType = .custom
+        box.borderType = .noBorder
+        box.titlePosition = .noTitle
+        box.fillColor = NSColor.Sphinx.Body
+        box.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = NSTextField(labelWithString: "Remember things from AI agent chats")
+        label.font = NSFont(name: "Roboto-Regular", size: 15) ?? NSFont.systemFont(ofSize: 15)
+        label.toolTip = "When on, the AI agent saves people, places and topics you mention to your personal knowledge graph on this device."
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let toggle = NSButton(checkboxWithTitle: "", target: self, action: #selector(graphExtractionToggled(_:)))
+        toggle.state = GraphExtractionSettings.isEnabled() ? .on : .off
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+
+        box.addSubview(label)
+        box.addSubview(toggle)
+        container.addSubview(box)
+
+        NSLayoutConstraint.activate([
+            box.topAnchor.constraint(equalTo: setupSignerBox.topAnchor),
+            box.leadingAnchor.constraint(equalTo: setupSignerBox.leadingAnchor),
+            box.trailingAnchor.constraint(equalTo: setupSignerBox.trailingAnchor),
+            box.heightAnchor.constraint(equalTo: setupSignerBox.heightAnchor),
+            label.leadingAnchor.constraint(equalTo: box.leadingAnchor, constant: 30),
+            label.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+            toggle.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -30),
+            toggle.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: toggle.leadingAnchor, constant: -8)
+        ])
+    }
+
+    @objc private func graphExtractionToggled(_ sender: NSButton) {
+        GraphExtractionSettings.setEnabled(sender.state == .on)
     }
 
     @IBAction func configureAIAgentButtonClicked(_ sender: Any) {

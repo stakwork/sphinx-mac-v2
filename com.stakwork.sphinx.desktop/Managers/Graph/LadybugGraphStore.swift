@@ -78,6 +78,12 @@ final class LadybugGraphStore: GraphStore, @unchecked Sendable {
         _ = try open()
     }
 
+    func destroy() throws {
+        precondition(!Thread.isMainThread, "Ladybug must not be used on the main thread")
+        close()
+        try deleteFiles()
+    }
+
     func perform(_ mutations: [GraphMutation]) throws {
         precondition(!Thread.isMainThread, "Ladybug must not be used on the main thread")
         guard connection != nil else { throw GraphJournalError.storeNotOpen }

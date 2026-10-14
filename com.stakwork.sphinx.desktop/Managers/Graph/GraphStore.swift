@@ -39,9 +39,18 @@ protocol GraphStore: AnyObject, Sendable {
     func close()
     /// Destroys all stored data (including sidecar files) and leaves an empty, open store.
     func reset() throws
+    /// Closes the store and deletes its files, leaving nothing behind (account wipe).
+    /// Unlike `reset()` the store is NOT reopened. Default: just `close()`.
+    func destroy() throws
     /// Applies mutations in order, atomically (all or nothing).
     /// Must be idempotent per mutation: upserts overwrite, deletes of missing entities are no-ops.
     /// Deleting a node removes its edges.
     func perform(_ mutations: [GraphMutation]) throws
     func snapshot() throws -> GraphStoreSnapshot
+}
+
+extension GraphStore {
+    func destroy() throws {
+        close()
+    }
 }
