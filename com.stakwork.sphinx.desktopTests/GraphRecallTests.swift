@@ -186,8 +186,23 @@ final class GraphRecallTests: XCTestCase {
         let modelURL = try XCTUnwrap(bundle.url(forResource: "com_stakwork_sphinx_desktop", withExtension: "momd"))
         let model = try XCTUnwrap(NSManagedObjectModel(contentsOf: modelURL))
         let container = NSPersistentContainer(name: "GraphRecallTests", managedObjectModel: model)
-        let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
+
+        // NSInMemoryStoreType (what GraphJournalServiceTests uses) does not support
+        // propertiesToGroupBy -- rankedNodes(limit:)'s grouped max(timestamp) fetch
+        // throws an uncaught NSInvalidArgumentException ("does not support GROUP BY")
+        // against it, which crashes the test process rather than failing it cleanly.
+        // Use a real, temp-file SQLite store instead, matching the production
+        // container's actual store type (CoreDataManager never uses in-memory).
+        let storeURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("GraphRecallTests-\(UUID().uuidString).sqlite")
+        addTeardownBlock {
+            let fm = FileManager.default
+            for suffix in ["", "-wal", "-shm"] {
+                try? fm.removeItem(at: URL(fileURLWithPath: storeURL.path + suffix))
+            }
+        }
+        let description = NSPersistentStoreDescription(url: storeURL)
+        description.type = NSSQLiteStoreType
         container.persistentStoreDescriptions = [description]
         var loadError: Error?
         container.loadPersistentStores { _, error in loadError = error }
