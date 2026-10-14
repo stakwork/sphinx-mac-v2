@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 class HiveNotificationPreferencesTests: XCTestCase {
 

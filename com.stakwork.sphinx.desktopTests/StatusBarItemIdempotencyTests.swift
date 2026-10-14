@@ -14,8 +14,9 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
+@MainActor
 final class StatusBarItemIdempotencyTests: XCTestCase {
 
     private var appDelegate: AppDelegate!

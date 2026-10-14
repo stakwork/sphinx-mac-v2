@@ -9,7 +9,7 @@
 
 import XCTest
 import CoreData
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 private struct FixedClientId: GraphClientIdProviding {
     let id: String

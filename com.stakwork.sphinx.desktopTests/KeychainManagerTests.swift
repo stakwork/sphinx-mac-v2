@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 /// In-memory stand-in for KeychainAccessBackingStore. `@unchecked Sendable`
 /// because tests mutate a single-thread dictionary, never the system keychain.

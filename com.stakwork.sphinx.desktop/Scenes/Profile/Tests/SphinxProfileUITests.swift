@@ -8,6 +8,7 @@
 
 import XCTest
 
+@MainActor
 final class SphinxUITests: XCTestCase {
 
     let app = XCUIApplication()
