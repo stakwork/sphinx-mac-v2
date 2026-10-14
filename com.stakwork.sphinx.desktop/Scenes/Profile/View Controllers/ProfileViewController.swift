@@ -57,7 +57,14 @@ class ProfileViewController: NSViewController {
     
     let kSwitchOnLeading: CGFloat = 25
     let kSwitchOffLeading: CGFloat = 2
-    
+
+    // Graph extraction row's switch is built in code (see configureGraphExtractionRow),
+    // so it needs its own stored references, same role as the @IBOutlets the other
+    // switches on this screen get from the storyboard.
+    var graphExtractionSwitchContainer: NSBox!
+    var graphExtractionSwitchCircle: NSBox!
+    var graphExtractionSwitchCircleLeading: NSLayoutConstraint!
+
     var walletBalanceService = WalletBalanceService()
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
@@ -443,13 +450,44 @@ class ProfileViewController: NSViewController {
         label.toolTip = "When on, the AI agent saves people, places and topics you mention to your personal knowledge graph on this device."
         label.translatesAutoresizingMaskIntoConstraints = false
 
-        let toggle = NSButton(checkboxWithTitle: "", target: self, action: #selector(graphExtractionToggled(_:)))
-        toggle.state = GraphExtractionSettings.isEnabled() ? .on : .off
-        toggle.translatesAutoresizingMaskIntoConstraints = false
+        // Same pill switch as sharePhotoSwitch / trackActionsSwitch above (50x28
+        // PrimaryBlue/MainBottomIcons container, 23x24 white circle inset 2pt,
+        // circle leading animates between kSwitchOffLeading/kSwitchOnLeading) --
+        // built in code here instead of loaded from the storyboard, since this
+        // row has no nib counterpart, but it must look and behave identically.
+        let switchContainer = NSBox()
+        switchContainer.boxType = .custom
+        switchContainer.borderType = .noBorder
+        switchContainer.titlePosition = .noTitle
+        switchContainer.wantsLayer = true
+        switchContainer.layer?.cornerRadius = 14
+        switchContainer.translatesAutoresizingMaskIntoConstraints = false
 
+        let switchCircle = NSBox()
+        switchCircle.boxType = .custom
+        switchCircle.borderType = .noBorder
+        switchCircle.titlePosition = .noTitle
+        switchCircle.fillColor = .white
+        switchCircle.wantsLayer = true
+        switchCircle.layer?.cornerRadius = 12
+        switchCircle.translatesAutoresizingMaskIntoConstraints = false
+
+        let switchButton = CustomButton()
+        switchButton.title = ""
+        switchButton.isBordered = false
+        switchButton.setButtonType(.momentaryPushIn)
+        switchButton.cursor = .pointingHand
+        switchButton.target = self
+        switchButton.action = #selector(graphExtractionSwitchClicked(_:))
+        switchButton.translatesAutoresizingMaskIntoConstraints = false
+
+        switchContainer.addSubview(switchCircle)
         box.addSubview(label)
-        box.addSubview(toggle)
+        box.addSubview(switchContainer)
+        box.addSubview(switchButton)
         container.addSubview(box)
+
+        let circleLeading = switchCircle.leadingAnchor.constraint(equalTo: switchContainer.leadingAnchor, constant: kSwitchOffLeading)
 
         NSLayoutConstraint.activate([
             box.topAnchor.constraint(equalTo: setupSignerBox.topAnchor),
@@ -458,14 +496,45 @@ class ProfileViewController: NSViewController {
             box.heightAnchor.constraint(equalTo: setupSignerBox.heightAnchor),
             label.leadingAnchor.constraint(equalTo: box.leadingAnchor, constant: 30),
             label.centerYAnchor.constraint(equalTo: box.centerYAnchor),
-            toggle.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -30),
-            toggle.centerYAnchor.constraint(equalTo: box.centerYAnchor),
-            label.trailingAnchor.constraint(lessThanOrEqualTo: toggle.leadingAnchor, constant: -8)
+
+            switchContainer.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -30),
+            switchContainer.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+            switchContainer.widthAnchor.constraint(equalToConstant: 50),
+            switchContainer.heightAnchor.constraint(equalToConstant: 28),
+
+            switchCircle.topAnchor.constraint(equalTo: switchContainer.topAnchor, constant: 2),
+            switchCircle.bottomAnchor.constraint(equalTo: switchContainer.bottomAnchor, constant: -2),
+            switchCircle.widthAnchor.constraint(equalToConstant: 23),
+            circleLeading,
+
+            switchButton.leadingAnchor.constraint(equalTo: switchContainer.leadingAnchor),
+            switchButton.trailingAnchor.constraint(equalTo: switchContainer.trailingAnchor),
+            switchButton.topAnchor.constraint(equalTo: switchContainer.topAnchor),
+            switchButton.bottomAnchor.constraint(equalTo: switchContainer.bottomAnchor),
+
+            label.trailingAnchor.constraint(lessThanOrEqualTo: switchContainer.leadingAnchor, constant: -8)
         ])
+
+        graphExtractionSwitchContainer = switchContainer
+        graphExtractionSwitchCircle = switchCircle
+        graphExtractionSwitchCircleLeading = circleLeading
+
+        toggleGraphExtractionSwitch(on: GraphExtractionSettings.isEnabled())
     }
 
-    @objc private func graphExtractionToggled(_ sender: NSButton) {
-        GraphExtractionSettings.setEnabled(sender.state == .on)
+    @objc private func graphExtractionSwitchClicked(_ sender: Any) {
+        let on = !isGraphExtractionSwitchOn()
+        toggleGraphExtractionSwitch(on: on)
+        GraphExtractionSettings.setEnabled(on)
+    }
+
+    private func toggleGraphExtractionSwitch(on: Bool) {
+        graphExtractionSwitchCircleLeading.constant = on ? kSwitchOnLeading : kSwitchOffLeading
+        graphExtractionSwitchContainer.fillColor = on ? NSColor.Sphinx.PrimaryBlue : NSColor.Sphinx.MainBottomIcons
+    }
+
+    private func isGraphExtractionSwitchOn() -> Bool {
+        return graphExtractionSwitchCircleLeading.constant == kSwitchOnLeading
     }
 
     @IBAction func configureAIAgentButtonClicked(_ sender: Any) {
