@@ -685,6 +685,12 @@
 		47GJ0400000000000000B04 /* LadybugGraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0400000000000000F04 /* LadybugGraphStore.swift */; };
 		47GJ0500000000000000B05 /* GraphClientIdProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0500000000000000F05 /* GraphClientIdProvider.swift */; };
 		47GJ0600000000000000B06 /* GraphJournalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0600000000000000F06 /* GraphJournalService.swift */; };
+		47GJ0700000000000000B07 /* GraphIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0700000000000000F07 /* GraphIdentifiers.swift */; };
+		47GJ0800000000000000B08 /* GraphExtractionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0800000000000000F08 /* GraphExtractionPolicy.swift */; };
+		47GJ0900000000000000B09 /* GraphExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0900000000000000F09 /* GraphExtraction.swift */; };
+		47GJ0A00000000000000B0A /* PersonalGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0A00000000000000F0A /* PersonalGraph.swift */; };
+		47GJ0B00000000000000B0B /* AIAgentManager+GraphExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0B00000000000000F0B /* AIAgentManager+GraphExtraction.swift */; };
+		47GT0200000000000000B02 /* GraphExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0200000000000000F02 /* GraphExtractionTests.swift */; };
 		47GT0000000000000000B00 /* GraphJournalServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0000000000000000F00 /* GraphJournalServiceTests.swift */; };
 		47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0100000000000000F01 /* InMemoryGraphStore.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
@@ -1811,6 +1817,12 @@
 		47GJ0500000000000000F05 /* GraphClientIdProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphClientIdProvider.swift; sourceTree = "<group>"; };
 		47GJ0600000000000000F06 /* GraphJournalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalService.swift; sourceTree = "<group>"; };
 		47GT0000000000000000F00 /* GraphJournalServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalServiceTests.swift; sourceTree = "<group>"; };
+		47GJ0700000000000000F07 /* GraphIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphIdentifiers.swift; sourceTree = "<group>"; };
+		47GJ0800000000000000F08 /* GraphExtractionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtractionPolicy.swift; sourceTree = "<group>"; };
+		47GJ0900000000000000F09 /* GraphExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtraction.swift; sourceTree = "<group>"; };
+		47GJ0A00000000000000F0A /* PersonalGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalGraph.swift; sourceTree = "<group>"; };
+		47GJ0B00000000000000F0B /* AIAgentManager+GraphExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+GraphExtraction.swift"; sourceTree = "<group>"; };
+		47GT0200000000000000F02 /* GraphExtractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtractionTests.swift; sourceTree = "<group>"; };
 		47GT0100000000000000F01 /* InMemoryGraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryGraphStore.swift; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
@@ -2405,6 +2417,7 @@
 				UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */,
 				47GT0000000000000000F00 /* GraphJournalServiceTests.swift */,
 				47GT0100000000000000F01 /* InMemoryGraphStore.swift */,
+				47GT0200000000000000F02 /* GraphExtractionTests.swift */,
 				CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */,
 				APPCT01100000001APPCT011 /* AppContextTests.swift */,
 				PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */,
@@ -3607,6 +3620,7 @@
 			children = (
 				47AA1A012EF431AB00CFDA01 /* AIAgentManager.swift */,
 				47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */,
+				47GJ0B00000000000000F0B /* AIAgentManager+GraphExtraction.swift */,
 				47HT0011EF431AB00CFDA01 /* AIAgentManager+HiveTools.swift */,
 				47HP00310EF431AB00CFDA01 /* AIAgentManager+HivePlannerTools.swift */,
 				47HP00210EF431AB00CFDA01 /* AIAgentManager+HivePlannerFormat.swift */,
@@ -4247,6 +4261,10 @@
 				47GJ0400000000000000F04 /* LadybugGraphStore.swift */,
 				47GJ0500000000000000F05 /* GraphClientIdProvider.swift */,
 				47GJ0600000000000000F06 /* GraphJournalService.swift */,
+				47GJ0700000000000000F07 /* GraphIdentifiers.swift */,
+				47GJ0800000000000000F08 /* GraphExtractionPolicy.swift */,
+				47GJ0900000000000000F09 /* GraphExtraction.swift */,
+				47GJ0A00000000000000F0A /* PersonalGraph.swift */,
 			);
 			path = Graph;
 			sourceTree = "<group>";
@@ -5108,6 +5126,10 @@
 				47GJ0400000000000000B04 /* LadybugGraphStore.swift in Sources */,
 				47GJ0500000000000000B05 /* GraphClientIdProvider.swift in Sources */,
 				47GJ0600000000000000B06 /* GraphJournalService.swift in Sources */,
+				47GJ0700000000000000B07 /* GraphIdentifiers.swift in Sources */,
+				47GJ0800000000000000B08 /* GraphExtractionPolicy.swift in Sources */,
+				47GJ0900000000000000B09 /* GraphExtraction.swift in Sources */,
+				47GJ0A00000000000000B0A /* PersonalGraph.swift in Sources */,
 				473633DF2554464C007405F2 /* Asn1Parser.swift in Sources */,
 				4797E74C24B8B40F00D13270 /* VideoCallHelper.swift in Sources */,
 				4730EF6D2CDBD0EE0014581F /* ParticipantView.swift in Sources */,
@@ -5167,6 +5189,7 @@
 				4744FA8D2469C9F800C5FD94 /* UserContact+CoreDataClass.swift in Sources */,
 				47AA1A022EF431AE00CFDA01 /* AIAgentManager.swift in Sources */,
 				47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */,
+				47GJ0B00000000000000B0B /* AIAgentManager+GraphExtraction.swift in Sources */,
 				D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */,
 				ATHR0020000000001ATHR02 /* AIAgentThreadingRules.swift in Sources */,
 				47HT0012EF431AE00CFDA01 /* AIAgentManager+HiveTools.swift in Sources */,
@@ -5470,6 +5493,7 @@
 				UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */,
 				47GT0000000000000000B00 /* GraphJournalServiceTests.swift in Sources */,
 				47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */,
+				47GT0200000000000000B02 /* GraphExtractionTests.swift in Sources */,
 				// CallAudioRouteMonitorTests.swift excluded from compilation: it
 				// constructs LiveKit's AudioDevice directly
 				// (AudioDevice(deviceId:name:)), which no longer compiles -- the

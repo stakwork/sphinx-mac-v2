@@ -69,6 +69,13 @@ final class GraphJournalService: @unchecked Sendable {
         }
     }
 
+    /// Closes the store and deletes the Ladybug files (account wipe). The journal is untouched
+    /// here (the wipe clears Core Data itself). The next `apply` finds the store closed and
+    /// rebuilds it from whatever the journal then holds.
+    func destroyStore() async throws {
+        try await onQueue { () throws -> Void in try self.store.destroy() }
+    }
+
     /// Write path. Appends journal rows then updates the store from the same operations.
     @discardableResult
     func apply(_ operation: GraphOperation) async throws -> GraphApplyResult {
