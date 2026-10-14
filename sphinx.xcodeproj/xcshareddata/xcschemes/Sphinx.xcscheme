@@ -61,6 +61,17 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4734D3A62417E3D500D6957E"
+               BuildableName = "sphinxTests.xctest"
+               BlueprintName = "sphinxTests"
+               ReferencedContainer = "container:sphinx.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "93A83E662B7FC297005158FB"
                BuildableName = "SphinxUITests.xctest"
                BlueprintName = "SphinxUITests"

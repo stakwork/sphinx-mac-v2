@@ -131,13 +131,13 @@
         <attribute name="value" optional="YES" attributeType="String"/>
     </entity>
     <entity name="GraphJournalEntry" representedClassName="GraphJournalEntry" syncable="YES" codeGenerationType="none">
-        <attribute name="clientId" attributeType="String" defaultValueString=""/>
-        <attribute name="entityId" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="opType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="payload" attributeType="Binary"/>
-        <attribute name="schemaVersion" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
-        <attribute name="seq" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="timestamp" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="clientId" optional="NO" attributeType="String" defaultValueString=""/>
+        <attribute name="entityId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="opType" optional="NO" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="payload" optional="YES" attributeType="Binary"/>
+        <attribute name="schemaVersion" optional="NO" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="seq" optional="NO" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <fetchIndex name="byClientSeq">
             <fetchIndexElement property="clientId" type="Binary" order="ascending"/>
             <fetchIndexElement property="seq" type="Binary" order="ascending"/>

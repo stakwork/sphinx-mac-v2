@@ -117,10 +117,12 @@ final class GraphJournalService: @unchecked Sendable {
             try GraphMutation(opType: $0.opType, entityId: $0.entityId, payload: $0.payload)
         }
 
-        var localClientId = ""
-        if operations.contains(where: { $0.clientId == nil }) {
-            localClientId = try clientIdProvider.clientId()
-        }
+        // `let`, not `var`: a mutable var read inside performAndWait's closure
+        // trips Swift 6 strict concurrency ("captured var in concurrently-
+        // executing code") even though the closure runs synchronously here.
+        let localClientId: String = try operations.contains(where: { $0.clientId == nil })
+            ? clientIdProvider.clientId()
+            : ""
         let context = container.newBackgroundContext()
 
         var results: [GraphApplyResult] = []
