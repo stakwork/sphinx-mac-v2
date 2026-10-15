@@ -571,6 +571,16 @@ final class AIAgentManager: @unchecked Sendable {
         conversationHistory.append(.assistant(responseText))
         saveHistory()
         isProcessing = false
+
+        // Fire-and-forget: runs after the answer is returned, the user does not wait for it.
+        // The error path above returns earlier and never extracts.
+        scheduleGraphExtraction(
+            model: model,
+            userText: userText,
+            assistantText: responseText,
+            toolNames: allToolNames,
+            didFail: false
+        )
         return responseText
     }
 

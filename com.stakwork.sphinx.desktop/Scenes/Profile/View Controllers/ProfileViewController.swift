@@ -57,7 +57,14 @@ class ProfileViewController: NSViewController {
     
     let kSwitchOnLeading: CGFloat = 25
     let kSwitchOffLeading: CGFloat = 2
-    
+
+    // Graph extraction row's switch is built in code (see configureGraphExtractionRow),
+    // so it needs its own stored references, same role as the @IBOutlets the other
+    // switches on this screen get from the storyboard.
+    var graphExtractionSwitchContainer: NSBox!
+    var graphExtractionSwitchCircle: NSBox!
+    var graphExtractionSwitchCircleLeading: NSLayoutConstraint!
+
     var walletBalanceService = WalletBalanceService()
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
@@ -123,6 +130,8 @@ class ProfileViewController: NSViewController {
         trackActionsSwitchCircle.wantsLayer = true
         trackActionsSwitchContainer.layer?.cornerRadius = trackActionsSwitchContainer.frame.size.height / 2
         trackActionsSwitchCircle.layer?.cornerRadius = trackActionsSwitchCircle.frame.size.height / 2
+        
+        configureGraphExtractionRow()
         
         sharePhotoSwitchButton.cursor = .pointingHand
         trackActionsSwitchButton.cursor = .pointingHand
@@ -421,6 +430,111 @@ class ProfileViewController: NSViewController {
             title: "Personal Graph Setup",
             height: 550
         )
+    }
+
+    /// Privacy switch for the personal knowledge graph (default ON). Built in code, placed in
+    /// the slot of the hidden `setupSignerBox`, i.e. right below "Configure AI Agent".
+    /// Applies immediately (it does not go through the Save button).
+    private func configureGraphExtractionRow() {
+        guard let container = setupSignerBox.superview else { return }
+
+        let box = NSBox()
+        box.boxType = .custom
+        box.borderType = .noBorder
+        box.titlePosition = .noTitle
+        box.fillColor = NSColor.Sphinx.Body
+        box.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = NSTextField(labelWithString: "Remember things from AI agent chats")
+        label.font = NSFont(name: "Roboto-Regular", size: 15) ?? NSFont.systemFont(ofSize: 15)
+        label.toolTip = "When on, the AI agent saves people, places and topics you mention to your personal knowledge graph on this device."
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        // Same pill switch as sharePhotoSwitch / trackActionsSwitch above (50x28
+        // PrimaryBlue/MainBottomIcons container, 23x24 white circle inset 2pt,
+        // circle leading animates between kSwitchOffLeading/kSwitchOnLeading) --
+        // built in code here instead of loaded from the storyboard, since this
+        // row has no nib counterpart, but it must look and behave identically.
+        let switchContainer = NSBox()
+        switchContainer.boxType = .custom
+        switchContainer.borderType = .noBorder
+        switchContainer.titlePosition = .noTitle
+        switchContainer.wantsLayer = true
+        switchContainer.layer?.cornerRadius = 14
+        switchContainer.translatesAutoresizingMaskIntoConstraints = false
+
+        let switchCircle = NSBox()
+        switchCircle.boxType = .custom
+        switchCircle.borderType = .noBorder
+        switchCircle.titlePosition = .noTitle
+        switchCircle.fillColor = .white
+        switchCircle.wantsLayer = true
+        switchCircle.layer?.cornerRadius = 12
+        switchCircle.translatesAutoresizingMaskIntoConstraints = false
+
+        let switchButton = CustomButton()
+        switchButton.title = ""
+        switchButton.isBordered = false
+        switchButton.setButtonType(.momentaryPushIn)
+        switchButton.cursor = .pointingHand
+        switchButton.target = self
+        switchButton.action = #selector(graphExtractionSwitchClicked(_:))
+        switchButton.translatesAutoresizingMaskIntoConstraints = false
+
+        switchContainer.addSubview(switchCircle)
+        box.addSubview(label)
+        box.addSubview(switchContainer)
+        box.addSubview(switchButton)
+        container.addSubview(box)
+
+        let circleLeading = switchCircle.leadingAnchor.constraint(equalTo: switchContainer.leadingAnchor, constant: kSwitchOffLeading)
+
+        NSLayoutConstraint.activate([
+            box.topAnchor.constraint(equalTo: setupSignerBox.topAnchor),
+            box.leadingAnchor.constraint(equalTo: setupSignerBox.leadingAnchor),
+            box.trailingAnchor.constraint(equalTo: setupSignerBox.trailingAnchor),
+            box.heightAnchor.constraint(equalTo: setupSignerBox.heightAnchor),
+            label.leadingAnchor.constraint(equalTo: box.leadingAnchor, constant: 30),
+            label.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+
+            switchContainer.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -30),
+            switchContainer.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+            switchContainer.widthAnchor.constraint(equalToConstant: 50),
+            switchContainer.heightAnchor.constraint(equalToConstant: 28),
+
+            switchCircle.topAnchor.constraint(equalTo: switchContainer.topAnchor, constant: 2),
+            switchCircle.bottomAnchor.constraint(equalTo: switchContainer.bottomAnchor, constant: -2),
+            switchCircle.widthAnchor.constraint(equalToConstant: 23),
+            circleLeading,
+
+            switchButton.leadingAnchor.constraint(equalTo: switchContainer.leadingAnchor),
+            switchButton.trailingAnchor.constraint(equalTo: switchContainer.trailingAnchor),
+            switchButton.topAnchor.constraint(equalTo: switchContainer.topAnchor),
+            switchButton.bottomAnchor.constraint(equalTo: switchContainer.bottomAnchor),
+
+            label.trailingAnchor.constraint(lessThanOrEqualTo: switchContainer.leadingAnchor, constant: -8)
+        ])
+
+        graphExtractionSwitchContainer = switchContainer
+        graphExtractionSwitchCircle = switchCircle
+        graphExtractionSwitchCircleLeading = circleLeading
+
+        toggleGraphExtractionSwitch(on: GraphExtractionSettings.isEnabled())
+    }
+
+    @objc private func graphExtractionSwitchClicked(_ sender: Any) {
+        let on = !isGraphExtractionSwitchOn()
+        toggleGraphExtractionSwitch(on: on)
+        GraphExtractionSettings.setEnabled(on)
+    }
+
+    private func toggleGraphExtractionSwitch(on: Bool) {
+        graphExtractionSwitchCircleLeading.constant = on ? kSwitchOnLeading : kSwitchOffLeading
+        graphExtractionSwitchContainer.fillColor = on ? NSColor.Sphinx.PrimaryBlue : NSColor.Sphinx.MainBottomIcons
+    }
+
+    private func isGraphExtractionSwitchOn() -> Bool {
+        return graphExtractionSwitchCircleLeading.constant == kSwitchOnLeading
     }
 
     @IBAction func configureAIAgentButtonClicked(_ sender: Any) {

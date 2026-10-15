@@ -292,5 +292,7 @@ class UserData: @unchecked Sendable {
         let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.walletMnemonic.rawValue)
         let _ = keychainManager.deleteValueFor(composedKey: KeychainManager.KeychainKeys.strutApiKey.rawValue)
         UserDefaults.resetUserDefaults()
+        // Journal rows were wiped with Core Data: drop the Ladybug cache file too.
+        PersonalGraph.destroyStoreInBackground()
     }
 }

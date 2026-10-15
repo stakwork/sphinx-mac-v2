@@ -9,7 +9,7 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 // MARK: - Helpers
 
@@ -70,7 +70,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertEqual(
-            gim?.timestamp,
+            gim.timestamp,
             senderTimestamp,
             "Tribe message must use innerContent.date even when msg.timestamp is present"
         )
@@ -90,7 +90,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertEqual(
-            gim?.timestamp,
+            gim.timestamp,
             senderTimestamp,
             "Tribe message must use innerContent.date when msg.timestamp is nil"
         )
@@ -113,7 +113,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertEqual(
-            gim?.timestamp,
+            gim.timestamp,
             Int(relayTimestamp),
             "DM message must use msg.timestamp when present"
         )
@@ -133,7 +133,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertEqual(
-            gim?.timestamp,
+            gim.timestamp,
             senderTimestamp,
             "DM message must fall back to innerContent.date when msg.timestamp is nil"
         )
@@ -153,7 +153,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertNil(
-            gim?.timestamp,
+            gim.timestamp,
             "timestamp must stay nil when innerContent is nil (tribe)"
         )
     }
@@ -170,7 +170,7 @@ class GenericIncomingMessageTimestampTests: XCTestCase {
         )
 
         XCTAssertNil(
-            gim?.timestamp,
+            gim.timestamp,
             "timestamp must stay nil when innerContent is nil (DM)"
         )
     }

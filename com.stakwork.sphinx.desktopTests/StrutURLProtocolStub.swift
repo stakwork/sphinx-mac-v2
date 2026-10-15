@@ -21,9 +21,13 @@ final class StrutURLProtocolStub: URLProtocol {
     }
 
     private static let lock = NSLock()
-    private static var _response: Response?
-    private static var _routes: [String: Response] = [:]
-    private static var _requests: [URLRequest] = []
+    // Swift's strict concurrency checker can't see that `lock` already
+    // guards every access to these -- every read/write below goes through
+    // lock.lock()/unlock(), so this is the compiler's own suggested fix for
+    // state protected by an external synchronization mechanism.
+    nonisolated(unsafe) private static var _response: Response?
+    nonisolated(unsafe) private static var _routes: [String: Response] = [:]
+    nonisolated(unsafe) private static var _requests: [URLRequest] = []
 
     private var cancelled = false
 

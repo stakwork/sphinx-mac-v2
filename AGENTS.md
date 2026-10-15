@@ -20,3 +20,7 @@ All Swift code in this repository should follow Swift 6 concurrency conventions:
 - A **target membership check** — `com.stakwork.sphinx.desktopTests` is a separate target from the main desktop app, so files must be added to the correct target(s) (main app vs. test target vs. extension target).
 
 Failing to register a new `.swift` file in `project.pbxproj` will silently exclude it from the build.
+
+## Collection View Scrolling
+
+Any new animated or delayed `NSCollectionView` scroll must go through `safeScrollToItem` (or `scrollToIndex`) in `Extensions/NSCollectionView.swift`, never a raw `scrollToItems` call, since the target may no longer exist by the time the scroll runs. Note that `scrollToIndex` takes a **1-based** index into the last section.

@@ -634,7 +634,7 @@ import SwiftUI
                 errorCallback: { error in
                     DispatchQueue.main.async {
                         bubbleHelper.hideLoadingWheel()
-                        
+
                         self.openedWindowIdentifiers.removeAll(where: { $0 == linkUrl })
                         AlertHelper.showAlert(
                             title: "error.getting.token.title".localized,
