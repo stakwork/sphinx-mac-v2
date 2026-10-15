@@ -12,7 +12,7 @@
 
 import XCTest
 import AppKit
-@testable import com_stakwork_sphinx_desktop
+@testable import Sphinx
 
 @MainActor
 final class NSCollectionViewSafeScrollTests: XCTestCase {
