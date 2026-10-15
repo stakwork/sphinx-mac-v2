@@ -27,9 +27,14 @@ final class LadybugGraphStore: GraphStore, @unchecked Sendable {
         self.fileURL = fileURL
     }
 
-    /// `<Application Support>/<bundle id>/Graph/graph.lbug`. The app is sandboxed
-    /// (see entitlements), so Application Support resolves inside the app's own
+    /// `<Application Support>/Sphinx/Graph/graph.lbug`. The app is sandboxed (see
+    /// entitlements), so Application Support resolves inside the app's own
     /// container. No App Group or shared location is used.
+    ///
+    /// "Sphinx" is a literal, not `Bundle.main.bundleIdentifier` -- every other
+    /// piece of local app data (AppLogger's log file, Core Data's own default
+    /// container directory) already lives under `Application Support/Sphinx/`,
+    /// and this must match that convention, not invent a second one next to it.
     static func defaultFileURL() throws -> URL {
         let support = try FileManager.default.url(
             for: .applicationSupportDirectory,
@@ -38,7 +43,7 @@ final class LadybugGraphStore: GraphStore, @unchecked Sendable {
             create: true
         )
         return support
-            .appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.gl.sphinx.v2", isDirectory: true)
+            .appendingPathComponent("Sphinx", isDirectory: true)
             .appendingPathComponent("Graph", isDirectory: true)
             .appendingPathComponent(fileName)
     }

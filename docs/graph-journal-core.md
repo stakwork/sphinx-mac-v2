@@ -28,9 +28,10 @@ Job 1 of 3 for the personal knowledge graph. No agent hooks, recall, sync or iOS
   clients; ties deterministic), in pages of 500 with one store transaction per page. Replay only reads
   the journal and writes the store, so it is not a second journal write path. Tombstones replay to
   deletion (`DETACH DELETE` removes a node's edges).
-- **File location**: `Application Support/<bundle id>/Graph/graph.lbug`. The app is sandboxed
-  (`com.apple.security.app-sandbox` in the app entitlements), so this is inside the app's own container.
-  No App Group or shared location.
+- **File location**: `Application Support/Sphinx/Graph/graph.lbug` -- matching the folder every other
+  piece of local app data (the log file, Core Data's own store) already uses, not `Bundle.main.bundleIdentifier`.
+  The app is sandboxed (`com.apple.security.app-sandbox` in the app entitlements), so this is inside the
+  app's own container. No App Group or shared location.
 
 ## Core Data
 
