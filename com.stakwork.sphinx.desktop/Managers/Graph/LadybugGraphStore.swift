@@ -135,6 +135,22 @@ final class LadybugGraphStore: GraphStore, @unchecked Sendable {
         return snapshot
     }
 
+    // Read API. The personal graph is small and node payloads are JSON strings, so these
+    // read through `snapshot()` and share the pure logic in GraphReadQueries with the
+    // in-memory store (one behaviour, no Cypher to keep in sync).
+
+    func findNodes(query: String, limit: Int) throws -> [GraphNodeRecord] {
+        GraphReadQueries.findNodes(in: try snapshot(), query: query, limit: limit)
+    }
+
+    func neighbors(of node: UUID, hops: Int) throws -> GraphNeighborhood {
+        GraphReadQueries.neighbors(in: try snapshot(), of: node, hops: hops)
+    }
+
+    func rankedNodes() throws -> [GraphRankedNode] {
+        GraphReadQueries.rankedNodes(in: try snapshot())
+    }
+
     // MARK: Private
 
     private func createSchema() throws {

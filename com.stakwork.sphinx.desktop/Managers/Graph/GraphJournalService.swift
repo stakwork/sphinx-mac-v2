@@ -97,6 +97,54 @@ final class GraphJournalService: @unchecked Sendable {
         try await onQueue { try self.store.snapshot() }
     }
 
+    // MARK: Read API (recall). Runs on the same serial queue as writes; never writes.
+
+    func findNodes(query: String, limit: Int) async throws -> [GraphNodeRecord] {
+        try await onQueue { try self.store.findNodes(query: query, limit: limit) }
+    }
+
+    func neighbors(of node: UUID, hops: Int) async throws -> GraphNeighborhood {
+        try await onQueue { try self.store.neighbors(of: node, hops: hops) }
+    }
+
+    /// Top `limit` nodes: degree desc, then most recent journal timestamp for the entity desc,
+    /// then name, then id. See `GraphRecallRanking`.
+    func rankedNodes(limit: Int) async throws -> [GraphRankedNode] {
+        try await onQueue {
+            let ranked = try self.store.rankedNodes()
+            let latest = try self.latestJournalTimestamps()
+            return Array(GraphRecallRanking.sort(ranked, latest: latest).prefix(max(limit, 0)))
+        }
+    }
+
+    /// Latest journal timestamp per entity id (node or edge), read from the existing journal with
+    /// one grouped fetch (`max(timestamp)` group by `entityId`). No schema change and no index:
+    /// the journal is only scanned, and only when a turn builds its summary.
+    private func latestJournalTimestamps() throws -> [UUID: Date] {
+        let context = container.newBackgroundContext()
+        return try context.performAndWait {
+            let latest = NSExpressionDescription()
+            latest.name = "latest"
+            latest.expression = NSExpression(
+                forFunction: "max:", arguments: [NSExpression(forKeyPath: "timestamp")]
+            )
+            latest.expressionResultType = .dateAttributeType
+
+            let request = NSFetchRequest<NSDictionary>(entityName: "GraphJournalEntry")
+            request.resultType = .dictionaryResultType
+            request.propertiesToGroupBy = ["entityId"]
+            request.propertiesToFetch = ["entityId", latest]
+
+            var result: [UUID: Date] = [:]
+            for row in try context.fetch(request) {
+                if let id = row["entityId"] as? UUID, let date = row["latest"] as? Date {
+                    result[id] = date
+                }
+            }
+            return result
+        }
+    }
+
     // MARK: Queue plumbing
 
     private func onQueue<T: Sendable>(_ work: @escaping @Sendable () throws -> T) async throws -> T {
