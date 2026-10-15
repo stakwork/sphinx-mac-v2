@@ -10,7 +10,8 @@
 //
 
 import XCTest
-@testable import com_stakwork_sphinx_desktop
+import CocoaMQTT
+@testable import Sphinx
 
 final class SphinxOnionManagerConnectionTests: XCTestCase {
 
@@ -282,10 +283,16 @@ final class SphinxOnionManagerConnectionTests: XCTestCase {
 
     // MARK: - Safe subscribe: live-client guard (SIGSEGV fix)
 
+    /// A `CocoaMQTT` instance that never had `.connect()` called on it, so it is
+    /// safe to reference in tests without a real broker. `connState` defaults to
+    /// `.disconnected` (there is no separate "never connected" state in
+    /// CocoaMQTT) — `liveMqttClient` treats `.disconnected` as not live, so this
+    /// sets it to `.connected` directly (a plain settable property) to act as a
+    /// stand-in for a client the "happy path" tests need treated as live.
     private func makeNeverConnectedMqtt(clientID: String) -> CocoaMQTT {
-        // `.initial` connState — never had `.connect()` called on it, so it is
-        // safe to reference in tests without a real broker.
-        return CocoaMQTT(clientID: clientID, host: "127.0.0.1", port: 1883)
+        let client = CocoaMQTT(clientID: clientID, host: "127.0.0.1", port: 1883)
+        client.connState = .connected
+        return client
     }
 
     override func tearDownWithError() throws {
