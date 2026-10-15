@@ -13,6 +13,14 @@ import ObjectMapper
 import SwiftyJSON
 
 
+/// Reason a `safeSubscribe` attempt was skipped. The raw value is the short
+/// token used in the `subscribe skipped` diagnostic log.
+enum MqttSubscribeSkipReason: String {
+    case nilClient = "nil"
+    case staleInstance = "stale instance"
+    case disconnected = "disconnected"
+}
+
 extension SphinxOnionManager {
     func handleRunReturn(
         rr: RunReturn,
@@ -21,7 +29,8 @@ extension SphinxOnionManager {
         completion: (([String:AnyObject]) ->())? = nil,
         isSendingMessage: Bool = false,
         skipSettleTopic: Bool = false,
-        skipAsyncTopic: Bool = false
+        skipAsyncTopic: Bool = false,
+        source: CocoaMQTT? = nil
     ) -> String? {
         
         if let topic = topic {
@@ -121,7 +130,7 @@ extension SphinxOnionManager {
             handlePaymentsHistory(payments: rr.payments)
 
             ///Handling topics subscription
-            handleTopicsToSubscribe(topics: rr.subscriptionTopics)
+            handleTopicsToSubscribe(topics: rr.subscriptionTopics, source: source)
 
             ///Handling generated invoice
             handleInvoiceGenerated(invoice: rr.invoice)
@@ -646,17 +655,111 @@ extension SphinxOnionManager {
         }
     }
     
-    func handleTopicsToSubscribe(topics: [String]) {
-        if self.mqtt == nil {
-            mqttLog("handleTopicsToSubscribe called with mqtt == nil for \(topics.count) topic(s) — force unwrap below will crash", level: .error)
-        }
-        for topic in topics {
-            self.mqtt.subscribe([
-                (topic, CocoaMQTTQoS.qos0)
-            ])
-        }
+    func handleTopicsToSubscribe(topics: [String], source: CocoaMQTT? = nil) {
+        safeSubscribe(topics, source: source, context: "runReturn")
         subscribeToServerStatusTopic()
         startServerHealthStalenessTimer()
+    }
+
+    // MARK: - Live-client guard for MQTT subscribes
+
+    /// Short, pubkey-safe identifier for a topic. Topics contain contact/tribe
+    /// pubkeys, so logs only ever carry this suffix — never the full topic.
+    func topicSuffix(_ topic: String) -> String {
+        "…" + topic.suffix(12)
+    }
+
+    /// Resolves the client that is safe to issue a SUBSCRIBE on right now.
+    ///
+    /// Checks, in order:
+    ///  - `self.mqtt == nil` -> `.nilClient`
+    ///  - `source` was supplied and no longer matches `self.mqtt` -> `.staleInstance`
+    ///  - `self.mqtt.connState == .disconnected` -> `.disconnected`
+    ///
+    /// Deliberately does NOT require `connState == .connected` — the restore
+    /// path (`initialSetup` -> `handleTopicsToSubscribe`) runs inside the
+    /// `didConnectAck` callback, and whether CocoaMQTT has already flipped to
+    /// `.connected` by then isn't confirmed. A hard `.connected` check could
+    /// silently skip every restore.
+    func liveMqttClient(for source: CocoaMQTT? = nil) -> (client: CocoaMQTT?, reason: MqttSubscribeSkipReason?) {
+        guard let client = self.mqtt else {
+            return (nil, .nilClient)
+        }
+        if let source = source, source !== client {
+            return (nil, .staleInstance)
+        }
+        if client.connState == .disconnected {
+            return (nil, .disconnected)
+        }
+        return (client, nil)
+    }
+
+    /// Subscribes to every topic, one SUBSCRIBE packet per topic (matches the
+    /// existing wire behaviour — never batch, `initialSetup` can return every
+    /// contact/tribe topic in one call and a single packet risks broker limits
+    /// and a shared SUBACK failure).
+    ///
+    /// If no live client is available, the topics are queued in
+    /// `pendingResubscribeTopics` and replayed later by
+    /// `flushPendingResubscribes`, instead of crashing or being dropped.
+    func safeSubscribe(_ topics: [String], source: CocoaMQTT? = nil, context: String) {
+        if topics.isEmpty {
+            return
+        }
+
+        let (client, reason) = liveMqttClient(for: source)
+
+        guard let client = client else {
+            let skipReason = reason ?? .nilClient
+            pendingResubscribeTopics.formUnion(topics)
+
+            let firstSuffix = topics.first.map { topicSuffix($0) } ?? "n/a"
+            let sourceState: String = {
+                guard let source = source else { return "n/a" }
+                switch source.connState {
+                case .connected: return "connected"
+                case .connecting: return "connecting"
+                case .disconnected: return "disconnected"
+                @unknown default: return "unknown"
+                }
+            }()
+            mqttLog(
+                "subscribe skipped [\(context)] reason=\(skipReason.rawValue) topics=\(topics.count) first=\(firstSuffix) connState=\(mqttConnStateDescription) sourceState=\(sourceState)",
+                level: .warn
+            )
+            onSubscribeSkipped?(skipReason, topics)
+
+            // Stale calls never flush from this path — only when the live
+            // client is already fully up do we proactively replay, since a
+            // connecting socket would be poisoned by subscribing now.
+            if skipReason == .staleInstance, self.mqtt?.connState == .connected, isConnected {
+                DispatchQueue.main.async { [weak self] in
+                    self?.flushPendingResubscribes(context: "stale-replay")
+                }
+            }
+            return
+        }
+
+        for topic in topics {
+            if let override = subscribeOverride {
+                override(client, topic)
+            } else {
+                client.subscribe([
+                    (topic, CocoaMQTTQoS.qos0)
+                ])
+            }
+        }
+    }
+
+    /// Replays every topic queued by a previous skipped `safeSubscribe` call
+    /// against whatever client is currently live. Topics that are skipped
+    /// again (e.g. still no live client) are re-queued automatically.
+    func flushPendingResubscribes(context: String) {
+        guard !pendingResubscribeTopics.isEmpty else { return }
+        let snapshot = Array(pendingResubscribeTopics)
+        pendingResubscribeTopics.removeAll()
+        mqttLog("flushPendingResubscribes [\(context)] replaying \(snapshot.count) topic(s)")
+        safeSubscribe(snapshot, source: nil, context: context)
     }
     
     func deleteContactFromState(pubkey: String) {

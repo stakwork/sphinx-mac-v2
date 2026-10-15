@@ -92,6 +92,16 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     private var drainingMqtt: [CocoaMQTT] = []
     /// Test hook: number of clients currently held in the drain bag.
     internal var drainingMqttCount: Int { drainingMqtt.count }
+
+    /// Topics skipped by `safeSubscribe` because no live client was available at
+    /// the time (nil, stale instance, or disconnected). Replayed on the next
+    /// live connection by `flushPendingResubscribes`.
+    internal var pendingResubscribeTopics: Set<String> = []
+    /// Test hook: called instead of `client.subscribe` when set, so unit tests
+    /// can observe subscribe attempts without a real MQTT broker.
+    internal var subscribeOverride: ((CocoaMQTT, String) -> Void)? = nil
+    /// Test hook: called whenever `safeSubscribe` skips a subscribe attempt.
+    internal var onSubscribeSkipped: ((MqttSubscribeSkipReason, [String]) -> Void)? = nil
     var vc: NSViewController! = nil
     var connectingStartTime: Date? = nil
     var connectionInProgress: Bool = false
@@ -548,6 +558,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         connectionTimeoutTimer = nil
         let connectDuration = connectingStartTime.map { String(format: "%.2fs", Date().timeIntervalSince($0)) } ?? "n/a"
         mqttLog("CONNACK handled via \(triggeredBy) after \(connectDuration) (connState=\(mqttConnStateDescription), isV2Restore=\(isV2Restore))")
+        // New connection — any per-connection subscribe state (server-status topic)
+        // must be re-established, including when forceTeardownMqtt/forceReconnect
+        // replaced the client without ever flipping isConnected to false.
+        resetPerConnectionSubscriptionState()
         mqttConnectedSince = Date()
         mqttLastPingSentAt = nil
         mqttLastPongReceivedAt = nil
@@ -558,6 +572,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         endReconnectionTimer()
         
         subscribeAndPublishMyTopics(pubkey: myPubkey, idx: idx, inviteCode: inviteCode)
+        flushPendingResubscribes(context: "connack")
         
         // Atomically consume isV2InitialSetup. Only fire doInitialInviteSetup()
         // when we are certain a pending invite exists (stashedInviteCode is non-nil),
@@ -747,6 +762,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             self.connectionInProgress = false
             self.isConnected = false
             self.mqttDisconnectCallback?()
+            // Narrow the drain window — a draining client must not keep feeding
+            // new messages into the handler while self.mqtt is nil/replaced.
+            mqttInstance.didReceiveMessage = { _, _, _ in }
             self.retainMqttForDrain(mqttInstance)
             if self.mqtt === disconnectingMqtt {
                 self.isConnected = false
@@ -856,9 +874,13 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 return
             }
             
-            mqtt.didReceiveMessage = { [weak self] mqtt, receivedMessage, id in
-                self?.isConnected = true
-                self?.processMqttMessages(message: receivedMessage)
+            if let client = mqtt {
+                client.didReceiveMessage = { [weak self] mqtt, receivedMessage, id in
+                    self?.isConnected = true
+                    self?.processMqttMessages(message: receivedMessage, source: mqtt)
+                }
+            } else {
+                mqttLog("subscribeAndPublishMyTopics: mqtt is nil — didReceiveMessage not wired", level: .warn)
             }
             
             let ret3 = try Sphinx.initialSetup(
@@ -877,9 +899,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 state: loadOnionStateAsData()
             )
             
-            self.mqtt.subscribe([
-                (tribeMgmtTopic, CocoaMQTTQoS.qos0)
-            ])
+            safeSubscribe([tribeMgmtTopic], source: mqtt, context: "tribeMgmt")
             self.subscribeToServerStatusTopic()
             self.startServerHealthStalenessTimer()
         } catch {}
@@ -936,7 +956,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         if success {
             mqtt.didReceiveMessage = { [weak self] mqtt, receivedMessage, id in
                 self?.isConnected = true
-                self?.processMqttMessages(message: receivedMessage)
+                self?.processMqttMessages(message: receivedMessage, source: mqtt)
             }
             
             mqtt.didDisconnect = { mqttInstance, error in
@@ -944,6 +964,9 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
                 self.endKeepAliveActivity()
                 self.isConnected = false
                 self.mqttDisconnectCallback?()
+                // Narrow the drain window — a draining client must not keep feeding
+                // new messages into the handler while self.mqtt is nil/replaced.
+                mqttInstance.didReceiveMessage = { _, _, _ in }
                 self.retainMqttForDrain(mqttInstance)
                 if self.mqtt === mqttInstance {
                     self.mqtt = nil
@@ -969,7 +992,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
         return success
     }
     
-    func processMqttMessages(message: CocoaMQTTMessage) {
+    func processMqttMessages(message: CocoaMQTTMessage, source: CocoaMQTT? = nil) {
         if !readyForPing && message.topic.contains("ping") {
             return
         }
@@ -1001,7 +1024,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             
             let _ = handleRunReturn(
                 rr: ret4,
-                topic: message.topic
+                topic: message.topic,
+                source: source
             )
         } catch let error {
             print("Handle error \(error)")

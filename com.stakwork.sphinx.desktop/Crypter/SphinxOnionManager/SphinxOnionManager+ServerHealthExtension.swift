@@ -22,13 +22,42 @@ extension SphinxOnionManager {
     /// Idempotent per connection — see `hasSubscribedServerStatusTopic`. Callers
     /// (including the once-per-message `handleTopicsToSubscribe`) can call this
     /// freely without re-issuing the MQTT SUBSCRIBE on every call.
+    ///
+    /// Routed through the same live-client guard as every other subscribe path.
+    /// A skipped attempt leaves `hasSubscribedServerStatusTopic` false so the
+    /// next message's `handleTopicsToSubscribe` retries it.
     func subscribeToServerStatusTopic() {
-        guard mqtt != nil else { return }
         guard !hasSubscribedServerStatusTopic else { return }
+        let (client, reason) = liveMqttClient()
+        guard let client = client else {
+            mqttLog(
+                "subscribe skipped [serverStatus] reason=\(reason?.rawValue ?? MqttSubscribeSkipReason.nilClient.rawValue) topics=1 first=\(topicSuffix(serverStatusTopic())) connState=\(mqttConnStateDescription) sourceState=n/a",
+                level: .warn
+            )
+            return
+        }
+        if let override = subscribeOverride {
+            override(client, serverStatusTopic())
+        } else {
+            client.subscribe([
+                (serverStatusTopic(), CocoaMQTTQoS.qos0)
+            ])
+        }
+        // Only flip the flag once the subscribe has actually been issued —
+        // CocoaMQTT's `subscribe` returns Void, confirmation comes later via
+        // SUBACK which isn't wired to this flag.
         hasSubscribedServerStatusTopic = true
-        mqtt.subscribe([
-            (serverStatusTopic(), CocoaMQTTQoS.qos0)
-        ])
+    }
+
+    /// Resets per-connection subscribe state so a brand-new connection
+    /// re-subscribes to the server-status topic. Needed because
+    /// `forceTeardownMqtt` replaces `didDisconnect` with a no-op and
+    /// `connectToBroker` can replace a connected client during
+    /// `reconnectToServer(forceReconnect:)` without ever setting
+    /// `isConnected = false` — in both cases `isConnected`'s didSet reset
+    /// never fires.
+    func resetPerConnectionSubscriptionState() {
+        hasSubscribedServerStatusTopic = false
     }
 
     /// Intercept plaintext mixer status **before** onion `handle()`.
