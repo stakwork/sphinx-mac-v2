@@ -411,7 +411,13 @@ final class RoomContext: NSObject, ObservableObject, @unchecked Sendable {
                         excludeWindowIDs: windowsToExcludeIds
                     )
                 )
-                let options = VideoPublishOptions(preferredCodec: VideoCodec.h264)
+                // Hardware H.264 + simulcast (half-res 3 fps layer) made still shares start blurry and take ~30 s to sharpen.
+                // VP8 at a fixed 4.5 Mbps / 15 fps with a single layer sharpens quickly.
+                let options = VideoPublishOptions(
+                    screenShareEncoding: VideoEncoding(maxBitrate: 4_500_000, maxFps: 15),
+                    simulcast: false,
+                    preferredCodec: .vp8
+                )
                 screenShareTrack = try await room.localParticipant.publish(videoTrack: track, options: options)
             }
 
