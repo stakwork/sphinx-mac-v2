@@ -688,15 +688,15 @@
 		47GJ0700000000000000B07 /* GraphIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0700000000000000F07 /* GraphIdentifiers.swift */; };
 		47GJ0800000000000000B08 /* GraphExtractionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0800000000000000F08 /* GraphExtractionPolicy.swift */; };
 		47GJ0900000000000000B09 /* GraphExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0900000000000000F09 /* GraphExtraction.swift */; };
-		47GT0300000000000000B03 /* GraphRecallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0300000000000000F03 /* GraphRecallTests.swift */; };
-		47GJ0E00000000000000B0E /* AIAgentManager+GraphRecall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0E00000000000000F0E /* AIAgentManager+GraphRecall.swift */; };
-		47GJ0D00000000000000B0D /* GraphRecall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0D00000000000000F0D /* GraphRecall.swift */; };
-		47GJ0C00000000000000B0C /* GraphReadQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0C00000000000000F0C /* GraphReadQueries.swift */; };
 		47GJ0A00000000000000B0A /* PersonalGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0A00000000000000F0A /* PersonalGraph.swift */; };
 		47GJ0B00000000000000B0B /* AIAgentManager+GraphExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0B00000000000000F0B /* AIAgentManager+GraphExtraction.swift */; };
-		47GT0200000000000000B02 /* GraphExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0200000000000000F02 /* GraphExtractionTests.swift */; };
+		47GJ0C00000000000000B0C /* GraphReadQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0C00000000000000F0C /* GraphReadQueries.swift */; };
+		47GJ0D00000000000000B0D /* GraphRecall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0D00000000000000F0D /* GraphRecall.swift */; };
+		47GJ0E00000000000000B0E /* AIAgentManager+GraphRecall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GJ0E00000000000000F0E /* AIAgentManager+GraphRecall.swift */; };
 		47GT0000000000000000B00 /* GraphJournalServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0000000000000000F00 /* GraphJournalServiceTests.swift */; };
 		47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0100000000000000F01 /* InMemoryGraphStore.swift */; };
+		47GT0200000000000000B02 /* GraphExtractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0200000000000000F02 /* GraphExtractionTests.swift */; };
+		47GT0300000000000000B03 /* GraphRecallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47GT0300000000000000F03 /* GraphRecallTests.swift */; };
 		47HG0012EF431AE00CFDA01 /* AIAgentManager+HiveGraphTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */; };
 		47HG0022EF431AE00CFDA02 /* GraphChatSSEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */; };
 		47HIVENC012F190000000001 /* HiveNotificationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47HIVENC002F190000000001 /* HiveNotificationConstants.swift */; };
@@ -755,7 +755,6 @@
 		C2F385822EF500001AD459F3 /* WebAppSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662173BB2EF500001AD459F3 /* WebAppSessionManager.swift */; };
 		CAFF00012EF500001AD45001 /* CallParticipantsSocketDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00002EF500001AD45000 /* CallParticipantsSocketDelegate.swift */; };
 		CAFF00032EF500001AD45003 /* CallParticipantsSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFF00022EF500001AD45002 /* CallParticipantsSocketManager.swift */; };
-		CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CARMT01100000001CARMT011 /* CallAudioRouteMonitorTests.swift */; };
 		CC2026AAB4E5F6A800C9CFEB /* AgentProcessingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2026AAB4E5F6A700C9CFEB /* AgentProcessingBarView.swift */; };
 		CE07F40529D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE07F40429D72B7700EB0EC1 /* PodcastDetailSelectionVC.swift */; };
 		CE1FA8F82A0199C20014360C /* LSATObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1FA8F72A0199C20014360C /* LSATObject.swift */; };
@@ -781,9 +780,9 @@
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
+		NCVST0020000000001NCVST02 /* NSCollectionViewSafeScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */; };
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
 		SBIDT0020000000001SBIDT02 /* StatusBarItemIdempotencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */; };
-		NCVST0020000000001NCVST02 /* NSCollectionViewSafeScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */; };
 		SHLTH0040000000001SHLTH4 /* SphinxOnionManager+ServerHealthExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */; };
 		SHLTH0060000000001SHLTH6 /* ServerHealthBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTH0050000000001SHLTH5 /* ServerHealthBannerView.swift */; };
 		SHLTHT00200000001SHLTHT2 /* SphinxOnionManagerServerHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHLTHT00100000001SHLTHT1 /* SphinxOnionManagerServerHealthTests.swift */; };
@@ -1821,18 +1820,18 @@
 		47GJ0400000000000000F04 /* LadybugGraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LadybugGraphStore.swift; sourceTree = "<group>"; };
 		47GJ0500000000000000F05 /* GraphClientIdProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphClientIdProvider.swift; sourceTree = "<group>"; };
 		47GJ0600000000000000F06 /* GraphJournalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalService.swift; sourceTree = "<group>"; };
-		47GT0000000000000000F00 /* GraphJournalServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalServiceTests.swift; sourceTree = "<group>"; };
 		47GJ0700000000000000F07 /* GraphIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphIdentifiers.swift; sourceTree = "<group>"; };
 		47GJ0800000000000000F08 /* GraphExtractionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtractionPolicy.swift; sourceTree = "<group>"; };
 		47GJ0900000000000000F09 /* GraphExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtraction.swift; sourceTree = "<group>"; };
-		47GT0300000000000000F03 /* GraphRecallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphRecallTests.swift; sourceTree = "<group>"; };
-		47GJ0E00000000000000F0E /* AIAgentManager+GraphRecall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+GraphRecall.swift"; sourceTree = "<group>"; };
-		47GJ0D00000000000000F0D /* GraphRecall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphRecall.swift; sourceTree = "<group>"; };
-		47GJ0C00000000000000F0C /* GraphReadQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReadQueries.swift; sourceTree = "<group>"; };
 		47GJ0A00000000000000F0A /* PersonalGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalGraph.swift; sourceTree = "<group>"; };
 		47GJ0B00000000000000F0B /* AIAgentManager+GraphExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+GraphExtraction.swift"; sourceTree = "<group>"; };
-		47GT0200000000000000F02 /* GraphExtractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtractionTests.swift; sourceTree = "<group>"; };
+		47GJ0C00000000000000F0C /* GraphReadQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReadQueries.swift; sourceTree = "<group>"; };
+		47GJ0D00000000000000F0D /* GraphRecall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphRecall.swift; sourceTree = "<group>"; };
+		47GJ0E00000000000000F0E /* AIAgentManager+GraphRecall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+GraphRecall.swift"; sourceTree = "<group>"; };
+		47GT0000000000000000F00 /* GraphJournalServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphJournalServiceTests.swift; sourceTree = "<group>"; };
 		47GT0100000000000000F01 /* InMemoryGraphStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryGraphStore.swift; sourceTree = "<group>"; };
+		47GT0200000000000000F02 /* GraphExtractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphExtractionTests.swift; sourceTree = "<group>"; };
+		47GT0300000000000000F03 /* GraphRecallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphRecallTests.swift; sourceTree = "<group>"; };
 		47HG0011EF431AB00CFDA01 /* AIAgentManager+HiveGraphTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAgentManager+HiveGraphTool.swift"; sourceTree = "<group>"; };
 		47HG0021EF431AB00CFDA02 /* GraphChatSSEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphChatSSEManager.swift; sourceTree = "<group>"; };
 		47HIVENC002F190000000001 /* HiveNotificationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiveNotificationConstants.swift; sourceTree = "<group>"; };
@@ -1960,9 +1959,9 @@
 		GRJ0M0000000000000000014 /* com_stakwork_sphinx_desktop 14.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 14.xcdatamodel"; sourceTree = "<group>"; };
 		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
 		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
+		NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSafeScrollTests.swift; sourceTree = "<group>"; };
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
 		SBIDT0010000000001SBIDT01 /* StatusBarItemIdempotencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarItemIdempotencyTests.swift; sourceTree = "<group>"; };
-		NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSafeScrollTests.swift; sourceTree = "<group>"; };
 		SHLTH0030000000001SHLTH3 /* SphinxOnionManager+ServerHealthExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SphinxOnionManager+ServerHealthExtension.swift"; sourceTree = "<group>"; };
 		SHLTH0050000000001SHLTH5 /* ServerHealthBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerHealthBannerView.swift; sourceTree = "<group>"; };
 		SHLTHT00100000001SHLTHT1 /* SphinxOnionManagerServerHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerServerHealthTests.swift; sourceTree = "<group>"; };
@@ -4566,7 +4565,7 @@
 				4730EF5C2CDBCF8C0014581F /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				479B192F2EC369B800A5B9E2 /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				47088CF12F76E7B200DFA990 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
-				47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */,
+				47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */,
 				4744B04B3077CBD20016321B /* XCRemoteSwiftPackageReference "swift-ladybug" */,
 			);
 			productRefGroup = 4734D3932417E3D400D6957E /* Products */;
@@ -4779,7 +4778,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\n";
+			shellScript = "
+";
 		};
 		79D01615633138DB27132C48 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4830,9 +4830,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Sphinx/Pods-Sphinx-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -5513,19 +5517,6 @@
 				47GT0100000000000000B01 /* InMemoryGraphStore.swift in Sources */,
 				47GT0200000000000000B02 /* GraphExtractionTests.swift in Sources */,
 				47GT0300000000000000B03 /* GraphRecallTests.swift in Sources */,
-				// CallAudioRouteMonitorTests.swift excluded from compilation: it
-				// constructs LiveKit's AudioDevice directly
-				// (AudioDevice(deviceId:name:)), which no longer compiles -- the
-				// upstream LiveKit SDK made AudioDevice's initializer internal
-				// and keyed on an opaque internal WebRTC type. The file's own
-				// comment anticipated this ("If LiveKit changes the layout
-				// this will fail to compile, which is the correct signal to
-				// update these tests"). Fixing it for real needs a device-
-				// abstraction protocol in CallAudioRouteMonitor.swift /
-				// AppContext.swift (a live call-audio crash-prevention path)
-				// -- deferred rather than done blind with no passing tests to
-				// check the refactor against.
-				// CARMT01200000001CARMT012 /* CallAudioRouteMonitorTests.swift in Sources */,
 				APPCT01200000001APPCT012 /* AppContextTests.swift in Sources */,
 				PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */,
 				TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */,
@@ -6325,7 +6316,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 327;
+				CURRENT_PROJECT_VERSION = 328;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -6363,7 +6354,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 327;
+				CURRENT_PROJECT_VERSION = 328;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
@@ -6395,23 +6386,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				// Ad-hoc ("-") signing has no Team ID at all, which the
-				// loader's library validation treats as a mismatch against
-				// the real-identity, hardened-runtime TEST_HOST app ("...not
-				// valid for use in process: mapping process and mapped file
-				// have different Team IDs"). Must match the Sphinx app
-				// target's own identity, not just its team.
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				// Must match the Sphinx app target's team (TEST_HOST) -- code
-				// signing rejects loading a test bundle whose signing team
-				// differs from its host app's ("mapping process and mapped
-				// file (non-platform) have different Team IDs"), which is
-				// exactly why this bundle could never load even once it
-				// compiled. Release already had the correct team; this
-				// Debug config was the only one left stale.
 				DEVELOPMENT_TEAM = 8297M44YTW;
 				INFOPLIST_FILE = com.stakwork.sphinx.desktopTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6434,8 +6412,6 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				// See the Debug config's comment: must match the Sphinx app
-				// target's real signing identity, not ad-hoc.
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -6543,7 +6519,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */ = {
+		47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = LocalPackages/SphinxErrorReporter;
 		};
@@ -6643,7 +6619,7 @@
 		};
 		47SER0002A2B3C4D00000002 /* SphinxErrorReporter */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "SphinxErrorReporter" */;
+			package = 47SER0001A2B3C4D00000001 /* XCLocalSwiftPackageReference "LocalPackages/SphinxErrorReporter" */;
 			productName = SphinxErrorReporter;
 		};
 /* End XCSwiftPackageProductDependency section */
