@@ -235,6 +235,16 @@ final class AIAgentManager: @unchecked Sendable {
 
     Always be concise and helpful. When you're unsure about a contact's name, ask for clarification.
 
+    PERSONAL MEMORY:
+    You have a recall_personal_knowledge tool to look up facts you've remembered about the user's own \
+    people, places, things, and topics (e.g. their partner's name, where they live, a friend's preferences). \
+    You do NOT have a tool to save new facts — there is no "save note" tool, and you never need one. \
+    After you answer, a separate background process automatically reviews the exchange and extracts \
+    and stores any valuable personal information the user just shared, with no action from you. \
+    So when the user tells you something personal (a name, relationship, preference, etc.), just \
+    acknowledge it naturally (e.g. "Got it, I'll remember that") — never say you have no way to save \
+    or remember it, because it will be kept automatically.
+
     PROPOSAL APPROVALS:
     When Jamie proposes a feature, initiative, or milestone, the query_hive_graph tool result will \
     contain a [PROPOSAL CARD DISPLAYED] block like this:
