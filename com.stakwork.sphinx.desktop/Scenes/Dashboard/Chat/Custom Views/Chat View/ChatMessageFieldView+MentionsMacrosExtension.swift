@@ -100,6 +100,16 @@ extension ChatMessageFieldView {
                     possibleMentions.append(alias)
                 }
             }
+            
+            if
+                self.chat?.isPublicGroup() == true,
+                let agentName = AIAgentManager.sharedInstance.getConfiguredAgentContact()?.nickname,
+                agentName.count >= mentionText.count,
+                agentName.lowercased().hasPrefix(mentionText),
+                !possibleMentions.contains(where: { $0.0 == agentName })
+            {
+                possibleMentions.append((agentName, ""))
+            }
         }
         
         return possibleMentions

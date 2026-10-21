@@ -33,6 +33,9 @@ final class AIAgentManager: @unchecked Sendable {
 
     private(set) var isProcessing: Bool = false
 
+    /// Forwarded tribe questions awaiting an answer: agent-chat outgoing message id -> tribe chat id
+    @MainActor var pendingTribeQuestions: [Int: Int] = [:]
+
     var conversationHistory: [ModelMessage] = []
     var lastIncomingMessageDate: Date? = nil
     private var lastCheckedIncomingDate: Date? = nil
@@ -1687,5 +1690,108 @@ final class AIAgentManager: @unchecked Sendable {
             output += "\n(only the most recent 5000 threaded messages were scanned)"
         }
         return output
+    }
+}
+
+
+// MARK: - Tribe mentions
+
+extension AIAgentManager {
+
+    /// Personal agent contact, only when the agent is set up (contact exists and provider is configured)
+    func getConfiguredAgentContact() -> UserContact? {
+        guard let contact = UserContact.getContactWith(id: AIAgentManager.agentLocalId),
+              contact.isAgent,
+              isConfigured else {
+            return nil
+        }
+        return contact
+    }
+
+    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx Agent")
+    func agentMentioned(in text: String) -> String? {
+        guard let contact = getConfiguredAgentContact(),
+              let name = contact.nickname,
+              !name.isEmpty else {
+            return nil
+        }
+        return text.lowercased().contains("@\(name.lowercased())") ? name : nil
+    }
+
+    /// Sends the tribe message to the agent chat with tribe context, and routes the answer back to the tribe
+    @MainActor
+    func forwardTribeQuestionToAgent(text: String, tribe: Chat) {
+        guard let agentChat = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.getChat(),
+              let owner = UserContact.getOwner() else {
+            return
+        }
+
+        let question = "Question from tribe \"\(tribe.getName())\": \(text)"
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        let outgoing = TransactionMessage(context: context)
+        let outgoingId = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
+        outgoing.id = outgoingId
+        outgoing.type = TransactionMessage.TransactionMessageType.message.rawValue
+        outgoing.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+        outgoing.senderId = owner.id
+        outgoing.receiverId = AIAgentManager.agentLocalId
+        outgoing.messageContent = question
+        outgoing.date = Date()
+        outgoing.seen = true
+        outgoing.encrypted = false
+        outgoing.push = false
+        outgoing.chat = agentChat
+        agentChat.setLastMessage(outgoing)
+        CoreDataManager.sharedManager.saveContext()
+
+        pendingTribeQuestions[outgoingId] = tribe.id
+
+        let agentChatId = agentChat.id
+        Task { @MainActor in
+            let reply = await self.chat(question)
+            self.handleAgentReply(reply, forQuestionId: outgoingId, agentChatId: agentChatId, owner: owner)
+        }
+    }
+
+    @MainActor
+    private func handleAgentReply(_ reply: String, forQuestionId questionId: Int, agentChatId: Int, owner: UserContact) {
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        if let agentChat = Chat.getChatWith(id: agentChatId) {
+            let incoming = TransactionMessage(context: context)
+            incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
+            incoming.type = TransactionMessage.TransactionMessageType.message.rawValue
+            incoming.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+            incoming.senderId = AIAgentManager.agentLocalId
+            incoming.receiverId = owner.id
+            incoming.messageContent = reply
+            incoming.date = Date()
+            incoming.seen = false
+            incoming.encrypted = false
+            incoming.push = false
+            incoming.chat = agentChat
+            agentChat.seen = false
+            agentChat.setLastMessage(incoming)
+            CoreDataManager.sharedManager.saveContext()
+            NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: ["chat-ids": [agentChat.id]])
+        }
+
+        // Only reply to pending questions, and only once (removal prevents re-posting)
+        guard let tribeId = pendingTribeQuestions.removeValue(forKey: questionId),
+              let tribe = Chat.getChatWith(id: tribeId) else {
+            return
+        }
+
+        let agentName = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.nickname ?? "Sphinx Agent"
+
+        _ = SphinxOnionManager.sharedInstance.sendMessage(
+            to: nil,
+            content: "🤖 \(agentName) replied:\n\(reply)",
+            chat: tribe,
+            provisionalMessage: nil,
+            threadUUID: nil,
+            replyUUID: nil
+        )
     }
 }

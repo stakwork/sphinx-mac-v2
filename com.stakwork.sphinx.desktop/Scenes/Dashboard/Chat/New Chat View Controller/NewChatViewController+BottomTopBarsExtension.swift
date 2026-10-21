@@ -346,9 +346,21 @@ extension NewChatViewController : ChatBottomViewDelegate {
                 type: TransactionMessage.TransactionMessageType.message.rawValue,
                 provisionalMessage: nil,
                 completion: { (success, _) in
+                    if success { self.forwardToAgentIfMentioned(text: text) }
                     sendCompletion(success)
                 }
             )
+        }
+    }
+    
+    private func forwardToAgentIfMentioned(text: String) {
+        guard let chat = self.chat,
+              chat.isPublicGroup(),
+              AIAgentManager.sharedInstance.agentMentioned(in: text) != nil else {
+            return
+        }
+        Task { @MainActor in
+            AIAgentManager.sharedInstance.forwardTribeQuestionToAgent(text: text, tribe: chat)
         }
     }
     
