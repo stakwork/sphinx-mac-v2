@@ -208,22 +208,27 @@ extension SphinxOnionManager {
         tribeKickMember: String? = nil,
         paidAttachmentMediaToken: String? = nil,
         forceIncludeTimezone: Bool = false,
-        context: NSManagedObjectContext? = nil
+        context: NSManagedObjectContext? = nil,
+        aliasOverride: String? = nil
     ) -> (TransactionMessage?, String?) {
-        
+
         guard let seed = getAccountSeed() else {
             return (nil, "Account seed not found")
         }
-        
+
         let isTribe = recipContact == nil
-        
+
         guard let selfContact = owner ?? UserContact.getOwner(),
-              let nickname = isTribe ? (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.fixedAlias : (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
+              let computedNickname = isTribe ? (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.fixedAlias : (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
             return (nil, "Owner not found")
         }
-        
+        // Same sanitization the computed alias already goes through for a
+        // tribe (the core's alias field only carries letters, digits, _),
+        // so a caller can pass readable text without knowing that.
+        let nickname = aliasOverride.map { isTribe ? $0.fixedAlias : $0 } ?? computedNickname
+
         let metaData = chat.getMetaDataJsonStringValue(forceIncludeTimezone: forceIncludeTimezone)
         
         guard let (contentJSONString, mediaToken) = formatMsg(

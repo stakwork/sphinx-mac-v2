@@ -1708,14 +1708,73 @@ extension AIAgentManager {
         return contact
     }
 
-    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx Agent")
+    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx Agent"), the
+    /// mention at a word boundary on both ends: a plain `contains` would also match "@Al" inside
+    /// "@Alice" or "@AlbertEinstein" for an agent named "Al", silently forwarding unrelated messages.
     func agentMentioned(in text: String) -> String? {
         guard let contact = getConfiguredAgentContact(),
               let name = contact.nickname,
               !name.isEmpty else {
             return nil
         }
-        return text.lowercased().contains("@\(name.lowercased())") ? name : nil
+        let token = "@" + name
+        guard token.count > 1 else { return nil }
+        let lowerText = text.lowercased()
+        let lowerToken = token.lowercased()
+        var searchRange = lowerText.startIndex..<lowerText.endIndex
+        while let found = lowerText.range(of: lowerToken, range: searchRange) {
+            let atStart = found.lowerBound == lowerText.startIndex
+                || !(lowerText[lowerText.index(before: found.lowerBound)].isLetter
+                     || lowerText[lowerText.index(before: found.lowerBound)].isNumber)
+            let atEnd = found.upperBound == lowerText.endIndex
+                || !(lowerText[found.upperBound].isLetter || lowerText[found.upperBound].isNumber)
+            if atStart && atEnd { return name }
+            searchRange = found.upperBound..<lowerText.endIndex
+        }
+        return nil
+    }
+
+    /// Asks the agent to decide whether its answer belongs in the tribe or privately with me,
+    /// and to lead its reply with the marker `parseAgentRoute` reads back.
+    static func tribePrompt(tribeName: String, text: String) -> String {
+        return """
+            This question was asked in the tribe "\(tribeName)" by me: \(text)
+
+            Decide whether your answer belongs in the tribe, for everyone there to see, or privately to me only. \
+            Prefer a private reply by default, such as summarizing something or anything meant just for me. Answer \
+            in the tribe only when the question is clearly meant for everyone there, or I explicitly ask you to post \
+            it, reply there, or tell everyone. If I explicitly ask for a private reply (e.g. "privately", "just tell \
+            me", "DM me"), always reply privately, even if the question would otherwise read as public.
+
+            Start your reply with exactly one line, "ROUTE: PUBLIC" or "ROUTE: PRIVATE", nothing else on it, then a \
+            blank line, then your answer with nothing else before it.
+            """
+    }
+
+    /// Appended to the person's own tribe alias when the agent posts there, so other
+    /// members see e.g. "Tom_Personal_Agent", not just "Tom". No literal "/": the
+    /// core's alias field only carries letters, digits and _ (`String.fixedAlias`),
+    /// so this reads close to "Tom / Personal Agent" once spaces become underscores,
+    /// the same as any other multi-word alias here.
+    static let agentAliasSuffix = " Personal Agent"
+
+    /// The agent's chosen route and the reply with that marker line removed.
+    /// Private, with the reply untouched, when the agent did not lead with the
+    /// marker it was asked for: this never guesses a reply belongs in the tribe.
+    static func parseAgentRoute(_ rawReply: String) -> (isPublic: Bool, reply: String) {
+        guard let newlineIndex = rawReply.firstIndex(of: "\n") else {
+            return (false, rawReply)
+        }
+        let firstLine = rawReply[rawReply.startIndex..<newlineIndex]
+            .trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "*`_"))
+        let rest = String(rawReply[rawReply.index(after: newlineIndex)...])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        switch firstLine.uppercased() {
+        case "ROUTE: PUBLIC": return (true, rest)
+        case "ROUTE: PRIVATE": return (false, rest)
+        default: return (false, rawReply)
+        }
     }
 
     /// Sends the tribe message to the agent chat with tribe context, and routes the answer back to the tribe
@@ -1726,7 +1785,7 @@ extension AIAgentManager {
             return
         }
 
-        let question = "Question from tribe \"\(tribe.getName())\": \(text)"
+        let question = AIAgentManager.tribePrompt(tribeName: tribe.getName(), text: text)
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
 
         let outgoing = TransactionMessage(context: context)
@@ -1755,10 +1814,13 @@ extension AIAgentManager {
     }
 
     @MainActor
-    private func handleAgentReply(_ reply: String, forQuestionId questionId: Int, agentChatId: Int, owner: UserContact) {
+    private func handleAgentReply(_ rawReply: String, forQuestionId questionId: Int, agentChatId: Int, owner: UserContact) {
+        let (isPublic, reply) = AIAgentManager.parseAgentRoute(rawReply)
         let context = CoreDataManager.sharedManager.persistentContainer.viewContext
 
         if let agentChat = Chat.getChatWith(id: agentChatId) {
+            // Store the reply in the agent's 1:1 chat either way: a private
+            // answer lives only here; a public one is kept here too, as a record.
             let incoming = TransactionMessage(context: context)
             incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
             incoming.type = TransactionMessage.TransactionMessageType.message.rawValue
@@ -1777,21 +1839,29 @@ extension AIAgentManager {
             NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: ["chat-ids": [agentChat.id]])
         }
 
-        // Only reply to pending questions, and only once (removal prevents re-posting)
-        guard let tribeId = pendingTribeQuestions.removeValue(forKey: questionId),
-              let tribe = Chat.getChatWith(id: tribeId) else {
+        // Taking the question clears it so it can't repeat, whether or not it
+        // turned out to be routed to the tribe.
+        guard let tribeId = pendingTribeQuestions.removeValue(forKey: questionId) else {
+            return
+        }
+        guard isPublic, let tribe = Chat.getChatWith(id: tribeId) else {
             return
         }
 
         let agentName = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.nickname ?? "Sphinx Agent"
+        let baseAlias = (tribe.myAlias?.isNotEmpty == true ? tribe.myAlias : owner.nickname) ?? agentName
 
-        _ = SphinxOnionManager.sharedInstance.sendMessage(
+        let (posted, postError) = SphinxOnionManager.sharedInstance.sendMessage(
             to: nil,
             content: "🤖 \(agentName) replied:\n\(reply)",
             chat: tribe,
             provisionalMessage: nil,
             threadUUID: nil,
-            replyUUID: nil
+            replyUUID: nil,
+            aliasOverride: baseAlias + AIAgentManager.agentAliasSuffix
         )
+        if posted == nil {
+            print("AIAgentManager: failed to post the agent's reply back to the tribe – \(postError ?? "unknown error")")
+        }
     }
 }
