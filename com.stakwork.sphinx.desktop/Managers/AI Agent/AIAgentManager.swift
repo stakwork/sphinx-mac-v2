@@ -1628,7 +1628,14 @@ final class AIAgentManager: @unchecked Sendable {
             return "Read threads failed: '\(chatName)' is a 1:1 chat; threads are only available in tribes."
         }
 
-        let fetchRequest = TransactionMessage.getThreadsFetchRequestOn(chat: tribe)
+        // Not TransactionMessage.getThreadsFetchRequestOn(chat:): that one is typed
+        // NSFetchRequest<TransactionMessage>, and setting .dictionaryResultType on a
+        // request Swift still expects TransactionMessage back from crashes context.fetch
+        // outright (it force-bridges each row to TransactionMessage, not the dictionary
+        // dictionaryResultType actually returns). NSFetchRequestResult carries no such
+        // expectation, so the same dictionary rows bridge fine.
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TransactionMessage")
+        fetchRequest.predicate = NSPredicate(format: "chat == %@ AND threadUUID != nil", tribe)
         fetchRequest.resultType = .dictionaryResultType
         fetchRequest.propertiesToFetch = ["uuid", "threadUUID", "date"]
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
