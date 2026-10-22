@@ -1708,7 +1708,14 @@ extension AIAgentManager {
         return contact
     }
 
-    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx Agent"), the
+    /// Mentions can't contain spaces, so the mention token joins the name's words with
+    /// "_", the same convention as any other multi-word alias here (`fixedAlias`,
+    /// `agentAliasSuffix`): "Sphinx Agent 2" mentions as "@Sphinx_Agent_2".
+    static func mentionToken(forAgentName name: String) -> String {
+        return name.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: "_")
+    }
+
+    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx_Agent_2"), the
     /// mention at a word boundary on both ends: a plain `contains` would also match "@Al" inside
     /// "@Alice" or "@AlbertEinstein" for an agent named "Al", silently forwarding unrelated messages.
     func agentMentioned(in text: String) -> String? {
@@ -1717,7 +1724,7 @@ extension AIAgentManager {
               !name.isEmpty else {
             return nil
         }
-        let token = "@" + name
+        let token = "@" + AIAgentManager.mentionToken(forAgentName: name)
         guard token.count > 1 else { return nil }
         let lowerText = text.lowercased()
         let lowerToken = token.lowercased()

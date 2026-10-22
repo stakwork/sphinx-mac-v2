@@ -297,6 +297,7 @@ extension SphinxOnionManager {
                 invoiceString: invoiceString,
                 tag: tag,
                 owner: owner ?? UserContact.getOwner(),
+                senderAlias: nickname,
                 context: context
             )
 
@@ -414,9 +415,13 @@ extension SphinxOnionManager {
         invoiceString: String?,
         tag: String?,
         owner: UserContact?,
+        /// The alias actually sent on the wire (`nickname` in `sendMessage`, a tribe's
+        /// per-chat alias or an `aliasOverride` like the agent's), so what shows locally
+        /// matches it instead of always falling back to the owner's plain nickname.
+        senderAlias: String? = nil,
         context: NSManagedObjectContext? = nil
     ) -> TransactionMessage? {
-        
+
         if rr.msgs.count > 1 && msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue {
             return processNewOutgoingPayment(
                 rr: rr,
@@ -476,7 +481,7 @@ extension SphinxOnionManager {
                 }
                 
                 if chat.isPublicGroup(), let owner = owner {
-                    message?.senderAlias = owner.nickname
+                    message?.senderAlias = senderAlias ?? owner.nickname
                     message?.senderPic = owner.avatarUrl
                 }
                 

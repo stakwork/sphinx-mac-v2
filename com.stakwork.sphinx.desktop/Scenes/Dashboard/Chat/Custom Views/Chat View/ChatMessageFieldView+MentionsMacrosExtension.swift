@@ -103,12 +103,19 @@ extension ChatMessageFieldView {
             
             if
                 self.chat?.isPublicGroup() == true,
-                let agentName = AIAgentManager.sharedInstance.getConfiguredAgentContact()?.nickname,
-                agentName.count >= mentionText.count,
-                agentName.lowercased().hasPrefix(mentionText),
-                !possibleMentions.contains(where: { $0.0 == agentName })
+                let agentName = AIAgentManager.sharedInstance.getConfiguredAgentContact()?.nickname
             {
-                possibleMentions.append((agentName, ""))
+                // The token, not the raw name: a mention can't carry the spaces a
+                // free-text agent name may have ("Sphinx Agent 2" → "Sphinx_Agent_2"),
+                // the same convention `agentMentioned(in:)` matches it back against.
+                let token = AIAgentManager.mentionToken(forAgentName: agentName)
+                if
+                    token.count >= mentionText.count,
+                    token.lowercased().hasPrefix(mentionText.lowercased()),
+                    !possibleMentions.contains(where: { $0.0 == token })
+                {
+                    possibleMentions.append((token, ""))
+                }
             }
         }
         
