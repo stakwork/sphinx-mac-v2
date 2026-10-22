@@ -224,10 +224,12 @@ extension SphinxOnionManager {
         else {
             return (nil, "Owner not found")
         }
-        // Same sanitization the computed alias already goes through for a
-        // tribe (the core's alias field only carries letters, digits, _),
-        // so a caller can pass readable text without knowing that.
-        let nickname = aliasOverride.map { isTribe ? $0.fixedAlias : $0 } ?? computedNickname
+        // Unlike computedNickname, an override is trusted as-is: the agent's
+        // reply alias ("Tom / Sphinx Agent 2", aliasForAgentReply) needs its
+        // spaces and "/" to read right, and it's never meant to be mentioned
+        // back (mentionToken builds the mention from the agent's own name,
+        // a separate, still-sanitized path — see getMentionsFrom).
+        let nickname = aliasOverride ?? computedNickname
 
         let metaData = chat.getMetaDataJsonStringValue(forceIncludeTimezone: forceIncludeTimezone)
         
