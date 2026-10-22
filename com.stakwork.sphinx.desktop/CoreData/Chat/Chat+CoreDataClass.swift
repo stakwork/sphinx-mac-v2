@@ -57,8 +57,11 @@ public class Chat: NSManagedObject, @unchecked Sendable {
         }
     }
 
-    /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new
+    /// Merges new alias/pic entry into aliasesAndPics, updating existing or adding new.
+    /// Skips an alias with "/": that's another member's agent reply ("Name / Agent",
+    /// aliasForAgentReply), not a member — never offer it as a mention target.
     private func mergeAliasAndPic(alias: String, pic: String) {
+        guard !alias.contains("/") else { return }
         if let index = aliasesAndPics.firstIndex(where: { $0.0 == alias }) {
             // Update pic only if a non-empty value is provided
             if pic.isNotEmpty {

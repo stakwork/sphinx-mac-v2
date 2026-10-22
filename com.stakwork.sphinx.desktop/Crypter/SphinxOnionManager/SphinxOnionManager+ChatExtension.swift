@@ -208,22 +208,29 @@ extension SphinxOnionManager {
         tribeKickMember: String? = nil,
         paidAttachmentMediaToken: String? = nil,
         forceIncludeTimezone: Bool = false,
-        context: NSManagedObjectContext? = nil
+        context: NSManagedObjectContext? = nil,
+        aliasOverride: String? = nil
     ) -> (TransactionMessage?, String?) {
-        
+
         guard let seed = getAccountSeed() else {
             return (nil, "Account seed not found")
         }
-        
+
         let isTribe = recipContact == nil
-        
+
         guard let selfContact = owner ?? UserContact.getOwner(),
-              let nickname = isTribe ? (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.fixedAlias : (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
+              let computedNickname = isTribe ? (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname)?.fixedAlias : (chat.myAlias?.isNotEmpty == true ? chat.myAlias : selfContact.nickname),
               let recipPubkey = recipContact?.publicKey ?? chat.ownerPubkey
         else {
             return (nil, "Owner not found")
         }
-        
+        // Unlike computedNickname, an override is trusted as-is: the agent's
+        // reply alias ("Tom / Sphinx Agent 2", aliasForAgentReply) needs its
+        // spaces and "/" to read right, and it's never meant to be mentioned
+        // back (mentionToken builds the mention from the agent's own name,
+        // a separate, still-sanitized path — see getMentionsFrom).
+        let nickname = aliasOverride ?? computedNickname
+
         let metaData = chat.getMetaDataJsonStringValue(forceIncludeTimezone: forceIncludeTimezone)
         
         guard let (contentJSONString, mediaToken) = formatMsg(
@@ -292,6 +299,10 @@ extension SphinxOnionManager {
                 invoiceString: invoiceString,
                 tag: tag,
                 owner: owner ?? UserContact.getOwner(),
+                // The literal override (spaces, "/" and all), not `nickname`: that one
+                // is sanitized for the wire (`fixedAlias`), but what shows locally for
+                // a message of ours can read however the caller asked for it to.
+                senderAlias: aliasOverride ?? nickname,
                 context: context
             )
 
@@ -409,9 +420,13 @@ extension SphinxOnionManager {
         invoiceString: String?,
         tag: String?,
         owner: UserContact?,
+        /// The alias actually sent on the wire (`nickname` in `sendMessage`, a tribe's
+        /// per-chat alias or an `aliasOverride` like the agent's), so what shows locally
+        /// matches it instead of always falling back to the owner's plain nickname.
+        senderAlias: String? = nil,
         context: NSManagedObjectContext? = nil
     ) -> TransactionMessage? {
-        
+
         if rr.msgs.count > 1 && msgType == TransactionMessage.TransactionMessageType.directPayment.rawValue {
             return processNewOutgoingPayment(
                 rr: rr,
@@ -471,7 +486,7 @@ extension SphinxOnionManager {
                 }
                 
                 if chat.isPublicGroup(), let owner = owner {
-                    message?.senderAlias = owner.nickname
+                    message?.senderAlias = senderAlias ?? owner.nickname
                     message?.senderPic = owner.avatarUrl
                 }
                 
@@ -584,7 +599,10 @@ extension SphinxOnionManager {
            let messageWeAreReplying = existingMessagesUUIDMap[ruuid], let messageWeAreReplying = messageWeAreReplying
         {
             localMsg.senderAlias = messageWeAreReplying.senderAlias
-        } else if let owner = UserContact.getOwner() {
+        } else if localMsg.senderAlias == nil, let owner = UserContact.getOwner() {
+            // Only the default: processNewOutgoingMessage already set this (an
+            // aliasOverride's included) when the message was first sent, and this
+            // runs again on the self-echo that confirms it, so it must not clobber it.
             localMsg.senderAlias = owner.nickname
             localMsg.senderPic = owner.avatarUrl
         }

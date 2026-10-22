@@ -33,6 +33,9 @@ final class AIAgentManager: @unchecked Sendable {
 
     private(set) var isProcessing: Bool = false
 
+    /// Forwarded tribe questions awaiting an answer: agent-chat outgoing message id -> tribe chat id
+    @MainActor var pendingTribeQuestions: [Int: Int] = [:]
+
     var conversationHistory: [ModelMessage] = []
     var lastIncomingMessageDate: Date? = nil
     private var lastCheckedIncomingDate: Date? = nil
@@ -431,7 +434,14 @@ final class AIAgentManager: @unchecked Sendable {
         return activeModel != nil
     }
 
-    func chat(_ userText: String) async -> String {
+    /// - Parameter canSendMessages: false for a tribe mention forwarded to the agent
+    ///   (`forwardTribeQuestionToAgent`): without `send_sphinx_message` in its toolset the
+    ///   model has no way to post into the tribe itself, so its answer always comes back
+    ///   as plain text for `handleAgentReply` to route and send — the only path that gives
+    ///   a public reply the "Tom / Agent Name" alias. With the tool offered, the model was
+    ///   free to call it directly instead of following the ROUTE: PUBLIC/PRIVATE protocol,
+    ///   posting under the plain owner alias and skipping our routing entirely.
+    func chat(_ userText: String, canSendMessages: Bool = true) async -> String {
         // Re-attempt configuration if activeModel is nil (e.g. first call after login)
         if activeModel == nil { reconfigure() }
         guard let model = activeModel else {
@@ -459,7 +469,6 @@ final class AIAgentManager: @unchecked Sendable {
         let turnSystemPrompt = systemPrompt + (await graphSummarySection())
 
         var tools: ToolSet = [
-            "send_sphinx_message":     buildSendMessageTool().eraseToTool(),
             "read_recent_messages":    buildReadMessagesTool().eraseToTool(),
             "read_threads":            buildReadThreadsTool().eraseToTool(),
             "read_unseen_messages":    buildReadUnseenMessagesTool().eraseToTool(),
@@ -496,6 +505,9 @@ final class AIAgentManager: @unchecked Sendable {
             "reject_proposal":         buildRejectProposalTool().eraseToTool(),
             "recall_personal_knowledge": buildRecallPersonalKnowledgeTool().eraseToTool()
         ]
+        if canSendMessages {
+            tools["send_sphinx_message"] = buildSendMessageTool().eraseToTool()
+        }
         switch activeProvider {
         case .anthropic:
             tools["web_search"] = anthropicTools.webSearch20250305(.init(maxUses: 5))
@@ -1616,7 +1628,14 @@ final class AIAgentManager: @unchecked Sendable {
             return "Read threads failed: '\(chatName)' is a 1:1 chat; threads are only available in tribes."
         }
 
-        let fetchRequest = TransactionMessage.getThreadsFetchRequestOn(chat: tribe)
+        // Not TransactionMessage.getThreadsFetchRequestOn(chat:): that one is typed
+        // NSFetchRequest<TransactionMessage>, and setting .dictionaryResultType on a
+        // request Swift still expects TransactionMessage back from crashes context.fetch
+        // outright (it force-bridges each row to TransactionMessage, not the dictionary
+        // dictionaryResultType actually returns). NSFetchRequestResult carries no such
+        // expectation, so the same dictionary rows bridge fine.
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TransactionMessage")
+        fetchRequest.predicate = NSPredicate(format: "chat == %@ AND threadUUID != nil", tribe)
         fetchRequest.resultType = .dictionaryResultType
         fetchRequest.propertiesToFetch = ["uuid", "threadUUID", "date"]
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
@@ -1687,5 +1706,189 @@ final class AIAgentManager: @unchecked Sendable {
             output += "\n(only the most recent 5000 threaded messages were scanned)"
         }
         return output
+    }
+}
+
+
+// MARK: - Tribe mentions
+
+extension AIAgentManager {
+
+    /// Personal agent contact, only when the agent is set up (contact exists and provider is configured)
+    func getConfiguredAgentContact() -> UserContact? {
+        guard let contact = UserContact.getContactWith(id: AIAgentManager.agentLocalId),
+              contact.isAgent,
+              isConfigured else {
+            return nil
+        }
+        return contact
+    }
+
+    /// Mentions can't contain spaces, so the mention token joins the name's words with
+    /// "_", the same convention `fixedAlias` uses for the wire: "Sphinx Agent 2"
+    /// mentions as "@Sphinx_Agent_2" (its tribe senderAlias, shown locally once it
+    /// replies, is free to keep the spaces: see `aliasForAgentReply`).
+    static func mentionToken(forAgentName name: String) -> String {
+        return name.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: "_")
+    }
+
+    /// Returns the agent name if `text` mentions the personal agent (e.g. "@Sphinx_Agent_2"), the
+    /// mention at a word boundary on both ends: a plain `contains` would also match "@Al" inside
+    /// "@Alice" or "@AlbertEinstein" for an agent named "Al", silently forwarding unrelated messages.
+    func agentMentioned(in text: String) -> String? {
+        guard let contact = getConfiguredAgentContact(),
+              let name = contact.nickname,
+              !name.isEmpty else {
+            return nil
+        }
+        let token = "@" + AIAgentManager.mentionToken(forAgentName: name)
+        guard token.count > 1 else { return nil }
+        let lowerText = text.lowercased()
+        let lowerToken = token.lowercased()
+        var searchRange = lowerText.startIndex..<lowerText.endIndex
+        while let found = lowerText.range(of: lowerToken, range: searchRange) {
+            let atStart = found.lowerBound == lowerText.startIndex
+                || !(lowerText[lowerText.index(before: found.lowerBound)].isLetter
+                     || lowerText[lowerText.index(before: found.lowerBound)].isNumber)
+            let atEnd = found.upperBound == lowerText.endIndex
+                || !(lowerText[found.upperBound].isLetter || lowerText[found.upperBound].isNumber)
+            if atStart && atEnd { return name }
+            searchRange = found.upperBound..<lowerText.endIndex
+        }
+        return nil
+    }
+
+    /// Asks the agent to decide whether its answer belongs in the tribe or privately with me,
+    /// and to lead its reply with the marker `parseAgentRoute` reads back.
+    static func tribePrompt(tribeName: String, text: String) -> String {
+        return """
+            This question was asked in the tribe "\(tribeName)" by me: \(text)
+
+            Decide whether your answer belongs in the tribe, for everyone there to see, or privately to me only. \
+            Prefer a private reply by default, such as summarizing something or anything meant just for me. Answer \
+            in the tribe only when the question is clearly meant for everyone there, or I explicitly ask you to post \
+            it, reply there, or tell everyone. If I explicitly ask for a private reply (e.g. "privately", "just tell \
+            me", "DM me"), always reply privately, even if the question would otherwise read as public.
+
+            Start your reply with exactly one line, "ROUTE: PUBLIC" or "ROUTE: PRIVATE", nothing else on it, then a \
+            blank line, then your answer with nothing else before it. You have no way to post into the tribe \
+            yourself here — answering this way is what gets your reply there (or to me privately).
+            """
+    }
+
+    /// How the person's own tribe alias reads when the agent posts there, e.g.
+    /// "Tom / Sphinx Agent 2", so other members can tell whose agent answered.
+    /// Spaces and the "/" are fine here: this is only the locally-displayed
+    /// sender name (`senderAlias`, set straight from this, unsanitized), not
+    /// the alias actually sent over the wire, which stays `fixedAlias`-clean.
+    static func aliasForAgentReply(baseAlias: String, agentName: String) -> String {
+        "\(baseAlias) / \(agentName)"
+    }
+
+    /// The agent's chosen route and the reply with that marker line removed.
+    /// Private, with the reply untouched, when the agent did not lead with the
+    /// marker it was asked for: this never guesses a reply belongs in the tribe.
+    static func parseAgentRoute(_ rawReply: String) -> (isPublic: Bool, reply: String) {
+        guard let newlineIndex = rawReply.firstIndex(of: "\n") else {
+            return (false, rawReply)
+        }
+        let firstLine = rawReply[rawReply.startIndex..<newlineIndex]
+            .trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "*`_"))
+        let rest = String(rawReply[rawReply.index(after: newlineIndex)...])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        switch firstLine.uppercased() {
+        case "ROUTE: PUBLIC": return (true, rest)
+        case "ROUTE: PRIVATE": return (false, rest)
+        default: return (false, rawReply)
+        }
+    }
+
+    /// Sends the tribe message to the agent chat with tribe context, and routes the answer back to the tribe
+    @MainActor
+    func forwardTribeQuestionToAgent(text: String, tribe: Chat) {
+        guard let agentChat = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.getChat(),
+              let owner = UserContact.getOwner() else {
+            return
+        }
+
+        let question = AIAgentManager.tribePrompt(tribeName: tribe.getName(), text: text)
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        let outgoing = TransactionMessage(context: context)
+        let outgoingId = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
+        outgoing.id = outgoingId
+        outgoing.type = TransactionMessage.TransactionMessageType.message.rawValue
+        outgoing.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+        outgoing.senderId = owner.id
+        outgoing.receiverId = AIAgentManager.agentLocalId
+        outgoing.messageContent = question
+        outgoing.date = Date()
+        outgoing.seen = true
+        outgoing.encrypted = false
+        outgoing.push = false
+        outgoing.chat = agentChat
+        agentChat.setLastMessage(outgoing)
+        CoreDataManager.sharedManager.saveContext()
+
+        pendingTribeQuestions[outgoingId] = tribe.id
+
+        let agentChatId = agentChat.id
+        Task { @MainActor in
+            let reply = await self.chat(question, canSendMessages: false)
+            self.handleAgentReply(reply, forQuestionId: outgoingId, agentChatId: agentChatId, owner: owner)
+        }
+    }
+
+    @MainActor
+    private func handleAgentReply(_ rawReply: String, forQuestionId questionId: Int, agentChatId: Int, owner: UserContact) {
+        let (isPublic, reply) = AIAgentManager.parseAgentRoute(rawReply)
+        let context = CoreDataManager.sharedManager.persistentContainer.viewContext
+
+        if let agentChat = Chat.getChatWith(id: agentChatId) {
+            // Store the reply in the agent's 1:1 chat either way: a private
+            // answer lives only here; a public one is kept here too, as a record.
+            let incoming = TransactionMessage(context: context)
+            incoming.id = SphinxOnionManager.sharedInstance.uniqueIntHashFromString(stringInput: UUID().uuidString)
+            incoming.type = TransactionMessage.TransactionMessageType.message.rawValue
+            incoming.status = TransactionMessage.TransactionMessageStatus.received.rawValue
+            incoming.senderId = AIAgentManager.agentLocalId
+            incoming.receiverId = owner.id
+            incoming.messageContent = reply
+            incoming.date = Date()
+            incoming.seen = false
+            incoming.encrypted = false
+            incoming.push = false
+            incoming.chat = agentChat
+            agentChat.seen = false
+            agentChat.setLastMessage(incoming)
+            CoreDataManager.sharedManager.saveContext()
+            NotificationCenter.default.post(name: .shouldReloadChatLists, object: nil, userInfo: ["chat-ids": [agentChat.id]])
+        }
+
+        // Taking the question clears it so it can't repeat, whether or not it
+        // turned out to be routed to the tribe.
+        guard let tribeId = pendingTribeQuestions.removeValue(forKey: questionId) else {
+            return
+        }
+        guard isPublic, let tribe = Chat.getChatWith(id: tribeId) else {
+            return
+        }
+
+        let agentName = UserContact.getContactWith(id: AIAgentManager.agentLocalId)?.nickname ?? "Sphinx Agent"
+        let baseAlias = (tribe.myAlias?.isNotEmpty == true ? tribe.myAlias : owner.nickname) ?? agentName
+
+        let (posted, postError) = SphinxOnionManager.sharedInstance.sendMessage(
+            to: nil,
+            content: "🤖 \(agentName) replied:\n\(reply)",
+            chat: tribe,
+            provisionalMessage: nil,
+            threadUUID: nil,
+            replyUUID: nil,
+            aliasOverride: AIAgentManager.aliasForAgentReply(baseAlias: baseAlias, agentName: agentName)
+        )
+        if posted == nil {
+            print("AIAgentManager: failed to post the agent's reply back to the tribe – \(postError ?? "unknown error")")
+        }
     }
 }
