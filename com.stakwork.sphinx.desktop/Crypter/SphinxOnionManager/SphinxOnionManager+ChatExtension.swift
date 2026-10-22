@@ -297,7 +297,10 @@ extension SphinxOnionManager {
                 invoiceString: invoiceString,
                 tag: tag,
                 owner: owner ?? UserContact.getOwner(),
-                senderAlias: nickname,
+                // The literal override (spaces, "/" and all), not `nickname`: that one
+                // is sanitized for the wire (`fixedAlias`), but what shows locally for
+                // a message of ours can read however the caller asked for it to.
+                senderAlias: aliasOverride ?? nickname,
                 context: context
             )
 
@@ -594,7 +597,10 @@ extension SphinxOnionManager {
            let messageWeAreReplying = existingMessagesUUIDMap[ruuid], let messageWeAreReplying = messageWeAreReplying
         {
             localMsg.senderAlias = messageWeAreReplying.senderAlias
-        } else if let owner = UserContact.getOwner() {
+        } else if localMsg.senderAlias == nil, let owner = UserContact.getOwner() {
+            // Only the default: processNewOutgoingMessage already set this (an
+            // aliasOverride's included) when the message was first sent, and this
+            // runs again on the self-echo that confirms it, so it must not clobber it.
             localMsg.senderAlias = owner.nickname
             localMsg.senderPic = owner.avatarUrl
         }

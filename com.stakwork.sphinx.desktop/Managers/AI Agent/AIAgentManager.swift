@@ -1709,8 +1709,9 @@ extension AIAgentManager {
     }
 
     /// Mentions can't contain spaces, so the mention token joins the name's words with
-    /// "_", the same convention as any other multi-word alias here (`fixedAlias`,
-    /// `agentAliasSuffix`): "Sphinx Agent 2" mentions as "@Sphinx_Agent_2".
+    /// "_", the same convention `fixedAlias` uses for the wire: "Sphinx Agent 2"
+    /// mentions as "@Sphinx_Agent_2" (its tribe senderAlias, shown locally once it
+    /// replies, is free to keep the spaces: see `aliasForAgentReply`).
     static func mentionToken(forAgentName name: String) -> String {
         return name.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: "_")
     }
@@ -1758,12 +1759,14 @@ extension AIAgentManager {
             """
     }
 
-    /// Appended to the person's own tribe alias when the agent posts there, so other
-    /// members see e.g. "Tom_Personal_Agent", not just "Tom". No literal "/": the
-    /// core's alias field only carries letters, digits and _ (`String.fixedAlias`),
-    /// so this reads close to "Tom / Personal Agent" once spaces become underscores,
-    /// the same as any other multi-word alias here.
-    static let agentAliasSuffix = " Personal Agent"
+    /// How the person's own tribe alias reads when the agent posts there, e.g.
+    /// "Tom / Sphinx Agent 2", so other members can tell whose agent answered.
+    /// Spaces and the "/" are fine here: this is only the locally-displayed
+    /// sender name (`senderAlias`, set straight from this, unsanitized), not
+    /// the alias actually sent over the wire, which stays `fixedAlias`-clean.
+    static func aliasForAgentReply(baseAlias: String, agentName: String) -> String {
+        "\(baseAlias) / \(agentName)"
+    }
 
     /// The agent's chosen route and the reply with that marker line removed.
     /// Private, with the reply untouched, when the agent did not lead with the
@@ -1865,7 +1868,7 @@ extension AIAgentManager {
             provisionalMessage: nil,
             threadUUID: nil,
             replyUUID: nil,
-            aliasOverride: baseAlias + AIAgentManager.agentAliasSuffix
+            aliasOverride: AIAgentManager.aliasForAgentReply(baseAlias: baseAlias, agentName: agentName)
         )
         if posted == nil {
             print("AIAgentManager: failed to post the agent's reply back to the tribe – \(postError ?? "unknown error")")
