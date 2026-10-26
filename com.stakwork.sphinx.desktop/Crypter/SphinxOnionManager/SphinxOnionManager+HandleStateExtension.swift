@@ -30,7 +30,8 @@ extension SphinxOnionManager {
         isSendingMessage: Bool = false,
         skipSettleTopic: Bool = false,
         skipAsyncTopic: Bool = false,
-        source: CocoaMQTT? = nil
+        source: CocoaMQTT? = nil,
+        pageMaxIndex: Int? = nil
     ) -> String? {
         
         if let topic = topic {
@@ -80,7 +81,7 @@ extension SphinxOnionManager {
                     context.saveContext()
                     
                     ///Handling restore callbacks
-                    self.handleRestoreCallbacks(topic: topic, messages: rr.msgs)
+                    self.handleRestoreCallbacks(topic: topic, messages: rr.msgs, pageMaxIndex: pageMaxIndex)
                 }
             }
             
@@ -508,7 +509,8 @@ extension SphinxOnionManager {
     
     func handleRestoreCallbacks(
         topic: String?,
-        messages: [Msg]
+        messages: [Msg],
+        pageMaxIndex: Int? = nil
     ) {
         ///Restore callbacks
         Task { @MainActor in
@@ -516,7 +518,7 @@ extension SphinxOnionManager {
                 if let firstSCIDMsgsCallback = self.firstSCIDMsgsCallback {
                     firstSCIDMsgsCallback(messages)
                 } else if let onMessageRestoredCallback = self.onMessageRestoredCallback {
-                    onMessageRestoredCallback(messages)
+                    onMessageRestoredCallback(messages, pageMaxIndex)
                 } else {
                     ///Callback to chat when restoring msgs for a specifc chat
                     if let restoringMsgsForPublicKey = self.restoringMsgsForPublicKey,

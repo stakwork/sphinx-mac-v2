@@ -72,6 +72,39 @@ extension SphinxOnionManager {
         mutationKeys = Array(Set(keys))
     }
 
+    ///The core drops a chunk buffer `kChunkBufferTimeoutSeconds` after its first fragment
+    ///(`CHUNK_TIMEOUT_SECS` in sphinx-ffi `chunk.rs`), together with the fragment that finds it
+    ///stale. Removing stale buffers before a catch-up lets fragments fetched again start afresh.
+    static let kChunkBufferPrefix = "chunkbuf_"
+    static let kChunkBufferTimeoutSeconds: UInt64 = 300
+
+    static func timedOutChunkBufferKeys(
+        state: [String: [UInt8]],
+        now: UInt64
+    ) -> [String] {
+        return state.compactMap { (key, value) in
+            guard key.hasPrefix(kChunkBufferPrefix) else {
+                return nil
+            }
+            guard let buffer = (try? JSONSerialization.jsonObject(with: Data(value))) as? [String: Any],
+                  let firstReceived = (buffer["first_received_ts"] as? NSNumber)?.uint64Value else {
+                return key
+            }
+            return now > firstReceived && now - firstReceived > kChunkBufferTimeoutSeconds ? key : nil
+        }
+    }
+
+    func purgeTimedOutChunkBuffers() {
+        let keys = SphinxOnionManager.timedOutChunkBufferKeys(
+            state: loadOnionState(),
+            now: UInt64(Date().timeIntervalSince1970)
+        )
+        if !keys.isEmpty {
+            print("[chunk] purging \(keys.count) timed out chunk buffers")
+            handleStateToDelete(stateToDelete: keys)
+        }
+    }
+
     func handleStateToDelete(stateToDelete:[String]){
         for key in stateToDelete {
             UserDefaults.standard.removeObject(forKey: key)

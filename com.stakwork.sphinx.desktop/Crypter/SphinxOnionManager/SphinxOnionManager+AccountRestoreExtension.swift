@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 import ObjectMapper
 import SwiftyJSON
+import MessagePack
 
 extension JSON: @unchecked Sendable {}
 extension RunReturn: @unchecked Sendable {}
@@ -428,6 +429,56 @@ extension SphinxOnionManager {
 }
 
 extension SphinxOnionManager {
+    //MARK: History page indexes
+    
+    ///Server indexes of every onion in a `/batch` page, read from the frame itself.
+    ///The core holds chunk fragments back from `rr.msgs` until their message is whole,
+    ///so the returned messages alone can't tell how far the page reached.
+    ///Frame (`encode_onions` in sphinx `ping/onion.rs`): a MessagePack array of bins, each
+    ///one the onion (1401 bytes, or 1366 for a payment) followed by its 8 byte big endian index.
+    ///Nil when the payload isn't framed that way.
+    static func batchPageIndexes(payload: Data) -> [Int]? {
+        guard let unpacked = try? unpack(payload), unpacked.remainder.isEmpty,
+              let onions = unpacked.value.arrayValue else {
+            return nil
+        }
+        
+        var indexes: [Int] = []
+        
+        for onion in onions {
+            guard let data = onion.dataValue else {
+                return nil
+            }
+            let offset: Int
+            switch data.count {
+            case 1425: offset = 1401
+            case 1430: offset = 1366
+            default: return nil
+            }
+            let start = data.startIndex + offset
+            let index = data[start..<start + 8].reduce(UInt64(0)) { ($0 << 8) | UInt64($1) }
+            
+            guard index <= UInt64(Int.max) else {
+                return nil
+            }
+            indexes.append(Int(index))
+        }
+        return indexes
+    }
+    
+    ///How far a forward history page reached: its highest index, counting chunk fragments
+    ///the core buffered (`pageMaxIndex`, from the page frame) as well as the messages it returned.
+    ///Nil for an empty page, which ends the fetch.
+    static func historyPageReachedIndex(
+        messageIndexes: [String?],
+        pageMaxIndex: Int?
+    ) -> Int? {
+        let indexes = messageIndexes.compactMap { $0.flatMap { Int($0) } } + [pageMaxIndex].compactMap { $0 }
+        return indexes.max()
+    }
+}
+
+extension SphinxOnionManager {
     //MARK: Process all first scid messages
     func handleFetchFirstScidMessages(msgs: [Msg]) {
         guard let params = chatsFetchParams, let _ = msgTotalCounts?.firstMessageMaxIndex else {
@@ -475,9 +526,9 @@ extension SphinxOnionManager {
     }
     
     //MARK: Process all messages
-    func handleFetchMessagesBatch(msgs: [Msg]) {
+    func handleFetchMessagesBatch(msgs: [Msg], pageMaxIndex: Int?) {
         if  let params = messageFetchParams, params.direction == .forward {
-            handleFetchMessagesBatchInForward(msgs: msgs)
+            handleFetchMessagesBatchInForward(msgs: msgs, pageMaxIndex: pageMaxIndex)
             return
         }
         
@@ -520,7 +571,7 @@ extension SphinxOnionManager {
         )
     }
     
-    func handleFetchMessagesBatchInForward(msgs: [Msg]) {
+    func handleFetchMessagesBatchInForward(msgs: [Msg], pageMaxIndex: Int?) {
         startMessageFetchTimeoutTimer()
         
         guard let params = messageFetchParams else {
@@ -528,18 +579,10 @@ extension SphinxOnionManager {
             return
         }
         
-        let maxRestoreIndex = msgs.min {
-            let firstIndex = Int($0.index ?? "0") ?? -1
-            let secondIndex = Int($1.index ?? "0") ?? -1
-            return firstIndex > secondIndex
-        }?.index ?? "0"
-        
-        guard let maxRestoredIndexInt = Int(maxRestoreIndex) else {
-            finishMessagesFetch()
-            return
-        }
-        
-        if msgs.count <= 0 {
+        guard let maxRestoredIndexInt = SphinxOnionManager.historyPageReachedIndex(
+            messageIndexes: msgs.map { $0.index },
+            pageMaxIndex: pageMaxIndex
+        ) else {
             finishMessagesFetch()
             return
         }

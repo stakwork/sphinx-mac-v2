@@ -199,6 +199,10 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     var onionState: [String: [UInt8]] = [:]
     let onionStateQueue = DispatchQueue(label: "sphinx.onionState", qos: .userInitiated)
     
+    ///Server read level per chat pubkey, from the last `getreads` reply. Nil until one arrives.
+    var serverReadLevels: [String: UInt64]? = nil
+    let readLevelsQueue = DispatchQueue(label: "sphinx.readLevels", qos: .userInitiated)
+    
     var mutationKeys: [String] {
         get {
             if let onionState: String = UserDefaults.Keys.onionState.get() {
@@ -317,7 +321,7 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     ///Restore
     var totalMsgsCountCallback: (() -> ())? = nil
     var firstSCIDMsgsCallback: (([Msg]) -> ())? = nil
-    var onMessageRestoredCallback: (([Msg]) -> ())? = nil
+    var onMessageRestoredCallback: (([Msg], Int?) -> ())? = nil
     
     var restoringMsgsForPublicKey: String? = nil
     var onMessagePerPublicKeyRestoredCallback: ((Int) -> ())? = nil
@@ -664,6 +668,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
     
     func syncNewMessages() {
         let maxIndex = maxMessageIndex
+        
+        purgeTimedOutChunkBuffers()
         
         startAllMsgBlockFetch(
             startIndex: (maxIndex != nil) ? maxIndex! + 1 : 0,
@@ -1012,9 +1018,13 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             let alias = owner?.nickname ?? ""
             let pic = owner?.avatarUrl ?? ""
             
+            let payload = Data(message.payload)
+            ///Server indexes the page reached, chunk fragments the core buffers included
+            let pageMaxIndex = message.topic.isMessagesFetchResponseTopic ? SphinxOnionManager.batchPageIndexes(payload: payload)?.max() : nil
+            
             let ret4 = try handle(
                 topic: message.topic,
-                payload: Data(message.payload),
+                payload: payload,
                 seed: seed,
                 uniqueTime: getTimeWithEntropy(),
                 state: self.loadOnionStateAsData(),
@@ -1025,7 +1035,8 @@ class SphinxOnionManager : NSObject, @unchecked Sendable {
             let _ = handleRunReturn(
                 rr: ret4,
                 topic: message.topic,
-                source: source
+                source: source,
+                pageMaxIndex: pageMaxIndex
             )
         } catch let error {
             print("Handle error \(error)")
