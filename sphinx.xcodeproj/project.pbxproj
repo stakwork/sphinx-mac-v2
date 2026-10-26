@@ -779,6 +779,7 @@
 		D6315D5082424F82A265E4B3 /* AIAgentManager+HiveConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01F4D21BC0241F4AF5AD669 /* AIAgentManager+HiveConversation.swift */; };
 		E17C22E7F6734A8EB8AEC37E /* ParticipantBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B089F7E7B06C49ECB0BF8AD2 /* ParticipantBoxView.swift */; };
 		HGDCT00200000001HGDCT02 /* AIAgentHiveGraphDictTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */; };
+		HSYNC00200000001HSYNC2 /* SphinxOnionManagerHistorySyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HSYNC00100000001HSYNC1 /* SphinxOnionManagerHistorySyncTests.swift */; };
 		JSONDT00200000001JSONDT2 /* JSONDictionaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */; };
 		NCVST0020000000001NCVST02 /* NSCollectionViewSafeScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */; };
 		PTFT00100000000001PTFT001 /* PaddedTextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */; };
@@ -821,7 +822,6 @@
 		STRUTT00Q00000001STRUTTQ /* StrutProcessControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */; };
 		TRTTS0020000000001TRTTS02 /* TribeTimestampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */; };
 		UDFLT00200000001UDFLT2 /* UserDefaultsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */; };
-		HSYNC00200000001HSYNC2 /* SphinxOnionManagerHistorySyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = HSYNC00100000001HSYNC1 /* SphinxOnionManagerHistorySyncTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1959,6 +1959,7 @@
 		F90398F47E0448445B11E3B5 /* Pods-com.stakwork.sphinx.desktop.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; path = "Target Support Files/Pods-com.stakwork.sphinx.desktop/Pods-com.stakwork.sphinx.desktop.debug.xcconfig"; sourceTree = "<group>"; };
 		GRJ0M0000000000000000014 /* com_stakwork_sphinx_desktop 14.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "com_stakwork_sphinx_desktop 14.xcdatamodel"; sourceTree = "<group>"; };
 		HGDCT00100000001HGDCT01 /* AIAgentHiveGraphDictTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAgentHiveGraphDictTests.swift; sourceTree = "<group>"; };
+		HSYNC00100000001HSYNC1 /* SphinxOnionManagerHistorySyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerHistorySyncTests.swift; sourceTree = "<group>"; };
 		JSONDT00100000001JSONDT1 /* JSONDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDictionaryTests.swift; sourceTree = "<group>"; };
 		NCVST0010000000001NCVST01 /* NSCollectionViewSafeScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewSafeScrollTests.swift; sourceTree = "<group>"; };
 		PTFT00000000000001PTFT000 /* PaddedTextFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextFieldTests.swift; sourceTree = "<group>"; };
@@ -2002,7 +2003,6 @@
 		STRUTT00P00000001STRUTTP /* StrutProcessControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrutProcessControllerTests.swift; sourceTree = "<group>"; };
 		TRTTS0010000000001TRTTS01 /* TribeTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TribeTimestampTests.swift; sourceTree = "<group>"; };
 		UDFLT00100000001UDFLT1 /* UserDefaultsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsTests.swift; sourceTree = "<group>"; };
-		HSYNC00100000001HSYNC1 /* SphinxOnionManagerHistorySyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SphinxOnionManagerHistorySyncTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6320,7 +6320,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 329;
+				CURRENT_PROJECT_VERSION = 330;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -6358,7 +6358,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 329;
+				CURRENT_PROJECT_VERSION = 330;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 8297M44YTW;
