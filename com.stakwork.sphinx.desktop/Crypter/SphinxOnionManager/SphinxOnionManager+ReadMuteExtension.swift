@@ -11,6 +11,11 @@ import Foundation
 extension SphinxOnionManager {
     func handleReadStatus(rr: RunReturn) {
         if let lastRead = rr.lastRead {
+            let levels = parse(jsonString: lastRead, source: "lastRead").compactMapValues {
+                ($0 as? NSNumber)?.uint64Value
+            }
+            readLevelsQueue.sync { serverReadLevels = levels }
+            
             let context = backgroundContext
             context.performSafely { [weak self] in
                 guard let self = self else {

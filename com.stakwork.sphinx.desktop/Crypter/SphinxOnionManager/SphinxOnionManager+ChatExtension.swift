@@ -2048,10 +2048,30 @@ extension SphinxOnionManager {
         }
     }
     
+    ///Whether a "seen" read level may be sent: only forward of the server's level, so a device
+    ///whose history is behind can't move the marker back for every other device. Unknown until
+    ///the `getreads` reply arrives; a chat missing from that reply has no marker yet.
+    static func readLevelMovesForward(
+        index: UInt64,
+        pubkey: String,
+        serverReadLevels: [String: UInt64]?
+    ) -> Bool {
+        guard let serverReadLevels = serverReadLevels else {
+            return false
+        }
+        guard let serverLevel = serverReadLevels[pubkey] else {
+            return true
+        }
+        return index > serverLevel
+    }
+    
+    ///Sets the chat's read level. Only moves it forward unless `allowBackward`
+    ///(a deliberate "Mark as unread"). False when nothing was sent.
     func setReadLevel(
         index: UInt64,
         chat: Chat,
-        recipContact: UserContact?
+        recipContact: UserContact?,
+        allowBackward: Bool = false
     ) -> Bool {
         guard let seed = getAccountSeed() else{
             return false
@@ -2065,6 +2085,18 @@ extension SphinxOnionManager {
             return false
         }
         
+        if !allowBackward {
+            let levels = readLevelsQueue.sync { serverReadLevels }
+            
+            guard SphinxOnionManager.readLevelMovesForward(
+                index: index,
+                pubkey: recipPubkey,
+                serverReadLevels: levels
+            ) else {
+                return false
+            }
+        }
+        
         do {
             let rr = try Sphinx.read(
                 seed: seed,
@@ -2074,6 +2106,7 @@ extension SphinxOnionManager {
                 msgIdx: index
             )
             let _ = handleRunReturn(rr: rr)
+            readLevelsQueue.sync { serverReadLevels?[recipPubkey] = index }
             return true
         } catch {
             print("Error setting read level")
