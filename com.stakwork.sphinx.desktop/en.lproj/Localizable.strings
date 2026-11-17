@@ -384,6 +384,9 @@
 "message.x.deleted" = "Message deleted";
 "payment" = "Payment";
 "tribe.payment.sent" = "Payment of %@ sent to %@";
+"boost.sent.preview" = "You boosted a message: %@";
+"boost.received.own.message.preview" = "%@ boosted your message: %@";
+"boost.received.message.preview" = "%@ boosted a message: %@";
 "tribe.payment.received" = "%@ sent a payment of %@ to %@";
 "picture.capitalize" = "Picture";
 "gif.capitalize" = "Gif";

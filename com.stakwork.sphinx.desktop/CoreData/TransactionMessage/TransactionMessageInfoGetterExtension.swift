@@ -829,7 +829,16 @@ extension TransactionMessage {
              TransactionMessage.TransactionMessageType.memberReject.rawValue:
             return self.getGroupMessageText(owner: owner, contact: contact).withoutBreaklines
         case TransactionMessage.TransactionMessageType.boost.rawValue:
-            return "\(self.getMessageSenderNickname(minimized: true, owner: owner, contact: contact)): Boost"
+            if !incoming {
+                return String(format: "boost.sent.preview".localized, "\(amountString) sats")
+            }
+            
+            if let replyUUID = self.replyUUID,
+               let boostedMessage = TransactionMessage.getMessageWith(uuid: replyUUID),
+               boostedMessage.isOutgoing(ownerId: owner.id) {
+                return String(format: "boost.received.own.message.preview".localized, senderAlias, "\(amountString) sats")
+            }
+            return String(format: "boost.received.message.preview".localized, senderAlias, "\(amountString) sats")
         case TransactionMessage.TransactionMessageType.purchase.rawValue:
             return "\("purchase.item.description".localized) \(directionString)"
         case TransactionMessage.TransactionMessageType.purchaseAccept.rawValue:
