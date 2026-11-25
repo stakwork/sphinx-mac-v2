@@ -762,7 +762,7 @@ struct RoomView: View {
                         .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
                     Spacer()
                     if roomCtx.isAdmin, let jamie = jamieParticipant {
-                        Menu("No Jamie") {
+                        Menu("With Jamie") {
                             Button("No Jamie") {
                                 // Stop transcription/recording first
                                 if room.isRecording {
