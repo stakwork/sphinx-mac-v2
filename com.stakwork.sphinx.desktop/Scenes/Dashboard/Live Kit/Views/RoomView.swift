@@ -109,6 +109,16 @@ struct RoomView: View {
     @State private var previousParticipantIds: Set<String> = []
 
     var shouldStartRecording: Bool = true
+
+    /// Returns the first remote participant whose name or identity contains "jamie" (case-insensitive).
+    private var jamieParticipant: Participant? {
+        room.allParticipants.values.first { participant in
+            guard !(participant is LocalParticipant) else { return false }
+            let name = (participant.name ?? "").lowercased()
+            let identity = (participant.identity?.stringValue ?? "").lowercased()
+            return name.contains("jamie") || identity.contains("jamie")
+        }
+    }
     
     let newMessageBubbleHelper = NewMessageBubbleHelper()
     
@@ -742,6 +752,52 @@ struct RoomView: View {
                 }
                 .frame(maxWidth: .infinity).frame(height: 76)
                 .padding(.trailing, 22).padding(.leading, 24)
+                // Jamie section
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundColor(Color(NSColor.Sphinx.PrimaryGreen))
+                        .font(.system(size: 14))
+                    Text("Jamie")
+                        .foregroundColor(Color(NSColor.Sphinx.Text))
+                        .font(Font(NSFont(name: "Roboto-Medium", size: 14.0)!))
+                    Spacer()
+                    if roomCtx.isAdmin, let jamie = jamieParticipant {
+                        Menu("No Jamie") {
+                            Button("No Jamie") {
+                                // Stop transcription/recording first
+                                if room.isRecording {
+                                    API.sharedInstance.toggleLiveKitRecording(
+                                        room: room.name ?? "",
+                                        now: nil,
+                                        action: "stop"
+                                    ) { _ in }
+                                }
+                                // Remove Jamie from the LiveKit room
+                                API.sharedInstance.removeParticipant(
+                                    room: room.name ?? "",
+                                    participantIdentity: jamie.identity?.stringValue ?? "",
+                                    adminToken: roomCtx.adminToken
+                                ) { _ in }
+                            }
+                        }
+                        .menuStyle(.borderlessButton)
+                        .fixedSize()
+                        .foregroundColor(Color(NSColor.Sphinx.Text))
+                        .font(Font(NSFont(name: "Roboto-Regular", size: 13.0)!))
+                    } else {
+                        Text(jamieParticipant != nil ? "With Jamie" : "No Jamie")
+                            .foregroundColor(Color(NSColor.Sphinx.SecondaryText))
+                            .font(Font(NSFont(name: "Roboto-Regular", size: 13.0)!))
+                            .padding(.trailing, 4)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .padding(.horizontal, 24)
+                .background(
+                    Color(NSColor.Sphinx.HeaderBG)
+                )
+
 
                 ScrollViewReader { scrollView in
                     ScrollView(.vertical, showsIndicators: true) {
